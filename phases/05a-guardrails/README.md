@@ -36,6 +36,86 @@ CLI policy hooks (Linux/macOS): `/etc/github-copilot/policy.d/*.json`.
 
 **Therefore hooks are not your only boundary.** Write that on the whiteboard before Lab 5A.3.
 
+---
+
+## Extract
+
+From the Claude Code hooks reference, read 2026-08-09. Quotes verbatim.
+
+### Exit codes — the whole control model
+
+| Exit | Effect |
+|---|---:|
+| **0** | stdout parsed as JSON. **Action proceeds** unless the JSON carries a blocking decision. stderr goes to the debug log only — Claude never sees it |
+| **2** | **Blocking.** stdout and JSON ignored; **stderr is fed back to Claude as an error message** |
+| anything else | **Non-blocking error. The action proceeds.** Transcript shows a `hook error` notice |
+
+> **Read that third row twice.** A hook that crashes with exit 1 does not block — it lets the
+> action through and prints a notice. Your denylist hook fails open on a typo. This is the
+> mechanism behind Lab 5A.5, and it is why "we have a hook" is not an answer to "what stops
+> this?"
+
+Exit 2's meaning is per-event: `PreToolUse` blocks the tool call, `UserPromptSubmit` rejects
+the prompt, `PermissionRequest` denies it, `PostToolUse` merely shows stderr **because the
+tool already ran**. `PermissionDenied` and `StopFailure` ignore the exit code entirely.
+
+### Structured decisions
+
+Choose exit codes **or** JSON, not both — JSON is only processed on exit 0.
+
+```json
+{ "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",          // allow · deny · ask · defer
+    "permissionDecisionReason": "Database writes not allowed",
+    "updatedInput": { }                    // you can rewrite the tool input
+} }
+```
+
+`updatedInput` is worth noticing: a hook can **modify** a call rather than only permit or
+refuse it. That is a third option most guardrail designs never consider.
+
+### Timeouts — the numbers
+
+| Hook type | Default |
+|---|---|
+| `command`, `http`, `mcp_tool` | **600 s** (`UserPromptSubmit` → 30 s, `MessageDisplay` → 10 s) |
+| `prompt` | 30 s |
+| `agent` | 60 s |
+| `SessionEnd` | shared **1.5 s** budget across all of them |
+
+600 seconds is a long time to hang a tool call. Set `timeout` explicitly.
+
+### The event you actually want — `InstructionsLoaded`
+
+> "Fires when a `CLAUDE.md` or `.claude/rules/*.md` file is loaded."
+>
+> "Use the `InstructionsLoaded` hook to log exactly which instruction files are loaded, when
+> they load, and why."
+
+**This is the preflight assertion `agent-observatory` #36 needs.** Phase 1's experiment failed
+because nobody could prove the treatment entered context. This event proves it, per run, and
+its matcher tells you *why* it loaded — `session_start`, `nested_traversal`,
+`path_glob_match`, `include`, `compact`.
+
+Also relevant to #35: `ConfigChange` matches on `user_settings`, `project_settings`,
+`local_settings`, `policy_settings`, `skills` — an environment-drift detector.
+
+### Security facts worth knowing
+
+- **Hooks run with your permissions**, in the current directory, with Claude Code's
+  environment. Full filesystem access.
+- **Hooks fire inside subagents too**, from settings, managed policy and plugins.
+- Claude Code **strips `OTEL_*` exporter variables from every subprocess it spawns**,
+  including hooks — deliberate, to prevent telemetry leakage. Worth knowing before you
+  wonder why your hook cannot see the collector config.
+- Enterprise: `allowManagedHooksOnly` blocks user, project and plugin hooks;
+  `disableAllHooks` at user/project/local level **cannot** disable managed hooks.
+- `allowedHttpHookUrls` and `httpHookAllowedEnvVars` restrict HTTP hooks — because an HTTP
+  hook with header interpolation is an exfiltration channel.
+
+---
+
 ## Predict before you run
 
 1. What happens to a denied command — does the agent retry, route around it, or stop?

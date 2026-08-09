@@ -29,6 +29,103 @@ Claude. **Those are different trust levels** and should never be reviewed the sa
 **Codex:** keep durable team policy in reviewable files such as `AGENTS.md` rather than
 depending on hidden derived state.
 
+---
+
+## Extract
+
+From the Claude Code memory documentation, read 2026-08-09. Quotes verbatim.
+
+### The sentence that voided our Phase 1 experiment
+
+> "**Claude Code reads `CLAUDE.md`, not `AGENTS.md`.**"
+
+Unambiguous, and it was in the docs the whole time. The documented fixes:
+
+```markdown
+@AGENTS.md            ← import at the top of CLAUDE.md
+
+## Claude Code
+Use plan mode for changes under `src/billing/`.
+```
+
+```bash
+ln -s AGENTS.md CLAUDE.md    # symlink, if no Claude-specific content is needed
+```
+
+> "In your next session, run `/context` and confirm `CLAUDE.md` appears under **Memory
+> files**." — that is the verification step, and it costs nothing.
+
+### Memory is context, not configuration
+
+> "Claude treats them as context, **not enforced configuration**. To block an action
+> regardless of what Claude decides, use a **PreToolUse hook** instead."
+
+The Layer 3 / Layer 2 distinction, stated by the vendor. And a mechanical detail that
+explains *why*:
+
+> "CLAUDE.md content is delivered as a **user message after the system prompt**, not as part
+> of the system prompt itself."
+
+For system-prompt-level instructions: `--append-system-prompt`. That is a different delivery
+mechanism with different weight — and it is the second option #36 lists.
+
+### Two systems, different trust
+
+| | CLAUDE.md | Auto memory |
+|---|---|---|
+| Who writes it | **You** | **Claude** |
+| Contains | instructions and rules | learnings and patterns |
+| Scope | project / user / org | per repository, shared across worktrees |
+| Loaded | every session, **in full** | every session, **first 200 lines or 25 KB** |
+
+**Never review them the same way.** One is authored and reviewable; the other is derived
+state your agent wrote about itself.
+
+### Precedence — load order, broadest first
+
+```
+managed policy  →  user (~/.claude/CLAUDE.md)  →  project (./CLAUDE.md)  →  local (CLAUDE.local.md)
+```
+
+All discovered files are **concatenated, not overridden**, root-down, so the file closest to
+your working directory is read last. `CLAUDE.local.md` is appended after `CLAUDE.md` at each
+level.
+
+### Size, and why it matters here
+
+> "Target **under 200 lines** per CLAUDE.md file. Longer files consume more context and
+> reduce adherence."
+>
+> Splitting into `@path` imports "helps organization but **doesn't reduce context**, since
+> imported files load at launch."
+
+That second point kills the obvious workaround. Imports are organisation, not economy — only
+**path-scoped rules** (`.claude/rules/` with `paths:` frontmatter) and **skills** actually
+defer the cost. Imports resolve to a maximum depth of four hops.
+
+### Auto memory mechanics
+
+Stored at `~/.claude/projects/<project>/memory/`, keyed on the git repository. `MEMORY.md` is
+an index; topic files are **not** loaded at startup and are read on demand. Beyond 200 lines
+or 25 KB, content is silently dropped on the next load.
+
+Files written with YAML frontmatter get a `modified` ISO-8601 timestamp — *"shows how current
+the fact is, both to you and to Claude when it reads the memory back."*
+
+> **This is Lab 9.2's mitigation, and this project needed it.** Our own memory recorded
+> "blocked on BE-001 not discriminating" and stayed confidently wrong through two later
+> findings. A timestamp does not prevent staleness; it makes staleness visible.
+
+### External imports are gated
+
+> An import whose path resolves outside the working directory triggers an approval dialog the
+> first time. "The dialog protects you from files **other people commit to a shared
+> project**."
+
+A supply-chain control on instructions themselves. Worth knowing before Phase 7.
+
+---
+
 ## Predict before you run
 
 1. Will the agent re-verify a remembered fact against source, or repeat it?
