@@ -1,0 +1,73 @@
+runId: B0-COPILOT-BE001-001
+
+task:
+  id: BE-001
+  revision: 1
+  benchmarkSha:            # the commit the task/evaluator were resolved from
+
+harness:
+  name: github-copilot-cli
+  version:
+  runnerCommit:
+
+model:
+  requested:               # what you asked for, e.g. "haiku"
+  resolved:                # what telemetry reports, e.g. "claude-haiku-4-5-20251001"
+  # These differing is not a detail. An alias can silently re-point between runs.
+
+environment:               # everything that loaded but was not the treatment
+  bare: false              # --bare?
+  permissionMode:          # acceptEdits / plan / default — see harness bug #7
+  hooks: []
+  plugins: []
+  skills: []
+  mcpServers: []
+  settingsSources: []
+  fingerprint:             # hash of the above; arms must match
+
+configuration:             # the registered treatment
+  instructions: none
+  instructionsHash:
+  instructionsProvenLoaded: false    # preflight assertion result
+  skills: none
+  customAgent: none
+  hooks: none
+  mcp: none
+
+behavior:
+  modelCalls:
+  toolCalls:
+  toolsUsed: []
+  filesRead:
+  filesChanged: []
+  commands: []
+  retries:
+  approvals:               # permission requests — and whether anyone could answer
+  compactions:
+
+efficiency:
+  durationMs:
+  inputTokens:
+  outputTokens:
+  cachedInputTokens:
+  cacheCreationTokens:
+  cost:
+
+evaluation:
+  compile:
+  tests:
+  hiddenTests:
+  acceptanceScore:
+  unintendedChanges:
+  failureClass:            # F01-F15
+  finalScore:
+
+measurement:
+  status:                  # valid / excluded / pilot / invalidated
+  exclusionReason:         # structured, registered in advance
+  telemetryComplete:       # a gap must not read as a zero
+
+notes: |
+  Anything surprising. Especially anything that made the agent look good —
+  five of our seven harness bugs were caught fast because they looked bad;
+  the two that survived review were the two that flattered the result.
