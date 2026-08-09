@@ -26,6 +26,10 @@ fail=0 moved=0 blocked=0 ok=0
 
 while read -r u; do
   [ -z "$u" ] && continue
+  # Private repos 404 to an unauthenticated curl. Not broken — unreachable to this checker.
+  case "$u" in
+    https://github.com/UnityInFlow/*) printf '🔑 PRIVATE %s\n' "$u"; continue ;;
+  esac
   read -r code final < <(curl -sSL -o /dev/null \
       -w '%{http_code} %{url_effective}' \
       --max-time 25 -A 'Mozilla/5.0' "$u" 2>/dev/null || echo "000 -")

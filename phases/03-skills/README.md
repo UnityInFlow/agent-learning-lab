@@ -29,6 +29,60 @@ and too expensive or noisy for global instructions.
 
 **Exact lifecycle varies by runtime. Measure rather than assume identical implementation.**
 
+---
+
+## Extract
+
+From the Claude Code Skills documentation, read 2026-08-09. Quotes verbatim.
+
+### What a skill is, and when to make one
+
+> "Skills extend what Claude can do. Create a `SKILL.md` file with instructions, and Claude
+> adds it to its toolkit. Claude uses skills when relevant, or you can invoke one directly
+> with `/skill-name`."
+
+The trigger for creating one is specific and useful:
+
+> "Create a skill when you keep pasting the same instructions, checklist, or multi-step
+> procedure into chat, **or when a section of CLAUDE.md has grown into a procedure rather
+> than a fact.**"
+
+That second clause is the dividing line between Phase 1 and Phase 3. **CLAUDE.md holds
+facts. A skill holds a procedure.** If your instruction file has started describing *steps*,
+it is a skill in the wrong place — and it is being loaded on every task.
+
+### The economics — why progressive disclosure matters
+
+> "Unlike CLAUDE.md content, **a skill's body loads only when it's used**, so long reference
+> material costs almost nothing until you need it."
+
+This is the whole argument for Lab 3.3. Always-on context is paid on every task; a skill body
+is paid only on the tasks that need it. The name and description stay visible so Claude can
+decide.
+
+### Commands and skills are now the same thing
+
+> "**Custom commands have been merged into skills.** A file at `.claude/commands/deploy.md`
+> and a skill at `.claude/skills/deploy/SKILL.md` both create `/deploy` and work the same
+> way. Your existing `.claude/commands/` files keep working."
+
+What skills add over legacy commands:
+
+- a **directory** for supporting files
+- **frontmatter** controlling whether you or Claude invokes them
+- **automatic loading** when Claude judges them relevant
+
+> This is the cross-tool lesson from Phase 2 landing: same `/something` UX, different
+> abstraction underneath. Copilot prompt files and Claude skills are not the same object.
+
+### For your build track
+
+B6 says "one specialist skill, chosen from a measured failure." The doc's own trigger —
+*a section of CLAUDE.md that became a procedure* — is the cheapest way to find that
+candidate. Look at what B3's instruction file grew into.
+
+---
+
 ## Predict before you run
 
 1. What fraction of unrelated tasks will falsely trigger your skill?

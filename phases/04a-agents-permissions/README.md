@@ -25,6 +25,67 @@ Copilot custom agent fields: `name`, `description`, `tools`, `model`, `mcp-serve
 Always verify the target surface. **Codex has a real subagent primitive now** — do not
 teach the old "Codex has no subagents".
 
+---
+
+## Extract
+
+From the Claude Code subagents documentation, read 2026-08-09. Quotes verbatim.
+
+### What a subagent is — and the test for using one
+
+> "Use one when a side task would **flood your main conversation with search results, logs,
+> or file contents you won't reference again**: the subagent does that work in its own
+> context and returns only the summary."
+
+That is a sharp, testable criterion. Not "this task feels specialised" — *will the byproduct
+pollute the main context?* If the parent needs the detail, a subagent costs you and buys
+nothing.
+
+> "Define a custom subagent when you keep spawning the same kind of worker with the same
+> instructions."
+
+### What is actually isolated
+
+> "Each subagent runs in its **own context window** with a **custom system prompt**,
+> **specific tool access**, and **independent permissions**."
+
+Four things, and the last two are the ones that matter for Phase 4A's read-only reviewer:
+tool access and permissions are per-subagent, so a reviewer that cannot write is enforced at
+**Layer 2**, not asked for in a prompt.
+
+### How it gets invoked
+
+> "When Claude encounters a task that matches a subagent's **description**, it delegates to
+> that subagent, which works independently and returns results."
+
+The description is the routing key — the same design problem as a skill description in
+Phase 3, and it fails the same way when vague.
+
+### The five stated benefits
+
+| | |
+|---|---|
+| **Preserve context** | keep exploration and implementation out of the main conversation |
+| **Enforce constraints** | limit which tools a subagent can use |
+| **Reuse configurations** | user-level subagents across projects |
+| **Specialize behavior** | focused system prompts per domain |
+| **Control costs** | "routing tasks to faster, cheaper models like Haiku" |
+
+That last one is a design lever most people miss: a subagent can run a **different model**
+than its parent. Cheap model for mechanical search, expensive model for synthesis — which is
+exactly the Opus-lead/Sonnet-worker split that produced the 90.2% result in
+[Phase 4B's extract](../04b-orchestration/README.md#extract).
+
+### Scope boundary
+
+> "Subagents work within a single session."
+
+For parallel *sessions* there are separate mechanisms (background agents, cross-session
+messaging, agent teams). Do not reach for those in Phase 4A — they are Phase 4B material,
+and only after 4B.4 shows decomposition pays at all.
+
+---
+
 ## Predict before you run
 
 1. Can a read-only reviewer be talked into writing, by the user or by repository text?

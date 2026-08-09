@@ -43,6 +43,75 @@ pays for the worker's exploration. That is the mechanism — everything else is 
 Which gives you the test: **if a split does not reduce what the parent must hold, it is
 overhead.**
 
+---
+
+## Extract
+
+From *Multi-agent research system*, read 2026-08-09. Quotes verbatim.
+
+### The architecture
+
+A lead agent "analyzes [queries], develops a strategy, and spawns subagents to explore
+different aspects simultaneously." Subagents run in parallel, **each with its own context
+window**, and return findings to the lead for synthesis.
+
+### The numbers — read these before designing anything
+
+> - "agents typically use about **4× more tokens** than chat interactions, and multi-agent
+>   systems use about **15× more tokens** than chats"
+> - "a multi-agent system with Claude Opus 4 as the lead agent and Claude Sonnet 4 subagents
+>   **outperformed single-agent Claude Opus 4 by 90.2%**"
+> - "token usage by itself explains **80% of the variance**" in browsing agent performance
+
+15× cost for a 90% gain is an excellent trade — **on the right task.** Which brings us to the
+sentence that matters most for you:
+
+### The warning aimed directly at this project
+
+> "**Most coding tasks involve fewer truly parallelizable tasks than research.**"
+
+Multi-agent suits "heavy parallelization, information that exceeds single context windows,
+and interfacing with numerous complex tools" — breadth-first queries with independent
+directions.
+
+It is **poorly suited** to domains requiring "all agents to share the same context or
+involve many dependencies between agents."
+
+> A backend feature implementation is dependency-dense and context-shared. That is the
+> profile the article names as a poor fit. Your v1 pipeline (ANALYSIS→DESIGN→…) is
+> **prompt chaining**, not parallel fan-out — sequential stages, one context handed forward.
+> That is the right pattern, and it is worth knowing you chose correctly for a reason rather
+> than by luck.
+
+### Scaling effort to complexity
+
+> "Simple fact-finding requires just **1 agent with 3–10 tool calls**, direct comparisons
+> might need **2–4 subagents with 10–15 calls each**, and complex research might use **more
+> than 10 subagents**."
+
+Put this in the orchestrator's prompt. Without it:
+
+> "Without detailed task descriptions, agents duplicate work, leave gaps, or fail to find
+> necessary information."
+
+### Failure modes
+
+> - "agents spawning **50 subagents for simple queries**, scouring the web endlessly for
+>   nonexistent sources"
+> - "minor changes cascade into large behavioral changes"
+> - errors compound because "agents can run for long periods of time, maintaining state
+>   across many tool calls"
+
+The first is Lab 4B.4 in the wild. The second is why you change one variable at a time.
+
+### On evaluating them
+
+LLM-as-judge with a rubric — factual accuracy, citation accuracy, completeness, source
+quality, tool efficiency — but: **"Human evaluation catches what automation misses,"**
+including edge cases and source-selection bias.
+
+---
+
 ## Predict before you run
 
 1. Four agents (analyze/plan/execute/verify) vs one agent, same task — which uses more
