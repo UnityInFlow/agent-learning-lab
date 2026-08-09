@@ -1,5 +1,6 @@
 # Phase 2 — Prompt files / explicit reusable workflows
 
+**Guardrail layer: L3 — guidance only, not a boundary** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
 **Status:** ⬜ Not started · **Depends on:** Phase 1
 
 ## Goal

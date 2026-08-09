@@ -1,5 +1,6 @@
 # Phase 10 — Production observability + engineering impact
 
+**Guardrail layer: L0 — observation** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
 **Status:** ⬜ Not started · **Depends on:** Phase 9
 
 ## Goal

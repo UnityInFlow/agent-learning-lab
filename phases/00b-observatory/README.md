@@ -1,5 +1,6 @@
 # Phase 0B — Observatory + evaluation baseline
 
+**Guardrail layer: L0 — observation** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
 **Status:** ✅ Built · **Lives in:** [`agent-observatory`](https://github.com/UnityInFlow/agent-observatory) + [`agent-observatory-benchmarks`](https://github.com/UnityInFlow/agent-observatory-benchmarks)
 
 Build the measurement system **before** changing agent behavior. This is the phase that

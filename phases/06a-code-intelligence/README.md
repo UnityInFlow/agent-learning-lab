@@ -1,5 +1,6 @@
 # Phase 6 — Code intelligence: LSP first, MCP second
 
+**Guardrail layer: L2 — MCP policy; retrieved content is an L3 risk** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
 **Status:** ⬜ Not started · **Depends on:** Phase 5
 
 ## Goal

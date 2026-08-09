@@ -1,5 +1,6 @@
 # Phase 4 — Custom agents + permissions
 
+**Guardrail layer: L2 — runtime control (but the agent description is L3)** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
 **Status:** ⬜ Not started · **Depends on:** Phase 3, and Phase 0A's permission model
 
 ## Goal

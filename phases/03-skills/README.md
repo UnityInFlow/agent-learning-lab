@@ -1,5 +1,6 @@
 # Phase 3 — Agent Skills
 
+**Guardrail layer: L3 — guidance only, not a boundary** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
 **Status:** ⬜ Not started · **Depends on:** Phase 2
 
 ## Goal

@@ -1,5 +1,6 @@
 # Phase 9 — Memory
 
+**Guardrail layer: L3 — untrusted derived state** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
 **Status:** ⬜ Not started · **Depends on:** Phase 8
 
 ## Goal

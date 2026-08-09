@@ -1,5 +1,10 @@
-# Phase 8 — Agentic workflows / unattended agents
+# Phase 8 — Unattended agents: event- and schedule-triggered (gh-aw)
 
+> **Renamed.** "Agentic workflows" here means GitHub's `gh-aw` — agents triggered by events
+> and schedules with no human present. Designing an analyze → plan → execute pipeline is a
+> different subject: [Phase 4B](../04b-orchestration/).
+
+**Guardrail layer: L1 — token scopes and safe-output separation** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
 **Status:** ⬜ Not started · **Depends on:** Phase 7
 
 ## Goal

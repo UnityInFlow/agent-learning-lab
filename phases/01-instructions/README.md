@@ -1,5 +1,6 @@
 # Phase 1 — Custom instructions
 
+**Guardrail layer: L3 — guidance only, not a boundary** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
 **Status:** ❌ Attempted, invalidated · **Blocked by:** `agent-observatory` #36, #35, bug #7
 
 ## Goal

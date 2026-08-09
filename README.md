@@ -47,22 +47,38 @@ LEARN THE MECHANISM → READ VERIFIED DOCS → PREDICT → BUILD THE SMALLEST VE
 
 ---
 
+## Start here
+
+**[`LEARNING-PATH.md`](LEARNING-PATH.md)** — the single plan. It merges the four competing
+roadmaps (this curriculum plus the three in [`businesscase/`](businesscase/)) into two
+interleaved tracks: **Understand** (phases below) and **Build** (the backend agent, v1→v1.3).
+
+**[`GUARDRAILS.md`](GUARDRAILS.md)** — the layer model every phase points back to. Read it
+before Phase 5A.
+
 ## Progress
 
-| Phase | Topic | Status |
-|---|---|---|
-| [0A](phases/00a-agent-mechanics/) | Agent mechanics + governance | ⬜ **Not started** — and it should have been first |
-| [0B](phases/00b-observatory/) | Observatory + evaluation baseline | ✅ **Built** in `agent-observatory` |
-| [1](phases/01-instructions/) | Custom instructions | ❌ **Attempted, invalidated** |
-| [2](phases/02-prompt-files/) | Prompt files / reusable workflows | ⬜ |
-| [3](phases/03-skills/) | Agent Skills | ⬜ |
-| [4](phases/04-agents-permissions/) | Custom agents + permissions | ⬜ |
-| [5](phases/05-hooks/) | Hooks + enforcement | ⬜ |
-| [6](phases/06-code-intelligence/) | Code intelligence: LSP → MCP | ⬜ |
-| [7](phases/07-plugins/) | Plugins + distribution | ⬜ |
-| [8](phases/08-agentic-workflows/) | Agentic workflows / unattended | ⬜ |
-| [9](phases/09-memory/) | Memory | ⬜ |
-| [10](phases/10-production-observability/) | Production observability + impact | ⬜ |
+| Phase | Topic | Layer | Status |
+|---|---|---|---|
+| [0A](phases/00a-agent-mechanics/) | Agent mechanics + governance | all three | ⬜ **skipped — should have been first** |
+| [0B](phases/00b-observatory/) | Observatory + evaluation baseline | L0 | ✅ **Built** in `agent-observatory` |
+| [1](phases/01-instructions/) | Custom instructions | **L3** | ❌ **Attempted, invalidated** |
+| [2](phases/02-prompt-files/) | Prompt files / reusable workflows | **L3** | ⬜ |
+| [3](phases/03-skills/) | Agent Skills | **L3** | ⬜ |
+| [4A](phases/04a-agents-permissions/) | Custom agents + permissions | L2 | ⬜ |
+| [4B](phases/04b-orchestration/) 🆕 | Agent orchestration + multi-layer design | L3/L1 | ⬜ |
+| [5A](phases/05a-guardrails/) 🆕 | **Guardrails: hooks, policies, enforcement** | **L2** | ⬜ |
+| [5B](phases/05b-verification-selfhealing/) 🆕 | Verification, bounded self-healing, completion | L2 | ⬜ |
+| [6A](phases/06a-code-intelligence/) | Code intelligence: LSP → MCP | L2 | ⬜ |
+| [6B](phases/06b-knowledge-retrieval/) 🆕 | Knowledge retrieval: router → hybrid → vector | **L3** | ⬜ |
+| [7](phases/07-plugins/) | Plugins + distribution | L2 | ⬜ |
+| [8](phases/08-agentic-workflows/) | Unattended agents (gh-aw) | **L1** | ⬜ |
+| [9](phases/09-memory/) | Memory & governed self-learning | **L3** | ⬜ |
+| [10](phases/10-production-observability/) | Production observability + impact | L0 | ⬜ |
+
+**Five of fifteen phases operate at Layer 3 only** — instructions, prompt files, skills,
+knowledge retrieval, memory. That is where most customization effort goes, and none of it
+can stop anything. See [`GUARDRAILS.md`](GUARDRAILS.md).
 
 **Zero experiments have produced a defensible result yet.** That is not a failure of the
 project; it is what the first honest pass through a measurement problem looks like. See

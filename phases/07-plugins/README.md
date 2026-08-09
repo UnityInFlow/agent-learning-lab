@@ -1,5 +1,6 @@
 # Phase 7 — Plugins + controlled distribution
 
+**Guardrail layer: L2 — distribution control + supply chain** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
 **Status:** ⬜ Not started · **Depends on:** Phases 3, 4, 5
 
 ## Goal
