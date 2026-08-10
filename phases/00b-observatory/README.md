@@ -27,6 +27,58 @@ Four concepts, never collapsed into one number:
 - [ ] ✅ [Visualize traces](https://grafana.com/docs/tempo/latest/visualize-traces/)
 - [ ] ✅ [Claude Code — Monitoring usage](https://code.claude.com/docs/en/monitoring-usage) — **added by us**: the field list you must scrub; `user.email` can appear
 
+---
+
+## Extract
+
+### ⚠️ The GenAI semantic conventions have moved — and the old URL still returns 200
+
+Checked 2026-08-09. `https://opentelemetry.io/docs/specs/semconv/gen-ai/` responds **HTTP 200**
+and renders a page. The page says:
+
+> "This page **has moved and is no longer maintained** in this repository."
+
+The content now lives at
+**[github.com/open-telemetry/semantic-conventions-genai](https://github.com/open-telemetry/semantic-conventions-genai)**
+(verified 200). The sub-pages still resolve:
+
+- [`gen-ai-spans`](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/) — 200
+- [`gen-ai-metrics`](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-metrics/) — 200
+
+**This is the failure mode a link checker cannot catch.** `check-links.sh` reports this URL as
+✅ — correct status code, live page, no redirect. Only reading it reveals it is a tombstone.
+
+> A 200 means the server answered. It does not mean the page still says what you cited it for.
+> The only defence is re-reading, which is why every source in this repo carries *the question
+> to bring to it* rather than just a link.
+
+Treat this as the Phase 0B lesson about your own instrument too: **a check that passes is not
+evidence the thing it checks is healthy** — it is evidence the check ran.
+
+### What the page still tells you
+
+The GenAI conventions now cover agent spans, events, exceptions and metrics, plus
+provider-specific conventions for Anthropic, AWS Bedrock, Azure and OpenAI, and MCP and
+LLM-call examples.
+
+For the attribute names your normalization layer should target — `gen_ai.system`,
+`gen_ai.operation.name`, `gen_ai.request.model`, `gen_ai.response.model`,
+`gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens` and the rest — **go to the
+repository.** This extract deliberately does not list them from memory; the whole point of
+the finding above is that stale secondhand copies are the problem.
+
+### Why it matters for your domain model
+
+Phase 0B's rule is *"do not mirror vendor span names directly into your database."* The
+GenAI conventions are the vendor-neutral target that rule points at. If they are moving and
+being restructured, then:
+
+- pin the convention **version** you normalise against, the way you pin a model ID
+- record it in the run record alongside `schema_version`
+- expect to re-read rather than assume stability
+
+---
+
 ## Core metrics
 
 **Correctness** compile · unit tests · hidden acceptance tests · lint · acceptance score

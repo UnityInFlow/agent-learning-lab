@@ -309,6 +309,11 @@ knowledge_hit_rate = useful knowledge matches / knowledge lookups
 That number is what later justifies — or refuses — embeddings. Without it you can prove RAG
 *ran*, not that it *helped*.
 
+**Do not build a code or symbol index.** memtrace already provides `find_symbol`,
+`find_code`, the AST graph and Cortex decision memory, and you pay for it every session.
+Building vector search over your own repository duplicates a tool you already run. See
+[Phase 9 — Architecture](../phases/09-memory/README.md#architecture-you-already-run-three-memory-systems).
+
 **Gate:** retrieval order recorded per run (index → summary → full) · hit rate measured ·
 context metrics compared against B8.
 
@@ -395,6 +400,23 @@ Promotion policy
 States: `candidate → active → deprecated → rejected → expired`. **Never delete** — change
 status, preserve history. On a failure caused by learned knowledge: mark suspect, stop reuse,
 fall back to discovery, create a correction candidate.
+
+**Where it lives.** The observatory's Postgres, next to `runs` — because a candidate's whole
+value is its provenance, and provenance is a foreign key:
+
+```sql
+knowledge_entry(id, type, scope, content, status, confidence, expires_at,
+                source_run_id REFERENCES runs(id),   -- the join that makes this worth doing
+                source_commit, verifying_command, exit_code)
+knowledge_usage(entry_id, run_id, outcome)           -- hit rate, for free
+```
+
+Split across two databases, *"did runs using entry X pass more often?"* becomes a
+correlation exercise. In one it is a `JOIN`.
+
+**Expose it as a read-only MCP server, not an embedded file.** It stays outside the agent's
+`git archive` tree so the allowlist assertion still sees everything, and the write path goes
+through the governance job rather than the agent — the same separation as gh-aw safe outputs.
 
 **Gate:** all learning has provenance · no uncontrolled writes to active knowledge · stale
 knowledge expires or revalidates · conflicts detected · a bad item can be rolled back ·

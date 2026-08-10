@@ -29,6 +29,68 @@ Learn when always-loaded guidance helps, and when it wastes context or contradic
 
 Concise instructions are explicitly recommended. This is not style advice — see Lab 1.3.
 
+---
+
+## Extract
+
+From the Copilot custom-instructions support matrix, read 2026-08-09.
+
+### The seven file types
+
+```
+.github/copilot-instructions.md              repository-wide
+.github/instructions/**/*.instructions.md    path-specific
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+~/.copilot/copilot-instructions.md           personal, CLI only
+~/.copilot/instructions/**/*.instructions.md personal path-specific, CLI only
+```
+
+On GitHub.com and JetBrains, personal instructions live in **account settings**, not files.
+
+### Support by surface
+
+| File | GitHub.com | VS Code | Visual Studio | JetBrains | Eclipse | Xcode | **Copilot CLI** |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `copilot-instructions.md` | ✓ all | ✓ all | ✓ all | ✓ all | ✓ all | ✓ all | **✓** |
+| `*.instructions.md` | ✓ agent, review | ✓ chat, agent | ✓ chat | ✓ all | ✓ agent | ✓ all | **✓** |
+| `AGENTS.md` | ✓ review | ✓ chat, agent | **—** | ✓ agent | ✓ agent | ✓ agent | **✓** |
+| `CLAUDE.md` | ✓ agent | ✓ agent | **—** | ✓ agent | ✓ agent | ✓ agent | **✓** |
+| `GEMINI.md` | ✓ agent | ✓ agent | **—** | ✓ agent | ✓ agent | ✓ agent | **✓** |
+
+### Two things worth stopping on
+
+**1. Copilot CLI reads `CLAUDE.md`.** Every file type, every column, ✓ for the CLI.
+
+That is a design opportunity this project has not used. A single `CLAUDE.md` is read natively
+by **both** Claude Code and Copilot CLI — which means a cross-runtime instruction experiment
+can hold the *file* constant instead of maintaining two adapters and hoping they are
+equivalent. `agent-observatory` #36 has been treated as "port `AGENTS.md` to `CLAUDE.md` for
+Claude"; the matrix says `CLAUDE.md` is the portable choice, not the Claude-specific one.
+
+**2. Visual Studio supports none of `AGENTS.md`, `CLAUDE.md` or `GEMINI.md`.** Only the two
+`copilot-*` forms. If a team standardises on `AGENTS.md`, Visual Studio users silently get
+nothing — no error, no warning. That is the "why didn't my file load" failure the feature
+matrix exists to prevent.
+
+### The gap in the documentation itself
+
+> The page contains **no statement about precedence, ordering, or how multiple instruction
+> files combine**, and **no nesting or hierarchy rules**.
+
+Verified by reading it. That is a real hole, not an oversight in this extract.
+
+Compare Claude Code, which documents precedence explicitly — managed policy → user →
+project → local, concatenated root-down, `CLAUDE.local.md` appended last. For Copilot you
+would have to **measure** it.
+
+> **That is a lab.** Put contradictory rules in `copilot-instructions.md` and `AGENTS.md`, run
+> the benchmark, and see which one wins. Undocumented precedence is exactly the kind of thing
+> an instrument like yours exists to establish.
+
+---
+
 ## Predict before you run
 
 1. Does adding one verification rule raise or lower token count? By how much?

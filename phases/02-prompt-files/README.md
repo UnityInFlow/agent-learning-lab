@@ -32,6 +32,67 @@ abstraction underneath — which is itself the cross-tool lesson.
 **Codex:** prefer Skills for portable reusable workflows rather than forcing a fake
 prompt-file equivalence.
 
+---
+
+## Extract
+
+From the VS Code prompt-files documentation, read 2026-08-09. Quotes verbatim.
+
+### What it is
+
+> Prompt files "let you simplify prompting for common tasks by **encoding them as standalone
+> Markdown files that you can invoke directly in chat**."
+
+Extension `.prompt.md`. Workspace location `.github/prompts`; also a user-profile location,
+and more via the `chat.promptFilesLocations` setting.
+
+### The current frontmatter — all six fields, all optional
+
+| Field | Purpose |
+|---|---|
+| `description` | "A short description of the prompt" |
+| `name` | "The name of the prompt, used after typing `/` in chat" |
+| `argument-hint` | "Hint text shown in the chat input field to guide users" |
+| `agent` | `ask` · `agent` · `plan` · or a custom agent name |
+| `model` | "The language model used when running the prompt" |
+| `tools` | "A list of tool or tool set names that are available for this prompt" |
+
+**Confirmed: there is no `mode:` field.** The curriculum's warning holds — do not teach it.
+
+Note `agent` and `tools`: a prompt file can pin **which agent runs it** and **which tools are
+available**. That last one is the only Layer-2 thing on this page, and it is how Lab 2.1's
+read-only `/review-change` is actually enforced rather than requested.
+
+### The distinction that defines this phase
+
+> "**Unlike custom instructions that are applied automatically, you invoke prompt files
+> manually in chat.**"
+
+That is the whole Phase 1 / Phase 2 boundary in one sentence. Instructions are always-on
+context you pay for on every task; a prompt file is an explicit invocation you pay for when
+you ask.
+
+### Variables
+
+`${input:variableName}` and `${input:variableName:placeholder}` for user input, plus the
+built-in `${selection}`.
+
+Parameterisation is what separates a reusable prompt file from a saved snippet — and it is
+what Lab 2.2 should measure. If your prompt file takes no arguments, ask whether it is
+earning its existence over a paste buffer.
+
+### Cross-tool warning, restated
+
+Same `/name` UX, three different objects: a VS Code **prompt file**, a Claude Code **skill**
+(commands were merged into skills — see [Phase 3's extract](../03-skills/README.md#extract)),
+and a Codex skill. They differ in where they live, what frontmatter they accept, whether the
+model can invoke them on its own, and whether the body loads lazily.
+
+> Do not build a "portable prompt file" abstraction. Build the workflow once as a skill, and
+> adapt at the edges.
+
+---
+
 ## Predict before you run
 
 1. Will the reusable file produce a *more consistent structure* than a typed prompt, a

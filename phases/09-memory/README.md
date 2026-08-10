@@ -151,6 +151,135 @@ the result.
 
 > **Persistence multiplies the lifetime of bad information.**
 
+---
+
+## Architecture: you already run three memory systems
+
+Before building anything, the decision that matters is **ownership**. Three systems are live
+on this machine right now, they overlap, and none of them owns anything definitively — which
+is why this project's own memory sat two findings out of date.
+
+| System | Where | Good at | Bad at |
+|---|---|---|---|
+| **Claude auto memory** | `~/.claude/projects/<project>/memory/` | session preferences, corrections | machine-local, not shared, no query beyond file reads |
+| **memtrace** | `~/.memtrace/` — `embed-cache`, `cortex-store` | code symbols, semantic code search, **decision memory** | not a prose corpus |
+| **Observatory Postgres** | `postgres:16.6-alpine` | run records, evaluations | knows nothing about knowledge |
+
+### The ownership split to write down
+
+```
+memtrace              → code. Symbols, call graphs, "why is this here", decisions
+Claude auto memory    → this machine's session preferences. Nothing authoritative
+Observatory Postgres  → runs, evaluations, AND learned knowledge
+Git                   → authoritative. Everything above is derived state
+```
+
+**Do not build a file or symbol index.** memtrace has one and you pay for it every session.
+**Do not build decision memory.** Cortex has `recall_decision`, `why_is_this_here`,
+`governing_contracts`, `verify_intent`.
+
+**Do build the governed learning store.** Nothing has it.
+
+### Why the learning store belongs in the observatory's Postgres
+
+Not to save a container — because a learning candidate's entire value is its **provenance**,
+and provenance is a foreign key:
+
+```sql
+knowledge_entry(
+  id, type, scope, content,
+  status,              -- candidate | active | deprecated | rejected | expired
+  confidence, expires_at,
+  source_run_id  REFERENCES runs(id),     -- ← the join that makes this worth doing
+  source_commit, verifying_command, exit_code,
+  embedding vector(768),                  -- only at step 4 below
+  tsv tsvector
+)
+knowledge_usage(entry_id, run_id, outcome)
+```
+
+That schema answers the only two questions that matter:
+
+```sql
+-- knowledge_hit_rate, for free
+SELECT count(*) FILTER (WHERE outcome='used')::float / count(*) FROM knowledge_usage;
+
+-- did knowledge actually help?
+SELECT u.entry_id, avg(r.passed::int) FROM knowledge_usage u
+  JOIN runs r ON r.id = u.run_id GROUP BY 1;
+```
+
+In two databases those are correlation exercises you will get wrong.
+
+### Expose it as read-only MCP, never as an embedded file
+
+Three reasons, and the second is specific to this project:
+
+1. **Portable** across Claude, Codex and Copilot — one server, thin adapters
+2. **It stays outside the agent's `git archive` tree**, so your allowlist assertion still
+   works. An embedded SQLite file is opaque to that check — see [Lab 6B.5](../06b-knowledge-retrieval/README.md)
+3. **Read-only by construction.** The write path goes through the governance job, not the
+   agent — the same shape as [gh-aw safe outputs](../08-agentic-workflows/README.md#extract)
+
+---
+
+## Labs — try it in this order
+
+Each step is useful on its own, and **none of the first three needs a vector database.**
+
+### Lab 9.4 — Audit what you already have *(30 min, no code)*
+
+```bash
+ls -la ~/.claude/projects/*/memory/          # what has Claude written about you?
+wc -l ~/.claude/projects/*/memory/MEMORY.md  # under the 200-line load limit?
+ls ~/.memtrace/                              # cortex-store, embed-cache
+```
+
+Then the honest questions: how many of these facts are still true? Which system would you
+consult first for "why is this code like this"? Has anything ever *removed* a stale fact?
+
+Write the ownership table above into `governance/memory-policy.md` with your answers.
+
+### Lab 9.5 — Provenance without a database *(1 day)*
+
+Add frontmatter to every entry in `knowledge/failure-patterns.md`:
+
+```yaml
+source_run_id: …      source_commit: …     verifying_command: …
+exit_code: 0          verified_at: …       expires_after_days: 90
+```
+
+Then check: **how many existing entries can you actually fill in?** The ones you cannot are
+knowledge you have no evidence for. That count is the finding.
+
+### Lab 9.6 — The candidate pipeline, as files *(2 days)*
+
+`knowledge/candidates/` + a promotion script. Still no database.
+
+```
+build commands       1 verification + human approval
+failure patterns     2 occurrences   + human approval
+style / architecture human approval always
+```
+
+Then deliberately promote something wrong, use it, and **exercise the rollback**: mark
+suspect, stop reuse, fall back to discovery, create a correction candidate. A rollback path
+you have never run is a rollback path you do not have.
+
+### Lab 9.7 — Move it into Postgres *(when the files creak)*
+
+`postgres:16.6-alpine` → `pgvector/pgvector:pg16` is a one-line compose change. Port the
+schema above. **Do not add embeddings yet** — `tsvector` and exact lookup first, so you have
+a baseline the embeddings have to beat.
+
+### Lab 9.8 — Wrap it in MCP
+
+One read-only tool: `lookup_knowledge(topic)`. Then run [Lab 6B.4](../06b-knowledge-retrieval/README.md)
+against it — put an injection string in an entry and confirm your hard controls hold when the
+model complies.
+
+---
+
 ## Governance questions
 
 For every memory mechanism: who writes it? who reads it? where is it stored? how long? can
