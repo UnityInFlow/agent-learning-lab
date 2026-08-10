@@ -35,7 +35,7 @@ becomes an informed decision instead of a guess.
 |---|---|---|---|
 | [0A](phases/00a-agent-mechanics/) | Agent mechanics + governance | defines all three | ⬜ skipped, should have been first |
 | [0B](phases/00b-observatory/) | Observatory + evaluation baseline | L0 observation | ✅ built |
-| [1](phases/01-instructions/) | Custom instructions | **L3 only** | ❌ attempted, invalidated |
+| [1](phases/01-instructions/) | Custom instructions | **L3 only** | ✅ result, `INCONCLUSIVE` |
 | [2](phases/02-prompt-files/) | Prompt files / reusable workflows | **L3 only** | ⬜ |
 | [3](phases/03-skills/) | Agent Skills | **L3 only** | ⬜ |
 | [4A](phases/04a-agents-permissions/) | Custom agents + permissions | L2 | ⬜ |
@@ -73,6 +73,66 @@ acceptance gate, and the specific trap.
 | B11 | Efficiency — caches, retrieval budgets, command dedup | 6B + 10 | v1.2 |
 | B12 | Governed self-learning — candidate → promotion → expiry | **9** | **v1.3** |
 | B13 | Production observability + promotion gate | 10 | — |
+
+Each B step is also a workbook in `phases/`, with the same shape as a Track A phase — goal,
+required reading, extract, predictions, a lab, a deliberate failure, an exit gate. The build
+guide stays the index and the rationale; the workbook is where the step is *learned* rather
+than just executed.
+
+---
+
+## The spine — one ordered journey
+
+The two tables above are the same path seen twice. This is the path.
+
+Ordering obeys three constraints at once: Track A's own sequence, each B step's prerequisite,
+and B's numeric order. Track A teaches the primitive; the B step that follows builds with it.
+
+| # | Stop | | # | Stop |
+|---|---|---|---|---|
+| 1 | [0A — Agent mechanics](phases/00a-agent-mechanics/) | | 15 | [**B7** — Verification + policies](phases/b07-verification-policies/) ⟵ **v1.0** |
+| 2 | [0B — Observatory](phases/00b-observatory/) | | 16 | [5B — Verification, self-healing](phases/05b-verification-selfhealing/) |
+| 3 | [**B1** — Experiment contract](phases/b01-experiment-contract/) | | 17 | [**B8** — Run state, repair limits](phases/b08-run-state-repair-limits/) ⟵ **v1.1** |
+| 4 | [**B2** — Plain-prompt baseline](phases/b02-plain-baseline/) | | 18 | [6A — Code intelligence](phases/06a-code-intelligence/) |
+| 5 | [1 — Custom instructions](phases/01-instructions/) | | 19 | [6B — Knowledge retrieval](phases/06b-knowledge-retrieval/) |
+| 6 | [**B3** — Minimal global instructions](phases/b03-global-instructions/) | | 20 | [**B9** — Knowledge router](phases/b09-knowledge-router/) |
+| 7 | [2 — Prompt files](phases/02-prompt-files/) ◇ | | 21 | [**B10** — Second runtime adapter](phases/b10-second-runtime-adapter/) ‡ |
+| 8 | [3 — Agent Skills](phases/03-skills/) | | 22 | [7 — Plugins](phases/07-plugins/) ◇ |
+| 9 | [4A — Agents + permissions](phases/04a-agents-permissions/) | | 23 | [8 — Unattended agents](phases/08-agentic-workflows/) ◇ |
+| 10 | [**B4** — Agent boundary](phases/b04-agent-boundary/) | | 24 | [9 — Memory](phases/09-memory/) |
+| 11 | [4B — Orchestration](phases/04b-orchestration/) | | 25 | [10 — Production observability](phases/10-production-observability/) |
+| 12 | [**B5** — Workflow phases](phases/b05-workflow-phases/) | | 26 | [**B11** — Efficiency](phases/b11-efficiency/) ⟵ **v1.2** |
+| 13 | [**B6** — One specialist skill](phases/b06-specialist-skill/) | | 27 | [**B12** — Governed self-learning](phases/b12-governed-self-learning/) ‡ ⟵ **v1.3** |
+| 14 | [5A — Guardrails](phases/05a-guardrails/) | | 28 | [**B13** — Promotion gate](phases/b13-production-observability/) |
+
+**◇ No build counterpart.** Phases 2, 7 and 8 have no B step depending on them, so the
+alternation breaks three times. Either that is deliberate — they are pure-learning phases —
+or three B steps are missing. Unresolved.
+
+**‡ Placement is provisional**, because prerequisite order and version order disagree:
+
+- **B10** needs only 4A, which clears at stop 9. Its v1.2 tag holds it to stop 21 — twelve
+  stops sitting on a cleared prerequisite.
+- **B12** needs 9, which clears at stop 24, but B11 precedes it numerically and B11 needs 10.
+
+Both are placed by **version order** here. If prerequisite order should win instead, B10 moves
+to stop 10 and the v1.x blocks stop being contiguous. **Decide this before writing B10 or B12**
+— it changes what "v1.2" means.
+
+### Where the versions close
+
+```
+stops 3–6     no version yet — the instrument and the baseline
+stop  15      v1.0 closes at B7   first end-to-end answer, measured against B2
+stop  17      v1.1 closes at B8   reliability
+stop  26      v1.2 closes at B11  efficiency
+stop  27      v1.3 closes at B12  governed self-learning — do not build early, see decision 5
+```
+
+**A step is not done when its files exist.** Track A phases end at an exit gate; so do the B
+workbooks, and from B3 onward the gate includes a measured comparison against the previous
+version. Thirteen B labs means thirteen more controlled experiments, each ≥3 runs against
+BE-003 — which does not exist yet. **B1 is where it gets built.**
 
 ---
 
@@ -121,18 +181,35 @@ and needs governance. Ship 6B's read path; do not open the write path until 9 ex
 
 ## What blocks the path today
 
-Track A cannot progress past Phase 1, and Track B cannot start B3, until these clear:
+Updated 2026-08-10. **Phase 1 is no longer blocked** — it has two non-void results — and the
+gate that stopped Track B has moved from "the instrument is unreliable" to "nobody has run
+anything".
+
+### Cleared
 
 | | |
 |---|---|
-| `agent-observatory` **#36** | Instruction treatment never loaded — Claude reads `CLAUDE.md`, not `AGENTS.md`. **Registration done** (PR #46); preflight assertion still open |
-| `agent-observatory` **#35** | Runs not isolated: ~21 hooks, 2 plugins, 3–4 MCP servers varied between runs |
-| `agent-observatory` **#47** | Permission blocks recorded as incorrect code. Voids every cross-model comparison |
-| `agent-observatory` **#48** | Claude traces may not be unavailable at all — just behind a beta flag |
+| **#36** | Treatment loads and is hash-asserted per run — `instructionsHash` set on every treatment run, null on every baseline |
+| **#48** | Claude *does* emit traces, behind `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`. Fixed and merged |
+| **#47** *(partly)* | Environmental stops are classified by class, not phrase: an agent that changed no file and called no tool did not attempt the task. `claude_code.tool.blocked_on_user` is a real span and gives a phrase-free detector |
+| **#35** *(isolation half)* | `--setting-sources project` — the runner's `--isolate-user-settings`. Verified 0 hook executions with `CLAUDE.md` still loading. `EXP-BE002-NOHOOKS` sized it: hooks were ~13% of every run, on both arms almost equally |
+| **BE-003** | `confirm-shipment` now exists, with a Shipment domain in the fixture |
+
+### Still open
+
+| | |
+|---|---|
+| `agent-observatory` **#49** | Isolation is **off by default**, so every experiment must state which regime it ran under |
+| `agent-observatory` **#35** *(rest)* | The *resolved* model id is in the events but never persisted to the run record. It was checked across 20 runs and did not drift |
+| `agent-observatory` **#47** *(rest)* | The block span reports *that* a tool was blocked, not *why* — `decision` and `source` both come back `unknown` |
 | `agent-observatory` **#34** | Model-tier experiment not preregistered before its data |
 
 #47 is also **Lab 5B.5**, and #48 is **Lab 10.0** — in both cases the fix and the lesson are
-the same work.
+the same work. #48 is now done as engineering and **still unwritten as a lab**, which is the
+shape of this whole project's gap.
+
+> **The real blocker is no longer technical.** `findings/` is empty, `experiments/` is empty,
+> and 27 of 28 stops have no lab skill. Nothing above prevents Lab 0A.1 from being run today.
 
 ### Three findings that shortcut this list
 

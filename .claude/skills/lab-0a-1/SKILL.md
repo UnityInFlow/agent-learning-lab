@@ -120,16 +120,34 @@ Do not modify anything.
 
 ```bash
 cd "$LAB/sample-service"
-time claude -p --bare --permission-mode plan --model claude-haiku-4-5-20251001 \
+time claude -p --setting-sources project --strict-mcp-config \
+  --permission-mode plan --model claude-haiku-4-5-20251001 \
   "Inspect this repository and explain: 1. how you determined the project structure, 2. which files you inspected, 3. which tools you used, 4. which validation commands you would run if asked to change code. Do not modify anything." \
   2>&1 | tee /tmp/lab-0a-1-claude.txt
 ```
 
 Point out each flag and why it is there:
 
-- `--bare` — skips hooks, LSP, plugins, MCP. **Without it this machine loads ~21 hooks, 2
-  plugins and 3–4 MCP servers**, all of which would be uncontrolled variables. This flag is
-  the difference between an experiment and an anecdote.
+- `--setting-sources project` — loads project settings only, so `~/.claude/settings.json`
+  and the hooks registered in it never reach the agent. **Without it this machine loads ~21
+  hooks and 2 plugins**, all uncontrolled variables. This flag is the difference between an
+  experiment and an anecdote.
+- `--strict-mcp-config` — ignores every MCP configuration except one passed explicitly.
+
+  > **This lab used to say `--bare`, and that was wrong twice.** `--bare` does skip hooks —
+  > but it also skips **`CLAUDE.md` auto-discovery**, so any later phase whose treatment is
+  > an instruction file would have measured the file being absent. That is harness bug #36
+  > wearing a different hat. Worse for this lab: `--bare` forces `ANTHROPIC_API_KEY` and
+  > never reads OAuth or the keychain, so on a subscription account the command **does not
+  > run at all** — it exits `Not logged in`.
+  >
+  > Verified 2026-08-10 on 2.1.226: `--setting-sources project` authenticates normally,
+  > leaves `CLAUDE.md` discovery intact, and produces **0 hook executions**. `--safe-mode`
+  > was also rejected — it disables customizations including `CLAUDE.md`.
+  >
+  > Two lessons, and the second is the one worth keeping: a flag that "turns off the noise"
+  > may also turn off the thing you are measuring, and **an isolation flag must be verified
+  > by observing the symptom disappear**, not by reading its description.
 - `--permission-mode plan` — harness-level read-only. **Layer 2**, not an OS boundary.
 - `--model claude-haiku-4-5-20251001` — the exact ID, not the `haiku` alias. An alias can
   silently re-point between runs.
@@ -275,7 +293,8 @@ Ask each aloud. A hesitant answer is a no.
 - [ ] Explain model vs harness **without using the word "AI"**
 - [ ] Name one Layer 1 control and one Layer 3 control in what we just ran
 - [ ] Why is `--deny-tool` not equivalent to `-s read-only`?
-- [ ] Why did `--bare` matter, and what would have happened without it?
+- [ ] Why did `--setting-sources project` matter, and what would have happened without it?
+- [ ] Why is `--bare` the *wrong* isolation flag for a phase whose treatment is `CLAUDE.md`?
 - [ ] Why did we build the target with `git archive` instead of deleting files?
 - [ ] What would this harness do if an agent stopped and asked for approval?
 

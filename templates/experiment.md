@@ -45,7 +45,8 @@ Exactly what changes between arms. **One thing.**
 - [ ] harness + version
 - [ ] model — **exact ID, not an alias**
 - [ ] permissions / permission mode
-- [ ] environment: hooks, plugins, skills, MCP servers, settings sources (`--bare`?)
+- [ ] environment: hooks, plugins, skills, MCP servers, settings sources
+      (`--setting-sources project`? verify by observing 0 hook executions, not by trusting the flag)
 - [ ] runner commit
 
 ## Runs

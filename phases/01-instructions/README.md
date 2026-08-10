@@ -1,7 +1,17 @@
 # Phase 1 — Custom instructions
 
 **Guardrail layer: L3 — guidance only, not a boundary** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
-**Status:** ❌ Attempted, invalidated · **Blocked by:** `agent-observatory` #36, #35, bug #7
+**Status:** ✅ Measured — `EXP-BE002-CLAUDEMD-V2` and `EXP-BE002-NOHOOKS`, both 10+10, both
+non-void · **Verdict:** `INCONCLUSIVE` by the registered rule
+
+> The three blockers that invalidated the first attempt are resolved: **#36** (the treatment
+> now loads and is hash-asserted per run), **bug #7 / #47** (environmental stops classified
+> by class, not phrase), and the isolation half of **#35** (`--isolate-user-settings`, 0 hook
+> executions). What remains open on #35 is persisting the *resolved* model id; the id itself
+> was checked across all 20 runs and did not drift.
+>
+> **The write-up below still describes the invalidated attempt.** Bringing it up to date is
+> this phase's work, not a status line — see `agent-observatory` PR #46 for the result.
 
 ## Goal
 
@@ -196,13 +206,15 @@ prediction is always retroactively correct.
 
 Those runs loaded ~21 hooks, 2 plugins and 3–4 MCP connections from the local user
 environment, **varying between runs**, while the protocol claimed only the treatment
-varied. Tracked as **#35**. Use `--bare` and pin exact model IDs.
+varied. Tracked as **#35**. Use `--setting-sources project` and pin exact model IDs —
+**not `--bare`**, which would also switch off the `CLAUDE.md` this phase is measuring.
 
 ## Before re-running
 
 1. **#36** — deliver the treatment through `CLAUDE.md` + `@AGENTS.md` or
    `--append-system-prompt-file`; assert it loaded
-2. **#35** — `--bare`, pinned model IDs, environment fingerprint, fail analysis on drift
+2. **#35** — `--setting-sources project`, pinned model IDs, environment fingerprint, fail
+   analysis on drift
 3. **bug #7** — non-interactive build, and permission-blocked runs classified as
    infrastructure (F13/F15), not incorrect code
 4. Preregister `EXP-BE002-INSTRUCTIONS-V4`, 10 + 10, **commit the registration before the

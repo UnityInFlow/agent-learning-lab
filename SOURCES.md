@@ -1,6 +1,6 @@
 # Verified sources
 
-Every URL the curriculum cites, checked with `curl -sSL` on **2026-08-09**. Re-run
+Every URL the curriculum cites, checked with `curl -sSL` on **2026-08-10**. Re-run
 [`tools/check-links.sh`](tools/check-links.sh) before each cohort — this list drifts.
 
 **Status legend:** ✅ resolves as written · ↪️ resolves but **redirects** (the URL in
@@ -8,7 +8,12 @@ Every URL the curriculum cites, checked with `curl -sSL` on **2026-08-09**. Re-r
 
 ## What the check found
 
-Seven of the 43 links have moved. Two are worth knowing about because the *content* moved,
+**2026-08-10 re-check: 76 URLs across `SOURCES.md`, `CURRICULUM.md`, `LEARNING-PATH.md`,
+`GUARDRAILS.md`, `build/README.md` and all phase READMEs. Nothing broken, nothing newly
+moved — all eight redirects below were already marked ↪️, so this file did not drift.** The
+first pass checked only the first two files, hence 43 URLs then and 76 now.
+
+Eight of the 76 links redirect. Two are worth knowing about because the *content* moved,
 not just the path:
 
 1. **The Codex docs left `developers.openai.com` entirely.** Everything under

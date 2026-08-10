@@ -258,6 +258,7 @@ findings/B5-guardrails.md
 ## Note from our environment
 
 Claude runs on this machine load **~21 hooks** from user and project settings. For any
-benchmark that is 21 uncontrolled interventions — run controlled experiments with `--bare`,
+benchmark that is 21 uncontrolled interventions — run controlled experiments with
+`--setting-sources project`,
 and treat hooks as a *registered treatment dimension* when you do want them. See
 `agent-observatory` #35.

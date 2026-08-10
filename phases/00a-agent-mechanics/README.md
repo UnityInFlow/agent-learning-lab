@@ -295,8 +295,12 @@ Do not modify anything.
 Run in **Copilot CLI**, **Claude Code**, and **Codex**. Record with
 `templates/run-record.yaml`.
 
-> ⚠️ Run Claude with `--bare` or your ~21 local hooks, 2 plugins and 3–4 MCP servers join
-> the experiment uninvited. We learned this the expensive way.
+> ⚠️ Run Claude with `--setting-sources project --strict-mcp-config`, or your ~21 local
+> hooks and 2 plugins join the experiment uninvited. We learned this the expensive way.
+>
+> **Not `--bare`.** It skips hooks, but it also skips `CLAUDE.md` auto-discovery — which is
+> the treatment in Phase 1 — and it forces `ANTHROPIC_API_KEY`, so on a subscription account
+> it exits `Not logged in` before running anything. Verified 2026-08-10; see `agent-observatory` #49.
 
 The three will differ in search strategy, default tools, context assembly, approval
 behavior and model. **Do not call any of it a model difference until you control the model

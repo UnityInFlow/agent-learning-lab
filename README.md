@@ -66,7 +66,7 @@ primitive, then build with it, so no build step is a guess.
 |---|---|---|---|
 | [0A](phases/00a-agent-mechanics/) | Agent mechanics + governance | all three | ⬜ **skipped — should have been first** |
 | [0B](phases/00b-observatory/) | Observatory + evaluation baseline | L0 | ✅ **Built** in `agent-observatory` |
-| [1](phases/01-instructions/) | Custom instructions | **L3** | ❌ **Attempted, invalidated** |
+| [1](phases/01-instructions/) | Custom instructions | **L3** | ✅ **Result — see phase** |
 | [2](phases/02-prompt-files/) | Prompt files / reusable workflows | **L3** | ⬜ |
 | [3](phases/03-skills/) | Agent Skills | **L3** | ⬜ |
 | [4A](phases/04a-agents-permissions/) | Custom agents + permissions | L2 | ⬜ |
@@ -134,7 +134,7 @@ sitting on disk.
 
 Runs invoked as `--model haiku` loaded ~21 hooks, 2 plugins and 3–4 MCP connections from
 the local user environment, varying run to run, while the protocol claimed only the model
-varied. Pin exact model IDs. Use `--bare`. Fingerprint what actually loaded.
+varied. Pin exact model IDs. Use `--setting-sources project`. Fingerprint what actually loaded.
 
 ---
 

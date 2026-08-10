@@ -32,6 +32,14 @@ while read -r u; do
   case "$u" in
     https://github.com/UnityInFlow/*) printf '🔑 PRIVATE %s\n' "$u"; continue ;;
   esac
+  # Local service endpoints are not sources and must not fail a cohort check. They were
+  # counted as broken=2 on 2026-08-10 and would have exited 1 for no reason: 4317 is gRPC,
+  # so an HTTP GET cannot succeed, and 4318/v1/traces answers 405 because it is POST-only —
+  # that 405 is the collector working, reported as a failure.
+  case "$u" in
+    http://localhost:*|http://127.0.0.1:*|http://0.0.0.0:*)
+      printf '🏠 LOCAL   %s  (service endpoint, not a source)\n' "$u"; continue ;;
+  esac
   read -r code final < <(curl -sSL -o /dev/null \
       -w '%{http_code} %{url_effective}' \
       --max-time 25 -A 'Mozilla/5.0' "$u" 2>/dev/null || echo "000 -")

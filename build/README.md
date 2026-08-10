@@ -112,8 +112,13 @@ model ID**, same commit, same verification.
 
 **Three runs minimum, five preferred.** One run is a story.
 
-**Run it isolated** — `--bare` for Claude, `--no-custom-instructions` for Copilot. Without
+**Run it isolated** — `--setting-sources project --strict-mcp-config` for Claude (the runner
+exposes this as `--isolate-user-settings`), `--no-custom-instructions` for Copilot. Without
 that you are measuring your ~21 local hooks, not the baseline.
+
+**Not `--bare`.** It disables `CLAUDE.md` discovery, which B3 onward depends on, and it does
+not authenticate on a subscription account at all. `EXP-BE002-NOHOOKS` measured what the
+isolation is worth: hooks cost ~13% of every run, on both arms almost equally.
 
 **Record per run:** which files it inspected · did it understand the architecture · did it
 verify its own work · what needed correction · which metrics were even available.
