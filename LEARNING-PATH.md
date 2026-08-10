@@ -55,6 +55,9 @@ anything.
 
 ## Track B — Build
 
+**Full guide: [`build/README.md`](build/README.md)** — each step with what you build, the
+acceptance gate, and the specific trap.
+
 | Step | Build | Needs first | Version |
 |---|---|---|---|
 | B1 | Experiment contract, rubric, run record | 0B | — |
@@ -122,12 +125,27 @@ Track A cannot progress past Phase 1, and Track B cannot start B3, until these c
 
 | | |
 |---|---|
-| `agent-observatory` **#36** | The instruction treatment was never loaded — Claude reads `CLAUDE.md`, not `AGENTS.md` |
+| `agent-observatory` **#36** | Instruction treatment never loaded — Claude reads `CLAUDE.md`, not `AGENTS.md`. **Registration done** (PR #46); preflight assertion still open |
 | `agent-observatory` **#35** | Runs not isolated: ~21 hooks, 2 plugins, 3–4 MCP servers varied between runs |
-| **harness bug #7** | *No issue filed.* Permission blocks recorded as incorrect code. Voids every cross-model comparison |
+| `agent-observatory` **#47** | Permission blocks recorded as incorrect code. Voids every cross-model comparison |
+| `agent-observatory` **#48** | Claude traces may not be unavailable at all — just behind a beta flag |
 | `agent-observatory` **#34** | Model-tier experiment not preregistered before its data |
 
-Bug #7 is also **Lab 5B.5** — the fix and the lesson are the same work.
+#47 is also **Lab 5B.5**, and #48 is **Lab 10.0** — in both cases the fix and the lesson are
+the same work.
+
+### Three findings that shortcut this list
+
+Each came from reading a source rather than debugging:
+
+1. **`InstructionsLoaded` hook** ([5A extract](phases/05a-guardrails/README.md#extract)) — fires
+   when a `CLAUDE.md` or rules file loads, and reports *why*. That is the preflight assertion
+   #36 has been missing.
+2. **`claude_code.tool.blocked_on_user` span** ([10 extract](phases/10-production-observability/README.md#extract))
+   — a direct detector for #47, so the fix can be *verified* rather than trusted.
+3. **Copilot CLI reads `CLAUDE.md`** ([1 extract](phases/01-instructions/README.md#extract)) — a
+   cross-runtime instruction experiment can hold the file constant instead of maintaining two
+   adapters.
 
 ---
 

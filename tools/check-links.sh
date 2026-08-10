@@ -17,7 +17,9 @@ files=("${@:-SOURCES.md CURRICULUM.md}")
 # shellcheck disable=SC2128
 [ $# -eq 0 ] && files=(SOURCES.md CURRICULUM.md)
 
-urls=$(grep -ohE 'https?://[^ )>,"]+' "${files[@]}" | sed 's/[.,]$//' | sort -u)
+# Strip markdown punctuation that can cling to a URL: backticks, brackets, quotes,
+# and trailing sentence punctuation. A trailing backtick produced a false 404 once.
+urls=$(grep -ohE 'https?://[^ )>,"`]+' "${files[@]}" | sed 's/[.,;:]*$//' | sort -u)
 total=$(echo "$urls" | wc -l | tr -d ' ')
 echo "Checking $total unique URLs in ${files[*]}"
 echo

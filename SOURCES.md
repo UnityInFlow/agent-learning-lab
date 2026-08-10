@@ -133,13 +133,82 @@ to non-browser user agents. They load normally in a browser.
 
 ---
 
+## ⚠️ One source is a tombstone that returns 200
+
+`https://opentelemetry.io/docs/specs/semconv/gen-ai/` responds **HTTP 200**, renders a page,
+and does not redirect — so `check-links.sh` marks it ✅. Reading it says:
+
+> "This page **has moved and is no longer maintained** in this repository."
+
+Content moved to
+**[github.com/open-telemetry/semantic-conventions-genai](https://github.com/open-telemetry/semantic-conventions-genai)** (✅ verified).
+The sub-pages still resolve: [spans](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/) ✅ ·
+[metrics](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-metrics/) ✅
+
+**A 200 means the server answered. It does not mean the page still says what you cited it
+for.** No link checker catches this — only reading does. It is the reason every source here
+carries *the question to bring to it* rather than just a URL.
+
+---
+
 ## Sources the curriculum does not cite but you will need
 
-Added from labs we have actually run. These are not in `CURRICULUM.md`.
+Added from labs and extracts. None of these are in `CURRICULUM.md`. All verified 2026-08-09.
+
+### Agent design and orchestration
 
 | | Source | Why it earned a place |
 |---|---|---|
-| ✅ | [Claude Code — CLI reference](https://code.claude.com/docs/en/cli-reference) | `--bare`, `-p`, `--permission-mode`, `--append-system-prompt-file`. **Four of our seven harness bugs live in these flags** |
+| ✅ | [Anthropic — Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) | **Workflow vs agent**, five patterns, and *"add complexity only when it demonstrably improves outcomes."* Extracted in [0A](phases/00a-agent-mechanics/) |
+| ✅ | [Anthropic — Multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) | 15× tokens, +90.2% — **and *"most coding tasks involve fewer truly parallelizable tasks than research."*** Extracted in [4B](phases/04b-orchestration/) |
+| ✅ | [Claude Code — Agent teams](https://code.claude.com/docs/en/agent-teams) | Lead coordinates, assigns, merges |
+| ✅ | [Claude Code — Dynamic workflows](https://code.claude.com/docs/en/workflows) | When orchestration should be deterministic code, not a model decision |
+| ✅ | [A harness for every task](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code) | How the Claude Code team actually does it |
+
+### Context and knowledge
+
+| | Source | Why |
+|---|---|---|
+| ✅ | [Anthropic — Effective context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) | **Context rot**, and the four strategies. The theory Phase 1 tests. Extracted in [0A](phases/00a-agent-mechanics/) |
+| ↪️ | [Model Context Protocol spec](https://modelcontextprotocol.io/specification/latest) → `/specification/2026-07-28` | The protocol itself, not a vendor's wrapper. **`latest` is a moving target** — cite the dated revision in anything you intend to reproduce |
+| ✅ | [LSP 3.17 specification](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/) | Why symbol intelligence differs from text search, at the wire level |
+
+### Security and trust
+
+| | Source | Why |
+|---|---|---|
+| ✅ | [Simon Willison — The lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/) | Private data + untrusted content + external communication. **95% detection is "a failing grade."** Extracted in [0A](phases/00a-agent-mechanics/) |
+| ✅ | [OWASP — Top 10 for LLM Applications](https://genai.owasp.org/llm-top-10/) | Which of the ten your L1/L2 controls can actually stop |
+| ✅ | [Claude Code — Security](https://code.claude.com/docs/en/security) | Read the limits harder than the guarantees |
+| ✅ | [Claude Code — Sandboxing](https://code.claude.com/docs/en/sandboxing) | What a real Layer 1 boundary looks like |
+| ✅ | [Claude Code — IAM](https://code.claude.com/docs/en/iam) | Layer 2 in detail, and precedence |
+| ✅ | [Claude Code — Dev containers](https://code.claude.com/docs/en/devcontainer) | When Layer 2 is not enough |
+
+### Flags, telemetry and the things that bit us
+
+| | Source | Why it earned a place |
+|---|---|---|
+| ✅ | [Claude Code — CLI reference](https://code.claude.com/docs/en/cli-reference) | `--bare`, `-p`, `--permission-mode`, `--append-system-prompt-file`. **Four of seven harness bugs live in these flags** |
 | ✅ | [Claude Code — Model configuration](https://code.claude.com/docs/en/model-config) | Aliases vs exact model IDs. An alias silently re-pointing is an uncontrolled variable |
-| ✅ | [Claude Code — Monitoring usage](https://code.claude.com/docs/en/monitoring-usage) | The OTel field list you must scrub. `user.email` can appear in OAuth telemetry |
-| ✅ | [Claude Code — Settings](https://code.claude.com/docs/en/settings) | Settings precedence — which of user/project/local won on a given run |
+| ✅ | [Claude Code — Monitoring usage](https://code.claude.com/docs/en/monitoring-usage) | **`claude_code.tool.blocked_on_user`** — the detector for harness bug #7. Every content-capture default. `user.email` when authenticated. Extracted in [10](phases/10-production-observability/) |
+| ✅ | [Claude Code — Settings](https://code.claude.com/docs/en/settings) | Which of user/project/local won on a given run |
+| ✅ | [Claude Code — Memory](https://code.claude.com/docs/en/memory) | *"Claude Code reads `CLAUDE.md`, not `AGENTS.md`."* The sentence that voided Phase 1. Extracted in [9](phases/09-memory/) |
+| ✅ | [Claude Code — Hooks](https://code.claude.com/docs/en/hooks) | Exit codes, fail-open behaviour, and **`InstructionsLoaded`** — the preflight assertion #36 needs. Extracted in [5A](phases/05a-guardrails/) |
+
+## Where each extract lives
+
+| Phase | Extract built from |
+|---|---|
+| [0A](phases/00a-agent-mechanics/#extract) | Building effective agents · context engineering · lethal trifecta |
+| [0B](phases/00b-observatory/#extract) | The GenAI semconv tombstone |
+| [1](phases/01-instructions/#extract) | Copilot custom-instructions support matrix |
+| [2](phases/02-prompt-files/#extract) | VS Code prompt files |
+| [3](phases/03-skills/#extract) | Claude Code Skills |
+| [4A](phases/04a-agents-permissions/#extract) | Claude Code subagents |
+| [4B](phases/04b-orchestration/#extract) | Multi-agent research system |
+| [5A](phases/05a-guardrails/#extract) | Claude Code hooks |
+| [8](phases/08-agentic-workflows/#extract) | gh-aw safe outputs |
+| [9](phases/09-memory/#extract) | Claude Code memory |
+| [10](phases/10-production-observability/#extract) | Claude Code monitoring usage |
+
+**Still without an extract:** 5B, 6A, 6B, 7 — tracked in issue #17.

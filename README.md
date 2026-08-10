@@ -49,12 +49,16 @@ LEARN THE MECHANISM → READ VERIFIED DOCS → PREDICT → BUILD THE SMALLEST VE
 
 ## Start here
 
-**[`LEARNING-PATH.md`](LEARNING-PATH.md)** — the single plan. It merges the four competing
-roadmaps (this curriculum plus the three in [`businesscase/`](businesscase/)) into two
-interleaved tracks: **Understand** (phases below) and **Build** (the backend agent, v1→v1.3).
+| | |
+|---|---|
+| **[`LEARNING-PATH.md`](LEARNING-PATH.md)** | **The single plan.** Merges the four competing roadmaps (this curriculum + the three in [`businesscase/`](businesscase/)) into two interleaved tracks |
+| **[`build/`](build/)** | **Track B — build a custom backend agent.** Thirteen steps, B1→B13, plain prompt to governed self-learning |
+| **[`GUARDRAILS.md`](GUARDRAILS.md)** | The layer model every phase points back to. Read before Phase 5A |
+| **[`SOURCES.md`](SOURCES.md)** | Every source, verified, with what to take from each |
 
-**[`GUARDRAILS.md`](GUARDRAILS.md)** — the layer model every phase points back to. Read it
-before Phase 5A.
+**Two tracks.** *Understand* (the phases below) teaches why a primitive behaves as it does.
+*Build* ([`build/`](build/)) applies it to a real agent. They interleave — learn the
+primitive, then build with it, so no build step is a guess.
 
 ## Progress
 
