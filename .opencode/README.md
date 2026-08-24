@@ -32,9 +32,25 @@ looks like agreement.
 ## Usage
 
 ```bash
-./tools/opencode-review.sh <artifact> [more...]     # → findings/opencode/review-*.md
-./tools/opencode-score.sh  <rubric> <impl-dir>      # → findings/opencode/score-*.yaml
+./tools/opencode-review.sh <artifact> [more...]        # → findings/opencode/review-*.md
+./tools/opencode-review.sh -n 3 <artifact>             # 3 independent runs, findings unioned
+./tools/opencode-score.sh  <rubric> <impl-dir>         # → findings/opencode/score-*.yaml
 ```
+
+## The reviewer under-reports — measured, not assumed
+
+Two runs of `lab-critic` at `temperature: 0` over the same artifact disagreed on **2 of 12
+sections**. Both flips were `no finding` → a genuine finding the earlier run had missed, and
+the critic classified both as **L1 — structural**, the sharpest class it has.
+
+So the failure mode is *incomplete recall*, not invention. **A single review run is a lower
+bound on findings.** That is what `-n` is for: it unions across independent sessions and
+prints a recurrence column.
+
+Read the recurrence column as a detection-threshold signal, **not** a truth signal. A section
+flagged 1/3 is not one-third true — it is a finding that sits near the edge of what this
+reviewer reliably notices. In our measurement, that is exactly where the two L1 findings
+lived. Do not discount low-recurrence rows; they were the most structural ones we got.
 
 ## Three rules that make the output mean anything
 

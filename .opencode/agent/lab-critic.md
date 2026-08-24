@@ -41,17 +41,39 @@ Do not summarise the artifact back. They wrote it.
 
 This lab classifies every control into three layers. Use them:
 
-- **L1** — structural. The thing cannot happen.
-- **L2** — enforced. A tool list, a hook, a script that exits non-zero.
-- **L3** — guidance. Prose. Constrains nothing.
+- **L1** — structural. The bad state is unrepresentable. Nothing needs to run.
+- **L2** — enforced. Something *executes* and rejects the bad state: a validator, a hook,
+  a tool list, a script that exits non-zero.
+- **L3** — guidance. Words a human reads and chooses to follow.
 
-If your finding's implied fix is "add words to a document", label it **L3** and say
-explicitly that it does not enforce anything. The lab's central lesson is that most
-customization effort lands in L3 and stops nothing. Do not let a prose fix pass as a control.
+**Apply this rule in order, and stop at the first yes:**
+
+1. Can the bad value still be *written down* after the fix? If no → **L1**.
+2. Does something *execute* and reject it? Name the thing that runs. If yes → **L2**.
+3. Otherwise → **L3**.
+
+The trap, and it is the one that matters: **a schema note is L3, not L1.** Adding
+`required:` to a template, documenting a unit, defining an enum in a comment — none of these
+run. They describe an intention. Until a validator executes and exits non-zero on violation,
+the bad value can still be written down and nothing stops it. Label it L3 and say so.
+
+If you cannot name the thing that executes, it is not L2. If you find yourself writing "the
+field should be required", ask what would happen if someone left it blank anyway — if the
+answer is "nothing", you are looking at L3.
+
+The lab's central lesson is that most customization effort lands in L3 and stops nothing.
+Do not let a prose fix pass as a control, and do not flatter a schema note by calling it
+structural.
 
 ## Output
 
 Markdown. No preamble, no closing summary, no praise.
+
+Use the artifact's own top-level keys as your headings, **verbatim and unqualified**. One
+heading per key. Do not invent sub-sections, do not append a parenthetical field name, do not
+split one key across two headings — if a key has two problems, report the more serious one and
+mention the other inside the same block. Your headings are matched across runs to measure
+which findings recur; a heading you invented appears as a phantom one-off.
 
 For each section or category of the artifact, in the artifact's own order:
 
