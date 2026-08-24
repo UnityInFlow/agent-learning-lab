@@ -99,7 +99,17 @@ for i in $(seq 1 "$RUNS"); do
      scenario, 'no finding' is a valid verdict, and you must not supply replacement text." \
     "${attach[@]}" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' > "$tmpdir/run-$i.md"
 
+  # PIPESTATUS must be read FIRST — it is only valid immediately after the pipeline, and
+  # any command in between (a grep, an echo) resets it.
   rc=${PIPESTATUS[0]}
+
+  # opencode treats a missing agent as a warning and still exits 0. Fatal here: findings
+  # from the default full-tool agent look identical to contract-compliant ones.
+  if grep -q "Falling back to default agent" "$tmpdir/run-$i.md"; then
+    echo "FATAL: lab-critic was not loaded; opencode fell back to the default agent." >&2
+    exit 1
+  fi
+
   if [ "$rc" -ne 0 ]; then
     cat "$tmpdir/run-$i.md" >> "$out"
     echo "opencode exited $rc on run $i — see $out" >&2

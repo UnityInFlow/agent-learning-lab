@@ -1,0 +1,36 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.21
+  agent_sha:     840e0e5b520e
+  rubric_path:   .opencode/fixtures/probe-rubric.yaml
+  rubric_sha:    c40ee4cece6c
+  target:        ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/known-bad-repeat-conflict
+  scored_utc:    20260824T202833Z
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: error-envelope
+    score: 2
+    reason: Every refusal path throws an ApiException subclass (ConflictException or ResourceNotFoundException) and no response body is assembled inline in the controller.
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:59
+    anchor: "Every refusal throws an ApiException subclass; no response body is assembled in the controller."
+  - name: idempotency
+    score: 0
+    reason: A repeat confirm on an already-CONFIRMED shipment throws ConflictException, a 4xx conflict.
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:59
+    anchor: "A repeat confirm on an already-CONFIRMED shipment throws or returns a 4xx conflict."
+  - name: maintainability
+    score: null
+    reason: ambiguous
+    evidence: probe-rubric.yaml:36-38
+    anchor: "1: \"Reasonable.\" / 2: \"Good.\""
+ambiguous_categories: [maintainability]
+```

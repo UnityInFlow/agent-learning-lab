@@ -37,6 +37,9 @@ TARGET="$2"
 [ -r "$RUBRIC" ] || { echo "cannot read rubric: $RUBRIC" >&2; exit 1; }
 [ -d "$TARGET" ] || { echo "not a directory: $TARGET" >&2; exit 1; }
 
+# Absolute, so the path survives regardless of where opencode resolves attachments from.
+RUBRIC_ABS="$(cd "$(dirname "$RUBRIC")" && pwd)/$(basename "$RUBRIC")"
+
 mkdir -p "$OUTDIR"
 stamp=$(date -u +%Y%m%dT%H%M%SZ)
 slug=$(basename "$TARGET")
@@ -58,19 +61,47 @@ out="$OUTDIR/score-$slug-$stamp.yaml"
   echo "---"
 } > "$out"
 
-echo "scoring $slug with $MODEL ..." >&2
+# Attach every source file under the target. Keeps the scorer tool-free and makes the
+# evidence set explicit rather than whatever the model chose to go looking for.
+impl=()
+while IFS= read -r f; do impl+=(-f "$f"); done < <(find "$TARGET" -type f \
+  \( -name '*.kt' -o -name '*.java' -o -name '*.xml' -o -name '*.yaml' -o -name '*.yml' \) | sort)
+
+if [ ${#impl[@]} -eq 0 ]; then
+  echo "no source files found under $TARGET" >&2
+  exit 1
+fi
+
+echo "scoring $slug with $MODEL — $(( ${#impl[@]} / 2 )) source file(s) ..." >&2
 
 # The prompt must precede -f: opencode's -f is a yargs array flag and will otherwise
 # swallow the message as a filename.
-opencode run --agent lab-scorer -m "$MODEL" --dir "$TARGET" \
-  "Score the implementation in the working directory against the attached rubric.
-   Read the source before scoring; cite path:line as evidence. Emit score: null with
-   reason: ambiguous for any category whose anchors do not let you separate two scores.
-   YAML only — no preamble, nothing after the YAML." \
-  -f "$RUBRIC" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' >> "$out"
+# NO --dir. It repoints opencode's project root at the target, so `.opencode/agent/` is
+# looked up inside the implementation under test, lab-scorer is not found, and opencode
+# SILENTLY FALLS BACK to the default `build` agent — full tool access, none of the output
+# contract — and still exits 0. The agent definition is Layer 3: it constrained nothing, and
+# nothing told us it had been ignored. The guard below is the Layer 2 version of that wish.
+#
+# Source files are attached instead, so the scorer needs no filesystem tools at all.
+opencode run --agent lab-scorer -m "$MODEL" \
+  "Score the attached implementation against the attached rubric ($(basename "$RUBRIC")).
+   The other attachments are the implementation under test, rooted at $TARGET.
+   Cite path:line as evidence. Emit score: null with reason: ambiguous for any category
+   whose anchors do not let you separate two scores. YAML only — no preamble, nothing
+   after the YAML." \
+  -f "$RUBRIC_ABS" "${impl[@]}" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' >> "$out"
 
 # PIPESTATUS[0], not $? — $? is sed's status, and sed always succeeds.
 rc=${PIPESTATUS[0]}
+
+# A missing agent is a WARNING to opencode and exit 0. Treat it as fatal: a score produced
+# by the default agent looks exactly like a real one and would poison every comparison.
+if grep -q "Falling back to default agent" "$out"; then
+  echo "FATAL: lab-scorer was not loaded; opencode fell back to the default agent." >&2
+  echo "The scores in $out are NOT contract-compliant. Discard them." >&2
+  exit 1
+fi
+
 if [ $rc -ne 0 ]; then
   echo "opencode exited $rc — see $out" >&2
   exit 1

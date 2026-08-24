@@ -1,0 +1,36 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.21
+  agent_sha:     840e0e5b520e
+  rubric_path:   .opencode/fixtures/probe-rubric.yaml
+  rubric_sha:    c40ee4cece6c
+  target:        ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/known-bad-default-error
+  scored_utc:    20260824T202844Z
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: error-envelope
+    score: 0
+    reason: Refusals in confirm are raised as ResponseStatusException, which lets Spring's default error body escape rather than the ApiError envelope.
+    evidence: ShipmentController.kt:54
+    anchor: "Controller assembles a response body inline, or lets Spring's default error body escape."
+  - name: idempotency
+    score: 2
+    reason: A repeat confirm on an already-CONFIRMED shipment returns the shipment unchanged with no state mutation.
+    evidence: ShipmentController.kt:63
+    anchor: "A repeat confirm returns the shipment unchanged, with the same status code and body as the first call."
+  - name: maintainability
+    score: null
+    reason: ambiguous
+    evidence: probe-rubric.yaml:36-38
+    anchor: "Poor. / Reasonable. / Good."
+ambiguous_categories: [maintainability]
+```
