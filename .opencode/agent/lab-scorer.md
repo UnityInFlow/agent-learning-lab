@@ -4,6 +4,11 @@ description: Independent second scorer. Applies a supplied rubric to an implemen
 mode: primary
 temperature: 0
 tools:
+  # Mutation and shell are off. Read-ish tools are deliberately left ON: turning every tool
+  # off made the model hang rather than answer. The prompt tells it the attachments are the
+  # complete evidence set, which is what stops it hunting for files and blocking on an
+  # external_directory permission prompt no TTY can answer. If it goes hunting anyway the
+  # output guard in opencode-score.sh fails the run rather than reporting an empty success.
   write: false
   edit: false
   patch: false
@@ -39,6 +44,11 @@ be visible.
 
 5. **No commentary.** No preamble, no "overall this is solid", nothing after the YAML.
 
+6. **Be terse.** Do not quote the anchor back — `anchor_level` already identifies it, and
+   restating long anchors verbatim for every category is most of the output. `reason` is one
+   clause, not a paragraph. A rubric with verbose anchors must not cost more to apply than
+   one with terse anchors; the score is the product, the prose is not.
+
 ## Output
 
 YAML only. Exactly this shape, one entry per rubric category, in the rubric's order:
@@ -48,9 +58,9 @@ scorer: lab-scorer
 categories:
   - name: <category name verbatim from the rubric>
     score: 0 | 1 | 2 | null
-    reason: <one sentence — or `ambiguous` per rule 3>
+    anchor_level: <0, 1 or 2 — WHICH anchor you matched; null when score is null>
+    reason: <one clause, under 20 words>
     evidence: <path:line, or the specific absence the rubric scores>
-    anchor: <verbatim quote of the rubric anchor you applied>
 ambiguous_categories: [<names where score is null>]
 ```
 

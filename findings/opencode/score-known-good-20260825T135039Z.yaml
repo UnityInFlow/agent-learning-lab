@@ -1,0 +1,13 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.21
+  agent_sha:     cb371384fa19
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    7c2895cd9dea
+  target:        ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/known-good
+  scored_utc:    20260825T135039Z
+  session:       fresh    # never --continue; independence requires no memory
+---

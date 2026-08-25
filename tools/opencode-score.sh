@@ -85,10 +85,11 @@ echo "scoring $slug with $MODEL — $(( ${#impl[@]} / 2 )) source file(s) ..." >
 # Source files are attached instead, so the scorer needs no filesystem tools at all.
 opencode run --agent lab-scorer -m "$MODEL" \
   "Score the attached implementation against the attached rubric ($(basename "$RUBRIC")).
-   The other attachments are the implementation under test, rooted at $TARGET.
-   Cite path:line as evidence. Emit score: null with reason: ambiguous for any category
-   whose anchors do not let you separate two scores. YAML only — no preamble, nothing
-   after the YAML." \
+   The attachments are the COMPLETE evidence set — every source file under test is already
+   attached. Do not look for other files; there are none, and you have no tools. Cite
+   attachment filename:line as evidence. Emit score: null with reason: ambiguous for any
+   category whose anchors do not let you separate two scores. YAML only — no preamble,
+   nothing after the YAML." \
   -f "$RUBRIC_ABS" "${impl[@]}" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' >> "$out"
 
 # PIPESTATUS[0], not $? — $? is sed's status, and sed always succeeds.
@@ -104,6 +105,16 @@ fi
 
 if [ $rc -ne 0 ]; then
   echo "opencode exited $rc — see $out" >&2
+  exit 1
+fi
+
+# opencode exits 0 even when the model produced no scores — a rejected tool call, a refusal,
+# an empty turn. Without this the script reports success and hands back a file containing an
+# error message, which is exactly the shape of failure the agent-fallback guard above exists
+# to stop. Require the contract's own markers before calling it a score.
+if ! grep -q "^scorer: lab-scorer" "$out" || ! grep -q "^categories:" "$out"; then
+  echo "FATAL: no contract-compliant YAML in the output — the scorer produced nothing usable." >&2
+  echo "See $out for what it did instead." >&2
   exit 1
 fi
 
