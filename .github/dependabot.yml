@@ -1,0 +1,8 @@
+# Only Actions — this repository has no application dependencies, and should not acquire any.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+    open-pull-requests-limit: 3
+    labels: [dependencies]

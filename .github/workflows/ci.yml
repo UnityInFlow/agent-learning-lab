@@ -1,0 +1,76 @@
+# This repository's artifacts are prose, shell tools and YAML contracts, so CI checks those
+# rather than compiling anything.
+#
+# Link rot is the real risk. During the 2026-08-09 verification, 7 of 43 sources redirected,
+# including the entire Codex documentation host. A curriculum whose "verified reading" list
+# 404s has quietly stopped being verified, and nobody notices until a cohort hits it.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Vendor agent docs move constantly. Weekly, so rot is found before a cohort finds it.
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shell:
+    name: shell tools
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check every tool
+        run: for f in tools/*.sh; do bash -n "$f" || exit 1; done
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: ./tools
+          severity: warning
+
+  yaml:
+    name: contracts parse
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PyYAML
+        run: pip install --quiet pyyaml
+      # A rubric or run-record template that does not parse is a contract nobody can apply.
+      - name: Parse every YAML contract
+        run: |
+          python3 - <<'PY'
+          import glob, sys, yaml
+          bad = 0
+          for f in glob.glob('templates/*.yaml') + glob.glob('benchmark/rubrics/*.yaml') + glob.glob('.opencode/fixtures/*.yaml'):
+              try:
+                  yaml.safe_load(open(f))
+                  print('ok  ', f)
+              except Exception as e:
+                  print('FAIL', f, e); bad = 1
+          sys.exit(bad)
+          PY
+
+  links:
+    name: verified reading is still verified
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Advisory on PRs — a vendor moving a doc is not the contributor's fault and must not
+    # block their change. It still fails the scheduled run, which is where rot gets noticed.
+    continue-on-error: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check every source link
+        run: ./tools/check-links.sh

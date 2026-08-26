@@ -11,7 +11,9 @@
 # openai.com returns 403 to non-browser user agents but the pages are live.
 
 set -uo pipefail
-cd "$(dirname "$0")/.."
+# `|| exit` is not defensive noise: without it a failed cd leaves the script running in the
+# caller's directory, where the SOURCES.md it checks is whatever happened to be there.
+cd "$(dirname "$0")/.." || exit 1
 
 files=("${@:-SOURCES.md CURRICULUM.md}")
 # shellcheck disable=SC2128
