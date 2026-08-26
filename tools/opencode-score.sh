@@ -21,7 +21,9 @@
 # Exit 1 on bad arguments or an opencode failure.
 
 set -uo pipefail
-cd "$(dirname "$0")/.."
+# `|| exit` matters here: without it a failed cd runs the review from the caller's
+# directory, resolving artifact paths against the wrong tree and stamping the wrong shas.
+cd "$(dirname "$0")/.." || exit 1
 
 MODEL="${LAB_REVIEW_MODEL:-ollama-cloud/deepseek-v4-pro}"
 OUTDIR="findings/opencode"
