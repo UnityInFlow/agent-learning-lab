@@ -30,12 +30,22 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Syntax check every tool
-        run: for f in tools/*.sh; do bash -n "$f" || exit 1; done
+        run: for f in tools/*.sh .claude/hooks/*.sh; do bash -n "$f" || exit 1; done
       - name: ShellCheck
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: ./tools
           severity: warning
+      - name: ShellCheck the hooks
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: ./.claude/hooks
+          severity: warning
+      # opencode, git and the reviewer are all stubbed — no network, no tokens, no model
+      # calls. A hook that silently does nothing is worse than no hook, so the cases
+      # asserting the reviewer was NOT called run here too.
+      - name: The review hook behaves
+        run: ./.claude/hooks/opencode-review.test.sh
 
   yaml:
     name: contracts parse
