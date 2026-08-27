@@ -159,9 +159,12 @@ a lower bound rather than a value. `opencode-score.sh` has no `-n`; `opencode-re
 ## Deterministic evaluation
 
 None. **This experiment has no deterministic evaluator, by design** — that is the whole
-reason it exists. `evaluator.sh` has already decided pass/fail for all five fixtures, and all
-five passed. What is being measured here is whether a *non-deterministic* instrument can
-discriminate among things a deterministic one cannot.
+reason it exists. `evaluator.sh` has already decided pass/fail for all six, and all six
+passed — and since benchmarks#21 that is executed rather than asserted: every gate-passing
+variant is now a registered `run_case`, so a fixture that quietly stopped clearing the gates
+would fail CI instead of silently leaving the scored population. What is being measured here
+is whether a *non-deterministic* instrument can discriminate among things a deterministic one
+cannot.
 
 The check on the rubric is agreement with an independent human scorer, which is why step 2
 below is blind.
