@@ -33,45 +33,74 @@ the interesting ones, and a `?` is a finding about the anchor).
 
 ## The grid — 24 cells
 
+Two columns are already settled by the decisions below. Seventeen judgements are left.
+
 |  | arch-consistency (35) | maintainability (25) | test-quality (25) | change-focus (15) |
 |---|---|---|---|---|
-| `known-good` | | | | |
-| `good-inline-envelope` | | | | |
-| `good-nested-ifs` | | | | |
-| `good-noisy-diff` | | | | |
+| `known-good` | | | **N** — no test file | *degenerate — see note* |
+| `good-inline-envelope` | | | **N** — no test file | |
+| `good-nested-ifs` | | | **N** — no test file | |
+| `good-noisy-diff` | | | **N** — no test file | |
 | `good-strong-tests` | | | | |
 | `good-weak-tests` | | | | |
 
-**Count of `N` + half your `?`s → prediction 1.**
+**Count of `N` + half your `?`s → prediction 1.** Four are already on the board.
+
+> **The degenerate cell.** With the baseline attached, scoring `known-good` means scoring it
+> against itself, and `change-focus` is trivially 2. Decide whether that cell is a 2, omitted,
+> or `known-good` is scored without a baseline. It is one cell, but it changes the denominator.
 
 ---
 
 ## Two decisions that move whole rows before you count
 
-Settle these first; each one changes 6 cells at a stroke.
+Both settled on 2026-08-27, before any anchor was written. Recorded here with the
+consequence each one carries.
 
-### A. `test-quality` on a fixture with no test file
+### A. `test-quality` on a fixture with no test file — **DECIDED 2026-08-27: null**
 
-Four of six fixtures attach no tests. The scorer will do one of:
+The anchors carry a precondition. A submission with no test file in the evidence set is
+undecidable for this category and the scorer emits `null`, not `0`. Absence is not a low
+score — asserting `0` would be a claim about tests that were never submitted, which is the
+same shape as a gap reading as a zero.
 
-- emit `null` — "the evidence set contains no tests, I cannot judge their quality"
-- emit `0` — which asserts the tests are bad, when what is true is that none were submitted
+```yaml
+test-quality:
+  precondition: at least one test file in the evidence set
+  if absent -> score: null, reason: no tests submitted
+  0: tests exist but assert only status codes
+  1: asserts the response body, single call path
+  2: calls confirm twice and compares; asserts the error envelope; re-reads the shipment
+```
 
-Those are different claims and only one is honest, but **which one happens is a property of
-the anchors you write**, not of the model. Decide, then write the anchor so the scorer cannot
-do the other.
+**Consequence:** 4 of 24 cells are guaranteed nulls, and 25% of the weight rests on a single
+pair. Whether that is enough to call `test-quality` discriminating is a real question for the
+decision rule.
 
-### B. `change-focus` with no diff
+### B. `change-focus` with no diff — **DECIDED 2026-08-27: attach `known-good` as the baseline**
 
-`change-focus` is a statement about a *change*. The scorer sees one final tree. So either:
+`opencode-score.sh` attaches the `known-good` tree alongside the fixture, so a change is
+visible and the anchor can be cited at `path:line` in both trees. The baseline is another
+submission, not evaluator output, so the scorer stays orthogonal to the gates.
 
-- the anchor becomes an **intrinsic** property — something visible in the file itself, e.g.
-  "methods the ticket did not name show restyling inconsistent with the rest of the file" — or
-- the category nulls for all six, and 15% of the weight carries nothing
+```
+-f rubric.yaml  -f <fixture>/**.kt  -f known-good/**.kt
+anchor: "Methods the ticket did not name are character-identical to the baseline."
+```
 
-Whether an intrinsic anchor is even decidable is worth a look before you commit: open
-`good-noisy-diff/…/ShipmentController.kt` and ask yourself, without `known-good` beside it,
-whether you could tell `create` had been restyled.
+**Registered risk — this is the cost of the decision, not an argument against it.** A baseline
+in the evidence set is available to *all four* categories, not only `change-focus`. It may turn
+`architecture-consistency` and `maintainability` from "judge this submission" into "spot the
+difference", which is an easier task and a different measurement. Two consequences to watch:
+
+- discrimination may improve for a reason that is not the rubric working
+- the scorer is effectively told which tree is the reference, which is a strong hint
+
+Scoping the baseline to `change-focus` in the rubric text is **L3** — the scorer may read the
+whole evidence set regardless. If this matters, the L2 version is a separate baseline-free
+pass for the other three categories. **Prediction 3 is where this gets caught:** if agreement
+on `architecture-consistency` and `maintainability` is far higher than the probe run's, suspect
+the baseline before crediting the anchors.
 
 ---
 
