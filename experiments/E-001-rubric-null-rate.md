@@ -108,7 +108,7 @@ Three failure modes, and they are not the same:
   is the strongest result this experiment can produce, and until 2026-08-27 the harness gave
   it the same exit code as a crash and the Exclusions below told the reader to discard it as
   infrastructure. `lab-acceptance` rejected this record on that, blocking. See
-  [`tools/classify-score-output.sh`](../tools/classify-score-output.sh) for where the
+  [`tools/classify-model-output.sh`](../tools/classify-model-output.sh) for where the
   distinction now executes, and the decision rule for where the outcome is filed.
 - **Constant** — the scorer emits a score, but the same score for every fixture. Looks like
   success. Carries no information. This is what killed 60% of the weight in the first draft
@@ -213,7 +213,7 @@ is what makes the five commensurable with each other.
 | Agent | `.opencode/agent/lab-scorer.md` · sha `cb371384fa19` |
 | Preflight assertion | **L2.** `opencode-score.sh` fails when `--dir` repoints the project root and opencode silently falls back to the default full-tool agent exiting 0. The agent definition is L3; that guard is the L2 version |
 | Control assertion | **L1 through this script, L3 outside it.** `opencode-score.sh` has no flag and no branch that reaches `--continue`, so a remembering scorer cannot be requested through the registered mechanism. Running `opencode run --continue` by hand bypasses it, and nothing detects that — the provenance header records `session: fresh` because the script wrote it, not because anything checked |
-| Output guard | **L2, and it no longer collapses.** `tools/classify-score-output.sh` returns one exit code per outcome: `0` sheet (all-`null` cells included), `2` off contract, `3` empty, `4` default-agent fallback, `5` the scorer declaring the rubric unusable. Only `1` and `4` are infrastructure. `tools/verify-score-output-classifier.sh` registers eight fixtures with the class each must produce, and CI runs it — a classifier that stopped discriminating would be indistinguishable from the single guard it replaced |
+| Output guard | **L2, and it no longer collapses.** `tools/classify-model-output.sh score` returns one exit code per outcome: `0` contract met (all-`null` cells included), `2` off contract, `3` empty, `4` default-agent fallback, `5` the scorer declaring the rubric unusable. Only `1` and `4` are infrastructure. `tools/verify-model-output-classifier.sh` registers sixteen fixtures across the three agents' contracts, and CI runs it — a classifier that stopped discriminating would be indistinguishable from the single guard it replaced. The same check now guards `opencode-review.sh`, which had none |
 
 ## Controlled variables
 

@@ -145,9 +145,9 @@ one quality score computes.
       predicted in advance and reported separately. That 25%-of-the-weight-on-2-of-5 problem
       is itself an input to lab#21, not something this gate can absorb
 - [ ] Your blind scores and the second scorer's, compared, with the gap recorded
-- [ ] `./tools/verify-score-output-classifier.sh` exits 0 — a run that found something is
+- [x] `./tools/verify-model-output-classifier.sh` exits 0 — a run that found something is
       not discarded as a crash. Added 2026-08-27; the guard it replaced returned one code
-      for five outcomes
+      for five outcomes, and `opencode-review.sh` had no such guard at all
 
 **The population is five, not six.** `known-good` is the baseline attached to every run since
 Decision B was built, not a submission — so the grid is 4 categories × 5 variants = **20

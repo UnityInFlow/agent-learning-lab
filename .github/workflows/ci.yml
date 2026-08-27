@@ -98,9 +98,10 @@ jobs:
       # The scorer producing no sheet is E-001's most informative possible result. Until
       # 2026-08-27 the harness gave it the same exit code as a crash, and the experiment's
       # Exclusions then said to re-run it as infrastructure. This job is what keeps the
-      # five outcomes distinguishable; the fixtures are what prove it still tells them apart.
-      - name: Every score-output fixture produces its registered class
-        run: ./tools/verify-score-output-classifier.sh
+      # five outcomes distinguishable across all three agents; the fixtures are what prove
+      # it still tells them apart.
+      - name: Every model-output fixture produces its registered class
+        run: ./tools/verify-model-output-classifier.sh
 
   links:
     name: verified reading is still verified

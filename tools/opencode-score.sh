@@ -29,7 +29,7 @@
 #   4  the default agent answered instead of lab-scorer — infrastructure, discard
 #   5  the scorer declared the rubric unusable — a finding about the rubric
 #
-# tools/classify-score-output.sh owns that decision and documents each code.
+# tools/classify-model-output.sh owns that decision and documents each code.
 
 set -uo pipefail
 # `|| exit` matters here: without it a failed cd runs the review from the caller's
@@ -174,11 +174,11 @@ fi
 # crash, and E-001's Exclusions then told the reader to re-run it as infrastructure —
 # discarding the wholesale-null outcome that is the experiment's most informative result.
 # The classifier is where that distinction now executes; its header documents each code.
-class="$(./tools/classify-score-output.sh "$out")"
+class="$(./tools/classify-model-output.sh score "$out")"
 cls=$?
 
 case $cls in
-  0) ;;   # sheet — including one whose every cell is null. That is a result, not an absence.
+  0) ;;   # a sheet — including one whose every cell is null. That is a result, not an absence.
   4) echo "FATAL [$class]: lab-scorer was not loaded; opencode fell back to the default agent." >&2
      echo "The scores in $out are NOT contract-compliant. Infrastructure — discard." >&2
      exit 4 ;;
