@@ -53,6 +53,43 @@ TARGET="$2"
 # Absolute, so the path survives regardless of where opencode resolves attachments from.
 RUBRIC_ABS="$(cd "$(dirname "$RUBRIC")" && pwd)/$(basename "$RUBRIC")"
 
+# THE GATE FILTER. This rubric scores only submissions that already cleared every gate —
+# every "the gates own that" in its header depends on it, and the business case calls it the
+# single most important rule. Until 2026-08-27 nothing enforced it: this script would score
+# `known-bad-*` and hand back a number in the rubric's units that meant something else
+# entirely. `lab-acceptance` rejected the rubric on that, blocking, and the rubric had
+# already named the missing control on itself: "The L2 version is the scorer refusing a
+# target that is not a registered gate-passing run_case; it does not exist."
+#
+# It exists now, and it reads the registry rather than keeping a second copy of it. The
+# source of truth is `QUALITY_VARIANTS` in the benchmark's own `verify-evaluator.sh`, which
+# CI already runs to prove every one of them still exits 0. A copy here would drift silently;
+# reading theirs makes drift a hard failure instead.
+#
+# FAILS CLOSED. An unreachable registry stops the run. A scorer that falls back to "score it
+# anyway" when it cannot find the rules is the same control as no control.
+REGISTRY="${LAB_SCORE_REGISTRY:-$(cd "$TARGET/../.." 2>/dev/null && pwd)/verify-evaluator.sh}"
+if [ ! -r "$REGISTRY" ]; then
+  echo "cannot read the gate-passing registry: $REGISTRY" >&2
+  echo "Set LAB_SCORE_REGISTRY to the benchmark's verify-evaluator.sh. Refusing to score" >&2
+  echo "without it — a number computed on an unregistered target is a different" >&2
+  echo "measurement wearing this rubric's units." >&2
+  exit 1
+fi
+
+allowed="known-good $(sed -n 's/^QUALITY_VARIANTS=(\(.*\))$/\1/p' "$REGISTRY")"
+case " $allowed " in
+  *" $(basename "$TARGET") "*) ;;
+  *)
+    echo "FATAL: $(basename "$TARGET") is not a registered gate-passing variant." >&2
+    echo "Registered: $allowed" >&2
+    echo "This rubric only scores submissions that cleared every gate. A score on a" >&2
+    echo "gate-failing submission is not a weaker result — it is a different measurement" >&2
+    echo "wearing this one's units, and comparing the two is the mistake the business case" >&2
+    echo "calls its single most important rule. Registry: $REGISTRY" >&2
+    exit 1 ;;
+esac
+
 # THE BASELINE. E-001 Decision B, 2026-08-27: `change-focus` asks whether methods the ticket
 # did not name were restyled, which is a statement about a change, and one tree is not a
 # change. The baseline makes the anchor citable at path:line in both trees.

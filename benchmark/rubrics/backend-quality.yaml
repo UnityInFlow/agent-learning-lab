@@ -116,7 +116,7 @@ categories:
     anchors:
       0: "The shipment package constructs an error body itself — an `ApiError(...)` or `ApiErrorBody(...)` literal, or a map, appears inside a controller method. A `ResponseEntity<Any>` return type is the usual tell: it exists to carry both the success shape and a hand-built error shape. Cite the literal."
       1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: refusals throw rather than assemble, but not through the declared hierarchy — a bare `ResponseStatusException`, or a new exception type, whether or not it lives in `com.unityinflow.sample.api`. Cite the throw site and the import list."
-      2: "Every refusal throws an existing `ApiException` subclass imported from `com.unityinflow.sample.api` — `ResourceNotFoundException` for a missing shipment, `ConflictException` for a state refusal — and no `ApiError` or `ApiErrorBody` is constructed anywhere in the shipment package. Cite each throw site."
+      2: "Every refusal throws an `ApiException` subclass that ALREADY EXISTS IN THE ATTACHED BASELINE — `ResourceNotFoundException` for a missing shipment, `ConflictException` for a state refusal — and no `ApiError` or `ApiErrorBody` is constructed anywhere in the shipment package. `existing` means present in the baseline tree, not merely declared somewhere in this submission; the baseline is attached, so the distinction is decidable. A subclass the submission introduces is anchor 1. Cite each throw site."
 
   - name: maintainability
     weight: 25
@@ -148,9 +148,9 @@ categories:
     # tests are bad; no tests were submitted, and those are different claims. This
     # precondition is YAML read by a model — Layer 3 — so nothing executes to reject a `0`
     # here. The three predicted nulls are predicted, not guaranteed.
-    precondition: "No file under src/test/ among the attachments → score: null, reason: no test file submitted. Never 0."
+    precondition: "No file under src/test/ among the attachments, OR a test file that makes no assertion at all → score: null, reason: nothing to grade. Never 0. The second half is not hypothetical padding: with only the first half, a zero-assertion test file fails anchor 0's opening clause, falls to the residual, and scores 1 — outranking a status-code-only file that scores 0. A file testing nothing would have ranked above one testing something."
     anchors:
-      0: "At least one assertion exists, AND every assertion is a status code: none reads a response body, none re-reads state through a second request. The opening clause is not decoration — without it this anchor is vacuously true of a file with no assertions at all, and a scorer entering the ladder without the precondition would return 0 where the precondition says `null`. Cite the assertion list."
+      0: "Every assertion is a status code: none reads a response body, none re-reads state through a second request. The precondition guarantees at least one assertion exists before this anchor is reached, so it is never vacuously true — do not read it against an empty file, read the precondition. Cite the assertion list."
       1: "THE RESIDUAL — neither the 0 condition nor all three clauses of 2. Any assertion reads a response body, and at least one clause of 2 is absent: the repeat not exercised by a SECOND call, the persisted state never re-read through a separate request, or no refusal asserting the envelope. Cite what is asserted and name every clause that is absent."
       2: "All three hold, each citable: confirm is called twice and the second response is asserted; the persisted state is re-read through a separate `get(...)` rather than trusted from the mutating call's own body; and at least one refusal asserts the envelope's `$.error.code` rather than the status alone. Cite one line per clause."
 

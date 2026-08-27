@@ -80,7 +80,7 @@ and exits 0** — both scripts grep for that warning and fail.
 
 ## Where B1 stands
 
-`benchmark/rubrics/backend-quality.yaml` is **v2, four categories, sha `06fb70ec9354`**,
+`benchmark/rubrics/backend-quality.yaml` is **v2, four categories, sha `f63ef7037a55`**,
 written 2026-08-27 (lab#21). The seven-category file it replaced is in git history as a
 **worked example of a specific mistake**. Two independent defects killed it:
 
