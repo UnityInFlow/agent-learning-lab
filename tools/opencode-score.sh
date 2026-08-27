@@ -18,7 +18,18 @@
 #
 # Every run is a fresh session — never --continue. A scorer that remembers its last sheet
 # is not an independent second scorer.
-# Exit 1 on bad arguments or an opencode failure.
+#
+# Exit codes carry the distinction between a broken run and an informative one, because
+# collapsing them is how an experiment discards its own finding:
+#
+#   0  a sheet — score it. Every cell `null` still counts as a sheet
+#   1  bad arguments, or opencode itself failed — infrastructure, discard
+#   2  off contract — the scorer said something else. Evidence; read it
+#   3  empty — nothing produced. Re-run once; a repeat is a finding
+#   4  the default agent answered instead of lab-scorer — infrastructure, discard
+#   5  the scorer declared the rubric unusable — a finding about the rubric
+#
+# tools/classify-score-output.sh owns that decision and documents each code.
 
 set -uo pipefail
 # `|| exit` matters here: without it a failed cd runs the review from the caller's
@@ -97,27 +108,38 @@ opencode run --agent lab-scorer -m "$MODEL" \
 # PIPESTATUS[0], not $? — $? is sed's status, and sed always succeeds.
 rc=${PIPESTATUS[0]}
 
-# A missing agent is a WARNING to opencode and exit 0. Treat it as fatal: a score produced
-# by the default agent looks exactly like a real one and would poison every comparison.
-if grep -q "Falling back to default agent" "$out"; then
-  echo "FATAL: lab-scorer was not loaded; opencode fell back to the default agent." >&2
-  echo "The scores in $out are NOT contract-compliant. Discard them." >&2
-  exit 1
-fi
-
+# opencode exiting non-zero is the one unambiguous infrastructure failure: the process
+# itself did not complete, so there is nothing to classify.
 if [ $rc -ne 0 ]; then
-  echo "opencode exited $rc — see $out" >&2
+  echo "opencode exited $rc — infrastructure, discard and re-run. See $out" >&2
   exit 1
 fi
 
-# opencode exits 0 even when the model produced no scores — a rejected tool call, a refusal,
-# an empty turn. Without this the script reports success and hands back a file containing an
-# error message, which is exactly the shape of failure the agent-fallback guard above exists
-# to stop. Require the contract's own markers before calling it a score.
-if ! grep -q "^scorer: lab-scorer" "$out" || ! grep -q "^categories:" "$out"; then
-  echo "FATAL: no contract-compliant YAML in the output — the scorer produced nothing usable." >&2
-  echo "See $out for what it did instead." >&2
-  exit 1
-fi
+# Everything else is a question about what the SCORER did, and that question has more than
+# one answer. It used to have one: any output that was not a sheet exited 1 alongside a
+# crash, and E-001's Exclusions then told the reader to re-run it as infrastructure —
+# discarding the wholesale-null outcome that is the experiment's most informative result.
+# The classifier is where that distinction now executes; its header documents each code.
+class="$(./tools/classify-score-output.sh "$out")"
+cls=$?
+
+case $cls in
+  0) ;;   # sheet — including one whose every cell is null. That is a result, not an absence.
+  4) echo "FATAL [$class]: lab-scorer was not loaded; opencode fell back to the default agent." >&2
+     echo "The scores in $out are NOT contract-compliant. Infrastructure — discard." >&2
+     exit 4 ;;
+  3) echo "EMPTY [$class]: the scorer produced nothing after the provenance header." >&2
+     echo "Ambiguous: an empty turn, or the rubric being wholesale undecidable. The file" >&2
+     echo "cannot tell you which. Re-run ONCE on the same rubric and fixture; a repeat is a" >&2
+     echo "finding and must be recorded, not discarded. See $out" >&2
+     exit 3 ;;
+  5) echo "DECLARED ERROR [$class]: the scorer reports the rubric is unusable. This is a finding" >&2
+     echo "about the rubric, not infrastructure — record it. See $out" >&2
+     exit 5 ;;
+  *) echo "OFF CONTRACT [$class]: the scorer produced output that is not the sheet — a refusal," >&2
+     echo "prose, or a truncated sheet. This is what it did with this rubric, so it is" >&2
+     echo "evidence. Read it before re-running. See $out" >&2
+     exit 2 ;;
+esac
 
 echo "$out"

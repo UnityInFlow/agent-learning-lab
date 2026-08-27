@@ -23,6 +23,8 @@ Track B index.
 ./tools/check-links.sh                        # re-verify every source in SOURCES.md
 ./tools/opencode-review.sh -n 2 <artifact>    # adversarial review, unioned across N runs
 ./tools/opencode-score.sh <rubric> <impl-dir> # blind second scoring → findings/opencode/
+./tools/verify-run-record-validator.sh        # 11 fixtures, each with its registered exit code
+./tools/verify-score-output-classifier.sh     # 8 fixtures, each with its registered class
 ```
 
 CI runs `bash -n` + ShellCheck (`-S warning`) on `tools/`, parses every YAML contract, and
@@ -42,6 +44,13 @@ findings we got appeared at 1/2.
 **The scorer emits `null` rather than guessing** when a rubric's anchors cannot separate two
 scores. That is the contract working. If it returns nothing at all, the anchors are asking
 for something it cannot see — it has no test runner, no diff, and no evaluator output.
+
+**"Nothing" was five different things.** `tools/classify-score-output.sh` splits them, and
+`opencode-score.sh` exits with its code: `0` a sheet (all-`null` cells included — that is a
+result, not an absence), `2` off contract, `3` empty, `4` the default agent answered, `5` the
+scorer declared the rubric unusable. Only `1` and `4` are infrastructure to discard; the rest
+are findings. Collapsing them is how an experiment throws away its own strongest signal, and
+E-001 nearly did.
 
 **Score anything yourself before reading its output.** Reading first produces agreement that
 measures nothing.

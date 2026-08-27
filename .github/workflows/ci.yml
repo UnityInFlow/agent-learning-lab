@@ -89,6 +89,19 @@ jobs:
       - name: Every fixture produces its registered exit code
         run: ./tools/verify-run-record-validator.sh
 
+  score-output:
+    name: a run that found something is not discarded
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      # The scorer producing no sheet is E-001's most informative possible result. Until
+      # 2026-08-27 the harness gave it the same exit code as a crash, and the experiment's
+      # Exclusions then said to re-run it as infrastructure. This job is what keeps the
+      # five outcomes distinguishable; the fixtures are what prove it still tells them apart.
+      - name: Every score-output fixture produces its registered class
+        run: ./tools/verify-score-output-classifier.sh
+
   links:
     name: verified reading is still verified
     runs-on: ubuntu-latest

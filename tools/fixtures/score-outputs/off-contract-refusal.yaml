@@ -1,0 +1,14 @@
+# provenance — this block is data, not decoration.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.21
+  agent_sha:     cb371384fa19
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    21aa658d030d
+  target:        fixtures/known-good
+  scored_utc:    20260101T000000Z
+  session:       fresh
+---
+I cannot score this implementation against the rubric provided. The anchors for
+architecture-consistency refer to build output that is not among the attachments.

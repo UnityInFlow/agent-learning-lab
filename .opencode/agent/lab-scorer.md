@@ -7,8 +7,9 @@ tools:
   # Mutation and shell are off. Read-ish tools are deliberately left ON: turning every tool
   # off made the model hang rather than answer. The prompt tells it the attachments are the
   # complete evidence set, which is what stops it hunting for files and blocking on an
-  # external_directory permission prompt no TTY can answer. If it goes hunting anyway the
-  # output guard in opencode-score.sh fails the run rather than reporting an empty success.
+  # external_directory permission prompt no TTY can answer. If it goes hunting anyway,
+  # classify-score-output.sh classes what comes back and opencode-score.sh exits with that
+  # code, rather than reporting an empty success or discarding a real finding as a crash.
   write: false
   edit: false
   patch: false

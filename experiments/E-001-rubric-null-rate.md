@@ -23,13 +23,25 @@ agent until stop 10.
 Applied to five submissions that all pass every gate, does the four-category rubric produce
 scores that **differ between fixtures**, and does the second scorer produce them **at all**?
 
-Two failure modes, and they are not the same:
+Three failure modes, and they are not the same:
 
-- **Undecidable** — the scorer emits `null` because an anchor cites something it cannot see.
-  Its contract working, and a rubric defect.
+- **Undecidable, per cell** — the scorer emits `null` for a category because an anchor cites
+  something it cannot see. Its contract working, and a rubric defect.
+- **Undecidable, wholesale** — no sheet at all, or a sheet whose every cell is `null`. The
+  seven-category draft produced exactly this: "an empty body. Not a bad score. Nothing." It
+  is the strongest result this experiment can produce, and until 2026-08-27 the harness gave
+  it the same exit code as a crash and the Exclusions below told the reader to discard it as
+  infrastructure. `lab-acceptance` rejected this record on that, blocking. See
+  [`tools/classify-score-output.sh`](../tools/classify-score-output.sh) for where the
+  distinction now executes, and the decision rule for where the outcome is filed.
 - **Constant** — the scorer emits a score, but the same score for every fixture. Looks like
   success. Carries no information. This is what killed 60% of the weight in the first draft
   and was only visible once the first failure was diagnosed.
+
+**The cell boundary, stated once so two readers cannot split on it.** A sheet is a sheet when
+it carries `scorer: lab-scorer` and a `categories:` block, *whatever is in the cells*. Twenty-four
+`null`s is a result and is scored as twenty-four nulls; it is not "no output". "No output"
+means no `categories:` block at all, and that is a different class with a different exit code.
 
 ## Hypothesis
 
@@ -118,9 +130,9 @@ one candidate cause.
 | Rubric | `benchmark/rubrics/backend-quality.yaml` · sha `21aa658d030d` **(pre-rewrite — record the new sha here once #21 lands)** |
 | Reviewing this record | two models since 2026-08-27: `lab-critic` on `ollama-cloud/glm-5.2` line-level, `lab-acceptance` on `ollama-cloud/minimax-m3` for the gate. Everything reviewed before that date was `deepseek-v4-pro` doing both jobs |
 | Agent | `.opencode/agent/lab-scorer.md` · sha `cb371384fa19` |
-| Preflight assertion | `opencode-score.sh` fails when `--dir` repoints the project root and opencode silently falls back to the default full-tool agent exiting 0. The agent definition is L3; that guard is the L2 version |
-| Control assertion | Fresh session every run, never `--continue`. A scorer that remembers its last sheet is not an independent second scorer |
-| Output guard | The script fails the run when opencode exits 0 having produced no scores, rather than reporting an empty success |
+| Preflight assertion | **L2.** `opencode-score.sh` fails when `--dir` repoints the project root and opencode silently falls back to the default full-tool agent exiting 0. The agent definition is L3; that guard is the L2 version |
+| Control assertion | **L1 through this script, L3 outside it.** `opencode-score.sh` has no flag and no branch that reaches `--continue`, so a remembering scorer cannot be requested through the registered mechanism. Running `opencode run --continue` by hand bypasses it, and nothing detects that — the provenance header records `session: fresh` because the script wrote it, not because anything checked |
+| Output guard | **L2, and it no longer collapses.** `tools/classify-score-output.sh` returns one exit code per outcome: `0` sheet (all-`null` cells included), `2` off contract, `3` empty, `4` default-agent fallback, `5` the scorer declaring the rubric unusable. Only `1` and `4` are infrastructure. `tools/verify-score-output-classifier.sh` registers eight fixtures with the class each must produce, and CI runs it — a classifier that stopped discriminating would be indistinguishable from the single guard it replaced |
 
 ## Controlled variables
 
@@ -141,9 +153,17 @@ one candidate cause.
 
 Repetitions per fixture: ____ · Total: ____
 
-The critic disagreed with itself on 2 of 12 section-runs at temperature 0, so a single run is
-a lower bound rather than a value. `opencode-score.sh` has no `-n`; `opencode-review.sh` does.
-<!-- TODO: decide whether one run per fixture is enough here, and say why. -->
+The critic disagreed with itself on 2 of 12 section-runs at temperature 0, so for **the
+critic** a single run is a lower bound rather than a value. That figure is `opencode-review.sh`,
+a different instrument with a different contract: the critic decides what to report, and
+under-reporting is the failure mode measured. The scorer's contract fixes the output shape
+in advance — one cell per rubric category — so its variance would show up as a cell flipping
+value or nulling, which nobody has measured. **Treat 2/12 as a reason to ask the question
+about the scorer, not as an answer for it.** `opencode-score.sh` has no `-n`;
+`opencode-review.sh` does.
+<!-- TODO: decide whether one run per fixture is enough here, and say why. If you want the
+     scorer's own repeatability, that is a second experiment — same fixture, same rubric, n
+     runs — and it is not this one. -->
 
 ## Minimum detectable effect
 
@@ -173,8 +193,17 @@ below is blind.
 
 Registered now, not after seeing the data:
 
-- A run where opencode exits non-zero, or exits 0 with no scores — infrastructure, re-run,
-  do not score
+- A run where opencode exits non-zero (`1`), or where the default agent answered instead of
+  `lab-scorer` (`4`) — infrastructure, re-run, do not score. **These two only.** An earlier
+  draft excluded "exits 0 with no scores", which swept up the wholesale-undecidable outcome
+  the evidence table records as a rubric defect; the experiment would have discarded its own
+  primary signal and called it a broken script
+- A run classed `empty` (`3`) is **not** excluded and **not** yet a datum: re-run once on the
+  same rubric and fixture. A second `empty` is a finding and is recorded as wholesale
+  undecidable. One `empty` followed by a sheet is infrastructure, and both runs are recorded
+  with that reasoning — the file cannot tell you which it was, so the repeat is what decides
+- A run classed `off contract` (`2`) or `declared error` (`5`) is recorded, not re-run. It is
+  what this scorer did when handed this rubric
 - A run against a fixture that does not pass `evaluator.sh` — the rubric only scores
   gate-passing submissions and `known-bad-*` are not in the population
 - A cell where the scorer's `evidence` cites a file not in the attachment set — it went
@@ -199,6 +228,15 @@ Registered before data. What result produces KEEP / REJECT / INCONCLUSIVE?
      INCONCLUSIVE if nulls are concentrated in one category — that is a defect in that
                   category's anchors, not a verdict on the rubric
      Note what you would do differently in each case, or the rule decides nothing. -->
+
+> **Where a wholesale-undecidable run is filed.** A confirmed `empty` (two in a row on the
+> same rubric and fixture), or a sheet whose 4 cells for a fixture are all `null`, is a
+> **REJECT** for that fixture and counts its 4 cells toward the null rate — not INCONCLUSIVE,
+> and never a re-run. INCONCLUSIVE is reserved for nulls concentrated in one *category across
+> fixtures*, which indicts that category's anchors rather than the rubric. Without this line
+> the same output could be read as a rubric defect, as infrastructure, or as an unregistered
+> mode, and three readers reach three verdicts on identical data. Registered 2026-08-27,
+> before any run.
 
 ## The procedure, from #21
 

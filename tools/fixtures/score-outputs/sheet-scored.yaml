@@ -1,0 +1,20 @@
+# provenance — this block is data, not decoration.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.21
+  agent_sha:     cb371384fa19
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    21aa658d030d
+  target:        fixtures/known-good
+  scored_utc:    20260101T000000Z
+  session:       fresh
+---
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: controller delegates, no logic in the web layer
+    evidence: ShipmentController.kt:31
+ambiguous_categories: []
