@@ -48,10 +48,19 @@ is an opinion. Your own doc: *"Do not create the backend agent yet."*
 **Files**
 
 ```
-benchmark/tasks/BE-003-confirm-shipment.md   the task, acceptance criteria, forbidden changes
-benchmark/rubrics/backend-quality.yaml        0–2 per category, weighted, normalized 0–100
-runs/run-template.yaml                        every field, and whether it is exact/estimated/absent
+../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/
+                                 the task, acceptance criteria, forbidden changes,
+                                 evaluator.sh, and eight fixtures — lives in the
+                                 benchmarks repo, not here
+benchmark/rubrics/backend-quality.yaml
+                                 0–2 per category, weighted, normalized 0–100
+templates/run-record.yaml        every field, and whether it is exact/estimated/absent
 ```
+
+> **The task moved.** It is `tasks/BE-003-confirm-shipment/` in
+> [agent-observatory-benchmarks](https://github.com/UnityInFlow/agent-observatory-benchmarks),
+> merged in benchmarks#9 and #10, because the evaluator that reads it has to run beside the
+> service under test. Nothing named `benchmark/tasks/` or `runs/` exists in this repo.
 
 **The task.** `confirm-shipment` — `POST /shipments/{id}/confirm`, validate state, idempotent
 on repeat, persist `CONFIRMED`, correct status codes, unit + integration tests, no new
@@ -70,6 +79,14 @@ critical findings = 0            error handling           10%
                                  maintainability          10%
                                  change focus              5%
 ```
+
+> **The score half of that table is superseded.** Applied to BE-003 it failed twice over:
+> `functional-correctness` (25) and `requirement-completeness` (20) restate the gates, so they
+> are constant across every submission the rubric is allowed to score, and `test-quality` (15)
+> had no fixture with tests. Sixty percent of the weight carried no information. The
+> replacement is four categories — architecture-consistency 35, maintainability 25,
+> test-quality 25, change-focus 15 — anchored on differences observable *between fixture
+> pairs*. Written in #21. The gates on the left are unchanged and still own correctness.
 
 > **A run that fails a gate is unsuccessful even when it used fewer tokens.** Compare
 > efficiency only among runs that passed. This is the single most important rule in the
