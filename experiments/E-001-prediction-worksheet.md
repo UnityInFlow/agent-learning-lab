@@ -28,8 +28,13 @@ the interesting ones, and a `?` is a finding about the anchor).
 | `good-inline-envelope` | `ApiError.kt`, `ShipmentController.kt` | **no** | builds the envelope by hand, returns `ResponseEntity` instead of throwing |
 | `good-nested-ifs` | `ApiError.kt`, `ShipmentController.kt` | **no** | exhaustive `when` → `if`/`else if`; the comment explaining the idempotent repeat deleted |
 | `good-noisy-diff` | `ApiError.kt`, `ShipmentController.kt` | **no** | `confirm()` character-identical; `create`, `getById`, `list` restyled |
-| `good-strong-tests` | + `ConfirmShipmentTest.kt` | yes | tests call confirm twice, assert the envelope, re-read the shipment |
-| `good-weak-tests` | + `ConfirmShipmentTest.kt` | yes | production code character-identical to `known-good`; tests assert almost nothing |
+| `good-strong-tests` | + `ConfirmShipmentTest.kt` | yes | **production code byte-identical to `known-good`** (verified); tests call confirm twice, assert the envelope, re-read the shipment |
+| `good-weak-tests` | + `ConfirmShipmentTest.kt` | yes | **production code byte-identical to `known-good`** (verified); tests assert almost nothing |
+
+> `lab-critic` flagged that the record asserted "differs on exactly one dimension" without
+> the artifact stating whether the two test variants also change production code — a reader
+> had to go and look. Both were diffed on 2026-08-27: `ApiError.kt` and `ShipmentController.kt`
+> are identical to `known-good` in both. The one-cause property holds.
 
 ## The grid — 24 cells
 
@@ -37,14 +42,14 @@ Two columns are already settled by the decisions below. Seventeen judgements are
 
 |  | arch-consistency (35) | maintainability (25) | test-quality (25) | change-focus (15) |
 |---|---|---|---|---|
-| `known-good` | | | **N** — no test file | *degenerate — see note* |
-| `good-inline-envelope` | | | **N** — no test file | |
-| `good-nested-ifs` | | | **N** — no test file | |
-| `good-noisy-diff` | | | **N** — no test file | |
+| `known-good` | | | **N** *(predicted)* | *degenerate — see note* |
+| `good-inline-envelope` | | | **N** *(predicted)* | |
+| `good-nested-ifs` | | | **N** *(predicted)* | |
+| `good-noisy-diff` | | | **N** *(predicted)* | |
 | `good-strong-tests` | | | | |
 | `good-weak-tests` | | | | |
 
-**Count of `N` + half your `?`s → prediction 1.** Four are already on the board.
+**Count of `N` + half your `?`s → prediction 1.** Four are predicted already — predicted, not fixed.
 
 > **The degenerate cell.** With the baseline attached, scoring `known-good` means scoring it
 > against itself, and `change-focus` is trivially 2. Decide whether that cell is a 2, omitted,
@@ -73,9 +78,23 @@ test-quality:
   2: calls confirm twice and compares; asserts the error envelope; re-reads the shipment
 ```
 
-**Consequence:** 4 of 24 cells are guaranteed nulls, and 25% of the weight rests on a single
-pair. Whether that is enough to call `test-quality` discriminating is a real question for the
-decision rule.
+**Consequence:** 25% of the weight rests on a single pair. Whether that is enough to call
+`test-quality` discriminating is a real question for the decision rule.
+
+> **Corrected 2026-08-27 after `lab-critic` flagged it, L2.** An earlier version of this
+> paragraph said the four no-test cells were *"guaranteed nulls"* and that the scorer
+> *"emits `null`, not `0`"*. That was false in the specific way this project keeps
+> re-learning. The precondition is a line of YAML read by a language model. **Nothing
+> executes and rejects a `0`.** It is Layer 3, and "guaranteed" was a prediction about
+> model behaviour wearing a control's clothes.
+>
+> So the four cells are **predicted** nulls, not guaranteed ones — which is better, because
+> now the prediction can be wrong. If the scorer emits `0` for a fixture that submitted no
+> tests, prediction 1 is falsified and the finding is about the anchors, not the model.
+>
+> The L2 version, if this matters after the run: a post-processing check on the scorer's
+> YAML that fails any `test-quality` score that is not `null` when the attachment set
+> contains no test file. Not built. Do not describe it as if it were.
 
 ### B. `change-focus` with no diff — **DECIDED 2026-08-27: attach `known-good` as the baseline**
 
