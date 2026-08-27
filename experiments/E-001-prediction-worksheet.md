@@ -4,7 +4,7 @@ Not part of the experiment record. This is the working that produces the numbers
 into `E-001-rubric-null-rate.md`, kept so the derivation is auditable rather than a number
 that appeared.
 
-The null rate is not one intuition. It is 24 small decidability judgements, and you already
+The null rate is not one intuition. It is 20 small decidability judgements, and you already
 have the facts for most of them. Fill the grid, count, and the count **is** the prediction.
 
 ---
@@ -36,24 +36,30 @@ the interesting ones, and a `?` is a finding about the anchor).
 > had to go and look. Both were diffed on 2026-08-27: `ApiError.kt` and `ShipmentController.kt`
 > are identical to `known-good` in both. The one-cause property holds.
 
-## The grid — 24 cells
+## The grid — 20 cells
 
-Two columns are already settled by the decisions below. Seventeen judgements are left.
+`known-good` is the **baseline**, not a row. Three cells are already settled by Decision A
+below. Seventeen judgements are left.
 
 |  | arch-consistency (35) | maintainability (25) | test-quality (25) | change-focus (15) |
 |---|---|---|---|---|
-| `known-good` | | | **N** *(predicted)* | *degenerate — see note* |
 | `good-inline-envelope` | | | **N** *(predicted)* | |
 | `good-nested-ifs` | | | **N** *(predicted)* | |
 | `good-noisy-diff` | | | **N** *(predicted)* | |
 | `good-strong-tests` | | | | |
 | `good-weak-tests` | | | | |
 
-**Count of `N` + half your `?`s → prediction 1.** Four are predicted already — predicted, not fixed.
+**Count of `N` + half your `?`s → prediction 1.** Three are predicted already — predicted, not
+fixed — and they are structural, so report them separately from the defect nulls: the rate
+that says something about the anchors is over the **17** cells where a score was possible.
 
-> **The degenerate cell.** With the baseline attached, scoring `known-good` means scoring it
-> against itself, and `change-focus` is trivially 2. Decide whether that cell is a 2, omitted,
-> or `known-good` is scored without a baseline. It is one cell, but it changes the denominator.
+> **The degenerate cell, resolved 2026-08-27.** An earlier version of this grid had a sixth
+> row and asked what to do about scoring `known-good` against itself: "It is one cell, but it
+> changes the denominator." It changed four. Scoring the baseline was only ever needed while
+> the variant-to-reference comparison had to happen *between sheets*; Decision B put the
+> baseline inside every variant's evidence set, so the sixth row lost its consumer. Two of its
+> cells were structural nulls and the other two would have been the only cells in the grid
+> produced from a one-tree evidence set. `known-good` left the population. Denominator 20.
 
 ---
 
@@ -88,7 +94,7 @@ test-quality:
 > executes and rejects a `0`.** It is Layer 3, and "guaranteed" was a prediction about
 > model behaviour wearing a control's clothes.
 >
-> So the four cells are **predicted** nulls, not guaranteed ones — which is better, because
+> So the three cells are **predicted** nulls, not guaranteed ones — which is better, because
 > now the prediction can be wrong. If the scorer emits `0` for a fixture that submitted no
 > tests, prediction 1 is falsified and the finding is about the anchors, not the model.
 >
@@ -99,7 +105,9 @@ test-quality:
 ### B. `change-focus` with no diff — **DECIDED 2026-08-27: attach `known-good` as the baseline**
 
 `opencode-score.sh` attaches the `known-good` tree alongside the fixture, so a change is
-visible and the anchor can be cited at `path:line` in both trees. The baseline is another
+visible and the anchor can be cited at `path:line` in both trees. **Built 2026-08-27** — it
+was decided, written here and in the record as though already done, and the script attached
+only the fixture until that commit. A missing baseline now fails the run. The baseline is another
 submission, not evaluator output, so the scorer stays orthogonal to the gates.
 
 ```
@@ -125,22 +133,28 @@ the baseline before crediting the anchors.
 
 ## Prediction 2 — discrimination
 
-For each pair, will the scorer put the variant **below** `known-good` on that dimension?
+The comparison is **within the five**, not against `known-good`. All five variants are scored
+under identical conditions — same rubric, same baseline attached — so their cells are
+commensurable with each other. `known-good` has no sheet to compare against, and would not be
+commensurable if it had one.
 
-| Pair | Dimension | Your call | Least confident? |
-|---|---|---|---|
-| `good-inline-envelope` vs `known-good` | arch-consistency | | |
-| `good-nested-ifs` vs `known-good` | maintainability | | |
-| `good-weak-tests` vs `good-strong-tests` | test-quality | | |
-| `good-noisy-diff` vs `known-good` | change-focus | | |
+For each column, will the scorer put the depressed variant **below the other cells in that
+column**?
 
-And the one that actually matters: **which category will be constant across all six?** A
+| Column | Depressed by | Compared against | Your call | Least confident? |
+|---|---|---|---|---|
+| arch-consistency | `good-inline-envelope` | the other four variants | | |
+| maintainability | `good-nested-ifs` | the other four variants | | |
+| test-quality | `good-weak-tests` | `good-strong-tests` only — the other three are structural nulls | | |
+| change-focus | `good-noisy-diff` | the other four variants | | |
+
+And the one that actually matters: **which category will be constant across all five?** A
 constant category looks like a working score and carries no information — it is the failure
 that hid behind the undecidable one last time.
 
 ## Prediction 3 — agreement with your blind scores
 
-Of the 24 cells, how many will you and the scorer land on exactly? Where do you expect to
+Of the 20 cells, how many will you and the scorer land on exactly? Where do you expect to
 diverge, and in which direction — will it score higher than you, or lower?
 
 The critic under-reported at temperature 0 rather than hallucinating: 2 of 12 section-runs
@@ -152,7 +166,7 @@ that bias is a separate question, and this is where you find out.
 ## The mechanism
 
 For each number above, one sentence: **why**. Not "I think about 6" — "6, because
-`test-quality` nulls on the four fixtures with no tests, and `change-focus` holds elsewhere
+`test-quality` nulls on the three variants with no tests, and `change-focus` holds elsewhere
 because X."
 
 *A hypothesis without a mechanism cannot be interestingly wrong.*

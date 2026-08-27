@@ -8,9 +8,16 @@
 # path:line for a cell, the anchor is undecidable for you too, and that is a finding about
 # the rubric rather than about the fixture.
 #
-# Each fixture differs from known-good on exactly ONE dimension. Do not let that tell you
+# Each variant differs from known-good on exactly ONE dimension. Do not let that tell you
 # what to score — if you cannot see the difference from the source alone, record what you
 # actually see. A sheet that reproduces benchmarks#10's table is a sheet that read the table.
+#
+# FIVE ROWS, NOT SIX. known-good is the BASELINE, attached to every scorer run since Decision
+# B was built on 2026-08-27 — it is your evidence too, not a sixth sheet to fill. Read each
+# variant against it the way the scorer does. It left the scored population because two of its
+# four cells were structural nulls (no test file; nothing to compare change-focus against) and
+# the other two would have been the only cells produced from a one-tree evidence set.
+# 4 categories x 5 variants = 20 cells.
 
 scorer: human
 rubric_sha:                 # fill in from the rewritten rubric, before scoring
@@ -18,12 +25,6 @@ scored_utc:                 # when you started
 read_scorer_output_first: false   # if this is ever true, the comparison is void
 
 fixtures:
-
-  known-good:
-    architecture-consistency: { score: , evidence: , note: }
-    maintainability:          { score: , evidence: , note: }
-    test-quality:             { score: , evidence: , note: }
-    change-focus:             { score: , evidence: , note: }
 
   good-inline-envelope:
     architecture-consistency: { score: , evidence: , note: }
@@ -55,5 +56,7 @@ fixtures:
     test-quality:             { score: , evidence: , note: }
     change-focus:             { score: , evidence: , note: }
 
-# Six fixtures, not five: known-good is the reference every other cell is read against, so
-# it has to be scored too or there is nothing to compare a difference to.
+# Superseded 2026-08-27: this sheet had a known-good row, on the reasoning that "known-good is
+# the reference every other cell is read against, so it has to be scored too or there is
+# nothing to compare a difference to". True while the comparison happened between sheets.
+# Decision B moved the baseline inside every variant's run, so it does not any more.
