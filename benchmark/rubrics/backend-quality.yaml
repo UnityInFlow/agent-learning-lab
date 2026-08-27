@@ -122,13 +122,25 @@ categories:
     weight: 25
     # `ShipmentStatus` is an enum, so an exhaustive `when` with no `else` makes adding a
     # state a COMPILE ERROR at this site. An if-chain, or a `when` with `else`, silently
-    # routes the new state down the fallback path. That difference is visible in the
-    # source and needs no test run to see.
+    # routes the new state down the fallback path.
+    #
+    # ANCHORED ON POSITION, NOT ON THE ENUM. The first cut said "a branch per enum constant,
+    # count the branches against `ShipmentStatus`" — and `ShipmentStatus` IS NOT IN THE
+    # ATTACHMENT SET. It lives in the base service; the overlay the scorer receives is
+    # `ApiError.kt` and `ShipmentController.kt`. The scorer could not have counted against
+    # it, which is the seven-category rubric's exact defect reappearing in the file written
+    # to replace it. Neither review pass caught it: the harness reads the rubric, not the
+    # rubric against the files it will actually be handed.
+    #
+    # The fix needs no enum. A `when` in EXPRESSION position — its value returned or
+    # assigned — must be exhaustive or Kotlin will not compile it. So "the case list is
+    # compiler-enforced" is decidable from this file alone: look at where the `when` sits
+    # and whether it carries an `else`.
     precondition: none
     anchors:
-      0: "The status decision is an `if` / `else if` / `else` chain, or a `when` carrying an `else` branch. Either way a new `ShipmentStatus` constant compiles without touching this method and takes the fallback path unannounced. Cite the chain or the `else`."
+      0: "The status decision is an `if` / `else if` / `else` chain, or a `when` carrying an `else` branch, or a `when` in statement position (its value neither returned nor assigned). In all three a new status constant compiles without touching this method and takes the fallback path unannounced. Cite the chain, the `else`, or the statement-position `when`."
       1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: an exhaustive `when` whose decision is split across more than one construct, or a branch repeating logic another branch performs; also a `when` that is neither exhaustive nor carries an `else`. Cite the construct."
-      2: "One exhaustive `when (shipment.status)`, a branch per enum constant, no `else` — so a new constant is a compile error here. Cite the `when` and count the branches against `ShipmentStatus`."
+      2: "One `when (shipment.status)` in EXPRESSION position — its value returned or assigned — carrying no `else`. Kotlin requires such a `when` to be exhaustive, so the case list is compiler-enforced and a new status constant is a compile error at this site. Cite the `when`, the `return`/assignment that puts it in expression position, and the absence of `else`. Do NOT try to count branches against the enum: `ShipmentStatus` is not among the attachments and never will be."
 
   - name: test-quality
     weight: 25
@@ -138,7 +150,7 @@ categories:
     # here. The three predicted nulls are predicted, not guaranteed.
     precondition: "No file under src/test/ among the attachments → score: null, reason: no test file submitted. Never 0."
     anchors:
-      0: "Every assertion is a status code. No assertion reads a response body, and no assertion re-reads state through a second request. Cite the assertion list."
+      0: "At least one assertion exists, AND every assertion is a status code: none reads a response body, none re-reads state through a second request. The opening clause is not decoration — without it this anchor is vacuously true of a file with no assertions at all, and a scorer entering the ladder without the precondition would return 0 where the precondition says `null`. Cite the assertion list."
       1: "THE RESIDUAL — neither the 0 condition nor all three clauses of 2. Any assertion reads a response body, and at least one clause of 2 is absent: the repeat not exercised by a SECOND call, the persisted state never re-read through a separate request, or no refusal asserting the envelope. Cite what is asserted and name every clause that is absent."
       2: "All three hold, each citable: confirm is called twice and the second response is asserted; the persisted state is re-read through a separate `get(...)` rather than trusted from the mutating call's own body; and at least one refusal asserts the envelope's `$.error.code` rather than the status alone. Cite one line per clause."
 
