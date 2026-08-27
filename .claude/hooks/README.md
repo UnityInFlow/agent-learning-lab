@@ -11,8 +11,23 @@ Anyone who clones this repo gets it. It lives here, not in a personal config.
 ## What it does
 
 On `git push` and `gh pr create`, the measurement contracts changed on this branch go to
-`tools/opencode-review.sh` — the independent critic, a different model family — and the
-findings land in `findings/opencode/`.
+`tools/opencode-review.sh`, and the findings land in `findings/opencode/`.
+
+**Two models, two jobs.** Finding and deciding are different work, and running both on one
+model means one set of blind spots covers both:
+
+| Pass | Agent | Model | Job |
+|---|---|---|---|
+| line-level | `lab-critic` | `ollama-cloud/glm-5.2` | every section, every finding bound to a concrete failure scenario |
+| acceptance | `lab-acceptance` | `ollama-cloud/minimax-m3` | one verdict on the whole artifact — is this ready to leave the machine |
+
+The acceptance pass reads the artifact **and** the line-level findings. It does not re-find;
+it decides, and it may put a line-level finding it cannot substantiate into `disputed`.
+
+**The gate is advisory.** A `REJECT` is recorded and printed to stderr; the hook still exits
+0, because a reviewer that can break `git push` gets removed within a day. That makes the
+verdict L3 — words someone reads. `LAB_ACCEPT_STRICT=1` is the L2 version: `REJECT` exits 3.
+Nothing in this repo sets it yet, and the README should not imply otherwise.
 
 "Contracts" means exactly three globs, listed at the top of the script:
 
@@ -55,7 +70,8 @@ reviewed at all.
 ## Turning it off
 
 `LAB_REVIEW_HOOK=0` for one command, or `/hooks` to disable it for the session.
-`LAB_REVIEW_RUNS` overrides `-n` (default 2 — a single run at temperature 0 is a lower bound;
+`LAB_REVIEW_MODEL` and `LAB_ACCEPT_MODEL` swap either model; `-A` on the wrapper skips the
+gate entirely. `LAB_REVIEW_RUNS` overrides `-n` (default 2 — a single run at temperature 0 is a lower bound;
 two runs disagreed on 2 of 12 sections, and both flips were real findings the earlier run
 had missed).
 
