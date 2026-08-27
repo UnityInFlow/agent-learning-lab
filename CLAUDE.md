@@ -30,6 +30,14 @@ Track B index.
 CI runs `bash -n` + ShellCheck (`-S warning`) on `tools/`, parses every YAML contract, and
 runs the link check weekly. **ShellCheck is a required check** — `cd` needs `|| exit`.
 
+**Never edit a tool while a run of it is in flight.** bash reads a script incrementally, so
+an edit shifts the byte offsets under the running instance. Observed 2026-08-27: editing
+`opencode-review.sh` during a two-run review killed it with `syntax error near unexpected
+token 'done'` at the line being edited, after opencode had already been invoked with
+garbled arguments. `bash -n` passed on the file the whole time — the thing on disk was
+correct and the thing executing was not, which is the house failure mode wearing a shell.
+A cloud review takes minutes. Wait for it, or copy the script aside and edit the copy.
+
 ## The review harness — measured facts, not assumptions
 
 `.opencode/agent/` holds two agents. Neither will rewrite an artifact or supply replacement
