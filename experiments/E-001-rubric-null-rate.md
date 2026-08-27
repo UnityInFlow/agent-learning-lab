@@ -51,7 +51,9 @@ read.
 
 Dimension assignments are from `fixture-notes/` in benchmarks, which sit outside the scorer's
 glob since benchmarks#21. Each note states the variance **and** asserts what is held, which is
-what makes the one-cause property checkable rather than claimed:
+what makes the one-cause property *auditable* — a reader can open a note and disagree with
+a specific sentence. Auditable is not enforced; the layer note under the table says what that
+is worth:
 
 | Variant | Note says | Held constant |
 |---|---|---|
@@ -314,16 +316,37 @@ Registered before data. What result produces KEEP / REJECT / INCONCLUSIVE?
 > about the anchors — is over **17**. Report both, always. A draft on 2026-08-27 said 24 after
 > reconciling to the wrong side of a 20/24 split; see **Superseded: the six-cell population**.
 
-<!-- TODO — yours. Suggested shape, not an answer:
-     KEEP         if the null rate is at or under your predicted number AND each fixture
-                  the ↓ cell in each column scores below the other cells in that column AND
-                  the non-↓ cells in that column are equal to each other — without the second
-                  half, a fixture that is simply worse everywhere satisfies KEEP while
-                  discriminating nothing
-     REJECT       if any category is constant across all five variants — it carries no
-                  information regardless of how defensible its anchors read
-     INCONCLUSIVE if nulls are concentrated in one category — that is a defect in that
+<!-- TODO — yours. The THRESHOLDS are the blanks. The structure is registered, because
+     two earlier forms of it could not fire on the data this grid produces.
+
+     KEEP         if the defect-null rate is at or under your predicted number
+                  AND in each column the ↓ cell scores below the other SCORED cells
+                  AND those other scored cells are equal to each other
+                  AND the ↓ cell's evidence cites the construct its anchor names, not
+                      merely a difference from the baseline
+
+                  The first two together: without the second, a variant that is simply
+                  worse everywhere satisfies KEEP while discriminating nothing. The fourth
+                  is the one Decision B made necessary. With `known-good` in the evidence
+                  set a scorer can mark the ↓ cell low because it DIFFERS from the baseline
+                  rather than because it violates the convention the anchor names — an
+                  easier task and a different measurement. Both KEEP sub-conditions fire
+                  either way, so without this clause the experiment declares success on the
+                  contamination Decision B registered as its own cost. Prediction 3 is the
+                  trap for it.
+
+     REJECT       if any category is constant across the cells that CARRY A SCORE in it
+                  — not "across all five variants". `test-quality`'s five cells are three
+                  structural nulls and the strong/weak pair, so "constant across all five"
+                  can never fire, and the grid's only two-cell comparison would have had no
+                  REJECT guard at all: strong and weak both scoring 1 would pass unnoticed
+
+     INCONCLUSIVE if defect nulls are concentrated in one category — a defect in that
                   category's anchors, not a verdict on the rubric
+                  OR if a ↓ cell is low but its evidence cites only a difference from the
+                  baseline. That column measured the contamination, not the rubric, and
+                  neither KEEP nor REJECT is a statement about the anchors
+
      Note what you would do differently in each case, or the rule decides nothing. -->
 
 ### What every outcome does to the arithmetic
