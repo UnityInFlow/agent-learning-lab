@@ -4,8 +4,10 @@
 > Commit it, and check the commit timestamp precedes the first run's `startedAt`. We got
 > that wrong once and voided nine runs.
 
-**Status: predictions not yet registered. Do not run `opencode-score.sh` against the new
-rubric until the Predictions section below is filled in and committed.**
+**Status: blocked and unregistered.**
+1. Predictions below are empty. Do not run `opencode-score.sh` until they are filled in and committed.
+2. benchmarks#20 — four of six fixtures name their own varied dimension in a comment the scorer
+   reads. Do not run against the current fixtures at all; a pass would be unfalsifiable.
 
 This is the first record in `experiments/`. B1 is the experiment contract, so the first
 experiment it produces is about the instrument rather than about an agent — there is no
@@ -39,10 +41,25 @@ Recorded observations from the runs in `findings/opencode/`, not forecasts:
 | Seven-category rubric, anchors citing `exit 12` and `BE003ContractTest passes` → scorer emitted **an empty body**. Not a bad score. Nothing | `score-known-good-20260825T135039Z.yaml` |
 | Critic at temperature 0, two independent sessions: 6 sections, **2 of 12 section-runs flipped**. Both flips were real findings the earlier run missed — under-reporting, not hallucination | `review-run-record-20260824T200929Z.md` |
 | The scorer has read-ish tools ON deliberately; with every tool off it hung rather than answered | `.opencode/agent/lab-scorer.md` |
+| **The attachment set is `*.kt` under the fixture — nothing else.** No diff, no test runner, no evaluator output, no `known-good` to compare against. Each fixture is scored in isolation | `tools/opencode-score.sh` |
+| **Four of six fixtures carry no test files at all.** `known-good`, `good-inline-envelope`, `good-nested-ifs` and `good-noisy-diff` attach 2 files each; only the two test variants attach 3 | `find` over `fixtures/` |
+| **Four of six fixtures announce their own varied dimension in a KDoc block the scorer reads**, 14–19 lines each, and go on to state the finding the rubric is supposed to make | benchmarks#20 |
 
 So the instrument has nulled for a vague anchor, nulled wholesale for undecidable anchors,
 and under-reported at temperature 0. It has never yet been shown to **discriminate between
 two submissions**, because until benchmarks#10 there was only one it was allowed to score.
+
+Three of those rows constrain the answer before any intuition does:
+
+- **`change-focus` has no diff to look at.** The scorer sees one fixture's final files. Whether
+  `create` was "restyled for no reason" is a statement about a change, and no change is
+  visible. Either the anchor becomes an intrinsic property of the file, or the category nulls.
+- **`test-quality` has no tests to look at in four of six fixtures.** A scorer that emits `0`
+  there is asserting the tests are bad; the honest value is `null`. Which one it emits is a
+  fact about the anchors, and it is worth predicting separately.
+- **The labels are still in the fixtures.** Until benchmarks#20 lands, a high score and a low
+  null rate are consistent with the scorer having read a comment. **Do not run against the
+  current fixtures** — the result would be unfalsifiable in the flattering direction.
 
 ## Predictions
 
@@ -53,12 +70,14 @@ which is exactly the kind of thing an independently derived prediction catches.
 
 At minimum, predict:
 
-1. **Null rate.** Of the 4 categories × 5 fixtures = 20 cells, how many come back `null`?
+1. **Null rate.** Of the 4 categories × 6 fixtures = **24 cells**, how many come back `null`?
+   (Six, not five: `known-good` is the reference every other cell is read against, so it is
+   scored too.)
    <!-- TODO: number + mechanism -->
 2. **Discrimination.** Does each fixture's intended dimension score lower than `known-good`
    on that dimension and equal elsewhere? Name the pair you are least confident about.
    <!-- TODO -->
-3. **Agreement with your blind scores.** How many of the 20 cells will the scorer and you
+3. **Agreement with your blind scores.** How many of the 24 cells will the scorer and you
    agree on exactly, and where will you diverge?
    <!-- TODO -->
 
