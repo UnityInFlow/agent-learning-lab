@@ -209,6 +209,10 @@ Registered now, not after seeing the data:
 - A cell where the scorer's `evidence` cites a file not in the attachment set — it went
   hunting, and the result is not from the evidence it was given
 
+**"Excluded" means dropped from the denominator, not scored as a null.** Which cells that is,
+and what each outcome does to the rate, is one table in the decision rule below. It is there
+rather than here because an exclusion is only meaningful next to the arithmetic it changes.
+
 ## Decision rule
 
 Registered before data. What result produces KEEP / REJECT / INCONCLUSIVE?
@@ -229,14 +233,37 @@ Registered before data. What result produces KEEP / REJECT / INCONCLUSIVE?
                   category's anchors, not a verdict on the rubric
      Note what you would do differently in each case, or the rule decides nothing. -->
 
-> **Where a wholesale-undecidable run is filed.** A confirmed `empty` (two in a row on the
-> same rubric and fixture), or a sheet whose 4 cells for a fixture are all `null`, is a
-> **REJECT** for that fixture and counts its 4 cells toward the null rate — not INCONCLUSIVE,
-> and never a re-run. INCONCLUSIVE is reserved for nulls concentrated in one *category across
-> fixtures*, which indicts that category's anchors rather than the rubric. Without this line
-> the same output could be read as a rubric defect, as infrastructure, or as an unregistered
-> mode, and three readers reach three verdicts on identical data. Registered 2026-08-27,
-> before any run.
+### What every outcome does to the arithmetic
+
+The rule above is a rate, so every outcome has to say what it does to the numerator and to
+the denominator. One table, registered 2026-08-27 before any run, because "excluded" read two
+ways is a 33%-or-35% ambiguity and that flips a verdict on identical data.
+
+| Outcome | Nulls (numerator) | Denominator | Verdict contribution |
+|---|---|---|---|
+| Cell scored 0–2 | — | counts | feeds discrimination |
+| Cell `null` | +1 | counts | feeds the null rate |
+| All 4 cells `null` for a fixture | +4 | counts | **REJECT** for that fixture |
+| `empty` (3) confirmed by a repeat | +4 | counts | **REJECT** for that fixture |
+| `declared error` (5) | +4 | counts | **REJECT** for that fixture — the scorer named the rubric as the cause, which is the strongest form of the same finding |
+| `off contract` (2) | — | **drops those 4** | none. The rubric did not decide and did not fail to decide; the scorer left the contract. Recorded as an instrument outcome |
+| Cell that went hunting | — | **drops that 1** | none. The score exists but is not from the evidence the cell was given, so it is not a measurement of this rubric |
+| Exit `1` or `4` | — | run discarded whole | none |
+| `empty` (3) followed by a sheet | as the sheet | as the sheet | as the sheet — the first run was infrastructure and is recorded as such |
+
+**A rate without its exclusion count is not a result.** Report `nulls / denominator (E cells
+excluded)` every time — `8 / 24 (0 excluded)` and `8 / 20 (4 excluded)` are different findings
+and the second one is mostly a finding about the scorer, not about the rubric.
+
+<!-- TODO — yours: at what excluded-cell count does the run stop being interpretable at all?
+     The shape is registered above; the threshold is a number, and numbers are yours. -->
+
+> **Why a wholesale-undecidable run is REJECT and not INCONCLUSIVE.** INCONCLUSIVE is
+> reserved for nulls concentrated in one *category across fixtures*, which indicts that
+> category's anchors rather than the rubric. A fixture that nulls in all four categories
+> indicts the rubric. Without this line the same output could be read as a rubric defect, as
+> infrastructure, or as an unregistered mode, and three readers reach three verdicts on
+> identical data.
 
 ## The procedure, from #21
 
