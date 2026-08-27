@@ -113,8 +113,8 @@ Three failure modes, and they are not the same:
   and was only visible once the first failure was diagnosed.
 
 **The cell boundary, stated once so two readers cannot split on it.** A sheet is a sheet when
-it carries `scorer: lab-scorer` and a `categories:` block, *whatever is in the cells*. Twenty-four
-`null`s is a result and is scored as twenty-four nulls; it is not "no output". "No output"
+it carries `scorer: lab-scorer` and a `categories:` block, *whatever is in the cells*. A sheet
+of `null`s is a result and is tallied as nulls; it is not "no output". "No output"
 means no `categories:` block at all, and that is a different class with a different exit code.
 
 ## Hypothesis
@@ -154,7 +154,7 @@ three are structurally predicted and seventeen are yours.
   and a different measurement. Prediction 3 is the trap for it.
 - **`test-quality` has no tests to look at in three of the five variants.** **Decision A,
   2026-08-27: the anchors carry a precondition — no test file means `null`, not `0`.** A `0`
-  would assert the tests are bad when none were submitted. Those four cells are *predicted*
+  would assert the tests are bad when none were submitted. Those three cells are *predicted*
   nulls, not guaranteed ones: the precondition is YAML read by a model, nothing executes to
   reject a `0`, and `lab-critic` flagged the earlier "guaranteed" wording as exactly the L3
   worn as L2 that this project keeps re-learning.
@@ -290,7 +290,15 @@ Registered now, not after seeing the data:
 - A run against a fixture that does not pass `evaluator.sh` — the rubric only scores
   gate-passing submissions and `known-bad-*` are not in the population
 - A cell where the scorer's `evidence` cites a file not in the attachment set — it went
-  hunting, and the result is not from the evidence it was given
+  hunting, and the result is not from the evidence it was given. **L3, and weaker than it
+  looks**: the check fires on a *citation*, and `lab-scorer` has read-ish tools deliberately
+  ON — turning them all off made the model hang — so anything it reads without citing is
+  invisible to this exclusion. What that reaches is bounded by opencode's project root, which
+  is this repo. `fixture-notes/`, where every variant names its own varied dimension, lives in
+  the benchmarks repo and is therefore outside it; reaching it *should* hit an
+  `external_directory` prompt a non-interactive run cannot answer. **Should. Nothing has
+  tested that, and nothing records what the scorer read.** The L2 version is a tool-call log,
+  and it does not exist
 
 **"Excluded" means dropped from the denominator, not scored as a null.** Which cells that is,
 and what each outcome does to the rate, is one table in the decision rule below. It is there
