@@ -4,10 +4,15 @@
 > Commit it, and check the commit timestamp precedes the first run's `startedAt`. We got
 > that wrong once and voided nine runs.
 
-**Status: blocked and unregistered.**
-1. Predictions below are empty. Do not run `opencode-score.sh` until they are filled in and committed.
-2. benchmarks#20 — four of six fixtures name their own varied dimension in a comment the scorer
-   reads. Do not run against the current fixtures at all; a pass would be unfalsifiable.
+**Status: unregistered. One blocker remains, and it is the predictions.**
+
+1. **Predictions below are empty.** Do not run `opencode-score.sh` until they are filled in
+   and committed, and check the commit timestamp precedes the first run.
+2. ~~benchmarks#20 — the fixtures named their own varied dimension in a comment the scorer
+   reads.~~ **Cleared 2026-08-27** by benchmarks#21 (`8aadc75`): all eight fixtures now open
+   with the same neutral class doc and the prose moved to `fixture-notes/`, outside the
+   overlay. It was eight fixtures, not four — `good-strong-tests` announced itself without
+   the phrase that had been grepped for, and `known-good` labelled itself the reference.
 
 This is the first record in `experiments/`. B1 is the experiment contract, so the first
 experiment it produces is about the instrument rather than about an agent — there is no
@@ -43,23 +48,36 @@ Recorded observations from the runs in `findings/opencode/`, not forecasts:
 | The scorer has read-ish tools ON deliberately; with every tool off it hung rather than answered | `.opencode/agent/lab-scorer.md` |
 | **The attachment set is `*.kt` under the fixture — nothing else.** No diff, no test runner, no evaluator output, no `known-good` to compare against. Each fixture is scored in isolation | `tools/opencode-score.sh` |
 | **Four of six fixtures carry no test files at all.** `known-good`, `good-inline-envelope`, `good-nested-ifs` and `good-noisy-diff` attach 2 files each; only the two test variants attach 3 | `find` over `fixtures/` |
-| **Four of six fixtures announce their own varied dimension in a KDoc block the scorer reads**, 14–19 lines each, and go on to state the finding the rubric is supposed to make | benchmarks#20 |
+| ~~All eight fixtures announced their own varied dimension in a class KDoc the scorer reads~~ — **fixed 2026-08-27**, benchmarks#21. They now share one neutral class doc; the prose lives in `fixture-notes/`, outside the scorer's glob | benchmarks#20 |
 
 So the instrument has nulled for a vague anchor, nulled wholesale for undecidable anchors,
 and under-reported at temperature 0. It has never yet been shown to **discriminate between
 two submissions**, because until benchmarks#10 there was only one it was allowed to score.
 
-Three of those rows constrain the answer before any intuition does:
+Three of those rows constrain the answer before any intuition does. The derivation grid
+is in [`E-001-prediction-worksheet.md`](E-001-prediction-worksheet.md) — 24 cells, of which
+four are already predicted and seventeen are yours.
 
-- **`change-focus` has no diff to look at.** The scorer sees one fixture's final files. Whether
-  `create` was "restyled for no reason" is a statement about a change, and no change is
-  visible. Either the anchor becomes an intrinsic property of the file, or the category nulls.
-- **`test-quality` has no tests to look at in four of six fixtures.** A scorer that emits `0`
-  there is asserting the tests are bad; the honest value is `null`. Which one it emits is a
-  fact about the anchors, and it is worth predicting separately.
-- **The labels are still in the fixtures.** Until benchmarks#20 lands, a high score and a low
-  null rate are consistent with the scorer having read a comment. **Do not run against the
-  current fixtures** — the result would be unfalsifiable in the flattering direction.
+- **`change-focus` had no diff to look at** — the scorer sees one fixture's final files, and
+  whether `create` was "restyled for no reason" is a statement about a change. **Decision B,
+  2026-08-27: `known-good` is attached as a baseline**, so the change is visible and the
+  anchor is citable at `path:line` in both trees. The cost is registered in the worksheet: a
+  baseline is available to *all four* categories, not only this one, and may turn
+  `architecture-consistency` and `maintainability` into spot-the-difference — an easier task
+  and a different measurement. Prediction 3 is the trap for it.
+- **`test-quality` has no tests to look at in four of six fixtures.** **Decision A,
+  2026-08-27: the anchors carry a precondition — no test file means `null`, not `0`.** A `0`
+  would assert the tests are bad when none were submitted. Those four cells are *predicted*
+  nulls, not guaranteed ones: the precondition is YAML read by a model, nothing executes to
+  reject a `0`, and `lab-critic` flagged the earlier "guaranteed" wording as exactly the L3
+  worn as L2 that this project keeps re-learning.
+- **The labels are gone, and that changes what a good result means.** While they were there,
+  a high score and a low null rate were consistent with the scorer having read a comment —
+  unfalsifiable in the flattering direction. Since benchmarks#21 the fixtures are silent about
+  what they vary, so discrimination now has to come from the code. If the scorer still
+  separates them cleanly, that is evidence. If it stops separating them, **that is also
+  evidence**, and it is the more interesting of the two: it would mean the earlier confidence
+  was the label talking.
 
 ## Predictions
 
@@ -98,6 +116,7 @@ one candidate cause.
 |---|---|
 | Mechanism | `opencode run --agent lab-scorer -m <model>` with the rubric and the changed source files attached |
 | Rubric | `benchmark/rubrics/backend-quality.yaml` · sha `21aa658d030d` **(pre-rewrite — record the new sha here once #21 lands)** |
+| Reviewing this record | two models since 2026-08-27: `lab-critic` on `ollama-cloud/glm-5.2` line-level, `lab-acceptance` on `ollama-cloud/minimax-m3` for the gate. Everything reviewed before that date was `deepseek-v4-pro` doing both jobs |
 | Agent | `.opencode/agent/lab-scorer.md` · sha `cb371384fa19` |
 | Preflight assertion | `opencode-score.sh` fails when `--dir` repoints the project root and opencode silently falls back to the default full-tool agent exiting 0. The agent definition is L3; that guard is the L2 version |
 | Control assertion | Fresh session every run, never `--continue`. A scorer that remembers its last sheet is not an independent second scorer |
@@ -131,7 +150,7 @@ a lower bound rather than a value. `opencode-score.sh` has no `-n`; `opencode-re
 | Outcome | MDE | Registered before the run? |
 |---|---|---|
 | primary: score gap between a fixture and `known-good` on its own dimension | | |
-| secondary: null rate across the 20 cells | | |
+| secondary: null rate across the 24 cells | | |
 
 <!-- TODO: a 0–2 scale with weights 35/25/25/15 means one category moving by 1 point moves
      the normalised total by a fixed amount. Work out what that is per category, and decide
@@ -162,10 +181,17 @@ Registered now, not after seeing the data:
 
 Registered before data. What result produces KEEP / REJECT / INCONCLUSIVE?
 
+> **The denominator is 24** — 4 categories × 6 fixtures, `known-good` included. Every rate
+> below is over 24. An earlier draft said 20 in the MDE table and 24 here; on 8 observed
+> nulls that is 33% or 40%, and two reviewers reading different sections first reach opposite
+> verdicts on identical data. `lab-acceptance` caught it, blocking, on 2026-08-27.
+
 <!-- TODO — yours. Suggested shape, not an answer:
      KEEP         if the null rate is at or under your predicted number AND each fixture
-                  scores below known-good on its own dimension
-     REJECT       if any category is constant across all five fixtures — it carries no
+                  scores below known-good on its own dimension AND is equal to it elsewhere
+                  — without the second half, a fixture that is simply worse everywhere
+                  satisfies KEEP while discriminating nothing
+     REJECT       if any category is constant across all six fixtures — it carries no
                   information regardless of how defensible its anchors read
      INCONCLUSIVE if nulls are concentrated in one category — that is a defect in that
                   category's anchors, not a verdict on the rubric
@@ -175,9 +201,12 @@ Registered before data. What result produces KEEP / REJECT / INCONCLUSIVE?
 
 1. `./tools/opencode-review.sh -n 2 benchmark/rubrics/backend-quality.yaml` — critique the
    rubric before applying it
-2. Score all five fixtures **yourself, blind**, and commit those scores
+2. Score all **six** fixtures yourself, blind, into `E-001-blind-scores.yaml`, and commit
+   before reading any scorer output. Six, not five: `known-good` is the reference every other
+   cell is read against, so it has to be scored too or there is nothing to compare against
 3. `./tools/opencode-score.sh benchmark/rubrics/backend-quality.yaml <fixture>` on each
-4. Compare. That gap is B1's exit-gate evidence — five points now, not one
+4. Compare. That gap is B1's exit-gate evidence — five gate-passing variants against the
+   reference, not one point
 
 ---
 *Everything below is filled in AFTER the runs.*
