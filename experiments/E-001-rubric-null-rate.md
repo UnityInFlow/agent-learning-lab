@@ -4,15 +4,15 @@
 > Commit it, and check the commit timestamp precedes the first run's `startedAt`. We got
 > that wrong once and voided nine runs.
 
-**Status: unregistered. Two blockers remain.**
+**Status: unregistered. One blocker remains, and it is the predictions.**
 
-1. **The rubric this experiment measures does not exist yet.** `benchmark/rubrics/backend-quality.yaml`
-   is still the seven-category worked example — sha `21aa658d030d`, its own header says
-   "Do not read a score from this file". The four-category replacement is lab#21 and is
-   unwritten. Everything below describes 4 categories × 5 variants = 20 cells; against the
-   file on disk it would be 7 × 5 = 35, and the run would measure the artifact this
-   experiment exists to replace. An earlier draft of this line said predictions were the
-   only blocker, which was wrong the moment the rubric rewrite slipped.
+1. ~~The rubric this experiment measures does not exist.~~ **Cleared 2026-08-27** — lab#21
+   is written: `benchmark/rubrics/backend-quality.yaml` v2, sha `dbf6f64fdfdc`, four
+   categories, every anchor citable at `path:line` from the attachments alone. Drafted by
+   Claude from the fixture sources at the user's request; the anchors have never been
+   applied to anything, which is what E-001 exists to change. The rubric's own header
+   carries forward the one thing it could not solve: `test-quality` holds 25 of the 100 and
+   is decidable on two of the five variants.
 2. **Predictions below are empty.** Do not run `opencode-score.sh` until they are filled in
    and committed, and check the commit timestamp precedes the first run.
 3. ~~benchmarks#20 — the fixtures named their own varied dimension in a comment the scorer
@@ -208,7 +208,7 @@ is what makes the five commensurable with each other.
 | | |
 |---|---|
 | Mechanism | `opencode run --agent lab-scorer -m <model>` with the rubric, the fixture's source files, **and the `known-good` baseline** attached — Decision B, and executed since 2026-08-27. `LAB_SCORE_BASELINE` overrides the path; a missing baseline fails the run rather than silently producing the pre-Decision-B measurement. `known-good` is not itself scored; if it ever is, no baseline is attached, the prompt says so, and `baseline_state` records that the run was a different condition |
-| Rubric | `benchmark/rubrics/backend-quality.yaml` · sha `21aa658d030d` — **this is the seven-category worked example, not the rubric under test.** Blocker 1. Record the four-category sha here when lab#21 lands, and re-read the 20-cell denominator: it is 4 × 5 and assumes that rewrite |
+| Rubric | `benchmark/rubrics/backend-quality.yaml` **v2 · sha `dbf6f64fdfdc`** — four categories, written 2026-08-27 as lab#21. Every anchor names a construct rather than a difference, because with the baseline attached "differs from `known-good`" is answerable without reading the rubric at all. The seven-category draft it replaces, sha `21aa658d030d`, stays in git history as the worked example of the two mistakes |
 | Reviewing this record | two models since 2026-08-27: `lab-critic` on `ollama-cloud/glm-5.2` line-level, `lab-acceptance` on `ollama-cloud/minimax-m3` for the gate. Everything reviewed before that date was `deepseek-v4-pro` doing both jobs |
 | Agent | `.opencode/agent/lab-scorer.md` · sha `cb371384fa19` |
 | Preflight assertion | **L2.** `opencode-score.sh` fails when `--dir` repoints the project root and opencode silently falls back to the default full-tool agent exiting 0. The agent definition is L3; that guard is the L2 version |
@@ -224,7 +224,7 @@ is what makes the five commensurable with each other.
       unpinned scorer model is an unregistered variable)
 - [x] temperature — 0, set in the agent frontmatter
 - [x] session — fresh per run
-- [ ] rubric sha — pending the #21 rewrite
+- [x] rubric sha — `dbf6f64fdfdc`, `benchmark/rubrics/backend-quality.yaml` v2
 - [ ] your blind scores recorded **before** any scorer output is read
 
 > Three models hang indefinitely on non-interactive runs and must not be used here:

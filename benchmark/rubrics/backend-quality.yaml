@@ -1,110 +1,112 @@
-# BE-003 backend quality rubric — B1
+# BE-003 backend quality rubric — B1, four categories
 #
-# PROVENANCE. Drafted by Claude (Opus 5) on 2026-08-25, and the predictions registered
-# against it were also Claude's, adopted rather than independently derived. Record that
-# when reading the result: a rubric scored against its own author's predictions is a
-# weaker claim than one scored against yours. It measures whether the anchors hold, not
-# whether your intuitions about them did.
+# Replaces the seven-category draft (sha 21aa658d030d), which is kept in git history as a
+# worked example of two specific mistakes rather than as a draft to finish. lab#21.
 #
-# KNOWN OPEN DEFECT. Several anchors below cite evaluator exit codes and named test suites.
-# The scoring model receives only the changed source files — it cannot run tests, read a
-# diff, or see evaluator output — so those anchors are UNDECIDABLE by it and it emits
-# nothing rather than guessing. functional-correctness (all three), requirement-completeness
-# (anchor 2) and change-focus (all three) are affected, and the fixtures contain no test
-# files at all, which makes test-quality undecidable too. The design rule below conflated
-# "backed by something executable" with "decidable by the scorer"; those are not the same
-# thing. Unresolved pending a decision on whether to split evaluator-derived categories out
-# of the LLM-scored ones. Do not read a score from this file until that is settled.
+# PROVENANCE. Drafted by Claude (Opus 5) on 2026-08-27 from the fixture sources and the
+# baseline, at the user's request. The anchors below have never been applied to anything.
+# The predictions registered against the previous rubric were also Claude's, adopted rather
+# than independently derived, and the one that broke did so on an authoring error nobody
+# caught. E-001's predictions are deliberately the user's for that reason. Read any result
+# from this file with the drafting provenance in view.
 #
-# DESIGN RULE. evaluator.sh already decides pass/fail — build (F04), existing tests (F05),
-# functional suite (F03), contract suite (F02), dependency guard (F07), changed files.
-# Those are GATES. This rubric must not re-ask their question. It scores how well the work
-# was done *among submissions that passed*, and every anchor it can is derived from an exit
-# code, a named acceptance test, or a class that exists in the codebase — because an anchor
-# backed by something executable cannot be argued into a different score.
+# ── WHY THE PREVIOUS ONE DIED ────────────────────────────────────────────────────────────
 #
-# A run that fails a gate is unsuccessful even when it used fewer tokens. Do not compute a
-# score for it to rank it against passing runs.
+# 1. Anchors cited evaluator exit codes and named test suites. The scorer receives changed
+#    source files and nothing else — no test runner, no evaluator output — so those anchors
+#    were UNDECIDABLE by it and it emitted nothing rather than guessing.
+# 2. Worse: this rubric only ever scores submissions that ALREADY PASSED every gate. Any
+#    anchor restating a gate is therefore a constant across the whole population it is
+#    allowed to score. `functional-correctness` (25) and `requirement-completeness` (20)
+#    did exactly that. Sixty percent of the weight carried no information, and it looked
+#    like agreement rather than like a defect.
 #
-# SCORING. 0-2 per category, weighted, normalised to 0-100:
+# Both are dropped. The gates own correctness and completeness, and they own them at Layer
+# 2 — `evaluator.sh` executes. This file scores how well the work was done AMONG passing
+# submissions, which is the only question left once the gates have spoken.
+#
+# ── THE DESIGN RULE, AND THE TEST FOR ANY FUTURE ANCHOR ──────────────────────────────────
+#
+# Could a scorer cite `path:line` for it, from the attached files alone? The attachments
+# are every *.kt under the fixture, plus the `known-good` baseline tree (E-001 Decision B).
+# Nothing else exists: no diff, no test run, no evaluator output, no network.
+#
+# An anchor must also name a CONSTRUCT — `when` versus an if-chain, an `ApiError` literal,
+# a second `post(...)` call — and never "differs from the baseline". With the baseline in
+# the evidence set, "differs" is answerable without reading the rubric at all, and a rubric
+# that rewards it is measuring spot-the-difference. E-001's KEEP condition requires the
+# cited construct for exactly this reason.
+#
+# ── SCORING ──────────────────────────────────────────────────────────────────────────────
+#
 #     score = 100 * sum(w_i * s_i) / (2 * sum(w_i))   over categories where s_i is not null
-# Categories scoring null are excluded from BOTH sums. A total computed over fewer than
-# five categories is not reportable — say which nulled instead.
+#
+# Categories scoring null are excluded from BOTH sums. That keeps a null from reading as a
+# zero — but it also means a total over three categories is NOT COMPARABLE to a total over
+# four: the same 100 is a different claim. Report the categories that nulled beside every
+# total, or do not report the total.
+#
+# KNOWN AND REGISTERED, NOT A SURPRISE TO BE DISCOVERED LATER. `test-quality` carries 25 of
+# the 100 and is decidable on only two of the five gate-passing variants, because the other
+# three submitted no test file at all. Three of E-001's twenty cells are null before an
+# anchor is read. That is not the previous rubric's defect — a structural null is honest
+# where a constant was not — but it is the same family, and it is the open question this
+# file hands forward: either the fixture set grows tests, or the weight is wrong.
+#
+# ── A RUN THAT FAILED A GATE IS UNSUCCESSFUL ─────────────────────────────────────────────
+#
+# Even when it used fewer tokens. Do not compute a score for it in order to rank it against
+# passing runs. This is the single most important rule in the business case.
 
-version: 1
+version: 2
 task: BE-003-confirm-shipment
 scale: [0, 1, 2]
 
 categories:
 
-  - name: functional-correctness
-    weight: 25
-    # The evaluator splits its suite in two precisely because a submission can be right and
-    # still be wrong: ResponseStatusException returns the correct status through Spring's
-    # default body. That split is the anchor — three states, not a binary.
-    anchors:
-      0: "The functional suite (BE003FunctionalTest) fails — evaluator exit 12 / F03. Behaviour is wrong regardless of how it is reported."
-      1: "BE003FunctionalTest passes but BE003ContractTest fails — evaluator exit 13 / F02. Right status, wrong envelope: typically ResponseStatusException or a ResponseEntity assembled in the controller."
-      2: "Both BE003FunctionalTest and BE003ContractTest pass — evaluator exit 0 on those suites."
-
-  - name: requirement-completeness
-    weight: 20
-    # The ticket names four behaviours. They are individually testable, so completeness is
-    # a count of named tests, not an impression.
-    anchors:
-      0: "Two or more of the four ticket behaviours are unimplemented or wrong: CREATED->CONFIRMED, idempotent repeat, CANCELLED->409, unknown id->404."
-      1: "Exactly one of the four is wrong. Most commonly the repeat: `confirming twice is idempotent` fails because 409 was chosen for a retry, which the ticket forbids in bold."
-      2: "All six functional tests pass, including `the confirmed status is persisted, not just returned` and `confirming does not duplicate or lose the shipment` — persistence and collection integrity, not only the returned body."
-
   - name: architecture-consistency
-    weight: 15
-    # The convention is declared in api/ApiExceptions.kt: a sealed ApiException hierarchy,
-    # thrown by the caller, rendered once by GlobalExceptionHandler.
+    weight: 35
+    # The convention is DECLARED IN THE SOURCE, which is what makes it citable: ApiError.kt
+    # states "Responses are produced centrally by [GlobalExceptionHandler]; controllers
+    # throw an [ApiException] rather than assembling bodies themselves." The scorer can
+    # read that sentence and then check the controller against it.
+    precondition: none
     anchors:
-      0: "The controller assembles an error body itself (constructs ResponseEntity<ApiError> or a map), or lets Spring's default error shape escape. `error responses do not fall back to the framework default shape` fails."
-      1: "Refusals throw, but not through the existing hierarchy — a bare ResponseStatusException, or a new exception type that GlobalExceptionHandler does not already handle."
-      2: "Every refusal throws an existing ApiException subclass (ResourceNotFoundException for 404, ConflictException for 409) and no response body is constructed in the shipment package."
-
-  - name: test-quality
-    weight: 15
-    # The evaluator runs tests but does not grade them. These anchors grade what the
-    # submission's own tests assert, not whether they pass.
-    anchors:
-      0: "No test was added for the new endpoint, or the added tests assert only HTTP status codes."
-      1: "Tests cover the happy path and at least one refusal, but idempotency is not exercised by calling confirm twice and comparing the two responses."
-      2: "Tests exercise the repeat explicitly (two calls, both asserted), assert on the error envelope body and not only the status, and at least one asserts persisted state by re-reading the shipment rather than trusting the returned object."
-
-  - name: error-handling
-    weight: 10
-    # CORRECTED 2026-08-25. The first draft asserted SHIPMENT_NOT_CONFIRMABLE already existed
-    # and penalised adding it. It does not exist in the base service — the base enum is
-    # ORDER_NOT_FOUND, ORDER_ALREADY_EXISTS, SHIPMENT_NOT_FOUND, SHIPMENT_ALREADY_EXISTS,
-    # VALIDATION_FAILED — and evaluator.sh says adding one is "the intended solution rather
-    # than a scope violation". The draft had read the enum out of the known-good FIXTURE and
-    # mistaken the solution for the starting state, so the rubric scored the reference
-    # solution down for doing the right thing. Anchors inverted to match the baseline.
-    anchors:
-      0: "A refusal carries a semantically wrong ErrorCode, or VALIDATION_FAILED is used as a catch-all for a state conflict."
-      1: "An existing code is reused for the unconfirmable state because it was the closest available — SHIPMENT_ALREADY_EXISTS or SHIPMENT_NOT_FOUND standing in for 'cannot confirm from this state' — rather than adding the code the situation needs."
-      2: "A dedicated code for the unconfirmable state was added to the ErrorCode enum (the reference names it SHIPMENT_NOT_CONFIRMABLE), and the existing SHIPMENT_NOT_FOUND is used for the 404."
+      0: "The shipment package constructs an error body itself — an `ApiError(...)` or `ApiErrorBody(...)` literal, or a map, appears inside a controller method. A `ResponseEntity<Any>` return type is the usual tell: it exists to carry both the success shape and a hand-built error shape. Cite the literal."
+      1: "Refusals throw rather than assemble, but not through the declared hierarchy — a bare `ResponseStatusException`, or a new exception type that is not imported from `com.unityinflow.sample.api`. Cite the throw site and the import list."
+      2: "Every refusal throws an existing `ApiException` subclass imported from `com.unityinflow.sample.api` — `ResourceNotFoundException` for a missing shipment, `ConflictException` for a state refusal — and no `ApiError` or `ApiErrorBody` is constructed anywhere in the shipment package. Cite each throw site."
 
   - name: maintainability
-    weight: 10
-    # No evaluator signal exists here. These anchors are an honest attempt at observables
-    # rather than adjectives; if the scorer still returns null, that is the finding this
-    # category was included to produce, not a defect to paper over.
+    weight: 25
+    # `ShipmentStatus` is an enum, so an exhaustive `when` with no `else` makes adding a
+    # state a COMPILE ERROR at this site. An if-chain, or a `when` with `else`, silently
+    # routes the new state down the fallback path. That difference is visible in the
+    # source and needs no test run to see.
+    precondition: none
     anchors:
-      0: "The status transition is expressed as nested if/else on status with no single place showing which transitions are legal, or the confirm logic is duplicated across methods."
-      1: "The transition is in one place but undocumented — a reader must infer from the code which states are confirmable."
-      2: "Legal transitions are expressed once, exhaustively (a `when` over ShipmentStatus, or an explicit guard naming each refused state), and the non-obvious decision — that a repeat is a success and not a conflict — carries a comment or KDoc saying why."
+      0: "The status decision is an `if` / `else if` / `else` chain, or a `when` carrying an `else` branch. Either way a new `ShipmentStatus` constant compiles without touching this method and takes the fallback path unannounced. Cite the chain or the `else`."
+      1: "An exhaustive `when` on the status, but the decision is split across more than one construct, or a branch repeats logic another branch already performs. Cite both places."
+      2: "One exhaustive `when (shipment.status)`, a branch per enum constant, no `else` — so a new constant is a compile error here. Cite the `when` and count the branches against `ShipmentStatus`."
+
+  - name: test-quality
+    weight: 25
+    # DECISION A, E-001, 2026-08-27. No test file means `null`, never `0`. A `0` asserts the
+    # tests are bad; no tests were submitted, and those are different claims. This
+    # precondition is YAML read by a model — Layer 3 — so nothing executes to reject a `0`
+    # here. The three predicted nulls are predicted, not guaranteed.
+    precondition: "No file under src/test/ among the attachments → score: null, reason: no test file submitted. Never 0."
+    anchors:
+      0: "Every assertion is a status code. No assertion reads a response body, and no assertion re-reads state through a second request. Cite the assertion list."
+      1: "At least one assertion reads a response body, but one of the two behaviours the ticket names in bold is missing: the repeat is not exercised by a SECOND call to confirm, or the persisted state is never re-read through a separate request. Cite what is asserted and name which is absent."
+      2: "All three hold, each citable: confirm is called twice and the second response is asserted; the persisted state is re-read through a separate `get(...)` rather than trusted from the mutating call's own body; and at least one refusal asserts the envelope's `$.error.code` rather than the status alone. Cite one line per clause."
 
   - name: change-focus
-    weight: 5
-    # Fully mechanical: the evaluator already computes CHANGED_FILES and the dependency set.
-    # CORRECTED 2026-08-25: the first draft treated any edit to api/ as out of scope, which
-    # double-penalised the reference solution alongside error-handling for a single act. The
-    # allowed set is shipment/ AND api/, per ALLOWED_PRODUCTION_PREFIXES in evaluator.sh.
+    weight: 15
+    # DECISION B, E-001, 2026-08-27: the baseline tree is attached, so "was this restyled"
+    # is citable at path:line in BOTH trees. The ticket names `confirm`. Every other method
+    # is out of scope, and the imports `confirm` itself requires are not.
+    precondition: "No baseline tree among the attachments → score: null, reason: no baseline to read a change against. Never 2."
     anchors:
-      0: "A new Maven dependency appears (exit 20 / F07), or production files outside the allowed prefixes changed (exit 21). evaluator.sh defines allowed as shipment/ AND api/ — editing api/ is in scope, not a violation."
-      1: "Nothing outside the allowed prefixes, but the change includes edits the ticket did not ask for — reformatting, renames, or refactors unrelated to confirm."
-      2: "The diff contains only what the ticket requires: the shipment feature plus tests. No reformatting of untouched lines."
+      0: "Two or more methods the ticket did not name differ from the baseline in anything beyond trailing whitespace — reformatted, restructured, an expression body turned into a block, a local renamed. Name each method and cite the line in both trees."
+      1: "Exactly one method the ticket did not name differs from the baseline. Name it and cite both trees."
+      2: "Every method the ticket did not name is character-identical to the baseline. Only `confirm`, and the imports it requires, differ. Name the methods checked."

@@ -69,18 +69,24 @@ and exits 0** — both scripts grep for that warning and fail.
 
 ## Where B1 stands
 
-The rubric at `benchmark/rubrics/backend-quality.yaml` is a **worked example of a specific
-mistake**, not a draft to finish. Its header says so. Two independent defects:
+`benchmark/rubrics/backend-quality.yaml` is **v2, four categories, sha `dbf6f64fdfdc`**,
+written 2026-08-27 (lab#21). The seven-category file it replaced is in git history as a
+**worked example of a specific mistake**. Two independent defects killed it:
 
 1. Anchors cited evaluator exit codes the scorer cannot see
 2. Worse — the rubric only scores **gate-passing** submissions, so any anchor restating a
    gate is a *constant* across everything it can score. 60% of the weight carried no
    information
 
-The replacement is four categories (architecture-consistency 35, maintainability 25,
-test-quality 25, change-focus 15), anchored on differences observable between the five
-gate-passing fixture variants. `functional-correctness` and `requirement-completeness` are
-dropped: the gates own them. See issue #21.
+v2 is four categories (architecture-consistency 35, maintainability 25, test-quality 25,
+change-focus 15), anchored on constructs visible in the five gate-passing variants and the
+attached baseline. `functional-correctness` and `requirement-completeness` are dropped: the
+gates own them, and restating a gate is a constant across everything this rubric can score.
+
+**What v2 could not solve, and hands forward:** `test-quality` holds 25 of the 100 and is
+decidable on two of the five variants — the other three submitted no test file. Three of
+E-001's twenty cells are null before an anchor is read. A structural null is honest where a
+constant was not, but the fixture set needs tests or the weight is wrong.
 
 **The test for any anchor: could a reviewer cite `path:line` to justify it?** If not, the
 scorer will null it and deserves to.
