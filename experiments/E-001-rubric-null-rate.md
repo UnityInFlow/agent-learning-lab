@@ -4,11 +4,18 @@
 > Commit it, and check the commit timestamp precedes the first run's `startedAt`. We got
 > that wrong once and voided nine runs.
 
-**Status: unregistered. One blocker remains, and it is the predictions.**
+**Status: unregistered. Two blockers remain.**
 
-1. **Predictions below are empty.** Do not run `opencode-score.sh` until they are filled in
+1. **The rubric this experiment measures does not exist yet.** `benchmark/rubrics/backend-quality.yaml`
+   is still the seven-category worked example — sha `21aa658d030d`, its own header says
+   "Do not read a score from this file". The four-category replacement is lab#21 and is
+   unwritten. Everything below describes 4 categories × 6 fixtures = 24 cells; against the
+   file on disk it would be 7 × 6 = 42, and the run would measure the artifact this
+   experiment exists to replace. An earlier draft of this line said predictions were the
+   only blocker, which was wrong the moment the rubric rewrite slipped.
+2. **Predictions below are empty.** Do not run `opencode-score.sh` until they are filled in
    and committed, and check the commit timestamp precedes the first run.
-2. ~~benchmarks#20 — the fixtures named their own varied dimension in a comment the scorer
+3. ~~benchmarks#20 — the fixtures named their own varied dimension in a comment the scorer
    reads.~~ **Cleared 2026-08-27** by benchmarks#21 (`8aadc75`): all eight fixtures now open
    with the same neutral class doc and the prose moved to `fixture-notes/`, outside the
    overlay. It was eight fixtures, not four — `good-strong-tests` announced itself without
@@ -127,7 +134,7 @@ one candidate cause.
 | | |
 |---|---|
 | Mechanism | `opencode run --agent lab-scorer -m <model>` with the rubric and the changed source files attached |
-| Rubric | `benchmark/rubrics/backend-quality.yaml` · sha `21aa658d030d` **(pre-rewrite — record the new sha here once #21 lands)** |
+| Rubric | `benchmark/rubrics/backend-quality.yaml` · sha `21aa658d030d` — **this is the seven-category worked example, not the rubric under test.** Blocker 1. Record the four-category sha here when lab#21 lands, and re-read the 24-cell denominator: it is 4 × 6 and assumes that rewrite |
 | Reviewing this record | two models since 2026-08-27: `lab-critic` on `ollama-cloud/glm-5.2` line-level, `lab-acceptance` on `ollama-cloud/minimax-m3` for the gate. Everything reviewed before that date was `deepseek-v4-pro` doing both jobs |
 | Agent | `.opencode/agent/lab-scorer.md` · sha `cb371384fa19` |
 | Preflight assertion | **L2.** `opencode-score.sh` fails when `--dir` repoints the project root and opencode silently falls back to the default full-tool agent exiting 0. The agent definition is L3; that guard is the L2 version |
@@ -243,13 +250,19 @@ ways is a 33%-or-35% ambiguity and that flips a verdict on identical data.
 |---|---|---|---|
 | Cell scored 0–2 | — | counts | feeds discrimination |
 | Cell `null` | +1 | counts | feeds the null rate |
-| All 4 cells `null` for a fixture | +4 | counts | **REJECT** for that fixture |
+| Every *remaining* cell `null` for a fixture | +n | counts | **REJECT** for that fixture |
 | `empty` (3) confirmed by a repeat | +4 | counts | **REJECT** for that fixture |
 | `declared error` (5) | +4 | counts | **REJECT** for that fixture — the scorer named the rubric as the cause, which is the strongest form of the same finding |
 | `off contract` (2) | — | **drops those 4** | none. The rubric did not decide and did not fail to decide; the scorer left the contract. Recorded as an instrument outcome |
 | Cell that went hunting | — | **drops that 1** | none. The score exists but is not from the evidence the cell was given, so it is not a measurement of this rubric |
 | Exit `1` or `4` | — | run discarded whole | none |
 | `empty` (3) followed by a sheet | as the sheet | as the sheet | as the sheet — the first run was infrastructure and is recorded as such |
+
+**Remaining, not four.** A fixture whose cells are 3 nulls and 1 hunted has no cell left that
+decided anything, and is REJECT on 3 of 3 — the hunted cell left the denominator, so "all four
+null" would never fire and two readers would tally the same run differently. Record the
+remaining-cell count with the verdict: REJECT on 4 of 4 and REJECT on 1 of 1 are not the same
+claim, and the second is mostly a statement about how much of the fixture was excluded.
 
 **A rate without its exclusion count is not a result.** Report `nulls / denominator (E cells
 excluded)` every time — `8 / 24 (0 excluded)` and `8 / 20 (4 excluded)` are different findings
