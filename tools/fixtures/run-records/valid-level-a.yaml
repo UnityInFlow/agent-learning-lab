@@ -1,0 +1,11 @@
+# Every usage value reported by the provider. Level A throughout.
+runId: FIXTURE-VALID-LEVEL-A
+efficiency:
+  durationMs: 41200
+  inputTokens:         { value: 12400, source: provider, estimated: false }
+  outputTokens:        { value: 3100,  source: provider, estimated: false }
+  cachedInputTokens:   { value: 8800,  source: provider, estimated: false }
+  cacheCreationTokens: { value: 1200,  source: provider, estimated: false }
+  cost:                { value: 0.184, source: provider, estimated: false }
+measurement:
+  telemetryComplete: true

@@ -46,12 +46,23 @@ behavior:
   compactions:
 
 efficiency:
-  durationMs:
-  inputTokens:
-  outputTokens:
-  cachedInputTokens:
-  cacheCreationTokens:
-  cost:
+  durationMs:              # wall clock. The runner always knows this one.
+
+  # Every usage value carries its own provenance, so a gap reads as a gap and not as a
+  # very efficient run. Level A is what the provider reported, B is what a local tokenizer
+  # guessed, C is that nobody knows.
+  #
+  #   { value: 12400, source: provider,        estimated: false }   # Level A
+  #   { value: 11950, source: local-tokenizer, estimated: true  }   # Level B
+  #   { value: null,  source: null,            estimated: null  }   # Level C
+  #
+  # A record starts at Level C for everything, because that is true until a run fills it in.
+  # `tools/validate-run-record.sh` rejects a bare number — this block is Layer 3 on its own.
+  inputTokens:         { value: null, source: null, estimated: null }
+  outputTokens:        { value: null, source: null, estimated: null }
+  cachedInputTokens:   { value: null, source: null, estimated: null }
+  cacheCreationTokens: { value: null, source: null, estimated: null }
+  cost:                { value: null, source: null, estimated: null }
 
 evaluation:
   compile:

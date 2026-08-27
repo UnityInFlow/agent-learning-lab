@@ -1,0 +1,12 @@
+# A number with the provenance field present but empty. Worse than a bare scalar, because
+# it looks like it was filled in.
+runId: FIXTURE-BAD-VALUE-WITHOUT-SOURCE
+efficiency:
+  durationMs: 41200
+  inputTokens:         { value: 12400, source: null, estimated: null }
+  outputTokens:        { value: 3100, source: provider, estimated: false }
+  cachedInputTokens:   { value: null, source: null, estimated: null }
+  cacheCreationTokens: { value: null, source: null, estimated: null }
+  cost:                { value: null, source: null, estimated: null }
+measurement:
+  telemetryComplete: true

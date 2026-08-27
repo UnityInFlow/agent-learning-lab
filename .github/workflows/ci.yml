@@ -63,6 +63,22 @@ jobs:
           sys.exit(bad)
           PY
 
+  run-record:
+    name: a bare token count is rejected
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PyYAML
+        run: pip install --quiet pyyaml
+      # The template holding the provenance shape is Layer 3 on its own. This job is what
+      # makes it Layer 2, and the fixtures are what prove the job still rejects anything.
+      - name: Every fixture produces its registered exit code
+        run: ./tools/verify-run-record-validator.sh
+
   links:
     name: verified reading is still verified
     runs-on: ubuntu-latest

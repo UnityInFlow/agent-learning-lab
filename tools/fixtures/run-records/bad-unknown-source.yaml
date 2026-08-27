@@ -1,0 +1,11 @@
+# "roughly" is not a measurement level.
+runId: FIXTURE-BAD-UNKNOWN-SOURCE
+efficiency:
+  durationMs: 41200
+  inputTokens:         { value: 12400, source: roughly, estimated: true }
+  outputTokens:        { value: 3100, source: provider, estimated: false }
+  cachedInputTokens:   { value: null, source: null, estimated: null }
+  cacheCreationTokens: { value: null, source: null, estimated: null }
+  cost:                { value: null, source: null, estimated: null }
+measurement:
+  telemetryComplete: true

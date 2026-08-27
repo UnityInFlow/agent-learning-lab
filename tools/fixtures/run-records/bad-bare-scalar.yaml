@@ -1,0 +1,11 @@
+# The failure this validator exists for. Reads fine, means nothing.
+runId: FIXTURE-BAD-BARE-SCALAR
+efficiency:
+  durationMs: 41200
+  inputTokens: 12400
+  outputTokens:        { value: 3100, source: provider, estimated: false }
+  cachedInputTokens:   { value: null, source: null, estimated: null }
+  cacheCreationTokens: { value: null, source: null, estimated: null }
+  cost:                { value: null, source: null, estimated: null }
+measurement:
+  telemetryComplete: true
