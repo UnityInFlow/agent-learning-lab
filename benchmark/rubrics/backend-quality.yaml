@@ -37,6 +37,41 @@
 # that rewards it is measuring spot-the-difference. E-001's KEEP condition requires the
 # cited construct for exactly this reason.
 #
+# ── THE LADDER IS TOTAL. READ THIS BEFORE ANY ANCHOR ─────────────────────────────────────
+#
+# Three anchors do not partition the space of submissions, and the first draft of this file
+# pretended they did. `lab-acceptance` rejected it on that, blocking, before it had scored
+# anything — which is the whole reason E-001's procedure critiques a rubric before applying
+# it. Four gaps, one per category, each a submission matching NO anchor:
+#
+#   architecture  a NEW ApiException subclass declared in `com.unityinflow.sample.api`.
+#                 Anchor 1 wants a type "not imported from" api; anchor 2 wants "an existing"
+#                 subclass. It is both and neither.
+#   maintainability  a non-exhaustive `when` used as a statement, carrying no `else`. Anchor 0
+#                 wants an if-chain or an `else`; anchor 2 wants exhaustive.
+#   test-quality  the repeat exercised and the state re-read, but no assertion on
+#                 `$.error.code`. Anchor 1 wants one of the two BOLD behaviours missing;
+#                 anchor 2 wants all three clauses.
+#   change-focus  every named method character-identical, but an unrelated import reordered.
+#                 Anchor 1 counts METHODS; anchor 2 wants only `confirm` and its imports.
+#
+# Two faithful scorers reach different numbers on any of those, and `null` does not cover it:
+# the contract says emit `null` when the anchors cannot SEPARATE two scores, and here the
+# anchors are decidable and simply do not reach. So the ladder is closed by rule rather than
+# by writing more anchors, which would only move the seams:
+#
+#     0   if the 0 anchor's condition holds
+#     2   else if EVERY clause of the 2 anchor holds
+#     1   otherwise
+#
+# Anchor 1's text is therefore an ILLUSTRATION of the residual, not its definition. Read it
+# as the most common shape of "neither the defect nor the full convention", and score 1 for
+# any other shape that is also neither. Applied to the four gaps above, every one scores 1,
+# which is also the answer a careful human gives.
+#
+# `null` keeps exactly two jobs: a precondition failed (no test file, no baseline), or the
+# evidence does not let you decide whether the 0 condition holds. Never as a shrug.
+#
 # ── SCORING ──────────────────────────────────────────────────────────────────────────────
 #
 #     score = 100 * sum(w_i * s_i) / (2 * sum(w_i))   over categories where s_i is not null
@@ -57,6 +92,13 @@
 #
 # Even when it used fewer tokens. Do not compute a score for it in order to rank it against
 # passing runs. This is the single most important rule in the business case.
+#
+# AND NOTHING HERE ENFORCES IT. This file assumes its input has already cleared the gates —
+# every "the gates own that" above depends on it — but `opencode-score.sh` will score any
+# directory it is handed, `known-bad-*` included. The filter lives in E-001's Exclusions,
+# which is a document. **L3.** The L2 version is the scorer refusing a target that is not a
+# registered gate-passing `run_case`; it does not exist. A score computed on a gate-failing
+# submission is not a weaker result, it is a different measurement wearing this one's units.
 
 version: 2
 task: BE-003-confirm-shipment
@@ -73,7 +115,7 @@ categories:
     precondition: none
     anchors:
       0: "The shipment package constructs an error body itself — an `ApiError(...)` or `ApiErrorBody(...)` literal, or a map, appears inside a controller method. A `ResponseEntity<Any>` return type is the usual tell: it exists to carry both the success shape and a hand-built error shape. Cite the literal."
-      1: "Refusals throw rather than assemble, but not through the declared hierarchy — a bare `ResponseStatusException`, or a new exception type that is not imported from `com.unityinflow.sample.api`. Cite the throw site and the import list."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: refusals throw rather than assemble, but not through the declared hierarchy — a bare `ResponseStatusException`, or a new exception type, whether or not it lives in `com.unityinflow.sample.api`. Cite the throw site and the import list."
       2: "Every refusal throws an existing `ApiException` subclass imported from `com.unityinflow.sample.api` — `ResourceNotFoundException` for a missing shipment, `ConflictException` for a state refusal — and no `ApiError` or `ApiErrorBody` is constructed anywhere in the shipment package. Cite each throw site."
 
   - name: maintainability
@@ -85,7 +127,7 @@ categories:
     precondition: none
     anchors:
       0: "The status decision is an `if` / `else if` / `else` chain, or a `when` carrying an `else` branch. Either way a new `ShipmentStatus` constant compiles without touching this method and takes the fallback path unannounced. Cite the chain or the `else`."
-      1: "An exhaustive `when` on the status, but the decision is split across more than one construct, or a branch repeats logic another branch already performs. Cite both places."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: an exhaustive `when` whose decision is split across more than one construct, or a branch repeating logic another branch performs; also a `when` that is neither exhaustive nor carries an `else`. Cite the construct."
       2: "One exhaustive `when (shipment.status)`, a branch per enum constant, no `else` — so a new constant is a compile error here. Cite the `when` and count the branches against `ShipmentStatus`."
 
   - name: test-quality
@@ -97,7 +139,7 @@ categories:
     precondition: "No file under src/test/ among the attachments → score: null, reason: no test file submitted. Never 0."
     anchors:
       0: "Every assertion is a status code. No assertion reads a response body, and no assertion re-reads state through a second request. Cite the assertion list."
-      1: "At least one assertion reads a response body, but one of the two behaviours the ticket names in bold is missing: the repeat is not exercised by a SECOND call to confirm, or the persisted state is never re-read through a separate request. Cite what is asserted and name which is absent."
+      1: "THE RESIDUAL — neither the 0 condition nor all three clauses of 2. Any assertion reads a response body, and at least one clause of 2 is absent: the repeat not exercised by a SECOND call, the persisted state never re-read through a separate request, or no refusal asserting the envelope. Cite what is asserted and name every clause that is absent."
       2: "All three hold, each citable: confirm is called twice and the second response is asserted; the persisted state is re-read through a separate `get(...)` rather than trusted from the mutating call's own body; and at least one refusal asserts the envelope's `$.error.code` rather than the status alone. Cite one line per clause."
 
   - name: change-focus
@@ -108,5 +150,5 @@ categories:
     precondition: "No baseline tree among the attachments → score: null, reason: no baseline to read a change against. Never 2."
     anchors:
       0: "Two or more methods the ticket did not name differ from the baseline in anything beyond trailing whitespace — reformatted, restructured, an expression body turned into a block, a local renamed. Name each method and cite the line in both trees."
-      1: "Exactly one method the ticket did not name differs from the baseline. Name it and cite both trees."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically exactly one unnamed method differs; also the case where every named method is character-identical but something outside them — a reordered import `confirm` does not require, a moved blank line — differs. Name what differs and cite both trees."
       2: "Every method the ticket did not name is character-identical to the baseline. Only `confirm`, and the imports it requires, differ. Name the methods checked."

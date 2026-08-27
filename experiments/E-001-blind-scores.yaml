@@ -20,7 +20,7 @@
 # 4 categories x 5 variants = 20 cells.
 
 scorer: human
-rubric_sha: dbf6f64fdfdc    # backend-quality.yaml v2, four categories
+rubric_sha: 7aec2ab585bb    # backend-quality.yaml v2, four categories
 scored_utc:                 # when you started
 read_scorer_output_first: false   # if this is ever true, the comparison is void
 
