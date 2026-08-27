@@ -134,9 +134,28 @@ from one that rejects nothing.
 **From the build track:** one task repeats · one run record completes **and validates** ·
 one quality score computes.
 
-- [ ] `./tools/verify-run-record-validator.sh` exits 0 — the provenance rule executes
-- [ ] The four-category rubric scores all five gate-passing fixtures without emitting `null`
+- [x] `./tools/verify-run-record-validator.sh` exits 0 — the provenance rule executes
+- [x] The four-category rubric exists — `benchmark/rubrics/backend-quality.yaml` v2,
+      sha `dbf6f64fdfdc`, written 2026-08-27 as lab#21
+- [ ] ~~The four-category rubric scores all five gate-passing fixtures without emitting `null`~~
+      **Unreachable as written, found 2026-08-27.** `test-quality` carries 25% of the weight
+      and three of the five variants submitted no test file, so Decision A nulls those three
+      cells before any anchor is read. The corrected gate: **the rubric emits no *defect*
+      null across the 17 cells where a score was possible**, with the 3 structural nulls
+      predicted in advance and reported separately. That 25%-of-the-weight-on-2-of-5 problem
+      is itself an input to lab#21, not something this gate can absorb
 - [ ] Your blind scores and the second scorer's, compared, with the gap recorded
+- [x] `./tools/verify-model-output-classifier.sh` exits 0 — a run that found something is
+      not discarded as a crash. Added 2026-08-27; the guard it replaced returned one code
+      for five outcomes, and `opencode-review.sh` had no such guard at all
+
+**The population is five, not six.** `known-good` is the baseline attached to every run since
+Decision B was built, not a submission — so the grid is 4 categories × 5 variants = **20
+cells**, and discrimination is a comparison *among the five*, all scored under identical
+conditions. Scoring `known-good` was only needed while that comparison had to happen between
+sheets. Two of its four cells were structural nulls and the other two would have been the
+grid's only one-tree cells. Derived from the fixture grid by Claude at the user's request;
+the superseded six-cell reasoning is kept in `experiments/E-001-rubric-null-rate.md`.
 
 **Decided 2026-08-27, before the rubric was written:**
 

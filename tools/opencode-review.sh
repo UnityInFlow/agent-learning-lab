@@ -139,18 +139,38 @@ for i in $(seq 1 "$RUNS"); do
   # any command in between (a grep, an echo) resets it.
   rc=${PIPESTATUS[0]}
 
-  # opencode treats a missing agent as a warning and still exits 0. Fatal here: findings
-  # from the default full-tool agent look identical to contract-compliant ones.
-  if grep -q "Falling back to default agent" "$tmpdir/run-$i.md"; then
-    echo "FATAL: lab-critic was not loaded; opencode fell back to the default agent." >&2
+  # opencode exiting non-zero is the one unambiguous infrastructure failure — the process
+  # did not complete, so there is nothing to classify.
+  if [ "$rc" -ne 0 ]; then
+    cat "$tmpdir/run-$i.md" >> "$out"
+    echo "opencode exited $rc on run $i — infrastructure, discard. See $out" >&2
     exit 1
   fi
 
-  if [ "$rc" -ne 0 ]; then
-    cat "$tmpdir/run-$i.md" >> "$out"
-    echo "opencode exited $rc on run $i — see $out" >&2
-    exit 1
-  fi
+  # Everything else is a question about what the CRITIC did, and it has more than one
+  # answer. Until 2026-08-27 this script asked only whether the agent had been loaded: an
+  # opencode that exited 0 having produced nothing left a provenance header, an empty
+  # recurrence table and exit 0 — a review that reported success while finding nothing,
+  # which is the failure the scorer's classifier exists to stop, one script over.
+  class="$(./tools/classify-model-output.sh critic "$tmpdir/run-$i.md")"
+  cls=$?
+  case $cls in
+    0) ;;   # sections with verdicts. Under-reporting is invisible here; that is what -n is for.
+    4) echo "FATAL [$class]: lab-critic was not loaded; opencode fell back to the default agent." >&2
+       echo "Findings from the default full-tool agent look identical to contract-compliant" >&2
+       echo "ones. Infrastructure — discard." >&2
+       exit 4 ;;
+    3) echo "EMPTY [$class]: run $i produced nothing." >&2
+       echo "Ambiguous: an empty turn, or the critic having nothing it could say about this" >&2
+       echo "artifact. The file cannot tell you which. Re-run ONCE on the same artifact; a" >&2
+       echo "repeat is a finding about the critic and must be recorded, not discarded." >&2
+       exit 3 ;;
+    *) echo "OFF CONTRACT [$class]: run $i produced output that is not the section format —" >&2
+       echo "prose, a refusal, a summary. That is what this model did with this artifact, so" >&2
+       echo "it is evidence. Read $tmpdir/run-$i.md before re-running." >&2
+       cat "$tmpdir/run-$i.md" >> "$out"
+       exit 2 ;;
+  esac
 done
 
 # Recurrence table. A section counts as flagged in a run if that run gave it a `finding`
@@ -209,14 +229,34 @@ if [ "$ACCEPT" = 1 ]; then
       "${attach[@]}" -f "$findings" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' > "$tmpdir/accept.md"
     arc=${PIPESTATUS[0]}
 
-    if grep -q "Falling back to default agent" "$tmpdir/accept.md"; then
-      echo "FATAL: lab-acceptance was not loaded; opencode fell back to the default agent." >&2
-      exit 1
-    fi
     if [ "$arc" -ne 0 ]; then
       echo "opencode exited $arc on the acceptance pass — line-level findings kept" >&2
       printf '\n## Acceptance\n\nThe gate failed to run (opencode exit %s).\n' "$arc" >> "$out"
+      acls=1
     else
+      aclass="$(./tools/classify-model-output.sh acceptance "$tmpdir/accept.md")"
+      acls=$?
+    fi
+
+    if [ "$acls" = 4 ]; then
+      echo "FATAL [$aclass]: lab-acceptance was not loaded; opencode fell back to the default agent." >&2
+      exit 4
+    fi
+
+    # A gate that did not produce a verdict has not passed anything. Recorded as what it
+    # was, rather than left to be read as a quiet approval.
+    if [ "$acls" = 3 ] || [ "$acls" = 2 ]; then
+      echo "GATE DID NOT DECIDE [$aclass]: the acceptance pass produced no verdict." >&2
+      echo "That is a finding about the gate, not a pass. Line-level findings kept." >&2
+      { printf '\n## Acceptance — NO VERDICT (%s)\n\n' "$aclass"
+        echo "The gate broke its own output contract. This is not an ACCEPT."
+        echo
+        cat "$tmpdir/accept.md"
+      } >> "$out"
+      verdict="NO VERDICT"
+    fi
+
+    if [ "$acls" = 0 ]; then
       # The verdict, for the caller. Absent means the model broke its own contract, which is
       # a finding about the gate rather than a pass.
       verdict=$(grep -m1 -E '^[[:space:]]*verdict:' "$tmpdir/accept.md" \
