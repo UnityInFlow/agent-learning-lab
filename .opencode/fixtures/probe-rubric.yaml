@@ -1,0 +1,38 @@
+# HARNESS TEST FIXTURE — NOT the B1 rubric.
+#
+# This exists to prove lab-scorer honours its output contract. It is three categories, not
+# seven, and its weights are meaningless. Do not build B1 on it; do not let it anchor your
+# thinking about what the real categories should be.
+#
+# It is a contract test, so it is built to have a known-correct answer:
+#
+#   error-envelope    anchored mechanically. Scorable. known-good should earn 2.
+#   idempotency       anchored mechanically. Scorable. known-good 2, known-bad-repeat 0.
+#   maintainability   DELIBERATELY unanchored — 1 and 2 are not distinguishable from the
+#                     text. A scorer honouring rule 3 must emit `score: null` with
+#                     `reason: ambiguous`. A scorer that returns a number here has failed
+#                     the contract, and every null it ever emits becomes untrustworthy.
+#
+# The third category is the whole point. Anyone can score the easy ones.
+
+categories:
+  - name: error-envelope
+    weight: 40
+    anchors:
+      0: "Controller assembles a response body inline, or lets Spring's default error body escape."
+      1: "Controller throws a typed exception for some refusals but constructs a body inline for at least one."
+      2: "Every refusal throws an ApiException subclass; no response body is assembled in the controller."
+
+  - name: idempotency
+    weight: 40
+    anchors:
+      0: "A repeat confirm on an already-CONFIRMED shipment throws or returns a 4xx conflict."
+      1: "A repeat confirm returns 2xx but mutates state or returns a different body than the first call."
+      2: "A repeat confirm returns the shipment unchanged, with the same status code and body as the first call."
+
+  - name: maintainability
+    weight: 20
+    anchors:
+      0: "Poor."
+      1: "Reasonable."
+      2: "Good."
