@@ -115,7 +115,14 @@ input_tokens: { value: null,  source: null,            estimated: null  }   # Le
 > **Unknown data remains unknown.** `null`, never a plausible number. A gap that reads as a
 > zero is how `BehaviorDto` currently lies to you.
 
-**Gate:** one task repeats · one run record completes · one quality score computes.
+The shape lives in `templates/run-record.yaml`, and on its own it is **Layer 3** — a template
+constrains nothing, and `inputTokens: 12400` stays perfectly writable. `tools/validate-run-record.sh`
+is the Layer 2 version: it executes, it rejects a bare number, and CI runs it on every PR.
+`tools/verify-run-record-validator.sh` registers eleven fixtures with the exit code each must
+produce, because a control that has never been shown to reject anything is indistinguishable
+from one that rejects nothing.
+
+**Gate:** one task repeats · one run record completes **and validates** · one quality score computes.
 
 ---
 
