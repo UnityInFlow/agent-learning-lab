@@ -47,7 +47,22 @@ baseline, not a member of the scored population — see the grid below for why, 
 
 **↓** the cell the fixture was built to depress · **↑** its high-quality pair ·
 **S** structurally unscoreable: no test file, so Decision A nulls it before the anchors are
-read. Dimension assignments are from `fixture-notes/` in benchmarks, outside the scorer's glob.
+read.
+
+Dimension assignments are from `fixture-notes/` in benchmarks, which sit outside the scorer's
+glob since benchmarks#21. Each note states the variance **and** asserts what is held, which is
+what makes the one-cause property checkable rather than claimed:
+
+| Variant | Note says | Held constant |
+|---|---|---|
+| `good-inline-envelope` | "architecture-consistency only" | behaviour identical to `known-good`; error bodies byte-identical, so the contract suite is satisfied |
+| `good-nested-ifs` | "maintainability only" | "byte-identical to known-good: same exceptions, same error codes, same messages, same status codes"; the architecture convention is respected |
+| `good-noisy-diff` | "change-focus only" | "`confirm` is character-for-character identical to known-good"; the convention and the exhaustive `when` are untouched |
+| `good-strong-tests` / `good-weak-tests` | the test-quality pair | "production code byte-identical to `known-good`" — verified, per the worksheet |
+
+If a note's held-constant claim is wrong, that column's discrimination test has two candidate
+causes and the result is not interpretable. It is an assertion in prose, so **L3**: nothing
+executes to check that `good-nested-ifs` did not also drift on architecture.
 
 Two facts fall straight out of it, and both are load-bearing:
 
@@ -305,31 +320,50 @@ Registered before data. What result produces KEEP / REJECT / INCONCLUSIVE?
 
 ### What every outcome does to the arithmetic
 
-The rule above is a rate, so every outcome has to say what it does to the numerator and to
-the denominator. One table, registered 2026-08-27 before any run, because "excluded" read two
-ways is a 33%-or-35% ambiguity and that flips a verdict on identical data.
+The rule above is a rate, so every outcome has to say which tally it joins and what it does to
+the denominator. Registered 2026-08-27 before any run, because "excluded" read two ways is a
+33%-or-35% ambiguity and that flips a verdict on identical data.
 
-| Outcome | Nulls (numerator) | Denominator | Verdict contribution |
+**Three tallies, never one number.** A null is not a null: the three have different causes and
+three different fixes, and a single rate makes them indistinguishable.
+
+| Tally | What it means | What fixes it |
+|---|---|---|
+| **defect** | the anchor could not separate two scores from evidence the cell actually had | rewrite that anchor |
+| **structural** | a score was impossible before any anchor was read — `test-quality` with no test file. Predicted at **3 of 20** | different fixtures, or drop the category |
+| **wholesale** | nothing decided for a whole variant — every remaining cell `null`, a confirmed `empty`, or a `declared error` | rewrite the rubric, not an anchor |
+
+| Outcome | Joins | Denominator | Verdict contribution |
 |---|---|---|---|
-| Cell scored 0–2 | — | counts | feeds discrimination |
-| Cell `null` | +1 | counts | feeds the null rate |
-| Every *remaining* cell `null` for a fixture | +n | counts | **REJECT** for that fixture |
-| `empty` (3) confirmed by a repeat | +4 | counts | **REJECT** for that fixture |
-| `declared error` (5) | +4 | counts | **REJECT** for that fixture — the scorer named the rubric as the cause, which is the strongest form of the same finding |
-| `off contract` (2) | — | **drops those 4** | none. The rubric did not decide and did not fail to decide; the scorer left the contract. Recorded as an instrument outcome |
+| Cell scored 0–2 | — | counts in the 17 | feeds discrimination |
+| Cell `null`, anchor undecidable | **defect** | counts in the 17 | feeds the defect rate |
+| Cell `null`, `test-quality` with no test file | **structural** | in the 20, out of the 17 | none — predicted before the run |
+| Every *remaining* cell `null` for a variant | **wholesale**, not defect | its cells leave the 17 | **REJECT** for that variant |
+| `empty` (3) confirmed by a repeat | **wholesale**, not defect | its cells leave the 17 | **REJECT** for that variant |
+| `declared error` (5) | **wholesale**, not defect | its cells leave the 17 | **REJECT** for that variant — the scorer named the rubric as the cause, which is the strongest form of the same finding |
+| `off contract` (2) | — | **drops those cells** | none. The rubric did not decide and did not fail to decide; the scorer left the contract. Recorded as an instrument outcome |
 | Cell that went hunting | — | **drops that 1** | none. The score exists but is not from the evidence the cell was given, so it is not a measurement of this rubric |
 | Exit `1` or `4` | — | run discarded whole | none |
 | `empty` (3) followed by a sheet | as the sheet | as the sheet | as the sheet — the first run was infrastructure and is recorded as such |
 
-**Remaining, not four.** A fixture whose cells are 3 nulls and 1 hunted has no cell left that
-decided anything, and is REJECT on 3 of 3 — the hunted cell left the denominator, so "all four
-null" would never fire and two readers would tally the same run differently. Record the
-remaining-cell count with the verdict: REJECT on 4 of 4 and REJECT on 1 of 1 are not the same
-claim, and the second is mostly a statement about how much of the fixture was excluded.
+**Why wholesale is not just four defect nulls.** Folding it in reports "the anchors are
+defective, X / 17" when the finding is "the rubric decided nothing at all for this variant".
+Same arithmetic, different diagnosis, and the second one does not get fixed by rewriting an
+anchor. The cell boundary in the Question section makes the same distinction one level down;
+this is that distinction carried into the tally.
 
-**A rate without its exclusion count is not a result.** Report `nulls / denominator (E cells
-excluded)` every time — `6 / 17 (0 excluded)` and `6 / 13 (4 excluded)` are different findings
-and the second one is mostly a finding about the scorer, not about the rubric.
+**Remaining, not four.** A variant whose cells are 3 nulls and 1 hunted has no cell left that
+decided anything, and is wholesale on 3 of 3 — the hunted cell left the denominator, so "all
+four null" would never fire and two readers would tally the same run differently. Record the
+remaining-cell count with the verdict: wholesale on 4 of 4 and wholesale on 1 of 1 are not the
+same claim, and the second is mostly a statement about how much of the variant was excluded.
+For `test-quality`'s three structural nulls the same applies in advance: `good-inline-envelope`,
+`good-nested-ifs` and `good-noisy-diff` each have 3 scoreable cells, not 4.
+
+**A rate without its exclusion count is not a result.** Report all three tallies with the
+denominator every time — `defect 6 / 17 (0 excluded) · structural 3 · wholesale 0` and
+`defect 6 / 13 (4 excluded) · structural 3 · wholesale 1 variant` are different findings, and
+the second is mostly a finding about the scorer rather than about the rubric.
 
 <!-- TODO — yours: at what excluded-cell count does the run stop being interpretable at all?
      The shape is registered above; the threshold is a number, and numbers are yours. -->

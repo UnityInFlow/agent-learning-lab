@@ -11,7 +11,11 @@ have the facts for most of them. Fill the grid, count, and the count **is** the 
 
 ## The question for every cell
 
-> Given **only** the `.kt` files under this one fixture — no diff, no `known-good` beside it,
+> **Read this with Decision B in force** — it was written before that decision and describes
+> the pre-Decision-B evidence set. Since 2026-08-27 `known-good` IS beside the fixture, in
+> your evidence set and the scorer's. Judge with it.
+>
+> Given the `.kt` files under this one fixture — and, since Decision B, `known-good` beside it,
 > no test runner, no evaluator output — can this category's anchor separate a 0 from a 1 from
 > a 2, and can I cite `path:line` for the answer?
 >
