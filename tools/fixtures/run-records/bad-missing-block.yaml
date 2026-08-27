@@ -1,0 +1,4 @@
+# No efficiency block at all. A record with no measurement is not a lenient record.
+runId: FIXTURE-BAD-MISSING-BLOCK
+measurement:
+  telemetryComplete: true

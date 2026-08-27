@@ -1,0 +1,12 @@
+# Mislabelled measurement level: what the provider reported is not an estimate. Level A
+# and Level B are not interchangeable and the comparison downstream depends on which.
+runId: FIXTURE-BAD-PROVIDER-ESTIMATED
+efficiency:
+  durationMs: 41200
+  inputTokens:         { value: 12400, source: provider, estimated: true }
+  outputTokens:        { value: 3100, source: provider, estimated: false }
+  cachedInputTokens:   { value: null, source: null, estimated: null }
+  cacheCreationTokens: { value: null, source: null, estimated: null }
+  cost:                { value: null, source: null, estimated: null }
+measurement:
+  telemetryComplete: true

@@ -1,0 +1,12 @@
+# An absent measurement claiming a provenance. If the provider reported it, there is a
+# value; if there is no value, "provider" is a guess about where it would have come from.
+runId: FIXTURE-BAD-NULL-WITH-SOURCE
+efficiency:
+  durationMs: 41200
+  inputTokens:         { value: null, source: provider, estimated: false }
+  outputTokens:        { value: 3100, source: provider, estimated: false }
+  cachedInputTokens:   { value: null, source: null, estimated: null }
+  cacheCreationTokens: { value: null, source: null, estimated: null }
+  cost:                { value: null, source: null, estimated: null }
+measurement:
+  telemetryComplete: true

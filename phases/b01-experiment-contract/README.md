@@ -103,6 +103,13 @@ input_tokens: { value: null,  source: null,            estimated: null  }   # Le
 > **Unknown data remains unknown.** `null`, never a plausible number. A gap that reads as a
 > zero is how `BehaviorDto` currently lies to you.
 
+The shape lives in `templates/run-record.yaml`, and on its own it is **Layer 3** — a template
+constrains nothing, and `inputTokens: 12400` stays perfectly writable. `tools/validate-run-record.sh`
+is the Layer 2 version: it executes, it rejects a bare number, and CI runs it on every PR.
+`tools/verify-run-record-validator.sh` registers eleven fixtures with the exit code each must
+produce, because a control that has never been shown to reject anything is indistinguishable
+from one that rejects nothing.
+
 ## Predict before you run
 
 <!-- TODO: write these in ../../templates/experiment.md BEFORE building.
@@ -124,7 +131,24 @@ input_tokens: { value: null,  source: null,            estimated: null  }   # Le
 
 ## Exit gate
 
-**From the build track:** one task repeats · one run record completes · one quality score computes.
+**From the build track:** one task repeats · one run record completes **and validates** ·
+one quality score computes.
+
+- [ ] `./tools/verify-run-record-validator.sh` exits 0 — the provenance rule executes
+- [ ] The four-category rubric scores all five gate-passing fixtures without emitting `null`
+- [ ] Your blind scores and the second scorer's, compared, with the gap recorded
+
+**Decided 2026-08-27, before the rubric was written:**
+
+1. **Anchors are source-decidable only.** The scorer receives changed source files and
+   nothing else, so every anchor must be citable at `path:line` from those files alone.
+   `functional-correctness` and `requirement-completeness` are dropped — the gates own them,
+   and restating a gate produces a constant across everything the rubric is allowed to score.
+   The alternatives — feeding the scorer evaluator output, or routing per category — were
+   rejected: the first makes the scorer share an input with the gate it is supposed to be
+   orthogonal to, the second is two instruments to keep in sync.
+2. **The run record ships with its own validator.** B1 does not wait on
+   UnityInFlow/agent-observatory#53 and does not close with an L3 control either.
 
 **Plus, for this to count as a learned phase:**
 

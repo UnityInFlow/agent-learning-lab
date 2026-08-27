@@ -1,0 +1,12 @@
+# The run happened; the harness reported nothing. This is a legitimate record, and the
+# whole point of the shape: it says "unknown" five times instead of "0" five times.
+runId: FIXTURE-VALID-LEVEL-C
+efficiency:
+  durationMs: 39800
+  inputTokens:         { value: null, source: null, estimated: null }
+  outputTokens:        { value: null, source: null, estimated: null }
+  cachedInputTokens:   { value: null, source: null, estimated: null }
+  cacheCreationTokens: { value: null, source: null, estimated: null }
+  cost:                { value: null, source: null, estimated: null }
+measurement:
+  telemetryComplete: false
