@@ -1,0 +1,59 @@
+# E-001 step 2 — your scores, recorded BEFORE reading any scorer output.
+#
+# Scoring your own work twice measures your consistency, not the rubric's. The gap between
+# this sheet and the scorer's is the measurement, and it only means something if this sheet
+# was written first. Commit it before running opencode-score.sh, and check the timestamp.
+#
+# 0-2 per category. `null` is a legitimate entry and you should use it: if you cannot cite
+# path:line for a cell, the anchor is undecidable for you too, and that is a finding about
+# the rubric rather than about the fixture.
+#
+# Each fixture differs from known-good on exactly ONE dimension. Do not let that tell you
+# what to score — if you cannot see the difference from the source alone, record what you
+# actually see. A sheet that reproduces benchmarks#10's table is a sheet that read the table.
+
+scorer: human
+rubric_sha:                 # fill in from the rewritten rubric, before scoring
+scored_utc:                 # when you started
+read_scorer_output_first: false   # if this is ever true, the comparison is void
+
+fixtures:
+
+  known-good:
+    architecture-consistency: { score: , evidence: , note: }
+    maintainability:          { score: , evidence: , note: }
+    test-quality:             { score: , evidence: , note: }
+    change-focus:             { score: , evidence: , note: }
+
+  good-inline-envelope:
+    architecture-consistency: { score: , evidence: , note: }
+    maintainability:          { score: , evidence: , note: }
+    test-quality:             { score: , evidence: , note: }
+    change-focus:             { score: , evidence: , note: }
+
+  good-nested-ifs:
+    architecture-consistency: { score: , evidence: , note: }
+    maintainability:          { score: , evidence: , note: }
+    test-quality:             { score: , evidence: , note: }
+    change-focus:             { score: , evidence: , note: }
+
+  good-noisy-diff:
+    architecture-consistency: { score: , evidence: , note: }
+    maintainability:          { score: , evidence: , note: }
+    test-quality:             { score: , evidence: , note: }
+    change-focus:             { score: , evidence: , note: }
+
+  good-strong-tests:
+    architecture-consistency: { score: , evidence: , note: }
+    maintainability:          { score: , evidence: , note: }
+    test-quality:             { score: , evidence: , note: }
+    change-focus:             { score: , evidence: , note: }
+
+  good-weak-tests:
+    architecture-consistency: { score: , evidence: , note: }
+    maintainability:          { score: , evidence: , note: }
+    test-quality:             { score: , evidence: , note: }
+    change-focus:             { score: , evidence: , note: }
+
+# Six fixtures, not five: known-good is the reference every other cell is read against, so
+# it has to be scored too or there is nothing to compare a difference to.
