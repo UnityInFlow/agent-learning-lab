@@ -209,10 +209,19 @@ count is 22, not the ~21 the phase README says** — across 8 events including `
 and `UserPromptSubmit`. Un-isolated, all 22 join the lab.
 
 **Copilot's premium quota is exhausted and Lab 0A.1 runs without it, for now.** 300/300 used,
-`quota_remaining: -0.4`, `overage_permitted: false`, **resets 2026-09-01**. `chat` and
-`completions` remain unlimited, so the account is alive — only multiplier models are cut off.
-Read it with `gh api /copilot_internal/user` (`quota_snapshots`); the CLI only shows it in an
-interactive footer.
+`remaining: -1`, `overage_permitted: false`, **resets 2026-09-01**. `chat` and `completions`
+report `unlimited: true`, so the account is alive. Read it with
+`gh api /copilot_internal/user` (`quota_snapshots`); the CLI only shows it in an interactive
+footer.
+
+**Corrected 2026-08-28, third session, by measurement.** This file implied the arm could be
+run anyway because `gpt-5.4-mini` costs 0 premium requests. **It cannot.** Because
+`overage_permitted` is false, a premium call must be *refused* and a successful call would
+prove it cost none — so the test is one-sided and cheap. It was run:
+`copilot --model gpt-5.4-mini --allow-all-tools --no-color --prompt "Reply with exactly:
+READY"` → **`You have no quota`**, `Requests 0 Premium`. The CLI is gated by the premium
+counter regardless of model; the 11 runs in `EXP-BASELINE-COPILOT` predate exhaustion.
+**The deferral to 2026-09-01 was right and the workaround was wrong.**
 
 **What deferring it costs, stated so it is not forgotten:** Copilot is the runtime the
 business case names for backend agent v1. Running 0A.1 on Claude + Codex alone means the
@@ -220,6 +229,51 @@ harness whose behaviour matters most from B2 onward is the one left unobserved. 
 cheap — 0A.1 is read-only, and `gpt-5.4-mini` costs 0 premium requests on this account, so
 the Copilot arm can be added after 2026-09-01 for approximately nothing. **Add it before B2,
 not after.** A three-way comparison missing its target runtime is not a two-thirds result.
+
+## B2 readiness — assessed 2026-08-28, third session
+
+`phases/b02-plain-baseline/READINESS.md` is the artifact and the RUNBOOK now carries the
+corrections. It was written first and attacked by three families before anything was built
+from it: 12 findings, 10 accepted, and one of its own hypotheses died under test (Copilot,
+above).
+
+**Three defects fixed in `agent-observatory` `b288625`, all in the codex arm, none of which
+would have surfaced as a crash:**
+
+| was | consequence |
+|---|---|
+| `--model` accepted, never forwarded to codex | the record wrote the model the CALLER asked for — a provenance field wrong on the experiment's own independent variable, in the direction that looks correct |
+| `--isolate-user-settings` ignored on codex | a "plain baseline" loading `~/.codex/AGENTS.md` (which imports a 32-line shell-routing file), 3 MCP servers, 71 skills, 66 agents. **B3's treatment inside B2's control** |
+| `baseline-runs` counted nothing | five banners and exit 0 could mean n=2 |
+
+**`--ignore-user-config` does not isolate codex, and that is measured rather than read.**
+With a marker instruction in `$CODEX_HOME/AGENTS.md` the model still emitted the marker under
+the flag; a `CODEX_HOME` holding `auth.json` alone dropped it.
+`runner/verify-codex-isolation.sh` reproduces both sides — positive control first, because a
+one-sided test passes when codex is simply broken. **It is L2, not L1**: nothing stops someone
+writing an `AGENTS.md` into that directory, and what makes it a control is that the runner
+rebuilds it per run.
+
+**Now green:** `make smoke` 18/18 — use it, not `make urls`, which prints configuration and
+connects to nothing. `check-run-gate.sh` proven against two live records. `KEEP=1` reaches
+`--keep`. BE-003 resolves and `sample-service` is present.
+
+**The 172 runs already in the observatory cannot be SCORED.** Every worktree is gone; they
+predate `--keep` by sixteen days. They stay good evidence for anything read off the record
+itself — pass rate, failure class, duration, cost — and they are not rubric input. B2 starts
+from zero scoreable runs, not from the seventeen BE-003 rows.
+
+**The one step that still costs a run:** RUNBOOK §0.5 — rehearse ONE run per arm with
+`--keep`, then inspect the attachment set with `LAB_SCORE_DRY_RUN`. **If it lists 25 files
+the whole service is attached, `test-quality`'s null precondition can never fire, and
+Decision A is silently disabled between B1 and B2.** That cannot be checked without a real
+worktree, and no existing run has one.
+
+**Filed:** observatory#64 — three hook events fire on every codex run including a fully
+isolated one, and `~/.codex/hooks.json` currently fails to parse, so the operator's hooks are
+absent by luck rather than by control. Comments on observatory#35 (resolved-model identity is
+still open, and #35 prescribes `--bare` which the RUNBOOK forbids — someone must decide
+which loses), #49, #10, and lab#44, lab#27.
 
 ## Known and unfixed
 
