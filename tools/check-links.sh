@@ -15,6 +15,8 @@ set -uo pipefail
 # caller's directory, where the SOURCES.md it checks is whatever happened to be there.
 cd "$(dirname "$0")/.." || exit 1
 
+UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
+
 files=("${@:-SOURCES.md CURRICULUM.md}")
 # shellcheck disable=SC2128
 [ $# -eq 0 ] && files=(SOURCES.md CURRICULUM.md)
@@ -26,13 +28,19 @@ total=$(echo "$urls" | wc -l | tr -d ' ')
 echo "Checking $total unique URLs in ${files[*]}"
 echo
 
-fail=0 moved=0 blocked=0 ok=0
+fail=0 moved=0 blocked=0 ok=0 unver=0
 
 while read -r u; do
   [ -z "$u" ] && continue
-  # Private repos 404 to an unauthenticated curl. Not broken — unreachable to this checker.
+  # The lab's own repos used to be private, and a private repo 404s to an unauthenticated
+  # curl, so they were skipped outright. All three went public and the skip stayed: on
+  # 2026-08-28 two URLs were reported PRIVATE and counted as neither ok nor broken while
+  # both answered 200. A check that does not run is not a pass. So check them like anything
+  # else, and let a 404 -- the shape a private repo actually returns -- be what reports
+  # PRIVATE, instead of the hostname deciding the answer in advance.
+  own_repo=0
   case "$u" in
-    https://github.com/UnityInFlow/*) printf '🔑 PRIVATE %s\n' "$u"; continue ;;
+    https://github.com/UnityInFlow/*) own_repo=1 ;;
   esac
   # Local service endpoints are not sources and must not fail a cohort check. They were
   # counted as broken=2 on 2026-08-10 and would have exited 1 for no reason: 4317 is gRPC,
@@ -42,9 +50,18 @@ while read -r u; do
     http://localhost:*|http://127.0.0.1:*|http://0.0.0.0:*)
       printf '🏠 LOCAL   %s  (service endpoint, not a source)\n' "$u"; continue ;;
   esac
-  read -r code final < <(curl -sSL -o /dev/null \
-      -w '%{http_code} %{url_effective}' \
-      --max-time 25 -A 'Mozilla/5.0' "$u" 2>/dev/null || echo "000 -")
+  # A bare "Mozilla/5.0" is not a browser, and two hosts treat it as one more bot: on
+  # 2026-08-28 anthropic.com and code.claude.com dropped the connection rather than
+  # answering, curl reported 000, and this script counted two live pages as broken and
+  # exited 1. Same defect class as the 405 above -- the checker failing, dressed up as the
+  # source failing. Both answer 200 to the full UA below.
+  code=000 final=-
+  for _attempt in 1 2; do
+    read -r code final < <(curl -sSL -o /dev/null \
+        -w '%{http_code} %{url_effective}' \
+        --max-time 25 -A "$UA" "$u" 2>/dev/null || echo "000 -")
+    [ "$code" != "000" ] && break
+  done
 
   case "$code" in
     200|30*)
@@ -59,6 +76,23 @@ while read -r u; do
       printf '🔒 BLOCKED %s  (403 to curl — verify in a browser)\n' "$u"
       blocked=$((blocked + 1))
       ;;
+    000)
+      # No HTTP response at all after two tries. That is a transport failure -- a timeout,
+      # a reset, a bot filter that drops instead of answering -- and it is NOT evidence
+      # that the page is gone. Calling it broken states something the check never
+      # established, so it gets its own bucket: not ok, not broken, resolved by a human.
+      # Same reasoning as the 403 above, which is the polite form of the same behaviour.
+      printf '⚠️  UNVERIFIED %s  (no HTTP response in 2 tries -- transport failure, not a 404)\n' "$u"
+      unver=$((unver + 1))
+      ;;
+    404)
+      if [ "$own_repo" = 1 ]; then
+        printf '🔑 PRIVATE %s  (404 unauthenticated — private again, or renamed)\n' "$u"
+      else
+        printf '❌ %s     %s\n' "$code" "$u"
+        fail=$((fail + 1))
+      fi
+      ;;
     *)
       printf '❌ %s     %s\n' "$code" "$u"
       fail=$((fail + 1))
@@ -67,7 +101,13 @@ while read -r u; do
 done <<< "$urls"
 
 echo
-echo "ok=$ok moved=$moved blocked=$blocked broken=$fail"
+echo "ok=$ok moved=$moved blocked=$blocked unverified=$unver broken=$fail"
+
+if [ "$unver" -gt $((total / 2)) ]; then
+  echo
+  echo "More than half the URLs returned nothing at all. That is this machine's network,"
+  echo "not link rot -- do not record a drift finding from this run."
+fi
 
 if [ "$moved" -gt 0 ]; then
   echo
