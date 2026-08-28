@@ -44,6 +44,21 @@ sheet architecture-consistency maintainability test-quality change_focus > "$WOR
 run_case "a category misspelled"                     2 "$WORK/r4.yaml" "$WORK/renamed.yaml"
 
 # Fail closed. A parse that yields nothing must never compare empty to empty and pass.
+# THE PANEL'S COUNTEREXAMPLE, 2026-08-28. A category absent from `categories:` but present
+# in any other list at the same indent used to be counted as present, so the sheet that had
+# genuinely lost a category reported an exact match.
+{ printf 'scorer: lab-scorer\ncategories:\n  - name: "architecture-consistency"\n    score: 1\n'
+  printf '  - name: "maintainability"\n    score: 1\n  - name: "test-quality"\n    score: 1\n'
+  printf 'other:\n  - name: "change-focus"\n'; } > "$WORK/elsewhere.yaml"
+run_case "a category filed under another key"   2 "$WORK/r4.yaml" "$WORK/elsewhere.yaml"
+
+# And the rubric side of the same hole: column-0 comments between categories must not
+# truncate the block.
+{ printf 'categories:\n  - name: architecture-consistency\n'
+  printf '# a column-zero comment, as the real rubric has\n'
+  printf '  - name: maintainability\n  - name: test-quality\n  - name: change-focus\n'; } > "$WORK/rcomment.yaml"
+run_case "rubric with column-0 comments inside"  0 "$WORK/rcomment.yaml" "$WORK/exact.yaml"
+
 printf 'version: 2\ntask: x\n' > "$WORK/norubric.yaml"
 run_case "rubric declares no categories"             1 "$WORK/norubric.yaml" "$WORK/exact.yaml"
 
@@ -56,6 +71,6 @@ run_case "sheet does not exist"                      1 "$WORK/r4.yaml" "$WORK/no
 [ $? = 1 ] && printf 'ok    %-46s exit 1\n' "one argument" || { printf 'FAIL  one argument\n'; fail=1; }
 
 echo
-if [ "$fail" = 0 ]; then echo "verify-sheet-category-checker: all 9 cases behaved as specified."
+if [ "$fail" = 0 ]; then echo "verify-sheet-category-checker: all 11 cases behaved as specified."
 else echo "verify-sheet-category-checker: FAILURES above."; fi
 exit "$fail"

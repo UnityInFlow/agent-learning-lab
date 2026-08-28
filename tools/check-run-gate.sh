@@ -17,6 +17,19 @@
 # Accepts either the run document (evaluation nested under `.evaluation`) or a bare
 # evaluation document, because the runner writes one shape and the API returns the other.
 #
+# TWO NON-BLOCKING FINDINGS FROM THE PANEL, 2026-08-28, recorded rather than fixed:
+#
+#   1. A string-typed verdict (`{"passed":"true","exitCode":"0"}`) is accepted, because both
+#      are coerced with `|tostring` before comparison. The gate ruled this non-blocking: the
+#      question this file asks is "did the evaluator say it passed", not "with which JSON
+#      types", and the answer is the same either way. Left as is so the check does not start
+#      refusing real API responses over a serialization detail.
+#   2. The `taskAttempted` guard fires only on an explicit `false`. An evaluation that OMITS
+#      the field passes. That is deliberate — the field is optional in the schema, and
+#      inventing "absent means not attempted" would refuse most valid evaluations. If a
+#      blocked run can reach `passed: true`, the defect is in the evaluator and the fix
+#      belongs there, not in a scorer-side guess.
+#
 # Exit 0 gate passed, scoring permitted · 1 unreadable, absent, or no evaluation present —
 # FAIL CLOSED, an unevaluated run is not a passing one · 2 the evaluator says it failed.
 set -uo pipefail

@@ -25,10 +25,28 @@ RUBRIC="$1"; SHEET="$2"
 [ -r "$RUBRIC" ] || { echo "cannot read rubric: $RUBRIC" >&2; exit 1; }
 [ -r "$SHEET" ]  || { echo "cannot read sheet: $SHEET" >&2; exit 1; }
 
-# Both files declare a category the same way — `  - name: x` at one indent — and the sheet is
-# rendered by this repo, so the shape is ours on both sides. Quotes are stripped because the
-# sheet writer quotes and the rubric does not.
-names() { sed -n 's/^  - name: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' "$1" | sed 's/[[:space:]]*$//' | sort; }
+# ANCHORED TO THE `categories:` BLOCK, not to the indent. The first version of this used a
+# line-oriented `sed` that matched any `  - name:` line anywhere in the file, and the panel
+# rejected it on 2026-08-28 with the counterexample that kills it: a sheet holding
+# `categories:` [A] plus an unrelated `other:` list holding [B] scans as [A, B] and reports
+# an exact match against a rubric of [A, B]. The one category genuinely missing from
+# `categories:` was collected from somewhere else — which is precisely the silent category
+# loss this file exists to catch, passed by the check built to catch it.
+#
+# awk rather than a YAML parser: this adds no dependency, and the two shapes it reads are
+# both written by this repo. A `#` in column 0 does NOT close the block — the rubric carries
+# column-0 comments between categories, and treating one as the end would truncate the set.
+names() {
+  awk '
+    /^categories:[[:space:]]*$/ { inblock = 1; next }
+    /^[^[:space:]#]/            { inblock = 0 }
+    inblock && match($0, /^  - name:[[:space:]]*/) {
+      v = substr($0, RSTART + RLENGTH)
+      gsub(/^"|"$/, "", v); sub(/[[:space:]]+$/, "", v)
+      if (v != "") print v
+    }
+  ' "$1" | sort
+}
 
 want="$(names "$RUBRIC")"
 got="$(names "$SHEET")"
