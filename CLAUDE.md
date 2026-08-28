@@ -79,13 +79,13 @@ recurrence table and exited 0.
 **Score anything yourself before reading its output.** Reading first produces agreement that
 measures nothing.
 
-**The scorer takes `--run-id` for a B2 run — Decision D, built 2026-08-28.** Path A scores a
-fixture and proves the gate by name; Path B scores an observatory run and proves it from the
-evaluator's recorded verdict, refusing when there is none. It attaches **the files the agent
-changed, in full, plus their pre-agent versions** — not the whole worktree, because
-`sample-service` ships `ShipmentControllerTest.kt` and attaching all 25 files would put a
-test file among the attachments on every run, silently disabling Decision A's null
-precondition. Runbook: [`phases/b02-plain-baseline/RUNBOOK.md`](phases/b02-plain-baseline/RUNBOOK.md).
+**The scorer takes `--run-id` for a B2 run — Decision D, proposed by Claude, built and
+confirmed by the author on 2026-08-28.** Path A scores a fixture and proves the gate by name;
+Path B scores an observatory run and proves it from the evaluator's recorded verdict,
+refusing when there is none. It attaches **the files the agent changed, in full, plus their
+pre-agent versions** — not the whole worktree, because `sample-service` ships
+`ShipmentControllerTest.kt` and attaching all 25 files would put a test file among the
+attachments on every run, silently disabling Decision A's null precondition. Runbook: [`phases/b02-plain-baseline/RUNBOOK.md`](phases/b02-plain-baseline/RUNBOOK.md).
 `opencode-score.sh` has NO run path — Decision C makes codex the scorer, so B2 does not need
 one, and a cross-harness check on B2 is therefore not currently possible.
 

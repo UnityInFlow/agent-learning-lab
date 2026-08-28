@@ -577,13 +577,65 @@ across fixtures*. Everything else is arithmetic waiting on a number.
 ## The procedure, from #21
 
 1. `./tools/opencode-review.sh -n 2 benchmark/rubrics/backend-quality.yaml` — critique the
-   rubric before applying it
+   rubric before applying it — **DONE, and the rubric is accepted at `396e1799eb2b`. See
+   below.**
 2. Score all **five variants** yourself, blind, into `E-001-blind-scores.yaml`, and commit
    before reading any scorer output. Read each one against `known-good` the way the scorer
    does — the baseline is your evidence too, not a sixth sheet to fill
 3. `./tools/opencode-score.sh benchmark/rubrics/backend-quality.yaml <fixture>` on each
 4. Compare. That gap is B1's exit-gate evidence — five gate-passing variants against the
    baseline, and against each other, not one point
+
+### Step 1 is closed — round 7 ACCEPT, and the open item that was accepted with it
+
+Seven rounds. Six REJECTs, each of which found something real: gaps in the anchor ladder, an
+anchor counting against an enum that is not attached, a ranking inversion, four textual
+ambiguities, two undefined domain terms. **Round 7, 2026-08-28, returned ACCEPT** with both
+model families completing and neither stalling —
+`findings/opencode/review-backend-quality-20260828T085728Z.md`.
+
+The gate disputed four of the six line-level findings on one ground, and the reasoning is
+sound: anchor 1 is an *illustration* of the residual (lines 67–70), and "1 otherwise" (lines
+62–66) catches everything that is neither 0 nor 2. A finding that anchor 1's literal text
+fails to reach some case is therefore not a defect.
+
+**One finding survived, and both families found it independently.** `test-quality`'s null
+precondition turns on "a test file that makes no assertion at all", and the rubric never says
+which constructs count as assertions. A submission asserting only
+`verify(exactly = 1) { save(any()) }` scores 1 under a reader who counts mock verification and
+`null` under one who does not — 87.5 versus 100. That is a change of *denominator*, not a
+one-point disagreement, so those two totals are not the same measurement.
+
+**Decision, author, 2026-08-28: accept as-is. The sheet is filled against `396e1799eb2b` and
+the open item is named rather than fixed first.** Three reasons, recorded so a later reader
+can find them wrong:
+
+1. The undecidable trigger is only *reachable* on the two test-bearing variants
+   (`good-strong-tests`, `good-weak-tests`). On the other three there is no test file at all,
+   so `test-quality` is a structural `null` before the trigger is consulted.
+2. A known-undecidable anchor is what this experiment measures. E-001's dependent variable is
+   the null rate; an anchor whose precondition cannot be decided is a null-producing
+   condition, which is data rather than contamination — provided it is written down first,
+   which this is.
+3. `UnityInFlow/agent-observatory-benchmarks#22` carries the real ordering constraint:
+   "assertion" must be defined **before a new test fixture lands**, because a new fixture is
+   what makes this finding reachable at scale. Nothing about filling the sheet now consumes
+   that option.
+
+**What accepting costs, stated so it is not discovered later.** If the two test-bearing
+variants disagree between the human sheet and the scorer's on `test-quality` specifically,
+that disagreement has two candidate causes — the rubric being genuinely hard to apply, and
+this one undefined trigger — and this sheet cannot separate them. Read a `test-quality` gap on
+those two rows as *suspect*, not as evidence about the rubric as a whole.
+
+**The rubric header does not link the issue, deliberately.** Writing the issue number into
+`backend-quality.yaml` would move its sha, and that sha is a registered variable cited in both
+this file and `E-001-blind-scores.yaml`. The record lives here instead.
+
+**A defect in the harness, not the rubric, that this round exposed.** The recurrence table
+counts families per SECTION NAME. Both families found the assertion gap under different
+headings, so the one finding with 2/2 support appears as two separate 1/2 rows. Every row in
+that table reads 1/2 and at least one of them understates its support.
 
 ---
 *Everything below is filled in AFTER the runs.*

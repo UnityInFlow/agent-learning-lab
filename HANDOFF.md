@@ -1,4 +1,4 @@
-# Handoff — 2026-08-28 (second session)
+# Handoff — 2026-08-28 (third session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
@@ -10,7 +10,7 @@ file is the *state*: what is in flight, what is blocked, and on whom.
 
 ## Branch state
 
-`lab21/the-ladder-had-gaps`, **16 commits**, ahead of `main`. `main` is at `0f58203`
+`lab21/the-ladder-had-gaps`, **28 commits**, ahead of `main`. `main` is at `0f58203`
 (PR #18, merged 2026-08-27, five CI checks green). All five CI jobs pass locally on this
 branch, shellcheck included.
 
@@ -33,7 +33,8 @@ and everything left is a statement about EXPECTED CELL VALUES.
    `null` up front. **17 judgements, 0 filled.** No help was taken here at all and none
    should be: Claude has read all five fixtures and derived anchor placements for the two
    test-bearing variants while working benchmarks#22, and deliberately did not write them
-   down. Anything it says about those cells contaminates 2 of the 17.
+   down. Anything it says about those cells contaminates 2 of the 17. **The workbench you
+   score from is on disk at `workbench.local/`** — see below.
 
 **The mechanism, in one line, so you can argue with it:** an anchor is decidable by this
 scorer iff its discriminating condition can be checked against a token in the attachment set.
@@ -96,13 +97,14 @@ scores 1 under a reader who counts mock verification and `null` under one who do
 87.5 versus 100. That is a change of denominator, not a one-point disagreement, so the two
 totals are not the same measurement.
 
-**The decision that is yours: is ACCEPT-with-one-open-item converged enough to fill the
-blind sheet against?** Fixing the assertion gap changes `backend-quality.yaml`'s sha, and
-that sha is a registered variable cited in both `E-001-blind-scores.yaml` and the prediction
-doc. Fix-then-re-run costs one more round and moves the grid once more; accepting as-is
-means the blind sheet is filled against a rubric with a known undecidable trigger on the
-category that already carries the most weight-versus-decidability trouble. Nobody else can
-make that call for you — it is the same class of choice as the predictions.
+**DECIDED 2026-08-28, third session: accept as-is.** The sheet is filled against
+`396e1799eb2b`; the assertion gap is named, not fixed first. The argument, the cost, and what
+it means for reading a `test-quality` disagreement on the two test-bearing rows are recorded
+in `experiments/E-001-rubric-null-rate.md` under "Step 1 is closed". Short version: the
+trigger is only reachable on `good-strong-tests` and `good-weak-tests`, a known-undecidable
+anchor is what the null rate measures, and benchmarks#22's ordering constraint ("assertion"
+defined before a NEW test fixture lands) is untouched by filling the sheet now. **Step 1 of
+E-001's procedure is closed.**
 
 **A defect in the harness, not the rubric:** the recurrence table counts families per
 SECTION NAME. Both families found the assertion gap, under different headings, so the one
@@ -133,13 +135,15 @@ attaching **the files the agent changed, in full, plus their pre-agent versions*
 whole worktree. The reason is not tidiness: `sample-service` already ships
 `ShipmentControllerTest.kt`, so attaching all 25 files would put a test file among the
 attachments on every run and `test-quality`'s null precondition could never fire. Decision A
-would be silently disabled between B1 and B2. **You never explicitly confirmed Decision D —
-it was built because "provide it all" was the instruction. Confirm or overturn it before the
-first run.**
+would be silently disabled between B1 and B2. **CONFIRMED by the author on 2026-08-28, third session.** It was proposed by Claude and built
+under the instruction "provide it all"; it was unratified for one session and is not any
+more. `build/README.md#b2` now records it as closed with its provenance, and `CLAUDE.md`
+says who proposed it.
 
-**`agent-observatory` branch `b2/expose-keep-worktree` is COMMITTED BUT NOT PUSHED.**
-`make run-benchmark` passed eight flags and not `--keep`, so the documented path could not
-preserve the worktree the scorer reads. One commit, waiting on your approval to push.
+**`agent-observatory` branch `b2/expose-keep-worktree` is PUSHED** (2026-08-28, third
+session). `make run-benchmark` passed eight flags and not `--keep`, so the documented path
+could not preserve the worktree the scorer reads. One commit, `f204c9f`, now on origin and
+tracking. No PR opened.
 
 **The panel rejected this session's own tooling, and it was right.**
 `findings/opencode/review-check-run-gate-20260828T160312Z.md`: `check-sheet-categories.sh`,
@@ -152,11 +156,16 @@ it; the gate disputed deepseek. One model run twice would have shipped it.
 this branch. Contracts are reviewed before tools, at most `LAB_REVIEW_MAX_ARTIFACTS` (4) per
 push, and every dropped file is named.
 
-**To rebuild the blind-sheet workbench** (it lived in a session scratchpad and is gone):
-assemble, per variant, `known-good` in full followed by the variant in full — the same
-evidence set `codex-score.sh` sends. Do **not** hand yourself a diff; the scorer does not get
-one, and the sheet's own header warns against letting the one-dimension design tell you what
-to score.
+**The blind-sheet workbench is REBUILT and on disk** at `workbench.local/` — one file per
+variant, gitignored via `*.local`, with a README carrying the one-line rebuild command. Each
+file is the *exact* prompt `codex-score.sh` sends, produced by the scorer's own
+`LAB_SCORE_DRY_RUN` path rather than reassembled by hand: same contract, same rubric text,
+same attachment set, same order. No diff — the scorer does not get one, and the sheet's own
+header warns against letting the one-dimension design tell you what to score. The attachment
+counts confirm the sheet's arithmetic independently: inline-envelope, nested-ifs and
+noisy-diff attach 2 files and nothing under `src/test/`, strong-tests and weak-tests attach 3.
+20 cells, 3 structural nulls, 17 judgements. **Rebuild it if the rubric sha ever moves** — the
+prompts inline the rubric verbatim but do not carry its sha.
 
 **Standing hazard for any future session:** Claude has read all five BE-003 fixtures and
 derived anchor placements for the two test-bearing variants while working benchmarks#22. It

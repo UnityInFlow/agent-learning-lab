@@ -191,12 +191,32 @@ there is nothing left to score, and you will not find out until after the runs a
 **Provenance must gain `run_id`, `evaluator_exit`, and the API the scorer asked.** A B2 sheet
 that cannot be traced back to the run that produced it is not evidence.
 
-**THE OPEN DECISION, and it is not a detail.** A B1 fixture is a 2–3 file overlay. A B2 run's
-worktree is the whole service — 25 files. The scorer inlines every `.kt` it finds, so **B2
-sheets and B1 sheets would be produced from evidence sets an order of magnitude apart.** The
-attachment set is a registered variable. Either the scorer restricts a run to its changed
-files, or B1 and B2 sheets are never compared to each other and that is written down where
-someone would otherwise try. Decide it before the first B2 run, not after three of them.
+**DECISION D — CLOSED 2026-08-28. The scorer restricts a run to its changed files.**
+
+The question was real: a B1 fixture is a 2–3 file overlay, a B2 run's worktree is the whole
+service — 25 files — and the scorer inlines every `.kt` it finds, so B2 sheets and B1 sheets
+would otherwise be produced from evidence sets an order of magnitude apart. The attachment
+set is a registered variable, so that is not a tidiness problem; it is two different
+measurements wearing the same units.
+
+**The rule.** Path B attaches the files the agent changed, in full, plus those same files as
+they were before the agent ran. Not the whole worktree. A B1 fixture is defined by the
+benchmarks repo as the files that DIFFER from a clean baseline, in full; a run's diff is the
+same object, so B1 and B2 stay comparable by construction rather than by a caveat someone
+has to remember. A file the agent created has no pre-agent side and is absent from the
+baseline set rather than represented as an empty file, which would be a different claim.
+
+**The argument that decided it, and it is not the file count.** `sample-service` already
+ships `ShipmentControllerTest.kt`. Attaching all 25 files would put a test file among the
+attachments on *every* run, so `test-quality`'s null precondition — "no file under `src/test/`
+among the attachments → null" — could never fire. Decision A would be silently disabled
+between B1 and B2 while the sheet went on reporting the same units. That is the failure this
+project has now paid for six times: a control that reports success over a scope smaller than
+believed.
+
+**Provenance, because adoption without it measures nothing.** Proposed by Claude and built on
+2026-08-28 under the instruction "provide it all"; **confirmed by the author on 2026-08-28**
+as the rule for B2. It was unratified for the length of one session and is not any more.
 
 ---
 
