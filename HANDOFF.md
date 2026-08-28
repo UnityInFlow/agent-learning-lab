@@ -145,6 +145,31 @@ Scorer preconditions verified before first use: 6/6 targets resolve, registry ad
 five variants, baseline attaches, codex authenticated, contract 56 lines, harness already
 proven end-to-end by a probe run. **First contact will not fail.**
 
+## 0A is next, and its Copilot arm is DEFERRED — not dropped
+
+0A has **zero TODOs**: the extract was written 2026-08-09 and the phase is authored. What is
+open is 19 checkboxes — the tiered reading, three labs, and a six-point exit gate. Lab 0A.1
+has its own instructor skill at `.claude/skills/lab-0a-1/`, which blocks on predictions and
+builds the disposable target with an allowlist. Use `/lab-0a-1` rather than improvising one.
+
+Readiness checked 2026-08-28: `claude` 2.1.250, `codex` 0.147.0 and `copilot` all installed;
+`templates/experiment.md` and `templates/run-record.yaml` both present. **The local hook
+count is 22, not the ~21 the phase README says** — across 8 events including `SessionStart`
+and `UserPromptSubmit`. Un-isolated, all 22 join the lab.
+
+**Copilot's premium quota is exhausted and Lab 0A.1 runs without it, for now.** 300/300 used,
+`quota_remaining: -0.4`, `overage_permitted: false`, **resets 2026-09-01**. `chat` and
+`completions` remain unlimited, so the account is alive — only multiplier models are cut off.
+Read it with `gh api /copilot_internal/user` (`quota_snapshots`); the CLI only shows it in an
+interactive footer.
+
+**What deferring it costs, stated so it is not forgotten:** Copilot is the runtime the
+business case names for backend agent v1. Running 0A.1 on Claude + Codex alone means the
+harness whose behaviour matters most from B2 onward is the one left unobserved. The fix is
+cheap — 0A.1 is read-only, and `gpt-5.4-mini` costs 0 premium requests on this account, so
+the Copilot arm can be added after 2026-09-01 for approximately nothing. **Add it before B2,
+not after.** A three-way comparison missing its target runtime is not a two-thirds result.
+
 ## Known and unfixed
 
 - **The `test-quality` assertion trigger is undefined.** The one surviving round-7 finding,
