@@ -17,7 +17,8 @@ versus behavioral instructions**.
 
 Read in tiers, in order. Each entry says **the question to bring to it** — if you finish a
 source and still cannot answer its question, read it again rather than moving on. All links
-verified 2026-08-09.
+verified 2026-08-28 — none of the four Codex docs that moved to `learn.chatgpt.com` are cited
+here; Tier 1's OpenAI source is the 🔒 agent-loop article, which did not move.
 
 Budget: Tier 1 ≈ 90 min · Tier 2 ≈ 2 h · Tier 3 ≈ 90 min · Tier 4 is lookup, not reading.
 
