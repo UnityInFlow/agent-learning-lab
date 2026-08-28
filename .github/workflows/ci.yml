@@ -117,6 +117,19 @@ jobs:
       - name: The category-set check still rejects a short sheet
         run: ./tools/verify-sheet-category-checker.sh
 
+  run-gate:
+    name: a gate-failing run is not scored
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      # Decision D admits a B2 run on the evaluator's recorded verdict instead of a fixture
+      # name. The invariant it protects — only gate-passing submissions get scored — is worth
+      # exactly as much as this check's willingness to refuse. A version that stopped refusing
+      # would look identical in every passing run.
+      - name: The run-gate check still refuses
+        run: ./tools/verify-run-gate-checker.sh
+
   links:
     name: verified reading is still verified
     runs-on: ubuntu-latest

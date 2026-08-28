@@ -27,6 +27,9 @@ Track B index.
 ./tools/verify-model-output-classifier.sh     # 16 fixtures over 3 output contracts
 ./tools/check-sheet-categories.sh <rubric> <sheet>   # is the sheet's category set the rubric's?
 ./tools/verify-sheet-category-checker.sh      # 9 cases proving that check still rejects
+./tools/check-run-gate.sh <run.json>          # may this observatory run be scored? (Decision D)
+./tools/verify-run-gate-checker.sh            # 13 cases proving that gate still refuses
+./tools/codex-score.sh <rubric> --run-id <id> # score a B2 run instead of a fixture
 ```
 
 CI runs `bash -n` + ShellCheck (`-S warning`) on `tools/`, parses every YAML contract, and
@@ -67,6 +70,16 @@ recurrence table and exited 0.
 
 **Score anything yourself before reading its output.** Reading first produces agreement that
 measures nothing.
+
+**The scorer takes `--run-id` for a B2 run — Decision D, built 2026-08-28.** Path A scores a
+fixture and proves the gate by name; Path B scores an observatory run and proves it from the
+evaluator's recorded verdict, refusing when there is none. It attaches **the files the agent
+changed, in full, plus their pre-agent versions** — not the whole worktree, because
+`sample-service` ships `ShipmentControllerTest.kt` and attaching all 25 files would put a
+test file among the attachments on every run, silently disabling Decision A's null
+precondition. Runbook: [`phases/b02-plain-baseline/RUNBOOK.md`](phases/b02-plain-baseline/RUNBOOK.md).
+`opencode-score.sh` has NO run path — Decision C makes codex the scorer, so B2 does not need
+one, and a cross-harness check on B2 is therefore not currently possible.
 
 **The scorer admits fixtures by NAME, and that runs out at B2.** `codex-score.sh` and
 `opencode-score.sh` accept a target only if its basename is in `known-good` +

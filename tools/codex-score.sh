@@ -48,15 +48,42 @@ AGENT=".opencode/agent/lab-scorer.md"
 SCHEMA="tools/schemas/scorer-sheet.schema.json"
 OUTDIR="findings/codex"
 
-if [ $# -ne 2 ]; then
+# TWO WAYS IN, ONE INVARIANT. Path A scores a benchmark FIXTURE and proves it cleared the
+# gates by name, from the benchmarks registry. Path B scores an observatory RUN and proves
+# the same thing from the evaluator's recorded verdict. B2's output has no fixture name, and
+# the rubric still may not score a submission that failed a gate — so the proof changes and
+# the invariant does not. DECISION D, 2026-08-28; see build/README.md#b2.
+#
+# Path B takes --run-id, NEVER a directory plus a "this passed" flag. A flag is a promise by
+# the caller, which is Layer 3 wearing Layer 2's clothes, and `--dir X --run-id Y` lets the
+# two disagree. Resolving the directory FROM the id makes the mismatch unrepresentable.
+MODE=fixture
+RUN_ID=""
+OBS_API="${LAB_OBSERVATORY_API:-http://localhost:8081}"
+
+if [ $# -eq 3 ] && [ "$2" = "--run-id" ]; then
+  MODE=run; RUBRIC="$1"; RUN_ID="$3"; TARGET=""
+elif [ $# -eq 2 ]; then
+  RUBRIC="$1"; TARGET="$2"
+else
   echo "usage: $0 <rubric.yaml> <implementation-dir>" >&2
+  echo "       $0 <rubric.yaml> --run-id <observatory-run-id>" >&2
   exit 1
 fi
 
-RUBRIC="$1"
-TARGET="$2"
-
 [ -r "$RUBRIC" ] || { echo "cannot read rubric: $RUBRIC" >&2; exit 1; }
+
+if [ "$MODE" = run ]; then
+  # The runner names the worktree after the run id, so the directory is derived rather than
+  # supplied and cannot disagree with the record fetched below.
+  TARGET="${TMPDIR:-/tmp}/observatory-run-${RUN_ID}"
+  [ -d "$TARGET" ] || {
+    echo "no worktree at $TARGET" >&2
+    echo "run-agent.sh deletes the worktree at step 12 unless it was given --keep." >&2
+    echo "A run scored from a deleted worktree is not something this can reconstruct." >&2; exit 1; }
+  [ -d "$TARGET/.git" ] || { echo "$TARGET is not a git worktree; cannot derive what changed" >&2; exit 1; }
+fi
+
 [ -d "$TARGET" ] || { echo "not a directory: $TARGET" >&2; exit 1; }
 [ -r "$AGENT" ]  || { echo "cannot read $AGENT" >&2; exit 1; }
 [ -r "$SCHEMA" ] || { echo "cannot read $SCHEMA" >&2; exit 1; }
@@ -66,16 +93,38 @@ command -v codex >/dev/null 2>&1 || { echo "codex not installed" >&2; exit 1; }
 # only scores submissions that already cleared every gate, and a score on a gate-failing one
 # is a different measurement wearing this one's units. Reads the benchmark's own registry
 # rather than keeping a second copy, and fails closed when it cannot.
-REGISTRY="${LAB_SCORE_REGISTRY:-$(cd "$TARGET/../.." 2>/dev/null && pwd)/verify-evaluator.sh}"
-[ -r "$REGISTRY" ] || {
-  echo "cannot read the gate-passing registry: $REGISTRY" >&2
-  echo "Refusing to score without it." >&2; exit 1; }
-allowed="known-good $(sed -n 's/^QUALITY_VARIANTS=(\(.*\))$/\1/p' "$REGISTRY")"
-case " $allowed " in
-  *" $(basename "$TARGET") "*) ;;
-  *) echo "FATAL: $(basename "$TARGET") is not a registered gate-passing variant." >&2
-     echo "Registered: $allowed" >&2; exit 1 ;;
-esac
+EVAL_EXIT=""
+if [ "$MODE" = fixture ]; then
+  REGISTRY="${LAB_SCORE_REGISTRY:-$(cd "$TARGET/../.." 2>/dev/null && pwd)/verify-evaluator.sh}"
+  [ -r "$REGISTRY" ] || {
+    echo "cannot read the gate-passing registry: $REGISTRY" >&2
+    echo "Refusing to score without it." >&2; exit 1; }
+  allowed="known-good $(sed -n 's/^QUALITY_VARIANTS=(\(.*\))$/\1/p' "$REGISTRY")"
+  case " $allowed " in
+    *" $(basename "$TARGET") "*) ;;
+    *) echo "FATAL: $(basename "$TARGET") is not a registered gate-passing variant." >&2
+       echo "Registered: $allowed" >&2; exit 1 ;;
+  esac
+else
+  # PATH B. The evaluator already decided this; the scorer verifies the record rather than
+  # re-deciding, and refuses when there is no record at all. Fetching and deciding are split
+  # so the decision is testable without a live API — see verify-run-gate-checker.sh.
+  rundoc="$(mktemp)"
+  curl -fsS "${OBS_API}/api/runs/${RUN_ID}" -o "$rundoc" 2>/dev/null || {
+    rm -f "$rundoc"
+    echo "cannot read run ${RUN_ID} from ${OBS_API}" >&2
+    echo "Set LAB_OBSERVATORY_API if the API is elsewhere. Refusing to score a run whose" >&2
+    echo "gate result cannot be established." >&2; exit 1; }
+  # Once, not twice, and reported against the RUN rather than the temp file it landed in:
+  # a refusal naming /tmp/tmp.0k9HO4 tells the reader nothing about which run was refused.
+  gate_out="$(./tools/check-run-gate.sh "$rundoc" 2>&1)"; rc=$?
+  if [ "$rc" -ne 0 ]; then
+    echo "$gate_out" | sed "s|$rundoc|run ${RUN_ID} at ${OBS_API}|g" >&2
+    rm -f "$rundoc"; exit "$rc"
+  fi
+  EVAL_EXIT="$(jq -r '(.evaluation // .).exitCode' "$rundoc" 2>/dev/null)"
+  rm -f "$rundoc"
+fi
 
 # THE CATEGORY SET, pinned from the rubric rather than trusted from the model. The on-disk
 # schema is a SHAPE contract and cannot name categories, because it is handed whichever
@@ -94,14 +143,30 @@ NCAT=$(echo "$CATEGORIES" | wc -l | tr -d ' ')
 # THE BASELINE, E-001 Decision B, and the same asymmetry recorded rather than hidden:
 # `known-good` is the baseline, so when it is the target there is nothing to read a change
 # against and its cells see one tree while every other target's see two.
-BASELINE="${LAB_SCORE_BASELINE:-$(dirname "$TARGET")/known-good}"
-baseline_state="attached"
-if [ "$(cd "$TARGET" && pwd)" = "$(cd "$BASELINE" 2>/dev/null && pwd || echo /nonexistent)" ]; then
+if [ "$MODE" = run ]; then
+  # DECISION D. A B1 fixture is "the files that DIFFER from a clean baseline, in full" — the
+  # benchmarks repo's own definition. A run's diff is the same object, so B2 attaches the
+  # files the agent changed, in full, against those same files as they were BEFORE the agent
+  # ran. Same rule as B1, applied to a run: B1 and B2 sheets stay comparable by construction
+  # rather than by a caveat someone has to remember.
+  #
+  # NOT the whole worktree, and the reason is not tidiness. sample-service already ships
+  # ShipmentControllerTest.kt, so attaching all 25 files would put a test file among the
+  # attachments on EVERY run — and `test-quality`'s precondition ("no file under src/test/
+  # among the attachments -> null") could then never fire. Decision A would be silently
+  # disabled between B1 and B2 while the sheet kept reporting the same units.
   BASELINE=""
-  baseline_state="none — the target IS the baseline; its cells see one tree, the others see two"
-elif [ ! -d "$BASELINE" ]; then
-  echo "baseline not found: $BASELINE — E-001 Decision B requires it" >&2
-  exit 1
+  baseline_state="pre-agent HEAD of the changed files (Decision D); new files have no baseline side"
+else
+  BASELINE="${LAB_SCORE_BASELINE:-$(dirname "$TARGET")/known-good}"
+  baseline_state="attached"
+  if [ "$(cd "$TARGET" && pwd)" = "$(cd "$BASELINE" 2>/dev/null && pwd || echo /nonexistent)" ]; then
+    BASELINE=""
+    baseline_state="none — the target IS the baseline; its cells see one tree, the others see two"
+  elif [ ! -d "$BASELINE" ]; then
+    echo "baseline not found: $BASELINE — E-001 Decision B requires it" >&2
+    exit 1
+  fi
 fi
 
 mkdir -p "$OUTDIR"
@@ -137,15 +202,41 @@ awk '
   echo "Refusing to score without it — the result would look like a score." >&2; exit 1; }
 
 srcs=()
-while IFS= read -r f; do srcs+=("$f"); done < <(find "$TARGET" -type f \
-  \( -name '*.kt' -o -name '*.java' -o -name '*.xml' -o -name '*.yaml' -o -name '*.yml' \) | sort)
-[ ${#srcs[@]} -gt 0 ] || { echo "no source files under $TARGET" >&2; exit 1; }
-
 base=()
-if [ -n "$BASELINE" ]; then
-  while IFS= read -r f; do base+=("$f"); done < <(find "$BASELINE" -type f \
+
+if [ "$MODE" = run ]; then
+  # Tracked modifications plus new untracked files. run-agent.sh builds the agent's repo with
+  # git archive + git init and asserts a single commit, so HEAD is unambiguously the
+  # pre-agent state and "changed" needs no further definition.
+  changed=$( { git -C "$TARGET" diff --name-only HEAD;
+               git -C "$TARGET" ls-files --others --exclude-standard; } 2>/dev/null \
+             | grep -E '\.(kt|java|xml|ya?ml)$' | sort -u )
+  [ -n "$changed" ] || {
+    echo "the agent changed no source file in $TARGET" >&2
+    echo "There is no submission to score. That is a result about the run, and the" >&2
+    echo "evaluator will have recorded it — it is not a scoring failure." >&2; exit 1; }
+  mkdir -p "$tmp/baseline"
+  while IFS= read -r rel; do
+    [ -n "$rel" ] || continue
+    srcs+=("$TARGET/$rel")
+    # A file the agent CREATED has no pre-agent side. Absent from the baseline set is the
+    # honest representation of that; inventing an empty file would read as "it existed and
+    # was blank", which is a different claim.
+    if git -C "$TARGET" cat-file -e "HEAD:$rel" 2>/dev/null; then
+      dst="$tmp/baseline/$rel"; mkdir -p "$(dirname "$dst")"
+      git -C "$TARGET" show "HEAD:$rel" > "$dst" 2>/dev/null && base+=("$dst")
+    fi
+  done <<< "$changed"
+else
+  while IFS= read -r f; do srcs+=("$f"); done < <(find "$TARGET" -type f \
     \( -name '*.kt' -o -name '*.java' -o -name '*.xml' -o -name '*.yaml' -o -name '*.yml' \) | sort)
-  [ ${#base[@]} -gt 0 ] || { echo "no source files under the baseline $BASELINE" >&2; exit 1; }
+  [ ${#srcs[@]} -gt 0 ] || { echo "no source files under $TARGET" >&2; exit 1; }
+
+  if [ -n "$BASELINE" ]; then
+    while IFS= read -r f; do base+=("$f"); done < <(find "$BASELINE" -type f \
+      \( -name '*.kt' -o -name '*.java' -o -name '*.xml' -o -name '*.yaml' -o -name '*.yml' \) | sort)
+    [ ${#base[@]} -gt 0 ] || { echo "no source files under the baseline $BASELINE" >&2; exit 1; }
+  fi
 fi
 
 {
@@ -156,13 +247,21 @@ fi
   cat "$RUBRIC"
   echo '```'
   echo
-  if [ -n "$BASELINE" ]; then
+  if [ ${#base[@]} -gt 0 ]; then
     echo "## The BASELINE submission — the reference, NOT the work under test"
     echo
     echo "Score only the work under test, below. These files are what a change is read against."
     for f in "${base[@]}"; do
       echo; echo "### BASELINE FILE: $f"; echo '```'; cat "$f"; echo '```'
     done
+    echo
+  elif [ "$MODE" = run ]; then
+    echo "## No baseline in this run — every changed file is NEW"
+    echo
+    echo "The agent created every file below; none existed before it ran, so there is no"
+    echo "earlier version to read a change against. Any category whose anchors require"
+    echo "comparing against a baseline is undecidable here — emit score: null with"
+    echo "reason: ambiguous rather than inventing one."
     echo
   else
     echo "## No baseline in this run"
@@ -180,6 +279,16 @@ fi
     echo; echo "### FILE: $f"; echo '```'; cat "$f"; echo '```'
   done
 } > "$tmp/prompt.md"
+
+# Assemble and stop. B2 needs to inspect the exact evidence set before committing five runs
+# to it, and "read the script and imagine the prompt" is how an attachment-set mistake
+# survives to the batch. Not a gate bypass: it produces no sheet and exits 3.
+if [ -n "${LAB_SCORE_DRY_RUN:-}" ]; then
+  cp "$tmp/prompt.md" "${LAB_SCORE_DRY_RUN}" 2>/dev/null || cp "$tmp/prompt.md" ./score-prompt-dry-run.md
+  echo "DRY RUN — prompt written, nothing scored. ${#srcs[@]} file(s) under test, ${#base[@]} baseline." >&2
+  rm -f "$out"
+  exit 3
+fi
 
 echo "codex scoring $slug with $MODEL — ${#srcs[@]} source file(s), ${#base[@]} baseline file(s) ..." >&2
 
@@ -199,6 +308,13 @@ echo "codex scoring $slug with $MODEL — ${#srcs[@]} source file(s), ${#base[@]
   echo "  rubric_path:    $RUBRIC"
   echo "  rubric_sha:     $(shasum -a 256 "$RUBRIC" | cut -c1-12)"
   echo "  target:         $TARGET"
+  echo "  mode:           $MODE"
+  if [ "$MODE" = run ]; then
+    echo "  run_id:         $RUN_ID"
+    echo "  evaluator_exit: $EVAL_EXIT"
+    echo "  observatory:    ${OBS_API}/api/runs/${RUN_ID}"
+    echo "  attachments:    ${#srcs[@]} changed file(s), ${#base[@]} with a pre-agent side (Decision D)"
+  fi
   echo "  baseline:       ${BASELINE:-null}"
   echo "  baseline_state: $baseline_state"
   echo "  scored_utc:     $stamp"
