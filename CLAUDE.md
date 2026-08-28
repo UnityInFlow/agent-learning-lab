@@ -68,6 +68,14 @@ recurrence table and exited 0.
 **Score anything yourself before reading its output.** Reading first produces agreement that
 measures nothing.
 
+**The scorer admits fixtures by NAME, and that runs out at B2.** `codex-score.sh` and
+`opencode-score.sh` accept a target only if its basename is in `known-good` +
+`QUALITY_VARIANTS`, read from the benchmarks' `verify-evaluator.sh`. The invariant is right —
+only gate-passing submissions get scored — but the proof is a registry lookup, and a B2 agent
+run has no fixture name. The second admission path, and the open question about attachment
+sizes that comes with it, are specified in [`build/README.md#b2`](build/README.md#b2).
+**Read that before the first B2 run.**
+
 **A missing cell is not a null cell.** `null` is a measurement — the scorer read the anchor
 and could not decide. A category that never appears in the sheet is an absence, and once the
 sheet is on disk nothing downstream can tell them apart. E-001's dependent variable is the

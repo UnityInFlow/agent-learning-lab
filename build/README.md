@@ -153,6 +153,51 @@ report with **median and range**, never an average alone.
 > Everything after this is measured against B2. If B2 is sloppy, nothing downstream means
 > anything.
 
+### The gate's "completed rubrics" has no instrument yet — read before starting B2
+
+`make baseline-runs` produces runs, diffs and deterministic evaluator results. **Nothing
+applies `benchmark/rubrics/backend-quality.yaml` to a run's output.** The rubric is not
+referenced anywhere in the observatory's `runner/`. The two halves exist in two repos and the
+seam between them does not. Discovered 2026-08-28, before B2 rather than during it.
+
+**The scorer would refuse a B2 run outright.** `codex-score.sh` admits a target only if
+`basename` appears in `known-good` + `QUALITY_VARIANTS`, parsed from the benchmarks'
+`verify-evaluator.sh`, and otherwise exits 1 with *"not a registered gate-passing variant"*.
+A B2 run's output is not a fixture name. That filter is correct for B1, where the scored
+population is exactly five fixtures; B2 asks the same question — *did this clear every gate?*
+— and has a different answer for it.
+
+**The invariant that must not change:** this rubric only scores submissions that cleared every
+gate. A score on a gate-failing submission is a different measurement wearing these units.
+What changes is only how "cleared every gate" is established.
+
+| | Path A — fixture (B1, unchanged) | Path B — run (B2, to build) |
+|---|---|---|
+| target | a fixture directory | `--run-id <id>`, **not** a directory |
+| proof of gate-pass | the name is in the benchmarks registry | the recorded evaluation for that run is `passed` / `exitCode 0` |
+| where the directory comes from | the argument | resolved by the scorer as `${TMPDIR:-/tmp}/observatory-run-<id>` |
+| no proof available | refuse | refuse — an unevaluated run is not a passing one |
+
+**Take `--run-id`, never `--dir` plus a `--gate-passed` flag.** A flag is a promise by the
+caller — Layer 3 wearing Layer 2's clothes, which this project has already paid for six
+times. And `--dir X --run-id Y` lets the two disagree. Resolving the directory *from* the id
+makes the mismatch unrepresentable, which is Layer 1: there is no way to write the bad state
+down. The runner already names the worktree `observatory-run-${RUN_ID}`, so this costs
+nothing to adopt.
+
+**Run B2 with `--keep`.** Step 12 of `run-agent.sh` cleans the worktree. Without `--keep`
+there is nothing left to score, and you will not find out until after the runs are done.
+
+**Provenance must gain `run_id`, `evaluator_exit`, and the API the scorer asked.** A B2 sheet
+that cannot be traced back to the run that produced it is not evidence.
+
+**THE OPEN DECISION, and it is not a detail.** A B1 fixture is a 2–3 file overlay. A B2 run's
+worktree is the whole service — 25 files. The scorer inlines every `.kt` it finds, so **B2
+sheets and B1 sheets would be produced from evidence sets an order of magnitude apart.** The
+attachment set is a registered variable. Either the scorer restricts a run to its changed
+files, or B1 and B2 sheets are never compared to each other and that is written down where
+someone would otherwise try. Decide it before the first B2 run, not after three of them.
+
 ---
 
 <a id="b3"></a>
