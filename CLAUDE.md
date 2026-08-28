@@ -66,18 +66,35 @@ recurrence table and exited 0.
 **Score anything yourself before reading its output.** Reading first produces agreement that
 measures nothing.
 
-### Models that hang
+### `opencode run` hangs. It is the harness, not a list of bad models
 
-**`ollama-cloud/glm-5.2` hangs intermittently — roughly 3 in 8 on 2026-08-27.** Not the
-all-or-nothing failure below: the same model, the same artifact, the same command completed
-in minutes on five attempts and never returned on three, one of which sat overnight. A
-provenance header is written before opencode is invoked, so a hung run leaves a 22-line file
-that looks like an empty result and is not one — check for a live process before reading it
-as a finding. When it stalls, `LAB_REVIEW_MODEL=ollama-cloud/deepseek-v4-pro` is the
-fallback, and the header records the substitution.
+**Corrected 2026-08-28.** This section used to name three models that hang, as if the fault
+were a property of the model. The evidence says otherwise:
 
-`opencode-go/kimi-k3`, `opencode-go/glm-5.3` and `ollama-cloud/kimi-k2.6` hang indefinitely
-on non-interactive runs — zero output past nine minutes, no error. Working:
+- `glm-5.2`, `deepseek-v4-pro` and `gpt-oss:120b` all stalled on 2026-08-28 — each had
+  answered the *same artifact* in minutes earlier the same day
+- five `opencode run` processes were wedged on this machine at once, aged **10–12 days**,
+  from other projects and unrelated commands (`--auto --command review PR #45`,
+  `--auto --pure`, `--dir . --pure`). Each had burned ~an hour of CPU before it stopped
+  returning, so they were working and then stopped — not stuck from the start
+- `codex`, a different harness, answered every time, in under a minute, on the same input
+
+So: **`opencode run` fails to return on a fraction of non-interactive calls, independent of
+model and project, and never times out on its own.** Roughly five of eight calls on
+2026-08-28.
+
+**A hung run looks exactly like an empty one.** The provenance header is written *before*
+opencode is invoked, so a stall leaves a header-only file. Check for a live process before
+reading one as a finding — that mistake has already been made and reported once.
+
+**The mitigation is `LAB_REVIEW_TIMEOUT` (default 600s)**, which covers every panel family
+*and* the acceptance gate: a stall drops that family, on the record, and the rest continue.
+Nothing has ever recovered past ~10 minutes.
+
+**The scorer does not rely on opencode at all** — see *Which harness does what*.
+
+The three below hang totally rather than intermittently, and should simply not be used:
+`opencode-go/kimi-k3`, `opencode-go/glm-5.3` and `ollama-cloud/kimi-k2.6` — zero output past nine minutes, no error. Working:
 `ollama-cloud/deepseek-v4-pro` (the default), `gpt-oss:120b`, `gpt-oss:20b`. Two of the
 user's `opencode run` processes were wedged for over a week for this reason.
 
@@ -85,6 +102,33 @@ user's `opencode run` processes were wedged for over a week for this reason.
 filename. The prompt must come first. `--dir` repoints the project root, so `.opencode/agent/`
 is looked up in the target and opencode **silently falls back to the default full-tool agent
 and exits 0** — both scripts grep for that warning and fail.
+
+## Which harness does what
+
+Two harnesses, deliberately. `codex` is not a fallback — where it is used, it is *the*
+registered choice, and mixing harnesses inside one comparison measures the harnesses.
+
+| role | harness | why |
+|---|---|---|
+| **scoring** | **`codex` only** (E-001 Decision C) | produces the experiment's actual numbers. `opencode` was a single point of failure on the one instrument that cannot be allowed to fail |
+| line-level critic | **panel: `codex` + opencode families** | different harnesses find different *classes* of defect — see below |
+| acceptance gate | `opencode` only | a review, not a measurement. A stalled gate costs time; a stalled scorer costs the experiment |
+
+```bash
+./tools/codex-score.sh <rubric> <impl-dir>     # the scorer. Decision C
+./tools/codex-critic.sh <out.md> <artifact>    # one panel family, standalone
+./tools/opencode-review.sh -P codex,deepseek-v4-pro <artifact>
+```
+
+**Three sources, three defect classes, on the same rubric.** None found another's list:
+
+- `glm-5.2` — structural: gaps in the anchor ladder, an anchor citing a file that is not attached
+- `deepseek-v4-pro` — phrasing that two faithful scorers read two ways, costed in points
+- `codex` — domain terms never defined at all ("refusal", "the imports it requires"), shown
+  with constructed Kotlin counterexamples
+
+That is the argument for `-P`, and it is why `-n` (one model, N times) is a different knob:
+`-n` measures a model's detection threshold, `-P` measures the artifact.
 
 ## Where B1 stands
 

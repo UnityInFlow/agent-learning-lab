@@ -460,19 +460,40 @@ if [ "$ACCEPT" = 1 ]; then
     findings="$tmpdir/line-level-findings.md"
     cat "$tmpdir"/run-*.md > "$findings"
 
-    opencode run --agent lab-acceptance -m "$ACCEPT_MODEL" \
-      "Decide whether the attached artifact is ready to leave the machine. One of the
-       attachments, line-level-findings.md, is what a different model reported against it
-       section by section — treat it as evidence, not as a verdict, and dispute anything you
-       cannot substantiate from the artifact itself. YAML only, per your output contract." \
-      "${attach[@]}" -f "$findings" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' > "$tmpdir/accept.md"
-    arc=${PIPESTATUS[0]}
+    # The gate gets the same stall budget as a panel family. It did not have one, and on
+    # 2026-08-28 an acceptance pass sat twenty-nine minutes after both line-level families
+    # had already been dropped for stalling — the budget protected the panel and left the
+    # gate exposed, which is a control covering three of four calls and reading as four.
+    run_limited "$TIMEOUT" "$tmpdir/arc" -- bash -c '
+      opencode run --agent lab-acceptance -m "$1" \
+        "Decide whether the attached artifact is ready to leave the machine. One of the
+         attachments, line-level-findings.md, is what a different model reported against it
+         section by section — treat it as evidence, not as a verdict, and dispute anything
+         you cannot substantiate from the artifact itself. YAML only, per your contract." \
+        "${@:3}" 2>&1 | sed $'"'"'s/\x1b\\[[0-9;]*m//g'"'"' > "$2"
+      exit "${PIPESTATUS[0]}"
+    ' _ "$ACCEPT_MODEL" "$tmpdir/accept.md" "${attach[@]}" -f "$findings"
+    atrc=$?
 
-    if [ "$arc" -ne 0 ]; then
+    if [ "$atrc" = 124 ]; then
+      echo "GATE STALLED after ${TIMEOUT}s — $ACCEPT_MODEL never returned." >&2
+      echo "The line-level findings are kept. There is NO VERDICT: an unrun gate is not a" >&2
+      echo "pass, and the record says so rather than leaving the section blank." >&2
+      { printf '\n## Acceptance — NO VERDICT (gate stalled)\n\n'
+        printf 'The gate did not run: %s exceeded the %ss budget.\n' "$ACCEPT_MODEL" "$TIMEOUT"
+        echo "This is not an ACCEPT. Line-level findings below stand on their own."
+      } >> "$out"
+      verdict="NO VERDICT"
+      acls=99
+    else
+      arc="$(cat "$tmpdir/arc" 2>/dev/null || echo 1)"
+    fi
+
+    if [ "${acls:-0}" != 99 ] && [ "$arc" -ne 0 ]; then
       echo "opencode exited $arc on the acceptance pass — line-level findings kept" >&2
       printf '\n## Acceptance\n\nThe gate failed to run (opencode exit %s).\n' "$arc" >> "$out"
       acls=1
-    else
+    elif [ "${acls:-0}" != 99 ]; then
       aclass="$(./tools/classify-model-output.sh acceptance "$tmpdir/accept.md")"
       acls=$?
     fi
