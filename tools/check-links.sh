@@ -17,9 +17,14 @@ cd "$(dirname "$0")/.." || exit 1
 
 UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
 
-files=("${@:-SOURCES.md CURRICULUM.md}")
-# shellcheck disable=SC2128
-[ $# -eq 0 ] && files=(SOURCES.md CURRICULUM.md)
+# The default is every file SOURCES.md claims to have verified, not the two it started
+# with. CI's links job calls this with no arguments, so until 2026-08-28 the weekly rot
+# check covered 2 of 33 files: every phase README's links could rot for a cohort without
+# the scheduled run ever noticing, while SOURCES.md said all 76 URLs were verified.
+# Globs are unquoted deliberately — they must expand.
+files=(SOURCES.md CURRICULUM.md LEARNING-PATH.md GUARDRAILS.md README.md
+       build/README.md phases/*/README.md)
+[ $# -gt 0 ] && files=("$@")
 
 # Strip markdown punctuation that can cling to a URL: backticks, brackets, quotes,
 # and trailing sentence punctuation. A trailing backtick produced a false 404 once.
