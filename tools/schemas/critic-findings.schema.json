@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sections"],
+  "properties": {
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["section", "verdict", "failure", "layer", "anchor"],
+        "properties": {
+          "section": { "type": "string" },
+          "verdict": { "type": "string", "enum": ["finding", "no finding"] },
+          "failure": { "type": "string" },
+          "layer":   { "type": "string", "enum": ["L1", "L2", "L3", "n/a"] },
+          "anchor":  { "type": "string" }
+        }
+      }
+    }
+  }
+}

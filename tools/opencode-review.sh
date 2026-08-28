@@ -101,6 +101,14 @@ avail="$(opencode models 2>/dev/null)"
 # error, because silently picking a provider is how a run gets attributed to the wrong one.
 resolve_model() {
   local m="$1" pref hits n
+  # `codex` is not an opencode model id — it is a whole other harness, dispatched below.
+  # Checking it against `opencode models` would reject the most independent family we have.
+  case "$m" in
+    codex|codex/*)
+      command -v codex >/dev/null 2>&1 || return
+      [ -x tools/codex-critic.sh ] || return
+      printf '%s\n' "$m"; return ;;
+  esac
   case "$m" in
     */*) printf '%s\n' "$avail" | grep -qxF "$m" && printf '%s\n' "$m"; return ;;
   esac
@@ -206,6 +214,23 @@ for i in $(seq 1 "$TOTAL"); do
   # finding to a family without a side-channel index that could drift out of step.
   run_slug="$(echo "$run_model" | tr '/:.' '___')"
   echo "review $i/$TOTAL — $slug with $run_model ..." >&2
+
+  # A DIFFERENT HARNESS, not just a different model. codex has its own system prompt, its
+  # own tool loop and its own turn shape; tools/codex-critic.sh gives it the SAME contract
+  # and the SAME inlined evidence and renders its schema-constrained JSON into the section
+  # format this table reads, so it lands here as one more family with no special case below.
+  case "$run_model" in
+    codex|codex/*)
+      cm=""; case "$run_model" in codex/*) cm="${run_model#codex/}" ;; esac
+      LAB_CODEX_MODEL="${cm:-${LAB_CODEX_MODEL:-gpt-5.6-sol}}" \
+        ./tools/codex-critic.sh "$tmpdir/run-$i@$run_slug.md" "$@" >/dev/null
+      rc=$?
+      if [ "$rc" -ne 0 ]; then
+        echo "codex critic exited $rc on run $i — infrastructure, discard." >&2
+        exit 1
+      fi
+      continue ;;
+  esac
 
   # Fresh session every iteration — never --continue. A reviewer that remembers its last
   # pass is not an independent second look, and the recurrence count below would be a lie.

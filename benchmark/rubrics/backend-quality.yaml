@@ -121,6 +121,14 @@ categories:
     # states "Responses are produced centrally by [GlobalExceptionHandler]; controllers
     # throw an [ApiException] rather than assembling bodies themselves." The scorer can
     # read that sentence and then check the controller against it.
+    # WHAT COUNTS AS A REFUSAL. Any path that ends the request without the success
+    # response — including one taken by `check(...)`, `require(...)`, `!!` or a bare
+    # `throw`. The codex critic built the counterexample: a submission whose missing-shipment
+    # branch throws the baseline `ResourceNotFoundException` but whose state validation is a
+    # `check(...)` throwing `IllegalStateException`. One reviewer calls that a refusal and
+    # scores 1; another reserves "refusal" for explicit response branches and scores 2.
+    # It is a refusal. `IllegalStateException` is not an ApiException subclass, so it is
+    # anchor 1: it throws, but not through the declared hierarchy.
     precondition: none
     anchors:
       0: "The shipment package constructs an ERROR body itself — an `ApiError(...)` or `ApiErrorBody(...)` literal, or a map assembled ON A REFUSAL PATH, appears inside a controller method. A map or any other shape on the SUCCESS path is not this anchor; the category is about who renders refusals. A `ResponseEntity<Any>` return type is the usual tell: it exists to carry both the success shape and a hand-built error shape. Cite the literal."
@@ -168,8 +176,14 @@ categories:
     # DECISION B, E-001, 2026-08-27: the baseline tree is attached, so "was this restyled"
     # is citable at path:line in BOTH trees. The ticket names `confirm`. Every other method
     # is out of scope, and the imports `confirm` itself requires are not.
+    # WHAT "THE IMPORTS IT REQUIRES" MEANS. Per imported SYMBOL, not per import declaration.
+    # An import is required by `confirm` when `confirm` references a symbol it supplies and
+    # no method the ticket left alone does. A wildcard — `import com.unityinflow.sample.api.*`
+    # replacing a specific import — supplies symbols beyond the ones `confirm` uses, so it is
+    # a change reaching past `confirm` and cannot be anchor 2. The codex critic built that
+    # counterexample too, and costed the ambiguity at 7.5 points of the normalised total.
     precondition: "No baseline tree among the attachments → score: null, reason: no baseline to read a change against. Never 2."
     anchors:
       0: "Two or more methods the ticket did not name differ from the baseline in anything beyond INVISIBLE WHITESPACE — trailing spaces, line-ending style, a trailing newline at end of file. Those three are never a difference under this category, at any anchor. Beyond them: — reformatted, restructured, an expression body turned into a block, a local renamed. Name each method and cite the line in both trees."
       1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically exactly one unnamed method differs; also the case where every named method is character-identical but something outside them — a reordered import `confirm` does not require, a moved blank line — differs. Name what differs and cite both trees."
-      2: "Every method the ticket did not name is identical to the baseline once invisible whitespace is normalised — trailing spaces, line endings, EOF newline. A CRLF-to-LF conversion differs at every byte and is NOT a difference here. Only `confirm`, and the imports it requires, differ. Name the methods checked."
+      2: "Every method the ticket did not name is identical to the baseline once invisible whitespace is normalised — trailing spaces, line endings, EOF newline. A CRLF-to-LF conversion differs at every byte and is NOT a difference here. Only `confirm`, and imports required BY SYMBOL for `confirm`, differ; a wildcard import supplying anything `confirm` does not use is not anchor 2. Name the methods checked."

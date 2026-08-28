@@ -20,8 +20,18 @@
 #
 #   echo '{"tool_name":"Bash","tool_input":{"command":"git push"}}' | .claude/hooks/opencode-review.sh
 #
-# Env: LAB_REVIEW_HOOK=0 disables it. LAB_REVIEW_RUNS overrides -n (default 2, because a
-# single run at temperature 0 is a lower bound — two runs disagreed on 2 of 12 sections).
+# TWO HARNESSES, NOT TWO RUNS. The hook used to send `-n 2` — the same model twice, which
+# measures that model's detection threshold and nothing about the artifact. It now sends a
+# PANEL: one opencode family plus `codex`, which is a different agent loop with a different
+# system prompt and a schema-constrained output, not just a different model id.
+#
+# The evidence for the change, 2026-08-28 on the BE-003 rubric: glm-5.2 found gaps in the
+# anchor ladder and an anchor citing a file that is not attached; deepseek-v4-pro found four
+# textual ambiguities in the same file. Neither saw the other's list. One model run twice
+# would have produced neither list twice.
+#
+# Env: LAB_REVIEW_HOOK=0 disables it. LAB_REVIEW_PANEL overrides the panel.
+# LAB_REVIEW_RUNS is runs PER FAMILY (default 1 — the panel is the diversity now).
 
 set -uo pipefail
 
@@ -70,9 +80,24 @@ done <<< "$changed"
 
 [ ${#artifacts[@]} -gt 0 ] || exit 0
 
-runs="${LAB_REVIEW_RUNS:-2}"
-echo "opencode-review hook: reviewing ${#artifacts[@]} changed contract(s) with -n ${runs}" >&2
-./tools/opencode-review.sh -n "$runs" "${artifacts[@]}" >&2 || {
+runs="${LAB_REVIEW_RUNS:-1}"
+panel="${LAB_REVIEW_PANEL:-deepseek-v4-pro,codex}"
+
+# A missing codex must DEGRADE the panel, never fail the push. Dropping it silently would be
+# worse than the miss it prevents, so the drop is announced: a review that quietly stopped
+# being a two-harness review is exactly the kind of thing this hook exists to catch.
+if ! command -v codex >/dev/null 2>&1 || [ ! -x tools/codex-critic.sh ]; then
+  case ",$panel," in
+    *,codex,*|*,codex/*)
+      panel="$(printf '%s' "$panel" | tr ',' '\n' | grep -v '^codex' | paste -sd, -)"
+      echo "opencode-review hook: codex unavailable — panel reduced to '${panel}'." >&2
+      echo "  This is a ONE-harness review now. It is not the review the panel names." >&2 ;;
+  esac
+fi
+[ -n "$panel" ] || { echo "opencode-review hook: empty panel, skipping" >&2; exit 0; }
+
+echo "opencode-review hook: reviewing ${#artifacts[@]} changed contract(s) — panel ${panel}, -n ${runs}" >&2
+./tools/opencode-review.sh -n "$runs" -P "$panel" "${artifacts[@]}" >&2 || {
   echo "opencode-review hook: reviewer failed; the push already happened and is unaffected" >&2
 }
 exit 0
