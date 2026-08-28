@@ -37,11 +37,29 @@ set -uo pipefail
 
 # The measurement contracts, and only those. A phase README changing does not need an
 # adversarial reviewer; a rubric or an experiment record leaving the machine does.
-REVIEWABLE_GLOBS=(
+# TWO TIERS, AND THE ORDER IS THE BUDGET'S PRIORITY. Contracts are the registered
+# measurement artifacts; tools are the things that execute against them. Until 2026-08-28
+# only the first tier existed, so nine changed tools on one branch — including a gate
+# deciding whether a submission may be scored at all — were never in the critic's scope. The
+# gap was not theoretical: reviewed by hand that day, the panel found a BLOCKING defect in
+# `check-sheet-categories.sh`, a control that had shipped with ShellCheck clean, 9 passing
+# fixtures and a green CI job. None of those can catch "this gate admits something it should
+# not"; only a reader can.
+CONTRACT_GLOBS=(
   'benchmark/rubrics/*.yaml'
   'templates/*.yaml'
   'experiments/*.md'
 )
+TOOL_GLOBS=(
+  'tools/*.sh'
+  '.claude/hooks/*.sh'
+)
+# EVERY ARTIFACT GOES INTO ONE PROMPT PER FAMILY — `opencode-review.sh` attaches them all to
+# a single call — so the cost of a wide push is not more calls, it is one huge prompt read by
+# a critic that already under-reports. A bound is therefore about attention, not wall clock.
+# 4 is a judgement, not a measurement: two artifacts took codex 39s and deepseek 188s, and
+# the hook's whole budget is 900s for two families plus the gate. Revise it with numbers.
+MAX_ARTIFACTS="${LAB_REVIEW_MAX_ARTIFACTS:-4}"
 
 [ "${LAB_REVIEW_HOOK:-1}" = "0" ] && exit 0
 
@@ -69,16 +87,43 @@ base="$(git merge-base HEAD origin/main 2>/dev/null || true)"
 changed="$(git diff --name-only "$base"...HEAD 2>/dev/null || true)"
 [ -n "$changed" ] || exit 0
 
-artifacts=()
-while IFS= read -r f; do
-  [ -f "$f" ] || continue          # deleted files have nothing to review
-  for glob in "${REVIEWABLE_GLOBS[@]}"; do
-    # shellcheck disable=SC2053
-    if [[ "$f" == $glob ]]; then artifacts+=("$f"); break; fi
-  done
-done <<< "$changed"
+# Contracts first, tools second, so a push that exceeds the budget drops tools rather than
+# the rubric the experiment is registered against.
+# Globs come in positionally rather than through a nameref: `local -n` needs bash 4.3, and
+# it also hides the arrays from ShellCheck, which then reports them unused. Passing them as
+# arguments keeps the required check honest instead of silenced.
+select_matching() {
+  local globs=("$@") f glob
+  while IFS= read -r f; do
+    [ -f "$f" ] || continue          # deleted files have nothing to review
+    for glob in "${globs[@]}"; do
+      # shellcheck disable=SC2053
+      if [[ "$f" == $glob ]]; then printf '%s\n' "$f"; break; fi
+    done
+  done <<< "$changed"
+}
 
-[ ${#artifacts[@]} -gt 0 ] || exit 0
+ranked=()
+while IFS= read -r f; do [ -n "$f" ] && ranked+=("$f"); done < <(select_matching "${CONTRACT_GLOBS[@]}")
+while IFS= read -r f; do [ -n "$f" ] && ranked+=("$f"); done < <(select_matching "${TOOL_GLOBS[@]}")
+
+[ ${#ranked[@]} -gt 0 ] || exit 0
+
+artifacts=("${ranked[@]}")
+dropped=()
+if [ "$MAX_ARTIFACTS" -gt 0 ] && [ ${#ranked[@]} -gt "$MAX_ARTIFACTS" ]; then
+  artifacts=("${ranked[@]:0:$MAX_ARTIFACTS}")
+  dropped=("${ranked[@]:$MAX_ARTIFACTS}")
+fi
+
+# NO SILENT CAP. A review that covered four of eleven artifacts and said nothing reads
+# exactly like one that covered everything — which is the failure this whole project keeps
+# re-finding. Every dropped file is named, by name, on the way past.
+if [ ${#dropped[@]} -gt 0 ]; then
+  echo "opencode-review hook: PARTIAL REVIEW — ${#artifacts[@]} of ${#ranked[@]} artifacts." >&2
+  echo "  NOT reviewed (raise LAB_REVIEW_MAX_ARTIFACTS or review them by hand):" >&2
+  for f in "${dropped[@]}"; do echo "    $f" >&2; done
+fi
 
 runs="${LAB_REVIEW_RUNS:-1}"
 panel="${LAB_REVIEW_PANEL:-deepseek-v4-pro,codex}"
@@ -96,7 +141,7 @@ if ! command -v codex >/dev/null 2>&1 || [ ! -x tools/codex-critic.sh ]; then
 fi
 [ -n "$panel" ] || { echo "opencode-review hook: empty panel, skipping" >&2; exit 0; }
 
-echo "opencode-review hook: reviewing ${#artifacts[@]} changed contract(s) — panel ${panel}, -n ${runs}" >&2
+echo "opencode-review hook: reviewing ${#artifacts[@]} of ${#ranked[@]} changed artifact(s) — panel ${panel}, -n ${runs}" >&2
 ./tools/opencode-review.sh -n "$runs" -P "$panel" "${artifacts[@]}" >&2 || {
   echo "opencode-review hook: reviewer failed; the push already happened and is unaffected" >&2
 }

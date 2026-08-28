@@ -35,6 +35,14 @@ Track B index.
 CI runs `bash -n` + ShellCheck (`-S warning`) on `tools/`, parses every YAML contract, and
 runs the link check weekly. **ShellCheck is a required check** — `cd` needs `|| exit`.
 
+**The push hook reviews `tools/*.sh` too, as of 2026-08-28** — and it did not before, which
+is how a blocking defect reached `check-sheet-categories.sh` with ShellCheck clean, nine
+passing fixtures and a green CI job. None of those can catch *"this gate admits something it
+should not"*. Contracts are reviewed before tools, at most `LAB_REVIEW_MAX_ARTIFACTS` (4) per
+push, and **anything dropped is named on the way past** — every artifact lands in one prompt
+per family, so a wide push does not cost more calls, it costs attention from a critic that
+already under-reports.
+
 **Never edit a tool while a run of it is in flight.** bash reads a script incrementally, so
 an edit shifts the byte offsets under the running instance. Observed 2026-08-27: editing
 `opencode-review.sh` during a two-run review killed it with `syntax error near unexpected
