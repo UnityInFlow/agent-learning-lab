@@ -136,7 +136,7 @@ one quality score computes.
 
 - [x] `./tools/verify-run-record-validator.sh` exits 0 — the provenance rule executes
 - [x] The four-category rubric exists — `benchmark/rubrics/backend-quality.yaml` v2,
-      sha `f63ef7037a55`, written 2026-08-27 as lab#21
+      sha `f626ef14161f`, written 2026-08-27 as lab#21
 - [ ] ~~The four-category rubric scores all five gate-passing fixtures without emitting `null`~~
       **Unreachable as written, found 2026-08-27.** `test-quality` carries 25% of the weight
       and three of the five variants submitted no test file, so Decision A nulls those three

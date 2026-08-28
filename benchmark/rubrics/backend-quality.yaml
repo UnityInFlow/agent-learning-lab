@@ -93,12 +93,21 @@
 # Even when it used fewer tokens. Do not compute a score for it in order to rank it against
 # passing runs. This is the single most important rule in the business case.
 #
-# AND NOTHING HERE ENFORCES IT. This file assumes its input has already cleared the gates —
-# every "the gates own that" above depends on it — but `opencode-score.sh` will score any
-# directory it is handed, `known-bad-*` included. The filter lives in E-001's Exclusions,
-# which is a document. **L3.** The L2 version is the scorer refusing a target that is not a
-# registered gate-passing `run_case`; it does not exist. A score computed on a gate-failing
-# submission is not a weaker result, it is a different measurement wearing this one's units.
+# AND UNTIL 2026-08-27 NOTHING ENFORCED IT. This file assumes its input has already cleared
+# the gates — every "the gates own that" above depends on it — and `opencode-score.sh` would
+# score any directory it was handed, `known-bad-*` included. The filter lived in E-001's
+# Exclusions, which is a document. L3.
+#
+# **It is L2 now.** `opencode-score.sh` reads `QUALITY_VARIANTS` from the benchmark's own
+# `verify-evaluator.sh` — the file CI already runs to prove each variant still exits 0 — and
+# refuses any target outside it. Reading the registry rather than copying it makes drift a
+# hard failure; an unreachable registry stops the run rather than falling back to scoring
+# anyway. Proven: the six gate-passing fixtures accepted, both `known-bad-*` refused.
+#
+# A score computed on a gate-failing submission is not a weaker result, it is a different
+# measurement wearing this one's units. This paragraph said the L2 version "does not exist"
+# for one commit AFTER it had been built — a document describing the absence of a control
+# that was by then running. The same mistake as describing a control that is not.
 
 version: 2
 task: BE-003-confirm-shipment
@@ -114,7 +123,7 @@ categories:
     # read that sentence and then check the controller against it.
     precondition: none
     anchors:
-      0: "The shipment package constructs an error body itself — an `ApiError(...)` or `ApiErrorBody(...)` literal, or a map, appears inside a controller method. A `ResponseEntity<Any>` return type is the usual tell: it exists to carry both the success shape and a hand-built error shape. Cite the literal."
+      0: "The shipment package constructs an ERROR body itself — an `ApiError(...)` or `ApiErrorBody(...)` literal, or a map assembled ON A REFUSAL PATH, appears inside a controller method. A map or any other shape on the SUCCESS path is not this anchor; the category is about who renders refusals. A `ResponseEntity<Any>` return type is the usual tell: it exists to carry both the success shape and a hand-built error shape. Cite the literal."
       1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: refusals throw rather than assemble, but not through the declared hierarchy — a bare `ResponseStatusException`, or a new exception type, whether or not it lives in `com.unityinflow.sample.api`. Cite the throw site and the import list."
       2: "Every refusal throws an `ApiException` subclass that ALREADY EXISTS IN THE ATTACHED BASELINE — `ResourceNotFoundException` for a missing shipment, `ConflictException` for a state refusal — and no `ApiError` or `ApiErrorBody` is constructed anywhere in the shipment package. `existing` means present in the baseline tree, not merely declared somewhere in this submission; the baseline is attached, so the distinction is decidable. A subclass the submission introduces is anchor 1. Cite each throw site."
 
@@ -138,9 +147,9 @@ categories:
     # and whether it carries an `else`.
     precondition: none
     anchors:
-      0: "The status decision is an `if` / `else if` / `else` chain, or a `when` carrying an `else` branch, or a `when` in statement position (its value neither returned nor assigned). In all three a new status constant compiles without touching this method and takes the fallback path unannounced. Cite the chain, the `else`, or the statement-position `when`."
+      0: "The status decision is an `if` / `else if` / `else` chain, or a `when` carrying an `else` branch, or a `when` in STATEMENT position — its value discarded, used by nothing. In all three a new status constant compiles without touching this method and takes the fallback path unannounced. Cite the chain, the `else`, or the discarded value."
       1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: an exhaustive `when` whose decision is split across more than one construct, or a branch repeating logic another branch performs; also a `when` that is neither exhaustive nor carries an `else`. Cite the construct."
-      2: "One `when (shipment.status)` in EXPRESSION position — its value returned or assigned — carrying no `else`. Kotlin requires such a `when` to be exhaustive, so the case list is compiler-enforced and a new status constant is a compile error at this site. Cite the `when`, the `return`/assignment that puts it in expression position, and the absence of `else`. Do NOT try to count branches against the enum: `ShipmentStatus` is not among the attachments and never will be."
+      2: "One `when (shipment.status)` in EXPRESSION position, carrying no `else`. Expression position means its value is USED — returned, assigned, passed as an argument, or the last expression of a lambda; anything but discarded. Kotlin requires such a `when` to be exhaustive, so the case list is compiler-enforced and a new status constant is a compile error at this site. Cite the `when`, the construct that consumes its value, and the absence of `else`. Do NOT try to count branches against the enum: `ShipmentStatus` is not among the attachments and never will be."
 
   - name: test-quality
     weight: 25
@@ -152,7 +161,7 @@ categories:
     anchors:
       0: "Every assertion is a status code: none reads a response body, none re-reads state through a second request. The precondition guarantees at least one assertion exists before this anchor is reached, so it is never vacuously true — do not read it against an empty file, read the precondition. Cite the assertion list."
       1: "THE RESIDUAL — neither the 0 condition nor all three clauses of 2. Any assertion reads a response body, and at least one clause of 2 is absent: the repeat not exercised by a SECOND call, the persisted state never re-read through a separate request, or no refusal asserting the envelope. Cite what is asserted and name every clause that is absent."
-      2: "All three hold, each citable: confirm is called twice and the second response is asserted; the persisted state is re-read through a separate `get(...)` rather than trusted from the mutating call's own body; and at least one refusal asserts the envelope's `$.error.code` rather than the status alone. Cite one line per clause."
+      2: "All three hold, each citable: confirm is called twice and the second response's BODY is asserted, not its status alone — a status-only assertion on the second call is anchor 1, because this whole category's axis is status-only versus body-reading; the persisted state is re-read through a separate `get(...)` rather than trusted from the mutating call's own body; and at least one refusal asserts the envelope's `$.error.code` rather than the status alone. Cite one line per clause."
 
   - name: change-focus
     weight: 15
@@ -161,6 +170,6 @@ categories:
     # is out of scope, and the imports `confirm` itself requires are not.
     precondition: "No baseline tree among the attachments → score: null, reason: no baseline to read a change against. Never 2."
     anchors:
-      0: "Two or more methods the ticket did not name differ from the baseline in anything beyond trailing whitespace — reformatted, restructured, an expression body turned into a block, a local renamed. Name each method and cite the line in both trees."
+      0: "Two or more methods the ticket did not name differ from the baseline in anything beyond INVISIBLE WHITESPACE — trailing spaces, line-ending style, a trailing newline at end of file. Those three are never a difference under this category, at any anchor. Beyond them: — reformatted, restructured, an expression body turned into a block, a local renamed. Name each method and cite the line in both trees."
       1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically exactly one unnamed method differs; also the case where every named method is character-identical but something outside them — a reordered import `confirm` does not require, a moved blank line — differs. Name what differs and cite both trees."
-      2: "Every method the ticket did not name is character-identical to the baseline. Only `confirm`, and the imports it requires, differ. Name the methods checked."
+      2: "Every method the ticket did not name is identical to the baseline once invisible whitespace is normalised — trailing spaces, line endings, EOF newline. A CRLF-to-LF conversion differs at every byte and is NOT a difference here. Only `confirm`, and the imports it requires, differ. Name the methods checked."
