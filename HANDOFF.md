@@ -96,7 +96,14 @@ finding with 2/2 support shows up as two separate 1/2 rows. Every row in that ta
 **What the rubric could not solve, written into its own header:** `test-quality` holds 25 of
 100 and is decidable on **two of five** variants, because three submitted no test file.
 Either the fixture set grows tests or the weight is wrong. That is a question for the
-benchmarks repo, not this one.
+benchmarks repo, not this one — **now open as UnityInFlow/agent-observatory-benchmarks#22**,
+with both obvious fixes shown to be illegal there (adding tests to the three test-less
+variants breaks the one-dimension rule; adding them to `known-good` re-breaks
+`default-error-body` 13 → 11 and does not reach the variants anyway, since `apply_variant`
+copies a quality variant alone). The issue also carries the ordering constraint: whichever
+direction wins, "assertion" must be defined in the rubric BEFORE a new test fixture lands,
+because a new fixture is what makes the round-7 finding reachable. The rubric header itself
+does not link the issue — writing the number into it would move the sha.
 
 ## Known and unfixed
 
