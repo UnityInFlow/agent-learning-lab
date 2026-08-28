@@ -1,3 +1,6 @@
 .DS_Store
 *.local
 runs/raw/
+
+# memtrace local store — machine-specific runtime state, never shared
+.memdb/
