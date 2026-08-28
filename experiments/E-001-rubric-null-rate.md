@@ -210,16 +210,54 @@ is what makes the five commensurable with each other.
 | Mechanism | `opencode run --agent lab-scorer -m <model>` with the rubric, the fixture's source files, **and the `known-good` baseline** attached — Decision B, and executed since 2026-08-27. `LAB_SCORE_BASELINE` overrides the path; a missing baseline fails the run rather than silently producing the pre-Decision-B measurement. `known-good` is not itself scored; if it ever is, no baseline is attached, the prompt says so, and `baseline_state` records that the run was a different condition |
 | Rubric | `benchmark/rubrics/backend-quality.yaml` **v2 · sha `396e1799eb2b`** — four categories, written 2026-08-27 as lab#21, and closed over its own boundary gaps after `lab-acceptance` rejected the first cut for having three anchors that did not partition the space of submissions. The ladder is now total by rule: `0` if the 0 condition holds, `2` if every clause of 2 holds, `1` otherwise — so anchor 1's text illustrates the residual rather than defining it. Every anchor names a construct rather than a difference, because with the baseline attached "differs from `known-good`" is answerable without reading the rubric at all. The seven-category draft it replaces, sha `21aa658d030d`, stays in git history as the worked example of the two mistakes |
 | Reviewing this record | two models since 2026-08-27: `lab-critic` on `ollama-cloud/glm-5.2` line-level, `lab-acceptance` on `ollama-cloud/minimax-m3` for the gate. Everything reviewed before that date was `deepseek-v4-pro` doing both jobs |
-| Agent | `.opencode/agent/lab-scorer.md` · sha `cb371384fa19` |
+| Agent | `.opencode/agent/lab-scorer.md` · sha `cb371384fa19` — the same contract for both harnesses, body and all, never a paraphrase |
+| **Harness** | **`codex`, registered 2026-08-28 before any scoring run.** See *Decision C* below. The harness is a variable in its own right, not a detail of the model: a sheet from `codex` and a sheet from `opencode` are not interchangeable, and comparing them measures the harnesses rather than the rubric |
 | Preflight assertion | **L2.** `opencode-score.sh` fails when `--dir` repoints the project root and opencode silently falls back to the default full-tool agent exiting 0. The agent definition is L3; that guard is the L2 version |
 | Control assertion | **L1 through this script, L3 outside it.** `opencode-score.sh` has no flag and no branch that reaches `--continue`, so a remembering scorer cannot be requested through the registered mechanism. Running `opencode run --continue` by hand bypasses it, and nothing detects that — the provenance header records `session: fresh` because the script wrote it, not because anything checked |
 | Output guard | **L2, and it no longer collapses.** `tools/classify-model-output.sh score` returns one exit code per outcome: `0` contract met (all-`null` cells included), `2` off contract, `3` empty, `4` default-agent fallback, `5` the scorer declaring the rubric unusable. Only `1` and `4` are infrastructure. `tools/verify-model-output-classifier.sh` registers sixteen fixtures across the three agents' contracts, and CI runs it — a classifier that stopped discriminating would be indistinguishable from the single guard it replaced. The same check now guards `opencode-review.sh`, which had none |
+
+### Decision C, 2026-08-28: `codex` is the scoring harness
+
+Registered before a single cell has been scored, because after the first run this costs a
+re-run rather than a paragraph.
+
+**Why.** The scorer produces this experiment's actual numbers — the sheet your blind sheet is
+read against. It ran only through `opencode run`, and on 2026-08-28 `opencode run` hung on
+**five of eight** non-interactive calls across three model families. Five processes on this
+machine were wedged for up to twelve days, each having burned about an hour of CPU before it
+stopped returning, from other projects and other commands. In the panel run that prompted
+this decision, **both opencode families stalled at the 600s budget and `codex` was the only
+one that answered.** A single point of failure on the instrument that produces the
+measurement is not a maintenance concern; it is the experiment being unable to run.
+
+**What is held identical**, so the two harnesses are comparable at all: the contract is
+`.opencode/agent/lab-scorer.md` itself; the evidence set is the rubric plus every source file
+plus the `known-good` baseline, inlined to exactly what `-f` attaches; the gate filter is the
+same registry check; and `known-good` is still scored with no baseline, with the prompt
+saying so.
+
+**What differs, and is the point.** A different agent loop, system prompt and turn shape —
+and `--output-schema`, which forces the sheet's shape at the API. The opencode scorer is
+*asked* for YAML in prose and usually complies. This one cannot do otherwise, which makes
+`null` a value the schema admits rather than a behaviour the model has to remember. That is a
+stronger contract, and it is a **difference between the two harnesses that must not be read
+as a difference in the rubric.**
+
+**The cost, registered rather than discovered.** `tools/opencode-score.sh` still exists and
+still works. Every sheet records `harness:` in its provenance header. **Do not mix harnesses
+within one comparison** — five fixtures scored by codex and one by opencode is a measurement
+of the harnesses. If the harness has to change mid-experiment, every prior cell is void and
+re-run, exactly as a model change would be.
+
+**What this does not fix.** `opencode` still runs the acceptance gate and the line-level
+critic, and still hangs. Those are reviews, not measurements: a stalled review costs time,
+a stalled scorer costs the experiment. The panel's stall budget is the mitigation there.
 
 ## Controlled variables
 
 - [x] benchmark revision — `agent-observatory-benchmarks` @ `ad1cc78`
 - [x] task — BE-003-confirm-shipment
-- [x] harness — opencode 1.18.21
+- [x] harness — **`codex` for scoring** (Decision C); `opencode` 1.18.21 for review only
 - [x] model — `ollama-cloud/deepseek-v4-pro` (pin it; `LAB_REVIEW_MODEL` overrides, and an
       unpinned scorer model is an unregistered variable)
 - [x] temperature — 0, set in the agent frontmatter

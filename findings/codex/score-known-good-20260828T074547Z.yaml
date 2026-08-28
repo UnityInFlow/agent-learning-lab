@@ -1,0 +1,38 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  rubric_path:    .opencode/fixtures/probe-rubric.yaml
+  rubric_sha:     c40ee4cece6c
+  target:         /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/known-good
+  baseline:       null
+  baseline_state: none — the target IS the baseline; its cells see one tree, the others see two
+  scored_utc:     20260828T074547Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "error-envelope"
+    score: 2
+    anchor_level: 2
+    reason: "All controller refusals throw typed API exceptions"
+    evidence: "ShipmentController.kt:27"
+  - name: "idempotency"
+    score: 2
+    anchor_level: 2
+    reason: "Already-confirmed shipment is returned unchanged"
+    evidence: "ShipmentController.kt:57"
+  - name: "maintainability"
+    score: null
+    anchor_level: null
+    reason: "ambiguous: anchors 1 and 2 are indistinguishable"
+    evidence: "ShipmentController.kt:45"
+ambiguous_categories: ["maintainability"]
