@@ -68,6 +68,14 @@ measures nothing.
 
 ### Models that hang
 
+**`ollama-cloud/glm-5.2` hangs intermittently — roughly 3 in 8 on 2026-08-27.** Not the
+all-or-nothing failure below: the same model, the same artifact, the same command completed
+in minutes on five attempts and never returned on three, one of which sat overnight. A
+provenance header is written before opencode is invoked, so a hung run leaves a 22-line file
+that looks like an empty result and is not one — check for a live process before reading it
+as a finding. When it stalls, `LAB_REVIEW_MODEL=ollama-cloud/deepseek-v4-pro` is the
+fallback, and the header records the substitution.
+
 `opencode-go/kimi-k3`, `opencode-go/glm-5.3` and `ollama-cloud/kimi-k2.6` hang indefinitely
 on non-interactive runs — zero output past nine minutes, no error. Working:
 `ollama-cloud/deepseek-v4-pro` (the default), `gpt-oss:120b`, `gpt-oss:20b`. Two of the
