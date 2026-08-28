@@ -208,6 +208,41 @@ for f in "$@"; do attach+=(-f "$f"); done
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 
+# THE STALL BUDGET. A panel is only as fast as its slowest member, and until now one wedged
+# model wedged the whole run: three panels died that way on 2026-08-28, one of them sitting
+# eighteen minutes on a family that had answered the same artifact in under five earlier the
+# same morning. Nothing has ever recovered past roughly ten minutes.
+#
+# So a family gets a budget. Exceeding it does not fail the review — it removes that family
+# from the panel, ON THE RECORD, and the remaining families carry on. A panel of three that
+# silently became a panel of two is the failure this whole tool exists to prevent, so the
+# outcome table below prints every family with its status and elapsed time whether it
+# finished or not.
+#
+# macOS ships no timeout(1), hence the poll. The child is killed with its process group,
+# because killing the wrapper leaves opencode itself running and holding the API call.
+TIMEOUT="${LAB_REVIEW_TIMEOUT:-600}"
+declare -a FAM_OUTCOME=()
+
+run_limited() {   # <seconds> <rcfile> -- <command...>
+  local secs="$1" rcfile="$2"; shift 3
+  set -m
+  ( "$@"; echo "${PIPESTATUS[0]:-$?}" > "$rcfile" ) &
+  local pid=$! waited=0
+  set +m
+  while kill -0 "$pid" 2>/dev/null; do
+    if [ "$waited" -ge "$secs" ]; then
+      kill -TERM "-$pid" 2>/dev/null || kill -TERM "$pid" 2>/dev/null
+      sleep 3
+      kill -KILL "-$pid" 2>/dev/null || kill -KILL "$pid" 2>/dev/null
+      return 124
+    fi
+    sleep 2; waited=$((waited + 2))
+  done
+  wait "$pid" 2>/dev/null
+  return 0
+}
+
 for i in $(seq 1 "$TOTAL"); do
   run_model="${MODELS[$((i - 1))]}"
   # The slug carries the model into the filename so the recurrence pass can attribute a
@@ -219,16 +254,29 @@ for i in $(seq 1 "$TOTAL"); do
   # own tool loop and its own turn shape; tools/codex-critic.sh gives it the SAME contract
   # and the SAME inlined evidence and renders its schema-constrained JSON into the section
   # format this table reads, so it lands here as one more family with no special case below.
+  started=$SECONDS
   case "$run_model" in
     codex|codex/*)
       cm=""; case "$run_model" in codex/*) cm="${run_model#codex/}" ;; esac
-      LAB_CODEX_MODEL="${cm:-${LAB_CODEX_MODEL:-gpt-5.6-sol}}" \
-        ./tools/codex-critic.sh "$tmpdir/run-$i@$run_slug.md" "$@" >/dev/null
-      rc=$?
-      if [ "$rc" -ne 0 ]; then
-        echo "codex critic exited $rc on run $i — infrastructure, discard." >&2
-        exit 1
+      run_limited "$TIMEOUT" "$tmpdir/rc-$i" -- env \
+        LAB_CODEX_MODEL="${cm:-${LAB_CODEX_MODEL:-gpt-5.6-sol}}" \
+        ./tools/codex-critic.sh "$tmpdir/run-$i@$run_slug.md" "$@"
+      trc=$?
+      el=$((SECONDS - started))
+      if [ "$trc" = 124 ]; then
+        FAM_OUTCOME+=("$run_model|STALLED|>${TIMEOUT}s")
+        rm -f "$tmpdir/run-$i@$run_slug.md"
+        echo "  STALLED after ${TIMEOUT}s — dropping $run_model from the panel" >&2
+        continue
       fi
+      rc="$(cat "$tmpdir/rc-$i" 2>/dev/null || echo 1)"
+      if [ "$rc" != 0 ]; then
+        FAM_OUTCOME+=("$run_model|FAILED|rc=$rc ${el}s")
+        rm -f "$tmpdir/run-$i@$run_slug.md"
+        echo "  codex critic exited $rc — dropping $run_model from the panel" >&2
+        continue
+      fi
+      FAM_OUTCOME+=("$run_model|ok|${el}s")
       continue ;;
   esac
 
@@ -237,22 +285,36 @@ for i in $(seq 1 "$TOTAL"); do
   #
   # The prompt must precede -f: opencode's -f is a yargs array flag and will otherwise
   # swallow the message as a filename.
-  opencode run --agent lab-critic -m "$run_model" \
-    "Review the attached artifact(s) against your output contract. Work through every
-     section in the artifact's own order. Remember: a finding needs a concrete failure
-     scenario, 'no finding' is a valid verdict, and you must not supply replacement text." \
-    "${attach[@]}" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' > "$tmpdir/run-$i@$run_slug.md"
+  run_limited "$TIMEOUT" "$tmpdir/rc-$i" -- bash -c '
+    opencode run --agent lab-critic -m "$1" \
+      "Review the attached artifact(s) against your output contract. Work through every
+       section in the artifact'"'"'s own order. Remember: a finding needs a concrete failure
+       scenario, '"'"'no finding'"'"' is a valid verdict, and you must not supply replacement text." \
+      "${@:3}" 2>&1 | sed $'"'"'s/\x1b\\[[0-9;]*m//g'"'"' > "$2"
+    exit "${PIPESTATUS[0]}"
+  ' _ "$run_model" "$tmpdir/run-$i@$run_slug.md" "${attach[@]}"
+  trc=$?
+  el=$((SECONDS - started))
 
-  # PIPESTATUS must be read FIRST — it is only valid immediately after the pipeline, and
-  # any command in between (a grep, an echo) resets it.
-  rc=${PIPESTATUS[0]}
+  if [ "$trc" = 124 ]; then
+    FAM_OUTCOME+=("$run_model|STALLED|>${TIMEOUT}s")
+    rm -f "$tmpdir/run-$i@$run_slug.md"
+    echo "  STALLED after ${TIMEOUT}s — dropping $run_model from the panel" >&2
+    continue
+  fi
+
+  rc="$(cat "$tmpdir/rc-$i" 2>/dev/null || echo 1)"
 
   # opencode exiting non-zero is the one unambiguous infrastructure failure — the process
-  # did not complete, so there is nothing to classify.
+  # did not complete, so there is nothing to classify. With a panel that drops THIS FAMILY
+  # rather than the review: the other families' work is already paid for, and a two-family
+  # result recorded as two families beats no result at all.
   if [ "$rc" -ne 0 ]; then
-    cat "$tmpdir/run-$i@$run_slug.md" >> "$out"
-    echo "opencode exited $rc on run $i — infrastructure, discard. See $out" >&2
-    exit 1
+    FAM_OUTCOME+=("$run_model|FAILED|rc=$rc ${el}s")
+    sed -n '$p' "$tmpdir/run-$i@$run_slug.md" >&2
+    rm -f "$tmpdir/run-$i@$run_slug.md"
+    echo "  opencode exited $rc — dropping $run_model from the panel" >&2
+    continue
   fi
 
   # Everything else is a question about what the CRITIC did, and it has more than one
@@ -263,29 +325,66 @@ for i in $(seq 1 "$TOTAL"); do
   class="$(./tools/classify-model-output.sh critic "$tmpdir/run-$i@$run_slug.md")"
   cls=$?
   case $cls in
-    0) ;;   # sections with verdicts. Under-reporting is invisible here; that is what -n is for.
-    4) echo "FATAL [$class]: lab-critic was not loaded; opencode fell back to the default agent." >&2
+    0) FAM_OUTCOME+=("$run_model|ok|${el}s") ;;   # sections with verdicts. Under-reporting is invisible here; that is what -n is for.
+    4) echo "FALLBACK [$class]: lab-critic was not loaded; opencode used the default agent." >&2
        echo "Findings from the default full-tool agent look identical to contract-compliant" >&2
-       echo "ones. Infrastructure — discard." >&2
-       exit 4 ;;
+       echo "ones. Infrastructure — dropping $run_model from the panel." >&2
+       FAM_OUTCOME+=("$run_model|FALLBACK|default agent, ${el}s")
+       rm -f "$tmpdir/run-$i@$run_slug.md" ;;
     3) echo "EMPTY [$class]: run $i produced nothing." >&2
        echo "Ambiguous: an empty turn, or the critic having nothing it could say about this" >&2
        echo "artifact. The file cannot tell you which. Re-run ONCE on the same artifact; a" >&2
        echo "repeat is a finding about the critic and must be recorded, not discarded." >&2
-       exit 3 ;;
+       FAM_OUTCOME+=("$run_model|EMPTY|${el}s")
+       rm -f "$tmpdir/run-$i@$run_slug.md" ;;
     *) echo "OFF CONTRACT [$class]: run $i produced output that is not the section format —" >&2
        echo "prose, a refusal, a summary. That is what this model did with this artifact, so" >&2
-       echo "it is evidence. Read $tmpdir/run-$i@$run_slug.md before re-running." >&2
-       cat "$tmpdir/run-$i@$run_slug.md" >> "$out"
-       exit 2 ;;
+       echo "it is evidence, kept in the record below." >&2
+       FAM_OUTCOME+=("$run_model|OFF CONTRACT|${el}s")
+       { printf '\n## Off-contract output — %s\n\n' "$run_model"; cat "$tmpdir/run-$i@$run_slug.md"; } >> "$out"
+       rm -f "$tmpdir/run-$i@$run_slug.md" ;;
   esac
 done
+
+# THE PANEL IS WHAT RAN, NOT WHAT WAS ASKED FOR. Recomputed from the files that actually
+# exist, so a family that stalled, failed or went off contract cannot silently inflate the
+# denominator — a 2/3 that was really 2-of-2 would read as disagreement where there was none.
+FAMILIES=()
+for f in "$tmpdir"/run-*.md; do
+  [ -e "$f" ] || continue
+  fam="${f##*@}"; fam="${fam%.md}"
+  case " ${FAMILIES[*]} " in *" $fam "*) ;; *) FAMILIES+=("$fam") ;; esac
+done
+NFAM=${#FAMILIES[@]}
+
+if [ "$NFAM" -eq 0 ]; then
+  { echo "## Panel"; echo; echo "Every family failed. No review was produced."; echo
+    printf '| Family | Outcome | |\n|---|---|---|\n'
+    for o in "${FAM_OUTCOME[@]}"; do printf '| %s | %s | %s |\n' "${o%%|*}" "$(echo "$o" | cut -d'|' -f2)" "${o##*|}"; done
+  } >> "$out"
+  echo "every family failed — see $out" >&2
+  exit 1
+fi
 
 # Recurrence table. A section counts as flagged in a run if that run gave it a `finding`
 # verdict. Sections are matched on their heading text, so a run that decomposes the
 # artifact differently (one did — it split `evaluation` in two) shows up as its own row
 # rather than being silently merged into a neighbour.
 {
+  echo "## Panel"
+  echo
+  echo "What actually ran. A family that stalled or failed is dropped from the recurrence"
+  echo "denominator and named here — a panel that quietly became smaller is the failure this"
+  echo "tool exists to catch."
+  echo
+  printf '| Family | Outcome | |\n|---|---|---|\n'
+  for o in "${FAM_OUTCOME[@]}"; do
+    printf '| %s | %s | %s |\n' "${o%%|*}" "$(echo "$o" | cut -d'|' -f2)" "${o##*|}"
+  done
+  echo
+  echo "Stall budget: ${TIMEOUT}s per family (LAB_REVIEW_TIMEOUT)."
+  echo
+
   if [ "$NFAM" -gt 1 ]; then
     echo "## Recurrence across $NFAM independent families ($TOTAL run(s))"
     echo
@@ -339,6 +438,9 @@ done
 for i in $(seq 1 "$TOTAL"); do
   m="${MODELS[$((i - 1))]}"
   f="$tmpdir/run-$i@$(echo "$m" | tr '/:.' '___').md"
+  # A dropped family has no file. Its outcome is already in the Panel table above; printing
+  # an empty run section here would read as a family that answered with nothing.
+  [ -s "$f" ] || continue
   { echo; echo "---"; echo; echo "## Run $i of $TOTAL — $m"; echo; cat "$f"; } >> "$tmpdir/body.md"
 done
 
