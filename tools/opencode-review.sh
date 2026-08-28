@@ -87,19 +87,52 @@ esac
 # They compose: -n 2 -P a,b runs four passes. The recurrence column counts DISTINCT
 # FAMILIES, never repeats of one, so a section flagged twice by the same model still counts
 # once — otherwise a chatty model would outvote a panel.
+# PREFLIGHT, BEFORE ANY RUN IS PAID FOR. The first panel run died on its SECOND model: a
+# bare `qwen3.7-max` was prefixed with the default provider, `ollama-cloud/qwen3.7-max` does
+# not exist (qwen lives on opencode-go), opencode exited 1 — after the first family had
+# already been run in full. A typo in the fifth name should not cost four runs.
+#
+# So the list is resolved and checked against `opencode models` up front, and a bare name
+# resolves to whichever provider actually HAS it rather than to a guess.
+avail="$(opencode models 2>/dev/null)"
+[ -n "$avail" ] || { echo "cannot list models — is opencode authenticated?" >&2; exit 1; }
+
+# Prints the fully-qualified id, or nothing. Never guesses: an ambiguous bare name is an
+# error, because silently picking a provider is how a run gets attributed to the wrong one.
+resolve_model() {
+  local m="$1" pref hits n
+  case "$m" in
+    */*) printf '%s\n' "$avail" | grep -qxF "$m" && printf '%s\n' "$m"; return ;;
+  esac
+  pref="${LAB_PANEL_PROVIDER:-ollama-cloud}/$m"
+  if printf '%s\n' "$avail" | grep -qxF "$pref"; then printf '%s\n' "$pref"; return; fi
+  # Exact suffix match through awk rather than a regex, so `.` and `:` in a model name are
+  # not quietly treated as metacharacters.
+  hits="$(printf '%s\n' "$avail" | awk -F/ -v m="$m" 'NF == 2 && $2 == m { print }')"
+  n="$(printf '%s\n' "$hits" | grep -c .)"
+  [ "$n" = 1 ] && printf '%s\n' "$hits"
+}
+
 MODELS=()
 if [ -n "$PANEL" ]; then
   IFS=',' read -r -a panel_arr <<< "$PANEL"
+  bad=0
   for m in "${panel_arr[@]}"; do
     m="$(echo "$m" | tr -d '[:space:]')"
     [ -n "$m" ] || continue
-    # A bare name is resolved against the default provider, so `-P glm-5.2,deepseek-v4-pro`
-    # works without repeating `ollama-cloud/` five times.
-    case "$m" in */*) ;; *) m="${LAB_PANEL_PROVIDER:-ollama-cloud}/$m" ;; esac
-    for _ in $(seq 1 "$RUNS"); do MODELS+=("$m"); done
+    r="$(resolve_model "$m")"
+    if [ -z "$r" ]; then
+      echo "-P: cannot resolve '$m'" >&2
+      printf '%s\n' "$avail" | grep -F -- "$m" | sed 's/^/    did you mean: /' >&2 || true
+      bad=1
+      continue
+    fi
+    for _ in $(seq 1 "$RUNS"); do MODELS+=("$r"); done
   done
+  [ "$bad" = 0 ] || { echo "Refusing to start: a panel that loses a family part-way is not the panel you registered." >&2; exit 1; }
   [ ${#MODELS[@]} -gt 0 ] || { echo "-P listed no usable models" >&2; exit 1; }
 else
+  printf '%s\n' "$avail" | grep -qxF "$MODEL" || { echo "unknown model: $MODEL" >&2; exit 1; }
   for _ in $(seq 1 "$RUNS"); do MODELS+=("$MODEL"); done
 fi
 TOTAL=${#MODELS[@]}
