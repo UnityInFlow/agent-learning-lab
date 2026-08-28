@@ -18,6 +18,7 @@
 #
 #   ./tools/opencode-review.sh benchmark/rubrics/backend-quality.yaml
 #   ./tools/opencode-review.sh -n 3 benchmark/rubrics/backend-quality.yaml
+#   ./tools/opencode-review.sh -P deepseek-v4-pro,qwen3.7-max,gpt-oss:120b rubric.yaml
 #   ./tools/opencode-review.sh -A rubric.yaml          # line-level only, no gate
 #   LAB_REVIEW_MODEL=ollama-cloud/kimi-k2.6 ./tools/opencode-review.sh rubric.yaml
 #   LAB_ACCEPT_MODEL=ollama-cloud/deepseek-v4-pro ./tools/opencode-review.sh rubric.yaml
@@ -56,11 +57,14 @@ ACCEPT=1
 OUTDIR="findings/opencode"
 RUNS=1
 
-while getopts "n:A" opt; do
+PANEL=""
+
+while getopts "n:P:A" opt; do
   case "$opt" in
     n) RUNS="$OPTARG" ;;
+    P) PANEL="$OPTARG" ;;
     A) ACCEPT=0 ;;
-    *) echo "usage: $0 [-n runs] [-A] <artifact> [more-artifacts...]" >&2; exit 1 ;;
+    *) echo "usage: $0 [-n runs] [-P m1,m2,...] [-A] <artifact> [more...]" >&2; exit 1 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -69,6 +73,43 @@ case "$RUNS" in
   ''|*[!0-9]*) echo "-n must be a positive integer" >&2; exit 1 ;;
   0) echo "-n must be at least 1" >&2; exit 1 ;;
 esac
+
+# THE PANEL. -n and -P measure different things and are deliberately separate knobs.
+#
+#   -n  the SAME model, N times. Measures that model's detection threshold: two runs at
+#       temperature 0 disagreed on 2 of 12 sections, both flips real findings the earlier
+#       run missed. Tells you how much one lens under-reports.
+#   -P  DIFFERENT families, once each. Measures the artifact. On 2026-08-28 glm-5.2 found
+#       ladder gaps and undecidable evidence on the BE-003 rubric; deepseek-v4-pro found
+#       four textual ambiguities in the same file. Neither found the other's. One model run
+#       twice would never have produced both lists.
+#
+# They compose: -n 2 -P a,b runs four passes. The recurrence column counts DISTINCT
+# FAMILIES, never repeats of one, so a section flagged twice by the same model still counts
+# once — otherwise a chatty model would outvote a panel.
+MODELS=()
+if [ -n "$PANEL" ]; then
+  IFS=',' read -r -a panel_arr <<< "$PANEL"
+  for m in "${panel_arr[@]}"; do
+    m="$(echo "$m" | tr -d '[:space:]')"
+    [ -n "$m" ] || continue
+    # A bare name is resolved against the default provider, so `-P glm-5.2,deepseek-v4-pro`
+    # works without repeating `ollama-cloud/` five times.
+    case "$m" in */*) ;; *) m="${LAB_PANEL_PROVIDER:-ollama-cloud}/$m" ;; esac
+    for _ in $(seq 1 "$RUNS"); do MODELS+=("$m"); done
+  done
+  [ ${#MODELS[@]} -gt 0 ] || { echo "-P listed no usable models" >&2; exit 1; }
+else
+  for _ in $(seq 1 "$RUNS"); do MODELS+=("$MODEL"); done
+fi
+TOTAL=${#MODELS[@]}
+
+# Distinct families, for the denominator and the header.
+FAMILIES=()
+for m in "${MODELS[@]}"; do
+  case " ${FAMILIES[*]} " in *" $m "*) ;; *) FAMILIES+=("$m") ;; esac
+done
+NFAM=${#FAMILIES[@]}
 
 if [ $# -eq 0 ]; then
   echo "usage: $0 [-n runs] [-A] <artifact> [more-artifacts...]" >&2
@@ -93,8 +134,12 @@ for f in "$@"; do attach+=(-f "$f"); done
   echo '```yaml'
   echo "line_level:"
   echo "  agent:         lab-critic"
-  echo "  model:         $MODEL          # registered variable — do not change mid-experiment"
+  echo "  model:         ${MODELS[0]}          # registered variable — do not change mid-experiment"
   echo "  agent_sha:     $(shasum -a 256 .opencode/agent/lab-critic.md | cut -c1-12)"
+  if [ "$NFAM" -gt 1 ]; then
+    echo "  panel:         # every family is a registered variable; changing the set"
+    for m in "${FAMILIES[@]}"; do echo "    - $m"; done
+  fi
   if [ "$ACCEPT" = 1 ]; then
     echo "acceptance:"
     echo "  agent:         lab-acceptance"
@@ -106,7 +151,8 @@ for f in "$@"; do attach+=(-f "$f"); done
   fi
   echo "opencode:        $(opencode --version 2>/dev/null | tail -1)"
   echo "reviewed_utc:    $stamp"
-  echo "runs:            $RUNS           # independent sessions; findings unioned below"
+  echo "runs:            $TOTAL           # independent sessions; findings unioned below"
+  echo "families:        $NFAM           # distinct models; the recurrence denominator"
   echo "artifacts:"
   for f in "$@"; do
     echo "  - path: $f"
@@ -121,19 +167,23 @@ for f in "$@"; do attach+=(-f "$f"); done
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 
-for i in $(seq 1 "$RUNS"); do
-  echo "review $i/$RUNS — $slug with $MODEL ..." >&2
+for i in $(seq 1 "$TOTAL"); do
+  run_model="${MODELS[$((i - 1))]}"
+  # The slug carries the model into the filename so the recurrence pass can attribute a
+  # finding to a family without a side-channel index that could drift out of step.
+  run_slug="$(echo "$run_model" | tr '/:.' '___')"
+  echo "review $i/$TOTAL — $slug with $run_model ..." >&2
 
   # Fresh session every iteration — never --continue. A reviewer that remembers its last
   # pass is not an independent second look, and the recurrence count below would be a lie.
   #
   # The prompt must precede -f: opencode's -f is a yargs array flag and will otherwise
   # swallow the message as a filename.
-  opencode run --agent lab-critic -m "$MODEL" \
+  opencode run --agent lab-critic -m "$run_model" \
     "Review the attached artifact(s) against your output contract. Work through every
      section in the artifact's own order. Remember: a finding needs a concrete failure
      scenario, 'no finding' is a valid verdict, and you must not supply replacement text." \
-    "${attach[@]}" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' > "$tmpdir/run-$i.md"
+    "${attach[@]}" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' > "$tmpdir/run-$i@$run_slug.md"
 
   # PIPESTATUS must be read FIRST — it is only valid immediately after the pipeline, and
   # any command in between (a grep, an echo) resets it.
@@ -142,7 +192,7 @@ for i in $(seq 1 "$RUNS"); do
   # opencode exiting non-zero is the one unambiguous infrastructure failure — the process
   # did not complete, so there is nothing to classify.
   if [ "$rc" -ne 0 ]; then
-    cat "$tmpdir/run-$i.md" >> "$out"
+    cat "$tmpdir/run-$i@$run_slug.md" >> "$out"
     echo "opencode exited $rc on run $i — infrastructure, discard. See $out" >&2
     exit 1
   fi
@@ -152,7 +202,7 @@ for i in $(seq 1 "$RUNS"); do
   # opencode that exited 0 having produced nothing left a provenance header, an empty
   # recurrence table and exit 0 — a review that reported success while finding nothing,
   # which is the failure the scorer's classifier exists to stop, one script over.
-  class="$(./tools/classify-model-output.sh critic "$tmpdir/run-$i.md")"
+  class="$(./tools/classify-model-output.sh critic "$tmpdir/run-$i@$run_slug.md")"
   cls=$?
   case $cls in
     0) ;;   # sections with verdicts. Under-reporting is invisible here; that is what -n is for.
@@ -167,8 +217,8 @@ for i in $(seq 1 "$RUNS"); do
        exit 3 ;;
     *) echo "OFF CONTRACT [$class]: run $i produced output that is not the section format —" >&2
        echo "prose, a refusal, a summary. That is what this model did with this artifact, so" >&2
-       echo "it is evidence. Read $tmpdir/run-$i.md before re-running." >&2
-       cat "$tmpdir/run-$i.md" >> "$out"
+       echo "it is evidence. Read $tmpdir/run-$i@$run_slug.md before re-running." >&2
+       cat "$tmpdir/run-$i@$run_slug.md" >> "$out"
        exit 2 ;;
   esac
 done
@@ -178,16 +228,43 @@ done
 # artifact differently (one did — it split `evaluation` in two) shows up as its own row
 # rather than being silently merged into a neighbour.
 {
-  echo "## Recurrence across $RUNS run(s)"
+  if [ "$NFAM" -gt 1 ]; then
+    echo "## Recurrence across $NFAM independent families ($TOTAL run(s))"
+    echo
+    echo "How many DIFFERENT model families flagged each section — not how often one model"
+    echo "repeated itself. A section flagged twice by the same family counts once, so a chatty"
+    echo "model cannot outvote the panel."
+    echo
+    echo "**1/$NFAM is not weak evidence.** Families find different classes of defect: on"
+    echo "2026-08-28, glm-5.2 found gaps in the anchor ladder and an anchor citing evidence that"
+    echo "is not attached, while deepseek-v4-pro found four textual ambiguities in the same file."
+    echo "Neither saw the other's list. A 1/$NFAM row is one lens holding something the others do"
+    echo "not — read it first, not last."
+  else
+    echo "## Recurrence across $TOTAL run(s)"
+    echo
+    echo "How many independent runs flagged each section. Low recurrence is a detection-threshold"
+    echo "signal, not a falsity signal — read those findings, do not discount them."
+    echo
+    echo "One family only. -P runs a panel of different models instead, which measures the"
+    echo "artifact rather than this model's detection threshold."
+  fi
   echo
-  echo "How many independent runs flagged each section. Low recurrence is a detection-threshold"
-  echo "signal, not a falsity signal — read those findings, do not discount them."
-  echo
-  echo "| Section | Flagged | Layer of implied fix |"
+  echo "| Section | Families | Layer of implied fix |"
   echo "|---|---|---|"
   awk '
+    # The model is in the filename after @, so attribution needs no side-channel index
+    # that could drift out of step with the run order.
+    FNR == 1 { fam = FILENAME; sub(/.*@/, "", fam); sub(/\.md$/, "", fam); sec = "" }
     /^### /   { sec = substr($0, 5); next }
-    /^\*\*Verdict:\*\* *finding/ { if (sec != "") { hit[sec]++; if (!(sec in seen)) { order[++n] = sec; seen[sec] = 1 } } next }
+    /^\*\*Verdict:\*\* *finding/ {
+      if (sec != "") {
+        # Once per FAMILY, not once per run: two flags from one model are one lens.
+        if (!((sec SUBSEP fam) in byfam)) { byfam[sec, fam] = 1; hit[sec]++ }
+        if (!(sec in seen)) { order[++n] = sec; seen[sec] = 1 }
+      }
+      next
+    }
     /^\*\*Layer of the implied fix:\*\*/ {
       if (sec != "" && sec in seen && !(sec in layer)) {
         l = $0; sub(/^\*\*Layer of the implied fix:\*\* */, "", l)
@@ -196,13 +273,15 @@ done
         layer[sec] = (match(l, /L[123]/) ? substr(l, RSTART, 2) : "n/a")
       }
     }
-    END { for (i = 1; i <= n; i++) printf "| %s | %d/%s | %s |\n", order[i], hit[order[i]], RUNSN, (order[i] in layer ? layer[order[i]] : "—") }
-  ' RUNSN="$RUNS" "$tmpdir"/run-*.md
+    END { for (i = 1; i <= n; i++) printf "| %s | %d/%s | %s |\n", order[i], hit[order[i]], NFAMN, (order[i] in layer ? layer[order[i]] : "—") }
+  ' NFAMN="$NFAM" "$tmpdir"/run-*.md
   echo
 } > "$tmpdir/body.md"
 
-for i in $(seq 1 "$RUNS"); do
-  { echo; echo "---"; echo; echo "## Run $i of $RUNS"; echo; cat "$tmpdir/run-$i.md"; } >> "$tmpdir/body.md"
+for i in $(seq 1 "$TOTAL"); do
+  m="${MODELS[$((i - 1))]}"
+  f="$tmpdir/run-$i@$(echo "$m" | tr '/:.' '___').md"
+  { echo; echo "---"; echo; echo "## Run $i of $TOTAL — $m"; echo; cat "$f"; } >> "$tmpdir/body.md"
 done
 
 # --- the acceptance pass -----------------------------------------------------------------
