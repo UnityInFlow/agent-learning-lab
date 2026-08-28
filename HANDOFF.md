@@ -121,6 +121,48 @@ direction wins, "assertion" must be defined in the rubric BEFORE a new test fixt
 because a new fixture is what makes the round-7 finding reachable. The rubric header itself
 does not link the issue — writing the number into it would move the sha.
 
+## B2 is built and waiting on you — 2026-08-28, late
+
+Everything B2 needs exists except the two things only you can do. See
+[`phases/b02-plain-baseline/RUNBOOK.md`](phases/b02-plain-baseline/RUNBOOK.md) — it carries
+the exact commands with the traps in the order they bite.
+
+**DECISION D, adopted from Claude and labelled as adopted.** The scorer takes `--run-id` and
+scores a B2 run: admission by the evaluator's recorded verdict rather than a fixture name,
+attaching **the files the agent changed, in full, plus their pre-agent versions** — not the
+whole worktree. The reason is not tidiness: `sample-service` already ships
+`ShipmentControllerTest.kt`, so attaching all 25 files would put a test file among the
+attachments on every run and `test-quality`'s null precondition could never fire. Decision A
+would be silently disabled between B1 and B2. **You never explicitly confirmed Decision D —
+it was built because "provide it all" was the instruction. Confirm or overturn it before the
+first run.**
+
+**`agent-observatory` branch `b2/expose-keep-worktree` is COMMITTED BUT NOT PUSHED.**
+`make run-benchmark` passed eight flags and not `--keep`, so the documented path could not
+preserve the worktree the scorer reads. One commit, waiting on your approval to push.
+
+**The panel rejected this session's own tooling, and it was right.**
+`findings/opencode/review-check-run-gate-20260828T160312Z.md`: `check-sheet-categories.sh`,
+the control built that morning to catch silent category loss, *lost categories* — it scanned
+by indent rather than by block, so a category filed under any other key counted as present.
+Fixed and registered as a fixture. deepseek returned "no finding" on that file; codex caught
+it; the gate disputed deepseek. One model run twice would have shipped it.
+
+**`tools/*.sh` is now in the push hook's scope**, which it was not when nine tools changed on
+this branch. Contracts are reviewed before tools, at most `LAB_REVIEW_MAX_ARTIFACTS` (4) per
+push, and every dropped file is named.
+
+**To rebuild the blind-sheet workbench** (it lived in a session scratchpad and is gone):
+assemble, per variant, `known-good` in full followed by the variant in full — the same
+evidence set `codex-score.sh` sends. Do **not** hand yourself a diff; the scorer does not get
+one, and the sheet's own header warns against letting the one-dimension design tell you what
+to score.
+
+**Standing hazard for any future session:** Claude has read all five BE-003 fixtures and
+derived anchor placements for the two test-bearing variants while working benchmarks#22. It
+did not write them down and must not. Anything it says about those cells contaminates 2 of
+your 17.
+
 ## Fixed on 2026-08-28, second session
 
 Five controls that reported success over a scope smaller than believed, all found by
