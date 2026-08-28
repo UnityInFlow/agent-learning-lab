@@ -198,9 +198,14 @@ for f in "$@"; do attach+=(-f "$f"); done
   for f in "$@"; do
     echo "  - path: $f"
     echo "    sha:  $(shasum -a 256 "$f" | cut -c1-12)"
+    # Per-artifact, because lab_dirty below cannot tell "the thing under review moved while
+    # it was being reviewed" from "an unrelated file was edited in another window". On
+    # 2026-08-28 a round of this tool stamped lab_dirty true for the second reason and read
+    # as the first. THIS is the flag that invalidates a review; lab_dirty is context.
+    echo "    dirty: $([ -n "$(git status --porcelain -- "$f" 2>/dev/null)" ] && echo true || echo false)"
   done
   echo "lab_head:        $(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
-  echo "lab_dirty:       $([ -n "$(git status --porcelain 2>/dev/null)" ] && echo true || echo false)"
+  echo "lab_dirty:       $([ -n "$(git status --porcelain 2>/dev/null)" ] && echo true || echo false)   # the TREE, not the artifact - see each artifact's own dirty:"
   echo '```'
   echo
 } > "$out"
@@ -430,7 +435,24 @@ fi
         layer[sec] = (match(l, /L[123]/) ? substr(l, RSTART, 2) : "n/a")
       }
     }
-    END { for (i = 1; i <= n; i++) printf "| %s | %d/%s | %s |\n", order[i], hit[order[i]], NFAMN, (order[i] in layer ? layer[order[i]] : "—") }
+    END {
+      for (i = 1; i <= n; i++) printf "| %s | %d/%s | %s |\n", order[i], hit[order[i]], NFAMN, (order[i] in layer ? layer[order[i]] : "—")
+      # THE DENOMINATOR IS KEYED ON HEADING TEXT. Two families finding the SAME defect under
+      # different headings produce two rows of 1/N, not one row of 2/N - so the finding with
+      # the most agreement behind it can be the one that looks loneliest. On 2026-08-28 both
+      # families found the undefined "assertion" trigger, one under `categories` and one in
+      # its cross-cutting prose, and every row in the table read 1/2. This table cannot merge
+      # them without matching findings semantically, which it does not do. It can at least
+      # stop being read as though it had.
+      if (NFAMN > 1 && n > 0) {
+        shared = 0
+        for (i = 1; i <= n; i++) if (hit[order[i]] >= 2) shared++
+        if (shared == 0)
+          printf "\n> **Every row above is 1/%s, and no two families used the same heading.**\n> Recurrence is counted per HEADING TEXT, so one defect filed under two different\n> headings appears as two lonely rows rather than one corroborated one. Before treating\n> any row as a single lens, read the runs against each other and check whether they are\n> describing the same thing.\n", NFAMN
+        else if (shared < n)
+          printf "\n> **%d of %d rows were raised by one family only.** Recurrence is counted per HEADING\n> TEXT: two families describing one defect under different headings appear as two rows\n> of 1/%s. Read the solo rows against each other before treating them as separate.\n", n - shared, n, NFAMN
+      }
+    }
   ' NFAMN="$NFAM" "$tmpdir"/run-*.md
   echo
 } > "$tmpdir/body.md"

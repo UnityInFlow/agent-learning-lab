@@ -233,4 +233,16 @@ case $cls in
      exit 2 ;;
 esac
 
+# classify-model-output.sh asks whether a `categories:` key is present. It cannot ask what is
+# under it, because it is not given the rubric. So a sheet carrying three of the rubric's
+# four categories classified as `contract` and was written to findings/ looking complete.
+# A missing cell is not a null cell: `null` is a measurement, an absence is not, and E-001's
+# dependent variable is a ratio whose denominator is the cell count.
+if ! ./tools/check-sheet-categories.sh "$RUBRIC" "$out" >/dev/null; then
+  ./tools/check-sheet-categories.sh "$RUBRIC" "$out" >&2
+  echo "OFF CONTRACT: the sheet's category set is not the rubric's. Read it before" >&2
+  echo "re-running — this is what the scorer did with this rubric. See $out" >&2
+  exit 2
+fi
+
 echo "$out"

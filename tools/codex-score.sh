@@ -77,6 +77,20 @@ case " $allowed " in
      echo "Registered: $allowed" >&2; exit 1 ;;
 esac
 
+# THE CATEGORY SET, pinned from the rubric rather than trusted from the model. The on-disk
+# schema is a SHAPE contract and cannot name categories, because it is handed whichever
+# rubric is being scored. So the enforceable part is built per run: names constrained to
+# this rubric's, and the count fixed at exactly this rubric's. Before 2026-08-28 the schema
+# said `minItems: 1`, no `maxItems`, and `name` a free string — a sheet carrying three of
+# four categories validated, classified as `contract`, and landed in findings/ looking
+# complete to every reader. A missing cell is not a null cell, and E-001's dependent
+# variable is a ratio whose denominator is the cell count.
+CATEGORIES="$(sed -n 's/^  - name: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' "$RUBRIC" | sed 's/[[:space:]]*$//')"
+[ -n "$CATEGORIES" ] || {
+  echo "FATAL: parsed no categories from $RUBRIC." >&2
+  echo "Refusing to score against a rubric whose category set cannot be read." >&2; exit 1; }
+NCAT=$(echo "$CATEGORIES" | wc -l | tr -d ' ')
+
 # THE BASELINE, E-001 Decision B, and the same asymmetry recorded rather than hidden:
 # `known-good` is the baseline, so when it is the target there is nothing to read a change
 # against and its cells see one tree while every other target's see two.
@@ -99,6 +113,19 @@ out="$OUTDIR/score-$slug-$stamp.yaml"
 
 # awk, not sed: BSD sed rejects the one-expression frontmatter strip AND fails open, which
 # once sent codex a prompt containing no contract at all. The guard is why that is now loud.
+PINNED="$tmp/scorer-sheet.pinned.json"
+python3 - "$SCHEMA" "$PINNED" "$NCAT" "$CATEGORIES" <<'PIN_EOF' || { echo "FATAL: could not pin the schema to the rubric's categories." >&2; exit 1; }
+import json, sys
+src, dst, ncat, raw = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]
+names = [l.strip() for l in raw.splitlines() if l.strip()]
+assert len(names) == ncat, "category parse disagreed with itself"
+d = json.load(open(src))
+cats = d["properties"]["categories"]
+cats["minItems"] = cats["maxItems"] = ncat
+cats["items"]["properties"]["name"] = {"type": "string", "enum": names}
+json.dump(d, open(dst, "w"), indent=2)
+PIN_EOF
+
 awk '
   NR == 1 && $0 == "---" { infm = 1; next }
   infm && $0 == "---"    { infm = 0; next }
@@ -168,6 +195,7 @@ echo "codex scoring $slug with $MODEL — ${#srcs[@]} source file(s), ${#base[@]
   echo "  model:          $MODEL"
   echo "  agent_sha:      $(shasum -a 256 "$AGENT" | cut -c1-12)"
   echo "  schema_sha:     $(shasum -a 256 "$SCHEMA" | cut -c1-12)"
+  echo "  schema_pinned:  $NCAT categories, names constrained to the rubric's"
   echo "  rubric_path:    $RUBRIC"
   echo "  rubric_sha:     $(shasum -a 256 "$RUBRIC" | cut -c1-12)"
   echo "  target:         $TARGET"
@@ -187,7 +215,7 @@ codex exec \
   --ignore-rules \
   --skip-git-repo-check \
   --color never \
-  --output-schema "$SCHEMA" \
+  --output-schema "$PINNED" \
   --output-last-message "$tmp/last.json" \
   - < "$tmp/prompt.md" > "$tmp/stdout.log" 2>&1
 rc=$?
@@ -233,5 +261,16 @@ print(f"{len(cats)} categories, {nulls} null", file=sys.stderr)
 PY
 prc=$?
 [ $prc -eq 0 ] || exit $prc
+
+# The schema constrains what codex may EMIT; this checks what actually landed on disk, and
+# the two are not the same guarantee — the sheet is rendered by the block above, and a
+# renderer that dropped a category would satisfy the schema and still write a short sheet.
+if ! ./tools/check-sheet-categories.sh "$RUBRIC" "$out" >/dev/null; then
+  ./tools/check-sheet-categories.sh "$RUBRIC" "$out" >&2
+  echo "The sheet is NOT the contract: its category set is not the rubric's. A category" >&2
+  echo "that never appears is an absence, not a null, and nothing downstream can tell the" >&2
+  echo "two apart. See $out" >&2
+  exit 2
+fi
 
 echo "$out"

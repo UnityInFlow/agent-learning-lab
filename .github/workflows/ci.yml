@@ -103,6 +103,20 @@ jobs:
       - name: Every model-output fixture produces its registered class
         run: ./tools/verify-model-output-classifier.sh
 
+  sheet-categories:
+    name: a sheet missing a category is rejected
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      # A sheet carrying three of the rubric's four categories used to pass everything: the
+      # JSON schema said minItems 1 with no maxItems, and the classifier only asks whether a
+      # `categories:` key exists. A missing cell is not a null cell, and E-001's dependent
+      # variable is a ratio whose denominator is the cell count. This job is what keeps
+      # check-sheet-categories.sh discriminating; the cases are what prove it.
+      - name: The category-set check still rejects a short sheet
+        run: ./tools/verify-sheet-category-checker.sh
+
   links:
     name: verified reading is still verified
     runs-on: ubuntu-latest

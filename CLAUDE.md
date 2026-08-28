@@ -25,6 +25,8 @@ Track B index.
 ./tools/opencode-score.sh <rubric> <impl-dir> # blind second scoring → findings/opencode/
 ./tools/verify-run-record-validator.sh        # 11 fixtures, each with its registered exit code
 ./tools/verify-model-output-classifier.sh     # 16 fixtures over 3 output contracts
+./tools/check-sheet-categories.sh <rubric> <sheet>   # is the sheet's category set the rubric's?
+./tools/verify-sheet-category-checker.sh      # 9 cases proving that check still rejects
 ```
 
 CI runs `bash -n` + ShellCheck (`-S warning`) on `tools/`, parses every YAML contract, and
@@ -65,6 +67,17 @@ recurrence table and exited 0.
 
 **Score anything yourself before reading its output.** Reading first produces agreement that
 measures nothing.
+
+**A missing cell is not a null cell.** `null` is a measurement — the scorer read the anchor
+and could not decide. A category that never appears in the sheet is an absence, and once the
+sheet is on disk nothing downstream can tell them apart. E-001's dependent variable is the
+null *rate*, a ratio whose denominator is the cell count, so a silently short sheet does not
+add noise: it changes what was measured while reporting the same units. Until 2026-08-28
+nothing caught one — the JSON schema said `minItems: 1` with no `maxItems` and `name` as a
+free string, and `classify-model-output.sh` only asks whether a `categories:` key exists,
+because it is never given the rubric. `codex-score.sh` now pins the schema per run to the
+rubric's own category names and exact count, both scorers re-check the set on disk after the
+run, and `check-sheet-categories.sh` fails closed if either parse yields nothing.
 
 ### `opencode run` hangs. It is the harness, not a list of bad models
 
