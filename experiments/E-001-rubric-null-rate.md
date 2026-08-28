@@ -121,8 +121,59 @@ means no `categories:` block at all, and that is a different class with a differ
 
 ## Hypothesis
 
-<!-- TODO — yours. What do you predict, and BY WHAT MECHANISM? A hypothesis without a
-     mechanism cannot be interestingly wrong. -->
+> **PROVENANCE — read this before using any of what follows.** The mechanism below was
+> derived by Claude Opus 5 on 2026-08-28, at the author's request, and is **adopted, not
+> independently derived**. It is recorded as adopted because an unrecorded adopted prediction
+> measures nothing, and because the previous adopted set broke on an authoring error that
+> went uncaught precisely because nobody derived it a second time. **Predictions 1–3 and the
+> decision-rule thresholds were deliberately left blank by the same author for the same
+> reason** — they leak expected cell values into the blind sheet, and this one does not.
+> Check the mechanism against the evidence table below rather than taking it on trust.
+
+**An anchor is decidable by this scorer iff its discriminating condition can be checked
+against a token that appears in the attachment set.** The attachment set is `*.kt` under the
+fixture, plus — since Decision B — `*.kt` under `known-good`. No diff, no test runner, no
+evaluator output, no enum.
+
+That one property has **two failure modes**, and the two nulls already on file are one of
+each. This is why they look nothing alike on disk:
+
+**(a) No referent at all.** The probe rubric's third category anchored on `1: "Reasonable."`
+/ `2: "Good."` Those name a judgement, not a feature, so there is no token to look for and
+no `path:line` to cite. The scorer nulled **that cell** and answered the other two.
+
+**(b) A real referent that is absent.** The seven-category rubric cited `exit 12` and
+`BE003ContractTest passes`. Both are perfectly concrete — they are simply not in the
+attachment set. The scorer returned **an empty body**, not four nulls.
+
+The difference between (a) and (b) is **a threshold, not a kind**. Under (a) the scorer still
+has footing: most anchors are decidable, one is not, so it answers and marks the one. Under
+(b) the majority of anchors point outside the evidence set, it has footing nowhere, and it
+declines wholesale rather than emitting a sheet of nulls.
+
+**What makes this falsifiable rather than a restatement:** wholesale-empty is a function of
+the PROPORTION of undecidable anchors, not of their presence. Every v2 anchor names a
+construct visible in the `.kt` files, so mode (b) cannot fire. **v2 should therefore never
+come back empty, and every null it does produce should be per-cell.** A wholesale empty on
+any variant falsifies the mechanism itself, not merely a number attached to it.
+
+### Where the mechanism says the nulls will be
+
+| category | referents its anchors name | in the attachment set? | null risk |
+|---|---|---|---|
+| architecture-consistency | `ApiException` subclasses, `ApiError`/`ApiErrorBody` construction, `check(`/`require(`/`!!`/`throw` | yes, all textual | low |
+| maintainability | `when` position, `else` branch, exhaustiveness | yes, syntactic — and anchor 2 explicitly forbids counting against the enum, so the one hazard is pre-empted *in the anchor* | low |
+| test-quality | assertions, response bodies, a second `get(...)`, `$.error.code` | yes for the two variants carrying a test file; the precondition fires for the other three | 3 structural, low defect |
+| change-focus | every method identical to the baseline modulo whitespace; imports required BY SYMBOL | yes, but **only because Decision B attached the baseline** | **highest** |
+
+`change-focus` concentrates the risk for two reasons that are not the same reason:
+
+1. It is the only category requiring a **cross-tree comparison**, and Decision B was built
+   2026-08-27 and has never been exercised in a scored run. The capability is new and
+   unproven at the point this experiment depends on it.
+2. "Imports required BY SYMBOL, not by declaration" is decidable in principle but requires
+   resolving each import against `confirm`'s body. It is the most work any anchor in this
+   rubric asks for, and effort is where a model hedges rather than where it errs.
 
 ### Evidence already on file — read before predicting, do not treat as a prediction
 
@@ -174,6 +225,13 @@ Numbered, specific, falsifiable. Include the direction and rough magnitude.
 **Yours — not adopted.** The set on file before this was drafted by Claude and adopted, and
 the one that broke (`known-good` scores 90–100) broke on an authoring error in the rubric,
 which is exactly the kind of thing an independently derived prediction catches.
+
+> **These three are blank on purpose, and the blank is load-bearing.** Everything else in
+> this file was filled on 2026-08-28 from an adopted mechanism, recorded as adopted under
+> *Hypothesis*. These three were not, because each of them leaks an expected cell value into
+> `E-001-blind-scores.yaml` — and a blind sheet written by someone who has read a prediction
+> of its contents is not blind. The mechanism does the hard part; deriving these from it is
+> the short step. Do not skip it.
 
 At minimum, predict:
 
@@ -280,21 +338,63 @@ in advance — one cell per rubric category — so its variance would show up as
 value or nulling, which nobody has measured. **Treat 2/12 as a reason to ask the question
 about the scorer, not as an answer for it.** `opencode-score.sh` has no `-n`;
 `opencode-review.sh` does.
-<!-- TODO: decide whether one run per fixture is enough here, and say why. If you want the
-     scorer's own repeatability, that is a second experiment — same fixture, same rubric, n
-     runs — and it is not this one. -->
+**REGISTERED: n = 1 per fixture for this grid, plus a separate calibration that must run
+before any 1-point gap is read as evidence.** (Adopted 2026-08-28 — see the provenance note
+under *Hypothesis*.)
+
+The reasoning, which matters more than the number: on a 0–2 integer scale the smallest
+possible gap in any column is **exactly 1 raw point**. At n = 1 a 1-point gap and a single
+cell flip are **literally the same observation**, and the scorer's run-to-run variance has
+never been measured. So n = 1 does not make the grid worthless — it makes exactly one class
+of result uninterpretable, and it is the smallest class.
+
+Registering n = 1 without saying that would be the dishonest version. It is registered here
+**with** the consequence: *until the calibration below exists, a 1-point gap in this grid is
+not evidence of discrimination.* A 2-point gap is unaffected and is what the ↓ cells are
+designed to produce.
+
+**The calibration**, which the doc is right to call a separate experiment: one fixture, this
+rubric, the scorer run twice. Its only job is to say whether a cell flips. It must run
+**after the blind sheet is committed**, because it produces scorer output, and reading any
+scorer output before the sheet is committed voids the comparison.
 
 ## Minimum detectable effect
 
 | Outcome | MDE | Registered before the run? |
 |---|---|---|
-| primary: score gap between a column's **↓** cell and the other cells in that column | | |
-| secondary: defect-null rate across the 17 scoreable cells | | |
-| secondary: structural nulls, predicted at 3 of 20 | | |
+| primary: score gap between a column's **↓** cell and the other cells in that column | **1 raw anchor point** — set by the instrument, not chosen. But **2 points** until the calibration under *Runs* exists, because at n = 1 a 1-point gap is indistinguishable from a cell flip | yes — 2026-08-28, adopted |
+| secondary: defect-null rate across the 17 scoreable cells | **1 cell**, expressed as a count and never as a percentage | yes — 2026-08-28, adopted |
+| secondary: structural nulls, predicted at 3 of 20 | **0** — these are not detected, they are predicted. Any value other than exactly 3 is a finding about Decision A's precondition, which is L3 and executes nothing | yes — 2026-08-28, adopted |
 
-<!-- TODO: a 0–2 scale with weights 35/25/25/15 means one category moving by 1 point moves
-     the normalised total by a fixed amount. Work out what that is per category, and decide
-     what gap you would call a real difference rather than noise. -->
+**The arithmetic, from the rubric's own formula** at `backend-quality.yaml:77` —
+`score = 100 * sum(w_i * s_i) / (2 * sum(w_i))`, nulls excluded from both sums. One raw
+anchor point is worth:
+
+| category | all four scored | `test-quality` null |
+|---|---|---|
+| architecture-consistency | 17.50 | 23.33 |
+| maintainability | 12.50 | 16.67 |
+| test-quality | 12.50 | — |
+| change-focus | 7.50 | 10.00 |
+
+**Three consequences, and the first is the one that decides the MDE.**
+
+**The primary MDE was never a free choice.** Columns are categories, cells are variants, and
+scores are integers on 0–2. The smallest non-zero gap in any column is 1 point; there is no
+finer effect for this instrument to resolve. The real question is not *how small a gap can
+be seen* but *how small a gap can be believed*, and that is a question about variance, which
+is why this row is coupled to the n = 1 decision above rather than standing on its own.
+
+**Renormalisation makes the totals lie to you.** A three-category variant scored over weight
+75 and a four-category variant scored over weight 100 can both total exactly 100. The rubric
+warns about this at line 80; the arithmetic above is why. The primary outcome compares
+*within* a column and so is immune — **any total reported later is not.**
+
+**The same point is worth different amounts in different variants.** `architecture-consistency`
+moves the total 17.50 where all four score, and 23.33 in the three variants where
+`test-quality` nulls structurally. Two variants are therefore being measured on differently
+scaled instruments, which is a fact about the fixture set rather than about the rubric, and
+it is the arithmetic behind benchmarks#22.
 
 ## Deterministic evaluation
 
@@ -434,14 +534,32 @@ denominator every time — `defect 6 / 17 (0 excluded) · structural 3 · wholes
 `defect 6 / 13 (4 excluded) · structural 3 · wholesale 1 variant` are different findings, and
 the second is mostly a finding about the scorer rather than about the rubric.
 
-<!-- TODO — yours: at what excluded-cell count does the run stop being interpretable at all?
-     The shape is registered above; the threshold is a number, and numbers are yours. -->
+**REGISTERED (adopted 2026-08-28 — see the provenance note under *Hypothesis*): the run
+stops being interpretable at EITHER of two conditions, whichever comes first.**
+
+1. **5 or more of the 17 scoreable cells excluded.** Five is one full column's worth, and at
+   12 remaining cells one null is worth 8.3% against the 5.9% the design registered — the
+   resolution of the secondary outcome has degraded by more than a third, so a rate computed
+   over it is not the rate this experiment set out to measure.
+2. **Any column losing its ↓ cell**, at any exclusion count. The primary outcome is the ↓
+   cell against the others in its column; without the ↓ cell the column has no comparison to
+   make, and three intact columns plus one absent one is not a weaker version of the result.
+   `test-quality` is stricter still by construction: it has two cells, so losing *either* one
+   ends that column.
+
+Both are structural rather than statistical, which is deliberate — a threshold expressed as a
+percentage drifts as cells drop out, and the count it is computed over is exactly what is
+moving.
 
 **What the table registers, and what it does not.** It registers where each *outcome* is
-filed — which cells count, which drop out, which fixtures are REJECT on their own. It
-registers no *threshold*: the null rate that separates KEEP from the rest, and the score gap
-that counts as discrimination rather than noise, are the TODO above and are yours. Both parts
-are needed and neither substitutes for the other.
+filed — which cells count, which drop out, which fixtures are REJECT on their own.
+
+**The score gap that counts as discrimination is now registered** under *Minimum detectable
+effect*: 1 raw anchor point, and 2 until the calibration run exists, because at n = 1 a
+1-point gap and a cell flip are the same observation. **The null rate that separates KEEP
+from the rest is still blank and is still yours**, because it is a restatement of
+prediction 1 and cannot be written without it. Both parts are needed and neither substitutes
+for the other.
 
 **The ordinary case has no verdict of its own, and that is deliberate.** A fixture with some
 cells scored and some `null` is neither REJECT nor INCONCLUSIVE by itself — its cells feed the
