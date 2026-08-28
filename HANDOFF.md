@@ -16,14 +16,30 @@ branch, shellcheck included.
 
 ## What is BLOCKED ON YOU, and cannot be delegated
 
-These are deliberately empty. A prediction adopted from someone else measures nothing, and
-the previous adopted set broke on an authoring error nobody caught because nobody derived it
-independently.
+**Narrowed on 2026-08-28 from five blanks to four, plus the sheet.** The hypothesis
+mechanism, the repetitions decision, the MDE arithmetic and the exclusion threshold are now
+filled — adopted from Claude at the author's request, and **labelled as adopted inside the
+file**, because this project's rule is that adoption without recorded provenance measures
+nothing. The split was not arbitrary: everything filled is a statement about the INSTRUMENT,
+and everything left is a statement about EXPECTED CELL VALUES.
 
-1. **`experiments/E-001-rubric-null-rate.md`** — hypothesis *mechanism*, three predictions,
-   MDE, repetitions per fixture, the decision-rule thresholds.
-2. **`experiments/E-001-blind-scores.yaml`** — five variants, 20 cells, three of them
-   structural `null` up front. **17 judgements.**
+1. **`experiments/E-001-rubric-null-rate.md`** — **predictions 1, 2, 3 and the KEEP
+   threshold.** Four blanks, not nine. Each leaks an expected cell value into the blind
+   sheet, which is the whole reason they were left. The mechanism they derive from is written
+   above them in the same file, and makes each one a short step rather than a blank page:
+   prediction 1 is two numbers plus the column they land in, prediction 2 is four yes/nos plus
+   a named low-confidence column, prediction 3 needs the sheet's DIRECTIONS not its values.
+2. **`experiments/E-001-blind-scores.yaml`** — five variants, 20 cells, three structural
+   `null` up front. **17 judgements, 0 filled.** No help was taken here at all and none
+   should be: Claude has read all five fixtures and derived anchor placements for the two
+   test-bearing variants while working benchmarks#22, and deliberately did not write them
+   down. Anything it says about those cells contaminates 2 of the 17.
+
+**The mechanism, in one line, so you can argue with it:** an anchor is decidable by this
+scorer iff its discriminating condition can be checked against a token in the attachment set.
+It predicts v2 never comes back empty and every null is per-cell — a wholesale empty
+falsifies it. It puts the null risk in `change-focus`, the only column needing a cross-tree
+comparison and the only one whose capability (Decision B) has never run in a scored pass.
 
 **Order matters and is enforced by nothing but you:** predictions committed *before* the
 first run, with the commit timestamp preceding it. Doing that backwards once voided nine
@@ -104,6 +120,30 @@ copies a quality variant alone). The issue also carries the ordering constraint:
 direction wins, "assertion" must be defined in the rubric BEFORE a new test fixture lands,
 because a new fixture is what makes the round-7 finding reachable. The rubric header itself
 does not link the issue — writing the number into it would move the sha.
+
+## Fixed on 2026-08-28, second session
+
+Five controls that reported success over a scope smaller than believed, all found by
+re-verifying a green check by hand rather than by a failure:
+
+| Control | Was |
+|---|---|
+| link checker UA | two live pages reported broken, exit 1 |
+| link checker `PRIVATE` skip | two public URLs never fetched, counted as neither ok nor broken |
+| CI links job | read 2 of the 33 files SOURCES.md claims to verify |
+| scorer schema + classifier | a 3-of-4-category sheet validated and read as complete |
+| `lab_dirty` / recurrence table | could not tell artifact-moved from unrelated-edit; the best-corroborated finding looked the loneliest |
+
+The scorer one is the one to know about: **a missing cell is not a null cell.** `null` is a
+measurement; an absence is not, and E-001's dependent variable is a ratio whose denominator
+is the cell count. `codex-score.sh` now pins the schema per run to the rubric's own category
+names and count, both scorers re-check the set on disk, `check-sheet-categories.sh` fails
+closed, and CI runs 9 cases proving it still rejects. **Neither registered variable moved** —
+rubric `396e1799eb2b`, base schema `5ee1b8ec16ab`.
+
+Scorer preconditions verified before first use: 6/6 targets resolve, registry admits all
+five variants, baseline attaches, codex authenticated, contract 56 lines, harness already
+proven end-to-end by a probe run. **First contact will not fail.**
 
 ## Known and unfixed
 
