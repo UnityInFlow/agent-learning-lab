@@ -247,6 +247,34 @@ prints the resolved binary. Measured both ways on the claude arm:
 | shim present (`092a384a`) | 12 | **26** |
 | shim stripped (`0754c154`) | **0** | **0** |
 
+**The twelve, and the four that actually fired.** Named because "some hooks" is not a
+finding — `cmux` here is `$CMUX_CLAUDE_HOOK_CMUX_BIN`:
+
+| event | matcher | command | timeout | async | fired in `092a384a` |
+|---|---|---|---|---|---|
+| PreToolUse | *(all tools)* | `cmux hooks claude pre-tool-use` | 5 s | yes | **23×** — Read 11, Edit 7, Bash 5 |
+| Stop | *(all)* | `cmux hooks claude stop` | 10 s | no | **1×** |
+| Stop | *(all)* | `cmux hooks feed --source claude` | 10 s | yes | **1×** |
+| Stop | *(all)* | `cmux hooks claude auto-name` | 120 s | yes | **1×** |
+| SessionStart | *(all)* | `cmux hooks claude session-start` | 10 s | no | **1×** |
+| UserPromptSubmit | *(all)* | `cmux hooks claude prompt-submit` | 10 s | no | **1×** |
+| PermissionRequest | *(all)* | `cmux hooks feed --source claude` | **125 s** | **no** | no |
+| PreToolUse | `CronCreate` | `cmux hooks claude cron-create-guard` | 5 s | no | no |
+| PostToolUse | `PushNotification` | `cmux hooks claude push-notification` | 10 s | yes | no |
+| SubagentStop | *(all)* | `cmux hooks feed --source claude` | 10 s | yes | no |
+| SessionEnd | *(all)* | `cmux hooks claude session-end` | 1 s | no | no |
+| Notification | *(all)* | `cmux hooks claude notification` | 10 s | no | no |
+
+26 executions, 28 invocations — the `Stop` row is one execution carrying three hooks.
+
+**The two that would matter most if they fired.** `PreToolUse` with an empty matcher runs
+before **every tool call**, and PreToolUse is the hook type that can block or alter one; it
+fired 23 times. And `PermissionRequest` is **synchronous with a 125-second timeout** — it did
+not fire here because `--permission-mode acceptEdits` approved without raising one, but a
+variant that provokes permission requests would be adding a synchronous stall to a registered
+outcome. Note the historical runs carry none of these, so the 1063 s stall behind the
+registered duration MDE is *not* this — do not retrofit it.
+
 **Two things this corrects.** First, the operator's `~/.codex/hooks.json` being unparseable
 was noted here as "clean by accident" — it is irrelevant, since those hooks were never the
 ones firing. Second, and more usefully: **the 22 user-scope hooks registered in an isolated
