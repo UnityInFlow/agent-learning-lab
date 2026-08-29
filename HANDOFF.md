@@ -269,6 +269,16 @@ the whole service is attached, `test-quality`'s null precondition can never fire
 Decision A is silently disabled between B1 and B2.** That cannot be checked without a real
 worktree, and no existing run has one.
 
+**Fixed 2026-08-29 before the baseline, `agent-observatory` `5ed158e`:** a behaviour counter
+of 0 and an absent measurement were the same value. The codex arm has no telemetry path, so
+its runs recorded a complete-looking set of zeros — the rehearsal added 64 lines with
+`modelCalls: 0`. Migration `V4` makes the six counters nullable; 18 historical rows became
+null and 156 kept their measurements. `analyze-experiment.py` had been correcting this alone
+since before the fix, while the API, the web UI and Prometheus all read the zeros literally;
+the correction now lives in the record. **Codex still reports honest nulls rather than real
+numbers, so `behavior.*` and `efficiency.*` are not comparable across arms** until
+observatory#10 — the record now says so itself.
+
 **Filed:** observatory#64 — three hook events fire on every codex run including a fully
 isolated one, and `~/.codex/hooks.json` currently fails to parse, so the operator's hooks are
 absent by luck rather than by control. Comments on observatory#35 (resolved-model identity is

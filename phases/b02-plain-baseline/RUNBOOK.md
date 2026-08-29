@@ -108,16 +108,29 @@ section below predicted: under Decision D an unchanged file is not attached, so
 `architecture-consistency` may legitimately `null` on that arm. **That null is honest and
 informative — do not read it as a defect.**
 
-**A finding the rehearsal produced that no amount of reading would have:** the codex arm
-records `behavior.modelCalls: 0`, `toolCalls: 0`, `permissionRequests: 0` — while adding 64
-lines of working code. `run-agent.sh` sets `BEHAVIOR='{}'` and fills it only for
-`copilot|claude`; the API renders the empty object as zeros. Note the inconsistency *inside
-one record*: `efficiency` reports `null` for the same missing measurements, and `behavior`
-reports `0`. One is honest; the other is a number that reads as a measurement.
+**A finding the rehearsal produced that no amount of reading would have — now fixed.** The
+codex arm recorded `behavior.modelCalls: 0`, `toolCalls: 0`, `permissionRequests: 0` while
+adding 64 lines of working code, because `run-agent.sh` fills `BEHAVIOR` only for
+`copilot|claude` and the API rendered the empty object as zeros. The inconsistency was
+*inside one record*: `efficiency` reported `null` for the same missing measurements and
+`behavior` reported `0`.
 
-**So B2 may compare quality and outcome across the two arms, and must NOT compare
-`behavior.*` or `efficiency.*`.** Tracked as observatory#52 with this data; #10 covers the
-normalization. The rubric half is untouched by it — scoring reads source files.
+**Fixed before the baseline rather than after it** — `agent-observatory` `5ed158e`,
+migration `V4__behavior_not_measured.sql`. The counters are nullable; `null` is "not
+measured" and `0` is "measured as zero". 18 historical rows became null, 156 kept their
+measurements, and the claude rehearsal still reports `retries: 0` because that was measured.
+`analyze-experiment.py` now names it out loud — *"arm 'baseline' has 1 run(s) missing
+toolCalls telemetry"* — instead of averaging a zero in.
+
+**The reason it was fixed first and not caveated:** zero batch runs existed, so changing the
+instrument cost nothing. Once the baseline is on record it costs the baseline. That is the
+same argument that justified rebuilding the codex arm, applied one layer up.
+
+**What is still true:** codex reports honest nulls, not real numbers. `behavior.*` and
+`efficiency.*` remain **not comparable across arms** until observatory#10 normalizes codex
+telemetry — the difference is that the record now says so itself rather than requiring a
+reader to know. Quality and outcome are comparable. The rubric half was never affected;
+scoring reads source files.
 
 ## 1 — Run the baseline
 
