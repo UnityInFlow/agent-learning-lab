@@ -89,6 +89,36 @@ between B1 and B2. **Do not start the batch on a 25.**
 
 **Rehearsal runs use their own `EXPERIMENT=` keys** so they never land in the batch's `n`.
 
+### The rehearsal was run, 2026-08-29. Both arms passed. Here is what it proved.
+
+| check | claude `092a384a` | codex `514b094e` |
+|---|---|---|
+| evaluator | `passed: true`, `exitCode 0` | `passed: true`, `exitCode 0` |
+| `runtime.model` recorded | `claude-haiku-4-5-20251001` — the **exact id**, not the `haiku` alias | `gpt-5.6-sol`, and this time actually forwarded |
+| worktree kept | yes | yes |
+| **attachment set** | **3 files + 3 pre-agent baselines** | **2 files + 2 pre-agent baselines** |
+| isolation | `--setting-sources project` | `CODEX_HOME=…codex-home (auth.json only)`; **RTK did not appear anywhere in the log** |
+| files changed | `ApiError.kt`, `ShipmentController.kt`, `ShipmentControllerTest.kt` | `ShipmentController.kt`, `ShipmentControllerTest.kt` |
+
+**Decision D is proven end to end.** Not 25 files — the changed files and their pre-agent
+versions, exactly as specified, on a real run. That could not be checked any other way.
+
+**The codex run did not touch `ApiError.kt`**, which is the case the known-limitations
+section below predicted: under Decision D an unchanged file is not attached, so
+`architecture-consistency` may legitimately `null` on that arm. **That null is honest and
+informative — do not read it as a defect.**
+
+**A finding the rehearsal produced that no amount of reading would have:** the codex arm
+records `behavior.modelCalls: 0`, `toolCalls: 0`, `permissionRequests: 0` — while adding 64
+lines of working code. `run-agent.sh` sets `BEHAVIOR='{}'` and fills it only for
+`copilot|claude`; the API renders the empty object as zeros. Note the inconsistency *inside
+one record*: `efficiency` reports `null` for the same missing measurements, and `behavior`
+reports `0`. One is honest; the other is a number that reads as a measurement.
+
+**So B2 may compare quality and outcome across the two arms, and must NOT compare
+`behavior.*` or `efficiency.*`.** Tracked as observatory#52 with this data; #10 covers the
+normalization. The rubric half is untouched by it — scoring reads source files.
+
 ## 1 — Run the baseline
 
 **Five runs, three minimum. One run is a story.**
