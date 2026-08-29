@@ -224,15 +224,34 @@ codex run before the change and after it are not comparable — and since there 
 codex runs on record, that cost is currently zero. It will not be zero next week. **Change
 it before the first codex run or accept it forever.**
 
-**What it does not fix.** `--dangerously-bypass-hook-trust` is reported as enabled on every
-codex invocation on this machine — including one with a clean `CODEX_HOME` and an empty
-working directory — and three hook events fire (`SessionStart`, `UserPromptSubmit`, `Stop`)
-in every run, isolated or not. They are therefore **not** the operator's hooks: with the
-real `~/.codex`, codex additionally reports `failed to parse hooks config
-~/.codex/hooks.json: unknown field 'SessionStart'`, so the operator's two GSD hooks are
-currently broken and do not load. **That is luck, not a control.** Repair that file and they
-would join every unisolated run. Where the three built-in events come from, and whether they
-can affect a run, is an open question — recorded here rather than assumed harmless.
+**The hook question, opened here and since ANSWERED — it was the terminal.**
+
+This section originally recorded an open question: `--dangerously-bypass-hook-trust` was
+reported as enabled on every codex invocation, and hook events fired even with a clean
+`CODEX_HOME` in an empty directory. The source was found on 2026-08-29 and it is neither
+codex nor the operator's config.
+
+`which codex` resolved to a **cmux shim at the front of `$PATH`**, which execs
+`cmux-codex-wrapper`, which injects `--dangerously-bypass-hook-trust` and `-c hooks.X=…`
+into every invocation. An identical `claude` shim sits beside it, appending
+`--settings "$HOOKS_JSON"` — 12 hooks — to every `claude` call. `run-agent.sh` passes no
+`--settings` at all; these arrive downstream of everything it controls, and nothing in the
+run record can see them, because `customization.hooksHash` hashes the repository's files.
+
+Fixed in `agent-observatory` `b46f4e6`: the runner strips `*/cmux-cli-shims*` from `PATH`
+before anything resolves a binary, sets both wrappers' own off switches as a second line, and
+prints the resolved binary. Measured both ways on the claude arm:
+
+| | `flagSettings` registered | hook executions |
+|---|---|---|
+| shim present (`092a384a`) | 12 | **26** |
+| shim stripped (`0754c154`) | **0** | **0** |
+
+**Two things this corrects.** First, the operator's `~/.codex/hooks.json` being unparseable
+was noted here as "clean by accident" — it is irrelevant, since those hooks were never the
+ones firing. Second, and more usefully: **the 22 user-scope hooks registered in an isolated
+claude run never executed.** `--setting-sources project` works. Registration is not
+execution, and this document had been reading the registration count as if it were.
 
 ---
 

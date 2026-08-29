@@ -13,6 +13,13 @@ against. If it is sloppy, nothing after it means anything.
 
 ## 0 — Preconditions
 
+> **Launch from a plain shell, and read the runner's `shims` line.** A terminal host can put
+> a wrapper ahead of the real CLI on `$PATH` — cmux does, and it appends `--settings` with 12
+> hooks to every `claude` call and `--dangerously-bypass-hook-trust` to every `codex` call.
+> That added **26 hook executions** to the first rehearsal, on PreToolUse and
+> PermissionRequest, invisible to the run record. `run-agent.sh` now strips those shims and
+> reports it (`agent-observatory` `b46f4e6`) — **read the line rather than assume it.**
+
 ```bash
 # stack up, on THIS machine's ports (3000/8080/5173 are taken; infra/.env overrides them)
 cd ../agent-observatory && make up
@@ -163,9 +170,11 @@ report the real `n`** — do not report the one you asked for.
 
 **`ISOLATE_USER_SETTINGS=1` is not optional, and it means something different on each arm.**
 
-- **claude** — passes `--setting-sources project`. Without it, **22 user-level hooks across
-  8 events** join the run and you are measuring this machine. Verified 2026-08-28; the phase
-  README still says ~21.
+- **claude** — passes `--setting-sources project`. **Verified by telemetry 2026-08-29, and
+  the verification changed what the claim means:** the 22 user-level hooks are still
+  *registered* in an isolated run, and **none of them execute** — every hook execution in
+  that run came from somewhere else. Registration is not execution; do not read a
+  registration count as contamination.
 - **codex** — builds a `CODEX_HOME` holding `auth.json` and nothing else. Without it the run
   loads `~/.codex/AGENTS.md`, which imports a 32-line shell-routing instruction file, plus
   **3 MCP servers** (one a code-search tool), **71 skills** and **66 agents**. A global
