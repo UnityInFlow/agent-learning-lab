@@ -1,4 +1,4 @@
-# Handoff — 2026-08-28 (third session)
+# Handoff — 2026-08-29 (fourth session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
@@ -229,6 +229,50 @@ harness whose behaviour matters most from B2 onward is the one left unobserved. 
 cheap — 0A.1 is read-only, and `gpt-5.4-mini` costs 0 premium requests on this account, so
 the Copilot arm can be added after 2026-09-01 for approximately nothing. **Add it before B2,
 not after.** A three-way comparison missing its target runtime is not a two-thirds result.
+
+## Where you actually are, in five lines
+
+**The instrument is finished. B2 has produced no data, and two prediction sets block it.**
+B1 needs 4 predictions + 17 blind cells; B2 needs 4 predictions of its own. Both are
+author-only. Everything else — harness, isolation, scorer, gate, report — is built, tested
+and pushed. Nothing downstream of B2 can start until B2 has runs, and B2 must not have runs
+until its predictions are committed.
+
+## What the fourth session changed, 2026-08-29
+
+Five defects, every one of which would have produced a confident wrong number rather than a
+crash. All fixed, all with the same argument: **zero batch runs exist, so changing the
+instrument costs nothing today and costs the baseline permanently once runs are on record.**
+
+| # | was | commit |
+|---|---|---|
+| 1 | the codex arm forwarded no `--model`, had no sandbox policy and no isolation — a "plain baseline" would have loaded `~/.codex/AGENTS.md` | `b288625` |
+| 2 | `behavior` counters reported `0` for "not measured" while `efficiency` reported `null` in the same record | `5ed158e` |
+| 3 | nothing could produce B2's gate item — a single-arm report with median and range | `1b843c4` |
+| 4 | **a terminal wrapper on `$PATH` added 26 hook executions to every run**, invisible to the record | `b46f4e6` |
+| 5 | codex printed its token total to a log nobody read; the arm recorded null tokens | `fd5ef00` |
+
+**#4 is the one to re-read if you read only one.** `which claude` resolved to a cmux shim
+that execs a wrapper appending `--settings` with 12 hooks; the codex shim injects
+`--dangerously-bypass-hook-trust`. Measured both ways: shim present → 12 registered, **26
+executions**; shim stripped → **0 and 0**. `run-agent.sh` now strips `*/cmux-cli-shims*`
+before resolving any binary and prints which binary it got. **Read that line before a batch.**
+
+It also corrected a claim this file had been making: `--setting-sources project` **works**.
+The 22 user-scope hooks are *registered* in an isolated run and **none execute**. Registration
+is not execution, and the count that was being quoted as contamination was a registration
+count.
+
+## Runs on record from this session — none of them are baseline data
+
+| experiment | why it exists | reusable? |
+|---|---|---|
+| `EXP-B2-REHEARSAL-CLAUDE` / `-CODEX` | proved Decision D on a real worktree | **no** — launched through the wrapper, carry 26 hook executions |
+| `EXP-SHIM-CONTROL` | proved the shim fix: 0 flagSettings, 0 hook executions | no |
+| `EXP-CODEX-TOKENS` | proved token capture: `reportedTotalTokens: 50891` | no |
+
+All under their own keys so they can never join a batch's `n`. Delete them or leave them;
+they must not be counted.
 
 ## B2 readiness — assessed 2026-08-28, third session
 
