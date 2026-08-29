@@ -224,6 +224,29 @@ that as a property of the arm; do not read it as the agent behaving differently.
 - ≥3 run folders with diffs, verification results and completed rubrics
 - a baseline report with **median and range** — never an average alone
 
+```bash
+cd ../agent-observatory
+make baseline-report EXPERIMENT=EXP-B2-BASELINE-CLAUDE
+./runner/baseline-report.py EXP-B2-BASELINE-CLAUDE EXP-B2-BASELINE-CODEX   # side by side
+```
+
+**Built 2026-08-29 because nothing could produce this.** `analyze-experiment.py` analyses a
+*two-arm* experiment and refuses without a treatment, so asking it to describe B2 returns
+`arm 'instructions' has 0 measuring runs, expected 10`. `baseline-report.py` prints no mean —
+it does not compute one, and a test asserts that against the parsed tree.
+
+It shares the exclusion rule, the telemetry rule and the metric accessors with
+`analyze-experiment.py`, so a baseline and a later comparison cannot disagree about which
+runs counted: F13/F15 discarded and named, a run missing a measurement excluded from *that*
+metric and counted in the output, an F03 kept because the agent being wrong is the
+measurement. It refuses below three runs, and it warns when an arm mixes models or runtime
+versions.
+
+**Why it matters, on this project's own data:** over the 17 BE-003 runs already recorded,
+median duration is **101 s** and the maximum is **1711 s**. The mean is 262 — a number no run
+produced. That is the whole argument for "never an average alone", and it is already in your
+database.
+
 ## Known limitations, recorded rather than discovered later
 
 - **`opencode-score.sh` has no `--run-id` path.** Decision C makes `codex` the scorer, so B2
