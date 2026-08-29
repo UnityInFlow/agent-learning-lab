@@ -238,6 +238,18 @@ author-only. Everything else — harness, isolation, scorer, gate, report — is
 and pushed. Nothing downstream of B2 can start until B2 has runs, and B2 must not have runs
 until its predictions are committed.
 
+**Readable view of this file:** https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc
+— the same state as a one-page board. This file is the source of truth; that is the view.
+
+## On disk but not in git, so a new machine or a `$TMPDIR` purge loses it
+
+Nothing here is evidence and nothing blocks you — recorded so it is not looked for later.
+
+| what | where | matters? |
+|---|---|---|
+| `workbench.local/` — the blind-sheet workbench, 5 variants + README | the lab repo, gitignored via `*.local` | **rebuild it** if lost; the one-line command is in its README |
+| 6 kept worktrees, 4 agent logs | `$TMPDIR/observatory-run-*`, `observatory-agent-*.log` | no — every run today was a harness proof, none is baseline data |
+
 ## What the fourth session changed, 2026-08-29
 
 Five defects, every one of which would have produced a confident wrong number rather than a
