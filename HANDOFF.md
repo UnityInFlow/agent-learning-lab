@@ -1,12 +1,30 @@
-# Handoff — 2026-08-29 (fourth session)
+# Handoff — 2026-08-30 (fifth session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
 ## Position
 
-**Spine 3 of 28 — B1, the experiment contract.** No agent exists and none should until stop
-10. B1 builds the instrument that decides whether anything later is true.
+**Spine 4 of 28 — B2, the plain-prompt baseline. B1 CLOSED 2026-08-30.** No agent exists and
+none should until stop 10.
+
+**B1's exit-gate evidence is on record**: `925563c`. Two harnesses scored all five variants,
+the decision rule returned KEEP on every clause, and the rubric is registered for B2 at
+`396e1799eb2b`. Read *Which predictions held* and *Sanity checks* in
+`experiments/E-001-rubric-null-rate.md` before quoting the result — the headline number is
+20/20 and it is explicitly flagged as a number to disbelieve once more.
+
+**What closed it was a design change, not the blocked work.** DECISION E, 2026-08-30: the
+second scorer is a second HARNESS, not the author. The human blind sheet had blocked B1 for
+four sessions at zero cells written. `E-001-blind-scores.yaml` is marked superseded and left
+unfilled on purpose — a measurement designed and not taken is evidence. It cannot be revived
+for these five variants: the machine sheets have been read.
+
+**The cost is recorded, not glossed.** E-001 no longer answers whether a *person* can apply
+this rubric, and the guard that an independently-derived human column provided — the one that
+would have caught the authoring error the previous adopted set died on — is gone. Predictions
+were adopted from Claude with provenance and the contamination disclosed, and **they failed
+3 of 4.**
 
 ## Branch state
 
@@ -232,11 +250,16 @@ not after.** A three-way comparison missing its target runtime is not a two-thir
 
 ## Where you actually are, in five lines
 
-**The instrument is finished. B2 has produced no data, and two prediction sets block it.**
-B1 needs 4 predictions + 17 blind cells; B2 needs 4 predictions of its own. Both are
-author-only. Everything else — harness, isolation, scorer, gate, report — is built, tested
-and pushed. Nothing downstream of B2 can start until B2 has runs, and B2 must not have runs
-until its predictions are committed.
+**B1 is closed. B2 has produced no data, and ONE prediction set now blocks it.**
+B2 needs its 4 predictions committed before its first run — that rule is untouched by
+Decision E and is the only thing between here and the first baseline runs. 0A also still
+blocks B2 and still has zero of its 19 boxes done. Everything else — harness, isolation,
+scorer, gate, report — is built, tested and pushed.
+
+**Before B2 leans on the rubric, run follow-up 1** in `E-001-rubric-null-rate.md`: score a
+submission the anchors were NOT written against. `codex-score.sh --run-id` already does it.
+If the null rate stays at 0 on unseen work the rubric is doing real work; if it jumps, the
+B1 grid measured the fixture set rather than the rubric.
 
 **Readable view of this file:** https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc
 — the same state as a one-page board. This file is the source of truth; that is the view.
@@ -369,3 +392,26 @@ which loses), #49, #10, and lab#44, lab#27.
 - **A header-only findings file is a stall, not an empty result.** Check for a live process.
 - **Bundling an edit script and a commit in one background command** produced a commit whose
   message described changes an aborted script never made.
+
+
+## What the fifth session changed, 2026-08-30
+
+**B1 closed, and three machine-level defects fixed that would each have produced a confident
+wrong number.**
+
+| what | detail |
+|---|---|
+| **B1 CLOSED** | `925563c`. Decision E, predictions committed 17:43:03Z, ten runs 17:43–17:47Z, KEEP on every clause |
+| **Decision E** | `90266f4`. Second scorer is a harness. Human sheet superseded, unfilled, unrevivable |
+| **scorer could hang forever** | `3e0ac2d`. `opencode-score.sh` had no stall budget while its sibling had one since 08-27. Worse: a killed run leaves a header-only file that classifies as EMPTY — and EMPTY means the rubric was wholesale undecidable, E-001's most informative result. A harness hang would have manufactured the headline finding |
+| **three wedged `opencode run` processes killed** | aged 12–14 days, ~75 min CPU each, invisible because the hook that spawned them detached and wrote to `/dev/null` |
+| **`ai-memory` hook bounded** | now in PR #213 with the concurrent session's own improvement — their `79ba689` fixed a staleness guard that read a *checkout* as a push and was discarding valid verdicts |
+| **reaper armed** | `~/.local/bin/reap-stale-opencode.sh`, launchd every 10 min, 30-min threshold, kills process groups, logs every kill. Deliberately NOT a `$PATH` shim — that is the cmux mechanism that put 26 invisible hook executions into every run |
+
+**The opencode arm did not stall once, 5 of 5.** Do not read that as the stall being fixed.
+One clean batch, and the budget added that morning was never called on.
+
+**One finding arrived as evidence rather than as a bug**, which had not happened here before:
+`change-focus` anchor 0 says "cite the line in both trees". codex did; opencode named the
+methods and cited one tree. Nothing executes that instruction. L3, caught by a run instead of
+by a debugging session.
