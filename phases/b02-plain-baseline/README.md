@@ -168,6 +168,35 @@ worktree's surefire output, where `confirming twice is idempotent` is a named te
    **Do not settle this from `evaluation.json`.** `agentTestsPassed` says the agent's tests
    passed, **not** that the agent ran them. Settling it from that field measures the evaluator.
 
+> **DEFECT IN PREDICTION 2, found 2026-08-30T20:2xZ, AFTER the first baseline runs launched.
+> The prediction above is NOT revised — it stands as written, and this note stands beside it.**
+>
+> Its mechanism says "the baseline prompt is plain: nothing asks for tests." **That is false.**
+> `BE-003/task.md:34-35` reads: *"The service under test is `sample-service`. Run `./mvnw
+> test` from `sample-service/` to verify your work before finishing."* Verification is
+> **explicitly instructed by the task itself.**
+>
+> **What prediction 2 therefore measures.** Not an unprompted disposition — instruction
+> compliance on an explicit instruction. Its refuter (≥ 4 of 5) now means "agents follow a
+> direct instruction", which is close to uninteresting, and its point estimates of 1 and 2 of
+> 5 are estimates of agents *ignoring* a direct instruction. Read it that way or not at all.
+>
+> **Prediction 3 is coupled to it and inherits the damage.** Its mechanism argues 2 and 3
+> move together; if 2 is measuring compliance rather than disposition, 3's "claiming
+> completion without evidence" is being predicted off a false premise about how much
+> verification to expect.
+>
+> **What this is an instance of, and it is the whole point of writing it down.** The author's
+> independent derivation was the standing guard against exactly this, and it was removed by
+> Decision E this morning and not restored by Decision F this afternoon. The E-001 file says
+> the previous adopted set "broke on an authoring error nobody caught, because nobody derived
+> it a second time." **Same source, same failure, same day, roughly four hours after the guard
+> came out.** That is not an argument against Decisions E and F, both of which unblocked real
+> work — it is the price they named, arriving on schedule.
+>
+> **B3 onward must not reuse this task text unchanged for an "unprompted behaviour"
+> prediction.** Whatever B3 measures about instructions, `task.md` is already instructing.
+
 3. **Completion claimed without evidence — ≥ 3 of 5 per arm** assert the task is done
    ("implemented", "complete", "passes") in the final message without citing a verification
    run in that same message.

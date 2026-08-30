@@ -47,8 +47,8 @@ conclusions.**
 
 | must be true | why |
 |---|---|
-| `0A` complete | B2's prerequisite. Not a formality — 0A is where you learn what the harness does when an agent is blocked, which is the failure B2 will hit. **NOT DONE** |
-| `B1` closed | B2's gate wants completed rubrics, and the rubric is B1's product. **NOT CLOSED** — 4 predictions and 17 blind cells outstanding, both author-only |
+| ~~`0A` complete~~ | **DECOUPLED 2026-08-30, Decision F** — dependency change, not a completion claim. 0A stays OPEN with its exit gate unticked; B2 no longer waits on a self-assessment. Reversal condition recorded in `phases/00a-agent-mechanics/README.md`: a B2 defect traceable to a confusion 0A addresses reinstates the gate |
+| `B1` closed | B2's gate wants completed rubrics, and the rubric is B1's product. **CLOSED 2026-08-30, `925563c`** — two harnesses, KEEP on every clause, rubric registered at `396e1799eb2b`. Follow-up 1 (`455df38`) then held the null rate at 0 on four unseen agent submissions |
 | stack reachable | `run-agent.sh` dies on `${API}/actuator/health` rather than recording a broken run. **`make smoke` 18/18** |
 | codex arm at parity | until `b288625` this arm had no model, no sandbox policy and no isolation, and would have recorded a model it never used. **DONE** |
 
