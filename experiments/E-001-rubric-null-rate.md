@@ -904,3 +904,62 @@ shown while still passing.
 3. **The adopted predictions failed 3 of 4, in the direction of pessimism.** Any future
    adopted set from the same source should be read with that bias on the record.
 4. **Do not read the opencode arm's 5-for-5 as the stall being fixed.** One clean batch.
+
+---
+
+## Follow-up 1, RUN 2026-08-30T19:51Z — the rubric on work it was not written against
+
+The power concern in *Sanity checks* said 20/20 was equally consistent with an excellent
+rubric and a test that cannot fail. This is the second pass the sanity check demanded, run
+the same day, on four real agent submissions to BE-003 scored through Decision D's
+`--run-id` path. Nothing about it was designed around the anchors.
+
+**RUNBOOK §0.5, outstanding since the third session, is answered first because the scores
+mean nothing without it.** `LAB_SCORE_DRY_RUN` on a live worktree attaches **6 files — 3
+changed plus their 3 pre-agent versions. Not 25.** Decision D holds: the whole
+`sample-service` is not attached, and `test-quality`'s null precondition is not silently
+disabled between B1 and B2. `ShipmentControllerTest.kt` IS in the set — because this agent
+changed it, not because the service ships it, which is exactly the distinction Decision D was
+built to draw.
+
+All four runs recorded `passed: true` and `check-run-gate.sh` admitted each one, so admission
+came from the evaluator's verdict rather than from a caller's promise.
+
+| run | arch 35 | maint 25 | test 25 | change 15 | total |
+|---|---|---|---|---|---|
+| `EXP-B2-REHEARSAL-CLAUDE` | 2 | **0** | **1** | **1** | 55.00 |
+| `EXP-SHIM-CONTROL` (claude) | 2 | 2 | **1** | **1** | 80.00 |
+| `EXP-B2-REHEARSAL-CODEX` | 2 | 2 | 2 | 2 | 100.00 |
+| `EXP-CODEX-TOKENS` (codex) | 2 | 2 | 2 | **1** | 92.50 |
+
+**Defect-nulls: 0 of 16.** The null rate did not move on unseen work. That is the result
+follow-up 1 existed to get, and it is the favourable one: the mechanism's central claim —
+decidability follows the attachment set — holds on submissions nobody wrote anchors for.
+
+**And the grid is more informative than B1's own.** Two things the fixture set never showed:
+
+1. **Anchor 1 fires.** Five of sixteen cells scored **1**. Across the entire B1 fixture grid,
+   on both harnesses, *not one cell scored 1* — every value was 0, 2 or null. The residual
+   anchor, the one closed by rule rather than by text and argued over for three review rounds,
+   had never been exercised by a single fixture. It works, and it took real agent output to
+   show it.
+2. **Totals spread across the range** — 55.00, 80.00, 92.50, 100.00 — where the fixtures
+   produced a near-binary grid by construction.
+
+**One flag, and it is the family that killed the seven-category rubric.**
+`architecture-consistency` is **constant at 2 across all four runs**. It carries 35 of the
+100, the largest weight in the file. On the fixtures it discriminated, because
+`good-inline-envelope` was built to depress it; on real work every agent used the exception
+hierarchy correctly and the column carried no information.
+
+At n = 4 that is a flag, not a finding — four runs cannot distinguish "agents reliably get
+this right" from "this anchor cannot separate real submissions". But it is the same shape as
+the defect that killed the previous rubric: an anchor that is a constant across the population
+it is allowed to score looks like agreement rather than like a defect. **B2 should watch this
+column specifically**, and if it stays constant across a real baseline the weight is wrong.
+
+**What this does NOT establish.** These four runs were launched through the cmux wrapper and
+carry 26 hook executions each; they are harness proofs under four different experiment keys,
+not a controlled comparison. The claude runs scoring lower than the codex runs is **not** a
+finding — different keys, different purposes, n = 2 each, nothing held constant. Read the
+column behaviour, not the arm difference.
