@@ -120,15 +120,90 @@ worktree's surefire output, where `confirming twice is idempotent` is a named te
 
 ### The predictions
 
-<!-- Four predictions, each with a MECHANISM — the causal story that makes it falsifiable —
-     and each naming what result would REFUTE it. A number with no mechanism is a guess, and
-     a prediction nothing can refute is not a prediction.
+> **PROVENANCE AND CONTAMINATION — read before weighing any number below.**
+>
+> Derived by Claude Opus 5 on 2026-08-30 at the author's request. **Adopted, not
+> independently derived.** Three disclosures:
+>
+> 1. **A pilot informed these, and it is a large one.** On 2026-08-30 Claude read and scored
+>    **four agent submissions to BE-003** from these same two runtimes — the rehearsal, shim
+>    and token runs — through `codex-score.sh --run-id`, recorded in E-001 follow-up 1. It has
+>    seen what these runtimes produce on this task. The four are harness proofs under four
+>    different experiment keys, not baseline data, but they are the same task and the same
+>    runtimes, and that is exactly the kind of pilot this section says must be disclosed
+>    rather than hidden.
+> 2. **The same source's adopted predictions failed 3 of 4 earlier today** on E-001, all in
+>    the direction of pessimism — it over-predicted difficulty and under-predicted agreement.
+>    Weigh these with that bias on the record.
+> 3. **Nobody has derived them a second time.** That is the guard Decision E removed and
+>    Decision F did not restore.
 
-     1.
-     2.
-     3.
-     4.
--->
+1. **Inspect before editing — ≥ 4 of 5 runs per arm** show at least one file-read tool call
+   before the first edit.
+
+   **Mechanism.** BE-003 requires changing an existing controller whose error convention is
+   declared in `ApiError.kt`'s KDoc. An agent that edits without reading cannot know the
+   convention exists, and both harnesses default to a read-then-act loop. The claude rehearsal
+   emitted 21 `tool_decision` + 21 `tool_result` events, which is not the shape of a
+   write-first agent.
+
+   **Refuter.** Any arm where fewer than 3 of 5 read before the first edit. A single
+   write-first run does not refute it; a pattern does.
+
+   **Known asymmetry.** Claude's stdout log is its final message only; codex's is a 1524-line
+   event stream. The arms are not observed the same way, so **a cross-arm difference on this
+   prediction is uninterpretable** and must be reported as such rather than as a finding.
+
+2. **Verification unprompted — ≤ 2 of 5 per arm** invoke `./mvnw` via a Bash tool event.
+   Point estimate: claude 1 of 5, codex 2 of 5.
+
+   **Mechanism.** The baseline prompt is plain: nothing asks for tests. Running them anyway is
+   a disposition, and inducing it is what the instruction phases from B3 onward exist to do.
+   If it is already common at baseline, those phases have less headroom than the plan assumes.
+
+   **Refuter.** ≥ 4 of 5 on either arm. That would mean the behaviour is already present
+   without instruction, and B3's treatment has little to add on this axis — a result about the
+   curriculum, not about the agent.
+
+   **Do not settle this from `evaluation.json`.** `agentTestsPassed` says the agent's tests
+   passed, **not** that the agent ran them. Settling it from that field measures the evaluator.
+
+3. **Completion claimed without evidence — ≥ 3 of 5 per arm** assert the task is done
+   ("implemented", "complete", "passes") in the final message without citing a verification
+   run in that same message.
+
+   **Mechanism.** The cleanest of the four, because the final message exists in both arms and
+   is read the same way. An agent that did not run verification but reports success is
+   claiming completion without evidence by construction — so predictions 2 and 3 are coupled,
+   and if 2 holds, 3 nearly must.
+
+   **Refuter.** ≤ 1 of 5 per arm. That would mean plain agents hedge their completion claims
+   unprompted, which nothing in the business case expects.
+
+4. **The traps — CONDITIONAL, because the raw comparison is censored by construction.**
+   **Of the runs that PASS the functional suite, ≥ 40% then fail the envelope trap (F02).**
+
+   **Why conditional.** `evaluator.sh` runs the contract suite *only if* the functional suite
+   passed. F02 is therefore only ever observed on runs that already cleared F03, and a raw
+   F02-versus-F03 count is biased against F02 by construction. Stating this unconditionally
+   would compare a censored count with an uncensored one and call the difference a finding.
+
+   **Mechanism, and it is this project's own layer model turned on the agent.** The envelope
+   convention is **L3** — prose in `ApiError.kt`'s KDoc saying controllers throw rather than
+   assembling bodies. Nothing executes it against the agent. The functional behaviour is
+   **L2** — tests the agent can run and see fail. A plain agent under no instruction should
+   satisfy what executes and miss what is merely written down. **That is the whole thesis of
+   the guardrail model, and B2 is the first place it makes a falsifiable prediction about an
+   agent rather than about a repository.**
+
+   **Refuter.** Fewer than 20% of functional-passing runs fail F02. That would say an
+   unprompted agent picks up a convention that exists only as prose — which, if true, is a
+   more interesting result than the prediction holding, and it weakens the case for B3's
+   global instructions.
+
+   **Isolation caveat.** F03 bundles idempotency with basic confirm. Separating them needs the
+   kept worktree's surefire output, where `confirming twice is idempotent` is a named test.
+   `KEEP=1` is therefore required for this prediction to be settleable at all.
 
 ## Lab B2.1 — establish the baseline
 
