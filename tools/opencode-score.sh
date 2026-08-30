@@ -186,18 +186,67 @@ else
    emit score: null with reason: ambiguous rather than scoring it against itself."
 fi
 
-opencode run --agent lab-scorer -m "$MODEL" \
-  "Score the attached implementation against the attached rubric ($(basename "$RUBRIC")).
+# BOUNDED. `opencode run` fails to return on a fraction of non-interactive calls,
+# independent of model and project, and never times out on its own. Unbounded, a stall here
+# hangs the scorer forever and leaves a process holding the API call — three such processes
+# survived twelve to fourteen days on this machine before being found by hand.
+#
+# macOS ships no timeout(1) and none is installed here, hence the poll. The child is killed
+# with its PROCESS GROUP: killing the wrapper alone leaves opencode itself running. Same
+# mechanism as tools/opencode-review.sh, which has had it since 2026-08-27.
+SCORE_TIMEOUT="${LAB_SCORE_TIMEOUT:-900}"
+
+run_limited() {   # <seconds> <rcfile> -- <command...>
+  local secs="$1" rcfile="$2"; shift 3
+  set -m
+  ( "$@"; echo "${PIPESTATUS[0]:-$?}" > "$rcfile" ) &
+  local pid=$! waited=0
+  set +m
+  while kill -0 "$pid" 2>/dev/null; do
+    if [ "$waited" -ge "$secs" ]; then
+      kill -TERM "-$pid" 2>/dev/null || kill -TERM "$pid" 2>/dev/null
+      sleep 3
+      kill -KILL "-$pid" 2>/dev/null || kill -KILL "$pid" 2>/dev/null
+      return 124
+    fi
+    sleep 2; waited=$((waited + 2))
+  done
+  wait "$pid" 2>/dev/null
+  return 0
+}
+
+# Built in the parent: the prompt interpolates $baseline_note and the rubric basename, which
+# would not expand inside the single-quoted bash -c body.
+score_prompt="Score the attached implementation against the attached rubric ($(basename "$RUBRIC")).
    $baseline_note
    The attachments are the COMPLETE evidence set — every source file is already attached.
    Do not look for other files; there are none, and you have no tools. Cite attachment
    filename:line as evidence. Emit score: null with reason: ambiguous for any category
    whose anchors do not let you separate two scores. YAML only — no preamble, nothing
-   after the YAML." \
-  -f "$RUBRIC_ABS" "${impl[@]}" "${base[@]+"${base[@]}"}" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' >> "$out"
+   after the YAML."
 
-# PIPESTATUS[0], not $? — $? is sed's status, and sed always succeeds.
-rc=${PIPESTATUS[0]}
+score_rcfile="$(mktemp -t lab-score-rc)"
+run_limited "$SCORE_TIMEOUT" "$score_rcfile" -- bash -c '
+  opencode run --agent lab-scorer -m "$1" "$2" \
+    -f "$3" "${@:5}" 2>&1 | sed $'"'"'s/\x1b\\[[0-9;]*m//g'"'"' >> "$4"
+  exit "${PIPESTATUS[0]}"
+' _ "$MODEL" "$score_prompt" "$RUBRIC_ABS" "$out" "${impl[@]}" "${base[@]+"${base[@]}"}"
+limit_rc=$?
+
+# A STALL IS NOT AN EMPTY RESULT. Unhandled, a killed run leaves a header-only file that
+# classify-model-output.sh reads as code 3 (EMPTY) — and EMPTY is a finding about the
+# RUBRIC being wholesale undecidable, which is E-001's most informative outcome. Reporting
+# a harness hang as that outcome would manufacture the experiment's headline result.
+if [ "$limit_rc" = 124 ]; then
+  rm -f "$score_rcfile"
+  echo "STALLED after ${SCORE_TIMEOUT}s — opencode never returned and was killed with its" >&2
+  echo "process group. This is INFRASTRUCTURE, not a finding: discard and re-run. It is NOT" >&2
+  echo "an empty result and must not be recorded as one. See $out" >&2
+  exit 1
+fi
+
+rc="$(cat "$score_rcfile" 2>/dev/null || echo 1)"
+rm -f "$score_rcfile"
 
 # opencode exiting non-zero is the one unambiguous infrastructure failure: the process
 # itself did not complete, so there is nothing to classify.
