@@ -738,28 +738,169 @@ that table reads 1/2 and at least one of them understates its support.
 
 ## Observed telemetry
 
+Two arms, ten runs, **2026-08-30T17:43–17:47Z** — every one of them after the predictions
+commit at 17:43:03Z, which is the ordering rule and is checkable in the log.
+
+| | codex arm | opencode arm |
+|---|---|---|
+| harness | codex-cli 0.147.0 | `opencode run` |
+| model | `gpt-5.6-sol` | `ollama-cloud/deepseek-v4-pro` |
+| schema | `--output-schema`, pinned to the rubric's 4 names | asked for YAML in prose |
+| isolation | `--ignore-user-config --ignore-rules --sandbox read-only` | `--agent lab-scorer` |
+| session | fresh per run (`--ephemeral`) | fresh per run |
+| runs completing | 5 of 5 | **5 of 5** |
+| stalls | 0 | **0** |
+| agent_sha / schema_sha | `b181a9bc5df0` / `5ee1b8ec16ab` | — |
+
+**The opencode arm did not stall once**, which is worth recording against the ~5-of-8 rate
+CLAUDE.md documents for 2026-08-28. Five for five is not evidence the harness is fixed; it is
+one clean batch, and the stall budget added to `opencode-score.sh` earlier the same day was
+never called on. Nothing here revises the stall finding.
+
 ## Results
 
-Raw, then summary. **Median and p25/p75. Never an average alone.**
+Both sheets, laid over each other. **The two arms produced identical grids.**
+
+| variant | architecture 35 | maintainability 25 | test-quality 25 | change-focus 15 |
+|---|---|---|---|---|
+| `good-inline-envelope` | **0** ↓ | 2 | `null` ▪ | 2 |
+| `good-nested-ifs` | 2 | **0** ↓ | `null` ▪ | 2 |
+| `good-noisy-diff` | 2 | 2 | `null` ▪ | **0** ↓ |
+| `good-strong-tests` | 2 | 2 | 2 | 2 |
+| `good-weak-tests` | 2 | 2 | **0** ↓ | 2 |
+
+↓ the cell the fixture was built to depress · ▪ structural null, no test file attached
+
+**Null accounting, the dependent variable:**
+
+| | codex | opencode |
+|---|---|---|
+| nulls total | 3 of 20 | 3 of 20 |
+| structural | 3 | 3 |
+| **defect-nulls** | **0 of 17** | **0 of 17** |
+
+**Exact agreement: 20 of 20 cells.**
+
+**Weighted totals.** Reported with the nulled category beside each, because a total over three
+categories is not comparable to one over four — the same 100 is a different claim.
+
+| variant | score | over |
+|---|---|---|
+| `good-inline-envelope` | 53.33 | 3 categories (null: `test-quality`) |
+| `good-nested-ifs` | 66.67 | 3 categories (null: `test-quality`) |
+| `good-noisy-diff` | 80.00 | 3 categories (null: `test-quality`) |
+| `good-strong-tests` | 100.00 | 4 categories |
+| `good-weak-tests` | 75.00 | 4 categories |
+
+No median or p25/p75 is reported: n = 1 per cell per arm. There is no distribution here, and
+printing quartiles over five design points would dress a grid up as a sample.
 
 ## Which predictions held
 
+**One of four.** All three failures are the adopted set's, and all three are recorded as
+made rather than revised.
+
 | # | Prediction | Held? | Actual |
 |---|---|---|---|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
+| 1 | defect-nulls: codex 1–2 (est. 2), opencode 2–4 (est. 3) | **NO** | **0 and 0.** Over-predicted on both arms, in the same direction |
+| 2 | all four columns discriminate; least confident `change-focus` | **YES** | all four discriminate on both sheets. The least-confident nomination was itself wrong: `change-focus` produced no nulls and a clean 2-point gap |
+| 3 | exact agreement 14–16 of 20 (est. 15) | **NO** | **20 of 20.** Under-predicted by four cells, outside the stated range |
+| 3b | at least one structural null returns `0` rather than `null` | **NO** | all six structural cells across both sheets returned `null`. Decision A's L3 precondition was honoured by two independent harnesses without anything executing it |
+
+**What the mechanism got wrong.** Its central claim — an anchor is decidable iff its
+discriminating condition can be checked against a token in the attachment set — is *consistent*
+with zero defect-nulls: every anchor's condition turned out checkable. But it went further and
+named where the nulls would fall: `change-focus`, because it needs a cross-tree comparison and
+Decision B's capability had never run in a scored pass, and `test-quality`'s undefined
+assertion trigger. **Neither produced a single null on either arm.** The mechanism was right
+about the rule and wrong about the difficulty, and being wrong about the difficulty is what it
+was for.
+
+**3b is the most useful failure.** It was written to test a *layer classification*, not a
+score. Decision A's "no test file → `null`, never `0`" is YAML prose read by a model, L3, with
+nothing executing it — and it held six times out of six across two harnesses. That does not
+promote it to L2. It means this particular L3 instruction is carrying more than its layer
+predicts, which is a finding about the instruction, not about the layer model.
 
 ## Failure analysis
 
 > Before blaming the instrument, ask what else changed.
 
+Nothing failed. The interesting question is the opposite one, and it is in *Sanity checks*.
+
 ## Sanity checks
 
-- [ ] Did any dramatic number appear? Has it been explained *and* the explanation tested?
-- [ ] Did any **flattering** number appear? Has it been disbelieved twice?
-- [ ] Did the scorer agree with you suspiciously often? Check whether it read your scores.
+- [x] **Did any dramatic number appear?** Yes — 20 of 20, and a grid where every ↓ cell is 0
+      and every other scored cell is exactly 2. Explained below, and the explanation is *not*
+      yet tested.
+- [x] **Did any flattering number appear? Has it been disbelieved twice?** Disbelieved once,
+      here, and the follow-up is where the second pass lives.
+
+      **The power concern, stated plainly: this may be an easy test rather than a good
+      rubric.** The five variants were each built to differ from `known-good` on exactly one
+      dimension, and the anchors were written against those same fixtures. A scorer is being
+      asked "is there an `else ->`", "is there an `ApiError(` literal", "do these three
+      methods differ" — near-deterministic lookups. Two competent readers converging on those
+      is weak evidence that the rubric would survive a submission it was not designed around.
+      **20/20 is consistent with an excellent rubric and equally consistent with a test that
+      cannot fail.** This grid does not separate them.
+- [x] **Did the scorer agree with you suspiciously often? Check whether it read your scores.**
+      Not possible here, and not for a good reason: under Decision E there is no human sheet
+      to read. The analogous question is whether the two *arms* are independent. They share
+      the contract (`lab-scorer`), the rubric text, the attachment set and the baseline — by
+      design, since Decision C holds those identical so the harnesses are comparable at all.
+      What differs is the agent loop, the model, and schema enforcement. So they are
+      independent in harness and not in evidence, and 20/20 should be read as "two harnesses
+      applied these anchors identically", never as "two independent judgements agreed".
+
+**One evidence shortfall, and it is an L3 finding.** `change-focus` anchor 0 instructs "Name
+each method and cite the line in both trees." codex cited both trees. **opencode named the
+three methods and cited one tree only.** Both reached score 0 and both named the construct, so
+KEEP's fourth clause is satisfied on substance for both. But the anchor's citation instruction
+is prose a model reads, nothing checks it, and one of two scorers did not follow it. That is
+the guardrail-layer lesson arriving in the evidence rather than as a bug, which is the first
+time in this project it has arrived that way round.
 
 ## Decision
 
+**KEEP.** Every clause, on both sheets:
+
+| clause | required | codex | opencode |
+|---|---|---|---|
+| defect-null rate ≤ 4 of 17 | both sheets | 0 ✓ | 0 ✓ |
+| ↓ cell below other SCORED cells in its column | both sheets | 4/4 ✓ | 4/4 ✓ |
+| those other scored cells equal to each other | both sheets | all 2 ✓ | all 2 ✓ |
+| ↓ evidence cites the construct the anchor names | both sheets | 4/4 ✓ | 4/4 ✓ (one incomplete citation, noted) |
+
+REJECT did not fire: no category is constant across the cells carrying a score in it —
+including `test-quality`, whose only two scored cells are 2 and 0, which is exactly the
+comparison the REJECT clause was rewritten to be able to see.
+
+INCONCLUSIVE did not fire: there are no defect nulls to concentrate, and no ↓ cell rests on a
+bare difference-from-baseline.
+
+The HARNESS-DEPENDENT clause did not fire: 20 ≥ 12. Written the day of the run and not needed
+on the day of the run.
+
+**B1's exit-gate evidence is this grid**, and the rubric is registered for B2 at
+`396e1799eb2b`. The `test-quality` assertion gap stays open as benchmarks#22 rather than being
+fixed first, per the 2026-08-28 decision.
+
+**KEEP is the rule's verdict, not a claim that the rubric is good.** See the power concern
+above. What has been shown is that two harnesses apply these anchors identically to five
+fixtures the anchors were written against. That is the weakest thing this grid could have
+shown while still passing.
+
 ## Follow-up
+
+1. **Test the power concern before B2 leans on this rubric.** The cheapest probe: score a
+   submission the anchors were *not* written against. A B2 agent run is exactly that, and
+   Decision D already built the path — `codex-score.sh --run-id`. If the null rate stays at 0
+   on unseen work, the rubric is doing real work; if it jumps, this grid measured the fixture
+   set.
+2. **`change-focus` anchor 0's "cite the line in both trees" is unenforced.** One of two
+   scorers ignored it. Either the anchor drops the instruction or something checks it —
+   writing it more firmly is the L3 move that this project has already paid for six times.
+3. **The adopted predictions failed 3 of 4, in the direction of pessimism.** Any future
+   adopted set from the same source should be read with that bias on the record.
+4. **Do not read the opencode arm's 5-for-5 as the stall being fixed.** One clean batch.

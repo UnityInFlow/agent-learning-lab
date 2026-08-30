@@ -1,0 +1,43 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.21
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/good-noisy-diff
+  baseline:      ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/known-good
+  baseline_state: attached
+  scored_utc:    20260830T174639Z
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: all refusals throw baseline ApiException subclasses, no ApiError literal constructed
+    evidence: ShipmentController.kt:26,38,52,63
+  - name: maintainability
+    score: 2
+    anchor_level: 2
+    reason: confirm's when is in expression position (returned) with no else
+    evidence: ShipmentController.kt:43
+  - name: test-quality
+    score: null
+    anchor_level: null
+    reason: no file under src/test/ among attachments
+    evidence: absence of any test file in attachment set
+  - name: change-focus
+    score: 0
+    anchor_level: 0
+    reason: create, getById, list all differ structurally from baseline beyond whitespace
+    evidence: ShipmentController.kt:26,60,68
+ambiguous_categories: [test-quality]
+```
