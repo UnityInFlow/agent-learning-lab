@@ -34,39 +34,28 @@ branch, shellcheck included.
 
 ## What is BLOCKED ON YOU, and cannot be delegated
 
-**Narrowed on 2026-08-28 from five blanks to four, plus the sheet.** The hypothesis
-mechanism, the repetitions decision, the MDE arithmetic and the exclusion threshold are now
-filled — adopted from Claude at the author's request, and **labelled as adopted inside the
-file**, because this project's rule is that adoption without recorded provenance measures
-nothing. The split was not arbitrary: everything filled is a statement about the INSTRUMENT,
-and everything left is a statement about EXPECTED CELL VALUES.
+**Superseded in part on 2026-08-30.** B1's two blockers — the four prediction blanks and the
+17-cell blind sheet — are **closed**, the first by adoption with recorded provenance and the
+second by Decision E replacing the human column with a second harness. Neither was completed
+as originally designed. The text that stood here described work that is no longer on the
+critical path; it is in git history at `84ab009` if you want to read what was given up.
 
-1. **`experiments/E-001-rubric-null-rate.md`** — **predictions 1, 2, 3 and the KEEP
-   threshold.** Four blanks, not nine. Each leaks an expected cell value into the blind
-   sheet, which is the whole reason they were left. The mechanism they derive from is written
-   above them in the same file, and makes each one a short step rather than a blank page:
-   prediction 1 is two numbers plus the column they land in, prediction 2 is four yes/nos plus
-   a named low-confidence column, prediction 3 needs the sheet's DIRECTIONS not its values.
-2. **`experiments/E-001-blind-scores.yaml`** — five variants, 20 cells, three structural
-   `null` up front. **17 judgements, 0 filled.** No help was taken here at all and none
-   should be: Claude has read all five fixtures and derived anchor placements for the two
-   test-bearing variants while working benchmarks#22, and deliberately did not write them
-   down. Anything it says about those cells contaminates 2 of the 17. **The workbench you
-   score from is on disk at `workbench.local/`** — see below.
+**What remains blocked on you, and genuinely cannot be delegated:**
 
-**The mechanism, in one line, so you can argue with it:** an anchor is decidable by this
-scorer iff its discriminating condition can be checked against a token in the attachment set.
-It predicts v2 never comes back empty and every null is per-cell — a wholesale empty
-falsifies it. It puts the null risk in `change-focus`, the only column needing a cross-tree
-comparison and the only one whose capability (Decision B) has never run in a scored pass.
+1. **B2's four predictions.** Untouched by Decision E. Committed before the first baseline
+   run, with an earlier commit timestamp. Doing that backwards once voided nine runs.
+2. **0A — 19 checkboxes**, ~5 hours of reading. Position 1 of 28, never started, and it
+   blocks B2 independently of anything B1 did.
+3. **RUNBOOK §0.5**, the one step that costs a run: rehearse one run per arm with `--keep`,
+   then inspect the attachment set with `LAB_SCORE_DRY_RUN`. If it lists 25 files the whole
+   service is attached, `test-quality`'s null precondition can never fire, and Decision A is
+   silently disabled between B1 and B2.
 
-**Order matters and is enforced by nothing but you:** predictions committed *before* the
-first run, with the commit timestamp preceding it. Doing that backwards once voided nine
-runs. And do not read any scorer output before the blind sheet is committed — read it first
-and you will agree with it, and that agreement measures nothing.
-
-Then: run the scorer on five variants, compare, record the gap. That gap is B1's exit-gate
-evidence, and it closes B1.
+**A standing hazard is now spent, and this is the honest way to say it:** Claude had read all
+five BE-003 fixtures and was withholding anchor placements to protect the blind sheet. Under
+Decision E that sheet will not be written, both machine grids have been read, and the
+protection no longer has anything to protect. `E-001-blind-scores.yaml` stays on disk unfilled
+as the record of that.
 
 ## After B1, the spine does not move
 
