@@ -5,8 +5,14 @@ file is the *state*: what is in flight, what is blocked, and on whom.
 
 ## Position
 
-**Spine 4 of 28 — B2, the plain-prompt baseline. B1 CLOSED 2026-08-30.** No agent exists and
-none should until stop 10.
+**Spine 4 of 28 — B2 HAS RUN. B1 CLOSED 2026-08-30.** No agent exists and none should until
+stop 10.
+
+**B2 produced data, and half of it is unusable. Read `phases/b02-plain-baseline/README.md`
+from "B2 baseline — RUN" before quoting any number.** 14 runs, 14 passed. Prediction 4
+refuted 0-of-14, and that refutation is the session's substantive finding. But the two arms
+ran under different policies, so **no cross-arm claim survives**, and duration is void because
+runs were suspended across a machine sleep.
 
 **B1's exit-gate evidence is on record**: `925563c`. Two harnesses scored all five variants,
 the decision rule returned KEEP on every clause, and the rubric is registered for B2 at
@@ -239,7 +245,7 @@ not after.** A three-way comparison missing its target runtime is not a two-thir
 
 ## Where you actually are, in five lines
 
-**B1 is closed. B2 has produced no data, and ONE prediction set now blocks it.**
+**B1 is closed. B2 has run. Nothing is blocked on you that has not been decided.**
 B2 needs its 4 predictions committed before its first run — that rule is untouched by
 Decision E and is the only thing between here and the first baseline runs. 0A also still
 blocks B2 and still has zero of its 19 boxes done. Everything else — harness, isolation,
@@ -404,3 +410,62 @@ One clean batch, and the budget added that morning was never called on.
 `change-focus` anchor 0 says "cite the line in both trees". codex did; opencode named the
 methods and cited one tree. Nothing executes that instruction. L3, caught by a run instead of
 by a debugging session.
+
+
+## B2's result, and the two things that spoil half of it — 2026-08-31
+
+**14 runs, 14 passed, both arms, every gate.** `EXP-B2-BASELINE-CLAUDE` n=9 (asked for 5 —
+operator error, a torn-down `nohup` batch relaunched without counting what had recorded) and
+`EXP-B2-BASELINE-CODEX` n=5.
+
+**The finding: prediction 4 refuted, 0 of 14 against a <20% refuter.** Its mechanism was this
+project's guardrail model turned on an agent for the first time — the envelope convention is
+L3 prose in `ApiError.kt`'s KDoc, the functional behaviour is L2 tests the agent can run and
+watch fail, so a plain agent should satisfy what executes and miss what is written down.
+**Every agent picked up the L3 convention unprompted, including 9 of 9 on the tightly
+sandboxed claude arm.** L3 prose adjacent to the code an agent must edit is read and followed
+without enforcement.
+
+**What that does to B3:** an instruction telling an agent to follow a convention it already
+follows at baseline measures nothing. **B3 must find an axis where the baseline actually
+fails**, or it will produce another INCONCLUSIVE like phase 1's.
+
+**BLOCKING — the arms are not the same experiment. Filed as observatory#65.**
+`run-agent.sh` gives claude `--strict-mcp-config`, `--disable-slash-commands` and an allowlist
+of two shell commands; it gives codex `--sandbox danger-full-access` and nothing else. On the
+first codex run the agent shelled into the operator's home directory, read
+`~/.agents/skills/memtrace-first` and `memtrace-preflight`, and announced it would follow them
+— a treatment inside the control. The run record says `mcpHash`, `skillsHash` and
+`instructionsHash` are all null, so **the record claims uncustomized while the transcript
+shows otherwise.**
+
+`verify-codex-isolation.sh` is not wrong: it proves `AGENTS.md` does not AUTO-LOAD. It cannot
+prove the agent will not go read instructions itself, and under `danger-full-access` nothing
+does. **Fourth control here reporting success over a scope smaller than believed — and the
+first found by reading an agent's transcript rather than by testing the control.**
+
+**Duration is void from this batch.** 70–3790s and 97–35342s; one run was suspended 9.8 hours
+across a machine sleep. Not task variance.
+
+**Re-run needed for:** any cross-arm claim (after parity), and duration. **Not needed for:**
+the pass rate and prediction 4, both robust to the contamination.
+
+**Predictions 1 and 3 are unsettled** — settling them needs per-event ordering, and the codex
+arm has no behaviour telemetry at all. **Prediction 2 was void before the run**, on a false
+premise I wrote: it asserts "nothing asks for tests" and `task.md:34` instructs `./mvnw test`.
+Recorded beside the prediction, not revised.
+
+**The pattern worth carrying forward:** Decision E removed the second-derivation guard in the
+morning; an adopted prediction broke on an unchecked premise four hours later, exactly the way
+the previous adopted set broke. Both decisions were still right. The cost was real and it
+arrived on schedule.
+
+## Decisions taken 2026-08-30/31, all reversible, all recorded
+
+| | what | where |
+|---|---|---|
+| **E** | second scorer is a harness, not the author. Human blind sheet superseded, unfilled, unrevivable | `90266f4` |
+| **F** | 0A does not gate B2. **Not** a completion claim — its exit gate is untouched. Reversal condition recorded | `a1f1c8a` |
+
+**Two dependencies dissolved in one day.** Both correct locally. That is also what losing the
+plan to the schedule looks like from inside, and the third should be argued harder than either.
