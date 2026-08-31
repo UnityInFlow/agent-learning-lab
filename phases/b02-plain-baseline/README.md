@@ -258,3 +258,114 @@ a baseline report with **median and range**, never an average alone.
 ## Commit
 
 <!-- TODO -->
+
+
+---
+
+## B2 baseline — RUN 2026-08-30T20:13Z – 2026-08-31T06:31Z
+
+**Read the contamination finding first. Two of the four registered outcomes are unusable from
+this batch, and the arms are not comparable to each other.**
+
+### What was recorded
+
+| | claude arm | codex arm |
+|---|---|---|
+| experiment key | `EXP-B2-BASELINE-CLAUDE` | `EXP-B2-BASELINE-CODEX` |
+| model | `claude-haiku-4-5-20251001` | `gpt-5.6-sol` |
+| **n** | **9** (asked for 5) | **5** |
+| passed | **9 / 9** | **5 / 5** |
+| failureClass | none | none |
+| duration median | 83s | 121s |
+| duration range | **70 – 3790s** | **97 – 35342s** |
+| behaviour counters | present (13–24 model calls, 14–20 tool calls) | **null — no telemetry path** |
+| tokens | null | 28 835 – 50 231 |
+
+**n = 9 on the claude arm is an operator error, not a design choice.** A `nohup`ed batch was
+torn down between tool calls and relaunched without accounting for what the first batch had
+already recorded. The runbook says report the real `n`; it is 9.
+
+### BLOCKING FINDING — the two arms are not the same experiment
+
+`runner/run-agent.sh` gives the arms different worlds:
+
+```
+CLAUDE_ARGS=( --permission-mode acceptEdits
+              --strict-mcp-config
+              --disable-slash-commands
+              --allowedTools "Bash(./mvnw:*)" "Bash(mvn:*)"
+              [--setting-sources project] [--model …] )
+
+CODEX_ARGS=(  --sandbox danger-full-access --color never [--model …] )
+```
+
+The claude agent may run **two** shell commands, `./mvnw` and `mvn`, gets no MCP servers and
+no slash commands. The codex agent has **full filesystem access and an unrestricted shell**.
+
+**This is not a theoretical asymmetry. It fired on the first codex run.** From the batch log,
+run `77c7d1c3`:
+
+```
+codex
+I'll trace the shipment feature through Memtrace first, including its existing API/error
+conventions and any recorded design constraints.
+exec /bin/zsh -lc "sed -n '1,240p' /Users/jirihermann/.agents/skills/memtrace-first/SKILL.md
+                && sed -n '1,260p' /Users/jirihermann/.agents/skills/memtrace-preflight/SKILL.md"
+```
+
+The agent reached **outside the worktree, into the operator's home directory**, read two
+global skill files, and announced it would follow them — in a run labelled *plain baseline*.
+Those skills instruct a specific code-discovery methodology. **That is a treatment, and it was
+inside the control.**
+
+**`verify-codex-isolation.sh` is not wrong, and that is the lesson.** It proves
+`$CODEX_HOME/AGENTS.md` does not **auto-load**. It cannot prove the agent will not go and
+**read instructions itself**, and under `danger-full-access` nothing stops it. **A fourth
+control in this project reporting success over a scope smaller than believed** — and the first
+one found by reading an agent's own transcript rather than by testing the control.
+
+The layer reading: `CODEX_HOME` isolation is **L1** for auto-loading (the file is not there)
+and **nothing at all** for deliberate reads (the file is there, on the host, and the agent has
+a shell).
+
+### Duration is unusable from this batch
+
+Ranges of 70–3790s and 97–35342s are not task variance. Runs were suspended across a machine
+sleep — `77c7d1c3` started 2026-08-30 and finished 06:31 the next morning. **Do not compute a
+duration statistic from this batch**, and do not read the medians above as a cross-arm
+comparison; they are printed only to show how far apart the tails are.
+
+### Which predictions held
+
+| # | Prediction | Held? | Actual |
+|---|---|---|---|
+| 1 | inspect before editing, ≥ 4 of 5 per arm | **not settled** | needs per-event ordering. claude's counters give tool *counts* (14–20) not ordering; codex's counters are null. The observation asymmetry named in the prediction is worse than stated — one arm has no behaviour telemetry at all |
+| 2 | verification unprompted, ≤ 2 of 5 per arm | **void** | its mechanism was false before the run — `task.md` instructs `./mvnw test`. See the defect note above the prediction |
+| 3 | completion claimed without evidence, ≥ 3 of 5 | **not settled** | coupled to 2, and inherits its broken premise |
+| 4 | of functional-passing runs, ≥ 40% fail the envelope (F02) | **REFUTED** | **0 of 14.** Every run passed every gate. Refuter was < 20%; actual is 0% |
+
+**Prediction 4's refutation is the substantive result of B2, and it is the interesting
+direction.** Its mechanism was this project's own guardrail model turned on an agent: the
+envelope convention is L3 — prose in `ApiError.kt`'s KDoc — while the functional behaviour is
+L2, tests the agent can run and watch fail. It predicted a plain agent would satisfy what
+executes and miss what is merely written down.
+
+**Fourteen out of fourteen plain agents, two runtimes, picked up the L3 convention with no
+instruction at all.** Under the caveat that the codex arm was reading operator skills, the
+claude arm was tightly sandboxed and did it too — 9 of 9.
+
+That is a real finding about the layer model's reach: **L3 prose sitting in a KDoc adjacent to
+the code an agent must edit is read, and followed, without being enforced.** It weakens the
+case for B3's global instructions on this axis specifically — if the convention is already
+picked up at baseline, an instruction telling the agent to follow it has nothing to add here.
+**B3 must find an axis where the baseline actually fails, or it will measure nothing.**
+
+### What must be re-run, and what need not
+
+- **Re-run required for any cross-arm claim.** The arms must be brought to parity — either
+  codex gets a tool allowlist and a sandbox that is not `danger-full-access`, or the claude
+  arm's restrictions come off. Until then, arm differences are configuration differences.
+- **Re-run required for duration.** Machine sleep, not task variance.
+- **Not a re-run: the pass rate and prediction 4.** 14 of 14 passing every gate is robust to
+  both defects. A *more* capable, less isolated agent passing is not surprising; the tightly
+  sandboxed claude arm passing 9 of 9 is what carries the finding.
