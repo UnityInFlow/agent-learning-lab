@@ -117,6 +117,28 @@ jobs:
       - name: The category-set check still rejects a short sheet
         run: ./tools/verify-sheet-category-checker.sh
 
+  board-freshness:
+    name: a published board does not outlive its source
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # the check reads HANDOFF.md's own commit history, not just HEAD
+      # HANDOFF.md cites artifact URLs as "the readable view of this file". A view is a COPY,
+      # and the guard against a stale copy was a sentence asking the reader to trust the file
+      # instead — Layer 3, which failed on 2026-08-30 when the source moved eleven times in a
+      # session and the board went on describing superseded work. This makes staleness fail
+      # loudly instead of silently. It cannot keep a board correct; only republishing does.
+      - name: Every declared board still matches HANDOFF.md
+        run: ./tools/check-board-freshness.sh
+      # The check itself gets checked, for the reason check-sheet-categories.sh exists as a
+      # cautionary tale: it shipped ShellCheck-clean with nine passing fixtures and a green
+      # job, and it silently admitted what it was built to reject. One of these nine cases
+      # found a real parse bug in the checker on the day it was written.
+      - name: The freshness check still rejects
+        run: ./tools/verify-board-freshness-checker.sh
+
   run-gate:
     name: a gate-failing run is not scored
     runs-on: ubuntu-latest
