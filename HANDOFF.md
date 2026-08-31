@@ -273,14 +273,16 @@ same commit as the republish, and the check starts guarding from that point. Unt
 reports "nothing claimed, nothing to check" — which is honest, and is also exactly the L3 gap
 the check was written to close, left open on purpose and named here rather than forgotten.
 
-## On disk but not in git, so a new machine or a `$TMPDIR` purge loses it
+## On disk but not in git, so a `$TMPDIR` purge or a new machine loses it
 
-Nothing here is evidence and nothing blocks you — recorded so it is not looked for later.
+**Updated 2026-08-31. One row here is now evidence, which was not true yesterday.**
 
 | what | where | matters? |
 |---|---|---|
-| `workbench.local/` — the blind-sheet workbench, 5 variants + README | the lab repo, gitignored via `*.local` | **rebuild it** if lost; the one-line command is in its README |
-| 6 kept worktrees, 4 agent logs | `$TMPDIR/observatory-run-*`, `observatory-agent-*.log` | no — every run today was a harness proof, none is baseline data |
+| **`evidence.local/b2-agent-logs/`** — 18 agent transcripts, 596 KB | the lab repo, gitignored | **YES.** The ONLY artefact that can settle B2 predictions 1 and 3 — both need per-event ordering, and the codex arm has no behaviour telemetry at all, so the log is its only source. Also carries the observatory#65 evidence line |
+| 25 kept worktrees, **781 MB** | `$TMPDIR/observatory-run-*` | **partly.** Needed only for prediction 4's idempotency isolation, which wants the surefire output. Too large to mirror; if purged, that isolation needs fresh runs |
+| `boards.local/` — two artifact sources + README | the lab repo, gitignored | no — losing them costs a rebuild, not a measurement. `b2-board.html` is rebuilt and unpublished |
+| `workbench.local/` — the blind-sheet workbench | the lab repo, gitignored | **no longer.** Decision E superseded the sheet it fed. Kept as the record of a measurement designed and not taken |
 
 ## What the fourth session changed, 2026-08-29
 
