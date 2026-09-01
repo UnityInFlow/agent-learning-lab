@@ -93,10 +93,25 @@ while IFS= read -r line; do
   # board still describes the prose accurately and this passes. The clause is narrow on
   # purpose. It asks whether the diff touches ONLY lines containing a board marker; one
   # substantive line in the same diff and the whole thing is stale again.
+  #
+  # A THIRD OUTCOME, added 2026-09-01 after this check disagreed with itself across two
+  # machines on one commit. Squash-merging a branch orphans every sha on it: PR #43's
+  # 4f71a45 stopped being an ancestor of main the moment 60 commits became one. The author's
+  # clone still holds that object, so the clause below resolved it and printed "2 boards
+  # current"; CI's clone does not, so the clause was skipped and both boards read STALE.
+  #
+  # That is the wrong way round for a control. It was LENIENT on the machine where the fix
+  # gets made and strict only after the push, and its message sent the reader to republish
+  # two boards that were byte-for-byte correct. So an unresolvable sha is now its own
+  # outcome. It still FAILS -- a marker nobody can check is not a marker -- but it says what
+  # is actually wrong, which is the marker's sha and not the board's content.
   fresh=0
+  unverifiable=0
   if [ "${sha:0:$n}" = "${current:0:$n}" ]; then
     fresh=1
-  elif git cat-file -e "${sha}^{commit}" 2>/dev/null; then
+  elif ! git cat-file -e "${sha}^{commit}" 2>/dev/null; then
+    unverifiable=1
+  else
     substantive="$(git diff "$sha" -- "$HANDOFF" 2>/dev/null \
                    | grep -E '^[+-]' | grep -Ev '^(\+\+\+|---)' \
                    | grep -vc 'board:' || true)"
@@ -105,6 +120,13 @@ while IFS= read -r line; do
 
   if [ "$fresh" -eq 1 ]; then
     echo "  current   $url  (built from $sha)"
+  elif [ "$unverifiable" -eq 1 ]; then
+    echo "  UNVERIFIABLE  $url" >&2
+    echo "            built-from: $sha does not resolve in this repository" >&2
+    echo "            usually a squash merge orphaned it. If $HANDOFF's prose is unchanged," >&2
+    echo "            relabel the marker to the commit that now carries it ($current)." >&2
+    echo "            Do NOT republish on the strength of this message alone." >&2
+    stale=$((stale + 1))
   else
     echo "  STALE     $url" >&2
     echo "            built from $sha, but $HANDOFF is now at $current" >&2
