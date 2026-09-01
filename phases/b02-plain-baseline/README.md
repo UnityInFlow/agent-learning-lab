@@ -335,6 +335,42 @@ sleep — `77c7d1c3` started 2026-08-30 and finished 06:31 the next morning. **D
 duration statistic from this batch**, and do not read the medians above as a cross-arm
 comparison; they are printed only to show how far apart the tails are.
 
+**AMENDED 2026-09-01, eighth session — the mechanism above is wrong for the claude arm, and
+the conclusion is narrower than it was stated.** The run record's own timestamps:
+
+```
+ #  runId      arm      started    finished     durS
+ 1  5bd24356   claude   20:13:57   20:15:16       79
+ 2  0a222393   claude   20:15:46   20:16:56       70
+ 3  8322e71b   claude   20:16:27   20:17:50       83
+ 4  aa72e2c2   claude   20:17:25   20:18:45       80
+ 5  72fdc94f   claude   20:18:19   20:19:37       78
+ 6  656da203   claude   20:19:13   20:21:42      149
+ 7  491ee5e1   claude   20:20:05   20:26:44      399
+ 8  d72a1ec9   claude   20:26:48   20:49:49     1381
+ 9  192f2211   claude   20:27:13   21:30:23     3790
+10  77c7d1c3   codex    20:27:39   06:16:41    35342   <- the sleep
+11  34a01f57   codex    06:17:11   06:19:06      115
+```
+
+**Only run 10 can have spanned the sleep.** Run 9 finished at 21:30 with the machine
+demonstrably awake, and the claude arm's spread from 149s to 3790s happened inside a
+seventy-minute window that evening. So the sleep explains one codex run and does not explain
+the arm it was being used to void.
+
+What did degrade runs 6–9 is **not established**. Start times are ~55s apart while runs take
+~80s, so two runs are always in flight and the queue deepens — contention on one laptop is
+the obvious candidate and it is **not proven**. Do not write it up as the cause.
+
+**What this changes.** "Re-run required for duration" below was justified by a mechanism that
+does not cover the claude arm. The narrower true statement is: *the duration tail on both arms
+is contaminated by something the run record does not capture, and the record cannot presently
+separate a contaminated run from a clean one.* Cost, token and call-count statistics are
+untouched by any of this — they are not wall-clock measurements — which is why the baseline
+report at `evidence/b02/baseline-report-20260901T192000Z.txt` is reported over the **full
+pre-registered arm** rather than over a post-hoc subset. Selecting the five fast runs would
+have been exactly the post-hoc selection this phase exists to avoid.
+
 ### Which predictions held
 
 | # | Prediction | Held? | Actual |
@@ -529,6 +565,56 @@ fed the same way — codex receives one inlined prompt, opencode receives file a
 this establishes is that the second path exists, admits the same population, and found
 something checkable on its first use.
 
+
+---
+
+## The claude arm at n=5 — and the headline finding is now 1 of 5, not 0 of 3
+
+**2026-09-01, eighth session.** Runs 4 and 5 by start time (`aa72e2c2`, `72fdc94f`) were the
+two scored-population members that had never been scored. Selection rule unchanged and
+pre-registered: *by start time*, the same rule that picked runs 1–3. Both harnesses, rubric
+`396e1799eb2b`, zero nulls on four new sheets, no opencode stall.
+
+| # | run | architecture | maintainability | test-quality | change-focus |
+|---|---|---|---|---|---|
+| 1 | `5bd24356` | 2 / 2 | 0 / 0 | 1 / 1 | 1 / **2** |
+| 2 | `0a222393` | 2 / 2 | 0 / 0 | 1 / 1 | 1 / **2** |
+| 3 | `8322e71b` | 2 / 2 | 0 / 0 | 1 / 1 | 1 / **2** |
+| 4 | `aa72e2c2` | 2 / 2 | **2 / 2** | 1 / 1 | 1 / 1 |
+| 5 | `72fdc94f` | 2 / 2 | 0 / 0 | 1 / 1 | 1 / 1 |
+
+*codex / opencode.* **18 of 20 exact.**
+
+### The correction, stated plainly
+
+**`maintainability` is 1 of 5 on the claude arm, not 0 of 3.** Everything written above this
+section on the strength of "0 of 3" — including *"the plain agent does not close the door
+behind itself"* — was true of the three runs it was computed from and is **too strong at
+n=5**. It is left standing above rather than edited, because a claim that shrank when the
+sample grew is the record worth keeping.
+
+**Both columns of the decision procedure agree, so this is not a rubric defect.** The diff was
+read by hand from the kept worktrees, independently of the sheets:
+
+- `aa72e2c2` — `return when (shipment.status)` in expression position, all three constants,
+  **no `else`**. A new `ShipmentStatus` constant is a compile error. Anchor 2, **L1**.
+- `72fdc94f` — two `if` guards then a bare `return repository.save(...)` fallback. Compiles
+  and takes the fallback unannounced. Anchor 0, **L3**.
+
+The rubric cell and the hand-read diff return the same value on both. The scorer being codex
+did not distort this one.
+
+### Two things this does to claims made earlier in this file
+
+1. **opencode's `change-focus` disagreement is 3 of 5, not 3 of 3.** It agreed with codex on
+   runs 4 and 5. *"The same mechanism firing on every run"* was written at n=3 and does not
+   survive n=5. The harness finding underneath it — opencode citing one tree where anchor 0
+   says "cite the line in both trees" — is untouched and is still the solid one.
+2. **The prior behind the blank prediction below has moved.** It was written against
+   *"4 of 5 codex runs used `when`, 3 of 3 scored claude runs used `if`"*. The claude half of
+   that is now **4 of 5 used `if`, 1 of 5 used `when`** — measured, not estimated. Anyone
+   writing that prediction should write it against this number, and should know it was
+   produced after the prediction block was created and before the prediction was written.
 
 ---
 
