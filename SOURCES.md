@@ -1,17 +1,40 @@
 # Verified sources
 
-Every URL the curriculum cites, checked with `curl -sSL` on **2026-08-10**. Re-run
+Every URL the curriculum cites, checked with `curl -sSL` on **2026-08-28**. Re-run
 [`tools/check-links.sh`](tools/check-links.sh) before each cohort — this list drifts.
 
 **Status legend:** ✅ resolves as written · ↪️ resolves but **redirects** (the URL in
-`CURRICULUM.md` is stale) · 🔒 live in a browser, blocks `curl` (403 to bots)
+`CURRICULUM.md` is stale) · 🔒 live in a browser, blocks `curl` (403 to bots) ·
+🔑 one of the lab's own repos · ⚠️ no HTTP response at all — **not** a 404, and not a pass
 
 ## What the check found
 
-**2026-08-10 re-check: 76 URLs across `SOURCES.md`, `CURRICULUM.md`, `LEARNING-PATH.md`,
-`GUARDRAILS.md`, `build/README.md` and all phase READMEs. Nothing broken, nothing newly
-moved — all eight redirects below were already marked ↪️, so this file did not drift.** The
-first pass checked only the first two files, hence 43 URLs then and 76 now.
+**2026-08-28 re-check: the same 76 URLs. `ok=64 moved=8 blocked=2 unverified=0 broken=0`.
+The same eight redirects, still the same eight, none of them new — eighteen days and this
+file did not drift.** Nothing here needs a new entry.
+
+**What did move is the checker, and it had been wrong in both directions at once.** Neither
+error was visible in its output; both were found by re-verifying its verdicts by hand.
+
+- **Two live pages were reported broken.** It sent `-A 'Mozilla/5.0'` — not a browser
+  string — and `anthropic.com` and `code.claude.com` answered by dropping the connection
+  instead of replying. curl reports `000` for that, `000` fell into the catch-all, and both
+  were printed ❌ and counted broken, so the script exited 1. Both return 200 to a real
+  browser UA. **If a pre-cohort check ever fails on `anthropic.com`, re-verify by hand
+  before believing it.** `000` now retries once and then lands in ⚠️ `unverified`: not ok,
+  not broken, non-fatal, and yours to resolve — it is a transport failure, which is not
+  evidence that a page is gone.
+- **Two URLs were never checked at all.** Every `github.com/UnityInFlow/*` link was skipped
+  before it was fetched, because those repos used to be private and a private repo 404s to
+  an unauthenticated curl. All three went public; the skip stayed. So they printed 🔑 and
+  counted as neither ok nor broken while both answered 200 — a check that never ran, shown
+  as though it had. They are fetched like anything else now, and a 404 is what reports 🔑.
+  That is where `ok` 62 → 64 comes from; the URL set did not change.
+
+*2026-08-10 re-check: 76 URLs across `SOURCES.md`, `CURRICULUM.md`, `LEARNING-PATH.md`,
+`GUARDRAILS.md`, `build/README.md` and all phase READMEs — nothing broken, nothing newly
+moved, all eight redirects already marked ↪️. The first pass checked only the first two
+files, hence 43 URLs then and 76 since.*
 
 Eight of the 76 links redirect. Two are worth knowing about because the *content* moved,
 not just the path:
@@ -133,7 +156,7 @@ to non-browser user agents. They load normally in a browser.
 |---|---|---|
 | ↪️ | [Enterprise managed settings](https://docs.github.com/en/copilot/reference/enterprise-managed-settings-reference) → `…/enterprise-administrators/enterprise-managed-settings` | |
 | ✅ | [Content exclusion](https://docs.github.com/en/copilot/concepts/context/content-exclusion) | **Not a universal Agent-mode security boundary.** Know the limits before quoting it to a risk officer |
-| ↪️ | [MCP private registry enforcement](https://docs.github.com/en/copilot/reference/mcp-allowlist-enforcement) | |
+| ↪️ | [MCP private registry enforcement](https://docs.github.com/en/copilot/reference/mcp-allowlist-enforcement) → `…/enterprise-administrators/mcp-private-registry-enforcement` | Same page as the ↪️ row under Guardrails, cross-listed. **Renamed from "allowlist enforcement"** — read it fresh |
 | 🔒 | [OpenAI — Running Codex safely](https://openai.com/index/running-codex-safely/) | |
 
 ---
@@ -158,7 +181,7 @@ carries *the question to bring to it* rather than just a URL.
 
 ## Sources the curriculum does not cite but you will need
 
-Added from labs and extracts. None of these are in `CURRICULUM.md`. All verified 2026-08-09.
+Added from labs and extracts. None of these are in `CURRICULUM.md`. All verified 2026-08-28.
 
 ### Agent design and orchestration
 

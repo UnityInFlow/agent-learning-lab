@@ -17,7 +17,8 @@ versus behavioral instructions**.
 
 Read in tiers, in order. Each entry says **the question to bring to it** — if you finish a
 source and still cannot answer its question, read it again rather than moving on. All links
-verified 2026-08-09.
+verified 2026-08-28 — none of the four Codex docs that moved to `learn.chatgpt.com` are cited
+here; Tier 1's OpenAI source is the 🔒 agent-loop article, which did not move.
 
 Budget: Tier 1 ≈ 90 min · Tier 2 ≈ 2 h · Tier 3 ≈ 90 min · Tier 4 is lookup, not reading.
 
@@ -341,6 +342,51 @@ cautious agent — and report it as an engineering-capability difference.
 Ask the agent to modify a protected file while it holds read-only access.
 
 > The model may *want* to perform an action. The runtime boundary should prevent it.
+
+## DECISION F, 2026-08-30 — 0A does not gate B2. It stays OPEN.
+
+**This is a dependency change, not a completion claim.** Nothing below is ticked, and this
+decision does not tick it. What changes is that B2 no longer waits.
+
+**Why B2 may proceed.**
+
+1. **Nothing in B2's machinery consumes 0A.** Runner, scorer, gate, isolation and report are
+   built, tested and pushed. `LEARNING-PATH.md` lists B2's dependency as "0A + 0B"; 0B is
+   built, and 0A's contribution is competence rather than an artifact B2 reads.
+2. **0A's exit gate is six "I can explain" items** — self-assessment, the author's alone.
+   Nobody else can tick them, which means "0A blocks B2" has always meant "B2 waits for a
+   self-assessment", and that has held the spine at position 3 for four sessions.
+3. **Lab 0A.1, "Observe a plain agent", was performed on 2026-08-30.** Four agent runs read
+   and scored through Decision D's `--run-id` path, recorded in E-001 follow-up 1. The lab's
+   observational content happened, with an artifact.
+4. **The three-layer model 0A defines is already operational.** It is in the workspace
+   `CLAUDE.md` and `GUARDRAILS.md`, every phase points back to it, and on 2026-08-30 it
+   produced a finding rather than being recited: `change-focus` anchor 0 instructs "cite the
+   line in both trees", nothing executes that instruction, one of two scorers ignored it —
+   L3, caught by a run.
+5. **The extract was written 2026-08-09.** The reading that produces it is not outstanding
+   work; the tiered reading and the labs are.
+
+**What this costs, stated so it is not discovered later.**
+
+- 0A teaches hard controls versus words a human reads. **This project paid for that lesson
+  six times in twenty hours**, every time as a bug rather than as reading. Decoupling 0A from
+  B2 means a seventh instance, if it comes, arrives the same way.
+- **Labs 0A.2 (permissions) and 0A.3 (the bug #7 reproduction) are unperformed** and stay
+  that way. 0A.3 in particular is ours, not in the curriculum, and nothing else covers it.
+- The six exit-gate items below are unticked. B2 proceeds with them unticked, which is
+  precisely the thing this decision is trading away.
+
+**The reversal condition, so this is falsifiable rather than convenient.** If B2 produces a
+defect traceable to a confusion 0A addresses — a control believed enforced that is only
+written down, a trust boundary assumed rather than checked — that is evidence the dependency
+was real. Record it here and reinstate the gate. **This decision predicts that will not
+happen; a seventh instance refutes it.**
+
+**Precedent and its own warning.** This is the second dependency dissolved in one day, after
+Decision E. Both were correct locally. Two in a day is also exactly what "the plan keeps
+losing to the schedule" looks like from inside, and the third one should be argued harder
+than either of these was.
 
 ## Exit gate
 

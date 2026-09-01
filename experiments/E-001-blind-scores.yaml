@@ -1,3 +1,14 @@
+# ─────────────────────────────────────────────────────────────────────────────────────────
+# SUPERSEDED 2026-08-30 by DECISION E in E-001-rubric-null-rate.md. Do not fill this in.
+#
+# The second column is now a second HARNESS — opencode-score.sh — not the author. This file
+# stays on disk unfilled because it is evidence: a measurement that was designed, argued for
+# over four sessions, and not taken. Deleting it would erase that.
+#
+# It cannot be revived for these five variants. Once either machine sheet has been read, a
+# human sheet written afterwards is not blind, and the header below says why.
+# ─────────────────────────────────────────────────────────────────────────────────────────
+
 # E-001 step 2 — your scores, recorded BEFORE reading any scorer output.
 #
 # Scoring your own work twice measures your consistency, not the rubric's. The gap between
@@ -20,7 +31,7 @@
 # 4 categories x 5 variants = 20 cells.
 
 scorer: human
-rubric_sha: dbf6f64fdfdc    # backend-quality.yaml v2, four categories
+rubric_sha: 396e1799eb2b    # backend-quality.yaml v2, four categories
 scored_utc:                 # when you started
 read_scorer_output_first: false   # if this is ever true, the comparison is void
 

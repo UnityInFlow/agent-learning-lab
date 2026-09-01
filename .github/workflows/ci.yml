@@ -103,6 +103,55 @@ jobs:
       - name: Every model-output fixture produces its registered class
         run: ./tools/verify-model-output-classifier.sh
 
+  sheet-categories:
+    name: a sheet missing a category is rejected
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      # A sheet carrying three of the rubric's four categories used to pass everything: the
+      # JSON schema said minItems 1 with no maxItems, and the classifier only asks whether a
+      # `categories:` key exists. A missing cell is not a null cell, and E-001's dependent
+      # variable is a ratio whose denominator is the cell count. This job is what keeps
+      # check-sheet-categories.sh discriminating; the cases are what prove it.
+      - name: The category-set check still rejects a short sheet
+        run: ./tools/verify-sheet-category-checker.sh
+
+  board-freshness:
+    name: a published board does not outlive its source
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # the check reads HANDOFF.md's own commit history, not just HEAD
+      # HANDOFF.md cites artifact URLs as "the readable view of this file". A view is a COPY,
+      # and the guard against a stale copy was a sentence asking the reader to trust the file
+      # instead — Layer 3, which failed on 2026-08-30 when the source moved eleven times in a
+      # session and the board went on describing superseded work. This makes staleness fail
+      # loudly instead of silently. It cannot keep a board correct; only republishing does.
+      - name: Every declared board still matches HANDOFF.md
+        run: ./tools/check-board-freshness.sh
+      # The check itself gets checked, for the reason check-sheet-categories.sh exists as a
+      # cautionary tale: it shipped ShellCheck-clean with nine passing fixtures and a green
+      # job, and it silently admitted what it was built to reject. One of these nine cases
+      # found a real parse bug in the checker on the day it was written.
+      - name: The freshness check still rejects
+        run: ./tools/verify-board-freshness-checker.sh
+
+  run-gate:
+    name: a gate-failing run is not scored
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      # Decision D admits a B2 run on the evaluator's recorded verdict instead of a fixture
+      # name. The invariant it protects — only gate-passing submissions get scored — is worth
+      # exactly as much as this check's willingness to refuse. A version that stopped refusing
+      # would look identical in every passing run.
+      - name: The run-gate check still refuses
+        run: ./tools/verify-run-gate-checker.sh
+
   links:
     name: verified reading is still verified
     runs-on: ubuntu-latest

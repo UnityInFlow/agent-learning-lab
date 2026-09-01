@@ -1,0 +1,43 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.21
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/good-weak-tests
+  baseline:      ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/known-good
+  baseline_state: attached
+  scored_utc:    20260830T174729Z
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: all refusals throw existing ApiException subclasses, no ApiError literal constructed
+    evidence: ShipmentController.kt:47,61
+  - name: maintainability
+    score: 2
+    anchor_level: 2
+    reason: single when in expression position, no else, value returned
+    evidence: ShipmentController.kt:52
+  - name: test-quality
+    score: 0
+    anchor_level: 0
+    reason: every assertion is status-only, no body read or state re-read
+    evidence: ConfirmShipmentTest.kt:36,37,42
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: controller and ApiError character-identical to baseline, only test file added
+    evidence: ShipmentController.kt:1-78
+ambiguous_categories: []
+```

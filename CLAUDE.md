@@ -25,10 +25,24 @@ Track B index.
 ./tools/opencode-score.sh <rubric> <impl-dir> # blind second scoring → findings/opencode/
 ./tools/verify-run-record-validator.sh        # 11 fixtures, each with its registered exit code
 ./tools/verify-model-output-classifier.sh     # 16 fixtures over 3 output contracts
+./tools/check-sheet-categories.sh <rubric> <sheet>   # is the sheet's category set the rubric's?
+./tools/verify-sheet-category-checker.sh      # 9 cases proving that check still rejects
+./tools/check-run-gate.sh <run.json>          # may this observatory run be scored? (Decision D)
+./tools/verify-run-gate-checker.sh            # 13 cases proving that gate still refuses
+./tools/codex-score.sh <rubric> --run-id <id> # score a B2 run instead of a fixture
+./tools/opencode-score.sh <rubric> --run-id <id>     # the same run, second harness
 ```
 
 CI runs `bash -n` + ShellCheck (`-S warning`) on `tools/`, parses every YAML contract, and
 runs the link check weekly. **ShellCheck is a required check** — `cd` needs `|| exit`.
+
+**The push hook reviews `tools/*.sh` too, as of 2026-08-28** — and it did not before, which
+is how a blocking defect reached `check-sheet-categories.sh` with ShellCheck clean, nine
+passing fixtures and a green CI job. None of those can catch *"this gate admits something it
+should not"*. Contracts are reviewed before tools, at most `LAB_REVIEW_MAX_ARTIFACTS` (4) per
+push, and **anything dropped is named on the way past** — every artifact lands in one prompt
+per family, so a wide push does not cost more calls, it costs attention from a critic that
+already under-reports.
 
 **Never edit a tool while a run of it is in flight.** bash reads a script incrementally, so
 an edit shifts the byte offsets under the running instance. Observed 2026-08-27: editing
@@ -66,10 +80,88 @@ recurrence table and exited 0.
 **Score anything yourself before reading its output.** Reading first produces agreement that
 measures nothing.
 
-### Models that hang
+**The scorer takes `--run-id` for a B2 run — Decision D, proposed by Claude, built and
+confirmed by the author on 2026-08-28.** Path A scores a fixture and proves the gate by name;
+Path B scores an observatory run and proves it from the evaluator's recorded verdict,
+refusing when there is none. It attaches **the files the agent changed, in full, plus their
+pre-agent versions** — not the whole worktree, because `sample-service` ships
+`ShipmentControllerTest.kt` and attaching all 25 files would put a test file among the
+attachments on every run, silently disabling Decision A's null precondition. Runbook: [`phases/b02-plain-baseline/RUNBOOK.md`](phases/b02-plain-baseline/RUNBOOK.md).
+**`opencode-score.sh` has a `--run-id` path too, as of 2026-09-01, and this paragraph used to
+say a cross-harness check on B2 was not possible.** It is. **Decision C is untouched** — codex
+remains the registered scorer and produces the experiment's numbers; opencode is the second
+reader, which is what B1 had and B2 did not. Both paths admit a run by the same rule (the
+evaluator's recorded verdict, `check-run-gate.sh`) and attach the same set (Decision D), so
+the two sheets are comparable by construction.
 
-`opencode-go/kimi-k3`, `opencode-go/glm-5.3` and `ollama-cloud/kimi-k2.6` hang indefinitely
-on non-interactive runs — zero output past nine minutes, no error. Working:
+It also removes a single point of failure that FAILED: on 2026-09-01 codex hit its usage limit
+mid-session and B2 was unscoreable for three hours.
+
+**First cross-harness comparison, and it earned its keep immediately: all three scored runs,
+9 of 12 exact, zero nulls on six sheets — and the three disagreements are one category, one
+direction, three times out of three.** `change-focus`: codex 1, opencode 2, every run.
+
+**opencode's fact is wrong on all three, whatever the right score is.** It reported a variant
+of *"create/getById/list and imports identical to baseline, only confirm added"*; the diff
+shows a deleted class KDoc on one run and a new `ErrorCode` constant in a second attached file
+on the other two. Whether that deserves 1 or 2 is a live rubric question — a required enum
+constant is arguably part of the change — and it belongs in a rubric round, not in a sha moved
+mid-experiment.
+
+**The harness finding is the solid one, and it is a REPEAT.** `change-focus` anchor 0 says
+*"cite the line in both trees"*; on 2026-08-30 codex did and opencode named methods and cited
+one tree. It has now done the same on three more targets, citing one file in the target tree
+while a pre-agent tree sat attached and unread. Nothing executes that instruction. Four
+occurrences is a property of the harness, and an argument *for* Decision C.
+
+**The scorer admits fixtures by NAME, and that runs out at B2.** `codex-score.sh` and
+`opencode-score.sh` accept a target only if its basename is in `known-good` +
+`QUALITY_VARIANTS`, read from the benchmarks' `verify-evaluator.sh`. The invariant is right —
+only gate-passing submissions get scored — but the proof is a registry lookup, and a B2 agent
+run has no fixture name. The second admission path, and the open question about attachment
+sizes that comes with it, are specified in [`build/README.md#b2`](build/README.md#b2).
+**Read that before the first B2 run.**
+
+**A missing cell is not a null cell.** `null` is a measurement — the scorer read the anchor
+and could not decide. A category that never appears in the sheet is an absence, and once the
+sheet is on disk nothing downstream can tell them apart. E-001's dependent variable is the
+null *rate*, a ratio whose denominator is the cell count, so a silently short sheet does not
+add noise: it changes what was measured while reporting the same units. Until 2026-08-28
+nothing caught one — the JSON schema said `minItems: 1` with no `maxItems` and `name` as a
+free string, and `classify-model-output.sh` only asks whether a `categories:` key exists,
+because it is never given the rubric. `codex-score.sh` now pins the schema per run to the
+rubric's own category names and exact count, both scorers re-check the set on disk after the
+run, and `check-sheet-categories.sh` fails closed if either parse yields nothing.
+
+### `opencode run` hangs. It is the harness, not a list of bad models
+
+**Corrected 2026-08-28.** This section used to name three models that hang, as if the fault
+were a property of the model. The evidence says otherwise:
+
+- `glm-5.2`, `deepseek-v4-pro` and `gpt-oss:120b` all stalled on 2026-08-28 — each had
+  answered the *same artifact* in minutes earlier the same day
+- five `opencode run` processes were wedged on this machine at once, aged **10–12 days**,
+  from other projects and unrelated commands (`--auto --command review PR #45`,
+  `--auto --pure`, `--dir . --pure`). Each had burned ~an hour of CPU before it stopped
+  returning, so they were working and then stopped — not stuck from the start
+- `codex`, a different harness, answered every time, in under a minute, on the same input
+
+So: **`opencode run` fails to return on a fraction of non-interactive calls, independent of
+model and project, and never times out on its own.** Roughly five of eight calls on
+2026-08-28.
+
+**A hung run looks exactly like an empty one.** The provenance header is written *before*
+opencode is invoked, so a stall leaves a header-only file. Check for a live process before
+reading one as a finding — that mistake has already been made and reported once.
+
+**The mitigation is `LAB_REVIEW_TIMEOUT` (default 600s)**, which covers every panel family
+*and* the acceptance gate: a stall drops that family, on the record, and the rest continue.
+Nothing has ever recovered past ~10 minutes.
+
+**The scorer does not rely on opencode at all** — see *Which harness does what*.
+
+The three below hang totally rather than intermittently, and should simply not be used:
+`opencode-go/kimi-k3`, `opencode-go/glm-5.3` and `ollama-cloud/kimi-k2.6` — zero output past nine minutes, no error. Working:
 `ollama-cloud/deepseek-v4-pro` (the default), `gpt-oss:120b`, `gpt-oss:20b`. Two of the
 user's `opencode run` processes were wedged for over a week for this reason.
 
@@ -78,9 +170,37 @@ filename. The prompt must come first. `--dir` repoints the project root, so `.op
 is looked up in the target and opencode **silently falls back to the default full-tool agent
 and exits 0** — both scripts grep for that warning and fail.
 
+## Which harness does what
+
+Two harnesses, deliberately. `codex` is not a fallback — where it is used, it is *the*
+registered choice, and mixing harnesses inside one comparison measures the harnesses.
+
+| role | harness | why |
+|---|---|---|
+| **scoring** | **`codex` only** (E-001 Decision C) | produces the experiment's actual numbers. `opencode` was a single point of failure on the one instrument that cannot be allowed to fail |
+| second reading | `opencode`, same `--run-id` | **not a fallback and not a vote.** The registered number is codex's; this is the distance between two harnesses, which is the only thing that separates a rubric defect from a model quirk. Where they disagree, go to the diff — on the first comparison the diff sided with codex |
+| line-level critic | **panel: `codex` + opencode families** | different harnesses find different *classes* of defect — see below |
+| acceptance gate | `opencode` only | a review, not a measurement. A stalled gate costs time; a stalled scorer costs the experiment |
+
+```bash
+./tools/codex-score.sh <rubric> <impl-dir>     # the scorer. Decision C
+./tools/codex-critic.sh <out.md> <artifact>    # one panel family, standalone
+./tools/opencode-review.sh -P codex,deepseek-v4-pro <artifact>
+```
+
+**Three sources, three defect classes, on the same rubric.** None found another's list:
+
+- `glm-5.2` — structural: gaps in the anchor ladder, an anchor citing a file that is not attached
+- `deepseek-v4-pro` — phrasing that two faithful scorers read two ways, costed in points
+- `codex` — domain terms never defined at all ("refusal", "the imports it requires"), shown
+  with constructed Kotlin counterexamples
+
+That is the argument for `-P`, and it is why `-n` (one model, N times) is a different knob:
+`-n` measures a model's detection threshold, `-P` measures the artifact.
+
 ## Where B1 stands
 
-`benchmark/rubrics/backend-quality.yaml` is **v2, four categories, sha `dbf6f64fdfdc`**,
+`benchmark/rubrics/backend-quality.yaml` is **v2, four categories, sha `396e1799eb2b`**,
 written 2026-08-27 (lab#21). The seven-category file it replaced is in git history as a
 **worked example of a specific mistake**. Two independent defects killed it:
 

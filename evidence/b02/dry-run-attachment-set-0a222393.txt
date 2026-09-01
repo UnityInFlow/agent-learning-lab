@@ -1,0 +1,714 @@
+
+You are the **second scorer**. Someone else is scoring the same implementation against the
+same rubric, independently. The distance between your scores and theirs is the measurement —
+it is the evidence for whether the rubric is stable enough that anything downstream of it
+means something.
+
+That makes your job narrow and strange: you are not here to be right, and not here to be
+agreeable. You are here to apply the rubric **exactly as written** and let the disagreement
+be visible.
+
+## Rules
+
+1. **Score only from the rubric text you were given.** If your own judgement about good
+   backend code conflicts with the rubric's anchor, the anchor wins. Where the rubric is
+   silent, it is silent — see rule 3.
+
+2. **Evidence is a file and a line.** Every score cites something you actually read. No score
+   rests on the absence of evidence unless the rubric explicitly scores absence.
+
+3. **Unknown stays unknown.** If the rubric's anchors do not let you separate two scores for
+   a category, emit `score: null` and set `reason: ambiguous` with the specific pair you could
+   not separate. **Never split the difference, never round to the middle, never guess a
+   plausible number.** A null here is a real result — it is the rubric failing, recorded.
+   A fabricated score is worse than no score, because it looks like agreement.
+
+4. **Do not compute the weighted total.** That is arithmetic done downstream, on both
+   scorers' sheets at once. A total you compute invites you to work backwards to it.
+
+5. **No commentary.** No preamble, no "overall this is solid", nothing after the YAML.
+
+6. **Be terse.** Do not quote the anchor back — `anchor_level` already identifies it, and
+   restating long anchors verbatim for every category is most of the output. `reason` is one
+   clause, not a paragraph. A rubric with verbose anchors must not cost more to apply than
+   one with terse anchors; the score is the product, the prose is not.
+
+## Output
+
+YAML only. Exactly this shape, one entry per rubric category, in the rubric's order:
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: <category name verbatim from the rubric>
+    score: 0 | 1 | 2 | null
+    anchor_level: <0, 1 or 2 — WHICH anchor you matched; null when score is null>
+    reason: <one clause, under 20 words>
+    evidence: <path:line, or the specific absence the rubric scores>
+ambiguous_categories: [<names where score is null>]
+```
+
+If the rubric file you were given is unreadable or has no categories, emit only:
+
+```yaml
+scorer: lab-scorer
+error: <what was missing>
+```
+
+## The rubric
+```yaml
+# BE-003 backend quality rubric — B1, four categories
+#
+# Replaces the seven-category draft (sha 21aa658d030d), which is kept in git history as a
+# worked example of two specific mistakes rather than as a draft to finish. lab#21.
+#
+# PROVENANCE. Drafted by Claude (Opus 5) on 2026-08-27 from the fixture sources and the
+# baseline, at the user's request. The anchors below have never been applied to anything.
+# The predictions registered against the previous rubric were also Claude's, adopted rather
+# than independently derived, and the one that broke did so on an authoring error nobody
+# caught. E-001's predictions are deliberately the user's for that reason. Read any result
+# from this file with the drafting provenance in view.
+#
+# ── WHY THE PREVIOUS ONE DIED ────────────────────────────────────────────────────────────
+#
+# 1. Anchors cited evaluator exit codes and named test suites. The scorer receives changed
+#    source files and nothing else — no test runner, no evaluator output — so those anchors
+#    were UNDECIDABLE by it and it emitted nothing rather than guessing.
+# 2. Worse: this rubric only ever scores submissions that ALREADY PASSED every gate. Any
+#    anchor restating a gate is therefore a constant across the whole population it is
+#    allowed to score. `functional-correctness` (25) and `requirement-completeness` (20)
+#    did exactly that. Sixty percent of the weight carried no information, and it looked
+#    like agreement rather than like a defect.
+#
+# Both are dropped. The gates own correctness and completeness, and they own them at Layer
+# 2 — `evaluator.sh` executes. This file scores how well the work was done AMONG passing
+# submissions, which is the only question left once the gates have spoken.
+#
+# ── THE DESIGN RULE, AND THE TEST FOR ANY FUTURE ANCHOR ──────────────────────────────────
+#
+# Could a scorer cite `path:line` for it, from the attached files alone? The attachments
+# are every *.kt under the fixture, plus the `known-good` baseline tree (E-001 Decision B).
+# Nothing else exists: no diff, no test run, no evaluator output, no network.
+#
+# An anchor must also name a CONSTRUCT — `when` versus an if-chain, an `ApiError` literal,
+# a second `post(...)` call — and never "differs from the baseline". With the baseline in
+# the evidence set, "differs" is answerable without reading the rubric at all, and a rubric
+# that rewards it is measuring spot-the-difference. E-001's KEEP condition requires the
+# cited construct for exactly this reason.
+#
+# ── THE LADDER IS TOTAL. READ THIS BEFORE ANY ANCHOR ─────────────────────────────────────
+#
+# Three anchors do not partition the space of submissions, and the first draft of this file
+# pretended they did. `lab-acceptance` rejected it on that, blocking, before it had scored
+# anything — which is the whole reason E-001's procedure critiques a rubric before applying
+# it. Four gaps, one per category, each a submission matching NO anchor:
+#
+#   architecture  a NEW ApiException subclass declared in `com.unityinflow.sample.api`.
+#                 Anchor 1 wants a type "not imported from" api; anchor 2 wants "an existing"
+#                 subclass. It is both and neither.
+#   maintainability  a non-exhaustive `when` used as a statement, carrying no `else`. Anchor 0
+#                 wants an if-chain or an `else`; anchor 2 wants exhaustive.
+#   test-quality  the repeat exercised and the state re-read, but no assertion on
+#                 `$.error.code`. Anchor 1 wants one of the two BOLD behaviours missing;
+#                 anchor 2 wants all three clauses.
+#   change-focus  every named method character-identical, but an unrelated import reordered.
+#                 Anchor 1 counts METHODS; anchor 2 wants only `confirm` and its imports.
+#
+# Two faithful scorers reach different numbers on any of those, and `null` does not cover it:
+# the contract says emit `null` when the anchors cannot SEPARATE two scores, and here the
+# anchors are decidable and simply do not reach. So the ladder is closed by rule rather than
+# by writing more anchors, which would only move the seams:
+#
+#     0   if the 0 anchor's condition holds
+#     2   else if EVERY clause of the 2 anchor holds
+#     1   otherwise
+#
+# Anchor 1's text is therefore an ILLUSTRATION of the residual, not its definition. Read it
+# as the most common shape of "neither the defect nor the full convention", and score 1 for
+# any other shape that is also neither. Applied to the four gaps above, every one scores 1,
+# which is also the answer a careful human gives.
+#
+# `null` keeps exactly two jobs: a precondition failed (no test file, no baseline), or the
+# evidence does not let you decide whether the 0 condition holds. Never as a shrug.
+#
+# ── SCORING ──────────────────────────────────────────────────────────────────────────────
+#
+#     score = 100 * sum(w_i * s_i) / (2 * sum(w_i))   over categories where s_i is not null
+#
+# Categories scoring null are excluded from BOTH sums. That keeps a null from reading as a
+# zero — but it also means a total over three categories is NOT COMPARABLE to a total over
+# four: the same 100 is a different claim. Report the categories that nulled beside every
+# total, or do not report the total.
+#
+# KNOWN AND REGISTERED, NOT A SURPRISE TO BE DISCOVERED LATER. `test-quality` carries 25 of
+# the 100 and is decidable on only two of the five gate-passing variants, because the other
+# three submitted no test file at all. Three of E-001's twenty cells are null before an
+# anchor is read. That is not the previous rubric's defect — a structural null is honest
+# where a constant was not — but it is the same family, and it is the open question this
+# file hands forward: either the fixture set grows tests, or the weight is wrong.
+#
+# ── A RUN THAT FAILED A GATE IS UNSUCCESSFUL ─────────────────────────────────────────────
+#
+# Even when it used fewer tokens. Do not compute a score for it in order to rank it against
+# passing runs. This is the single most important rule in the business case.
+#
+# AND UNTIL 2026-08-27 NOTHING ENFORCED IT. This file assumes its input has already cleared
+# the gates — every "the gates own that" above depends on it — and `opencode-score.sh` would
+# score any directory it was handed, `known-bad-*` included. The filter lived in E-001's
+# Exclusions, which is a document. L3.
+#
+# **It is L2 now.** `opencode-score.sh` reads `QUALITY_VARIANTS` from the benchmark's own
+# `verify-evaluator.sh` — the file CI already runs to prove each variant still exits 0 — and
+# refuses any target outside it. Reading the registry rather than copying it makes drift a
+# hard failure; an unreachable registry stops the run rather than falling back to scoring
+# anyway. Proven: the six gate-passing fixtures accepted, both `known-bad-*` refused.
+#
+# A score computed on a gate-failing submission is not a weaker result, it is a different
+# measurement wearing this one's units. This paragraph said the L2 version "does not exist"
+# for one commit AFTER it had been built — a document describing the absence of a control
+# that was by then running. The same mistake as describing a control that is not.
+
+version: 2
+task: BE-003-confirm-shipment
+scale: [0, 1, 2]
+
+categories:
+
+  - name: architecture-consistency
+    weight: 35
+    # The convention is DECLARED IN THE SOURCE, which is what makes it citable: ApiError.kt
+    # states "Responses are produced centrally by [GlobalExceptionHandler]; controllers
+    # throw an [ApiException] rather than assembling bodies themselves." The scorer can
+    # read that sentence and then check the controller against it.
+    # WHAT COUNTS AS A REFUSAL. Any path that ends the request without the success
+    # response — including one taken by `check(...)`, `require(...)`, `!!` or a bare
+    # `throw`. The codex critic built the counterexample: a submission whose missing-shipment
+    # branch throws the baseline `ResourceNotFoundException` but whose state validation is a
+    # `check(...)` throwing `IllegalStateException`. One reviewer calls that a refusal and
+    # scores 1; another reserves "refusal" for explicit response branches and scores 2.
+    # It is a refusal. `IllegalStateException` is not an ApiException subclass, so it is
+    # anchor 1: it throws, but not through the declared hierarchy.
+    precondition: none
+    anchors:
+      0: "The shipment package constructs an ERROR body itself — an `ApiError(...)` or `ApiErrorBody(...)` literal, or a map assembled ON A REFUSAL PATH, appears inside a controller method. A map or any other shape on the SUCCESS path is not this anchor; the category is about who renders refusals. A `ResponseEntity<Any>` return type is the usual tell: it exists to carry both the success shape and a hand-built error shape. Cite the literal."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: refusals throw rather than assemble, but not through the declared hierarchy — a bare `ResponseStatusException`, or a new exception type, whether or not it lives in `com.unityinflow.sample.api`. Cite the throw site and the import list."
+      2: "Every refusal throws an `ApiException` subclass that ALREADY EXISTS IN THE ATTACHED BASELINE — `ResourceNotFoundException` for a missing shipment, `ConflictException` for a state refusal — and no `ApiError` or `ApiErrorBody` is constructed anywhere in the shipment package. `existing` means present in the baseline tree, not merely declared somewhere in this submission; the baseline is attached, so the distinction is decidable. A subclass the submission introduces is anchor 1. Cite each throw site."
+
+  - name: maintainability
+    weight: 25
+    # `ShipmentStatus` is an enum, so an exhaustive `when` with no `else` makes adding a
+    # state a COMPILE ERROR at this site. An if-chain, or a `when` with `else`, silently
+    # routes the new state down the fallback path.
+    #
+    # ANCHORED ON POSITION, NOT ON THE ENUM. The first cut said "a branch per enum constant,
+    # count the branches against `ShipmentStatus`" — and `ShipmentStatus` IS NOT IN THE
+    # ATTACHMENT SET. It lives in the base service; the overlay the scorer receives is
+    # `ApiError.kt` and `ShipmentController.kt`. The scorer could not have counted against
+    # it, which is the seven-category rubric's exact defect reappearing in the file written
+    # to replace it. Neither review pass caught it: the harness reads the rubric, not the
+    # rubric against the files it will actually be handed.
+    #
+    # The fix needs no enum. A `when` in EXPRESSION position — its value returned or
+    # assigned — must be exhaustive or Kotlin will not compile it. So "the case list is
+    # compiler-enforced" is decidable from this file alone: look at where the `when` sits
+    # and whether it carries an `else`.
+    precondition: none
+    anchors:
+      0: "The status decision is an `if` / `else if` / `else` chain, or a `when` carrying an `else` branch, or a `when` in STATEMENT position — its value discarded, used by nothing. In all three a new status constant compiles without touching this method and takes the fallback path unannounced. Cite the chain, the `else`, or the discarded value."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: an exhaustive `when` whose decision is split across more than one construct, or a branch repeating logic another branch performs; also a `when` that is neither exhaustive nor carries an `else`. Cite the construct."
+      2: "One `when (shipment.status)` in EXPRESSION position, carrying no `else`. Expression position means its value is USED — returned, assigned, passed as an argument, or the last expression of a lambda; anything but discarded. Kotlin requires such a `when` to be exhaustive, so the case list is compiler-enforced and a new status constant is a compile error at this site. Cite the `when`, the construct that consumes its value, and the absence of `else`. Do NOT try to count branches against the enum: `ShipmentStatus` is not among the attachments and never will be."
+
+  - name: test-quality
+    weight: 25
+    # DECISION A, E-001, 2026-08-27. No test file means `null`, never `0`. A `0` asserts the
+    # tests are bad; no tests were submitted, and those are different claims. This
+    # precondition is YAML read by a model — Layer 3 — so nothing executes to reject a `0`
+    # here. The three predicted nulls are predicted, not guaranteed.
+    precondition: "No file under src/test/ among the attachments, OR a test file that makes no assertion at all → score: null, reason: nothing to grade. Never 0. The second half is not hypothetical padding: with only the first half, a zero-assertion test file fails anchor 0's opening clause, falls to the residual, and scores 1 — outranking a status-code-only file that scores 0. A file testing nothing would have ranked above one testing something."
+    anchors:
+      0: "Every assertion is a status code: none reads a response body, none re-reads state through a second request. The precondition guarantees at least one assertion exists before this anchor is reached, so it is never vacuously true — do not read it against an empty file, read the precondition. Cite the assertion list."
+      1: "THE RESIDUAL — neither the 0 condition nor all three clauses of 2. Any assertion reads a response body, and at least one clause of 2 is absent: the repeat not exercised by a SECOND call, the persisted state never re-read through a separate request, or no refusal asserting the envelope. Cite what is asserted and name every clause that is absent."
+      2: "All three hold, each citable: confirm is called twice and the second response's BODY is asserted, not its status alone — a status-only assertion on the second call is anchor 1, because this whole category's axis is status-only versus body-reading; the persisted state is re-read through a separate `get(...)` rather than trusted from the mutating call's own body; and at least one refusal asserts the envelope's `$.error.code` rather than the status alone. Cite one line per clause."
+
+  - name: change-focus
+    weight: 15
+    # DECISION B, E-001, 2026-08-27: the baseline tree is attached, so "was this restyled"
+    # is citable at path:line in BOTH trees. The ticket names `confirm`. Every other method
+    # is out of scope, and the imports `confirm` itself requires are not.
+    # WHAT "THE IMPORTS IT REQUIRES" MEANS. Per imported SYMBOL, not per import declaration.
+    # An import is required by `confirm` when `confirm` references a symbol it supplies and
+    # no method the ticket left alone does. A wildcard — `import com.unityinflow.sample.api.*`
+    # replacing a specific import — supplies symbols beyond the ones `confirm` uses, so it is
+    # a change reaching past `confirm` and cannot be anchor 2. The codex critic built that
+    # counterexample too, and costed the ambiguity at 7.5 points of the normalised total.
+    precondition: "No baseline tree among the attachments → score: null, reason: no baseline to read a change against. Never 2."
+    anchors:
+      0: "Two or more methods the ticket did not name differ from the baseline in anything beyond INVISIBLE WHITESPACE — trailing spaces, line-ending style, a trailing newline at end of file. Those three are never a difference under this category, at any anchor. Beyond them: — reformatted, restructured, an expression body turned into a block, a local renamed. Name each method and cite the line in both trees."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically exactly one unnamed method differs; also the case where every named method is character-identical but something outside them — a reordered import `confirm` does not require, a moved blank line — differs. Name what differs and cite both trees."
+      2: "Every method the ticket did not name is identical to the baseline once invisible whitespace is normalised — trailing spaces, line endings, EOF newline. A CRLF-to-LF conversion differs at every byte and is NOT a difference here. Only `confirm`, and imports required BY SYMBOL for `confirm`, differ; a wildcard import supplying anything `confirm` does not use is not anchor 2. Name the methods checked."
+```
+
+## The BASELINE submission — the reference, NOT the work under test
+
+Score only the work under test, below. These files are what a change is read against.
+
+### BASELINE FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.xab9bQoEJw/baseline/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+```
+package com.unityinflow.sample.api
+
+/**
+ * The error contract of this service.
+ *
+ * Every error response carries the same envelope, so clients can branch on a stable
+ * `code` instead of parsing prose:
+ *
+ * ```json
+ * { "error": { "code": "ORDER_NOT_FOUND", "message": "No order with id 'O-9'", "fields": [] } }
+ * ```
+ *
+ * Responses are produced centrally by [GlobalExceptionHandler]; controllers throw an
+ * [ApiException] rather than assembling bodies themselves.
+ */
+data class ApiError(val error: ApiErrorBody)
+
+data class ApiErrorBody(
+    val code: ErrorCode,
+    val message: String,
+    val fields: List<FieldViolation> = emptyList(),
+)
+
+/** Which input was rejected and why — populated for validation failures. */
+data class FieldViolation(val field: String, val message: String)
+
+/**
+ * The closed set of machine-readable error codes. Clients switch on these, so a code is
+ * part of the public API: add one deliberately, never rename one casually.
+ */
+enum class ErrorCode {
+    ORDER_NOT_FOUND,
+    ORDER_ALREADY_EXISTS,
+    SHIPMENT_NOT_FOUND,
+    SHIPMENT_ALREADY_EXISTS,
+    VALIDATION_FAILED,
+}
+```
+
+### BASELINE FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.xab9bQoEJw/baseline/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+```
+package com.unityinflow.sample.shipment
+
+import com.unityinflow.sample.api.ConflictException
+import com.unityinflow.sample.api.ErrorCode
+import com.unityinflow.sample.api.ResourceNotFoundException
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+/**
+ * Baseline shipment API: create, read, list.
+ *
+ * There is deliberately no way to confirm a shipment. That is BE-003.
+ */
+@RestController
+@RequestMapping("/shipments")
+class ShipmentController(
+    private val repository: InMemoryShipmentRepository,
+) {
+
+    @PostMapping
+    fun create(@RequestBody request: CreateShipmentRequest): ResponseEntity<Shipment> {
+        if (repository.existsById(request.shipmentId)) {
+            throw ConflictException(
+                ErrorCode.SHIPMENT_ALREADY_EXISTS,
+                "A shipment with id '${request.shipmentId}' already exists",
+            )
+        }
+
+        val saved = repository.save(
+            Shipment(
+                shipmentId = request.shipmentId,
+                orderId = request.orderId,
+                carrier = request.carrier,
+                status = ShipmentStatus.CREATED,
+            ),
+        )
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved)
+    }
+
+    @GetMapping("/{shipmentId}")
+    fun getById(@PathVariable shipmentId: String): Shipment =
+        repository.findById(shipmentId)
+            ?: throw ResourceNotFoundException(
+                ErrorCode.SHIPMENT_NOT_FOUND,
+                "No shipment with id '$shipmentId'",
+            )
+
+    @GetMapping
+    fun list(): List<Shipment> = repository.findAll()
+}
+```
+
+### BASELINE FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.xab9bQoEJw/baseline/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+```
+package com.unityinflow.sample.shipment
+
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+
+/**
+ * The shipment feature as it exists before BE-003.
+ *
+ * These are "the existing tests" for that benchmark: they must keep passing, and an agent
+ * that breaks one has regressed the fixture rather than solved the task.
+ */
+@SpringBootTest
+@AutoConfigureMockMvc
+class ShipmentControllerTest {
+
+    @Autowired
+    lateinit var mockMvc: MockMvc
+
+    @Autowired
+    lateinit var repository: InMemoryShipmentRepository
+
+    @BeforeEach
+    fun reset() = repository.clear()
+
+    private fun createShipment(shipmentId: String) =
+        post("/shipments")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """{"shipmentId":"$shipmentId","orderId":"O-1","carrier":"DHL"}""",
+            )
+
+    @Test
+    fun `creates a shipment in CREATED status`() {
+        mockMvc.perform(createShipment("S-1"))
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.shipmentId").value("S-1"))
+            .andExpect(jsonPath("$.status").value("CREATED"))
+    }
+
+    @Test
+    fun `rejects a duplicate shipment id with the error envelope`() {
+        mockMvc.perform(createShipment("S-2")).andExpect(status().isCreated)
+
+        mockMvc.perform(createShipment("S-2"))
+            .andExpect(status().isConflict)
+            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
+    }
+
+    @Test
+    fun `returns a shipment by id`() {
+        mockMvc.perform(createShipment("S-3")).andExpect(status().isCreated)
+
+        mockMvc.perform(get("/shipments/S-3"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.carrier").value("DHL"))
+    }
+
+    @Test
+    fun `reports an unknown shipment through the error envelope`() {
+        mockMvc.perform(get("/shipments/S-missing"))
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
+    }
+
+    @Test
+    fun `lists shipments in id order`() {
+        mockMvc.perform(createShipment("S-b")).andExpect(status().isCreated)
+        mockMvc.perform(createShipment("S-a")).andExpect(status().isCreated)
+
+        mockMvc.perform(get("/shipments"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+            .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+    }
+}
+```
+
+## The work under test
+
+These attachments are the COMPLETE evidence set. There is no test runner, no diff, no
+evaluator output and no other file. Cite filename:line as evidence.
+
+### FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0a222393-f385-4088-967d-50b98073d3f9/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+```
+package com.unityinflow.sample.api
+
+/**
+ * The error contract of this service.
+ *
+ * Every error response carries the same envelope, so clients can branch on a stable
+ * `code` instead of parsing prose:
+ *
+ * ```json
+ * { "error": { "code": "ORDER_NOT_FOUND", "message": "No order with id 'O-9'", "fields": [] } }
+ * ```
+ *
+ * Responses are produced centrally by [GlobalExceptionHandler]; controllers throw an
+ * [ApiException] rather than assembling bodies themselves.
+ */
+data class ApiError(val error: ApiErrorBody)
+
+data class ApiErrorBody(
+    val code: ErrorCode,
+    val message: String,
+    val fields: List<FieldViolation> = emptyList(),
+)
+
+/** Which input was rejected and why — populated for validation failures. */
+data class FieldViolation(val field: String, val message: String)
+
+/**
+ * The closed set of machine-readable error codes. Clients switch on these, so a code is
+ * part of the public API: add one deliberately, never rename one casually.
+ */
+enum class ErrorCode {
+    ORDER_NOT_FOUND,
+    ORDER_ALREADY_EXISTS,
+    SHIPMENT_NOT_FOUND,
+    SHIPMENT_ALREADY_EXISTS,
+    SHIPMENT_CANNOT_CONFIRM,
+    VALIDATION_FAILED,
+}
+```
+
+### FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0a222393-f385-4088-967d-50b98073d3f9/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+```
+package com.unityinflow.sample.shipment
+
+import com.unityinflow.sample.api.ConflictException
+import com.unityinflow.sample.api.ErrorCode
+import com.unityinflow.sample.api.ResourceNotFoundException
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping("/shipments")
+class ShipmentController(
+    private val repository: InMemoryShipmentRepository,
+) {
+
+    @PostMapping
+    fun create(@RequestBody request: CreateShipmentRequest): ResponseEntity<Shipment> {
+        if (repository.existsById(request.shipmentId)) {
+            throw ConflictException(
+                ErrorCode.SHIPMENT_ALREADY_EXISTS,
+                "A shipment with id '${request.shipmentId}' already exists",
+            )
+        }
+
+        val saved = repository.save(
+            Shipment(
+                shipmentId = request.shipmentId,
+                orderId = request.orderId,
+                carrier = request.carrier,
+                status = ShipmentStatus.CREATED,
+            ),
+        )
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved)
+    }
+
+    @GetMapping("/{shipmentId}")
+    fun getById(@PathVariable shipmentId: String): Shipment =
+        repository.findById(shipmentId)
+            ?: throw ResourceNotFoundException(
+                ErrorCode.SHIPMENT_NOT_FOUND,
+                "No shipment with id '$shipmentId'",
+            )
+
+    @GetMapping
+    fun list(): List<Shipment> = repository.findAll()
+
+    @PostMapping("/{shipmentId}/confirm")
+    fun confirm(@PathVariable shipmentId: String): Shipment {
+        val shipment = repository.findById(shipmentId)
+            ?: throw ResourceNotFoundException(
+                ErrorCode.SHIPMENT_NOT_FOUND,
+                "No shipment with id '$shipmentId'",
+            )
+
+        if (shipment.status == ShipmentStatus.CANCELLED) {
+            throw ConflictException(
+                ErrorCode.SHIPMENT_CANNOT_CONFIRM,
+                "Shipment with id '$shipmentId' is cancelled and cannot be confirmed",
+            )
+        }
+
+        return if (shipment.status == ShipmentStatus.CREATED) {
+            repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
+        } else {
+            shipment
+        }
+    }
+}
+```
+
+### FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0a222393-f385-4088-967d-50b98073d3f9/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+```
+package com.unityinflow.sample.shipment
+
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+
+/**
+ * The shipment feature as it exists before BE-003.
+ *
+ * These are "the existing tests" for that benchmark: they must keep passing, and an agent
+ * that breaks one has regressed the fixture rather than solved the task.
+ */
+@SpringBootTest
+@AutoConfigureMockMvc
+class ShipmentControllerTest {
+
+    @Autowired
+    lateinit var mockMvc: MockMvc
+
+    @Autowired
+    lateinit var repository: InMemoryShipmentRepository
+
+    @BeforeEach
+    fun reset() = repository.clear()
+
+    private fun createShipment(shipmentId: String) =
+        post("/shipments")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """{"shipmentId":"$shipmentId","orderId":"O-1","carrier":"DHL"}""",
+            )
+
+    @Test
+    fun `creates a shipment in CREATED status`() {
+        mockMvc.perform(createShipment("S-1"))
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.shipmentId").value("S-1"))
+            .andExpect(jsonPath("$.status").value("CREATED"))
+    }
+
+    @Test
+    fun `rejects a duplicate shipment id with the error envelope`() {
+        mockMvc.perform(createShipment("S-2")).andExpect(status().isCreated)
+
+        mockMvc.perform(createShipment("S-2"))
+            .andExpect(status().isConflict)
+            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
+    }
+
+    @Test
+    fun `returns a shipment by id`() {
+        mockMvc.perform(createShipment("S-3")).andExpect(status().isCreated)
+
+        mockMvc.perform(get("/shipments/S-3"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.carrier").value("DHL"))
+    }
+
+    @Test
+    fun `reports an unknown shipment through the error envelope`() {
+        mockMvc.perform(get("/shipments/S-missing"))
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
+    }
+
+    @Test
+    fun `lists shipments in id order`() {
+        mockMvc.perform(createShipment("S-b")).andExpect(status().isCreated)
+        mockMvc.perform(createShipment("S-a")).andExpect(status().isCreated)
+
+        mockMvc.perform(get("/shipments"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+            .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+    }
+
+    @Test
+    fun `confirms a created shipment and moves it to CONFIRMED status`() {
+        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
+
+        mockMvc.perform(
+            post("/shipments/S-4/confirm")
+                .contentType(MediaType.APPLICATION_JSON),
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.shipmentId").value("S-4"))
+            .andExpect(jsonPath("$.status").value("CONFIRMED"))
+    }
+
+    @Test
+    fun `confirming an already confirmed shipment succeeds and changes nothing`() {
+        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
+
+        mockMvc.perform(
+            post("/shipments/S-5/confirm")
+                .contentType(MediaType.APPLICATION_JSON),
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.status").value("CONFIRMED"))
+
+        mockMvc.perform(
+            post("/shipments/S-5/confirm")
+                .contentType(MediaType.APPLICATION_JSON),
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.status").value("CONFIRMED"))
+    }
+
+    @Test
+    fun `confirming a cancelled shipment is rejected with 409`() {
+        val cancelledShipment = Shipment(
+            shipmentId = "S-6",
+            orderId = "O-1",
+            carrier = "DHL",
+            status = ShipmentStatus.CANCELLED,
+        )
+        repository.save(cancelledShipment)
+
+        mockMvc.perform(
+            post("/shipments/S-6/confirm")
+                .contentType(MediaType.APPLICATION_JSON),
+        )
+            .andExpect(status().isConflict)
+            .andExpect(jsonPath("$.error.code").value("SHIPMENT_CANNOT_CONFIRM"))
+    }
+
+    @Test
+    fun `confirming a non-existent shipment is rejected with 404`() {
+        mockMvc.perform(
+            post("/shipments/S-missing/confirm")
+                .contentType(MediaType.APPLICATION_JSON),
+        )
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
+    }
+}
+```

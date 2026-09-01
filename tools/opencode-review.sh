@@ -18,6 +18,7 @@
 #
 #   ./tools/opencode-review.sh benchmark/rubrics/backend-quality.yaml
 #   ./tools/opencode-review.sh -n 3 benchmark/rubrics/backend-quality.yaml
+#   ./tools/opencode-review.sh -P deepseek-v4-pro,qwen3.7-max,gpt-oss:120b rubric.yaml
 #   ./tools/opencode-review.sh -A rubric.yaml          # line-level only, no gate
 #   LAB_REVIEW_MODEL=ollama-cloud/kimi-k2.6 ./tools/opencode-review.sh rubric.yaml
 #   LAB_ACCEPT_MODEL=ollama-cloud/deepseek-v4-pro ./tools/opencode-review.sh rubric.yaml
@@ -56,11 +57,14 @@ ACCEPT=1
 OUTDIR="findings/opencode"
 RUNS=1
 
-while getopts "n:A" opt; do
+PANEL=""
+
+while getopts "n:P:A" opt; do
   case "$opt" in
     n) RUNS="$OPTARG" ;;
+    P) PANEL="$OPTARG" ;;
     A) ACCEPT=0 ;;
-    *) echo "usage: $0 [-n runs] [-A] <artifact> [more-artifacts...]" >&2; exit 1 ;;
+    *) echo "usage: $0 [-n runs] [-P m1,m2,...] [-A] <artifact> [more...]" >&2; exit 1 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -69,6 +73,84 @@ case "$RUNS" in
   ''|*[!0-9]*) echo "-n must be a positive integer" >&2; exit 1 ;;
   0) echo "-n must be at least 1" >&2; exit 1 ;;
 esac
+
+# THE PANEL. -n and -P measure different things and are deliberately separate knobs.
+#
+#   -n  the SAME model, N times. Measures that model's detection threshold: two runs at
+#       temperature 0 disagreed on 2 of 12 sections, both flips real findings the earlier
+#       run missed. Tells you how much one lens under-reports.
+#   -P  DIFFERENT families, once each. Measures the artifact. On 2026-08-28 glm-5.2 found
+#       ladder gaps and undecidable evidence on the BE-003 rubric; deepseek-v4-pro found
+#       four textual ambiguities in the same file. Neither found the other's. One model run
+#       twice would never have produced both lists.
+#
+# They compose: -n 2 -P a,b runs four passes. The recurrence column counts DISTINCT
+# FAMILIES, never repeats of one, so a section flagged twice by the same model still counts
+# once — otherwise a chatty model would outvote a panel.
+# PREFLIGHT, BEFORE ANY RUN IS PAID FOR. The first panel run died on its SECOND model: a
+# bare `qwen3.7-max` was prefixed with the default provider, `ollama-cloud/qwen3.7-max` does
+# not exist (qwen lives on opencode-go), opencode exited 1 — after the first family had
+# already been run in full. A typo in the fifth name should not cost four runs.
+#
+# So the list is resolved and checked against `opencode models` up front, and a bare name
+# resolves to whichever provider actually HAS it rather than to a guess.
+avail="$(opencode models 2>/dev/null)"
+[ -n "$avail" ] || { echo "cannot list models — is opencode authenticated?" >&2; exit 1; }
+
+# Prints the fully-qualified id, or nothing. Never guesses: an ambiguous bare name is an
+# error, because silently picking a provider is how a run gets attributed to the wrong one.
+resolve_model() {
+  local m="$1" pref hits n
+  # `codex` is not an opencode model id — it is a whole other harness, dispatched below.
+  # Checking it against `opencode models` would reject the most independent family we have.
+  case "$m" in
+    codex|codex/*)
+      command -v codex >/dev/null 2>&1 || return
+      [ -x tools/codex-critic.sh ] || return
+      printf '%s\n' "$m"; return ;;
+  esac
+  case "$m" in
+    */*) printf '%s\n' "$avail" | grep -qxF "$m" && printf '%s\n' "$m"; return ;;
+  esac
+  pref="${LAB_PANEL_PROVIDER:-ollama-cloud}/$m"
+  if printf '%s\n' "$avail" | grep -qxF "$pref"; then printf '%s\n' "$pref"; return; fi
+  # Exact suffix match through awk rather than a regex, so `.` and `:` in a model name are
+  # not quietly treated as metacharacters.
+  hits="$(printf '%s\n' "$avail" | awk -F/ -v m="$m" 'NF == 2 && $2 == m { print }')"
+  n="$(printf '%s\n' "$hits" | grep -c .)"
+  [ "$n" = 1 ] && printf '%s\n' "$hits"
+}
+
+MODELS=()
+if [ -n "$PANEL" ]; then
+  IFS=',' read -r -a panel_arr <<< "$PANEL"
+  bad=0
+  for m in "${panel_arr[@]}"; do
+    m="$(echo "$m" | tr -d '[:space:]')"
+    [ -n "$m" ] || continue
+    r="$(resolve_model "$m")"
+    if [ -z "$r" ]; then
+      echo "-P: cannot resolve '$m'" >&2
+      printf '%s\n' "$avail" | grep -F -- "$m" | sed 's/^/    did you mean: /' >&2 || true
+      bad=1
+      continue
+    fi
+    for _ in $(seq 1 "$RUNS"); do MODELS+=("$r"); done
+  done
+  [ "$bad" = 0 ] || { echo "Refusing to start: a panel that loses a family part-way is not the panel you registered." >&2; exit 1; }
+  [ ${#MODELS[@]} -gt 0 ] || { echo "-P listed no usable models" >&2; exit 1; }
+else
+  printf '%s\n' "$avail" | grep -qxF "$MODEL" || { echo "unknown model: $MODEL" >&2; exit 1; }
+  for _ in $(seq 1 "$RUNS"); do MODELS+=("$MODEL"); done
+fi
+TOTAL=${#MODELS[@]}
+
+# Distinct families, for the denominator and the header.
+FAMILIES=()
+for m in "${MODELS[@]}"; do
+  case " ${FAMILIES[*]} " in *" $m "*) ;; *) FAMILIES+=("$m") ;; esac
+done
+NFAM=${#FAMILIES[@]}
 
 if [ $# -eq 0 ]; then
   echo "usage: $0 [-n runs] [-A] <artifact> [more-artifacts...]" >&2
@@ -93,8 +175,12 @@ for f in "$@"; do attach+=(-f "$f"); done
   echo '```yaml'
   echo "line_level:"
   echo "  agent:         lab-critic"
-  echo "  model:         $MODEL          # registered variable — do not change mid-experiment"
+  echo "  model:         ${MODELS[0]}          # registered variable — do not change mid-experiment"
   echo "  agent_sha:     $(shasum -a 256 .opencode/agent/lab-critic.md | cut -c1-12)"
+  if [ "$NFAM" -gt 1 ]; then
+    echo "  panel:         # every family is a registered variable; changing the set"
+    for m in "${FAMILIES[@]}"; do echo "    - $m"; done
+  fi
   if [ "$ACCEPT" = 1 ]; then
     echo "acceptance:"
     echo "  agent:         lab-acceptance"
@@ -106,14 +192,20 @@ for f in "$@"; do attach+=(-f "$f"); done
   fi
   echo "opencode:        $(opencode --version 2>/dev/null | tail -1)"
   echo "reviewed_utc:    $stamp"
-  echo "runs:            $RUNS           # independent sessions; findings unioned below"
+  echo "runs:            $TOTAL           # independent sessions; findings unioned below"
+  echo "families:        $NFAM           # distinct models; the recurrence denominator"
   echo "artifacts:"
   for f in "$@"; do
     echo "  - path: $f"
     echo "    sha:  $(shasum -a 256 "$f" | cut -c1-12)"
+    # Per-artifact, because lab_dirty below cannot tell "the thing under review moved while
+    # it was being reviewed" from "an unrelated file was edited in another window". On
+    # 2026-08-28 a round of this tool stamped lab_dirty true for the second reason and read
+    # as the first. THIS is the flag that invalidates a review; lab_dirty is context.
+    echo "    dirty: $([ -n "$(git status --porcelain -- "$f" 2>/dev/null)" ] && echo true || echo false)"
   done
   echo "lab_head:        $(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
-  echo "lab_dirty:       $([ -n "$(git status --porcelain 2>/dev/null)" ] && echo true || echo false)"
+  echo "lab_dirty:       $([ -n "$(git status --porcelain 2>/dev/null)" ] && echo true || echo false)   # the TREE, not the artifact - see each artifact's own dirty:"
   echo '```'
   echo
 } > "$out"
@@ -121,30 +213,113 @@ for f in "$@"; do attach+=(-f "$f"); done
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 
-for i in $(seq 1 "$RUNS"); do
-  echo "review $i/$RUNS — $slug with $MODEL ..." >&2
+# THE STALL BUDGET. A panel is only as fast as its slowest member, and until now one wedged
+# model wedged the whole run: three panels died that way on 2026-08-28, one of them sitting
+# eighteen minutes on a family that had answered the same artifact in under five earlier the
+# same morning. Nothing has ever recovered past roughly ten minutes.
+#
+# So a family gets a budget. Exceeding it does not fail the review — it removes that family
+# from the panel, ON THE RECORD, and the remaining families carry on. A panel of three that
+# silently became a panel of two is the failure this whole tool exists to prevent, so the
+# outcome table below prints every family with its status and elapsed time whether it
+# finished or not.
+#
+# macOS ships no timeout(1), hence the poll. The child is killed with its process group,
+# because killing the wrapper leaves opencode itself running and holding the API call.
+TIMEOUT="${LAB_REVIEW_TIMEOUT:-600}"
+declare -a FAM_OUTCOME=()
+
+run_limited() {   # <seconds> <rcfile> -- <command...>
+  local secs="$1" rcfile="$2"; shift 3
+  set -m
+  ( "$@"; echo "${PIPESTATUS[0]:-$?}" > "$rcfile" ) &
+  local pid=$! waited=0
+  set +m
+  while kill -0 "$pid" 2>/dev/null; do
+    if [ "$waited" -ge "$secs" ]; then
+      kill -TERM "-$pid" 2>/dev/null || kill -TERM "$pid" 2>/dev/null
+      sleep 3
+      kill -KILL "-$pid" 2>/dev/null || kill -KILL "$pid" 2>/dev/null
+      return 124
+    fi
+    sleep 2; waited=$((waited + 2))
+  done
+  wait "$pid" 2>/dev/null
+  return 0
+}
+
+for i in $(seq 1 "$TOTAL"); do
+  run_model="${MODELS[$((i - 1))]}"
+  # The slug carries the model into the filename so the recurrence pass can attribute a
+  # finding to a family without a side-channel index that could drift out of step.
+  run_slug="$(echo "$run_model" | tr '/:.' '___')"
+  echo "review $i/$TOTAL — $slug with $run_model ..." >&2
+
+  # A DIFFERENT HARNESS, not just a different model. codex has its own system prompt, its
+  # own tool loop and its own turn shape; tools/codex-critic.sh gives it the SAME contract
+  # and the SAME inlined evidence and renders its schema-constrained JSON into the section
+  # format this table reads, so it lands here as one more family with no special case below.
+  started=$SECONDS
+  case "$run_model" in
+    codex|codex/*)
+      cm=""; case "$run_model" in codex/*) cm="${run_model#codex/}" ;; esac
+      run_limited "$TIMEOUT" "$tmpdir/rc-$i" -- env \
+        LAB_CODEX_MODEL="${cm:-${LAB_CODEX_MODEL:-gpt-5.6-sol}}" \
+        ./tools/codex-critic.sh "$tmpdir/run-$i@$run_slug.md" "$@"
+      trc=$?
+      el=$((SECONDS - started))
+      if [ "$trc" = 124 ]; then
+        FAM_OUTCOME+=("$run_model|STALLED|>${TIMEOUT}s")
+        rm -f "$tmpdir/run-$i@$run_slug.md"
+        echo "  STALLED after ${TIMEOUT}s — dropping $run_model from the panel" >&2
+        continue
+      fi
+      rc="$(cat "$tmpdir/rc-$i" 2>/dev/null || echo 1)"
+      if [ "$rc" != 0 ]; then
+        FAM_OUTCOME+=("$run_model|FAILED|rc=$rc ${el}s")
+        rm -f "$tmpdir/run-$i@$run_slug.md"
+        echo "  codex critic exited $rc — dropping $run_model from the panel" >&2
+        continue
+      fi
+      FAM_OUTCOME+=("$run_model|ok|${el}s")
+      continue ;;
+  esac
 
   # Fresh session every iteration — never --continue. A reviewer that remembers its last
   # pass is not an independent second look, and the recurrence count below would be a lie.
   #
   # The prompt must precede -f: opencode's -f is a yargs array flag and will otherwise
   # swallow the message as a filename.
-  opencode run --agent lab-critic -m "$MODEL" \
-    "Review the attached artifact(s) against your output contract. Work through every
-     section in the artifact's own order. Remember: a finding needs a concrete failure
-     scenario, 'no finding' is a valid verdict, and you must not supply replacement text." \
-    "${attach[@]}" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' > "$tmpdir/run-$i.md"
+  run_limited "$TIMEOUT" "$tmpdir/rc-$i" -- bash -c '
+    opencode run --agent lab-critic -m "$1" \
+      "Review the attached artifact(s) against your output contract. Work through every
+       section in the artifact'"'"'s own order. Remember: a finding needs a concrete failure
+       scenario, '"'"'no finding'"'"' is a valid verdict, and you must not supply replacement text." \
+      "${@:3}" 2>&1 | sed $'"'"'s/\x1b\\[[0-9;]*m//g'"'"' > "$2"
+    exit "${PIPESTATUS[0]}"
+  ' _ "$run_model" "$tmpdir/run-$i@$run_slug.md" "${attach[@]}"
+  trc=$?
+  el=$((SECONDS - started))
 
-  # PIPESTATUS must be read FIRST — it is only valid immediately after the pipeline, and
-  # any command in between (a grep, an echo) resets it.
-  rc=${PIPESTATUS[0]}
+  if [ "$trc" = 124 ]; then
+    FAM_OUTCOME+=("$run_model|STALLED|>${TIMEOUT}s")
+    rm -f "$tmpdir/run-$i@$run_slug.md"
+    echo "  STALLED after ${TIMEOUT}s — dropping $run_model from the panel" >&2
+    continue
+  fi
+
+  rc="$(cat "$tmpdir/rc-$i" 2>/dev/null || echo 1)"
 
   # opencode exiting non-zero is the one unambiguous infrastructure failure — the process
-  # did not complete, so there is nothing to classify.
+  # did not complete, so there is nothing to classify. With a panel that drops THIS FAMILY
+  # rather than the review: the other families' work is already paid for, and a two-family
+  # result recorded as two families beats no result at all.
   if [ "$rc" -ne 0 ]; then
-    cat "$tmpdir/run-$i.md" >> "$out"
-    echo "opencode exited $rc on run $i — infrastructure, discard. See $out" >&2
-    exit 1
+    FAM_OUTCOME+=("$run_model|FAILED|rc=$rc ${el}s")
+    sed -n '$p' "$tmpdir/run-$i@$run_slug.md" >&2
+    rm -f "$tmpdir/run-$i@$run_slug.md"
+    echo "  opencode exited $rc — dropping $run_model from the panel" >&2
+    continue
   fi
 
   # Everything else is a question about what the CRITIC did, and it has more than one
@@ -152,42 +327,106 @@ for i in $(seq 1 "$RUNS"); do
   # opencode that exited 0 having produced nothing left a provenance header, an empty
   # recurrence table and exit 0 — a review that reported success while finding nothing,
   # which is the failure the scorer's classifier exists to stop, one script over.
-  class="$(./tools/classify-model-output.sh critic "$tmpdir/run-$i.md")"
+  class="$(./tools/classify-model-output.sh critic "$tmpdir/run-$i@$run_slug.md")"
   cls=$?
   case $cls in
-    0) ;;   # sections with verdicts. Under-reporting is invisible here; that is what -n is for.
-    4) echo "FATAL [$class]: lab-critic was not loaded; opencode fell back to the default agent." >&2
+    0) FAM_OUTCOME+=("$run_model|ok|${el}s") ;;   # sections with verdicts. Under-reporting is invisible here; that is what -n is for.
+    4) echo "FALLBACK [$class]: lab-critic was not loaded; opencode used the default agent." >&2
        echo "Findings from the default full-tool agent look identical to contract-compliant" >&2
-       echo "ones. Infrastructure — discard." >&2
-       exit 4 ;;
+       echo "ones. Infrastructure — dropping $run_model from the panel." >&2
+       FAM_OUTCOME+=("$run_model|FALLBACK|default agent, ${el}s")
+       rm -f "$tmpdir/run-$i@$run_slug.md" ;;
     3) echo "EMPTY [$class]: run $i produced nothing." >&2
        echo "Ambiguous: an empty turn, or the critic having nothing it could say about this" >&2
        echo "artifact. The file cannot tell you which. Re-run ONCE on the same artifact; a" >&2
        echo "repeat is a finding about the critic and must be recorded, not discarded." >&2
-       exit 3 ;;
+       FAM_OUTCOME+=("$run_model|EMPTY|${el}s")
+       rm -f "$tmpdir/run-$i@$run_slug.md" ;;
     *) echo "OFF CONTRACT [$class]: run $i produced output that is not the section format —" >&2
        echo "prose, a refusal, a summary. That is what this model did with this artifact, so" >&2
-       echo "it is evidence. Read $tmpdir/run-$i.md before re-running." >&2
-       cat "$tmpdir/run-$i.md" >> "$out"
-       exit 2 ;;
+       echo "it is evidence, kept in the record below." >&2
+       FAM_OUTCOME+=("$run_model|OFF CONTRACT|${el}s")
+       { printf '\n## Off-contract output — %s\n\n' "$run_model"; cat "$tmpdir/run-$i@$run_slug.md"; } >> "$out"
+       rm -f "$tmpdir/run-$i@$run_slug.md" ;;
   esac
 done
+
+# THE PANEL IS WHAT RAN, NOT WHAT WAS ASKED FOR. Recomputed from the files that actually
+# exist, so a family that stalled, failed or went off contract cannot silently inflate the
+# denominator — a 2/3 that was really 2-of-2 would read as disagreement where there was none.
+FAMILIES=()
+for f in "$tmpdir"/run-*.md; do
+  [ -e "$f" ] || continue
+  fam="${f##*@}"; fam="${fam%.md}"
+  case " ${FAMILIES[*]} " in *" $fam "*) ;; *) FAMILIES+=("$fam") ;; esac
+done
+NFAM=${#FAMILIES[@]}
+
+if [ "$NFAM" -eq 0 ]; then
+  { echo "## Panel"; echo; echo "Every family failed. No review was produced."; echo
+    printf '| Family | Outcome | |\n|---|---|---|\n'
+    for o in "${FAM_OUTCOME[@]}"; do printf '| %s | %s | %s |\n' "${o%%|*}" "$(echo "$o" | cut -d'|' -f2)" "${o##*|}"; done
+  } >> "$out"
+  echo "every family failed — see $out" >&2
+  exit 1
+fi
 
 # Recurrence table. A section counts as flagged in a run if that run gave it a `finding`
 # verdict. Sections are matched on their heading text, so a run that decomposes the
 # artifact differently (one did — it split `evaluation` in two) shows up as its own row
 # rather than being silently merged into a neighbour.
 {
-  echo "## Recurrence across $RUNS run(s)"
+  echo "## Panel"
   echo
-  echo "How many independent runs flagged each section. Low recurrence is a detection-threshold"
-  echo "signal, not a falsity signal — read those findings, do not discount them."
+  echo "What actually ran. A family that stalled or failed is dropped from the recurrence"
+  echo "denominator and named here — a panel that quietly became smaller is the failure this"
+  echo "tool exists to catch."
   echo
-  echo "| Section | Flagged | Layer of implied fix |"
+  printf '| Family | Outcome | |\n|---|---|---|\n'
+  for o in "${FAM_OUTCOME[@]}"; do
+    printf '| %s | %s | %s |\n' "${o%%|*}" "$(echo "$o" | cut -d'|' -f2)" "${o##*|}"
+  done
+  echo
+  echo "Stall budget: ${TIMEOUT}s per family (LAB_REVIEW_TIMEOUT)."
+  echo
+
+  if [ "$NFAM" -gt 1 ]; then
+    echo "## Recurrence across $NFAM independent families ($TOTAL run(s))"
+    echo
+    echo "How many DIFFERENT model families flagged each section — not how often one model"
+    echo "repeated itself. A section flagged twice by the same family counts once, so a chatty"
+    echo "model cannot outvote the panel."
+    echo
+    echo "**1/$NFAM is not weak evidence.** Families find different classes of defect: on"
+    echo "2026-08-28, glm-5.2 found gaps in the anchor ladder and an anchor citing evidence that"
+    echo "is not attached, while deepseek-v4-pro found four textual ambiguities in the same file."
+    echo "Neither saw the other's list. A 1/$NFAM row is one lens holding something the others do"
+    echo "not — read it first, not last."
+  else
+    echo "## Recurrence across $TOTAL run(s)"
+    echo
+    echo "How many independent runs flagged each section. Low recurrence is a detection-threshold"
+    echo "signal, not a falsity signal — read those findings, do not discount them."
+    echo
+    echo "One family only. -P runs a panel of different models instead, which measures the"
+    echo "artifact rather than this model's detection threshold."
+  fi
+  echo
+  echo "| Section | Families | Layer of implied fix |"
   echo "|---|---|---|"
   awk '
+    # The model is in the filename after @, so attribution needs no side-channel index
+    # that could drift out of step with the run order.
+    FNR == 1 { fam = FILENAME; sub(/.*@/, "", fam); sub(/\.md$/, "", fam); sec = "" }
     /^### /   { sec = substr($0, 5); next }
-    /^\*\*Verdict:\*\* *finding/ { if (sec != "") { hit[sec]++; if (!(sec in seen)) { order[++n] = sec; seen[sec] = 1 } } next }
+    /^\*\*Verdict:\*\* *finding/ {
+      if (sec != "") {
+        # Once per FAMILY, not once per run: two flags from one model are one lens.
+        if (!((sec SUBSEP fam) in byfam)) { byfam[sec, fam] = 1; hit[sec]++ }
+        if (!(sec in seen)) { order[++n] = sec; seen[sec] = 1 }
+      }
+      next
+    }
     /^\*\*Layer of the implied fix:\*\*/ {
       if (sec != "" && sec in seen && !(sec in layer)) {
         l = $0; sub(/^\*\*Layer of the implied fix:\*\* */, "", l)
@@ -196,13 +435,35 @@ done
         layer[sec] = (match(l, /L[123]/) ? substr(l, RSTART, 2) : "n/a")
       }
     }
-    END { for (i = 1; i <= n; i++) printf "| %s | %d/%s | %s |\n", order[i], hit[order[i]], RUNSN, (order[i] in layer ? layer[order[i]] : "—") }
-  ' RUNSN="$RUNS" "$tmpdir"/run-*.md
+    END {
+      for (i = 1; i <= n; i++) printf "| %s | %d/%s | %s |\n", order[i], hit[order[i]], NFAMN, (order[i] in layer ? layer[order[i]] : "—")
+      # THE DENOMINATOR IS KEYED ON HEADING TEXT. Two families finding the SAME defect under
+      # different headings produce two rows of 1/N, not one row of 2/N - so the finding with
+      # the most agreement behind it can be the one that looks loneliest. On 2026-08-28 both
+      # families found the undefined "assertion" trigger, one under `categories` and one in
+      # its cross-cutting prose, and every row in the table read 1/2. This table cannot merge
+      # them without matching findings semantically, which it does not do. It can at least
+      # stop being read as though it had.
+      if (NFAMN > 1 && n > 0) {
+        shared = 0
+        for (i = 1; i <= n; i++) if (hit[order[i]] >= 2) shared++
+        if (shared == 0)
+          printf "\n> **Every row above is 1/%s, and no two families used the same heading.**\n> Recurrence is counted per HEADING TEXT, so one defect filed under two different\n> headings appears as two lonely rows rather than one corroborated one. Before treating\n> any row as a single lens, read the runs against each other and check whether they are\n> describing the same thing.\n", NFAMN
+        else if (shared < n)
+          printf "\n> **%d of %d rows were raised by one family only.** Recurrence is counted per HEADING\n> TEXT: two families describing one defect under different headings appear as two rows\n> of 1/%s. Read the solo rows against each other before treating them as separate.\n", n - shared, n, NFAMN
+      }
+    }
+  ' NFAMN="$NFAM" "$tmpdir"/run-*.md
   echo
 } > "$tmpdir/body.md"
 
-for i in $(seq 1 "$RUNS"); do
-  { echo; echo "---"; echo; echo "## Run $i of $RUNS"; echo; cat "$tmpdir/run-$i.md"; } >> "$tmpdir/body.md"
+for i in $(seq 1 "$TOTAL"); do
+  m="${MODELS[$((i - 1))]}"
+  f="$tmpdir/run-$i@$(echo "$m" | tr '/:.' '___').md"
+  # A dropped family has no file. Its outcome is already in the Panel table above; printing
+  # an empty run section here would read as a family that answered with nothing.
+  [ -s "$f" ] || continue
+  { echo; echo "---"; echo; echo "## Run $i of $TOTAL — $m"; echo; cat "$f"; } >> "$tmpdir/body.md"
 done
 
 # --- the acceptance pass -----------------------------------------------------------------
@@ -221,19 +482,40 @@ if [ "$ACCEPT" = 1 ]; then
     findings="$tmpdir/line-level-findings.md"
     cat "$tmpdir"/run-*.md > "$findings"
 
-    opencode run --agent lab-acceptance -m "$ACCEPT_MODEL" \
-      "Decide whether the attached artifact is ready to leave the machine. One of the
-       attachments, line-level-findings.md, is what a different model reported against it
-       section by section — treat it as evidence, not as a verdict, and dispute anything you
-       cannot substantiate from the artifact itself. YAML only, per your output contract." \
-      "${attach[@]}" -f "$findings" 2>&1 | sed $'s/\x1b\\[[0-9;]*m//g' > "$tmpdir/accept.md"
-    arc=${PIPESTATUS[0]}
+    # The gate gets the same stall budget as a panel family. It did not have one, and on
+    # 2026-08-28 an acceptance pass sat twenty-nine minutes after both line-level families
+    # had already been dropped for stalling — the budget protected the panel and left the
+    # gate exposed, which is a control covering three of four calls and reading as four.
+    run_limited "$TIMEOUT" "$tmpdir/arc" -- bash -c '
+      opencode run --agent lab-acceptance -m "$1" \
+        "Decide whether the attached artifact is ready to leave the machine. One of the
+         attachments, line-level-findings.md, is what a different model reported against it
+         section by section — treat it as evidence, not as a verdict, and dispute anything
+         you cannot substantiate from the artifact itself. YAML only, per your contract." \
+        "${@:3}" 2>&1 | sed $'"'"'s/\x1b\\[[0-9;]*m//g'"'"' > "$2"
+      exit "${PIPESTATUS[0]}"
+    ' _ "$ACCEPT_MODEL" "$tmpdir/accept.md" "${attach[@]}" -f "$findings"
+    atrc=$?
 
-    if [ "$arc" -ne 0 ]; then
+    if [ "$atrc" = 124 ]; then
+      echo "GATE STALLED after ${TIMEOUT}s — $ACCEPT_MODEL never returned." >&2
+      echo "The line-level findings are kept. There is NO VERDICT: an unrun gate is not a" >&2
+      echo "pass, and the record says so rather than leaving the section blank." >&2
+      { printf '\n## Acceptance — NO VERDICT (gate stalled)\n\n'
+        printf 'The gate did not run: %s exceeded the %ss budget.\n' "$ACCEPT_MODEL" "$TIMEOUT"
+        echo "This is not an ACCEPT. Line-level findings below stand on their own."
+      } >> "$out"
+      verdict="NO VERDICT"
+      acls=99
+    else
+      arc="$(cat "$tmpdir/arc" 2>/dev/null || echo 1)"
+    fi
+
+    if [ "${acls:-0}" != 99 ] && [ "$arc" -ne 0 ]; then
       echo "opencode exited $arc on the acceptance pass — line-level findings kept" >&2
       printf '\n## Acceptance\n\nThe gate failed to run (opencode exit %s).\n' "$arc" >> "$out"
       acls=1
-    else
+    elif [ "${acls:-0}" != 99 ]; then
       aclass="$(./tools/classify-model-output.sh acceptance "$tmpdir/accept.md")"
       acls=$?
     fi

@@ -37,6 +37,14 @@ exit \${STUB_REVIEWER_EXIT:-0}
 STUBSH
 chmod +x "$FIXTURE/tools/opencode-review.sh"
 
+# The stub lives under tools/, which became reviewable on 2026-08-28. Commit it to the TRUNK
+# so it is not in every branch diff — otherwise every case reviews the stub, and the cases
+# that assert the reviewer was NOT called can never be observed. Found by this test failing
+# the moment the globs widened, which is the test doing its job.
+git -C "$FIXTURE" add -A >/dev/null
+git -C "$FIXTURE" commit -qm "reviewer stub on the trunk" >/dev/null
+git -C "$FIXTURE" update-ref refs/remotes/origin/main HEAD
+
 printf '#!/usr/bin/env bash\nexit 0\n' > "$STUB/opencode"; chmod +x "$STUB/opencode"
 
 # A PATH holding ONLY what the hook needs — no opencode anywhere on it. Removing the stub is
@@ -107,6 +115,38 @@ echo 'runId: x' > "$FIXTURE/templates/run-record.yaml"
 git -C "$FIXTURE" add -A >/dev/null; git -C "$FIXTURE" commit -qm template
 run "reviewer exits 1"            "$PUSH" 0 1 STUB_REVIEWER_EXIT=1
 run "LAB_REVIEW_HOOK=0 disables"  "$PUSH" 0 0 LAB_REVIEW_HOOK=0
+
+# --- tools became reviewable on 2026-08-28, after the panel found a blocking defect in one
+git -C "$FIXTURE" checkout -q -b feature3
+printf '#!/usr/bin/env bash\necho hi\n' > "$FIXTURE/tools/check-something.sh"
+git -C "$FIXTURE" add -A >/dev/null; git -C "$FIXTURE" commit -qm tool
+run "a changed tool IS reviewable"  "$PUSH" 0 1
+if grep -q 'tools/check-something.sh' "$CALLS" 2>/dev/null; then
+  printf 'ok    %-44s argv carries the tool\n' "tool argv"; PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s argv was: %s\n' "tool argv" "$(cat "$CALLS" 2>/dev/null)"; FAIL=$((FAIL+1))
+fi
+
+# --- the budget must DROP tools before contracts, and must never drop silently
+git -C "$FIXTURE" checkout -q -b feature4
+# mkdir -p, because the earlier `git rm` of the only file in benchmark/rubrics/ removed the
+# directory too. Without this the redirect fails silently, the contract is never created,
+# and the case passes or fails for a reason that has nothing to do with the budget.
+mkdir -p "$FIXTURE/benchmark/rubrics"
+echo 'version: 9' > "$FIXTURE/benchmark/rubrics/r.yaml"
+for n in a b c d; do printf '#!/usr/bin/env bash\nexit 0\n' > "$FIXTURE/tools/t-$n.sh"; done
+git -C "$FIXTURE" add -A >/dev/null; git -C "$FIXTURE" commit -qm many
+: > "$CALLS"
+out="$(printf '%s' "$PUSH" | env LAB_REVIEW_MAX_ARTIFACTS=2 PATH="$STUB:$PATH" \
+        "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
+argv="$(cat "$CALLS" 2>/dev/null)"
+if printf '%s' "$out" | grep -q 'PARTIAL REVIEW' \
+   && printf '%s' "$out" | grep -q 'tools/t-' \
+   && printf '%s' "$argv" | grep -q 'benchmark/rubrics/r.yaml'; then
+  printf 'ok    %-44s partial announced, contract kept\n' "budget names what it dropped"; PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s out=%s argv=%s\n' "budget names what it dropped" "$out" "$argv"; FAIL=$((FAIL+1))
+fi
 
 run_bare_path() {  # same as run(), but with a PATH that contains no opencode at all
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"

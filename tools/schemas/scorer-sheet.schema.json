@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["scorer", "categories", "ambiguous_categories"],
+  "properties": {
+    "scorer": { "type": "string", "const": "lab-scorer" },
+    "categories": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "score", "anchor_level", "reason", "evidence"],
+        "properties": {
+          "name":         { "type": "string" },
+          "score":        { "type": ["integer", "null"], "enum": [0, 1, 2, null] },
+          "anchor_level": { "type": ["integer", "null"], "enum": [0, 1, 2, null] },
+          "reason":       { "type": "string" },
+          "evidence":     { "type": ["string", "null"] }
+        }
+      }
+    },
+    "ambiguous_categories": { "type": "array", "items": { "type": "string" } }
+  }
+}

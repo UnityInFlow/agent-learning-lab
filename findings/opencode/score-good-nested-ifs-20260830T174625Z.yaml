@@ -1,0 +1,43 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.21
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/good-nested-ifs
+  baseline:      ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/known-good
+  baseline_state: attached
+  scored_utc:    20260830T174625Z
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: every refusal throws an existing baseline ApiException subclass, no ApiError literal constructed
+    evidence: good-nested-ifs/.../ShipmentController.kt:47
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: confirm uses an if/else-if/else chain, not an expression-position when
+    evidence: good-nested-ifs/.../ShipmentController.kt:52
+  - name: test-quality
+    score: null
+    anchor_level: null
+    reason: no file under src/test/ among the attachments
+    evidence: no test file attached
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: only confirm differs; create, getById, list and all imports are identical to baseline
+    evidence: good-nested-ifs/.../ShipmentController.kt:44
+ambiguous_categories: [test-quality]
+```
