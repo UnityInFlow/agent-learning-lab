@@ -19,22 +19,31 @@
 #
 # WHAT IT COMPARES
 #
-# HANDOFF.md records, beside each board link, the commit that the board was built from:
+# HANDOFF.md records, beside each board link, a digest of the prose the board was built from,
+# and the commit it was built from as provenance for a human:
 #
-#     <!-- board: https://claude.ai/code/artifact/<id> built-from: <sha> -->
+#     <!-- board: https://claude.ai/code/artifact/<id> built-from: <sha> prose: <digest> -->
 #
-# The check asks whether HANDOFF.md has moved since that sha. Same question the blind sheet
+# The check asks whether the prose still hashes to `prose:`. Same question the blind sheet
 # asks with `rubric_sha`, and for the same reason: an artifact that does not record what it
-# was made from is a claim with no provenance.
+# was made from is a claim with no provenance. `built-from:` is printed and never branched on.
+#
+# It compared a COMMIT until 2026-09-01. Squash merges destroy the commit a marker names, so
+# that basis turned main red after every handoff update, on boards that were correct. The long
+# comment further down records what that cost and why no ordering avoids it.
 #
 # THE HONEST COST, so nobody discovers it as a surprise
 #
-# This fires on ANY commit touching HANDOFF.md, a typo included, and will sometimes demand a
-# republish that changes nothing a reader would notice. That is deliberate. The alternative —
-# hashing only the "material" sections — needs a definition of material, and a definition of
-# material is a judgement that quietly stops being applied. A check that occasionally asks for
-# a pointless republish still tells the truth; one that decides for itself which changes count
-# eventually does not.
+# This fires on ANY change to HANDOFF.md's prose, a typo included, and will sometimes demand a
+# republish that changes nothing a reader would notice. That is deliberate, and moving to a
+# digest did not soften it. The alternative — hashing only the "material" sections — needs a
+# definition of material, and a definition of material is a judgement that quietly stops being
+# applied. A check that occasionally asks for a pointless republish still tells the truth; one
+# that decides for itself which changes count eventually does not.
+#
+# The ONE exclusion is the marker lines themselves, and it is not a judgement about what
+# matters: it is what makes writing the marker possible at all. Hashing them would mean the
+# act of recording the digest changed the digest.
 #
 # Exit codes: 0 every board current (or none declared) · 1 at least one stale · 2 malformed
 #
@@ -49,13 +58,46 @@ if [ ! -r "$HANDOFF" ]; then
   exit 2
 fi
 
-# Ask git for the file's own last commit rather than HEAD. HEAD moves for every commit in the
-# repo; this must move only when the board's source actually changed, or the check cries wolf
-# on every unrelated commit and gets ignored — which is how a control stops being a control.
-current="$(git log -1 --format=%h -- "$HANDOFF" 2>/dev/null || true)"
+# WHAT THIS COMPARES, AND WHY IT IS NO LONGER A COMMIT SHA.
+#
+# Until 2026-09-01 the marker named the commit the board was built from, and the check asked
+# whether HANDOFF.md had moved since it. That basis has a defect that cannot be patched: the
+# marker can only ever name a commit on the BRANCH, and squash-merging destroys that commit.
+# It happened twice in one session -- 4f71a45 from PR #43, then bb7e316 from PR #46 -- and the
+# second time it turned main red on a board that was byte-for-byte correct.
+#
+# There is no ordering that avoids it. Put the marker in the same PR as the prose and the sha
+# it names is squashed away. Put it in a later PR and the PR carrying the prose is itself red.
+# So the check would have failed after every handoff update forever, which is precisely the
+# "control that cries wolf" this file warns about two comments below -- and it would have been
+# switched off, correctly, as noise.
+#
+# The basis is now a digest of the PROSE, with marker lines excluded. That makes three
+# problems disappear rather than get handled:
+#
+#   squash merges      irrelevant -- no commit is consulted
+#   self-invalidation  impossible -- writing a marker cannot change a digest that excludes
+#                      marker lines, so the narrow "marker-only diff" clause is gone
+#   unresolvable sha   cannot arise, so the UNVERIFIABLE outcome added earlier today is gone
+#                      with it. It was the right message for the old basis and the old basis
+#                      is what was wrong
+#
+# `built-from:` is KEPT and is now purely provenance for a human: which commit someone built
+# the board from. Nothing branches on it. `prose:` is what is checked.
+
+digest_of() {
+  # Marker lines are excluded so that writing or relabelling a marker cannot move the digest.
+  if command -v sha256sum >/dev/null 2>&1; then
+    sed '/board:/d' "$1" | sha256sum | cut -c1-12
+  else
+    sed '/board:/d' "$1" | shasum -a 256 | cut -c1-12
+  fi
+}
+
+current="$(digest_of "$HANDOFF")"
 if [ -z "$current" ]; then
-  echo "check-board-freshness: $HANDOFF has no commit history yet — nothing to compare" >&2
-  exit 0
+  echo "check-board-freshness: cannot digest $HANDOFF" >&2
+  exit 2
 fi
 
 declared=0
@@ -64,73 +106,33 @@ stale=0
 while IFS= read -r line; do
   # The url must LOOK like a url. Matching any non-space run after "board:" accepted
   # `<!-- board: built-from: abc1234 -->` as a board whose url was the literal string
-  # "built-from:", which then failed as merely STALE rather than as MALFORMED — a wrong
+  # "built-from:", which then failed as merely STALE rather than as MALFORMED -- a wrong
   # diagnosis that would send someone republishing a board that does not exist. Found by
   # verify-board-freshness-checker.sh, which is the entire argument for having it.
   url="$(printf '%s' "$line" | sed -n 's|.*board: *\(https\{0,1\}://[^ ]*\).*|\1|p')"
+  prose="$(printf '%s' "$line" | sed -n 's/.*prose: *\([0-9a-f][0-9a-f]*\).*/\1/p')"
   sha="$(printf '%s' "$line" | sed -n 's/.*built-from: *\([0-9a-f][0-9a-f]*\).*/\1/p')"
 
-  if [ -z "$url" ] || [ -z "$sha" ]; then
-    echo "MALFORMED board marker, needs 'board: <url> built-from: <sha>':" >&2
+  if [ -z "$url" ] || [ -z "$prose" ]; then
+    echo "MALFORMED board marker, needs 'board: <url> prose: <digest>':" >&2
     echo "  $line" >&2
     exit 2
   fi
 
   declared=$((declared + 1))
 
-  # Compare on the shorter of the two, so a marker written with a full sha and a `git log`
-  # printing a short one still match. Never the reverse: a truncated comparison that passes
-  # by accident is the failure mode this whole file exists to prevent elsewhere.
-  n=${#sha}; [ ${#current} -lt "$n" ] && n=${#current}
+  # Compare on the shorter of the two, so a marker written with a longer digest still matches.
+  # Never the reverse: a truncated comparison that passes by accident is the failure mode this
+  # whole file exists to prevent elsewhere.
+  n=${#prose}; [ ${#current} -lt "$n" ] && n=${#current}
 
-  # SELF-INVALIDATION, and why this clause is not a loophole.
-  #
-  # Writing the marker edits HANDOFF.md, which moves the file's sha, which makes the marker
-  # the check just wrote immediately stale. Left alone, the check would fail permanently and
-  # be switched off within a week — the ordinary fate of a control that cries wolf.
-  #
-  # So: if everything that changed since the recorded sha is marker lines themselves, the
-  # board still describes the prose accurately and this passes. The clause is narrow on
-  # purpose. It asks whether the diff touches ONLY lines containing a board marker; one
-  # substantive line in the same diff and the whole thing is stale again.
-  #
-  # A THIRD OUTCOME, added 2026-09-01 after this check disagreed with itself across two
-  # machines on one commit. Squash-merging a branch orphans every sha on it: PR #43's
-  # 4f71a45 stopped being an ancestor of main the moment 60 commits became one. The author's
-  # clone still holds that object, so the clause below resolved it and printed "2 boards
-  # current"; CI's clone does not, so the clause was skipped and both boards read STALE.
-  #
-  # That is the wrong way round for a control. It was LENIENT on the machine where the fix
-  # gets made and strict only after the push, and its message sent the reader to republish
-  # two boards that were byte-for-byte correct. So an unresolvable sha is now its own
-  # outcome. It still FAILS -- a marker nobody can check is not a marker -- but it says what
-  # is actually wrong, which is the marker's sha and not the board's content.
-  fresh=0
-  unverifiable=0
-  if [ "${sha:0:$n}" = "${current:0:$n}" ]; then
-    fresh=1
-  elif ! git cat-file -e "${sha}^{commit}" 2>/dev/null; then
-    unverifiable=1
-  else
-    substantive="$(git diff "$sha" -- "$HANDOFF" 2>/dev/null \
-                   | grep -E '^[+-]' | grep -Ev '^(\+\+\+|---)' \
-                   | grep -vc 'board:' || true)"
-    [ "${substantive:-1}" -eq 0 ] && fresh=1
-  fi
-
-  if [ "$fresh" -eq 1 ]; then
-    echo "  current   $url  (built from $sha)"
-  elif [ "$unverifiable" -eq 1 ]; then
-    echo "  UNVERIFIABLE  $url" >&2
-    echo "            built-from: $sha does not resolve in this repository" >&2
-    echo "            usually a squash merge orphaned it. If $HANDOFF's prose is unchanged," >&2
-    echo "            relabel the marker to the commit that now carries it ($current)." >&2
-    echo "            Do NOT republish on the strength of this message alone." >&2
-    stale=$((stale + 1))
+  if [ "${prose:0:$n}" = "${current:0:$n}" ]; then
+    echo "  current   $url  (prose $prose${sha:+, built from $sha})"
   else
     echo "  STALE     $url" >&2
-    echo "            built from $sha, but $HANDOFF is now at $current" >&2
-    echo "            republish the board from the current file, then update its built-from marker" >&2
+    echo "            marker says prose $prose, but $HANDOFF hashes to $current" >&2
+    echo "            the prose actually changed. Republish the board from the current file," >&2
+    echo "            then set its prose: marker to $current" >&2
     stale=$((stale + 1))
   fi
 done < <(grep -o '<!-- *board:[^>]*-->' "$HANDOFF" 2>/dev/null || true)
