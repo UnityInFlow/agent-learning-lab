@@ -30,6 +30,7 @@ Track B index.
 ./tools/check-run-gate.sh <run.json>          # may this observatory run be scored? (Decision D)
 ./tools/verify-run-gate-checker.sh            # 13 cases proving that gate still refuses
 ./tools/codex-score.sh <rubric> --run-id <id> # score a B2 run instead of a fixture
+./tools/opencode-score.sh <rubric> --run-id <id>     # the same run, second harness
 ```
 
 CI runs `bash -n` + ShellCheck (`-S warning`) on `tools/`, parses every YAML contract, and
@@ -86,8 +87,27 @@ refusing when there is none. It attaches **the files the agent changed, in full,
 pre-agent versions** — not the whole worktree, because `sample-service` ships
 `ShipmentControllerTest.kt` and attaching all 25 files would put a test file among the
 attachments on every run, silently disabling Decision A's null precondition. Runbook: [`phases/b02-plain-baseline/RUNBOOK.md`](phases/b02-plain-baseline/RUNBOOK.md).
-`opencode-score.sh` has NO run path — Decision C makes codex the scorer, so B2 does not need
-one, and a cross-harness check on B2 is therefore not currently possible.
+**`opencode-score.sh` has a `--run-id` path too, as of 2026-09-01, and this paragraph used to
+say a cross-harness check on B2 was not possible.** It is. **Decision C is untouched** — codex
+remains the registered scorer and produces the experiment's numbers; opencode is the second
+reader, which is what B1 had and B2 did not. Both paths admit a run by the same rule (the
+evaluator's recorded verdict, `check-run-gate.sh`) and attach the same set (Decision D), so
+the two sheets are comparable by construction.
+
+It also removes a single point of failure that FAILED: on 2026-09-01 codex hit its usage limit
+mid-session and B2 was unscoreable for three hours.
+
+**First cross-harness comparison, run `0a222393`, and it earned its keep immediately: 3 of 4
+exact, and the disagreement is a defect in the second reader rather than in the rubric.**
+`change-focus` — codex 1 *"the class documentation outside confirm was removed"*, opencode 2
+*"only confirm added; create/getById/list identical"*. The diff settles it: the agent deleted a
+five-line class KDoc that has nothing to do with `confirm`. codex is right.
+
+**And it is a REPEAT, not a new finding.** `change-focus` anchor 0 says *"cite the line in both
+trees"*; on 2026-08-30 codex did and opencode named methods and cited one tree. It just did the
+same thing on a different target — `evidence: ShipmentController.kt:52-72`, the added region
+only. Nothing executes that instruction, so this is the same L3 gap caught twice by two
+different runs. One observation was a curiosity; two is a property of the harness.
 
 **The scorer admits fixtures by NAME, and that runs out at B2.** `codex-score.sh` and
 `opencode-score.sh` accept a target only if its basename is in `known-good` +
@@ -153,6 +173,7 @@ registered choice, and mixing harnesses inside one comparison measures the harne
 | role | harness | why |
 |---|---|---|
 | **scoring** | **`codex` only** (E-001 Decision C) | produces the experiment's actual numbers. `opencode` was a single point of failure on the one instrument that cannot be allowed to fail |
+| second reading | `opencode`, same `--run-id` | **not a fallback and not a vote.** The registered number is codex's; this is the distance between two harnesses, which is the only thing that separates a rubric defect from a model quirk. Where they disagree, go to the diff — on the first comparison the diff sided with codex |
 | line-level critic | **panel: `codex` + opencode families** | different harnesses find different *classes* of defect — see below |
 | acceptance gate | `opencode` only | a review, not a measurement. A stalled gate costs time; a stalled scorer costs the experiment |
 

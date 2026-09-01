@@ -479,6 +479,42 @@ rather than writing it, which is a narrower and more testable claim than "instru
 - **Prediction 1 on the claude arm.** Unsettled and probably unsettleable from what exists:
   that arm's log is a final message with no ordering, and a tool count is not a tool order.
 
+### The same run, scored by a second harness — 2026-09-01
+
+`opencode-score.sh` gained the `--run-id` path this repo's own `CLAUDE.md` said made a
+cross-harness check on B2 "not currently possible". **Decision C is untouched**: codex remains
+the registered scorer and owns the numbers; opencode is the second reader B1 had and B2 did
+not. Both paths admit a run by the same rule and attach the same set, so the sheets are
+comparable by construction rather than by caveat.
+
+Run `0a222393`, rubric `396e1799eb2b`, both harnesses, **zero nulls on either sheet**:
+
+| category | codex | opencode | |
+|---|---|---|---|
+| architecture-consistency | 2 | 2 | agree |
+| maintainability | 0 | 0 | agree |
+| test-quality | 1 | 1 | agree |
+| **change-focus** | **1** | **2** | **disagree** |
+
+**The disagreement is a defect in the second reader, not in the rubric, and the diff says so.**
+codex: *"the class documentation outside confirm was removed."* opencode: *"only confirm added;
+create/getById/list identical to baseline, imports unchanged."* Both statements are true — but
+the agent deleted a five-line class KDoc that has nothing to do with `confirm`, so something
+outside the change did move and **codex is right**.
+
+**It is a repeat, and that is what makes it worth writing down.** `change-focus` anchor 0 says
+*"cite the line in both trees."* On 2026-08-30 codex did and opencode named methods and cited
+one tree. Here opencode cited `ShipmentController.kt:52-72` — the added region only, in the
+target tree, never looking at the pre-agent side that was attached to it. **Nothing executes
+that instruction.** One occurrence was a curiosity; the same harness doing it again on a
+different target makes it a property of the harness, and an argument for Decision C rather
+than against it.
+
+**Do not read 3/4 as an agreement rate.** n=1 run, one comparison, and the two harnesses are
+not observed the same way — codex is handed one inlined prompt, opencode gets file
+attachments. What this establishes is that the second path exists, admits the same population,
+and immediately found something checkable.
+
 ---
 
 ## The parity re-run — HELD, waiting on one prediction
