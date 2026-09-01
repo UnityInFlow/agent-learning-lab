@@ -1,0 +1,44 @@
+B2 baseline report — single-arm, median and range
+=================================================
+generated  2026-09-01T19:20:00Z
+tool       agent-observatory runner/baseline-report.py at f3039be
+api        http://localhost:8081 (191 runs on record)
+rubric     n/a — this report covers the run record, not the rubric sheets
+
+The gate item is "a baseline report with median and range, never an average alone".
+baseline-report.py computes no mean; a test asserts that against the parsed tree.
+
+READ THE DURATION ROW WITH THE CAVEAT IN README.md. Cost, tokens and call counts are
+unaffected by it.
+
+
+=== EXP-B2-BASELINE-CLAUDE ===
+  9 measuring run(s)
+
+  pass rate   9/9
+
+  outcome            n         min        p25     median        p75        max
+  ---------------- ---  ---------- ---------- ---------- ---------- ----------
+  duration (s)       9          70         79         83        399       3790
+  estimated cost     9      0.1085     0.1361     0.1487     0.1518     0.1674
+  total tokens       9        6606       7322       7812       8008       8916
+  tool calls         9          14         16         17         19         20
+  model calls        9          13         20         20         23         24
+  cache tokens       9      374303     613613     616896     724330     801510
+
+
+
+=== EXP-B2-BASELINE-CODEX ===
+  5 measuring run(s)
+
+  pass rate   5/5
+
+  outcome            n         min        p25     median        p75        max
+  ---------------- ---  ---------- ---------- ---------- ---------- ----------
+  duration (s)       5          97        115        121        455      35342
+  estimated cost     0                                 not measured on any run
+  total tokens       5       28835      32886      42396      49423      50231
+  tool calls         0                                 not measured on any run
+  model calls        0                                 not measured on any run
+  cache tokens       0                                 not measured on any run
+

@@ -42,6 +42,31 @@ run_case() {
   rm -rf "$dir"
 }
 
+# Exit code alone cannot distinguish UNVERIFIABLE from STALE -- both fail with 1, which is
+# the point (a marker nobody can check is not a marker). The whole value of the third outcome
+# is the MESSAGE, so that is what this asserts. Without it the branch is untested and the two
+# outcomes are one outcome wearing two labels.
+#
+# <name> <expected-exit> <setup-fn> <stderr-pattern>
+run_case_msg() {
+  local name="$1" want="$2" setup="$3" pattern="$4"
+  local dir; dir="$(mktemp -d)"
+  (
+    cd "$dir" || exit 99
+    git init -q .; git config user.email t@t; git config user.name t
+    "$setup"
+  )
+  local got=0 err
+  err="$( cd "$dir" && "$CHECK" HANDOFF.md 2>&1 >/dev/null )" || got=$?
+  if [ "$got" = "$want" ] && printf '%s' "$err" | grep -q "$pattern"; then
+    printf '  ok    %-46s exit %s\n' "$name" "$got"; pass=$((pass+1))
+  else
+    printf '  FAIL  %-46s exit %s, wanted %s matching %s\n' "$name" "$got" "$want" "$pattern" >&2
+    fail=$((fail+1))
+  fi
+  rm -rf "$dir"
+}
+
 s_no_markers()  { printf 'state\n' > HANDOFF.md; git add -A; git commit -qm one; }
 
 s_current()     { printf 'state\n' > HANDOFF.md; git add -A; git commit -qm one
@@ -75,6 +100,15 @@ s_untracked()   { printf 'state\n<!-- board: https://x/a built-from: 0000000 -->
 
 s_missing()     { :; }
 
+# WHAT A SQUASH MERGE LEAVES BEHIND. PR #43 squashed 60 commits, so the sha two board markers
+# named stopped resolving from main. The author's clone still held the orphaned object and
+# printed "current"; CI's clone did not and printed STALE, on the same commit. Note this is a
+# TRACKED file -- s_untracked above uses an unresolvable sha too, but takes the early exit and
+# never reaches this branch, which is exactly how the gap survived.
+s_unresolvable() { printf 'state\n' > HANDOFF.md; git add -A; git commit -qm one
+                   printf 'state\n<!-- board: https://x/a built-from: 0000000 -->\n' > HANDOFF.md
+                   git add -A; git commit -qm marker; }
+
 echo "check-board-freshness.sh — registered cases"
 run_case "no markers declared"                     0 s_no_markers
 run_case "marker at the current sha"               0 s_current
@@ -85,6 +119,7 @@ run_case "marker missing built-from"               2 s_no_sha
 run_case "marker missing url"                      2 s_no_url
 run_case "untracked file — the early-exit path"    0 s_untracked
 run_case "file absent entirely"                    2 s_missing
+run_case_msg "an orphaned sha is UNVERIFIABLE, not stale" 1 s_unresolvable 'UNVERIFIABLE'
 
 echo
 if [ "$fail" -gt 0 ]; then
