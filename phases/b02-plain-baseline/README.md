@@ -369,3 +369,105 @@ picked up at baseline, an instruction telling the agent to follow it has nothing
 - **Not a re-run: the pass rate and prediction 4.** 14 of 14 passing every gate is robust to
   both defects. A *more* capable, less isolated agent passing is not surprising; the tightly
   sandboxed claude arm passing 9 of 9 is what carries the finding.
+
+---
+
+## Rubric sheets on baseline runs — 2026-09-01
+
+**Three runs scored. Selection was by start time, not by result** — the three oldest claude
+baseline runs, picked before any sheet existed, so nothing here is chosen for what it says.
+
+    ./tools/codex-score.sh benchmark/rubrics/backend-quality.yaml --run-id <id>
+
+Rubric `396e1799eb2b`, scorer `gpt-5.6-sol`, fresh ephemeral session per run,
+`--ignore-user-config --ignore-rules --sandbox read-only`. All three sheets pass
+`check-sheet-categories.sh`: 4 categories, exactly the rubric's.
+
+| run | architecture 35 | maintainability 25 | test-quality 25 | change-focus 15 | total |
+|---|---|---|---|---|---|
+| `0a222393` | 2 | **0** | 1 | 1 | 55/100 |
+| `5bd24356` | 2 | **0** | 1 | 1 | 55/100 |
+| `8322e71b` | 2 | **0** | 1 | 1 | 55/100 |
+
+**Zero null cells of twelve.**
+
+### RUNBOOK §0.5 is satisfied, and it cost no run
+
+The step this phase flagged as unavoidably costing a run — inspect the attachment set on a
+real worktree — was answered by a surviving one. `LAB_SCORE_DRY_RUN` on run `0a222393`
+reports **3 files under test, 3 baseline**. Not 25. The whole service is not attached,
+`test-quality`'s null precondition can fire, and **Decision A is not silently disabled
+between B1 and B2**. The three sheets confirm it from the other side: `test-quality` scored
+1, not null, on all three — the attachments included the test file the agent wrote.
+
+### Follow-up 1, on unseen work
+
+E-001's follow-up 1 asks whether the rubric measures the rubric or the fixture set: score a
+submission the anchors were **not** written against and watch the null rate. These are agent
+submissions, not fixtures. **The null rate stayed at 0.** The rubric is doing work on unseen
+code.
+
+### What the maintainability column is actually measuring
+
+This is the guardrail model pointed at an agent, and it is worth reading the anchor rather
+than the number:
+
+- **2** — one `when (shipment.status)` in EXPRESSION position, no `else`. Kotlin forces such
+  a `when` to be exhaustive, so a new status constant is **a compile error at this site**.
+  That is **L1**: the bad state cannot be written down.
+- **0** — an `if` chain. A new status constant compiles and takes the fallback path
+  unannounced. Nothing executes against it.
+
+**All three runs wrote `if` chains, and the scorer cited the line in each:**
+*"Status decisions use if chains"* (`:56`), *"…use separate if statements"* (`:62`),
+*"…use separate if statements with a fallback return"* (`:65`).
+
+**3 of 3 chose the construct that is not compiler-enforced**, on a task where the enforced
+one is available, shorter, and idiomatic Kotlin.
+
+### A cross-arm pattern that is NOT a finding, recorded so it can be tested
+
+Reading the construct directly out of the diffs: **4 of 5 codex runs used
+`when (shipment.status)`; 3 of 3 scored claude runs used `if`.**
+
+**This must not be reported as an arm difference.** observatory#65: the arms ran under
+different policies, and all seven codex logs open by reading the operator's
+`memtrace-first` skill, which instructs the agent to check recorded conventions before
+editing. Model and treatment are not separable here. What this is: **a specific, cheap
+hypothesis for the parity re-run** — score both arms after parity and see whether the split
+survives. It is more than #65 had to offer before, and it is worth one line in that issue.
+
+## What was learned about the plain agent that 0A did not teach
+
+**It satisfies what it reads and what executes against it. It does not reach for constructs
+that make a future mistake impossible.**
+
+Three instruments, two repositories, one shape:
+
+| | measurement |
+|---|---|
+| **prediction 4**, this phase | followed an L3 prose convention that nothing enforces — **14 of 14**, including 9 of 9 on the tightly sandboxed arm |
+| **the rubric**, this phase | did not choose the L1 construct that turns a future enum addition into a compile error — **0 of 3** |
+| **WW-001**, `evidence.local/ww-001-plain-vs-instructed/` | did not extract the shared helper the codebase's own precedent called for — **0 of 6**, both arms, on an unrelated repo. `GN-018` in the books corpus, `severity: should` |
+
+0A's lesson was that a word a human reads is not a control. **B2's is the same lesson from
+the other side: an agent reads the words fine — better than predicted, three times over —
+and that is exactly why the words are not the control.** What the plain agent does not do is
+close the door behind itself. Prediction 4 was refuted because the reading half is easy; the
+maintainability column is 0 because the defending half is not.
+
+**What this hands B3.** An instruction telling an agent to follow a convention it already
+follows measures nothing — WW-001 shows that at 3/3 versus 3/3 with a real `CLAUDE.md`
+carrying the exact conventions in question. **B3's axis has to be somewhere the baseline
+reliably falls short**, and two candidates are now on record with numbers behind them: the
+L1-construct choice (0/3 here) and `GN-018` (0/6 there). Both are about defending code
+rather than writing it, which is a narrower and more testable claim than "instructions help".
+
+### Still open on this phase
+
+- **The deliberate-failure run.** One run deliberately un-isolated, compared against the
+  isolated baseline, to *measure* the contamination rather than assume it. Never done — and
+  newly interesting, because #65 shows the codex arm was accidentally un-isolated and nobody
+  can size the effect.
+- **Prediction 1 on the claude arm.** Unsettled and probably unsettleable from what exists:
+  that arm's log is a final message with no ordering, and a tool count is not a tool order.
