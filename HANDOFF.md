@@ -1,7 +1,11 @@
-# Handoff — 2026-08-30 (fifth session)
+# Handoff — 2026-09-01 (sixth session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
+
+**Start at "What the sixth session changed, 2026-09-01."** Four claims this file was making
+are now false, two B2 predictions are settled that it lists as open, and one of its
+statements about the codex contamination understated it by a factor of seven.
 
 ## Position
 
@@ -35,8 +39,13 @@ were adopted from Claude with provenance and the contamination disclosed, and **
 ## Branch state
 
 `lab21/the-ladder-had-gaps`, **28 commits**, ahead of `main`. `main` is at `0f58203`
-(PR #18, merged 2026-08-27, five CI checks green). All five CI jobs pass locally on this
-branch, shellcheck included.
+(PR #18, merged 2026-08-27, five CI checks green).
+
+**PUSHED 2026-09-01, `84ab009..310c463`.** For four sessions this branch held B1's closure
+and B2's entire result in one copy on one laptop, and this file kept saying so without the
+push happening. **PR #43 is now green on the real tip — 8 of 8 checks, `MERGEABLE`,
+`REVIEW_REQUIRED`.** Every earlier green on that PR was against `84ab009` and had never seen
+Decision E, Decision F, the four B2 predictions or the baseline result.
 
 ## What is BLOCKED ON YOU, and cannot be delegated
 
@@ -209,7 +218,23 @@ Scorer preconditions verified before first use: 6/6 targets resolve, registry ad
 five variants, baseline attaches, codex authenticated, contract 56 lines, harness already
 proven end-to-end by a probe run. **First contact will not fail.**
 
-## 0A is next, and its Copilot arm is DEFERRED — not dropped
+## 0A is next, and its Copilot arm is SKIPPED — 2026-09-01, by the author
+
+**DECISION G, 2026-09-01. The quota reset and the arm was skipped anyway.** Read with
+`gh api /copilot_internal/user`: `premium_interactions` **remaining 300**, next reset
+2026-10-01, `chat` and `completions` `unlimited: true`. The constraint that forced the
+deferral is gone; the arm is not being added.
+
+**What that costs, and this file has said it twice already so it is not a surprise:**
+Copilot is the runtime the business case names for backend agent v1. Skipping it means the
+harness whose behaviour matters most from B2 onward is the one nobody observes. It was cheap
+— 0A.1 is read-only and `gpt-5.4-mini` costs 0 premium requests — so this is not a cost that
+was forced. **Reversal condition: any B3-or-later claim about a Copilot-run agent must be
+refused until this arm exists.** The window is 300 requests wide and closes 2026-10-01.
+
+The section below is the record of how it got here and is left unedited.
+
+## 0A, and how the Copilot arm came to be deferred
 
 0A has **zero TODOs**: the extract was written 2026-08-09 and the phase is authored. What is
 open is 19 checkboxes — the tiered reading, three labs, and a six-point exit gate. Lab 0A.1
@@ -275,11 +300,12 @@ the check was written to close, left open on purpose and named here rather than 
 
 ## On disk but not in git, so a `$TMPDIR` purge or a new machine loses it
 
-**Updated 2026-08-31. One row here is now evidence, which was not true yesterday.**
+**Updated 2026-09-01. A second row is now evidence, and the first row has been read.**
 
 | what | where | matters? |
 |---|---|---|
-| **`evidence.local/b2-agent-logs/`** — 18 agent transcripts, 596 KB | the lab repo, gitignored | **YES.** The ONLY artefact that can settle B2 predictions 1 and 3 — both need per-event ordering, and the codex arm has no behaviour telemetry at all, so the log is its only source. Also carries the observatory#65 evidence line |
+| **`evidence.local/b2-agent-logs/`** — 18 agent transcripts, 596 KB | the lab repo, gitignored | **YES, and now partly spent.** Predictions 2 and 3 were settled off it 2026-09-01 (see below); **prediction 1 is still open on the claude arm** and this is still its only possible source. Carries the observatory#65 evidence, which on reading is seven runs and not one |
+| **`evidence.local/ww-001-plain-vs-instructed/`** — six runs, 256 KB | the lab repo, gitignored | **YES.** Rescued from `$TMPDIR` 2026-09-01. The only record of the CLAUDE.md null result and of B3's first candidate axis. Not a lab experiment — no run id, no evaluator verdict, no registered variable, and its own README says so at the top. Do not let it join a batch's `n` |
 | 25 kept worktrees, **781 MB** | `$TMPDIR/observatory-run-*` | **partly.** Needed only for prediction 4's idempotency isolation, which wants the surefire output. Too large to mirror; if purged, that isolation needs fresh runs |
 | `boards.local/` — two artifact sources + README | the lab repo, gitignored | no — losing them costs a rebuild, not a measurement. `b2-board.html` is rebuilt and unpublished |
 | `workbench.local/` — the blind-sheet workbench | the lab repo, gitignored | **no longer.** Decision E superseded the sheet it fed. Kept as the record of a measurement designed and not taken |
@@ -485,3 +511,128 @@ arrived on schedule.
 
 **Two dependencies dissolved in one day.** Both correct locally. That is also what losing the
 plan to the schedule looks like from inside, and the third should be argued harder than either.
+
+## What the sixth session changed, 2026-09-01
+
+**Nothing was run on the observatory. Two predictions closed by reading evidence already on
+disk, one claim in this file corrected by a factor of seven, and B3 got its first candidate
+axis — from a repository that is not `sample-service`.**
+
+### Predictions 2 and 3 are settled, off the B2 logs, and both are refuted
+
+`evidence.local/b2-agent-logs/` was rescued 2026-08-31 and not read until now. Reading it
+closes two of the three open predictions without a single new run.
+
+The arms are not observed the same way and that limit is real: the claude arm's log is its
+final message only (19–33 lines), the codex arm's is a full event stream (1446–1725 lines).
+So prediction 1 is settleable on codex and **not** on claude.
+
+| | verdict | evidence |
+|---|---|---|
+| **1 — inspect before editing** | **HELD on codex, 5/5. UNSETTLED on claude.** | Identical shape every codex run: list files → read `Shipment.kt` + `ShipmentController.kt` → read `ApiError.kt` → edit. No write-first run. The claude arm's record shows 14–20 tool calls but carries no ordering, and a count is not an order. **Report it as unsettled there, not as agreement** |
+| **2 — verification unprompted** | **REFUTED, 5/5 codex** | Predicted ≤2 of 5, refuter ≥4. Every codex run invoked `./mvnw test`; three chained it onto a `git diff` in one exec line, which is why a first pass over the exec list undercounted it at 3. Prediction 2 was already void on its premise; this measures instruction compliance, and compliance was total |
+| **3 — completion claimed without evidence** | **REFUTED, 0 of 14** | Predicted ≥3 of 5 per arm, refuter ≤1. Every final message in both arms cites a verification run. claude: *"✅ All 17 tests pass"*, *"BUILD SUCCESS"*. codex: *"Verification: `./mvnw test` passed — 17 tests, 0 failures"*. Nine of nine and five of five |
+
+**Three of four B2 predictions are now refuted, all in the same direction.** The baseline
+agent is more disciplined than predicted, on every axis, every time. That is the third
+consecutive adopted set to fail toward pessimism — see the provenance note in
+`phases/b02-plain-baseline/README.md`, which called the bias before the runs.
+
+### The observatory#65 contamination is seven runs, not one
+
+This file said *"On the first codex run the agent shelled into the operator's home
+directory."* **It was every codex log — 5 of 5 baseline plus the rehearsal and the token
+run.** Identical first action, before touching the repo, in all seven:
+
+    exec /bin/zsh -lc "sed -n '1,240p' ~/.agents/skills/memtrace-first/SKILL.md
+                    && sed -n '1,260p' ~/.agents/skills/memtrace-preflight/SKILL.md"
+
+followed by ~240 lines of operator skill text in context and an announcement that it would
+follow them. Not an outlier. The arm's standard opening move, and the run record still says
+`mcpHash`, `skillsHash` and `instructionsHash` are null.
+
+**A visible candidate effect on output, which strengthens #65 past "a treatment was
+present".** All 5 codex runs reused the existing `SHIPMENT_ALREADY_EXISTS` for a
+cancelled-shipment 409 and added no error code; all 9 claude runs added a new one and
+invented **six different names** for it. `memtrace-first` instructs the agent to check for
+"a recorded decision, ban, convention, or contract" before editing — a plausible cause of
+exactly that difference. **It is not separable from the model.** That is what the parity
+defect costs, made concrete.
+
+### WW-001 — a CLAUDE.md that states what the code already shows measures nothing
+
+Not a lab experiment. Six runs outside the harness on `Kotlin-server-squad/writewave`
+@ `13105be`, `claude-haiku-4-5-20251001`, one ticket, one variable. Full record and caveats
+in `evidence.local/ww-001-plain-vs-instructed/README.md`.
+
+The variable is whether the repo's own root `CLAUDE.md` is reachable — `backend/` copied out
+of the monorepo (plain) versus the whole monorepo with the agent started in `backend/`
+(instructed). **The control was measured per run, not assumed**: `claude_md_in_tree` 0/0/0
+and 1/1/1, plus a separate probe asking the agent to echo its project instructions with no
+tools — `NONE` in the plain tree, the full 87-line file in the instructed one.
+
+That file states, in prose, the two conventions the ticket traps on: *"GlobalExceptionHandler
+maps to HTTP status codes"* and *"`User.canAccess(template, permission)` checks ownership +
+role."* Neither appears anywhere inside `backend/`. The instructed arm received **twice the
+instruction text of the ticket itself** (3,633 chars against 1,831).
+
+**6 of 6 passed. The arms are indistinguishable.** Errors thrown rather than assembled 3/3
+and 3/3. `canAccess` 3/3 and 3/3. Layering, DTOs, URL shape, and reuse of two dead domain
+methods: 3/3 and 3/3. Pairwise distance between the added service code does not cluster by
+arm — within plain **56.7**, within instructed **37.3**, across **39.3**; the closest pair in
+the batch crosses the arms at 15 lines and the furthest pair shares an arm at 67.
+
+**This is B2's L3 finding reproduced one layer up** — not a KDoc in the file being edited,
+but a real project instruction file, auto-loaded, on a working codebase.
+
+### B3's first candidate axis, and it is a `should`
+
+**All six runs duplicated ~30 lines rather than extracting a shared private helper**, while
+the file they were editing already contains `updateTemplatePublishStatus`, extracted for the
+identical publish/unpublish shape.
+
+**Do not call this a defect.** The books corpus covers it as `GN-018` — *"extract repeated
+knowledge, not merely similar-looking code"*, `severity: should`, and the rule text is
+explicit that it cuts both ways and is a judgement call. What it is: **the baseline reliably
+making a different call from the codebase's own precedent, 0/6, in both arms.**
+
+B2's own conclusion was that B3 must find an axis where the baseline actually fails or it
+produces another INCONCLUSIVE. This is the first candidate on record. It has a rule id, it
+is measured, and — being a `should` — it will need a scoring rule agreed *before* the run,
+not after.
+
+### Static analysis exists now, and it covers about a fifth
+
+`Kotlin-server-squad/writewave` branch `chore/backend-static-analysis` @ `a8c5b1f`, pushed
+2026-09-01, no PR. detekt 1.23.6 + ktlint 12.1.2, 843 lines of config, **zero source
+changes, 261 tests still green**. Current surface: detekt **247**, ktlint **713**.
+
+Two traps recorded in the commit message because they will bite the next person who bumps a
+version: detekt 1.23.7 embeds Kotlin 2.0.10 and refuses against this project's 1.9.25;
+1.23.6 is built against 1.9.23 so its own classpath is pinned there, and naming anything on
+the `detekt` configuration wipes its defaults, hence `detekt-cli` appearing twice. Also:
+**`ktlintFormat` took the count from 2,637 to 4,226** on this tree. Configure the code style
+before formatting, never after.
+
+**What it means for the 175-rule corpus in `ai-agents/books`.** detekt ships 210 rules; a
+hand mapping against the corpus lands around **19 direct hits and 14 partial — roughly one
+in five**, ±3. Coroutines (49 rules) gets ~6 because detekt's coroutine ruleset is 7 rules
+total; testing (15) and framework-integration (6) get **zero**. `EH-006`, `EH-007`, `EH-005`,
+`GN-001`, `CO-005`, `CO-011` are exact.
+
+**`GN-018` is not covered by either tool.** The nearest rule is `StringLiteralDuplication`,
+which only sees repeated strings. The one axis with measured headroom stays L3 whatever you
+install — which is the honest limit of the whole exercise: static analysis takes the
+mechanical fifth and leaves every judgement call exactly where it was.
+
+**The routing this implies**, and it follows from the null result rather than from taste:
+the mechanical fifth goes to detekt and ktlint, where something executes and refuses;
+`enforcement/review-rules.md` (13k tokens) goes to a *review* agent, which is what its own
+header says; and an instruction file earns only the rules the baseline is measured to
+violate. Everything else is inert text — 3/3 versus 3/3 is what inert looks like.
+
+### Decision taken
+
+| | what | where |
+|---|---|---|
+| **G** | Copilot arm skipped, not deferred. Quota had reset — 300 available, next reset 2026-10-01. Reversal condition recorded in the 0A section | this file |
