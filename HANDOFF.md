@@ -742,6 +742,39 @@ two batches. `KEEP=1` is required or neither column of the new prediction is rea
 **Codex quota was exhausted at 14:21 today and resets 17:27.** Hit while probing; the probes
 were read-only and cheap, and check C above was verified *through* the exhaustion.
 
+### B2 can be scored by two harnesses now, and the second one has a measurable tic
+
+`opencode-score.sh` gained `--run-id`. **`CLAUDE.md` used to say a cross-harness check on B2
+was "not currently possible"; it is, and that file now says so.** Decision C is untouched —
+codex is still the registered scorer and owns the numbers. opencode is the second *reader*,
+which B1 had and B2 did not, and the only mechanism that separates a rubric defect from a
+model quirk. Both paths admit a run by the evaluator's recorded verdict and attach the same
+set, so the sheets are comparable by construction.
+
+It also killed a single point of failure that had already failed: codex hit its usage limit
+mid-session and B2 was unscoreable for three hours.
+
+**All three scored runs, both harnesses, zero nulls on six sheets, 9 of 12 exact:**
+
+| | architecture | maintainability | test-quality | change-focus |
+|---|---|---|---|---|
+| all three runs | 2 / 2 | 0 / 0 | 1 / 1 | **1 / 2** |
+
+**Every disagreement is one category, one direction, three of three.** opencode's *fact* is
+wrong all three times — it reported "only confirm added, create/getById/list and imports
+identical" while a class KDoc had been deleted on one run and a new `ErrorCode` constant added
+to a second attached file on the other two. **Whether that scores 1 or 2 is a live rubric
+question** (a required enum constant is arguably part of the change) and belongs in a rubric
+round, not in a sha moved mid-experiment.
+
+**The harness finding is the solid one and it is the fourth occurrence.** `change-focus`
+anchor 0 says *"cite the line in both trees"*. opencode cites one file, target tree only, every
+time — while a pre-agent tree sits attached and unread. Nothing executes that instruction. One
+occurrence was a curiosity; four is a property of the harness, and an argument **for**
+Decision C.
+
+Three opencode calls, three returns, no stall. Do not read that as the stall being fixed.
+
 ### Two corrections to things this file and the issues assert
 
 1. **observatory#64 says three hook events fire on every codex run including a fully isolated
