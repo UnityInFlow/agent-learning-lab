@@ -42,84 +42,72 @@ run_case() {
   rm -rf "$dir"
 }
 
-# Exit code alone cannot distinguish UNVERIFIABLE from STALE -- both fail with 1, which is
-# the point (a marker nobody can check is not a marker). The whole value of the third outcome
-# is the MESSAGE, so that is what this asserts. Without it the branch is untested and the two
-# outcomes are one outcome wearing two labels.
-#
-# <name> <expected-exit> <setup-fn> <stderr-pattern>
-run_case_msg() {
-  local name="$1" want="$2" setup="$3" pattern="$4"
-  local dir; dir="$(mktemp -d)"
-  (
-    cd "$dir" || exit 99
-    git init -q .; git config user.email t@t; git config user.name t
-    "$setup"
-  )
-  local got=0 err
-  err="$( cd "$dir" && "$CHECK" HANDOFF.md 2>&1 >/dev/null )" || got=$?
-  if [ "$got" = "$want" ] && printf '%s' "$err" | grep -q "$pattern"; then
-    printf '  ok    %-46s exit %s\n' "$name" "$got"; pass=$((pass+1))
+# The digest the checker will compute for the CURRENT HANDOFF.md, so a case can write a marker
+# that genuinely matches instead of hard-coding a hash that drifts the moment a case's prose is
+# edited. Mirrors digest_of() in the checker: marker lines excluded.
+dg() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sed '/board:/d' HANDOFF.md | sha256sum | cut -c1-12
   else
-    printf '  FAIL  %-46s exit %s, wanted %s matching %s\n' "$name" "$got" "$want" "$pattern" >&2
-    fail=$((fail+1))
+    sed '/board:/d' HANDOFF.md | shasum -a 256 | cut -c1-12
   fi
-  rm -rf "$dir"
 }
 
 s_no_markers()  { printf 'state\n' > HANDOFF.md; git add -A; git commit -qm one; }
 
-s_current()     { printf 'state\n' > HANDOFF.md; git add -A; git commit -qm one
-                  local sha; sha="$(git log -1 --format=%h -- HANDOFF.md)"
-                  printf 'state\n<!-- board: https://x/a built-from: %s -->\n' "$sha" > HANDOFF.md; }
+s_current()     { printf 'state\n' > HANDOFF.md
+                  printf 'state\n<!-- board: https://x/a prose: %s -->\n' "$(dg)" > HANDOFF.md; }
 
-s_stale()       { printf 'state\n' > HANDOFF.md; git add -A; git commit -qm one
-                  local old; old="$(git log -1 --format=%h -- HANDOFF.md)"
-                  printf 'state\nMATERIALLY DIFFERENT PROSE\n' > HANDOFF.md
-                  git add -A; git commit -qm two
-                  printf 'state\nMATERIALLY DIFFERENT PROSE\n<!-- board: https://x/a built-from: %s -->\n' "$old" > HANDOFF.md; }
+s_stale()       { printf 'state\n' > HANDOFF.md
+                  local old; old="$(dg)"
+                  printf 'state\nMATERIALLY DIFFERENT PROSE\n<!-- board: https://x/a prose: %s -->\n' "$old" > HANDOFF.md; }
 
-# The self-invalidation clause: writing the marker moves the file, and that alone must NOT
-# count as stale. One substantive line in the same diff and it must.
-s_marker_only() { printf 'state\n' > HANDOFF.md; git add -A; git commit -qm one
-                  local sha; sha="$(git log -1 --format=%h -- HANDOFF.md)"
-                  printf 'state\n<!-- board: https://x/a built-from: %s -->\n' "$sha" > HANDOFF.md
+# Writing the marker must NOT count as stale. Under the commit basis this needed a narrow
+# "the diff is marker lines only" clause; under the digest basis it is structural, because the
+# digest excludes marker lines. The case stays: the property is what matters, not the mechanism.
+s_marker_only() { printf 'state\n' > HANDOFF.md
+                  printf 'state\n<!-- board: https://x/a prose: %s -->\n' "$(dg)" > HANDOFF.md
                   git add -A; git commit -qm marker; }
 
-s_marker_plus() { printf 'state\n' > HANDOFF.md; git add -A; git commit -qm one
-                  local sha; sha="$(git log -1 --format=%h -- HANDOFF.md)"
-                  printf 'state\nNEW SUBSTANTIVE LINE\n<!-- board: https://x/a built-from: %s -->\n' "$sha" > HANDOFF.md
+s_marker_plus() { printf 'state\n' > HANDOFF.md
+                  local sha; sha="$(dg)"
+                  printf 'state\nNEW SUBSTANTIVE LINE\n<!-- board: https://x/a prose: %s -->\n' "$sha" > HANDOFF.md
                   git add -A; git commit -qm both; }
 
 s_no_sha()      { printf 'state\n<!-- board: https://x/a -->\n' > HANDOFF.md; git add -A; git commit -qm one; }
-s_no_url()      { printf 'state\n<!-- board: built-from: abc1234 -->\n' > HANDOFF.md; git add -A; git commit -qm one; }
+s_no_url()      { printf 'state\n<!-- board: prose: abc123456789 -->\n' > HANDOFF.md; git add -A; git commit -qm one; }
 
-# THE CASE THAT ALREADY FOOLED THIS AUTHOR ONCE. An untracked file takes the early exit, and
-# a positive control written against one passes while proving nothing.
-s_untracked()   { printf 'state\n<!-- board: https://x/a built-from: 0000000 -->\n' > HANDOFF.md; }
+# built-from: is provenance now, not a control input. A marker carrying only prose: is VALID,
+# and the check must not reject it -- otherwise the field quietly becomes required again.
+s_prose_only()  { printf 'state\n' > HANDOFF.md
+                  printf 'state\n<!-- board: https://x/a prose: %s -->\n' "$(dg)" > HANDOFF.md; }
+
+# THE CASE THAT ALREADY FOOLED THIS AUTHOR ONCE. Under the commit basis an untracked file took
+# an early exit and passed, so a positive control written against one proved nothing. The digest
+# basis consults no git at all, so tracking is now irrelevant and a wrong marker on an untracked
+# file FAILS like any other. The expected code moves 0 -> 1, and that is the improvement.
+s_untracked()   { printf 'state\n<!-- board: https://x/a prose: 000000000000 -->\n' > HANDOFF.md; }
 
 s_missing()     { :; }
 
-# WHAT A SQUASH MERGE LEAVES BEHIND. PR #43 squashed 60 commits, so the sha two board markers
-# named stopped resolving from main. The author's clone still held the orphaned object and
-# printed "current"; CI's clone did not and printed STALE, on the same commit. Note this is a
-# TRACKED file -- s_untracked above uses an unresolvable sha too, but takes the early exit and
-# never reaches this branch, which is exactly how the gap survived.
-s_unresolvable() { printf 'state\n' > HANDOFF.md; git add -A; git commit -qm one
-                   printf 'state\n<!-- board: https://x/a built-from: 0000000 -->\n' > HANDOFF.md
-                   git add -A; git commit -qm marker; }
+# WHAT A SQUASH MERGE LEAVES BEHIND, and why there is no longer a case for it. Under the commit
+# basis this file registered an UNVERIFIABLE outcome for a marker whose sha no longer resolved.
+# The digest basis consults no commit, so the condition cannot arise and the outcome is gone.
+# An orphaned sha in built-from: is now simply provenance pointing at a squashed commit, which
+# is true and harmless. Kept as a comment because the failure is worth remembering: it turned
+# main red twice in one session on boards that were byte-for-byte correct.
 
 echo "check-board-freshness.sh — registered cases"
 run_case "no markers declared"                     0 s_no_markers
-run_case "marker at the current sha"               0 s_current
+run_case "marker at the current digest"            0 s_current
 run_case "marker behind a substantive change"      1 s_stale
-run_case "marker-only diff is not staleness"       0 s_marker_only
+run_case "writing the marker is not staleness"     0 s_marker_only
 run_case "marker plus a substantive line IS stale" 1 s_marker_plus
-run_case "marker missing built-from"               2 s_no_sha
+run_case "marker missing prose"                    2 s_no_sha
 run_case "marker missing url"                      2 s_no_url
-run_case "untracked file — the early-exit path"    0 s_untracked
+run_case "untracked file is checked like any other" 1 s_untracked
+run_case "prose: alone is a valid marker"          0 s_prose_only
 run_case "file absent entirely"                    2 s_missing
-run_case_msg "an orphaned sha is UNVERIFIABLE, not stale" 1 s_unresolvable 'UNVERIFIABLE'
 
 echo
 if [ "$fail" -gt 0 ]; then

@@ -97,22 +97,29 @@ the two sheets are comparable by construction.
 It also removes a single point of failure that FAILED: on 2026-09-01 codex hit its usage limit
 mid-session and B2 was unscoreable for three hours.
 
-**First cross-harness comparison, and it earned its keep immediately: all three scored runs,
-9 of 12 exact, zero nulls on six sheets — and the three disagreements are one category, one
-direction, three times out of three.** `change-focus`: codex 1, opencode 2, every run.
+**Cross-harness on five scored runs: 18 of 20 exact, zero nulls on ten sheets.**
 
-**opencode's fact is wrong on all three, whatever the right score is.** It reported a variant
-of *"create/getById/list and imports identical to baseline, only confirm added"*; the diff
-shows a deleted class KDoc on one run and a new `ErrorCode` constant in a second attached file
-on the other two. Whether that deserves 1 or 2 is a live rubric question — a required enum
-constant is arguably part of the change — and it belongs in a rubric round, not in a sha moved
+**AMENDED 2026-09-01, eighth session — at n=3 this paragraph said the disagreement was "one
+category, one direction, three times out of three" and called it a mechanism. It is 3 of 5.**
+opencode agreed with codex on `change-focus` for runs 4 and 5. The claim was true of the runs
+it was computed from and did not survive two more, which is the same shape as B2's own headline
+shrinking from 0-of-3 to 1-of-5 on the same two runs. Do not restate an n=3 pattern as a
+property.
+
+**Where they disagreed, opencode's fact was wrong.** It reported a variant of
+*"create/getById/list and imports identical to baseline, only confirm added"*; the diff shows a
+deleted class KDoc on one run and a new `ErrorCode` constant in a second attached file on the
+other two. Whether that deserves 1 or 2 is a live rubric question — a required enum constant is
+arguably part of the change — and it belongs in a rubric round, not in a sha moved
 mid-experiment.
 
 **The harness finding is the solid one, and it is a REPEAT.** `change-focus` anchor 0 says
 *"cite the line in both trees"*; on 2026-08-30 codex did and opencode named methods and cited
 one tree. It has now done the same on three more targets, citing one file in the target tree
 while a pre-agent tree sat attached and unread. Nothing executes that instruction. Four
-occurrences is a property of the harness, and an argument *for* Decision C.
+occurrences is a property of the harness, and an argument *for* Decision C. **This one is
+untouched by the n=5 correction** — it is about what opencode cites, not about the score it
+lands on.
 
 **The scorer admits fixtures by NAME, and that runs out at B2.** `codex-score.sh` and
 `opencode-score.sh` accept a target only if its basename is in `known-good` +
