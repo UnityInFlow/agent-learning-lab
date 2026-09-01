@@ -479,7 +479,7 @@ rather than writing it, which is a narrower and more testable claim than "instru
 - **Prediction 1 on the claude arm.** Unsettled and probably unsettleable from what exists:
   that arm's log is a final message with no ordering, and a tool count is not a tool order.
 
-### The same run, scored by a second harness — 2026-09-01
+### The same three runs, scored by a second harness — 2026-09-01
 
 `opencode-score.sh` gained the `--run-id` path this repo's own `CLAUDE.md` said made a
 cross-harness check on B2 "not currently possible". **Decision C is untouched**: codex remains
@@ -487,33 +487,48 @@ the registered scorer and owns the numbers; opencode is the second reader B1 had
 not. Both paths admit a run by the same rule and attach the same set, so the sheets are
 comparable by construction rather than by caveat.
 
-Run `0a222393`, rubric `396e1799eb2b`, both harnesses, **zero nulls on either sheet**:
+All three scored runs, rubric `396e1799eb2b`, **zero nulls on any of the six sheets**:
 
-| category | codex | opencode | |
-|---|---|---|---|
-| architecture-consistency | 2 | 2 | agree |
-| maintainability | 0 | 0 | agree |
-| test-quality | 1 | 1 | agree |
-| **change-focus** | **1** | **2** | **disagree** |
+| run | architecture | maintainability | test-quality | change-focus |
+|---|---|---|---|---|
+| `0a222393` | 2 / 2 | 0 / 0 | 1 / 1 | **1 / 2** |
+| `5bd24356` | 2 / 2 | 0 / 0 | 1 / 1 | **1 / 2** |
+| `8322e71b` | 2 / 2 | 0 / 0 | 1 / 1 | **1 / 2** |
 
-**The disagreement is a defect in the second reader, not in the rubric, and the diff says so.**
-codex: *"the class documentation outside confirm was removed."* opencode: *"only confirm added;
-create/getById/list identical to baseline, imports unchanged."* Both statements are true — but
-the agent deleted a five-line class KDoc that has nothing to do with `confirm`, so something
-outside the change did move and **codex is right**.
+*codex / opencode.* **9 of 12 exact — and the three disagreements are one category, one
+direction, three times out of three.** That is not noise, and it is not a coin landing the
+same way; it is the same mechanism firing on every run.
 
-**It is a repeat, and that is what makes it worth writing down.** `change-focus` anchor 0 says
+**What is certainly wrong is opencode's fact, not its judgement.** Its reason is a variant of
+*"create/getById/list and imports identical to baseline, only confirm added"* on all three
+runs. Something outside `confirm` had changed every time, and the diff says so:
+
+| run | what actually moved outside `confirm` |
+|---|---|
+| `0a222393` | a five-line class KDoc **deleted** — in the very file opencode cited |
+| `5bd24356` | `SHIPMENT_CANNOT_BE_CONFIRMED` added to `ApiError.kt` — a second attached file it never cited |
+| `8322e71b` | `SHIPMENT_CANCELLED` added to `ApiError.kt` — likewise |
+
+**Whether that should score 1 or 2 is a genuine rubric question, and it is not settled here.**
+For `0a222393` the deletion is unrelated to the feature and codex's 1 is plainly right. For the
+other two the new enum constant is *required* by the code the ticket asked for, so "outside
+`confirm`" is a strict reading and a defensible 2 exists. **The rubric does not say which**, and
+that is a real ambiguity to take to `benchmark/rubrics/backend-quality.yaml` — separately, and
+not by editing the sha mid-experiment.
+
+**The harness finding is the solid one, and it is a repeat.** `change-focus` anchor 0 says
 *"cite the line in both trees."* On 2026-08-30 codex did and opencode named methods and cited
-one tree. Here opencode cited `ShipmentController.kt:52-72` — the added region only, in the
-target tree, never looking at the pre-agent side that was attached to it. **Nothing executes
-that instruction.** One occurrence was a curiosity; the same harness doing it again on a
-different target makes it a property of the harness, and an argument for Decision C rather
-than against it.
+one tree. Here opencode cited a single file, in the target tree only, on all three runs —
+`ShipmentController.kt:52-72`, `:57-78`, `:26-55` — while a pre-agent tree and, in two cases, a
+second changed file sat attached and unread. **Nothing executes that instruction.** One
+occurrence was a curiosity; four is a property of the harness, and an argument *for* Decision C
+rather than against it.
 
-**Do not read 3/4 as an agreement rate.** n=1 run, one comparison, and the two harnesses are
-not observed the same way — codex is handed one inlined prompt, opencode gets file
-attachments. What this establishes is that the second path exists, admits the same population,
-and immediately found something checkable.
+**Do not read 9/12 as an agreement rate.** Three runs of one task, and the harnesses are not
+fed the same way — codex receives one inlined prompt, opencode receives file attachments. What
+this establishes is that the second path exists, admits the same population, and found
+something checkable on its first use.
+
 
 ---
 
