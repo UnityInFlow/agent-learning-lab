@@ -288,22 +288,32 @@ submission the anchors were NOT written against. `codex-score.sh --run-id` alrea
 If the null rate stays at 0 on unseen work the rubric is doing real work; if it jumps, the
 B1 grid measured the fixture set rather than the rubric.
 
-**Readable view of this file:** https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc
-— **STALE as of 2026-08-31 and not yet republished.** It still describes B1 as blocked on
-seventeen blind cells, which Decision E superseded. A second board,
-https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3, is stale for the same
-reason. **This file is the source of truth; both links are views, and both are behind it.**
+**Readable views of this file, both REPUBLISHED 2026-09-01 (seventh session):**
 
-`tools/check-board-freshness.sh` now exists to stop that being invisible, and CI runs it. It
-compares each board's declared `built-from:` sha against this file's own last commit:
+| board | what it answers |
+|---|---|
+| [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — the scored grid, what #66 closed, what is held |
+| [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route and how far off an agent still is |
+
+The first had been **rebuilt but never published** — four earlier attempts were refused by the
+publisher's view-guard, which will not overwrite a live artifact this session has not read. The
+second was published on 08-30 and was structurally obsolete: its thesis was *"why seventeen
+cells stand between you and a prompt"*, and Decision E deleted those cells. Both now carry the
+current state.
+
+`tools/check-board-freshness.sh` compares each board's declared `built-from:` sha against this
+file's own last commit:
 
     <!-- board: https://claude.ai/code/artifact/<id> built-from: <sha> -->
 
-**No marker is declared yet, deliberately.** Declaring one for a board that is already behind
-would hand the next session a red build for a defect it did not create. Add the marker in the
-same commit as the republish, and the check starts guarding from that point. Until then it
-reports "nothing claimed, nothing to check" — which is honest, and is also exactly the L3 gap
-the check was written to close, left open on purpose and named here rather than forgotten.
+**The markers are now declared, in their own commit.** They were held back while the boards
+were behind, because declaring one then would have handed the next session a red build for a
+defect it did not create. That reason is spent: both boards were republished first, and the
+markers land in a commit that touches nothing else, so the checker's self-invalidation clause —
+"the diff since the recorded sha is marker lines only" — resolves them as current rather than
+as instantly stale. **From here the check is live: edit this file, and CI asks for a
+republish.** That is the L3 gap closed, and it will occasionally demand a republish for a typo,
+which the tool's own header argues for at length and is not a defect.
 
 ## On disk but not in git, so a `$TMPDIR` purge or a new machine loses it
 
