@@ -1,16 +1,21 @@
-# Handoff — 2026-09-01 (seventh session)
+# Handoff — 2026-09-01 (eighth session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "What the seventh session changed, 2026-09-01."** One thing is blocked on you and
-a whole batch is held behind it. The sixth-session section below it is still accurate; the
-fifth and earlier are history.
+**Start at "What the eighth session changed, 2026-09-01."** Everything that was green and
+unmerged is now on `main`, B2's gate is one run and four prose blocks from closed, and its
+headline finding shrank when the sample grew. The seventh-session section below it is still
+accurate except where the eighth corrects it; the sixth and earlier are history.
 
 ## Position
 
 **Spine 4 of 28 — B2 HAS RUN. B1 CLOSED 2026-08-30.** No agent exists and none should until
 stop 10.
+
+**Amended, eighth session: `maintainability` is 1 of 5, not 0 of 3.** Scoring the two members
+of the scored population that had never been scored moved the phase's headline. Read
+"What the eighth session changed" before quoting any number from the sections below.
 
 **B2 produced data, and half of it is unusable. Read `phases/b02-plain-baseline/README.md`
 from "B2 baseline — RUN" before quoting any number.** 14 runs, 14 passed. Prediction 4
@@ -44,8 +49,15 @@ were adopted from Claude with provenance and the contamination disclosed, and **
 
 ## Branch state
 
-`lab21/the-ladder-had-gaps`, **28 commits**, ahead of `main`. `main` is at `0f58203`
-(PR #18, merged 2026-08-27, five CI checks green).
+**AMENDED, eighth session: nothing is unmerged any more.** `main` is at `2b8f113` (PR #45).
+`lab21/the-ladder-had-gaps` was squash-merged as PR #43 (`0be66e7`) and deleted on the remote;
+**do not delete it locally** — HANDOFF and the phase READMEs cite shas on it (`925563c`,
+`0dac30b`, `2958ca6`) which the squash made unreachable from `main`. They survive in this
+clone and in `refs/pull/43/head`, nowhere else. That same orphaning broke the board check;
+see the eighth-session section.
+
+*Superseded, kept for the record:* `lab21/the-ladder-had-gaps`, **28 commits**, ahead of
+`main`. `main` is at `0f58203` (PR #18, merged 2026-08-27, five CI checks green).
 
 **PUSHED 2026-09-01, `84ab009..310c463`.** For four sessions this branch held B1's closure
 and B2's entire result in one copy on one laptop, and this file kept saying so without the
@@ -786,3 +798,113 @@ Three opencode calls, three returns, no stall. Do not read that as the stall bei
    the evidence.
 2. **The first probe of the day went through that shim** and its hook lines are a property of
    the probe, not of the arm. Every measurement quoted above was re-taken on the real binary.
+
+
+---
+
+## What the eighth session changed, 2026-09-01
+
+**Four green PRs merged, a fifth opened and merged, and B2's headline shrank.** Nothing is
+green-and-unmerged any more, in either repo.
+
+| merged | |
+|---|---|
+| lab **#43** → `0be66e7` | B1's closure and B2's entire result. Had been one copy on one laptop for four sessions |
+| lab **#45** → `2b8f113` | B2 at n=5, the duration correction, the baseline report, the board-check fix |
+| obs **#66** → `b39b85e` | per-run `HOME`, `--disable plugins`, V4/V5/V6 |
+| obs **#50** → `13419ef` | §13.1 — compare efficiency only among runs that passed |
+
+### `maintainability` is 1 of 5, not 0 of 3
+
+Runs 4 and 5 by start time (`aa72e2c2`, `72fdc94f`) had never been scored. Same pre-registered
+selection rule that picked runs 1–3. Both harnesses, zero nulls on four new sheets, no opencode
+stall. **18 of 20 exact.**
+
+| # | run | architecture | maintainability | test-quality | change-focus |
+|---|---|---|---|---|---|
+| 1 | `5bd24356` | 2 / 2 | 0 / 0 | 1 / 1 | 1 / **2** |
+| 2 | `0a222393` | 2 / 2 | 0 / 0 | 1 / 1 | 1 / **2** |
+| 3 | `8322e71b` | 2 / 2 | 0 / 0 | 1 / 1 | 1 / **2** |
+| 4 | `aa72e2c2` | 2 / 2 | **2 / 2** | 1 / 1 | 1 / 1 |
+| 5 | `72fdc94f` | 2 / 2 | 0 / 0 | 1 / 1 | 1 / 1 |
+
+**Both columns of the decision procedure agree, so this corrects the finding and not the
+rubric.** `aa72e2c2` is `return when (shipment.status)` in expression position, all three
+constants, no `else` — anchor 2, **L1**. `72fdc94f` is two `if` guards and a bare fallback
+return — anchor 0, **L3**. Read by hand off the kept worktrees, independently of the sheets.
+
+*"The plain agent does not close the door behind itself"* was true of three runs and is too
+strong at five. The old text is left standing in the phase README; a claim that shrank when
+the sample grew is the record worth keeping.
+
+**Two knock-ons.** opencode's `change-focus` disagreement is **3 of 5, not 3 of 3** — it agreed
+on runs 4 and 5, so "the same mechanism firing on every run" does not survive n=5. And the
+prior behind the blank prediction has moved: the claude half is now **4 of 5 used `if`, 1 of 5
+used `when`**, measured.
+
+### The sleep explains one run, and not the arm it was used to void
+
+Run 9 finished 21:30 with the machine demonstrably awake; the claude arm's spread from 149s to
+3790s happened inside a seventy-minute window that evening. Only run 10, the codex one, spans
+the gap to 06:16. What degraded runs 6–9 is **not established** — start times are ~55s apart
+while runs take ~80s, so the queue deepens, but contention is a candidate and not a proof.
+
+Narrower true statement: the duration tail on both arms is contaminated by something the run
+record does not capture, and the record cannot separate a contaminated run from a clean one.
+That argues for **obs#53** and for recording load, not for re-running everything.
+
+### B2's gate is one run and four prose blocks from closed
+
+`baseline-report.py` had never been run on this phase. It now has, over the **full
+pre-registered arm** rather than a post-hoc subset — cost, tokens and call counts are not
+wall-clock measurements and need no subset, and picking the five fast runs would have been
+exactly the selection this phase exists to avoid.
+`evidence/b02/baseline-report-20260901T192000Z.txt`:
+
+```
+claude n=9  pass 9/9  cost 0.1085–0.1674 median 0.1487  tokens 6606–8916 median 7812
+codex  n=5  pass 5/5  cost / tool calls / model calls  not measured on any run
+```
+
+That last row is #66's V4 arriving in the analysis layer: an arm with no telemetry now reads as
+unmeasured rather than as the most efficient arm in the comparison.
+
+**Still owed by B2:** the deliberate-failure run (and a prediction for it first), and four
+workbook blocks — Lab B2.1, deliberate failure, the exit-gate answer, and the commit line.
+
+### The board check disagreed with itself across two machines on one commit
+
+Squash-merging #43 orphaned `4f71a45`, the sha both board markers named. The checker gates its
+self-invalidation clause on `git cat-file -e`: this clone still holds the orphaned object and
+printed "2 board(s) current"; CI's clone does not and printed STALE. Same commit, same script,
+opposite answers.
+
+**It was lenient on the machine where the fix gets made** and strict only after the push, and
+its message sent the reader to republish two boards that were byte-for-byte correct. An
+unresolvable sha is now its own outcome — it still fails, but it names the marker rather than
+the board, and says not to republish on that message alone. The verifier's tenth case asserts
+the **message**, since UNVERIFIABLE and STALE both exit 1; mutation-checked against the
+pre-patch checker.
+
+**This will recur on every squash merge that touches this file.** Relabel the marker; do not
+republish.
+
+### Open, and what it needs
+
+- **obs#51** — *"render unreported behaviour counters as unknown, not zero"* — is **superseded
+  by #66** and must not be merged as it stands. It infers absence from `modelCalls == 0 &&
+  toolCalls == 0`; V4 made the columns nullable, so the heuristic would now blank a genuine
+  measured zero. #51's own commit message named the upstream flaw that #66 then fixed. Either
+  close it as superseded, or rebase it down to just the notice block re-keyed to `null`.
+  **Undecided.**
+- **obs#52** — *"BehaviorDto fabricates zeros: record telemetryComplete instead of inferring
+  it"* — is what #66's V4 did. Looks closable; nobody has checked it off.
+- **lab#22 — 0A**, position 1 of 28, still never started.
+
+### What is blocked on you, still, and after tonight
+
+1. **The parity re-run's prediction** — now to be written against **1 of 5**, and knowing that
+   number was produced after the prediction block existed and before the prediction was written.
+2. **A prediction for the deliberate-failure run**, before it runs.
+3. **B2's exit-gate answer** — the material is in the phase README under "What was learned
+   about the plain agent that 0A did not teach"; deciding what goes in the gate block is yours.
