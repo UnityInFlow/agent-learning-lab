@@ -400,6 +400,13 @@ reports **3 files under test, 3 baseline**. Not 25. The whole service is not att
 between B1 and B2**. The three sheets confirm it from the other side: `test-quality` scored
 1, not null, on all three — the attachments included the test file the agent wrote.
 
+The dry-run output itself is committed at
+[`evidence/b02/dry-run-attachment-set-0a222393.txt`](../../evidence/b02/dry-run-attachment-set-0a222393.txt)
+— the exact prompt the scorer would have sent, unedited, so the count above can be recounted
+rather than taken on trust. It reached the repository under the filename `1`, from a
+redirect, and is renamed here rather than deleted: it is the evidence that §0.5 was
+satisfied, and §0.5 is a gate item.
+
 ### Follow-up 1, on unseen work
 
 E-001's follow-up 1 asks whether the rubric measures the rubric or the fixture set: score a
@@ -471,3 +478,73 @@ rather than writing it, which is a narrower and more testable claim than "instru
   can size the effect.
 - **Prediction 1 on the claude arm.** Unsettled and probably unsettleable from what exists:
   that arm's log is a final message with no ordering, and a tool count is not a tool order.
+
+---
+
+## The parity re-run — HELD, waiting on one prediction
+
+**Status: not started, and it must not start.** Everything the batch needs is built,
+tested and pushed. The one thing missing is a prediction, and writing it after the runs is
+the mistake that voided nine runs on 2026-08-30.
+
+### What changed under the batch since the last one
+
+`agent-observatory` PR #66, two commits, both measured rather than argued:
+
+| | was | is |
+|---|---|---|
+| operator skills | every one of seven codex runs opened by reading ~240 lines of `~/.agents/skills/*/SKILL.md` | per-run `HOME`, `.m2` symlink only. `--sandbox workspace-write` was tested as the fix and **does not work** — it restricts writes, not reads |
+| network plugins | codex installed `deep-research-work@0.1.14`, `openai-templates@0.1.1`, `plugin-management@0.1.0` into the "isolated" home on startup, one of them shipping `skills/deep-research/SKILL.md` | `--disable plugins`. `--disable remote_plugin`, the obviously-named flag, installs all three anyway |
+| the record | `mcpHash`/`skillsHash`/`instructionsHash` all null, which reads as *uncustomized* | V6: `userSettingsIsolated`, `shimsStripped`, and a codex `surface` inventory **measured off the isolated directories after the run** |
+
+**What is still NOT at parity, and it cannot be fixed with a flag.** This file's own
+criterion asks for "codex gets a tool allowlist and a sandbox that is not
+`danger-full-access`, or the claude arm's restrictions come off". Neither is available:
+codex has no allowlist mechanism, and claude reads files through native tools that need no
+shell at all. The two products have different tool *shapes*. So the surface is now recorded
+rather than equalized, and **cross-arm claims stay blocked**. That costs less than it
+sounds: B2's registered gate is single-arm — ≥3 run folders and a report with median and
+range — and `baseline-report.py` says so in its own docstring.
+
+**Both arms are being re-run, n=5 each.** Not only codex. Duration was void on both from
+machine sleep, `n=9` on claude was operator error rather than design, and a batch split
+across two versions of the runner is two batches.
+
+### How the new prediction will be settled — written before the prediction, as always
+
+The observation on record, from the scored runs and from a note that explicitly refused to
+call itself a result: **4 of 5 codex runs used `when`, 3 of 3 scored claude runs used `if`.**
+
+| decidable from | how |
+|---|---|
+| the rubric cell | `./tools/codex-score.sh benchmark/rubrics/backend-quality.yaml --run-id <id>`, `maintainability`. Anchor 2 is an exhaustive `when` in expression position — a new enum constant is a compile error, **L1**. Anchor 0 is an `if` chain — it compiles and takes the fallback unannounced, **L3**. The scorer cited the line every time on the three runs already scored |
+| the diff, independently | in the files the agent changed, does the new code discriminating on `ShipmentStatus` use a `when` expression covering the constants with no `else`, or anything else? Readable by hand from the kept worktree, and it does not depend on the rubric |
+
+**Two caveats that belong here rather than in the write-up.**
+
+1. **The scorer is codex, and one arm's submissions are codex's own output** (Decision C).
+   A self-scoring arm is not a neutral instrument. The second column above exists so the
+   claim can be checked without the rubric at all; if the two columns disagree, the diff
+   wins and the rubric has a defect to report.
+2. **`KEEP=1` is required**, as it was for prediction 4 — neither column is readable
+   without the kept worktree.
+
+### The prediction — BLANK, and blocking
+
+> **This is the author's to write.** Claude has read every B2 agent log and both scored
+> grids, so anything it proposes here is contaminated in the way the provenance note above
+> describes, and this set is not being adopted.
+
+<!-- TODO, before a single run of the parity batch:
+
+     5. MECHANISM — why would an arm reach for the L1 construct or not? State the cause,
+        not the number. "Codex used `when` more often" is an observation; a prediction says
+        what about the arm, the task, or the runtime produces it.
+
+     PREDICTION  — of 5 runs per arm, how many score maintainability 2 (exhaustive `when`)?
+     REFUTER     — the number at which you would call this refuted, per arm, stated now.
+
+     Then: commit this file BEFORE launching, and check `git log -1 --format=%cI` against
+     the first run's startedAt. -->
+
+**Do not run `make baseline-runs` until the block above is filled and committed.**

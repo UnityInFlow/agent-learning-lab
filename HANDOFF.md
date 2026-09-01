@@ -1,11 +1,11 @@
-# Handoff — 2026-09-01 (sixth session)
+# Handoff — 2026-09-01 (seventh session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "What the sixth session changed, 2026-09-01."** Four claims this file was making
-are now false, two B2 predictions are settled that it lists as open, and one of its
-statements about the codex contamination understated it by a factor of seven.
+**Start at "What the seventh session changed, 2026-09-01."** One thing is blocked on you and
+a whole batch is held behind it. The sixth-session section below it is still accurate; the
+fifth and earlier are history.
 
 ## Position
 
@@ -17,6 +17,12 @@ from "B2 baseline — RUN" before quoting any number.** 14 runs, 14 passed. Pred
 refuted 0-of-14, and that refutation is the session's substantive finding. But the two arms
 ran under different policies, so **no cross-arm claim survives**, and duration is void because
 runs were suspended across a machine sleep.
+
+**Amended 2026-09-01, seventh session.** The instruction and network channels behind that are
+closed (PR #66) and **a ten-run re-run of both arms is held on one blank prediction**. But
+cross-arm parity is **not reachable by flag** — codex has no tool allowlist, claude reads
+files without a shell — so cross-arm claims stay blocked after the re-run too. That is
+survivable: **B2's registered gate is single-arm.**
 
 **B1's exit-gate evidence is on record**: `925563c`. Two harnesses scored all five variants,
 the decision rule returned KEEP on every clause, and the rubric is registered for B2 at
@@ -57,14 +63,15 @@ critical path; it is in git history at `84ab009` if you want to read what was gi
 
 **What remains blocked on you, and genuinely cannot be delegated:**
 
-1. **B2's four predictions.** Untouched by Decision E. Committed before the first baseline
-   run, with an earlier commit timestamp. Doing that backwards once voided nine runs.
-2. **0A — 19 checkboxes**, ~5 hours of reading. Position 1 of 28, never started, and it
-   blocks B2 independently of anything B1 did.
-3. **RUNBOOK §0.5**, the one step that costs a run: rehearse one run per arm with `--keep`,
-   then inspect the attachment set with `LAB_SCORE_DRY_RUN`. If it lists 25 files the whole
-   service is attached, `test-quality`'s null precondition can never fire, and Decision A is
-   silently disabled between B1 and B2.
+1. ~~**B2's four predictions.**~~ **DONE 2026-08-30** — committed at 17:43:03Z before the
+   first run, adopted with provenance. Three of the four are now refuted. **What replaces it
+   is a fifth prediction, for the parity re-run, and it is blank** — see the seventh-session
+   section at the end of this file.
+2. **0A — 19 checkboxes**, ~5 hours of reading. Position 1 of 28, never started. Decision F
+   (2026-08-30) means it no longer *gates* B2; it is still position 1 and still undone.
+3. ~~**RUNBOOK §0.5.**~~ **SATISFIED 2026-09-01, and it cost no run** — a surviving worktree
+   answered it: 3 files under test, 3 baseline, not 25. Decision A is live between B1 and B2.
+   The dry-run output is committed at `evidence/b02/dry-run-attachment-set-0a222393.txt`.
 
 **A standing hazard is now spent, and this is the honest way to say it:** Claude had read all
 five BE-003 fixtures and was withholding anchor placements to protect the blind sheet. Under
@@ -636,3 +643,101 @@ violate. Everything else is inert text — 3/3 versus 3/3 is what inert looks li
 | | what | where |
 |---|---|---|
 | **G** | Copilot arm skipped, not deferred. Quota had reset — 300 available, next reset 2026-10-01. Reversal condition recorded in the 0A section | this file |
+
+## What the seventh session changed, 2026-09-01
+
+**One thing is blocked on you, and a ten-run batch is held behind it.** Everything else here
+is built, tested, pushed and green.
+
+### BLOCKED ON YOU — the parity re-run's prediction
+
+`phases/b02-plain-baseline/README.md`, last section, ends in a blank TODO block. It needs a
+**mechanism**, a **number** and a **refuter**, on one question: of 5 runs per arm, how many
+score `maintainability` 2 — the exhaustive `when` in expression position, where a new enum
+constant is a compile error — rather than 0, the `if` chain that compiles and takes the
+fallback unannounced.
+
+The decision procedure is already written above the blank, deliberately, so the prediction
+cannot be shaped to fit what turns out to be measurable. It has two columns — the rubric cell
+and the diff read by hand — because **the scorer is codex and one arm's submissions are
+codex's own output**, which is not a neutral instrument. If the columns disagree, the diff
+wins and the rubric has a defect.
+
+**This set is not being adopted from Claude.** It has read every B2 agent log and both scored
+grids; the last two adopted sets failed 3 of 4 and 3 of 4. You asked to write this one.
+
+**Then check the order before launching:** `git log -1 --format=%cI` against the first run's
+`startedAt`. Doing that backwards once voided nine runs.
+
+### Three baseline runs scored — `0dac30b`, and the sixth session ended before recording it here
+
+All three claude runs 2/0/1/1 = **55/100**, **zero null cells of twelve**. Selection was by
+start time, before any sheet existed.
+
+- **E-001 follow-up 1 is answered on unseen work.** These are agent submissions, not the five
+  fixtures the anchors were written against, and the null rate stayed at 0. The rubric
+  measures the rubric, not the fixture set.
+- **RUNBOOK §0.5 is satisfied and cost no run** — a surviving worktree reports 3 files under
+  test and 3 baseline, not 25. Decision A is live between B1 and B2. The dry-run output is
+  committed at `evidence/b02/dry-run-attachment-set-0a222393.txt`; it had reached the repo as
+  a file named `1` from a shell redirect and is renamed rather than deleted, because it is
+  the evidence for a gate item.
+- **The maintainability column is 0 on all three, and that is B2's finding stated as one
+  claim:** the plain agent satisfies what it reads and what executes against it, and does not
+  reach for constructs that make a future mistake impossible. Prediction 4 was refuted
+  because the reading half is easy; maintainability is 0 because the defending half is not.
+
+### observatory#65 — the closable half is closed. PR #66, 3/3 green
+
+Two commits, `b0db19d` and `f3039be`. Both measured, positive control first.
+
+| | what | how it was found |
+|---|---|---|
+| operator skills | per-run `HOME`, `.m2` symlink only | `--sandbox workspace-write` was tested as the fix and **does not work** — it restricts writes, not reads |
+| **network plugins, new** | `--disable plugins` | a fresh isolated `CODEX_HOME` does not stay clean: codex installs `deep-research-work@0.1.14`, `openai-templates@0.1.1`, `plugin-management@0.1.0` on startup, and `deep-research-work` ships `skills/deep-research/SKILL.md`. **`--disable remote_plugin` installs all three anyway** |
+| the record | V6 — `userSettingsIsolated`, `shimsStripped`, codex `surface` | both booleans were computed at run time and printed to a terminal nobody keeps. Nullable: the 172 existing runs are *not measured*, never `false` |
+
+**The obviously-named flag failed twice in two commits.** `workspace-write` for the HOME leak,
+`remote_plugin` for the plugin channel. Both would have given a green run and no isolation.
+
+**Not removed, deliberately:** codex seeds six skills into `skills/.system` and the agent can
+see them — asked to list what it had, it named five of six. They ship in the binary and are
+pinned by `codex-cli 0.147.0`, already in `runtime.version`. A plain baseline is the product
+as shipped minus what varies by machine or by network, so they are recorded, not stripped.
+
+`verify-codex-isolation.sh` is three checks now, each with its own positive control. **Check C
+needs no model answer** — the install happens at startup — so it is the only one that still
+works when the account is out of quota, which is how it was verified.
+
+### Parity by flag is not reachable, and that is a finding rather than a failure
+
+`phases/b02-plain-baseline/README.md` asked for "codex gets a tool allowlist and a sandbox
+that is not `danger-full-access`, or the claude arm's restrictions come off". **Neither is
+available.** Codex has no allowlist mechanism; claude reads files through native tools that
+need no shell at all. The products have different tool *shapes*.
+
+So: the surface is **recorded** rather than equalized, and **cross-arm claims stay blocked**.
+That costs less than it sounds — **B2's registered gate is single-arm** (≥3 run folders, a
+report with median and range), and `baseline-report.py` says so in its own docstring. Nothing
+downstream of B2 needs the cross-arm number. Do not loosen the claude arm to manufacture one.
+
+### The batch, when the block clears
+
+**Both arms, n=5 each.** Not codex alone: duration was void on both from the machine sleep,
+`n=9` on claude was operator error, and a batch split across two versions of the runner is
+two batches. `KEEP=1` is required or neither column of the new prediction is readable.
+
+**Codex quota was exhausted at 14:21 today and resets 17:27.** Hit while probing; the probes
+were read-only and cheap, and check C above was verified *through* the exhaustion.
+
+### Two corrections to things this file and the issues assert
+
+1. **observatory#64 says three hook events fire on every codex run including a fully isolated
+   one.** Measured today: through the **cmux shim** they fire (`SessionStart`,
+   `UserPromptSubmit`, `Stop`); through `/opt/homebrew/bin/codex` with the same isolated
+   `CODEX_HOME`, **zero**. `run-agent.sh` strips the shim, so #64 may be describing the shim
+   rather than codex. Not enough to close it — nobody has re-read the runs it was filed from
+   — but do not spend a session on codex's hook loader before checking which binary produced
+   the evidence.
+2. **The first probe of the day went through that shim** and its hook lines are a property of
+   the probe, not of the arm. Every measurement quoted above was re-taken on the real binary.
