@@ -1,0 +1,55 @@
+Hand re-derivation of one scored cell — required by the validation rules
+=======================================================================
+read 2026-09-03T13:20Z by Opus 5 (claude-opus-5), autonomous
+run       4c891809-3f69-418d-9ba2-d7be3f7cde78  (E-002 isolated arm, run 1 of 5)
+category  maintainability, weight 25
+rubric    benchmark/rubrics/backend-quality.yaml at registered sha 396e1799eb2b
+
+WRITTEN BEFORE ANY SHEET EXISTS FOR THIS RUN. No scorer has been invoked on it.
+The project's rule is 'score anything yourself before reading its output' — reading
+first produces agreement that measures nothing.
+
+WHY THIS RUN AND NOT A B2 BASELINE RUN
+  The five scored B2 runs no longer have readable worktrees; see
+  evidence/b02/worktree-decay-20260903T134500Z.txt. Their production sources were
+  deleted by the OS temp reaper. This run's worktree is intact — 17 .kt files, and
+  the scorer's dry run reports 3 under test and 3 baseline, which is Decision D.
+
+THE CODE, as read
+      fun confirm(@PathVariable shipmentId: String): Shipment {
+          val shipment = repository.findById(shipmentId)
+              ?: throw ResourceNotFoundException(
+                  ErrorCode.SHIPMENT_NOT_FOUND,
+                  "No shipment with id '$shipmentId'",
+              )
+  
+          return when (shipment.status) {
+              ShipmentStatus.CANCELLED -> throw ConflictException(
+                  ErrorCode.SHIPMENT_CANNOT_CONFIRM,
+                  "Cannot confirm shipment '$shipmentId' in CANCELLED status",
+              )
+              ShipmentStatus.CREATED -> repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
+              ShipmentStatus.CONFIRMED -> shipment
+          }
+      }
+
+ANCHOR 2 REQUIRES THREE THINGS. All three hold:
+  1. one `when (shipment.status)`                        -> present
+  2. in EXPRESSION position, its value USED               -> `return when (...)`, the
+     value is returned, not discarded
+  3. carrying no `else`                                   -> three branches, all
+     ShipmentStatus constants; no `else ->` anywhere in the construct
+
+  Kotlin requires a `when` used as an expression to be exhaustive, so the case list is
+  compiler-enforced here and a new ShipmentStatus constant is a COMPILE ERROR at this
+  site rather than a silent fallback. That is the L1-versus-L3 distinction the whole
+  rubric cell exists to detect.
+
+  Anchor 2 also says: do NOT count branches against the enum, because ShipmentStatus
+  is not among the attachments. It is not, and no branch counting was done.
+
+HAND SCORE: 2
+
+This is n=1 and says nothing about the arm. Four of the five scored B2 baseline runs
+wrote an if-chain and scored 0; one wrote this construct and scored 2. A single fresh
+run landing on 2 is not evidence that anything moved.
