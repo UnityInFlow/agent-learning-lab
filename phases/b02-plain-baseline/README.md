@@ -12,39 +12,78 @@
 
 ## Goal
 
-<!-- TODO: this step builds nothing. The capability that appears is
-     a number everything downstream is compared against. Say that in
-     one sentence, and say what makes it trustworthy. -->
+B2 builds nothing. The capability that appears is **a number every later version is compared
+against** — how a plain agent, under no instruction beyond the task, performs on BE-003.
+
+What makes it trustworthy is not the number's size but four properties of how it was taken:
+the model is pinned to an exact id rather than an alias, the environment is isolated so the
+operator's machine is not part of the measurement, the sample is large enough that the spread
+is visible (`n=9`, reported as median and range and never as a mean), and the verdict comes
+from an evaluator that runs rather than from the agent's own account of itself.
+
+**Everything downstream inherits whichever of those four is weakest.** This phase found that
+out twice: once when the two arms turned out to be running under different policies, and once
+when its own headline claim shrank from 0-of-3 to 1-of-5 on two more runs.
 
 ## Required reading
 
 ### Internal — the requirement
 
-<!-- TODO: candidates:
-     BUSINESS-REQUIREMENTS §16.1 keep constant
-     BUSINESS-REQUIREMENTS §16.2 repeat runs
-     BUSINESS-REQUIREMENTS P2    one main variable per experiment
-     BUSINESS-REQUIREMENTS P3    same starting conditions -->
+| source | what it fixes here |
+|---|---|
+| [`BUSINESS-REQUIREMENTS` §16.1 *Keep constant*](../../businesscase/BACKEND-AI-AGENT-BUSINESS-REQUIREMENTS.md) (line 994) | names the eight things held constant across a comparison — commit, task version, acceptance criteria, provider, model, environment, verification commands, rubric. B2 is where that list stops being advice: `runtime.model`, `repository.commitSha` and `evaluation.evaluatorVersion` are all *fields in the run record*, so seven of the eight are checkable after the fact rather than promised before it |
+| §16.2 *Repeat runs* (line 1009) | three per configuration early, five to ten later. B2 ran nine on the claude arm and five on codex. The reason to prefer five over three is on this page: at `n=3` `maintainability` read 0-of-3 and at `n=5` it read 1-of-5 |
+| P2 *One main variable per experiment* (line 172) | *"Do not add an agent, several skills, hooks, a new model, and a changed task in the same comparison."* B2 violated this without meaning to — the two arms differed in isolation policy as well as runtime — which is why no cross-arm claim survives |
+| P3 *Same starting conditions* (line 176) | the same list from the other direction. **The environment is in it**, which is what makes an un-isolated run a different starting condition rather than a noisier one |
 
 ### External — the technique
 
-<!-- TODO. Note: isolation is settled as of 2026-08-10, and not the way
-     the curriculum first assumed.
+**Isolation is settled as of 2026-08-10, and not the way the curriculum first assumed.**
 
-     --strict-mcp-config + --disable-slash-commands do NOT stop hooks:
-     21 hooks and 2 plugins loaded on all 20 runs of CLAUDEMD-V2.
-     --bare does stop them, and is still the wrong flag — it also
-     disables CLAUDE.md discovery, and does not authenticate on a
-     subscription account at all.
+- `--strict-mcp-config` and `--disable-slash-commands` do **not** stop hooks. 21 hooks and 2
+  plugins loaded on all 20 runs of `EXP-BE002-CLAUDEMD-V2`.
+- `--bare` does stop them and is still the wrong flag: it also disables `CLAUDE.md`
+  discovery — which is B3's treatment — and does not authenticate on a subscription account
+  at all.
+- The right flag is `--setting-sources project`, which the runner exposes as
+  `--isolate-user-settings`. Verified: **0 hook executions, `CLAUDE.md` still loads, auth
+  works.**
 
-     Use --setting-sources project (runner: --isolate-user-settings).
-     Verified: 0 hook executions, CLAUDE.md still loads, auth works.
-     EXP-BE002-NOHOOKS sized what it buys: hooks were ~13% of every run,
-     sitting on both arms almost equally. -->
+**Registration is not execution, and this phase has already confused the two once.** The 22
+user-level hooks are still *registered* inside an isolated run; none of them fire. A
+registration count read as a contamination count is a number about the settings file, not
+about the run.
+
+**What isolation is worth was an argument until this phase measured it.** `EXP-BE002-NOHOOKS`
+sized hooks at ~13 % of every run on BE-002, on both arms almost equally. That number was
+carried forward on a different task for three weeks. [E-002](../../experiments/E-002-isolation-contamination.md)
+re-measures it on BE-003 with a matched pair, and its result is in *Deliberate failure* below.
 
 ## Extract
 
-<!-- TODO -->
+Five things this phase is on the hook for, each already paid for once:
+
+1. **A baseline is a measurement of a machine, not of a model.** Every unpinned thing on the
+   operator's laptop — hooks, a global memory file, a terminal wrapper that prepends flags —
+   is inside the number unless something removes it. The runner strips terminal CLI shims and
+   reports it on a `shims` line, because the first rehearsal silently gained **26 hook
+   executions** from a wrapper nobody had looked for.
+2. **A flag is a promise; a field is a fact.** `--isolate-user-settings` was typed on all nine
+   baseline runs, and those records carry `userSettingsIsolated: null` — *not measured*.
+   Observatory V6 added the field so the claim became readable off the record instead of off
+   the command line. This is the same L2-versus-L3 distinction the whole project runs on,
+   arriving in the instrument rather than in the agent.
+3. **Never an average alone.** Over the 17 BE-003 runs already recorded, median duration is
+   101 s and the maximum is 1711 s; the mean is 262, a number no run produced.
+   `baseline-report.py` computes no mean and a test asserts that against the parsed tree.
+4. **A gate the agent cannot see is a different kind of gate.** BE-003's error-envelope
+   convention lives only in `ApiError.kt`'s KDoc — L3 — while its functional behaviour is
+   tests the agent can run and watch fail — L2. Prediction 4 turned that into a falsifiable
+   claim about an agent and was **refuted 0-of-14**.
+5. **The sample size has to assert itself.** `make baseline-runs` counts recorded runs before
+   and after and exits 1 naming any shortfall, because a batch of five where three died used
+   to print five banners and exit 0. A baseline reported at `n=5` that is really `n=2` is not
+   noisy — it is a different measurement.
 
 ## Build
 
@@ -236,28 +275,103 @@ worktree's surefire output, where `confirming twice is idempotent` is a named te
 
 ## Lab B2.1 — establish the baseline
 
-<!-- TODO: ≥3 runs, ideally 5. Same commit, same exact model ID.
-     Report median and range. Never an average alone. -->
+**Date:** 2026-08-30 → 2026-09-01 · **Runtimes:** claude, codex · **Model:**
+`claude-haiku-4-5-20251001` (exact id, not the `haiku` alias) · **Benchmark:** BE-003 at
+`8aadc75` · **Evaluator:** `1.0.0` · **Rubric:** `396e1799eb2b`
+
+**Evidence:** [`evidence/b02/baseline-report-20260901T192000Z.txt`](../../evidence/b02/baseline-report-20260901T192000Z.txt)
+· [`evidence/b02/dry-run-attachment-set-0a222393.txt`](../../evidence/b02/dry-run-attachment-set-0a222393.txt)
+
+### What the runs produced
+
+`n=9` claude, `n=5` codex, **14 of 14 passed the evaluator.** Median and range, never a mean —
+`baseline-report.py` computes no mean and a test asserts that against the parsed tree.
+
+| outcome | claude n=9 median | range | codex n=5 median | range |
+|---|---|---|---|---|
+| duration (s) | 83 | 70 – 3790 | 121 | 97 – 35342 |
+| estimated cost | $0.1487 | $0.1085 – $0.1674 | — | **not measured on any run** |
+| total tokens | 7,812 | 6,606 – 8,916 | 42,396 | 28,835 – 50,231 |
+| tool calls | 17 | 14 – 20 | — | **not measured on any run** |
+| model calls | 20 | 13 – 24 | — | **not measured on any run** |
+
+**The `—` cells are the instrument telling the truth about itself.** They read `null`, not
+`0`, because observatory V4 made those columns nullable after the rehearsal exposed the codex
+arm recording `modelCalls: 0` while writing 64 lines of working code. Before V4 this table
+would have shown the codex arm as the most efficient in the comparison.
+
+**Duration is excluded from every claim on this page**, both arms. The spread is a factor of
+54 on claude and 364 on codex, and what produced the tail is *not established* — the machine
+was awake for run 9, so the sleep explanation offered earlier was wrong for that arm. Queue
+contention is a candidate and not a finding. The narrower true statement is that duration is
+contaminated by something the run record does not capture, which is the standing argument for
+observatory#53.
+
+### The rubric on those runs
+
+Five claude runs scored, by **two harnesses**, on the registered rubric:
+
+| category | weight | score | what moved it |
+|---|---|---|---|
+| architecture-consistency | 35 | **2** on 5 of 5 | both refusal paths throw existing `ApiException` subclasses |
+| **maintainability** | 25 | **2 on 1 of 5**, 0 on the other four | `aa72e2c2` used an exhaustive `when`; the rest used `if` chains |
+| test-quality | 25 | **1** on 5 of 5 | repeat body and refusal envelope asserted, persisted state never re-read |
+| change-focus | 15 | **1** on 5 of 5 | something outside `confirm` moved on every run |
+
+**Zero null cells across twenty, on ten sheets.** That answers E-001's follow-up: these are
+agent submissions rather than the five fixtures the anchors were written against, so the null
+rate holding at 0 says the rubric measures the rubric and not the fixture set it was authored
+beside.
+
+### Where prediction and reality diverged
+
+Three of four adopted predictions were refuted, and the fourth is the one that matters:
+
+**Prediction 4 was refuted 0-of-14.** It said that of the runs passing the functional suite,
+≥ 40 % would then fail the envelope trap — the guardrail model's own thesis, turned into a
+falsifiable claim about an agent: *a plain agent should satisfy what executes (L2 tests) and
+miss what is merely written down (L3 KDoc prose)*. **Fourteen of fourteen picked up the
+convention that exists only as prose.** Its own refuter says this outcome "weakens the case
+for B3's global instructions", and that is the finding B3 inherits rather than a footnote.
+
+**One prediction was defective when written, and it stands unrevised.** Prediction 2's
+mechanism claimed "the baseline prompt is plain: nothing asks for tests" — `task.md:34-35`
+explicitly instructs `./mvnw test`. It measures instruction compliance, not disposition. The
+defect was found *after* the runs launched and is recorded beside the prediction rather than
+corrected inside it.
+
+### Was this the agent, or the harness?
+
+- [x] **I checked what else changed between runs** — and the answer voided a whole class of
+      claim. The two arms ran under different isolation policies, so no cross-arm claim
+      survives this batch. That is a harness fact, not an agent fact.
+- [x] **I verified the independent variable actually reached the agent** — for the rubric
+      half, via the dry-run attachment set: 3 files under test and 3 baseline, not 25. For the
+      isolation half, **only via the flag that was typed**; the records carry
+      `userSettingsIsolated: null`. That gap is what [E-002](../../experiments/E-002-isolation-contamination.md)
+      exists to close.
+- [x] **If the result flatters my hypothesis, I have tried to disprove it** — the n=3 headline
+      *"the plain agent does not close the door behind itself"* did not survive two more runs.
+      It is left standing on this page rather than edited, because a claim that shrank when the
+      sample grew is the record worth keeping.
 
 ## Deliberate failure
 
-<!-- TODO: run one deliberately un-isolated (hooks and plugins on) and
-     compare. That number is the size of the contamination you are
-     avoiding, and it is worth knowing rather than assuming. -->
+**Experiment:** [`E-002 — the size of the contamination B2's isolation removes`](../../experiments/E-002-isolation-contamination.md)
+· prediction committed `0e0c6f9`, before the first run
+
+<!-- E002-RESULTS -->
 
 ## Exit gate
 
 **From the build track:** ≥3 run folders with diffs, verification results and completed rubrics ·
 a baseline report with **median and range**, never an average alone.
 
-**Plus, for this to count as a learned phase:**
-
-<!-- TODO: what did you learn about the plain agent that you did not
-     know from Phase 0A? -->
+<!-- E002-GATE -->
 
 ## Commit
 
-<!-- TODO -->
+<!-- E002-COMMIT -->
 
 
 ---
