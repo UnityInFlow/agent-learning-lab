@@ -5,10 +5,15 @@ needs is in this file; nothing lives in a conversation.
 
 ```yaml
 status: running
+prompt_sha: 1dd9a22ac9b0
+prompt_read_at: 2026-09-03T19:04:02Z
 stop: 7
 loop_step: 1
 branch: b02/close-the-gate  # stops 4-6 all ship on this branch; b3/ was never cut and is not needed
-in_flight: []
+in_flight:
+  - "prompt changed unrecorded -> 1dd9a22ac9b0; sections applied from stop 7 step 1 onward. No earlier stop is reopened; stops 4-6 keep the provenance they were closed under"
+  - "PR lab#53 open, 7 of 8 checks SUCCESS, 'verified reading is still verified' QUEUED since 2026-09-03T18:59:30Z; mergeStateStatus BLOCKED pending it"
+  - "0a preflight re-running 2026-09-03T19:04Z at the author's instruction, though this session follows a clean stop boundary and not a halt"
 last_verified: "E-003 complete and closed REJECT. 25 of 25 runs, hash separation perfect (10/10 treatment sha256:90f95226, 10/10 control null, 5/5 bloat sha256:807c5d03), all evaluator exit 0. Twenty codex sheets; the scorer agrees with the pre-scorer hand census on all twenty runs cell for cell. Adversarial review returned acceptance REJECT with four blocking findings, all four correct, all four folded into the artifacts. Five validators exit 0, 64 links ok / 0 broken, 2 of 2 boards current"
 next_action: "stop 7 (Phase 2 - prompt files) is next and NOT started. It needs runs, so it needs the author: three decisions from E-003 bear on it and are listed under Held for the author. E-003 follow-up 4 - repair the decision rule before the next experiment uses it - is DONE, in templates/experiment.md, along with follow-up 6"
 blocked_on_author: []
