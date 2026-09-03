@@ -69,7 +69,7 @@ effect is predicted, and a pass-rate difference would need a different explanati
 
 ## Predictions
 
-> `Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-03T13:20:00Z; the author did
+> `Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-03T13:06:30Z (this file's commit); the author did
 > not review before the run.`
 >
 > **Contamination disclosure.** The predictor has read all nine B2 baseline run records,
