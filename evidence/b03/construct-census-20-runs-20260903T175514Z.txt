@@ -1,0 +1,51 @@
+CONSTRUCT CENSUS — every run of both arms, read off the kept worktrees BEFORE any scorer ran.
+Reader: Opus 5 (claude-opus-5), autonomous, 2026-09-03.
+
+WHY THIS EXISTS. The rubric's maintainability cell is the registered primary outcome and it is
+scored by a model. Reading the construct off the source first makes the codex sheets a SECOND
+reader on the primary outcome instead of the only one. It is not a new instrument and no
+registered variable moved; it is the hand reading §5 requires, taken on all twenty rather than
+on one.
+
+HOW A STRANGER RE-DERIVES IT
+  for each run id:
+    awk '/fun confirm/,/^    \}/' \
+      ${TMPDIR}observatory-run-<id>/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+  then apply the maintainability ladder in order: anchor 0 if the status decision is an
+  if/else chain, or a `when` with `else`, or a `when` in statement position; anchor 2 if it is
+  one `when (shipment.status)` in EXPRESSION position with no `else`; otherwise anchor 1.
+
+TREATMENT — EXP-B3-INSTRUCTIONS-CLAUDE (instructions-v0.1 installed, hash 90f95226…)
+  367a809d  if-chain (+else)     anchor 0
+  b93d0f9f  return when, 3 branches, no else   ANCHOR 2
+  a472f54c  return when, 3 branches, no else   ANCHOR 2
+  1125c9cb  if-chain             anchor 0
+  369b9d03  if-chain             anchor 0
+  b0c31f8b  if-chain             anchor 0
+  e994ede0  if-chain             anchor 0
+  514df7f7  if-chain (+else)     anchor 0
+  0773db51  if-chain             anchor 0
+  71d77855  if-chain             anchor 0
+  --> anchor 2 reached on 2 of 10
+
+CONTROL — EXP-B3-CONTROL-CLAUDE (no customization, instructionsHash null on all ten)
+  f8877c4c  if-chain             anchor 0
+  ea2fcaa8  if-chain             anchor 0
+  b556e145  if-chain             anchor 0
+  b1daa5db  return when, 3 branches, no else   ANCHOR 2
+  d04bb5d6  return when, 3 branches, no else   ANCHOR 2
+  c71b0c3e  if-chain             anchor 0
+  2a4d0e79  if-chain (+else)     anchor 0
+  42c67dd8  return when, 3 branches, no else   ANCHOR 2
+  7695d0d1  if-chain             anchor 0
+  14b6f881  if-chain             anchor 0
+  --> anchor 2 reached on 3 of 10
+
+RESULT
+  treatment 2/10, control 3/10. Fisher exact two-sided p = 1.0.
+  Registered prediction R1: treatment >= 8/10 against control <= 3/10.
+  The control half of R1 HELD (3/10). The treatment half did not, and the observed direction is
+  slightly AGAINST the rule.
+
+  The control's 3/10 is consistent with B2's baseline of 1/5 on the same construct, which is the
+  independent check that this census is reading the same thing B2 read.
