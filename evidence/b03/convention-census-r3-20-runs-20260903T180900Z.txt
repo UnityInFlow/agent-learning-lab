@@ -1,0 +1,55 @@
+R3 CONVENTION CENSUS — the negative control, read off all twenty main-arm runs.
+Reader: Opus 5 (claude-opus-5), autonomous, 2026-09-03.
+
+WHAT R3 IS. The third rule of instructions-v0.1 reads "Follow the conventions already
+documented in the files you are changing." It is in the file DELIBERATELY, as the internal
+negative control: B2 measured this behaviour at 14 of 14, i.e. at ceiling, so the rule has
+nowhere to move the agent. E-003 prediction R3 says it moves nothing, and the gate clause
+"remove every rule with no measured effect" is only testable if a rule that provably cannot
+work is in the file when the gate is applied.
+
+THE CONVENTION, AND WHERE IT LIVES. `ApiError.kt`'s class KDoc, prose only, nothing enforces
+it:
+
+    Responses are produced centrally by [GlobalExceptionHandler]; controllers throw an
+    [ApiException] rather than assembling bodies themselves.
+
+HOW A STRANGER RE-DERIVES IT. The measurement is taken from the AGENT'S OWN DIFF, not from
+the file, because the file already contains Spring scaffolding that a file-level grep counts
+as a violation. First attempt at this census used a file-level grep and returned VIOLATED on
+20 of 20 with an identical count of 3 on every run; that uniformity was the tell, and the
+three matches were `import ResponseEntity`, the `create` signature and `create`'s
+`ResponseEntity.status(CREATED).body(saved)` — all pre-existing, none an error envelope. The
+detector was wrong, not the runs. Recorded here rather than silently replaced.
+
+    cd ${TMPDIR}observatory-run-<id>
+    git diff HEAD -- sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt \
+      | grep '^+' | grep -v '^+++'
+    HONOURED  := the added lines throw an *Exception AND construct no ApiError(,
+                 ApiErrorBody( or FieldViolation( themselves
+    VIOLATED  := anything else
+
+TREATMENT — EXP-B3-INSTRUCTIONS-CLAUDE (instructions-v0.1, hash 90f95226…)
+  every run: added-throws=2  added-body-assembly=0  new-ErrorCode=1   HONOURED
+  --> 10 of 10
+
+CONTROL — EXP-B3-CONTROL-CLAUDE (no customization, instructionsHash null)
+  every run: added-throws=2  added-body-assembly=0  new-ErrorCode=1   HONOURED
+  --> 10 of 10
+
+RESULT
+  20 of 20, both arms, no difference. R3 HELD exactly as predicted, in both halves: the
+  behaviour is at ceiling and the rule moved nothing.
+
+  This also REPRODUCES B2's headline on a second experiment and a larger n. B2: 14 of 14.
+  E-003: 20 of 20. Pooled, an L3 prose convention with nothing enforcing it is honoured
+  34 of 34 times, in runs with and without an instruction file telling the agent to honour
+  conventions.
+
+  Every run also added exactly one new ErrorCode enum constant, which is the second
+  convention the same KDoc states ("add one deliberately"). Not a registered outcome; noted
+  because it was visible in the same diff and costs nothing to record.
+
+WHAT THIS DOES TO THE GATE. R3 is a rule with no measured effect. The B3 exit gate says
+remove every such rule. R3 is therefore removed, and it is removed on evidence rather than
+on taste — which is the whole reason it was written into the file.
