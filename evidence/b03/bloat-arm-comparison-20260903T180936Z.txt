@@ -1,0 +1,93 @@
+DELIBERATE FAILURE ARM — EXP-B3-BLOAT-CLAUDE, n=5, the same three rules diluted 25x.
+Computed 2026-09-03 from GET /api/runs and from the five kept worktrees.
+Reader: Opus 5 (claude-opus-5), autonomous.
+
+THE ARM. build/customizations/instructions-v0.1-bloated/CLAUDE.md, 1 455 words,
+sha256:807c5d03f77cc66106aa90d72fe50245, asserted on the run record of all five runs. It
+carries the identical three rules, verbatim, under the same heading, inside a plausible
+19-section engineering handbook. Comparator is the MAIN TREATMENT arm run the same hour
+(EXP-B3-INSTRUCTIONS-CLAUDE, 57 words, hash 90f95226…, n=10), as registered.
+
+Runs: 97a39231 c4dd741f aeb3c05a 703b9c6e b7c17ec5, started 17:55:22Z .. 18:03:11Z.
+
+CONTINUOUS OUTCOMES — exact Mann-Whitney, 5 v 10, two-sided. Median and range, never a mean.
+
+outcome                 bloat med    treat med    delta%    MW p
+estimatedCost              0.1583       0.152      +4.2    0.679
+durationMs                91 000       89 000      +2.2    0.699
+cacheCreationTokens       25 750       25 140      +2.4    0.679
+inputTokens                1 416        1 412      +0.3    0.854
+outputTokens               6 936        6 910      +0.4    0.859
+cachedTokens             722 000      637 800     +13.2    0.440
+toolCalls                     17           18      -5.6    0.928
+modelCalls                    22         21.5      +2.3    0.854
+
+  bloat costs      0.1483 0.1514 0.1583 0.1637 0.1706
+  treat costs      0.1172 0.1281 0.1300 0.1345 0.1516 0.1523 0.1589 0.1674 0.1766 0.2018
+  bloat cacheCre   24 264 25 520 25 747 26 999 27 082
+  treat cacheCre   20 398 21 330 21 350 24 021 24 644 25 642 26 636 27 130 28 107 32 429
+
+CONSTRUCT CENSUS — read off the source, same ladder as the 20-run main census.
+  97a39231  return when, 3 branches, no else   ANCHOR 2
+  c4dd741f  if-chain (+else)                   anchor 0
+  aeb3c05a  return when, 3 branches, no else   ANCHOR 2
+  703b9c6e  if-chain                           anchor 0
+  b7c17ec5  return when, 3 branches, no else   ANCHOR 2
+  --> anchor 2 reached on 3 of 5
+
+  Fisher exact, two-sided:
+    bloat 3/5  vs treatment 2/10   p = 0.251
+    bloat 3/5  vs control   3/10   p = 0.329
+    treatment 2/10 vs control 3/10 p = 1.000
+  NO PAIR OF ARMS SEPARATES. Pooled across all three arms the construct appears 8 of 25.
+
+WHICH DF PREDICTIONS HELD
+
+DF1  cost rises >= +25% against the v0.1 arm ........................ NOT DETECTABLE
+     Observed +4.2%, p=0.68. The registered MDE for cost is >= +25% on the median, from
+     B2's own spread, so +4.2% is inside the detection limit and is recorded as NOT
+     DETECTABLE at this n, never as refuted. What CAN be said is bounded and still useful:
+     this arm gives no support for a >= +25% effect, and the arm's whole cost range
+     (0.1483 .. 0.1706) sits inside the treatment arm's (0.1172 .. 0.2018).
+
+DF2  cacheCreationTokens rises >= +1 500 median ..................... NOT DETECTABLE
+     Observed +610, p=0.68. This was the deterministic half — the prediction that could
+     falsify the EXPLANATION rather than the effect — and it is the more interesting miss.
+     1 400 extra words is roughly 1 900 tokens, and they are committed into the repository
+     before the agent starts, so the prediction was that they must appear in the prefix
+     that gets created. They did not appear THERE. `cachedTokens` is +13.2% (+84 000
+     median) while `cacheCreationTokens` moves +610.
+     THAT EXPLANATION IS NOT TESTED HERE. It is the same cache-bucket-migration story
+     E-002 told about `inputTokens`, and E-002's own follow-up says that story has passed
+     exactly one test. Two experiments now have a number the bucket story would explain,
+     and neither has run the arm that would separate it from the alternatives. Registered
+     as follow-up rather than asserted.
+
+DF3  the construct rate FALLS under dilution ....................... DIRECTION REVERSED,
+                                                                     NOT DETECTABLE
+     Observed 3/5 against the concentrated file's 2/10 — the diluted file produced the
+     construct MORE often, not less. p=0.251, and DF3 was registered as direction-only and
+     explicitly not resolvable at 5 v 10 unless separation is near-complete. So this is a
+     null, and it is a null pointing the opposite way to the prediction.
+     The prediction assumed there was an effect to dilute. The main comparison had already
+     established there is not: 2/10 treatment against 3/10 control, p=1.0. You cannot
+     dilute nothing, and DF3 was written before that was known.
+
+DF4  the evaluator verdict does not change, 5 of 5 pass ............. HELD, 5 of 5
+     Every run exit 0. The arm is informative rather than void: no run failed for a reason
+     traceable to the handbook, and the harness version, model id and benchmark sha are
+     identical to the main batch on all five records.
+
+WHAT THE ARM WAS FOR, AND WHAT IT ACTUALLY SETTLED
+
+It was registered to separate "the rule worked" from "a 57-word file worked". Neither
+branch applies, because the main comparison found no effect to attribute. What the arm
+settles instead is a question nobody registered and that is worth more than the one that
+was: A 25x LARGER ALWAYS-ON INSTRUCTION FILE IS NEARLY FREE ON THIS TASK — +4.2% cost,
++2.2% duration, and no measurable change in what the agent builds.
+
+That is a direct check on this project's own recommendations. Three documents in this repo
+argue for keeping instruction files short, and the cost half of that argument rests on
+EXP-BE002-CLAUDEMD-V2's +39%. This arm holds the file size variable alone, at 25x, and
+finds +4.2%. It does not refute the +39% — that comparison changed more than one thing —
+but it does mean the brevity argument cannot be made from cost on this evidence.

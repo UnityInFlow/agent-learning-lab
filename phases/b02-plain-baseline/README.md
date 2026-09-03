@@ -3,7 +3,7 @@
 **Track A first:** [Phase 0A](../00a-agent-mechanics/) + [Phase 0B](../00b-observatory/)
 **Version:** — (pre-v1.0)
 **Spine position:** 4 of 28 · after [B1](../b01-experiment-contract/) · before [Phase 1](../01-instructions/)
-**Status:** 🟨 Run and scored, **gate not closed** — claude 9/9, codex 5/5; five claude runs scored by both harnesses, `maintainability` 1 of 5 · **Evidence:** [`evidence/b02/baseline-report-20260901T192000Z.txt`](../../evidence/b02/baseline-report-20260901T192000Z.txt) · **Owed:** the deliberate-failure run (its prediction first) and four workbook blocks
+**Status:** ✅ **GATE CLOSED 2026-09-03** — claude 9/9, codex 5/5, `maintainability` 1 of 5 on five runs scored by two harnesses; deliberate failure taken as a matched pair ([E-002](../../experiments/E-002-isolation-contamination.md), n=5+5, 10/10 passed) · **Evidence:** [`baseline-report`](../../evidence/b02/baseline-report-20260901T192000Z.txt) · [`worktree-decay`](../../evidence/b02/worktree-decay-20260903T134500Z.txt) · [`hand-reading`](../../evidence/b02/hand-reading-maintainability-4c891809.txt) · validation table under *Commit* · **Still held for the author:** the parity re-run's prediction, which the single-arm gate does not require
 
 > Scaffold. **Build** and **Exit gate** moved from [`build/README.md`](../../build/README.md#b2).
 > Everything else is yours to fill.
@@ -12,39 +12,78 @@
 
 ## Goal
 
-<!-- TODO: this step builds nothing. The capability that appears is
-     a number everything downstream is compared against. Say that in
-     one sentence, and say what makes it trustworthy. -->
+B2 builds nothing. The capability that appears is **a number every later version is compared
+against** — how a plain agent, under no instruction beyond the task, performs on BE-003.
+
+What makes it trustworthy is not the number's size but four properties of how it was taken:
+the model is pinned to an exact id rather than an alias, the environment is isolated so the
+operator's machine is not part of the measurement, the sample is large enough that the spread
+is visible (`n=9`, reported as median and range and never as a mean), and the verdict comes
+from an evaluator that runs rather than from the agent's own account of itself.
+
+**Everything downstream inherits whichever of those four is weakest.** This phase found that
+out twice: once when the two arms turned out to be running under different policies, and once
+when its own headline claim shrank from 0-of-3 to 1-of-5 on two more runs.
 
 ## Required reading
 
 ### Internal — the requirement
 
-<!-- TODO: candidates:
-     BUSINESS-REQUIREMENTS §16.1 keep constant
-     BUSINESS-REQUIREMENTS §16.2 repeat runs
-     BUSINESS-REQUIREMENTS P2    one main variable per experiment
-     BUSINESS-REQUIREMENTS P3    same starting conditions -->
+| source | what it fixes here |
+|---|---|
+| [`BUSINESS-REQUIREMENTS` §16.1 *Keep constant*](../../businesscase/BACKEND-AI-AGENT-BUSINESS-REQUIREMENTS.md) (line 994) | names the eight things held constant across a comparison — commit, task version, acceptance criteria, provider, model, environment, verification commands, rubric. B2 is where that list stops being advice: `runtime.model`, `repository.commitSha` and `evaluation.evaluatorVersion` are all *fields in the run record*, so seven of the eight are checkable after the fact rather than promised before it |
+| §16.2 *Repeat runs* (line 1009) | three per configuration early, five to ten later. B2 ran nine on the claude arm and five on codex. The reason to prefer five over three is on this page: at `n=3` `maintainability` read 0-of-3 and at `n=5` it read 1-of-5 |
+| P2 *One main variable per experiment* (line 172) | *"Do not add an agent, several skills, hooks, a new model, and a changed task in the same comparison."* B2 violated this without meaning to — the two arms differed in isolation policy as well as runtime — which is why no cross-arm claim survives |
+| P3 *Same starting conditions* (line 176) | the same list from the other direction. **The environment is in it**, which is what makes an un-isolated run a different starting condition rather than a noisier one |
 
 ### External — the technique
 
-<!-- TODO. Note: isolation is settled as of 2026-08-10, and not the way
-     the curriculum first assumed.
+**Isolation is settled as of 2026-08-10, and not the way the curriculum first assumed.**
 
-     --strict-mcp-config + --disable-slash-commands do NOT stop hooks:
-     21 hooks and 2 plugins loaded on all 20 runs of CLAUDEMD-V2.
-     --bare does stop them, and is still the wrong flag — it also
-     disables CLAUDE.md discovery, and does not authenticate on a
-     subscription account at all.
+- `--strict-mcp-config` and `--disable-slash-commands` do **not** stop hooks. 21 hooks and 2
+  plugins loaded on all 20 runs of `EXP-BE002-CLAUDEMD-V2`.
+- `--bare` does stop them and is still the wrong flag: it also disables `CLAUDE.md`
+  discovery — which is B3's treatment — and does not authenticate on a subscription account
+  at all.
+- The right flag is `--setting-sources project`, which the runner exposes as
+  `--isolate-user-settings`. Verified: **0 hook executions, `CLAUDE.md` still loads, auth
+  works.**
 
-     Use --setting-sources project (runner: --isolate-user-settings).
-     Verified: 0 hook executions, CLAUDE.md still loads, auth works.
-     EXP-BE002-NOHOOKS sized what it buys: hooks were ~13% of every run,
-     sitting on both arms almost equally. -->
+**Registration is not execution, and this phase has already confused the two once.** The 22
+user-level hooks are still *registered* inside an isolated run; none of them fire. A
+registration count read as a contamination count is a number about the settings file, not
+about the run.
+
+**What isolation is worth was an argument until this phase measured it.** `EXP-BE002-NOHOOKS`
+sized hooks at ~13 % of every run on BE-002, on both arms almost equally. That number was
+carried forward on a different task for three weeks. [E-002](../../experiments/E-002-isolation-contamination.md)
+re-measures it on BE-003 with a matched pair, and its result is in *Deliberate failure* below.
 
 ## Extract
 
-<!-- TODO -->
+Five things this phase is on the hook for, each already paid for once:
+
+1. **A baseline is a measurement of a machine, not of a model.** Every unpinned thing on the
+   operator's laptop — hooks, a global memory file, a terminal wrapper that prepends flags —
+   is inside the number unless something removes it. The runner strips terminal CLI shims and
+   reports it on a `shims` line, because the first rehearsal silently gained **26 hook
+   executions** from a wrapper nobody had looked for.
+2. **A flag is a promise; a field is a fact.** `--isolate-user-settings` was typed on all nine
+   baseline runs, and those records carry `userSettingsIsolated: null` — *not measured*.
+   Observatory V6 added the field so the claim became readable off the record instead of off
+   the command line. This is the same L2-versus-L3 distinction the whole project runs on,
+   arriving in the instrument rather than in the agent.
+3. **Never an average alone.** Over the 17 BE-003 runs already recorded, median duration is
+   101 s and the maximum is 1711 s; the mean is 262, a number no run produced.
+   `baseline-report.py` computes no mean and a test asserts that against the parsed tree.
+4. **A gate the agent cannot see is a different kind of gate.** BE-003's error-envelope
+   convention lives only in `ApiError.kt`'s KDoc — L3 — while its functional behaviour is
+   tests the agent can run and watch fail — L2. Prediction 4 turned that into a falsifiable
+   claim about an agent and was **refuted 0-of-14**.
+5. **The sample size has to assert itself.** `make baseline-runs` counts recorded runs before
+   and after and exits 1 naming any shortfall, because a batch of five where three died used
+   to print five banners and exit 0. A baseline reported at `n=5` that is really `n=2` is not
+   noisy — it is a different measurement.
 
 ## Build
 
@@ -236,28 +275,234 @@ worktree's surefire output, where `confirming twice is idempotent` is a named te
 
 ## Lab B2.1 — establish the baseline
 
-<!-- TODO: ≥3 runs, ideally 5. Same commit, same exact model ID.
-     Report median and range. Never an average alone. -->
+**Date:** 2026-08-30 → 2026-09-01 · **Runtimes:** claude, codex · **Model:**
+`claude-haiku-4-5-20251001` (exact id, not the `haiku` alias) · **Benchmark:** BE-003 at
+`8aadc75` · **Evaluator:** `1.0.0` · **Rubric:** `396e1799eb2b`
+
+**Evidence:** [`evidence/b02/baseline-report-20260901T192000Z.txt`](../../evidence/b02/baseline-report-20260901T192000Z.txt)
+· [`evidence/b02/dry-run-attachment-set-0a222393.txt`](../../evidence/b02/dry-run-attachment-set-0a222393.txt)
+
+### What the runs produced
+
+`n=9` claude, `n=5` codex, **14 of 14 passed the evaluator.** Median and range, never a mean —
+`baseline-report.py` computes no mean and a test asserts that against the parsed tree.
+
+| outcome | claude n=9 median | range | codex n=5 median | range |
+|---|---|---|---|---|
+| duration (s) | 83 | 70 – 3790 | 121 | 97 – 35342 |
+| estimated cost | $0.1487 | $0.1085 – $0.1674 | — | **not measured on any run** |
+| total tokens | 7,812 | 6,606 – 8,916 | 42,396 | 28,835 – 50,231 |
+| tool calls | 17 | 14 – 20 | — | **not measured on any run** |
+| model calls | 20 | 13 – 24 | — | **not measured on any run** |
+
+**The `—` cells are the instrument telling the truth about itself.** They read `null`, not
+`0`, because observatory V4 made those columns nullable after the rehearsal exposed the codex
+arm recording `modelCalls: 0` while writing 64 lines of working code. Before V4 this table
+would have shown the codex arm as the most efficient in the comparison.
+
+**Duration is excluded from every claim on this page**, both arms. The spread is a factor of
+54 on claude and 364 on codex, and what produced the tail is *not established* — the machine
+was awake for run 9, so the sleep explanation offered earlier was wrong for that arm. Queue
+contention is a candidate and not a finding. The narrower true statement is that duration is
+contaminated by something the run record does not capture, which is the standing argument for
+observatory#53.
+
+### The rubric on those runs
+
+Five claude runs scored, by **two harnesses**, on the registered rubric:
+
+| category | weight | score | what moved it |
+|---|---|---|---|
+| architecture-consistency | 35 | **2** on 5 of 5 | both refusal paths throw existing `ApiException` subclasses |
+| **maintainability** | 25 | **2 on 1 of 5**, 0 on the other four | `aa72e2c2` used an exhaustive `when`; the rest used `if` chains |
+| test-quality | 25 | **1** on 5 of 5 | repeat body and refusal envelope asserted, persisted state never re-read |
+| change-focus | 15 | **1** on 5 of 5 | something outside `confirm` moved on every run |
+
+**Zero null cells across twenty, on ten sheets.** That answers E-001's follow-up: these are
+agent submissions rather than the five fixtures the anchors were written against, so the null
+rate holding at 0 says the rubric measures the rubric and not the fixture set it was authored
+beside.
+
+### Where prediction and reality diverged
+
+Three of four adopted predictions were refuted, and the fourth is the one that matters:
+
+**Prediction 4 was refuted 0-of-14.** It said that of the runs passing the functional suite,
+≥ 40 % would then fail the envelope trap — the guardrail model's own thesis, turned into a
+falsifiable claim about an agent: *a plain agent should satisfy what executes (L2 tests) and
+miss what is merely written down (L3 KDoc prose)*. **Fourteen of fourteen picked up the
+convention that exists only as prose.** Its own refuter says this outcome "weakens the case
+for B3's global instructions", and that is the finding B3 inherits rather than a footnote.
+
+**One prediction was defective when written, and it stands unrevised.** Prediction 2's
+mechanism claimed "the baseline prompt is plain: nothing asks for tests" — `task.md:34-35`
+explicitly instructs `./mvnw test`. It measures instruction compliance, not disposition. The
+defect was found *after* the runs launched and is recorded beside the prediction rather than
+corrected inside it.
+
+### Was this the agent, or the harness?
+
+- [x] **I checked what else changed between runs** — and the answer voided a whole class of
+      claim. The two arms ran under different isolation policies, so no cross-arm claim
+      survives this batch. That is a harness fact, not an agent fact.
+- [x] **I verified the independent variable actually reached the agent** — for the rubric
+      half, via the dry-run attachment set: 3 files under test and 3 baseline, not 25. For the
+      isolation half, **only via the flag that was typed**; the records carry
+      `userSettingsIsolated: null`. That gap is what [E-002](../../experiments/E-002-isolation-contamination.md)
+      exists to close.
+- [x] **If the result flatters my hypothesis, I have tried to disprove it** — the n=3 headline
+      *"the plain agent does not close the door behind itself"* did not survive two more runs.
+      It is left standing on this page rather than edited, because a claim that shrank when the
+      sample grew is the record worth keeping.
 
 ## Deliberate failure
 
-<!-- TODO: run one deliberately un-isolated (hooks and plugins on) and
-     compare. That number is the size of the contamination you are
-     avoiding, and it is worth knowing rather than assuming. -->
+**Experiment:** [`E-002 — the size of the contamination B2's isolation removes`](../../experiments/E-002-isolation-contamination.md)
+· prediction committed `0e0c6f9`, before the first run
+
+**The deliberate failure is not one un-isolated run.** It is a matched pair — five isolated,
+five open, interleaved, one harness version, one benchmark tree. The reason is that the
+comparison originally specified, one open run against the nine on record, cannot be validated:
+those nine carry `userSettingsIsolated: null`, which means *not measured*, so "they were
+isolated" rests on the flag that was typed. `Decided by Opus 5 (claude-opus-5), autonomous,
+2026-09-03`
+
+### The independent variable, proved rather than trusted
+
+| arm | hooks registered | **hooks executed** | plugins |
+|---|---|---|---|
+| isolated, n=5 | 23 on all five | **0 on all five** | 0 |
+| open, n=5 | 24 on all five | **27, 29, 31, 33, 48** | **2 on all five** |
+
+Registration near-identical, execution disjoint. The counter was validated before use against
+a number it was never fitted to: `RUNBOOK.md` records a terminal shim adding *"26 hook
+executions"* to the first rehearsal, and the counter returns exactly 26 on that run.
+
+### What the contamination costs
+
+| outcome | isolated n=5 | open n=5 | Δ median |
+|---|---|---|---|
+| duration (ms) | 90,000 · 64k–112k | 105,000 · 70k–121k | **+16.7 %** |
+| **`inputTokens`** | **1,416** · 1,392–1,424 | **170** · 106–250 | **−88.0 %** |
+| `cacheCreationTokens` | 26,119 | 30,573 | **+17.1 %** |
+| `estimatedCost` | $0.1541 | $0.1754 | **+13.8 %** |
+| `toolCalls` | 18 · 15–22 | 18 · 17–28 | **0** |
+| files changed | 3 on all five | 3 on all five | **0** |
+| evaluator passed | **5/5** | **5/5** | 0 |
+
+**Three of the four predictions were refuted as written — but only one of the three is resolvable at this `n`, and the adversarial review is what established that.** Duration (+16.7 % against a registered ±20 % MDE) and tool calls (Δ 0 against ±2) both fall **inside** the detection limit this experiment registered for itself, so the honest word for them is *not detectable at n=5*, not *refuted*. The correction is in [E-002 → *Adversarial review*](../../experiments/E-002-isolation-contamination.md) and the predictions are left standing as written. **The one that is resolvable is `inputTokens`**, and it is the informative one.
+
+The prediction said the cached prefix would grow and `inputTokens` would hold. The prefix grew —
+and `inputTokens` **fell by an order of magnitude**, 1,392–1,424 against 106–250, two bands
+that never touch. The contamination does not only add tokens; it **moves them between
+buckets**. With hook output prepended, the ~1,400-token task prompt lands inside the cached
+prefix, so what is counted as uncached input is only the remainder.
+
+**Anyone comparing `inputTokens` across isolation regimes would read the contaminated arm as
+88 % cheaper on that axis. It is 14 % more expensive.** Nothing in the run record says the
+column is uncomparable. That is the observatory's own warning — *"a metric that changes
+definition silently makes two experiments incomparable while both still look valid"* — arriving
+without anyone having changed a definition.
+
+**The duration tail did not reproduce.** Worst ratio 1.75×, against 54× on 2026-08-30. The
+runs were interleaved rather than batched and the machine did not sleep. That does not identify
+the old cause; it removes duration from what this experiment cannot see.
+
+### The verdict the registered rule produces
+
+**INCONCLUSIVE, leaning REJECT-as-stated** — every threshold this experiment set in advance was
+set too high, and the outcomes that would make isolation a *validity* control did not move:
+same verdict 10/10, same three files 10/10, same tool-call median.
+
+**So on BE-003, at n=5 per arm, on the outcomes measured, `ISOLATE_USER_SETTINGS=1` is a cost
+control** — true of these runs, not stated as a property. **The flag stays mandatory**, because
+quality was measured on one run of ten: contamination could change *what* the agent writes
+without touching pass/fail, file count or tool count. The runbook's argument is corrected
+rather than removed — it is not that you would measure your hooks instead of the baseline; you
+would measure the same baseline, pay 14 % more for it, and record an `inputTokens` column
+nobody may compare.
 
 ## Exit gate
 
 **From the build track:** ≥3 run folders with diffs, verification results and completed rubrics ·
 a baseline report with **median and range**, never an average alone.
 
-**Plus, for this to count as a learned phase:**
+| gate clause | met | evidence |
+|---|---|---|
+| ≥3 run folders with diffs and verification results | **yes**, 9 + 5 | `EXP-B2-BASELINE-CLAUDE` n=9, `EXP-B2-BASELINE-CODEX` n=5, 14/14 evaluator-passed |
+| completed rubrics | **yes**, 5 runs × 4 categories × 2 harnesses | `findings/codex/score-observatory-run-*.yaml`, `findings/opencode/score-observatory-run-*.yaml`; 20 cells, **0 null** |
+| baseline report with median and range, never an average alone | **yes** | [`evidence/b02/baseline-report-20260901T192000Z.txt`](../../evidence/b02/baseline-report-20260901T192000Z.txt) — `baseline-report.py` computes no mean and a test asserts that |
+| deliberate failure, prediction first | **yes** | [`E-002`](../../experiments/E-002-isolation-contamination.md), predictions committed `59ac936` 13:06:30Z, first run 13:07:19Z |
 
-<!-- TODO: what did you learn about the plain agent that you did not
-     know from Phase 0A? -->
+**Plus, for this to count as a learned phase — what B2 taught that 0A could not.**
+
+0A teaches the layer model as a claim about repositories: hard controls versus words a human
+reads. **B2 is where that claim was pointed at an agent and lost.**
+
+1. **Prediction 4 said a plain agent would satisfy what executes (L2 tests) and miss what is
+   merely written down (L3 KDoc prose). It was refuted 0-of-14.** Every run picked up the
+   error-envelope convention that exists only as prose in `ApiError.kt`. An L3 instruction
+   carried more than its layer predicts — the same shape E-001 found when Decision A's "no
+   test file → null" held six times out of six with nothing executing it. **The layer model
+   predicts what a control *guarantees*, not what a model will *do*.** B3 inherits that: its
+   whole treatment is L3, and B2 says L3 is not inert.
+2. **The instrument is inside the measurement, and it fails silently in both directions.**
+   This phase found the codex arm recording `modelCalls: 0` while writing working code; found
+   the two arms running under different policies after the batch; found `userSettingsIsolated`
+   being validated on the way out and dropped on the way in; and found the kept worktrees
+   hollowing out while `ls -d` still reported them present. Not one of those crashed. 0A
+   cannot teach this because it has no instrument to be wrong.
+3. **A number's `n` is part of the number.** `maintainability` read 0-of-3 and then 1-of-5 on
+   the same rule. The claim is left standing in this file rather than edited.
+4. **Isolation is now a measured quantity rather than an argument** — and the measurement
+   partly disagreed with the argument.
 
 ## Commit
 
-<!-- TODO -->
+**Rubric** `396e1799eb2b` · **evaluator** `1.0.0` · **benchmark** `8aadc75` for the baseline
+batch, `0448643` for E-002, and `git diff 8aadc75..0448643 -- tasks/ sample-service/` is
+**empty** — the measured artifact is byte-identical, only reviewer and CI scaffolding moved ·
+**model** `claude-haiku-4-5-20251001` on every run of both.
+
+**Harness version is NOT constant across the two batches** — `2.1.251` for the baseline,
+`2.1.259` for E-002. That is why E-002 is an internal matched pair and makes no comparison to
+the nine.
+
+**Held for the author, and the only TODO left in this file:** the parity re-run's prediction.
+B2's registered gate is single-arm and does not need it. Cross-arm claims stay blocked as a
+design fact — codex has no tool-allowlist mechanism and claude reads files through native tools
+that need no shell, so parity by flag is unreachable and the surface is recorded rather than
+equalized.
+
+## Validation — every gate clause, its evidence, and the layer of the proof
+
+| Gate clause (verbatim) | Evidence (path / id) | Layer of the **proof** | How a stranger re-derives it |
+|---|---|---|---|
+| "≥3 run folders with diffs, verification results" | `GET /api/runs` → `EXP-B2-BASELINE-CLAUDE` (9), `-CODEX` (5); each `evaluation.exitCode 0` | **L2** — the evaluator executes and records its own verdict | `curl $API/api/runs`, filter `experimentKey`, read `evaluation.exitCode` |
+| "and completed rubrics" | `findings/codex/score-observatory-run-{0a222393,5bd24356,8322e71b,aa72e2c2,72fdc94f}-*.yaml` + the five opencode sheets | **L2** — admission runs: `check-run-gate.sh` refuses a run with no recorded pass | `./tools/check-run-gate.sh <run.json>` on each; re-run 2026-09-03, **5 of 5 exit 0** |
+| "a baseline report with median and range, never an average alone" | `evidence/b02/baseline-report-20260901T192000Z.txt` | **L2** — a test asserts no mean exists in the parsed tree | `make baseline-report EXPERIMENT=EXP-B2-BASELINE-CLAUDE`, then grep the tree for a mean |
+| deliberate failure, prediction committed before the run | `59ac936` @ 13:06:30Z vs `4c891809.startedAt` 13:07:19Z | **L2** — both timestamps are machine-written; neither is prose | `git log --date=iso-strict-local` and `GET /api/runs/4c891809.../startedAt` |
+| the deliberate failure's independent variable reached one arm and not the other | `claude_code.hook_execution_start` in `agent-observatory/infra/telemetry-out/events.jsonl`: **0×5 isolated, 27–48×5 open**, with `hook_registered` > 0 on all ten | **L2** — the runtime emits the events; the counter reproduces `RUNBOOK.md`'s independent figure of 26 on the rehearsal run | filter the JSONL on `observatory.run.id`, count the two bodies |
+| one scored cell re-derived by hand | `evidence/b02/hand-reading-maintainability-4c891809.txt` — hand **2**, sheet **2** (`findings/codex/score-observatory-run-4c891809-*.yaml`) | **L1 for the reading itself** (the construct either is a no-`else` `when` in expression position or is not; Kotlin decides), **L3 for the agreement** — two readers concurring is not a control | open the controller in the kept worktree, apply anchor 2's three clauses |
+| "what did you learn that 0A did not teach" | this file, *Exit gate* | **L3** — prose a human reads. It is not a control and is not claimed as one | read it |
+
+**Independence check — what else changed between the arms of E-002?** Confirmed from the run
+records, not from flags: `runtime.model` identical on all ten; `runtime.version` `2.1.259` on
+all ten; `repository.commitSha` `0448643` on all ten; `evaluation.evaluatorVersion` `1.0.0` on
+all ten; `customization.*Hash` **null on all ten** (no treatment installed in either arm — this
+is B2, nothing is customized). The one thing that differs is hook execution, and it differs
+27–48 against 0.
+
+**Two rows a validator should attack first.**
+
+- **The `userSettingsIsolated` row does not exist in this table**, because the field cannot be
+  read on this instrument. It is replaced by the telemetry row above. See E-002's *AMENDED*
+  block for why that is a stronger proof and not a weaker one.
+- **The "completed rubrics" row is evidence that can no longer be re-derived.** The five sheets
+  are on disk and were produced while the worktrees were intact. The worktrees are now hollow —
+  `evidence/b02/worktree-decay-20260903T134500Z.txt` — so a stranger can open the sheets but
+  cannot rebuild them. **That is a real weakness in this closure and it is stated rather than
+  hidden.** The hand re-derivation was therefore taken on a fresh E-002 run instead.
 
 
 ---

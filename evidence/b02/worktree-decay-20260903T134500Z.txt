@@ -1,0 +1,70 @@
+B2 kept-worktree decay — the evidence base for every scored run is being deleted
+================================================================================
+captured 2026-09-03T13:45Z by Opus 5 (claude-opus-5), autonomous
+
+WHAT HAPPENED
+  $TMPDIR is /var/folders/.../T/, which macOS reaps periodically: it deletes FILES
+  not accessed for ~3 days and leaves the DIRECTORY TREE standing. The observatory
+  keeps scored worktrees there under --keep, so a run's evidence hollows out while
+  its directory continues to exist.
+
+SURVIVING .kt FILES PER KEPT WORKTREE (target/ excluded)
+  RUN        MODIFIED KT_FILES  DIRS
+  0a222393   2026-09-03 1         111
+  0754c154   2026-09-03 0         111
+  092a384a   2026-09-03 0         112
+  3d509a99   2026-08-31 17        112
+  4c891809   2026-09-03 17        112
+  5bd24356   2026-09-03 1         112
+  9fcf4a92   2026-09-03 17        112
+  34a01f57   2026-08-31 17        111
+  38e6a3df   2026-09-03 0         110
+  67d43a07   2026-09-03 17        112
+  72fdc94f   2026-09-03 1         112
+  77c7d1c3   2026-09-03 5         111
+  192f2211   2026-09-03 0         111
+  491ee5e1   2026-09-03 0         111
+  514b094e   2026-09-03 0         111
+  656da203   2026-09-03 0         112
+  8322e71b   2026-09-03 1         112
+  808107ad   2026-09-01 17        111
+  808107ad   2026-09-01 0         1
+  a485d5e6   2026-09-03 17        79
+  aa72e2c2   2026-09-03 1         112
+  b576dd0d   2026-08-31 17        111
+  cffca328   2026-09-03 17        108
+  d72a1ec9   2026-09-03 0         112
+  def66388   2026-08-31 17        111
+
+  A COMPLETE worktree holds 17 .kt files. Every B2 baseline run that was SCORED
+  now holds 1 or 0. All of them still hold ~111 directories.
+
+THE CHECK THAT CANNOT SEE IT
+  RUNBOOK.md 0.5 check #2 is:  ls -d ${TMPDIR}observatory-run-<run-id>
+  It passes on every row above, including the empty ones. It proves a directory
+  exists; it was written to prove the evidence survived.
+
+WHAT THE SCORER SAYS TODAY — run 0a222393, same command as 2026-09-01
+  the agent changed no source file in /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0a222393-f385-4088-967d-50b98073d3f9
+  There is no submission to score. That is a result about the run, and the
+  evaluator will have recorded it — it is not a scoring failure.
+
+  Committed evidence from 2026-09-01, same run, same command:
+  evidence/b02/dry-run-attachment-set-0a222393.txt holds 6 attachments:
+    ### BASELINE FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.xab9bQoEJw/baseline/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+    ### BASELINE FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.xab9bQoEJw/baseline/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+    ### BASELINE FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.xab9bQoEJw/baseline/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+    ### FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0a222393-f385-4088-967d-50b98073d3f9/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+    ### FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0a222393-f385-4088-967d-50b98073d3f9/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+    ### FILE: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0a222393-f385-4088-967d-50b98073d3f9/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+
+WHY THIS IS THE HOUSE FAILURE MODE
+  The scorer's message is 'the agent changed no source file ... That is a result
+  about the run'. It is not. It is a result about the operating system. An
+  environmental loss is being reported as agent behaviour, which GUARDRAILS.md
+  names as the single most common way a guardrail corrupts a measurement, and
+  which this project already paid for once as harness bug #7.
+
+  Nothing here changes a score already on disk. The five sheets were produced on
+  2026-08-30 and 2026-09-01 while the files were present. What is lost is the
+  ability to RE-DERIVE them, which is what validation requires.

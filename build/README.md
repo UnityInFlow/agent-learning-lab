@@ -242,6 +242,16 @@ and preflight-check that the hash appears in context — before the first run.
 **Gate:** version it `instructions-v0.1` · each rule has a stated expected effect · 3 controlled
 comparisons vs B2 · **remove every rule with no measured effect.**
 
+**Where the overlay lives — decided at B3, kept for every version after it.**
+`Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-03.`
+`agent-learning-lab/build/customizations/<version>/`, installed by the runner's
+`--customization`. The overlay is the treatment, and a treatment is evidence: it belongs beside
+the experiment that registers it, so a stranger can open the exact bytes the model was given
+without cloning the instrument or the subject. **A version that has been measured is never
+edited; a change is a new version**, because `customization.instructionsHash` is the only thing
+that would ever reveal one experiment key silently spanning two treatments. Reasoning in full:
+[`build/customizations/README.md`](customizations/README.md).
+
 ---
 
 <a id="b4"></a>

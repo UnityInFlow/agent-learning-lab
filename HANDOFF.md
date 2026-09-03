@@ -1,17 +1,196 @@
-# Handoff — 2026-09-01 (eighth session)
+# Handoff — 2026-09-03 (ninth session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "What the eighth session changed, 2026-09-01."** Everything that was green and
-unmerged is now on `main`, B2's gate is one run and four prose blocks from closed, and its
-headline finding shrank when the sample grew. The seventh-session section below it is still
-accurate except where the eighth corrects it; the sixth and earlier are history.
+**Start at "Stop 6 closed, and the answer is a null" below, then "What the ninth session
+changed".** Three stops closed on 2026-09-03 — B2, Phase 1 and B3 — and the run's largest
+result is B3's: **a global instruction file, proved delivered, changed nothing measurable.**
+The session's other two large findings are about the instrument rather than the agent: the API
+has been silently truncating every run record for four days, and the kept worktrees that every
+rubric sheet was scored from have been hollowed out by the operating system. The eighth-session
+section below is still accurate except where the ninth corrects it; the seventh and earlier are
+history.
 
 ## Position
 
-**Spine 4 of 28 — B2 HAS RUN. B1 CLOSED 2026-08-30.** No agent exists and none should until
-stop 10.
+**Spine 7 of 28 — B2, Phase 1 and B3 all CLOSED 2026-09-03. B1 closed 2026-08-30.** Position 7
+is Phase 2, prompt files, not started. No agent exists and none should until stop 10.
+
+## Stop 6 closed, and the answer is a null
+
+`Run by Opus 5 (claude-opus-5), autonomous, 2026-09-03. The author reviewed none of it.`
+
+**`instructions-v0.1` — 57 words, three rules — is REJECTED and not replaced.**
+[`E-003`](experiments/E-003-instructions-v0.1.md), 25 runs: 10 treatment and 10 control
+interleaved, plus a 5-run dilution arm. All 25 exited the evaluator 0. Hash separation was
+perfect — `sha256:90f95226…` on 10 of 10 treated, `null` on 10 of 10 controls — which is
+precisely the assertion Phase 1 spent ~$4 and 20 runs failing to make, and it is now **L2**.
+
+| outcome | treatment | control | p |
+|---|---|---|---|
+| **maintainability anchor 2** *(primary)* | **2 of 10** | **3 of 10** | 1.000 |
+| `estimatedCost` | 0.152 | 0.1559 (**−2.5 %**) | 0.684 |
+| `durationMs` | 89 000 | 100 500 (**−11.4 %**) | 0.165 |
+| `toolCalls` | 18 | 18 (**Δ 0**) | 1.000 |
+| L3 convention honoured | 10 of 10 | 10 of 10 | 1.000 |
+| every rubric category | med 2 / 0 / 1 / 1 | identical | 1.000 |
+
+**The smallest p in the experiment is 0.165, on duration, and it points the wrong way** — the
+treated arm ran faster.
+
+**Why this null is worth something.** A null is only as good as the ability to have seen a
+non-null. Three checks, none assumed: the treatment was **delivered** (hash on every run, plus
+a preflight run asserted before the batch); the codex scorer **agrees with a hand census
+committed before it ran, on all twenty runs cell for cell**; and the control **reproduces B2**
+on six measures across a harness-version boundary.
+
+**R1's label was corrected by the acceptance gate, and the correction is worth reading.** The
+artifact first defended "refuted" with *"8/10 vs 2/10 would have given p = 0.023"* — but 2/10 is
+the **treatment** rate that was observed. The control that occurred was **3/10**, and against it
+the registered 8/10 gives **p = 0.070**. The MDE had projected a control of 2/10 from B2's 1-of-5
+and the control landed one run higher, which alone moved the design's resolving power outside its
+own threshold. So R1 is **refuted as the claim it literally makes about the treated arm** — 2 of
+10 against a predicted 0.8 rate has probability 0.000078, and needs no control — and **not
+detectable as a between-arm difference** at this `n`. The verdict does not move. The sentence
+claiming the effect was inside what the design could see is withdrawn, because it was a claim
+about the instrument that had not been checked against the instrument. New follow-up: **derive
+the MDE against the upper end of the baseline's interval, not its point estimate** — here that
+would have registered n = 12 or 15 and made the difference decidable either way.
+
+**The obvious rescue was tested and failed.** If 57 words got lost in context, 1 455 words
+should be worse. The dilution arm — the identical three rules buried in a 19-section handbook —
+reached the construct on **3 of 5**, *more* often than the concentrated file's 2 of 10. Across
+all three arms the construct appears **8 of 25** and no pair separates. On this task, at this
+model, it is chosen at roughly one run in three whatever the instruction file says or whether
+one exists.
+
+**The unregistered finding that arm produced is the one to act on: a 25× larger always-on
+instruction file costs +4.2 %.** Three documents in these repositories argue for keeping
+instruction files short, and the cost half of that argument rests on `EXP-BE002-CLAUDEMD-V2`'s
++39 % — a comparison that moved more than one variable. This arm moved file size alone. It does
+not refute the +39 %; it means **the brevity recommendation cannot be made from cost** on the
+evidence this project holds.
+
+**The gate's removal clause was tested rather than trusted.** R3 — "follow the conventions
+already documented in the files you are changing" — was written into the file *predicted inert*,
+because B2 measured that behaviour at 14/14, so that "remove every rule with no measured effect"
+would have to remove something or admit it cannot. It removed R3 (20/20 both arms, pooled 34/34
+with B2). It then removed R1 and R2 as well.
+
+**Two things are carried forward rather than tidied away:**
+
+1. **The decision rule is defective.** Its `REJECT` row requires the file to be useless **and**
+   cost more than +25 %. Cost was −2.5 %, so by the letter `REJECT` never fires and the verdict
+   arrives only via the per-rule clause emptying the file. The row assumes a useless file is
+   worth keeping if it is cheap. Fix it before the next experiment uses it — E-003 follow-up 4.
+2. **An unregistered number that is not a result.** `test-quality` is null on 4 of 10 treatment
+   runs and 0 of 10 controls, and the scorer was right — the nulls track exactly the runs that
+   wrote no test file, checked twice. The arm carrying *"run the verification command before
+   reporting the work complete"* wrote tests **less** often, 6 of 10 against 10 of 10, Fisher
+   p = 0.087. It was **never a registered outcome** and is recorded as an untested hypothesis
+   with a mechanism, not a finding. E-003 follow-up 1 makes it a registered primary outcome at
+   n ≥ 20 per arm, or nothing at all.
+
+**What halted this stop this morning was not true.** Two blockers were named; neither
+materialised, and one was a directory-topology assumption that had never been checked against
+the instrument. The reasoning is kept verbatim in
+[`findings/track-b-2026-09-03.md`](findings/track-b-2026-09-03.md) with what each turned into.
+
+## What the ninth session changed, 2026-09-03
+
+**Autonomous session.** Every decision below was taken without the author and is marked
+`Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-03` where it lands.
+
+### B2's gate is closed, and the deliberate failure grew into a matched pair
+
+The workbook's last four blocks are filled from evidence and the gate table is in
+`phases/b02-plain-baseline/README.md` under *Exit gate*, with a full validation table under
+*Commit* — one row per gate clause, its evidence path, **the layer of the proof rather than of
+the artifact**, and how a stranger re-derives it.
+
+The deliberate-failure step asked for one un-isolated run compared against the nine on record.
+**That comparison is not verifiable**, so it was replaced by an internal matched pair —
+`E-002`, five isolated and five open, interleaved, one harness version. The nine baseline runs
+carry `userSettingsIsolated: null`, which means *not measured*: the claim that they were
+isolated rests on the flag that was typed, and the harness version has since moved
+`2.1.251` → `2.1.259`.
+
+**E-002's result, at n=5 per arm, 10/10 passing:** the contamination costs **+13.8 % cost,
++17.1 % cache creation, +16.7 % duration, 31 hook executions and 2 plugins per run** — and
+moves **nothing** behavioural: identical tool-call medians, three changed files on all ten
+runs, same verdict. Three of four predictions were refuted, the registered rule returned
+**INCONCLUSIVE, leaning REJECT-as-stated**, and the flag stays mandatory because quality was
+scored on one run of ten.
+
+**The finding inside it is a metric, not an agent.** `inputTokens` reads **1,392–1,424**
+isolated and **106–250** open — an 88 % fall while total cost rose 14 %, because hook output
+pushes the task prompt inside the cached prefix. **Anyone comparing `inputTokens` across
+isolation regimes reads the contaminated arm as cheaper.** Nothing in the record says the
+column is uncomparable. Observatory follow-up filed as E-002 follow-up 3.
+
+### The API has been dropping V6 fields for four days, and the runner validates them on the way out
+
+`GET /api/runs/<id>` returns a four-key `runtime` block. `userSettingsIsolated`,
+`shimsStripped` and `surface` are **absent, not null**. The container is
+`agent-observatory-observatory-api-1` in the **colima** docker context, built **2026-08-30**;
+`V6__agent_surface.sql` was merged after that. `run-agent.sh:850` sends all three on every run,
+and obs#70's `validate-run-record.py` — live on the host — **accepts and asserts them**.
+
+**So the record is validated on the way out and truncated on the way in.** V6's surface
+recording, which this file and both `CLAUDE.md` files describe as done, is **L3 on the running
+instrument**: a migration exists, a runner sends the values, a validator checks them, nothing
+persists them.
+
+**Not fixed here, deliberately.** A rebuild migrates the database holding all 201 runs and
+simultaneously introduces the Spring Boot minor and Kotlin major merged the same day. That is
+not an unattended action. B2's gate does not need it.
+
+### The kept worktrees are hollowing out, and the scorer calls it agent behaviour
+
+`$TMPDIR` is `/var/folders/.../T/`, which macOS reaps: it deletes **files** untouched for ~3
+days and leaves the **directory tree** standing. Every worktree kept under `--keep` lives
+there.
+
+A complete worktree holds **17** `.kt` files. **Every scored B2 baseline run now holds 1 or 0.**
+All still hold ~111 directories, so `RUNBOOK.md` §0.5 check #2 — `ls -d
+${TMPDIR}observatory-run-<id>` — **still passes on all of them.** The check that exists to
+prove the evidence survived cannot tell a full worktree from an empty skeleton.
+
+Worse, the scorer's own message. Same run, same command that produced a six-attachment set on
+2026-09-01:
+
+> "the agent changed no source file … There is no submission to score. **That is a result about
+> the run**, and the evaluator will have recorded it — it is not a scoring failure."
+
+It is not a result about the run. It is a result about the operating system, reported as agent
+behaviour — which `GUARDRAILS.md` names as the single most common way a guardrail corrupts a
+measurement, and which this project already paid for once as harness bug #7.
+
+**No score on disk is affected**; the five sheets were produced while the files were present.
+What is gone is the ability to **re-derive** them, which is what validating a closed stop
+requires. The hand re-derivation B2 owed was therefore taken on a fresh E-002 run —
+`maintainability`, hand **2**, sheet **2**, written before the scorer ran. Evidence:
+`evidence/b02/worktree-decay-20260903T134500Z.txt`.
+
+### Also this session
+
+- **Every open PR in all three repos was merged** — 13 of them, including all ten dependabot
+  PRs. `obs#67` needed a hand-resolved conflict against `obs#57`; every dependabot branch was
+  rebased onto current `main` and re-run before merging rather than trusted on a stale green.
+- **Both review hooks had the same blinding defect and both are fixed.** `opencode` rewrites
+  its bash through `rtk`, and `rtk git diff` filters `.claude/`, `.opencode/`, `.github/` and
+  `findings/` out of its output — every path a hooks-only branch changes. A `bench-critic` run
+  asked what had changed 43 times against 35 empty answers and died after ten minutes with no
+  verdict. **The diff is now inlined into the prompt**, so there is no command left for an
+  environment to filter, and a matched-but-empty diff prints BLOCKED instead of spending a
+  model call. `agent-observatory`'s hook carried the identical line and was fixed before it
+  could reproduce it.
+- **`bench-critic` then produced a real REJECT** on the fixed hook, and its one high finding is
+  **not addressed**: `findings/` is in neither `.gitignore` nor the evaluators' `IGNORE_RE`, so
+  a review file written by a push counts as an untracked unrelated change and fails AC6 with
+  exit 21 — the harness blaming the agent for a file the hook wrote. The fix is a semantics
+  call (the sibling lab repo *commits* its findings), so it is the author's.
 
 **Amended, eighth session: `maintainability` is 1 of 5, not 0 of 3.** Scoring the two members
 of the scored population that had never been scored moved the phase's headline. Read
@@ -72,6 +251,28 @@ Decision E, Decision F, the four B2 predictions or the baseline result.
 second by Decision E replacing the human column with a second harness. Neither was completed
 as originally designed. The text that stood here described work that is no longer on the
 critical path; it is in git history at `84ab009` if you want to read what was given up.
+
+**SUPERSEDED IN PART, ninth session. The current blocked list is this one:**
+
+1. **The parity re-run's prediction** — still blank, still the only TODO in the B2 workbook.
+   B2's gate is closed without it, because the registered gate is single-arm. It blocks a
+   ten-run batch and nothing else.
+2. **A decision on rebuilding the observatory API.** V6 has been dropped from every run record
+   for four days. The rebuild migrates the database holding all 201 runs *and* pulls in the
+   Spring Boot minor and Kotlin major merged 2026-09-03. Yours, because it touches the only
+   copy of the evidence.
+3. **A decision on `findings/` and the evaluator's scope guard** — `bench-critic`'s high
+   finding, unaddressed. Gitignoring it diverges from this repo, which commits its findings as
+   evidence; adding it to `IGNORE_RE` changes what counts as a scope violation, and exit codes
+   are a contract.
+4. **Where kept worktrees live.** They are being deleted by the OS out of `$TMPDIR`. Moving
+   them changes a registered path; leaving them means no scored run stays re-derivable for more
+   than three days.
+5. **0A — 19 checkboxes**, position 1 of 28, never started. Decision F means it does not gate
+   anything.
+6. **lab#44** stays open; closing it is yours.
+
+*The eighth session's list, kept for the record:*
 
 **What remains blocked on you, and genuinely cannot be delegated:**
 
@@ -300,15 +501,15 @@ submission the anchors were NOT written against. `codex-score.sh --run-id` alrea
 If the null rate stays at 0 on unseen work the rubric is doing real work; if it jumps, the
 B1 grid measured the fixture set rather than the rubric.
 
-**Readable views of this file, both REPUBLISHED 2026-09-01 (eighth session), and both
-carrying the n=5 grid:**
+**Readable views of this file, both REPUBLISHED 2026-09-03 (ninth session), and both
+carrying B3's null and the correction the acceptance gate forced:**
 
 | board | what it answers |
 |---|---|
-| [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — the scored grid, what #66 closed, what is held |
-| [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route and how far off an agent still is |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: d5e7c27 prose: b82aae3dfbe2 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: d5e7c27 prose: b82aae3dfbe2 -->
+| [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
+| [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 1d448ce prose: fe4e9fa408d3 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 1d448ce prose: fe4e9fa408d3 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The

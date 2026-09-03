@@ -1,0 +1,35 @@
+HAND READING — written before any scorer was run against this run.
+Written at:  2026-09-03T17:07:20Z
+Run:         367a809d-dc57-4fd1-9dd5-bbaa95c30e69
+Arm:         EXP-B3-INSTRUCTIONS-CLAUDE (treatment, instructions-v0.1)
+Rubric:      benchmark/rubrics/backend-quality.yaml sha 396e1799eb2b, category maintainability
+Reader:      Opus 5 (claude-opus-5), autonomous
+
+CONSTRUCT FOUND, cited at path:line in the kept worktree
+  sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+
+  65:  if (shipment.status == ShipmentStatus.CANCELLED) {
+  66:      throw ConflictException(...)
+  69:  }
+  72:  return if (shipment.status == ShipmentStatus.CONFIRMED) {
+  73:      shipment
+  74:  } else {
+  75:      repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
+  76:  }
+
+  There is no `when` anywhere in the method. The status decision is an if-guard followed by an
+  if/else expression.
+
+ANCHOR APPLIED, in the ladder's order
+  anchor 0: "The status decision is an if / else if / else chain, or a when carrying an else
+            branch, or a when in STATEMENT position."  --> HOLDS. Lines 65 and 72-76 are an
+            if-chain; a new ShipmentStatus constant compiles without touching this method and
+            takes the line-74 else branch unannounced.
+  The ladder is total and stops at the first anchor whose condition holds.
+
+HAND SCORE: 0
+
+NOTE FOR THE RECORD. This is a TREATMENT run. The instruction file installed on it says
+"Prefer a construct that makes an unhandled case fail at compile time over one that lets it
+fall through at runtime." The construct produced is the one that lets it fall through. That is
+prediction R1 failing on this run, read off the source before any model scored it.
