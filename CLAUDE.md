@@ -161,6 +161,18 @@ model and project, and never times out on its own.** Roughly five of eight calls
 opencode is invoked, so a stall leaves a header-only file. Check for a live process before
 reading one as a finding — that mistake has already been made and reported once.
 
+**And the check itself is blind on this machine unless you force the locale. Use
+`LC_ALL=C pgrep -fl opencode`, never bare `pgrep`.** Observed 2026-09-03 during the stop-7
+preflight: bare `pgrep -fl opencode` fails with *"Regular expression evaluation error
+(illegal byte sequence)"* and prints nothing, which is byte-for-byte what "no stall" looks
+like. `LC_ALL=C pgrep` immediately found two wedged processes aged 2h20m. So the procedure
+written to catch a control that reports success over a smaller scope than it claims **was
+itself one**, for as long as anyone has been following it here. This is L3 — a sentence you
+have to remember. The L2 version is a locale-forced stall check inside
+`opencode-review.sh` that refuses to write a findings file while a stray process is live;
+it is not built, because a review was in flight when this was found and **never edit a tool
+while a run of it is in flight** outranks fixing it promptly.
+
 **The mitigation is `LAB_REVIEW_TIMEOUT` (default 600s)**, which covers every panel family
 *and* the acceptance gate: a stall drops that family, on the record, and the rest continue.
 Nothing has ever recovered past ~10 minutes.

@@ -1,21 +1,69 @@
-# Handoff — 2026-09-03 (ninth session)
+# Handoff — 2026-09-03 (tenth session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "Stop 6 closed, and the answer is a null" below, then "What the ninth session
-changed".** Three stops closed on 2026-09-03 — B2, Phase 1 and B3 — and the run's largest
-result is B3's: **a global instruction file, proved delivered, changed nothing measurable.**
-The session's other two large findings are about the instrument rather than the agent: the API
-has been silently truncating every run record for four days, and the kept worktrees that every
-rubric sheet was scored from have been hollowed out by the operating system. The eighth-session
-section below is still accurate except where the ninth corrects it; the seventh and earlier are
-history.
+**Start at "What the tenth session changed" below, then "Stop 6 closed, and the answer is a
+null".** PR lab#53 is **merged** — stops 4, 5 and 6 are shipped, not just written. Stop 7,
+Phase 2, is closed as an extract. The run's largest result is still B3's: **a global
+instruction file, proved delivered, changed nothing measurable.** The ninth-session section
+below is accurate except where the tenth corrects it; the eighth and earlier are history.
 
 ## Position
 
-**Spine 7 of 28 — B2, Phase 1 and B3 all CLOSED 2026-09-03. B1 closed 2026-08-30.** Position 7
-is Phase 2, prompt files, not started. No agent exists and none should until stop 10.
+**Spine 8 of 28 — B2, Phase 1, B3 and Phase 2 all CLOSED 2026-09-03. B1 closed 2026-08-30.**
+Position 8 is Phase 3, Agent Skills, not started. No agent exists and none should until
+stop 10.
+
+## What the tenth session changed, 2026-09-03 (autonomous, Opus 5)
+
+**PR lab#53 merged as `27d67e5`**, squash, all 8 checks green on the final head. Stops 4, 5
+and 6 stop being "written but unshipped".
+
+**Stop 7 — Phase 2, prompt files — CLOSED as *extract only, labs deferred*,** which is what
+the spine's itinerary registers for a ◇ stop. Three of the four required sources had never
+been extracted; all four were read 2026-09-03 and the fourth re-verified. No benchmark run
+was launched, so **`n = 0` and nothing in that workbook is a claim about the agent under
+test.** The two findings worth carrying:
+
+1. **`tools` reverses direction across vendors, and Lab 2.1 was about to be built on the
+   wrong field.** VS Code's prompt-file `tools:` is a whitelist that narrows. Claude Code's
+   `allowed-tools` is *pre-approval* — "tools Claude can use **without asking permission**" —
+   which removes a prompt, not a capability. The narrowing field is `disallowed-tools`. A
+   read-only `/review-change` ported by mapping `tools:` → `allowed-tools:` would be a
+   write-capable agent that passes its own read-only check. Found by reading; no run needed.
+2. **Two GitHub pages contradict each other on prompt-file support.** Response customization
+   says *"only available in VS Code, Visual Studio, and JetBrains IDEs"*; the feature matrix
+   marks Xcode 0.46.0 as `P`. The workbook's old advice — check the matrix before every lab —
+   now has a mechanism: the prose page rounds `P` down to absent. Cite the matrix and its
+   version, never the prose sentence.
+
+**The preflight was re-run in full and all seven rows passed — and it found three defects in
+the instruments, which is worth more than the seven passes.** They are in
+`TRACK-B-STATE.md` under `preflight_corrections`; the first two need your attention:
+
+- **`pgrep` is blind on this machine.** Bare `pgrep -fl opencode` fails with *"Regular
+  expression evaluation error (illegal byte sequence)"* and returns nothing — which is
+  indistinguishable from "no stall". Only `LC_ALL=C pgrep` sees the processes. Both
+  `CLAUDE.md` and the run prompt's §4a tell the reader to check for a live opencode process
+  before trusting a findings file. **On this machine that check has been answering "no" without
+  looking.** It is the house failure mode — a control reporting success over a smaller scope
+  than believed — sitting inside the procedure written to catch exactly that. Two wedged
+  opencode processes aged 2h20m were found this way and killed; their review had already
+  completed and is committed, so no evidence was lost.
+- **The previous preflight's isolation claim was too broad.** It read
+  *"hook_execution_start = 0 across the registered population"*. In fact 129 of 209
+  telemetry-joined registered runs have `> 0`, all of them from pre-isolation experiments.
+  The claim holds exactly and only for the 25-run B3/E-003 population — which is the
+  population E-003 actually used, **so E-003's isolation proof is untouched and only the
+  state file's wording was wrong.** Corrected in place.
+- **`LAB_SCORE_DRY_RUN` is a destination path, not a boolean** (`codex-score.sh:287`). The run
+  prompt's §0a row 3 says to set it to `1`, which writes a 502-line prompt to a file named
+  `./1` in the repo root. Removed, tree restored. Prompt and code disagree; per the reading
+  order the code wins.
+
+**Nothing was newly blocked on you by this session.** The three items stop 6 left open (A, B
+and C in `TRACK-B-STATE.md`) are unchanged and item C now has ~3 days left on it.
 
 ## Stop 6 closed, and the answer is a null
 
