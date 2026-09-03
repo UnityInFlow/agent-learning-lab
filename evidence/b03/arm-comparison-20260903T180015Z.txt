@@ -1,0 +1,27 @@
+E-003 MAIN COMPARISON — treatment (instructions-v0.1) vs concurrent control, n=10 per arm.
+Computed 2026-09-03 from GET /api/runs. Exact Mann-Whitney (two-sided) on every continuous
+outcome; Fisher exact on the construct. Median and range, never a mean.
+
+outcome                  treatment med   control med   delta %     MW p
+estimatedCost                    0.152        0.1559      -2.5    0.684
+durationMs                     8.9e+04     1.005e+05     -11.4    0.165
+cacheCreationTokens          2.514e+04     2.613e+04      -3.8    0.529
+inputTokens                       1412          1420      -0.6    0.971
+outputTokens                      6910          6578      +5.0    0.912
+toolCalls                           18            18      +0.0    1.000
+modelCalls                         21.5          22.5      -4.4    0.912
+
+maintainability anchor 2 reached   2 of 10       3 of 10             1.000 (Fisher exact)
+
+ranges
+  treatment duration s   66 75 75 75 87 91 94 108 108 137
+  control   duration s   76 87 87 94 99 102 106 109 120 643
+  treatment cost         0.1281 .. 0.1766
+  control   cost         0.1277 .. 0.1657
+
+NOT ONE OUTCOME SEPARATES THE ARMS. The smallest p is 0.165, on duration, in the direction
+OPPOSITE to the registered prediction — the treated arm ran faster, not slower.
+
+The registered duration tail rule did not fire: the control's 643 s run is 6.4x its arm's
+median of 100.5 s, under the registered 10x threshold. It stays in. Removing it would move the
+control median from 100.5 s to 99 s and change nothing.
