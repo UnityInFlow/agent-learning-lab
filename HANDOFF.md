@@ -501,15 +501,15 @@ submission the anchors were NOT written against. `codex-score.sh --run-id` alrea
 If the null rate stays at 0 on unseen work the rubric is doing real work; if it jumps, the
 B1 grid measured the fixture set rather than the rubric.
 
-**Readable views of this file, both REPUBLISHED 2026-09-01 (eighth session), and both
-carrying the n=5 grid:**
+**Readable views of this file, both REPUBLISHED 2026-09-03 (ninth session), and both
+carrying B3's null and the correction the acceptance gate forced:**
 
 | board | what it answers |
 |---|---|
-| [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — the scored grid, what #66 closed, what is held |
-| [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route and how far off an agent still is |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: d5e7c27 prose: b82aae3dfbe2 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: d5e7c27 prose: b82aae3dfbe2 -->
+| [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
+| [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 1d448ce prose: fe4e9fa408d3 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 1d448ce prose: fe4e9fa408d3 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The
