@@ -3,7 +3,7 @@
 **Track A first:** [Phase 0B](../00b-observatory/)
 **Version:** — (pre-v1.0)
 **Spine position:** 3 of 28 · after [0B](../00b-observatory/) · before [B2](../b02-plain-baseline/)
-**Status:** ⬜ not started
+**Status:** ✅ Closed 2026-08-30 — E-001, two harnesses, 20 of 20 (`925563c`) · **Evidence:** [`experiments/E-001-rubric-null-rate.md`](../../experiments/E-001-rubric-null-rate.md)
 
 > Scaffold. **Build** and **Exit gate** moved from [`build/README.md`](../../build/README.md#b1).
 > Everything else is yours to fill.
