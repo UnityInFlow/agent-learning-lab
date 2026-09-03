@@ -75,7 +75,7 @@ and more via the `chat.promptFilesLocations` setting.
 | `description` | "A short description of the prompt" |
 | `name` | "The name of the prompt, used after typing `/` in chat" |
 | `argument-hint` | "Hint text shown in the chat input field to guide users" |
-| `agent` | `ask` · `agent` · `plan` · or a custom agent name |
+| `agent` | `ask` · `agent` · `plan` · or a custom agent name — **the page shortened this on 2026-09-03; see [Re-verification](#re-verification-2026-09-03--what-drifted-in-25-days) before citing it as current** |
 | `model` | "The language model used when running the prompt" |
 | `tools` | "A list of tool or tool set names that are available for this prompt" |
 
@@ -84,6 +84,10 @@ and more via the `chat.promptFilesLocations` setting.
 Note `agent` and `tools`: a prompt file can pin **which agent runs it** and **which tools are
 available**. That last one is the only Layer-2 thing on this page, and it is how Lab 2.1's
 read-only `/review-change` is actually enforced rather than requested.
+
+> **True of VS Code, and it does not port.** Claude Code's similarly-named `allowed-tools`
+> does the opposite — see [the reversal table](#the-finding-that-would-have-broken-lab-21--tools-reverses-direction-across-tools).
+> Read that before building Lab 2.1 in any runtime other than VS Code.
 
 ### The distinction that defines this phase
 
@@ -166,7 +170,13 @@ Agent and chat *modes* are **not defined on this page**; do not cite it for them
 > then organization instructions are prioritized last. **However, all sets of relevant
 > instructions are provided to Copilot.**"
 
-Order as printed: personal → path-specific → repository-wide → agent → organization.
+Order **as summarised, not as quoted**: personal → path-specific → repository-wide → agent →
+organization. The verbatim sentence above names only three of those five — personal,
+repository, organization — and the other two come from the page's own list rather than from
+a sentence quoted here. *Flagged by the stop-7 review as over-extended, and downgraded from
+"as printed" to "as summarised" rather than deleted, because the five-item order is what the
+page carries and the three-item quote is what this file can prove.* Anyone leaning on the
+positions of `path-specific` or `agent` should go to the page.
 Guidance as printed: "try to avoid providing conflicting sets of instructions."
 
 **Apply the layer rule in order.** Can a conflicting instruction still be written down after
@@ -282,9 +292,22 @@ opposite directions:
 Read the middle row again. `allowed-tools` is the field whose *name* matches the VS Code
 whitelist and whose *behaviour* is its inverse: it does not restrict the pool, it removes the
 permission prompt in front of it. **A `/review-change` skill ported from VS Code by mapping
-`tools:` → `allowed-tools:` would not be read-only. It would be a write-capable agent that
-has been pre-approved to write without asking.** The correct port is `disallowed-tools`, or
-`allowed-tools` alongside a deny rule that actually removes the write tools.
+`tools:` → `allowed-tools:` would not be read-only.** The write tools are not in the list,
+so they are not pre-approved — but they were never *removed* either. They stay in the pool,
+and the only thing standing between the skill and a write is the ordinary permission prompt:
+a human saying yes. The whitelist that was a boundary in VS Code becomes, in Claude Code, a
+list of things that skip the prompt, and everything omitted from it is *still available*.
+The correct port is `disallowed-tools`, or `allowed-tools` alongside a deny rule that
+actually removes the write tools.
+
+*Corrected after the stop-7 review.* This paragraph first said the ported skill would be
+"pre-approved to write without asking", which is wrong in the reader's favour and wrong
+about the mechanism: omitting a tool from `allowed-tools` withholds pre-approval, it does
+not grant it. The conclusion — use `disallowed-tools` — is unchanged, and the reason it is
+right has moved from *"the port pre-approves writes"* to *"the port removes the boundary and
+leaves only a prompt"*. **An L2 control was replaced by a human decision, which is L3**, and
+that is the finding; saying it the first way would have had a reader looking for a
+permission grant that is not there.
 
 This is the trap this phase pays for, and it was found by reading, not by running. It is
 recorded here so that Lab 2.1 — whenever it runs — starts from the right field.
@@ -369,6 +392,14 @@ architecture violation.
   not). The eval has to check the one that was claimed.
 - The three prepared diffs do not exist yet. `BE-003` fixtures are the natural source; that
   is a new task shape and therefore **the author's call** under §7 of the run prompt.
+- **Pick the runtime before writing a line of it.** The Commit block below names
+  `.github/prompts/review-change.prompt.md`, which is a VS Code prompt file, while the bullet
+  above mandates `disallowed-tools`, which is a Claude Code skill field with no VS Code
+  equivalent. **As written the spec cannot be built** — it is half of each object. Flagged by
+  the stop-7 review. It is left contradictory rather than silently resolved because choosing
+  the runtime decides what the lab measures, and that is not a decision an extract gets to
+  make: a VS Code prompt file uses `tools:` and a Claude Code skill uses `disallowed-tools`,
+  and the two are not ports of one another, which is the whole finding above.
 
 ## Lab 2.2 — Prompt file vs free-form · **DEFERRED**
 
@@ -456,7 +487,13 @@ learning:
     matrix). And the preflight found that bare pgrep on this machine fails with an illegal
     byte sequence and returns nothing, so the stall check that both CLAUDE.md and the run
     prompt rely on has been answering "no stall" without looking. That one is not about
-    Phase 2 at all and is the more expensive of the two.
+    Phase 2 at all and is the more expensive of the two. **Fixed at L3 only, and the fix is
+    named so a later reader is not left guessing:** `agent-learning-lab/CLAUDE.md`, in the
+    section "`opencode run` hangs", now says to use `LC_ALL=C pgrep`. The L2 version — a
+    locale-forced stall check inside `opencode-review.sh` that refuses to write a findings
+    file while a stray process is live — is **not built**, because a review of this very
+    workbook was in flight when the defect was found and *never edit a tool while a run of
+    it is in flight* outranks fixing it promptly. It is on record for the author.
   keep_or_remove: >
     Keep the extract. Keep the deferral markers rather than deleting the labs — a deferred
     lab with its debts written down is evidence; a deleted one is a gap that looks like a
