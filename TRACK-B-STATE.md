@@ -8,10 +8,9 @@ status: running
 stop: 7
 loop_step: 1
 branch: b02/close-the-gate  # stops 4-6 all ship on this branch; b3/ was never cut and is not needed
-in_flight:
-  - "adversarial review of E-003 + the B3 workbook, opencode-review.sh -n 2, started 2026-09-03T18:15Z"
-last_verified: "E-003 complete at 25 of 25 registered runs. Hash separation perfect: 10/10 treatment sha256:90f95226, 10/10 control null, 5/5 bloat sha256:807c5d03. All 25 evaluator exit 0. Twenty codex sheets written, and the scorer agrees with the pre-scorer hand census on all twenty runs cell for cell"
-next_action: "read the review; fold any blocking finding into the artifacts BEFORE the PR; then republish both boards (the one deferred preflight remedy) and push stops 4-6 as one PR"
+in_flight: []
+last_verified: "E-003 complete and closed REJECT. 25 of 25 runs, hash separation perfect (10/10 treatment sha256:90f95226, 10/10 control null, 5/5 bloat sha256:807c5d03), all evaluator exit 0. Twenty codex sheets; the scorer agrees with the pre-scorer hand census on all twenty runs cell for cell. Adversarial review returned acceptance REJECT with four blocking findings, all four correct, all four folded into the artifacts. Five validators exit 0, 64 links ok / 0 broken, 2 of 2 boards current"
+next_action: "push b02/close-the-gate and update PR lab#53 to carry stops 4, 5 and 6; then stop 7 (Phase 2 - prompt files) begins at loop step 1 with a prediction committed before any run"
 blocked_on_author: []
 preflight:
   hook_script: ok — 19 of 19 cases pass (the itinerary says 16; the script has grown to 19)
@@ -20,8 +19,9 @@ preflight:
   validators: ok — 13 + 11 + 12 + 16 = 52 cases, exit 0
   stack: ok — 18 of 18 smoke checks against API 8081
   isolation: ok — proved per run from telemetry, hook_execution_start = 0 across the registered population
-  board: fail — both boards describe an older HANDOFF.md; remedy is one republish at the end of the run, still deferred, now the last open item
+  board: ok — both republished 2026-09-03 at position 7; check-board-freshness reports 2 of 2 current at prose fe4e9fa408d3
   timestamp: 2026-09-03T16:56:12Z
+review_this_stop: "opencode-review.sh -n 2 over E-003 + the B3 workbook. Line level 2 runs glm-5.2, both ok. Acceptance minimax-m3 returned REJECT. findings/opencode/review-E-003-instructions-v0.1-20260903T181703Z.md, committed. Its first blocking finding corrected the primary outcome's epistemic label and is the sharpest result of the run"
 hook_wiring: unproven in print mode — the stops 4-5 push ran with LAB_REVIEW_HOOK=0 because preflight row 2 held opencode at the time, and concurrent opencode calls are this machine's known stall mode. The synchronous review is the review control for this run, and it has now been taken twice
 ```
 
