@@ -5,25 +5,34 @@ needs is in this file; nothing lives in a conversation.
 
 ```yaml
 status: running
-stop: 4
-loop_step: 14
-branch: b02/close-the-gate  # agent-learning-lab
+stop: 6
+loop_step: 6
+branch: b3/instructions-v0.1  # agent-learning-lab — not yet cut; work is on b02/close-the-gate
 in_flight:
-  - "stops 4 and 5 are closed on disk and UNSHIPPED: 5 commits unpushed, 4 files modified, 3 untracked, no PR"
-last_verified: "2026-09-03 re-derivation of stop 4 and 5: 14/14 evaluator-passed, E-002 10/10, prediction commit 59ac936 13:06:30Z precedes run 4c891809 startedAt 13:07:19Z"
-next_action: "0a preflight, all seven rows, delegated per 4b"
+  - "EXP-B3-INSTRUCTIONS-CLAUDE + EXP-B3-CONTROL-CLAUDE: 10+10 interleaved batch started 2026-09-03T17:03Z"
+  - "PR lab#53 open for stops 4-5; board check red until both boards are republished"
+last_verified: "E-003 preflight run 043237f5 — instructionsHash sha256:90f95226cc3d429f6f3e157e4741bbd1 (the overlay's own bytes), 0 hook executions of 22 events, evaluator exit 0, startedAt 17:00:05Z after the prediction commit 2015555 at 16:59:55Z"
+next_action: "when the batch finishes: assert n=10 per arm from the API, hand-read one treatment run's maintainability cell BEFORE any scorer touches it, then score both arms with codex"
 blocked_on_author: []
-preflight: {}
-hook_wiring: unproven
+preflight:
+  hook_script: ok — 19 of 19 cases pass (the itinerary says 16; the script has grown to 19)
+  review_harness: ok — exit 0, findings/opencode/review-run-record-20260903T164550Z.md, 14 finding sections, no stray process
+  codex_harness: ok — codex-cli 0.147.0, findings/codex/score-good-nested-ifs-20260903T164645Z.yaml, architecture 2 / maintainability 0 / test-quality null / change-focus 2
+  validators: ok — 13 + 11 + 12 + 16 = 52 cases, exit 0
+  stack: ok — 18 of 18 smoke checks against API 8081
+  isolation: ok — run 05b4081f, 0 hook executions of 17 events, all customization hashes null, kept worktree holds 17 .kt files
+  board: fail — both boards describe an older HANDOFF.md; remedy is the republish in §4 step 14, deferred to one republish at the end of the run rather than two
+  timestamp: 2026-09-03T16:56:12Z
+hook_wiring: unproven in print mode — the stops 4-5 push ran with LAB_REVIEW_HOOK=0 because preflight row 2 held opencode at the time, and concurrent opencode calls are this machine's known stall mode. §4a's synchronous review is the review control for this run
 ```
 
 ## Position
 
 | Stop | What | Status |
 |---|---|---|
-| 4 | B2 — plain-prompt baseline | CLOSED on disk, ship (§4 step 14) outstanding |
-| 5 | Phase 1 — custom instructions | gate ANSWERED, result `INCONCLUSIVE`, ship outstanding |
-| 6 | B3 — minimal global instructions | not started |
+| 4 | B2 — plain-prompt baseline | **CLOSED**; shipped as PR lab#53, open |
+| 5 | Phase 1 — custom instructions | **gate ANSWERED**, result `INCONCLUSIVE`; same PR |
+| 6 | B3 — minimal global instructions | **RUNNING** — `instructions-v0.1` registered as E-003, predictions committed `2015555`, deliberate failure committed `97e2ed5` |
 
 ## Corrections carried forward, re-derived 2026-09-03
 
