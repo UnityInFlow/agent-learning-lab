@@ -25,7 +25,10 @@ its per-run quality is identical to a hand-typed prompt.
 preference.** [`experiments/E-003-instructions-v0.1.md`](../../experiments/E-003-instructions-v0.1.md)
 closed `REJECT`: a 57-word always-on instruction file, proved delivered by hash on 10 of 10
 treated runs and absent by structure on 10 of 10 controls, moved no registered construct
-(2/10 vs 3/10, p = 1.0), no cost, no duration, no tool count and no rubric category. If
+(2/10 vs 3/10, p = 1.0), no cost, no duration, no tool count and no rubric category. **A third
+arm diluted those same three rules, verbatim, into 1 455 words** — 25× the size — and did no
+worse, at +4.2 % cost. So the always-on arm is on record at two sizes, which is what makes the
+three-arm proposal below cheap rather than speculative. If
 *delivery* of always-on text does not move a quality score, then a phase about the
 **explicit** sibling of that text has no business predicting a quality gain either. The
 dependent variable Phase 2 already names — *structural consistency of the output* — is the
@@ -291,7 +294,17 @@ opposite directions:
 
 Read the middle row again. `allowed-tools` is the field whose *name* matches the VS Code
 whitelist and whose *behaviour* is its inverse: it does not restrict the pool, it removes the
-permission prompt in front of it. **A `/review-change` skill ported from VS Code by mapping
+permission prompt in front of it.
+
+> **This last step is an inference, and it is labelled as one.** The quoted sentence says what
+> *listed* tools may do; it does not say what *unlisted* tools may not do. What supports the
+> inference is the row beneath it: the page documents a **separate** field, `disallowed-tools`,
+> whose stated job is removing tools "from Claude's available pool". A vendor that needs one
+> field to grant permission and another to remove capability is a vendor for whom the first
+> field does not remove capability. That is strong, and it is still not a quoted sentence — and
+> **no lab here has observed either field behave**, because Lab 2.1 is deferred. Treat the
+> recommendation as well-founded and unverified, and verify it in the first ten minutes of
+> building Lab 2.1. *Flagged by the stop-7 review, second round.* **A `/review-change` skill ported from VS Code by mapping
 `tools:` → `allowed-tools:` would not be read-only.** The write tools are not in the list,
 so they are not pre-approved — but they were never *removed* either. They stay in the pool,
 and the only thing standing between the skill and a write is the ordinary permission prompt:
@@ -372,7 +385,13 @@ vendor's own claim is the interesting one and it is about the *other* axis: a sk
 "loads only when it's used", where an always-on instruction file is paid every run. The
 version worth registering is therefore **three-armed** — always-on file / invoked file /
 typed — and its dependent variable is prompt tokens per run from the run record, which the
-observatory already stores. Recorded as a proposal, not a prediction.
+observatory already stores.
+
+**Recorded as a proposal. It is not a prediction, and it is not a registered arm.** Nothing
+about it has been declared to an experiment file, no direction or magnitude is attached, and
+questions 1–3 above stay `DEFERRED` and unanswered — the rewrite neither inherits their status
+nor replaces them. If it is ever run it needs its own registration, written first, like
+anything else here. *The ambiguity was flagged by the stop-7 review, second round.*
 
 ## Lab 2.1 — Build `/review-change` · **DEFERRED**
 
@@ -524,7 +543,7 @@ The clauses below are that condition plus the workbook's own exit gate.
 
 | Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
 |---|---|---|---|
-| "Phase 2 (◇ no B counterpart): required reading and extract only" — required reading | The four sources are ✅ in [`SOURCES.md`](../../SOURCES.md) lines 61, 89, 90, 91. Run 2026-09-03T19:2xZ: `ok=64 moved=8 blocked=2 unverified=0 broken=0`, exit 0 — **and none of the four is among the 8 moved or the 2 blocked**, so all four resolve directly and the redirect warning does not apply to this phase | **L2** — `./tools/check-links.sh` executes and fails closed on a dead link; it is CI job *verified reading is still verified* | `cd agent-learning-lab && ./tools/check-links.sh`, read the counts, then check the MOVED/BLOCKED lines for these four URLs |
+| "Phase 2 (◇ no B counterpart): required reading and extract only" — required reading | The four sources are ✅ in [`SOURCES.md`](../../SOURCES.md) lines 61, 89, 90, 91. Run 2026-09-03T19:2xZ: `ok=64 moved=8 blocked=2 unverified=0 broken=0`, exit 0 — **and none of the four is among the 8 moved or the 2 blocked**, so all four resolve directly and the redirect warning does not apply to this phase | **L2 for "the four URLs resolve"; L3 for "they were read."** `./tools/check-links.sh` executes and fails closed on a dead link — that is the enforced half, and it is CI job *verified reading is still verified*. **Nothing executes that checks anyone opened the page**, so the ticked boxes above are guidance, not a control. *The first version of this row said L2 flat, which is an L2 label on an L3 object — the thing this same file names as the house failure mode two sections up. Caught by the stop-7 review, second round.* | `cd agent-learning-lab && ./tools/check-links.sh`, read the counts, then check the MOVED/BLOCKED lines for these four URLs. For the reading half there is no command — check the quotes against the pages by hand |
 | …and extract only | Four `## Extract` sections in this file, one per source, each dated and quoting verbatim | **L3** — nothing executes a check that an extract matches its source. The proof that it was *read* is L2 above; the proof that it was read *correctly* is that the quotes are checkable by hand, which is a human act | Open each of the four URLs and search for the quoted sentence |
 | "Mark 'extract only, labs deferred by the autonomous run'" | The status line at the top of this file, and `DEFERRED` on Lab 2.1, Lab 2.2, Failure injection and Predict-before-you-run | **L3** — a marker is words a reader chooses to honour | `grep -n DEFERRED phases/02-prompt-files/README.md` returns 5 lines: four markers (the Predict-before-you-run paragraph and the three lab headings) and this table row citing them |
 | Exit gate: "Instructions vs prompt file" | Answered above from two verbatim quotes (VS Code "Unlike custom instructions that are applied automatically…"; Copilot "While custom instructions help to add codebase-wide context…") | **L3** — a written answer | Compare the answer against the two quoted sentences |
