@@ -62,7 +62,7 @@ acceptance gate, and the specific trap.
 |---|---|---|---|
 | B1 | Experiment contract, rubric, run record | 0B | — |
 | B2 | Plain-prompt baseline on confirm-shipment | ~~0A +~~ 0B — **Decision F, 2026-08-30: 0A decoupled, stays open** | — |
-| B3 | Minimal global instructions | 1 | — |
+| B3 | Minimal global instructions | 1 | — · ✅ **closed 2026-09-03, `REJECT` — no file shipped** |
 | B4 | Agent boundary — mission, allowed, prohibited, approval | 4A | v1.0 |
 | B5 | Workflow phases ANALYSIS→…→DONE | **4B** | v1.0 |
 | B6 | One specialist skill | 3 | v1.0 |
