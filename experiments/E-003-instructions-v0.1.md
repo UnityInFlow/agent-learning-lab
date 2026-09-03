@@ -188,6 +188,40 @@ agent writes would be attributed to R1 by this design and could belong to R2.
    controlled-variables table registers. It is a stronger proof than the flag and a weaker
    record than a persisted field.
 
+## Deliberate failure — the same three rules, diluted 25×
+
+`Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-03T17:20:00Z; committed before the
+first run of this arm.`
+
+**What is broken on purpose.** `build/customizations/instructions-v0.1-bloated/CLAUDE.md` —
+**1 455 words**, `sha256:807c5d03f77cc66106aa90d72fe50245` — carries the *identical three rules*,
+verbatim, under the same heading, inside a plausible engineering handbook: layout, naming,
+formatting, Kotlin idiom, Spring, errors, validation, persistence, concurrency, testing,
+logging, dependencies, configuration, documentation, PRs, reviews, performance, security,
+deprecation. Nothing in it contradicts the three rules and nothing in it is about BE-003.
+
+This is the *dilution* arm, not a bloat-for-bloat's-sake arm. It separates two explanations that
+the main comparison cannot: **"the rule worked"** from **"a 57-word file worked"**. If the rules
+carry their effect at 1 455 words, the mechanism is the rule. If the effect disappears while the
+words are still there, the mechanism is attention, and every conventions document this project
+has ever recommended is on notice.
+
+Registered arm: `EXP-B3-BLOAT-CLAUDE`, `variant: instructions`, **n = 5**, interleaved with
+nothing — run as a block after the main batch, which is a registered weakness of this arm and
+the reason its cost outcome is compared to the main *treatment* arm run the same hour rather
+than to B2.
+
+| # | Prediction | Magnitude | Mechanism |
+|---|---|---|---|
+| **DF1** | Cost rises against the `v0.1` arm | **≥ +25 %** median | 1 400 extra words enter the prompt on every run. `EXP-BE002-CLAUDEMD-V2` measured **+39 %** for a full conventions file at identical acceptance |
+| **DF2** | `cacheCreationTokens` rises | **≥ +1 500 tokens** median | The overlay is committed into the repository before the agent starts, so it is read as project memory and lands in the prefix. This is the deterministic half of DF1 and the one that can falsify the *explanation* rather than the effect |
+| **DF3** | R1's construct rate **falls** against the `v0.1` arm | direction only | Dilution: the same instruction competing with 19 other headings. **Explicitly not resolvable at n = 5 vs 10 unless separation is near-complete** — registered as a direction, and a null here means *not detectable*, not *no effect* |
+| **DF4** | The evaluator verdict does not change | **5 of 5 pass** | None of the 19 added sections touches the acceptance criteria. If this fails, the added prose is doing something the experiment did not intend and the arm is void, not interesting |
+
+**What would make this arm void rather than informative:** any run in it failing the evaluator
+for a reason traceable to the handbook (DF4), or a harness version change between the main batch
+and this arm. Both are checked from the run records before the arm is read.
+
 ---
 *Everything below is filled in AFTER the runs.*
 ---
