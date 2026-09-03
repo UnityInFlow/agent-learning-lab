@@ -45,6 +45,19 @@ a preflight run asserted before the batch); the codex scorer **agrees with a han
 committed before it ran, on all twenty runs cell for cell**; and the control **reproduces B2**
 on six measures across a harness-version boundary.
 
+**R1's label was corrected by the acceptance gate, and the correction is worth reading.** The
+artifact first defended "refuted" with *"8/10 vs 2/10 would have given p = 0.023"* — but 2/10 is
+the **treatment** rate that was observed. The control that occurred was **3/10**, and against it
+the registered 8/10 gives **p = 0.070**. The MDE had projected a control of 2/10 from B2's 1-of-5
+and the control landed one run higher, which alone moved the design's resolving power outside its
+own threshold. So R1 is **refuted as the claim it literally makes about the treated arm** — 2 of
+10 against a predicted 0.8 rate has probability 0.000078, and needs no control — and **not
+detectable as a between-arm difference** at this `n`. The verdict does not move. The sentence
+claiming the effect was inside what the design could see is withdrawn, because it was a claim
+about the instrument that had not been checked against the instrument. New follow-up: **derive
+the MDE against the upper end of the baseline's interval, not its point estimate** — here that
+would have registered n = 12 or 15 and made the difference decidable either way.
+
 **The obvious rescue was tested and failed.** If 57 words got lost in context, 1 455 words
 should be worse. The dilution arm — the identical three rules buried in a 19-section handbook —
 reached the construct on **3 of 5**, *more* often than the concentrated file's 2 of 10. Across
