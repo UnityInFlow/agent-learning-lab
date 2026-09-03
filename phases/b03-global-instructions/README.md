@@ -129,7 +129,34 @@ refuted. That rule exists because E-002 did not have it.
 
 ## Lab B3.1 — measure against B2
 
-<!-- filled after the batch -->
+**Method, registered before the batch.** Two arms of ten, **interleaved** — treatment, control,
+treatment, control — rather than run as two blocks, so that any drift in the machine, the
+harness or the hour lands on both arms equally. That design is inherited from E-002, where the
+alternative was tried and could not be defended: nine baseline runs on harness `2.1.251` were
+not comparable to five contaminated runs on `2.1.259`, and the experiment had to build its own
+matched pair rather than use them.
+
+```bash
+# per pair, ten times, from agent-observatory/
+make run-benchmark RUNTIME=claude MODEL=claude-haiku-4-5-20251001 BENCHMARK=BE-003 \
+  VARIANT=instructions EXPERIMENT=EXP-B3-INSTRUCTIONS-CLAUDE \
+  CUSTOMIZATION=../agent-learning-lab/build/customizations/instructions-v0.1 \
+  ISOLATE_USER_SETTINGS=1 KEEP=1
+make run-benchmark RUNTIME=claude MODEL=claude-haiku-4-5-20251001 BENCHMARK=BE-003 \
+  VARIANT=baseline EXPERIMENT=EXP-B3-CONTROL-CLAUDE ISOLATE_USER_SETTINGS=1 KEEP=1
+```
+
+**What is held, confirmed from the records rather than from the flags:** runner `4e58553`,
+benchmark `0448643`, evaluator `1.0.0`, rubric `396e1799eb2b` — *the same sha B2 registered, so
+no registered variable moved between the baseline and this comparison* — model
+`claude-haiku-4-5-20251001`, harness `2.1.259` on every run.
+
+**Nothing heavy was run on this machine during the batch.** The duration outcome's MDE is ±40 %
+against an arm whose own spread is a factor of 54, and a concurrent review or scorer would land
+on some runs and not others. The reviews and the scoring all run after the last run is recorded.
+That is a decision, not an omission, and it is why this section exists before the results do.
+
+<!-- results filled after the batch -->
 
 ## Deliberate failure
 
