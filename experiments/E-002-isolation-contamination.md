@@ -153,8 +153,56 @@ The contamination measured here is user settings and user memory, not tools.
 |---|---|
 | Mechanism | Absence of `--setting-sources project`, which lets `~/.claude/settings.json` and user-level memory load |
 | Content hash | `~/.claude/settings.json` sha256 `d1dd328b9316`, 23 registered hook entries across 8 events · `~/.claude/CLAUDE.md` sha256 `5fd1bc2ee124`, 24 lines |
-| Preflight assertion | **≥ 1 `claude_code.hook_execution_start` log record carrying this run's `observatory.run.id`**, read from `infra/telemetry-out/events.jsonl`. Plus `userSettingsIsolated: false` in the run record |
-| Control assertion | **Exactly 0 such records** for every isolated run id, plus `userSettingsIsolated: true` in the run record |
+| Preflight assertion | **≥ 1 `claude_code.hook_execution_start` log record carrying this run's `observatory.run.id`**, read from `infra/telemetry-out/events.jsonl` |
+| Control assertion | **Exactly 0 such records** for every isolated run id, with `claude_code.hook_registered` > 0 on the same run |
+
+### AMENDED 2026-09-03T13:35Z, before the batch — the run-record half of both assertions is struck
+
+Both rows above originally also required `userSettingsIsolated` to read `false` on the
+treatment and `true` on the control. **That field cannot be read on this instrument**, and the
+amendment is made here, in the open and before the data, rather than by quietly reporting
+against a weaker rule. The observatory's own CLAUDE.md says why that matters: *"Do not add an
+escape hatch. If you need one, the registration was wrong and should be amended in the open."*
+
+**What was found.** The API serving `localhost:8081` returns a four-key `runtime` block —
+`provider`, `product`, `version`, `model` — and no `userSettingsIsolated` at all, not even
+`null`. The container is `agent-observatory-observatory-api-1` in the **colima** docker
+context, **built 2026-08-30**. Migration `V6__agent_surface.sql` and the fields it adds were
+merged after that and are on `main`; `run-agent.sh:850` sends
+`userSettingsIsolated`, `shimsStripped` and `surface` on every run, and the process receiving
+them has no columns to put them in. The first E-002 run, `4c891809`, went in with
+`--isolate-user-settings` and came back with the key absent.
+
+**This is a finding about the instrument, not a workaround for the experiment**, and it is
+recorded as one in `HANDOFF.md`. The project's documents describe V6's surface recording as
+done. On the running instrument it is **L3**: a migration file exists, a runner sends the
+values, and nothing persists them. That is this project's signature failure mode — a control
+that reports success over a scope smaller than it claims — appearing in the instrument that
+judges everything else.
+
+**Why the batch proceeds rather than halting.** The replacement proof is stronger than the one
+it replaces, and it was already the primary assertion:
+
+- `userSettingsIsolated` records **what the runner was told to do** — configuration.
+- `claude_code.hook_execution_start` records **what actually ran** — execution.
+
+The project has already paid once for confusing those two. Run `4c891809` demonstrates the
+distinction live: **23 `claude_code.hook_registered` and 0 `claude_code.hook_execution_start`.**
+The operator's 23 hook entries were registered in the isolated run and not one of them fired,
+which is exactly what `RUNBOOK.md` claims for `--setting-sources project` and is here observed
+rather than trusted. `hook_registered > 0` is retained in the control assertion as the
+two-sided guard: it proves the telemetry channel for that run is alive, so a zero execution
+count means *no hooks ran* rather than *no data arrived*.
+
+**Not done here, deliberately.** Rebuilding the API would apply V5 and V6 to the database
+holding all 191 runs on record, while simultaneously introducing a Spring Boot minor and a
+Kotlin major bump merged today that have never run against this data. That is a change to the
+instrument and a migration of the only copy of the project's evidence, and it is not something
+to do unattended in the middle of a batch. B2's gate does not require it.
+
+**Run `4c891809` stays in the isolated arm.** It started at 13:07:19Z, after this file's
+prediction commit at 13:06:46Z, under the same harness, model and benchmark tree as the rest.
+Nothing about it is disqualifying; it is run 1 of 5.
 
 > Placing a file is not delivering a treatment. Phase 1 cost ~$4 and 20 runs to learn this.
 
