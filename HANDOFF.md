@@ -307,8 +307,8 @@ carrying the n=5 grid:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — the scored grid, what #66 closed, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route and how far off an agent still is |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: d743fda prose: c2f629fa1685 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: d743fda prose: c2f629fa1685 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: d5e7c27 prose: b82aae3dfbe2 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: d5e7c27 prose: b82aae3dfbe2 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The
@@ -905,15 +905,23 @@ republish.
 
 ### Open, and what it needs
 
-- **obs#51** — *"render unreported behaviour counters as unknown, not zero"* — is **superseded
+- **obs#51** — *"render unreported behaviour counters as unknown, not zero"* — was **superseded
   by #66** and must not be merged as it stands. It infers absence from `modelCalls == 0 &&
   toolCalls == 0`; V4 made the columns nullable, so the heuristic would now blank a genuine
   measured zero. #51's own commit message named the upstream flaw that #66 then fixed. Either
   close it as superseded, or rebase it down to just the notice block re-keyed to `null`.
-  **Undecided.**
+  ~~**Undecided.**~~ **Resolved 2026-09-02: closed as superseded, not merged.**
 - **obs#52** — *"BehaviorDto fabricates zeros: record telemetryComplete instead of inferring
-  it"* — is what #66's V4 did. Looks closable; nobody has checked it off.
-- **lab#22 — 0A**, position 1 of 28, still never started.
+  it"* — is what #66's V4 did. ~~Looks closable; nobody has checked it off.~~ **Closed
+  2026-09-02.**
+- **lab#22 — 0A**, position 1 of 28, still never started. Since Decision F it no longer gates
+  B2; its 19 checkboxes are all still open.
+- **lab#44** — *"The scorer admits fixtures by name, and B2's output does not have one"* — is
+  **still open, and looks closable.** Its own comment records Decision D as built 2026-08-28
+  and confirmed by the author the same day. The one caveat it left — that the attachment half
+  could not be inspected because every run predated `--keep` — is now spent: B2 ran with
+  `--keep`, and `maintainability` was re-read by hand off those kept worktrees. Nobody has
+  checked it off. **Not closed here; that is the author's call.**
 
 ### What is blocked on you, still, and after tonight
 

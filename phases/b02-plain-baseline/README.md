@@ -3,7 +3,7 @@
 **Track A first:** [Phase 0A](../00a-agent-mechanics/) + [Phase 0B](../00b-observatory/)
 **Version:** — (pre-v1.0)
 **Spine position:** 4 of 28 · after [B1](../b01-experiment-contract/) · before [Phase 1](../01-instructions/)
-**Status:** ⬜ not started
+**Status:** 🟨 Run and scored, **gate not closed** — claude 9/9, codex 5/5; five claude runs scored by both harnesses, `maintainability` 1 of 5 · **Evidence:** [`evidence/b02/baseline-report-20260901T192000Z.txt`](../../evidence/b02/baseline-report-20260901T192000Z.txt) · **Owed:** the deliberate-failure run (its prediction first) and four workbook blocks
 
 > Scaffold. **Build** and **Exit gate** moved from [`build/README.md`](../../build/README.md#b2).
 > Everything else is yours to fill.
