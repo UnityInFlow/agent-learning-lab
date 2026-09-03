@@ -78,7 +78,7 @@ run as two blocks, so a drift in any of them lands on both arms equally.
 | | |
 |---|---|
 | Mechanism | `--customization build/customizations/instructions-v0.1`, copied to the worktree root and committed as a setup commit before the agent starts |
-| Content hash | `sha256:90f95226cc3d429f6f3e157e4741bbd1` — 57 words, three rules |
+| Content hash | `sha256:90f95226cc3d429f6f3e157e4741bbd1` — 57 words, three rules. **The runner stores the first 32 hex characters of the SHA-256 digest, not the whole thing.** Verify with `shasum -a 256 build/customizations/instructions-v0.1/CLAUDE.md \| cut -c1-32`; the full digest is `90f95226cc3d429f6f3e157e4741bbd10a79d09f20c0294dd6bf14fd33b74218`. The truncation is real and was undocumented until the acceptance gate caught it — a 32-character string labelled `sha256:` is the length of an MD5, and a reviewer running the obvious command gets a 64-character answer that cannot match |
 | Preflight assertion | One treatment run before the batch; `customization.instructionsHash` on its run record must equal the hash above. The batch does not start otherwise |
 | Control assertion | Control runs pass **no** `--customization`. The runner hashes `CLAUDE.md` *in the worktree*, and the worktree is built by `git archive` from an allowlist of `sample-service` and `.gitignore` only — the benchmarks repo's own `CLAUDE.md` is **not extracted**. So `instructionsHash: null` on a control run means no instruction file was present, not merely that none was installed |
 
@@ -134,7 +134,17 @@ refuted.** That sentence is here because the previous experiment did not have it
 the run is not scored. `tools/check-run-gate.sh` enforces that before any sheet is written.
 Quality among passing runs is `benchmark/rubrics/backend-quality.yaml` **v2, sha
 `396e1799eb2b`**, scored by `codex` (Decision C), with `opencode` as the second reader on a
-subset. **No registered variable moves between B2 and this experiment.**
+subset.
+
+> **AMENDED 2026-09-03, after the runs, on the acceptance gate's blocking finding.** This
+> paragraph originally ended *"No registered variable moves between B2 and this experiment."*
+> **That is false and the original wording is kept here rather than deleted.** The rubric,
+> evaluator, benchmark sha and model are unmoved — which is what the sentence was reaching for
+> — but `harness + version` is row 3 of this experiment's own controlled-variables table, and
+> it moved: B2's claude arm ran on `2.1.251`, every run here on `2.1.259`. **That is precisely
+> why this experiment compares against a concurrent control rather than against B2's stored
+> numbers**, so the design was already right and only the sentence was wrong. B2 is used as a
+> consistency check on the control, not as a comparator.
 
 ## Exclusions
 
@@ -289,10 +299,10 @@ treatment runs and the same three control runs, with no disagreement in either d
 
 | # | Prediction | Held? | Actual |
 |---|---|---|---|
-| **R1** | the defensive rule moves the construct: treatment ≥ 8/10 vs control ≤ 3/10 | **NO — refuted, and this one *is* refuted rather than undetectable** | **2/10 vs 3/10**, p = 1.0. The control half held exactly (3/10, consistent with B2's 1/5). The treatment half failed, and the direction is slightly *against* the rule. 8/10 vs 2/10 would have given p = 0.023, so the registered effect was inside what this design could see. It was looked for and it is not there |
+| **R1** | the defensive rule moves the construct: treatment ≥ 8/10 vs control ≤ 3/10 | **NO — refuted as a claim about the treated arm; NOT DETECTABLE as a difference.** See the correction below, which the acceptance gate forced | **2/10 vs 3/10**, p = 1.0. The control half held exactly (3/10, consistent with B2's 1/5). The treatment half failed |
 | **R2** | the verification rule costs: toolCalls ≥ +5, duration ≥ +40 %, verdict unchanged | **half NO, half YES** | Verdict unchanged at **10/10 both arms** — that half held. The cost did not appear: toolCalls Δ **0** (p=1.0), duration **−11.4 %**. Both land inside the registered MDE, so the cost is **NOT DETECTABLE at this n**, not refuted. R2 was predicted to be *real and useless at once*; it measured as **useless and free** |
 | **R3** | the convention rule moves nothing at all | **YES, in both halves** | **20 of 20 honoured, both arms**, p = 1.0. And the ceiling claim it rests on reproduced: B2 measured 14/14, this measures 20/20, pooled **34 of 34** |
-| **4** | the file costs more than the control but under +25 % | **NO — refuted in an unexpected direction** | Predicted *positive but under +25 %*. Observed **−2.5 %**, p = 0.68. The prediction's stated range excludes zero and the observed point estimate is negative. Inside the MDE, so the honest reading is **the file is not measurably paid for at all** |
+| **4** | the file costs more than the control but under +25 % | **NOT DETECTABLE** — *this row said "refuted" until the acceptance gate caught it contradicting the artifact's own MDE rule in the same cell* | Predicted *positive but under +25 %*. Observed **−2.5 %**, p = 0.68, **inside the registered ±25 % MDE**. The rule is absolute: inside the MDE is *not detectable at this n*, never refuted. The point estimate sits on the opposite side of zero from the prediction, and that is worth noting and is not a falsification: this experiment cannot resolve a cost effect smaller than 25 %, in either direction. **The file is not measurably paid for; it is also not measurably free** |
 | **5** | nothing regresses | **YES** | architecture-consistency med 2 = 2, change-focus med 1 = 1, p = 1.0 on both. Not merely non-falling — identical |
 
 | # | Deliberate failure | Held? | Actual |
@@ -301,6 +311,51 @@ treatment runs and the same three control runs, with no disagreement in either d
 | **DF2** | cacheCreationTokens ≥ +1 500 | **NOT DETECTABLE** | **+610**, p = 0.68, while `cachedTokens` moved **+13.2 %** |
 | **DF3** | the construct rate falls under dilution | **NOT DETECTABLE, direction reversed** | **3/5** against the concentrated file's 2/10, p = 0.25 |
 | **DF4** | the verdict does not change, 5/5 | **YES** | 5 of 5 exit 0; the arm is informative, not void |
+
+### R1's verdict, corrected — the acceptance gate's finding, and it is the sharpest of the run
+
+`lab-acceptance / minimax-m3` returned **REJECT** on this artifact, and its first blocking
+finding is right in a way that changes what R1 is entitled to claim.
+
+**What was written, and why it was wrong.** The defence of "refuted" read: *"8/10 vs 2/10 would
+have given p = 0.023, so the registered effect was inside what this design could see."* **2/10 is
+the treatment rate that was observed, not the control.** The control that occurred was **3/10**.
+The MDE table registered before the run assumed a control of 2/10 — taken from B2's 1-of-5 — and
+against that assumption 8/10 does give p = 0.023. Against the control that actually turned up it
+does not:
+
+| registered effect, treatment | vs the **assumed** control 2/10 | vs the **occurred** control 3/10 |
+|---|---|---|
+| 8 of 10 | p = 0.023 ✔ | **p = 0.070 ✘** |
+| 9 of 10 | p = 0.006 | p = 0.020 ✔ |
+
+**The control rate is not something a design chooses.** It came in one run higher than the
+baseline it was projected from, and that alone moved this experiment's resolving power at the
+registered effect size from inside p < 0.05 to outside it. The experiment was very slightly
+underpowered against the world that showed up, and nothing in the registration was careless —
+this is what it looks like when an MDE is derived honestly and reality still lands on the other
+side of the line.
+
+**So R1 splits, and both halves must be stated:**
+
+| reading of R1 | verdict | on what |
+|---|---|---|
+| **as a difference** between arms at p < 0.05 | **NOT DETECTABLE at this n** | 8/10 vs the occurred 3/10 is p = 0.070. A reader applying this artifact's own MDE rule lands here, and the rule says *never refuted* |
+| **as the claim it literally makes about the treated arm** — *"treatment reaches anchor 2 on ≥ 8 of 10 runs"* | **REFUTED** | If the treated rate were truly 0.8, the chance of observing ≤ 2 of 10 is **0.000078**. This is a point claim about one arm, it does not need the control to test, and it fails by four orders of magnitude |
+
+**The decision does not move; the epistemic label does.** REJECT still follows — from the
+treated arm's own rate, from the direction being against the rule, and from the per-rule clause.
+What is withdrawn is the stronger sentence *"the effect was inside what this design could see"*.
+At the effect size registered, against the control that occurred, **it was marginally outside**,
+and saying otherwise would have been this project's own recurring failure — a claim about an
+instrument that was never checked against the instrument.
+
+**What this costs the next experiment, concretely.** An MDE derived from a point estimate of the
+baseline inherits that estimate's own uncertainty and does not say so. B2's control was 1 of 5;
+projecting it to 2 of 10 was reasonable and was still wrong by one run. **Follow-up 6: derive the
+MDE against the upper end of the baseline's interval, not its point estimate** — here that would
+have registered n = 12 or 15 per arm rather than 10, and the difference reading would have been
+decidable either way.
 
 ## Failure analysis
 
@@ -418,3 +473,9 @@ gate.
 5. **The bloat arm's real finding was never registered:** a 25× larger always-on file costs
    +4.2 %. This project's brevity recommendation rests on `EXP-BE002-CLAUDEMD-V2`'s +39 %,
    which moved more than one variable. Someone should decide whether the recommendation stands.
+6. **Derive the MDE against the upper end of the baseline's interval, not its point estimate.**
+   B2's control was 1 of 5; this experiment projected 2 of 10 and the control came in at 3 of 10,
+   which moved the registered effect size from p = 0.023 to p = 0.070 — from decidable to not.
+   Registering n = 12 or 15 per arm would have covered it. **This is the first time an MDE in
+   this project has been derived correctly and still been too small**, and the fix is about the
+   baseline's uncertainty rather than about anyone's carelessness.

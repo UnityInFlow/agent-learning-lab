@@ -96,7 +96,7 @@ this workbook has to say so.
 | artifact | can the bad value still be written down? | does something execute and reject it? | layer |
 |---|---|---|---|
 | the three rules themselves | yes — the agent may ignore any of them, and nothing notices | no | **L3** |
-| the overlay reaching the runtime it was written for | no — `run-agent.sh` **dies** if a customization installs an instruction file the runtime does not read | `run-agent.sh:293` | **L2** |
+| the overlay reaching the runtime it was written for | **yes** — the overlay directory can hold any filename, and an `AGENTS.md` for a Claude run is still perfectly writable | yes — `run-agent.sh:293` **dies** on a customization whose instruction file the runtime does not read | **L2** |
 | the treatment reaching *this* run | — | `customization.instructionsHash` is written per run from the file as installed | **L2** |
 | the control receiving nothing | — | the worktree is built by `git archive` from `WORKTREE_KEEP=(sample-service .gitignore)`, so no instruction file exists to hash | **L1 — structural.** The benchmarks repo's own `CLAUDE.md` cannot reach the agent; it is never extracted |
 | "each rule has a stated expected effect" | yes — it is a sentence in an experiment file | no | **L3** |
@@ -157,6 +157,15 @@ on some runs and not others. The reviews and the scoring all run after the last 
 That is a decision, not an omission, and it is why this section exists before the results do.
 
 ### Results
+
+> **Corrected 2026-09-03 on the acceptance gate's blocking findings.** `lab-acceptance /
+> minimax-m3` returned **REJECT** on `E-003` and was right on all four counts. The one that
+> matters: R1's "refuted" was defended with a control rate of 2/10, but **the control that
+> occurred was 3/10**, against which the registered 8/10 gives p = 0.070 rather than p = 0.023.
+> R1 is therefore **refuted as a claim about the treated arm** (if the true rate were 0.8, ≤2 of
+> 10 has probability 0.000078) and **not detectable as a between-arm difference** at this n. The
+> verdict below is unchanged; its epistemic label is not. Full correction:
+> [`E-003` → *R1's verdict, corrected*](../../experiments/E-003-instructions-v0.1.md).
 
 `n = 10 per arm, interleaved. All 20 recorded, all 20 evaluator exit 0. Treatment carried
 sha256:90f95226… on 10 of 10; control carried null on 10 of 10.`
