@@ -311,30 +311,261 @@ Registered before data.
 
 | | |
 |---|---|
-| this file committed at | *(filled after the runs, from `git log`)* |
-| first run `startedAt` | *(filled after the runs, from the run record)* |
+| predictions committed | **`59ac936`, 2026-09-03T13:06:30Z** |
+| clerical timestamp fix | `0e0c6f9`, 13:06:46Z — changed the `Predicted by` clock only, no prediction touched |
+| **first run `startedAt`** | **`4c891809`, 2026-09-03T13:07:19Z** |
+| ordering | **the prediction commit precedes the first run by 33 seconds.** Read from `git log --date=iso-strict-local` and from `GET /api/runs/4c891809.../startedAt`, not from prose |
+| last run `startedAt` | `017c2654`, 13:29:17Z |
+
+**One irregularity, flagged here rather than left for a validator to find.** The
+control-assertion amendment is `3fc71c1` at **13:13:10Z**, which is *after* run 1
+(13:07:19Z) and *before* runs 2–10 (13:13:28Z onward). Its commit message says "zero runs of
+the batch exist at this commit"; that is wrong as written — run 1 existed and had finished.
+What is true, and what matters: **no prediction was altered at any point**, the amendment
+changed only which channel proves the manipulation, and run 1's manipulation result (0 hook
+executions) was already recorded before the amendment was written. Nine of ten runs postdate
+it.
 
 ## Observed telemetry
 
+`claude_code.hook_registered`, `claude_code.hook_execution_start` and
+`claude_code.plugin_loaded`, filtered on `observatory.run.id` in
+`agent-observatory/infra/telemetry-out/events.jsonl`.
+
+**Both assertions hold on all ten runs, with no overlap between the arms:**
+
+| arm | hooks registered | **hooks executed** | plugins loaded |
+|---|---|---|---|
+| isolated, n=5 | 23, 23, 23, 23, 23 | **0, 0, 0, 0, 0** | 0 on all five |
+| open, n=5 | 24, 24, 24, 24, 24 | **27, 29, 31, 33, 48** (median 31) | **2 on all five** |
+
+Registration is near-identical and execution is disjoint — the distinction this project
+already paid to learn, reproduced on demand. The open arm also registers **one more** hook
+than the isolated arm (24 vs 23) and loads two plugins the isolated arm never sees.
+
 ## Results
+
+Median and range. No mean is computed anywhere below.
+
+| outcome | isolated n=5 | range | open n=5 | range | Δ median |
+|---|---|---|---|---|---|
+| duration (ms) | 90,000 | 64,000 – 112,000 | 105,000 | 70,000 – 121,000 | **+16.7 %** |
+| **`inputTokens`** | **1,416** | 1,392 – 1,424 | **170** | 106 – 250 | **−88.0 %** |
+| `cacheCreationTokens` | 26,119 | 19,522 – 29,901 | 30,573 | 25,688 – 32,973 | **+17.1 %** |
+| `cachedTokens` | 671,203 | 557,246 – 788,835 | 781,631 | 450,002 – 1,188,265 | +16.5 % |
+| `outputTokens` | 6,675 | 5,502 – 8,983 | 7,087 | 5,616 – 7,504 | +6.2 % |
+| `estimatedCost` | $0.1541 | $0.1237 – $0.1850 | $0.1754 | $0.1246 – $0.2177 | **+13.8 %** |
+| `toolCalls` | 18 | 15 – 22 | 18 | 17 – 28 | **0** |
+| `modelCalls` | 22 | 19 – 23 | 21 | 13 – 31 | −4.5 % |
+| files changed | 3 | 3 – 3 | 3 | 3 – 3 | **0** |
+| evaluator passed | **5/5** | — | **5/5** | — | 0 |
+
+**The duration tail did not reproduce, so duration is settleable.** The registered exclusion
+said duration would be dropped if either arm produced a run beyond 10× its arm's median. The
+worst ratio here is **1.75×** (64 s to 112 s), against a factor of 54 in the 2026-08-30 batch.
+Two things differed: the runs were interleaved rather than batched per arm, and the machine
+did not sleep. This does not identify the 2026-08-30 cause — it removes duration from the list
+of things E-002 cannot see.
 
 ## Which predictions held
 
+**One of four.** The predictor over-predicted magnitude for the third time running.
+
 | # | Prediction | Held? | Actual |
 |---|---|---|---|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
+| 1 | duration median ≥ +20 % higher (est. +35 %) | **NO** | **+16.7 %.** Below the threshold, and *closer to the ~13 % prior from `EXP-BE002-NOHOOKS` on a different task than to the +35 % estimate that dismissed it.* The refuter fired exactly as written |
+| 2 | `cacheCreationTokens` ≥ +15 % **and** `inputTokens` not moving beyond its 6 % baseline spread | **NO** | **first half held (+17.1 %), second half refuted catastrophically: `inputTokens` fell 88 %.** The refuter named this as the more informative failure, and it was |
+| 3 | both arms pass the evaluator 5 of 5 | **YES** | **5/5 and 5/5.** Also 3 changed files on all ten runs |
+| 4 | `toolCalls` median ≥ +2 higher (est. +3) | **NO** | **0.** Medians identical at 18, ranges overlapping |
+
+### Prediction 2 is the one worth reading twice
+
+The mechanism said injection would land on the cached prefix and leave `inputTokens` alone.
+It was half right in a way that matters more than being wrong: the prefix did grow, **and
+`inputTokens` collapsed by an order of magnitude** — 1,392–1,424 isolated against 106–250
+open, two bands that do not come close to touching.
+
+**The contamination does not only add tokens. It moves them between buckets.** With hook
+output prepended, the ~1,400-token task prompt lands *inside* the cached prefix, so what is
+counted as uncached input is only the small remainder. Total context went **up** (+17 % cache
+creation, +16.5 % cached, +13.8 % cost) while the column named `inputTokens` went **down 88 %**.
+
+**Anyone comparing `inputTokens` across isolation regimes would conclude the contaminated arm
+was 88 % cheaper on that axis.** It is 14 % more expensive. `inputTokens` is not comparable
+between an isolated and an un-isolated run, and nothing in the run record says so.
+
+The observatory's own CLAUDE.md states the general case: *"A metric that changes definition
+silently makes two experiments incomparable while both still look valid — which is
+indistinguishable, later, from an effect."* Nobody changed a definition here. **The
+environment changed which bucket the tokens fall into, which has the same consequence and no
+commit to point at.**
 
 ## Failure analysis
 
+> Before blaming the agent, ask what else changed.
+
+Nothing failed: 10 of 10 runs passed the evaluator and every run changed the same three files.
+The interesting failures are in the predictions and in the instrument.
+
+**The instrument, and it is the session's larger finding.** The API serving these runs is a
+container built 2026-08-30 in the colima docker context. It returns a four-key `runtime`
+block and **silently drops `userSettingsIsolated`, `shimsStripped` and `surface`** — the V6
+fields `run-agent.sh:850` sends on every run. Meanwhile the *runner-side* validator from
+obs#70 is live on the host and **accepts and asserts those same fields**: feeding it a payload
+carrying `userSettingsIsolated: true` exits 0.
+
+So the record is **validated on the way out and truncated on the way in.** V6's surface
+recording, which `HANDOFF.md` and both `CLAUDE.md` files describe as done, is **L3 on the
+running instrument**: a migration file exists, a runner sends the values, a validator checks
+them, and nothing persists them. That is this project's signature failure mode — a control
+reporting success over a scope smaller than it claims — sitting inside the instrument that
+judges everything else.
+
+**It was not the agent, and it was not the hooks.** It was a four-day-old process.
+
 ## Sanity checks
 
-- [ ] Did any dramatic number appear? Has it been explained *and* the explanation tested?
-- [ ] Did any **flattering** number appear? Has it been disbelieved twice?
-- [ ] If a fix motivated this run, did the original symptom actually disappear?
+- [x] **Did any dramatic number appear? Has it been explained *and* the explanation tested?**
+      Yes — `inputTokens` −88 %. Explained by cache-bucket migration. **The explanation is
+      testable and has passed one test:** if the tokens had genuinely vanished, total cost
+      would have fallen; cost rose 13.8 %, and `cacheCreationTokens` rose 17.1 %, which is
+      where the mechanism says they went. It has **not** been tested against a run with hooks
+      but no injected text, which would separate "prefix grew" from "prefix grew *because of
+      hook output*". Registered as follow-up 2.
+- [x] **Did any flattering number appear? Has it been disbelieved twice?** Yes, and it is the
+      one that flatters the *runbook*: "isolation removes contamination" is easy to read into
+      +16.7 % duration and +13.8 % cost. Disbelieved twice: (1) prediction 1's own threshold
+      was not met, so the effect is smaller than this file predicted; (2) **the two behavioural
+      columns did not move at all** — identical tool-call medians, identical changed-file
+      counts, 5/5 both arms. On the outcomes measured, contamination bought a bill, not a
+      different answer.
+- [x] **If a fix motivated this run, did the original symptom actually disappear?** The
+      original symptom was the 2026-08-30 duration tail. It did **not** appear here — but
+      nothing was fixed, so this is a non-reproduction under a different design, not a repair.
+      Recorded as such.
 
 ## Decision
 
+**INCONCLUSIVE, leaning REJECT-as-stated** — the third row of the registered decision table,
+fired exactly as written: *predictions 1, 2 and 4 all fail and 3 holds*.
+
+The registered consequence is *"isolation would be buying something this experiment cannot
+see. Record it; do not remove the flag on one experiment."* That is the verdict and it stands.
+
+**What that verdict does and does not mean.** It does **not** mean the contamination is
+absent — it is present and consistent, at **+13.8 % cost, +17.1 % cache creation, +16.7 %
+duration, 31 hook executions and 2 plugins per run**. It means every threshold this file
+registered in advance was set too high, and the outcomes that would have made isolation a
+*validity* control rather than a *cost* control did not move: same verdict 10/10, same three
+files changed 10/10, same tool-call median.
+
+**So on BE-003, at n=5 per arm, and on the outcomes measured, `ISOLATE_USER_SETTINGS=1` is a
+cost control.** Stated as true of these runs, not as a property.
+
+**The reason not to weaken the runbook on this evidence is in what was not measured: quality.**
+The rubric was applied to one run of ten. Contamination could change *what* the agent writes
+without changing pass/fail, tool counts or file counts, and `toolCalls` is a weak proxy for
+behaviour. Until both arms are scored, "isolation is a cost control" is a claim about
+efficiency and outcome only, and the flag stays mandatory.
+
+**KEEP `ISOLATE_USER_SETTINGS=1` in the runbook**, now with a number attached instead of an
+argument, and with the argument corrected: it is not that you would measure your hooks instead
+of the baseline — you would measure the same baseline and pay 14 % more for it, in a record
+whose `inputTokens` column would be uncomparable.
+
+## Adversarial review, and what it changed
+
+`tools/opencode-review.sh -n 2` over this file and the B2 workbook, 2026-09-03.
+**Findings: [`findings/opencode/review-E-002-isolation-contamination-20260903T134641Z.md`](../findings/opencode/review-E-002-isolation-contamination-20260903T134641Z.md)**
+· line-level `lab-critic` on `ollama-cloud/glm-5.2`, 2 runs, both completed (188 s, 239 s)
+· acceptance `lab-acceptance` on `ollama-cloud/minimax-m3` → **ACCEPT**, `blocking: []`.
+
+**It was run explicitly, because the push hook did not fire.** `.claude/settings.json` wires
+it as `PostToolUse` with `if: Bash(git push:*)`, and no findings file was written by any push
+this session — the known cause is that the settings watcher does not arm a hook it did not see
+at session start. `experiments/*.md` is in `CONTRACT_GLOBS`, so this file was in scope and
+would have shipped unread.
+
+**Finding 2 is the one that changes what this experiment may claim, and it is right.**
+
+> *"The decision table has no row for 'predictions unsettleable by MDE rather than refuted' — a
+> state the MDE column itself admits is possible."*
+
+The registered MDE for duration is **±20 %** and the observed difference is **+16.7 %**. The
+MDE for `toolCalls` is **±2** and the observed difference is **0**. **Both fall inside the band
+this file registered as its own detection limit.** Prediction 1's refuter fired literally —
+"median difference below +20 %" — but a +16.7 % observation cannot separate a true +16.7 %
+effect from a true +20 % one at n=5. Calling those two predictions **refuted** overstates the
+evidence; the accurate word is **not detectable at this n**.
+
+**This is corrected here rather than by editing the predictions or the results.** The
+predictions stand as written, the *Which predictions held* table stands as written, and this
+section is the amendment:
+
+| # | as stated above | corrected reading |
+|---|---|---|
+| 1 | refuted, +16.7 % < +20 % | **inside the registered MDE.** Direction is positive and consistent, magnitude is not resolvable from ±20 % at n=5 |
+| 4 | refuted, Δ 0 | **inside the registered MDE** of ±2 calls. "No effect" and "an effect smaller than 2 calls" are the same observation here |
+| 2 | refuted | **stands as refuted.** `inputTokens` moved 88 % against a 6 % band — an order of magnitude outside any reading of the MDE |
+| 3 | held | **stands as held.** 10/10 is not a threshold question |
+
+**What survives, and what does not.** The *Decision* below is unchanged — it already read
+**INCONCLUSIVE**, and finding 2 strengthens the INCONCLUSIVE half rather than moving the row.
+What does not survive is any sentence implying this experiment *measured* the duration and
+tool-call effects to be small. **It measured them to be smaller than it can see.** The costs
+that are resolvable are `inputTokens` (−88 % against a 6 % band), `cacheCreationTokens`
+(+17.1 % against a 14 % band — marginal), and the hook and plugin counts, which are disjoint
+and not threshold-limited at all.
+
+**The other four findings, answered.**
+
+1. **"MDE entries equal the prediction thresholds, conflating what-matters with a statistical
+   minimum detectable effect."** **Accepted, and it is the root of finding 2.** The MDE column
+   was populated with the same numbers as the refuters instead of being derived from each
+   outcome's variance and n. A real MDE at n=5 per arm, given the isolated arm's duration
+   spread, is considerably wider than ±20 %. **Registered as follow-up 6:** the next experiment
+   derives its MDE from the measured arm before writing any threshold, and if the threshold
+   lands inside the MDE the prediction is not worth registering in that form.
+2. **"'settleable' is used in two senses."** **Accepted.** Tail-exclusion not firing and the
+   detection limit being reached are different things, and this file used one word for both.
+   Duration is *admissible* here — no run exceeded 10× its arm's median — and simultaneously
+   *not resolvable* at ±20 %. Both are now stated separately above.
+3. **"Prediction 2's text and its refuter give two different thresholds."** **Accepted as a
+   drafting defect.** The text says `inputTokens` "is NOT [≥15 % higher]"; the refuter says
+   "moving by more than its own baseline spread (>6 %)". Both land on the same row in this
+   outcome, and the refuter is the reading used — an 88 % fall refutes either. Recorded, not
+   silently reconciled: **a prediction with two thresholds is one prediction too few.**
+4. **"The cache-migration explanation is asymmetric."** **Accepted, and completed here.** The
+   isolated arm has no hook output, so the ~1,400-token task prompt is the *first* thing in the
+   context and is counted as uncached input on the first turn. The open arm prepends hook
+   output, so the prompt sits behind a cache breakpoint and only the remainder is counted as
+   input. Same prompt, same tokens, different column.
+
+**The disputed finding was disputed correctly**, and by the acceptance model rather than by me.
+The critic claimed the B2 README's *"three times out of three"* is stale against CLAUDE.md's
+3-of-5 amendment. It is not: the README sentence is about `change-focus` disagreement on the
+first three scored runs, and the amendment is about the five-run cohort. Different claims about
+different populations. **No change made.**
+
 ## Follow-up
+
+1. **Score both arms, 5 and 5, on the registered rubric.** This is the only way to test the
+   decision above. One isolated run is scored (`4c891809`: architecture 2, **maintainability
+   2**, test-quality 1, change-focus 1 — the B2 baseline profile with maintainability at 2),
+   and the hand re-derivation of its maintainability cell agrees at 2. Nine runs unscored.
+2. **A hooks-without-injection arm**, to separate "the prefix grew" from "the prefix grew
+   because hooks wrote into it". Needs a settings file with `PreToolUse`/`PostToolUse` hooks
+   and no `SessionStart`/`UserPromptSubmit` ones.
+3. **`inputTokens` needs a comparability warning in the analyzer**, the way telemetry gaps got
+   one. Two arms differing in isolation regime cannot have this column compared, and today
+   nothing says so. Observatory issue.
+4. **Rebuild the observatory API** so V6 lands, and re-check `userSettingsIsolated` on a fresh
+   run. Deliberately not done inside this batch: it migrates the database holding all 201 runs
+   and simultaneously introduces a Spring Boot minor and a Kotlin major merged the same day.
+6. **Derive the MDE from the measured arm before writing a threshold**, and refuse to
+   register a prediction whose threshold sits inside it. Raised by the adversarial review;
+   see *Adversarial review* above.
+7. **The codex sheet cited `ShipmentController.kt:64` for the `when` that is on line 65.** The
+   score is right and the hand reading agrees; the citation is one line off. Small, and the
+   same *class* as the opencode citation tic already on record — an anchor's citation
+   instruction is prose nothing executes.

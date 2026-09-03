@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality.yaml
+  rubric_sha:     396e1799eb2b
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4c891809-3f69-418d-9ba2-d7be3f7cde78
+  mode:           run
+  run_id:         4c891809-3f69-418d-9ba2-d7be3f7cde78
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/4c891809-3f69-418d-9ba2-d7be3f7cde78
+  attachments:    3 changed file(s), 3 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260903T133459Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "Both refusal paths throw baseline ApiException subclasses; no error body is constructed"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:58"
+  - name: "maintainability"
+    score: 2
+    anchor_level: 2
+    reason: "A returned when expression has no else and directly consumes shipment status"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:64"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Repeat body and refusal envelope are asserted, but persisted state is never re-read"
+    evidence: "sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt:94"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Unnamed methods match baseline, but ErrorCode changes outside confirm"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt:36"
+ambiguous_categories: []

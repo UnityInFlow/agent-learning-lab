@@ -146,14 +146,58 @@ This teaches **context economics** better than any lecture.
 
 ## Exit gate
 
-- [ ] What deserves always-on context?
-- [ ] What belongs in a skill instead?
-- [ ] What is path-scoped?
-- [ ] Which Copilot surfaces actually support `AGENTS.md`?
-- [ ] Why is an instruction not enforcement?
-- [ ] **Can I prove the instruction entered the model's context on a given run?**
+**ANSWERED 2026-09-03.** `Answered by Opus 5 (claude-opus-5), autonomous, 2026-09-03` from the
+two measured experiments and from B2's result. **No new runs were taken.** Three of six are
+answered from measurement; three are answered *"not measured"*, with what each would need —
+which is an answer, and is not the same as a tick.
 
-That last one is not in the curriculum. It is here because we failed it.
+- [x] **What deserves always-on context?** — **Less than this phase assumed, and nothing has
+      yet earned it here.** The only clean instruction comparison, `EXP-BE002-AGENTSMD-V3` at
+      10 + 10, returned `INCONCLUSIVE`: every metric moved the same way and none cleared the
+      24 % bar registered before the treatment arm existed. B2 then removed a candidate
+      outright — its prediction 4 said a plain agent would miss an L3 prose convention and was
+      **refuted 0-of-14**. A rule the agent already follows unprompted deserves no always-on
+      context, so **B3's candidate list must be filtered against B2's measured behaviour before
+      any of it is written**, not against the plausible-sounding list in `build/README.md#b3`.
+- [x] **Why is an instruction not enforcement?** — Because nothing executes it, which is
+      `GUARDRAILS.md`'s L3. **And this phase can now say the sharper thing:** *not enforcement*
+      does not mean *no effect*. B2's prediction 4 and E-001's prediction 3b both put an L3
+      instruction under test and both found it honoured — six of six for Decision A's null
+      precondition, fourteen of fourteen for the `ApiError.kt` KDoc convention. **The layer
+      model predicts what a control guarantees, not what a model will do.** An instruction is
+      not a boundary; it is also not inert, and B3's entire treatment lives in that gap.
+- [x] **Can I prove the instruction entered the model's context on a given run?** — **YES, and
+      this is the item the phase added because it had failed it.** Read off the run records, not
+      off a flag: `customization.instructionsHash` is `sha256:13a7b6afb4d4b07312035d72a21c3049`
+      on **all 39 treatment runs** across `AGENTSMD-V3` (10), `CLAUDEMD-V2` (18) and
+      `CLAUDEMD` (11), and **`null` on all 48 control runs**. Perfect separation, zero
+      exceptions. `agent-observatory` **#36 is closed** and its closure is **L2** — the field is
+      written by the runner and readable per run.
+
+      The failure that motivated the question is worth restating: the original treatment placed
+      `AGENTS.md` in the repository while Claude Code reads `CLAUDE.md`. Roughly $4 and twenty
+      runs compared *file present* with *file absent*.
+- [ ] **What belongs in a skill instead?** — **NOT MEASURED.** Phase 3 owns it and has not run.
+      The documented distinction is in *The seven file types* above; nothing on record
+      separates "always-on rule" from "situational knowledge" by measurement. Needs one
+      experiment holding content constant and moving only the delivery surface — the same shape
+      as the `AGENTSMD` / `CLAUDEMD` pair, which is why the shared `instructionsHash` above is
+      a useful precedent rather than a curiosity.
+- [ ] **What is path-scoped?** — **NOT MEASURED.** Lab 1.2 was never run. The support matrix in
+      *Support by surface* is read, not tested, and the phase's own warning applies: check the
+      matrix before concluding an agent ignored you.
+- [ ] **Which Copilot surfaces actually support `AGENTS.md`?** — **NOT MEASURED, and blocked by
+      Decision G.** The Copilot arm does not exist; `copilot --model gpt-5.4-mini` returns
+      `You have no quota`, and the premium counter gates the CLI regardless of model. Any claim
+      about a Copilot-run agent must be refused until that arm exists.
+
+**The phase result is unchanged: `INCONCLUSIVE` on `n=10+10`.** Answering the gate does not
+promote it. What changed is that the gate's hardest question now has an L2 answer, and the
+phase's failure is fully characterised rather than merely regretted.
+
+**One stale reference, corrected:** the *Commit* block below names
+`experiments/B1-instructions.md`. No such file exists and none was written; the two measured
+results live in the observatory under `EXP-BE002-AGENTSMD-V3` and `EXP-BE002-CLAUDEMD-V2`.
 
 ## Commit
 
