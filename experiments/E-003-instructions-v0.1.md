@@ -228,22 +228,193 @@ and this arm. Both are checked from the run records before the arm is read.
 
 ## Observed telemetry
 
+`Read and written by Opus 5 (claude-opus-5), autonomously, 2026-09-03T18:11Z. The author has
+not reviewed this section.`
+
+All 25 registered runs reached the observatory. Every one exited the evaluator 0.
+
+| Arm | key | n | hash on the record | evaluator |
+|---|---|---|---|---|
+| treatment | `EXP-B3-INSTRUCTIONS-CLAUDE` | 10 | `sha256:90f95226cc3d429f6…` on **10 of 10** | 10/10 exit 0 |
+| control | `EXP-B3-CONTROL-CLAUDE` | 10 | `null` on **10 of 10** | 10/10 exit 0 |
+| deliberate failure | `EXP-B3-BLOAT-CLAUDE` | 5 | `sha256:807c5d03f77cc6610…` on **5 of 5** | 5/5 exit 0 |
+| preflight | `EXP-B3-PREFLIGHT` | 1 | treatment hash, asserted before the batch | exit 0 |
+
+**The hash separation is perfect**, which is the condition the decision rule names for *not*
+being forced to INCONCLUSIVE. Held identical across all 25: runtime `claude-code 2.1.259`,
+model `claude-haiku-4-5-20251001`, benchmark sha `0448643…`, evaluator `1.0.0`.
+
+The arms were interleaved as registered — treatment 17:03, control 17:05, treatment 17:07,
+control 17:09, and so on to 17:53. The bloat arm ran as a block afterwards, 17:55–18:05, which
+is its registered weakness and the reason it is compared to the treatment arm rather than to
+B2.
+
 ## Results
+
+Four measurements, each in its own evidence file, each re-derivable by the recipe printed at
+its top.
+
+| | evidence |
+|---|---|
+| Main comparison, 7 continuous outcomes + the construct | `evidence/b03/arm-comparison-20260903T180015Z.txt` |
+| Construct census, all 20 runs, read before any scorer | `evidence/b03/construct-census-20-runs-20260903T175514Z.txt` |
+| R3 convention census, all 20 runs | `evidence/b03/convention-census-r3-20-runs-20260903T180900Z.txt` |
+| Rubric, both arms scored, 20 sheets | `evidence/b03/rubric-comparison-both-arms-20260903T181125Z.txt` |
+| Deliberate failure arm | `evidence/b03/bloat-arm-comparison-20260903T180936Z.txt` |
+
+**Not one outcome separates the arms.** The smallest p in the whole experiment is 0.165, on
+duration, and it points the wrong way — the treated arm ran *faster*.
+
+```
+outcome                  treatment med   control med   delta %     MW p
+estimatedCost                    0.152        0.1559      -2.5    0.684
+durationMs                     8.9e+04     1.005e+05     -11.4    0.165
+cacheCreationTokens          2.514e+04     2.613e+04      -3.8    0.529
+inputTokens                       1412          1420      -0.6    0.971
+outputTokens                      6910          6578      +5.0    0.912
+toolCalls                           18            18      +0.0    1.000
+modelCalls                        21.5          22.5      -4.4    0.912
+
+maintainability anchor 2       2 of 10       3 of 10             1.000 (Fisher)
+R3 convention honoured        10 of 10      10 of 10             1.000 (Fisher)
+architecture-consistency       med 2         med 2               1.000
+change-focus                   med 1         med 1               1.000
+```
+
+**The scorer and the hand census agree on all twenty runs, cell for cell.** The maintainability
+reading was committed before any scorer ran; the codex sheets afterwards name the same two
+treatment runs and the same three control runs, with no disagreement in either direction.
 
 ## Which predictions held
 
 | # | Prediction | Held? | Actual |
 |---|---|---|---|
-| 1 | | | |
+| **R1** | the defensive rule moves the construct: treatment ≥ 8/10 vs control ≤ 3/10 | **NO — refuted, and this one *is* refuted rather than undetectable** | **2/10 vs 3/10**, p = 1.0. The control half held exactly (3/10, consistent with B2's 1/5). The treatment half failed, and the direction is slightly *against* the rule. 8/10 vs 2/10 would have given p = 0.023, so the registered effect was inside what this design could see. It was looked for and it is not there |
+| **R2** | the verification rule costs: toolCalls ≥ +5, duration ≥ +40 %, verdict unchanged | **half NO, half YES** | Verdict unchanged at **10/10 both arms** — that half held. The cost did not appear: toolCalls Δ **0** (p=1.0), duration **−11.4 %**. Both land inside the registered MDE, so the cost is **NOT DETECTABLE at this n**, not refuted. R2 was predicted to be *real and useless at once*; it measured as **useless and free** |
+| **R3** | the convention rule moves nothing at all | **YES, in both halves** | **20 of 20 honoured, both arms**, p = 1.0. And the ceiling claim it rests on reproduced: B2 measured 14/14, this measures 20/20, pooled **34 of 34** |
+| **4** | the file costs more than the control but under +25 % | **NO — refuted in an unexpected direction** | Predicted *positive but under +25 %*. Observed **−2.5 %**, p = 0.68. The prediction's stated range excludes zero and the observed point estimate is negative. Inside the MDE, so the honest reading is **the file is not measurably paid for at all** |
+| **5** | nothing regresses | **YES** | architecture-consistency med 2 = 2, change-focus med 1 = 1, p = 1.0 on both. Not merely non-falling — identical |
+
+| # | Deliberate failure | Held? | Actual |
+|---|---|---|---|
+| **DF1** | cost ≥ +25 % against the v0.1 arm | **NOT DETECTABLE** | +4.2 %, p = 0.68 |
+| **DF2** | cacheCreationTokens ≥ +1 500 | **NOT DETECTABLE** | **+610**, p = 0.68, while `cachedTokens` moved **+13.2 %** |
+| **DF3** | the construct rate falls under dilution | **NOT DETECTABLE, direction reversed** | **3/5** against the concentrated file's 2/10, p = 0.25 |
+| **DF4** | the verdict does not change, 5/5 | **YES** | 5 of 5 exit 0; the arm is informative, not void |
 
 ## Failure analysis
 
+**The hypothesis was wrong, and it was wrong in the half it was most confident about.**
+
+The mechanism said: an instruction moves behaviour only where behaviour has somewhere to move,
+so a rule aimed at a floor (1/5 on the construct) should move it and a rule aimed at a ceiling
+(14/14 on the convention) should not. The ceiling half is now measured twice and holds at
+34/34. **The floor half is refuted.** Room to move is not sufficient. The agent had somewhere
+to go, was told to go there in a file proved present on every run, and went there 2 times in 10
+— less often than the arm that was told nothing.
+
+**What the dilution arm did to the leading explanation.** The obvious rescue for R1 is that 57
+words got lost among everything else in context. The bloat arm tests the opposite end of that
+axis and refuses to cooperate: at 1 455 words the construct appeared **3 of 5**, more often
+than at 57 words, not less. Across all three arms the construct appears **8 of 25** with no
+pair separating. The most defensible summary is that on this task, at this model, the construct
+is chosen at roughly one run in three **regardless of what the instruction file says or
+whether one exists at all**.
+
+**What this does not license.** It does not show instructions never work. One rule, one task,
+one model, n=10 per arm, and a design that by its own registered MDE can see a large effect or
+nothing. What it does show, on the sharpest instrument this project has, is that the specific
+recommendation these repositories have been making — write a short global instruction file, it
+will change what the agent builds — produced **no measurable change in anything**, including
+its own cost.
+
 ## Sanity checks
 
-- [ ] Did any dramatic number appear? Has it been explained *and* the explanation tested?
-- [ ] Did any **flattering** number appear? Has it been disbelieved twice?
-- [ ] If a fix motivated this run, did the original symptom actually disappear?
+- [x] **Did any dramatic number appear? Has it been explained *and* the explanation tested?**
+  Yes: `test-quality` null on 4 of 10 treatment runs and 0 of 10 control. The explanation —
+  the scorer failing — was tested and rejected: the nulls track exactly the runs that changed
+  no test file, verified twice, once on `result.changedFiles` and once on `git status` in the
+  worktree. The scorer was right and `null` was the correct value. The *interesting* reading —
+  that the arm told to verify wrote tests less often — is p = 0.087, was never registered as an
+  outcome, and is recorded as an untested hypothesis in the evidence file and as follow-up 1.
+  It is **not** a result of this experiment.
+- [x] **Did any flattering number appear? Has it been disbelieved twice?** The flattering number
+  is the 20-of-20 scorer/hand agreement, and it flatters the instrument rather than the
+  hypothesis. Disbelief 1: the hand census was committed at 17:55 and the treatment sheets
+  written 17:59–18:02, control sheets 18:06–18:09, so the reading could not have been fitted to
+  the sheets. Disbelief 2: agreement is on a construct with a mechanical definition — a `when`
+  in expression position with no `else` — so this is agreement about something checkable, and
+  it is evidence the scorer reads the named construct, **not** evidence the rubric measures
+  maintainability.
+- [x] **If a fix motivated this run, did the original symptom actually disappear?** The fix
+  carried in was E-002 follow-up 6: an MDE column filled with prediction thresholds instead of
+  being derived. This experiment derived every MDE from a measured spread before the run, and
+  it changed the verdicts — R2's and prediction 4's misses are reported as NOT DETECTABLE
+  rather than refuted precisely because of it. The symptom is gone and the fix did work that
+  was visible in the output.
+
+Two more, unprompted:
+
+- [x] **Was the treatment delivered?** 10/10 hash present, 10/10 hash absent, one preflight
+  asserted before the batch. This is the one thing Phase 1 could not do and it is now L2.
+- [x] **Did the isolation regime hold?** `claude_code.hook_execution_start` = 0 on every run of
+  the registered population, which is how the controlled-variables table registered it — the
+  run record's isolation fields still do not persist (threat 4), and the telemetry proof is the
+  stronger of the two.
 
 ## Decision
 
+**REJECT `instructions-v0.1`. Remove all three rules. Ship the empty result.**
+
+Reached through the registered rule, which needs its own note because the rule as written does
+not have a row for what happened:
+
+| Registered row | Applies? |
+|---|---|
+| KEEP the version | No. R1 did not hold at p < 0.05 |
+| REJECT | **The row's stated condition is *R1 inside its MDE **and** cost above +25 %*. The second half is false — cost was −2.5 %.** By the letter, REJECT does not fire |
+| INCONCLUSIVE | No. Hash separation was perfect, no isolation failure, no voided duration |
+| KEEP THE RULE, DROP THE OTHERS — *"a rule whose registered outcome lands inside its MDE is removed, and the removal is the finding"* | **Yes, and it applies to all three.** R1 refuted; R2 not detectable; R3 held at "moves nothing". Every rule is removed, and a file with every rule removed is an empty file |
+
+**The per-rule clause emptied the file and the version-level rows never fired.** That is a
+defect in the decision rule and it is recorded rather than smoothed over: REJECT was written
+to require the file to be *expensive as well as useless*, which quietly assumes a useless file
+is worth keeping if it is cheap. **A free useless rule is still a rule someone has to read,
+trust and maintain**, and this experiment is the argument against keeping it. Registered as
+follow-up 4, to be fixed in the rule *before* the next experiment uses it, not retroactively
+here.
+
+Per rule, on evidence:
+
+| Rule | Verdict | On what |
+|---|---|---|
+| **R1** defensive construct | **REMOVE** | Refuted at the registered n. 2/10 vs 3/10 |
+| **R2** run the verification command | **REMOVE** | No measured effect on either registered outcome. Its one visible correlate — 4 runs with no test written — is unregistered and untested |
+| **R3** follow documented conventions | **REMOVE** | Held: moves nothing, because 34/34 needs no help |
+
+**The version is not replaced by a better one.** B3's build deliverable is "minimal global
+instructions", and the honest minimum this experiment supports is **no global instruction
+file**, until a rule exists that has been shown to move something. That is what goes to the
+gate.
+
 ## Follow-up
+
+1. **Test-writing rate as a registered primary outcome.** 4/10 vs 0/10, p = 0.087, unregistered
+   and therefore not a result. The mechanism to register: *"run the verification command"
+   redirects effort from writing a check to running an existing one, because the task's
+   acceptance does not require a new test.* Needs n ≥ 20 per arm, and the outcome declared
+   before the runs.
+2. **The cache-bucket explanation now has two experiments' worth of unexplained numbers and
+   still one test.** E-002 explained an `inputTokens` collapse by bucket migration; DF2 has
+   `cacheCreationTokens` +610 while `cachedTokens` moved +84 000 for 1 400 added words. The arm
+   that separates it is a fixed-content overlay run twice against a cold and a warm cache.
+3. **Was R1 too abstract, or is the effect absent?** R1 never names `when`, `else` or Kotlin —
+   deliberately, threat 1. The cheap discriminator is a second treatment naming the construct
+   outright. If the explicit rule moves it and the abstract one does not, the finding is about
+   the *distance* between rule and construct, which is a far more useful thing to know than
+   "instructions work".
+4. **Repair the decision rule's REJECT row** so that useless-and-cheap reaches a verdict
+   without going through the per-rule clause. See the Decision section.
+5. **The bloat arm's real finding was never registered:** a 25× larger always-on file costs
+   +4.2 %. This project's brevity recommendation rests on `EXP-BE002-CLAUDEMD-V2`'s +39 %,
+   which moved more than one variable. Someone should decide whether the recommendation stands.
