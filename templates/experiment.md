@@ -57,12 +57,31 @@ Repetitions per arm: ____ · Total budget: $____
 
 ## Minimum detectable effect
 
-Derived from which measured arm? MDE per outcome:
+**Derived from a measured arm, before any threshold below is written.** An MDE filled in with
+the prediction's own thresholds measures nothing — `E-002` did that and two of its three
+refutations turned out to sit inside its own detection limit.
 
-| Outcome | MDE | Registered before B1 existed? |
+| Outcome | measured spread it comes from | MDE at the registered `n` | registered before the run? |
+|---|---|---|---|
+| primary: | | | |
+| secondary: | | | |
+
+**Derive it against the *interval* of the baseline, not the point estimate.** `E-003`, 2026-09-03:
+the baseline was 1 of 5, the MDE was computed against a projected control of 2 of 10, and the
+control came in at **3 of 10**. That one run moved the registered effect size from p = 0.023 to
+**p = 0.070** — from decidable to not — with nothing careless anywhere in the design. Ask what
+`n` the effect stays decidable at across the plausible range of the control, and register *that*
+`n`. Here it was 12–15 rather than 10.
+
+**A result that lands inside an MDE is recorded as NOT DETECTABLE at this `n`, never as
+refuted.** Two claims can be made about an arm and they have different requirements:
+
+| the prediction says | what tests it | what a null means |
 |---|---|---|
-| primary: | | |
-| secondary: | | |
+| *"the arms differ"* | a two-arm test against the control that **occurred** | inside the MDE → **not detectable** |
+| *"this arm reaches X on ≥ k of n"* | a one-arm binomial; **no control is needed** | far from k → **refuted**, regardless of the other arm |
+
+State which one the prediction makes. If it makes both, report both.
 
 ## Deterministic evaluation
 
@@ -76,6 +95,17 @@ Infrastructure failures (F13/F15), permission blocks, quota exhaustion.
 ## Decision rule
 
 Registered before data. What result produces KEEP / REJECT / INCONCLUSIVE?
+
+**The rows must be exhaustive.** Write them, then find the combination that reaches no row —
+if one exists, the rule is broken and you will discover it while holding data you cannot label.
+`E-003` shipped with a `REJECT` row reading *"the treatment fails **and** costs more than
++25 %"*. The treatment failed and cost **−2.5 %**, so by the letter `REJECT` never fired and the
+verdict arrived only through a per-rule clause that happened to empty the file.
+
+**Useless-and-cheap is still a rejection.** An AND-condition pairing "it did not work" with "it
+was expensive" quietly assumes a thing that does nothing is worth keeping while it is free. **A
+free useless rule is still a rule someone has to read, trust and maintain.** Cost belongs in the
+verdict as a separate row, never as a second condition on the failure row.
 
 ---
 *Everything below is filled in AFTER the runs.*
