@@ -3,18 +3,86 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "What the ninth session changed, 2026-09-03."** B2's gate is CLOSED, the spine has
-moved to position 5, and the session's largest findings are both about the instrument rather
-than the agent: the API has been silently truncating every run record for four days, and the
-kept worktrees that every rubric sheet was scored from have been hollowed out by the operating
-system. The eighth-session section below is still accurate except where the ninth corrects it;
-the seventh and earlier are history.
+**Start at "Stop 6 closed, and the answer is a null" below, then "What the ninth session
+changed".** Three stops closed on 2026-09-03 — B2, Phase 1 and B3 — and the run's largest
+result is B3's: **a global instruction file, proved delivered, changed nothing measurable.**
+The session's other two large findings are about the instrument rather than the agent: the API
+has been silently truncating every run record for four days, and the kept worktrees that every
+rubric sheet was scored from have been hollowed out by the operating system. The eighth-session
+section below is still accurate except where the ninth corrects it; the seventh and earlier are
+history.
 
 ## Position
 
-**Spine 5 of 28 — B2 CLOSED 2026-09-03. B1 closed 2026-08-30.** Position 5 is Phase 1, custom
-instructions, which already has two non-void results and needs its exit gate answered. No
-agent exists and none should until stop 10.
+**Spine 7 of 28 — B2, Phase 1 and B3 all CLOSED 2026-09-03. B1 closed 2026-08-30.** Position 7
+is Phase 2, prompt files, not started. No agent exists and none should until stop 10.
+
+## Stop 6 closed, and the answer is a null
+
+`Run by Opus 5 (claude-opus-5), autonomous, 2026-09-03. The author reviewed none of it.`
+
+**`instructions-v0.1` — 57 words, three rules — is REJECTED and not replaced.**
+[`E-003`](experiments/E-003-instructions-v0.1.md), 25 runs: 10 treatment and 10 control
+interleaved, plus a 5-run dilution arm. All 25 exited the evaluator 0. Hash separation was
+perfect — `sha256:90f95226…` on 10 of 10 treated, `null` on 10 of 10 controls — which is
+precisely the assertion Phase 1 spent ~$4 and 20 runs failing to make, and it is now **L2**.
+
+| outcome | treatment | control | p |
+|---|---|---|---|
+| **maintainability anchor 2** *(primary)* | **2 of 10** | **3 of 10** | 1.000 |
+| `estimatedCost` | 0.152 | 0.1559 (**−2.5 %**) | 0.684 |
+| `durationMs` | 89 000 | 100 500 (**−11.4 %**) | 0.165 |
+| `toolCalls` | 18 | 18 (**Δ 0**) | 1.000 |
+| L3 convention honoured | 10 of 10 | 10 of 10 | 1.000 |
+| every rubric category | med 2 / 0 / 1 / 1 | identical | 1.000 |
+
+**The smallest p in the experiment is 0.165, on duration, and it points the wrong way** — the
+treated arm ran faster.
+
+**Why this null is worth something.** A null is only as good as the ability to have seen a
+non-null. Three checks, none assumed: the treatment was **delivered** (hash on every run, plus
+a preflight run asserted before the batch); the codex scorer **agrees with a hand census
+committed before it ran, on all twenty runs cell for cell**; and the control **reproduces B2**
+on six measures across a harness-version boundary.
+
+**The obvious rescue was tested and failed.** If 57 words got lost in context, 1 455 words
+should be worse. The dilution arm — the identical three rules buried in a 19-section handbook —
+reached the construct on **3 of 5**, *more* often than the concentrated file's 2 of 10. Across
+all three arms the construct appears **8 of 25** and no pair separates. On this task, at this
+model, it is chosen at roughly one run in three whatever the instruction file says or whether
+one exists.
+
+**The unregistered finding that arm produced is the one to act on: a 25× larger always-on
+instruction file costs +4.2 %.** Three documents in these repositories argue for keeping
+instruction files short, and the cost half of that argument rests on `EXP-BE002-CLAUDEMD-V2`'s
++39 % — a comparison that moved more than one variable. This arm moved file size alone. It does
+not refute the +39 %; it means **the brevity recommendation cannot be made from cost** on the
+evidence this project holds.
+
+**The gate's removal clause was tested rather than trusted.** R3 — "follow the conventions
+already documented in the files you are changing" — was written into the file *predicted inert*,
+because B2 measured that behaviour at 14/14, so that "remove every rule with no measured effect"
+would have to remove something or admit it cannot. It removed R3 (20/20 both arms, pooled 34/34
+with B2). It then removed R1 and R2 as well.
+
+**Two things are carried forward rather than tidied away:**
+
+1. **The decision rule is defective.** Its `REJECT` row requires the file to be useless **and**
+   cost more than +25 %. Cost was −2.5 %, so by the letter `REJECT` never fires and the verdict
+   arrives only via the per-rule clause emptying the file. The row assumes a useless file is
+   worth keeping if it is cheap. Fix it before the next experiment uses it — E-003 follow-up 4.
+2. **An unregistered number that is not a result.** `test-quality` is null on 4 of 10 treatment
+   runs and 0 of 10 controls, and the scorer was right — the nulls track exactly the runs that
+   wrote no test file, checked twice. The arm carrying *"run the verification command before
+   reporting the work complete"* wrote tests **less** often, 6 of 10 against 10 of 10, Fisher
+   p = 0.087. It was **never a registered outcome** and is recorded as an untested hypothesis
+   with a mechanism, not a finding. E-003 follow-up 1 makes it a registered primary outcome at
+   n ≥ 20 per arm, or nothing at all.
+
+**What halted this stop this morning was not true.** Two blockers were named; neither
+materialised, and one was a directory-topology assumption that had never been checked against
+the instrument. The reasoning is kept verbatim in
+[`findings/track-b-2026-09-03.md`](findings/track-b-2026-09-03.md) with what each turned into.
 
 ## What the ninth session changed, 2026-09-03
 
