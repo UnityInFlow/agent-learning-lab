@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality.yaml
+  rubric_sha:     396e1799eb2b
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-71d77855-5640-4fdb-8065-97fd7f383038
+  mode:           run
+  run_id:         71d77855-5640-4fdb-8065-97fd7f383038
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/71d77855-5640-4fdb-8065-97fd7f383038
+  attachments:    2 changed file(s), 2 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260903T180242Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusal paths throw existing ApiException subclasses"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:27,47,58,64"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "Status decision uses an if branch"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:63"
+  - name: "test-quality"
+    score: null
+    anchor_level: null
+    reason: "nothing to grade"
+    evidence: "No file under src/test/ among the attachments"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Controller documentation outside confirm differs from baseline"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:16; baseline/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:16"
+ambiguous_categories: ["test-quality"]

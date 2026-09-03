@@ -1,0 +1,71 @@
+RUBRIC COMPARISON — both main arms scored, n=10 + n=10, codex harness.
+Computed 2026-09-03. Reader: Opus 5 (claude-opus-5), autonomous.
+
+Sheets: findings/codex/score-observatory-run-<id>-*.yaml, twenty of them, one per run.
+Harness codex-cli 0.147.0, model gpt-5.6-sol, agent_sha b181a9bc5df0,
+rubric backend-quality.yaml sha 396e1799eb2b, --ephemeral, --ignore-user-config
+--ignore-rules --sandbox read-only. No registered variable moved between the arms.
+
+category                   treatment        control          MW p exact
+architecture-consistency   n=10 med 2       n=10 med 2       1.000
+maintainability            n=10 med 0       n=10 med 0       1.000
+test-quality               n=6  med 1       n=10 med 1       1.000
+change-focus               n=10 med 1       n=10 med 1       1.000
+
+PREDICTION 5 — "nothing regresses" — HELD. architecture-consistency and change-focus medians
+are identical, not merely non-falling, and no category separates.
+
+=== THE SCORER AGREES WITH THE HAND CENSUS ON ALL TWENTY RUNS ===
+
+The maintainability cell was read off the source by hand BEFORE any scorer ran
+(evidence/b03/construct-census-20-runs-20260903T175514Z.txt). The codex sheets, produced
+afterwards by a different model in a fresh sandboxed session, name the same runs:
+
+  hand census, anchor 2, treatment:  b93d0f9f a472f54c            codex sheets: the same two
+  hand census, anchor 2, control:    b1daa5db d04bb5d6 42c67dd8   codex sheets: the same three
+  every other run scored 0 by both readers
+
+Twenty of twenty, cell for cell, with no disagreement in either direction. This is the
+strongest agreement this project has recorded between a hand reading and a model scorer, and
+it was obtained the only way that makes it worth anything: the hand reading was written and
+committed first. It does not prove the rubric is right. It proves the scorer is reading the
+construct the rubric names rather than reacting to surface features of the diff, which is the
+threat E-001 was built to watch.
+
+=== AN UNREGISTERED FINDING, REPORTED AS EXPLORATORY ===
+
+`test-quality` is null on 4 of 10 treatment runs and 0 of 10 control runs. Every null carries
+the same reason from the scorer: "nothing to grade".
+
+IT IS NOT A SCORER ARTIFACT. The nulls track exactly the runs that changed no test file, and
+that was checked twice — once against `result.changedFiles` on the run record, once against
+`git status` in the kept worktree:
+
+  a472f54c  369b9d03  514df7f7  71d77855   2 files changed, no test file    TREATMENT
+  all ten control runs                     3 files changed, test file included
+
+  Fisher exact two-sided, 4/10 vs 0/10:  p = 0.087
+
+The scorer reported the absence correctly. `null` is the rubric doing its job — P7, "unknown
+data remains unknown" — and the four sheets are evidence for that, not against it.
+
+WHAT MAKES THIS UNCOMFORTABLE. The treatment arm is the arm carrying R2: "Run the module's
+verification command before reporting the work complete." The arm told to verify wrote tests
+LESS often — 6 of 10 against 10 of 10 — and the direction is the opposite of what anyone
+would write down in advance.
+
+WHY IT IS NOT A RESULT OF THIS EXPERIMENT. "Wrote a test file at all" was never registered
+as an outcome. R2's registered outcomes are `toolCalls` and duration, both null. This number
+was found by looking at the data after the fact, p = 0.087 does not clear 0.05, and a
+post-hoc outcome selected because it looked interesting is exactly the failure mode this
+project has voided results over. It is recorded here, in full, as a hypothesis that has not
+been tested — never as a finding of E-003.
+
+A MECHANISM IT WOULD BE CHEAP TO TEST. "Run the verification command" may redirect effort
+from WRITING checks to RUNNING existing ones: the suite already passes, so an agent that
+takes the rule seriously runs `./mvnw test`, sees green, and reports done. If that is right,
+the rule does not reduce diligence — it satisfies diligence with the cheaper of two actions,
+and it does so because the task's acceptance ("Existing tests pass", task.md:25) does not
+require a new one. That is a specific, falsifiable claim and it is the registered
+prediction for the follow-up rather than a conclusion here.
+

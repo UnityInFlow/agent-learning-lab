@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality.yaml
+  rubric_sha:     396e1799eb2b
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-7695d0d1-4581-4835-9efd-4492cbc604cb
+  mode:           run
+  run_id:         7695d0d1-4581-4835-9efd-4492cbc604cb
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/7695d0d1-4581-4835-9efd-4492cbc604cb
+  attachments:    3 changed file(s), 3 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260903T180843Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusal paths throw existing baseline ApiException subclasses"
+    evidence: "ShipmentController.kt:58, ShipmentController.kt:65"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "Status decisions use separate if statements"
+    evidence: "ShipmentController.kt:64"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "Tests assert repeat bodies, re-read persisted state, and refusal envelopes"
+    evidence: "ShipmentControllerTest.kt:82, ShipmentControllerTest.kt:96, ShipmentControllerTest.kt:116"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "ApiError enum changed outside confirm while unnamed methods stayed identical"
+    evidence: "ApiError.kt:36"
+ambiguous_categories: []
