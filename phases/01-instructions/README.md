@@ -170,8 +170,9 @@ which is an answer, and is not the same as a tick.
       this is the item the phase added because it had failed it.** Read off the run records, not
       off a flag: `customization.instructionsHash` is `sha256:13a7b6afb4d4b07312035d72a21c3049`
       on **all 39 treatment runs** across `AGENTSMD-V3` (10), `CLAUDEMD-V2` (18) and
-      `CLAUDEMD` (11), and **`null` on all 48 control runs**. Perfect separation, zero
-      exceptions. `agent-observatory` **#36 is closed** and its closure is **L2** — the field is
+      `CLAUDEMD` (11), and **`null` on all 40 control runs of those three keys**. Perfect
+      separation, zero exceptions. *(Corrected 2026-09-04 from "48" — see the amendment at the
+      end of this file. The separation claim is unchanged; the denominator was wrong.)* `agent-observatory` **#36 is closed** and its closure is **L2** — the field is
       written by the runner and readable per run.
 
       The failure that motivated the question is worth restating: the original treatment placed
@@ -252,6 +253,47 @@ Those runs loaded ~21 hooks, 2 plugins and 3–4 MCP connections from the local 
 environment, **varying between runs**, while the protocol claimed only the treatment
 varied. Tracked as **#35**. Use `--setting-sources project` and pin exact model IDs —
 **not `--bare`**, which would also switch off the `CLAUDE.md` this phase is measuring.
+
+## Validation
+
+*Added 2026-09-04. The §5 table the run prompt requires was never written for this stop; the
+exit gate above was answered, and the four-column table was not. Flagged by
+[`findings/track-b-validation-2026-09-04.md`](../../findings/track-b-validation-2026-09-04.md)
+and supplied here. No gate answer changed — this table records the proofs that were already
+behind them, and labels each one honestly.*
+
+| Gate clause (verbatim) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| "What deserves always-on context?" | `EXP-BE002-AGENTSMD-V3` (10+10), `EXP-BE002-CLAUDEMD-V2` (18+18), `EXP-BE002-CLAUDEMD` (11+12) in `GET /api/runs`; and the 14-of-14 `ApiError.kt` KDoc census in B2 | **L3** — the answer is a judgement read off measurements, and nothing executes it. The *measurements* are L2; the sentence "less than this phase assumed" is not | `curl $API/api/runs`, group by `experimentKey`, compare the arms |
+| "Why is an instruction not enforcement?" | `GUARDRAILS.md` layer model; and B3's later `REJECT` on 25 runs (`experiments/E-003-instructions-v0.1.md`) | **L3** — prose a human reads. It is the definition of L3, so it cannot be proved at a higher layer than L3 without contradiction | read `GUARDRAILS.md`, then E-003's outcome table |
+| "Can I prove the instruction entered the model's context on a given run?" | `customization.instructionsHash` = `sha256:13a7b6afb4d4b07312035d72a21c3049` on **39** runs, `null` on **40**, across the three named keys. Re-derived 2026-09-04 against the live API: AGENTSMD-V3 10/10, CLAUDEMD-V2 18/18, CLAUDEMD 11/12 — **39 hash / 40 null, zero exceptions** | **L2** — the field is written by the runner per run, **and the runner refuses a customization whose instruction file the runtime does not read.** That refusal executes, which is what makes this row L2 and not L3 | `curl $API/api/runs`, filter the three keys, tally `customization.instructionsHash` non-null vs null |
+| "What belongs in a skill instead?" | none — **NOT MEASURED** | **L3, and the honest label is "no proof"** — Phase 3 owns it and has not run | nothing to re-derive; the row is open |
+| "What is path-scoped?" | none — **NOT MEASURED**, Lab 1.2 never ran | **L3, no proof** | nothing to re-derive; the row is open |
+| "Which Copilot surfaces actually support `AGENTS.md`?" | none — **NOT MEASURED, blocked by Decision G** | **L3, no proof**, and it must stay that way: no claim about a Copilot-run agent is permitted until that arm exists | nothing to re-derive; the row is blocked, not merely open |
+
+**Three of six rows have no proof at any layer, and that is the phase's result.** `INCONCLUSIVE`
+on `n = 10+10` is not a hedge; it is what three unmeasured gate items and one measured null add
+up to.
+
+**Independence check.** No run was launched at this stop — it read results that already
+existed. The three experiment keys predate it, the rubric was untouched, and `runtime.model` is
+`claude-haiku-4-5-20251001` throughout.
+
+## Amendment — 2026-09-04, from the §9 validator
+
+Verdict: **CONFIRMED WITH CORRECTIONS.** Three corrections, all applied:
+
+**(a) "all 48 control runs" does not reproduce; the number is 40.** The three keys this workbook
+names hold 10 + 12 + 18 = 40 controls, not 48. Re-derived against the live API on 2026-09-04 and
+confirmed: **39 hash / 40 null.** The separation claim — perfect, zero exceptions — is
+**unchanged and still true**; only the denominator was wrong. Corrected in place above.
+
+**(b) No §5 validation table existed.** Supplied above. Writing it forced the honest labelling of
+three gate rows as having **no proof at any layer**, which the prose had softened to "NOT
+MEASURED" without saying what that costs the closure.
+
+**(c) The PR was cited as `lab#49`, which does not exist.** This stop shipped in **lab#53**,
+merged 2026-09-03T19:07:36Z as `27d67e5`. Corrected in `findings/track-b-2026-09-03.md`.
 
 ## Before re-running
 
