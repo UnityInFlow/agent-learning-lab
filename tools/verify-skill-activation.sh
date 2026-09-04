@@ -62,8 +62,13 @@ printf 'not json at all\n{"broken":\n' > "$TMP/garbage.jsonl"
 { rec RUN-A; printf '{"resourceLogs":[{"resource":{"attributes":[]},"scopeLogs":[{"logRecords":[{"body":{"stringValue":"claude_code.skill_activated"},"attributes":[{"key":"observatory.run.id"}]}]}]}]}\n'; } > "$TMP/present-plus-badrecord.jsonl"
 # damage must not resurrect an ABSENT run into a measured one
 { rec RUN-B; printf 'not json\n'; } > "$TMP/absent-plus-badline.jsonl"
+# §4a round 1, at 2/2: a malformed RESOURCE attribute used to raise UNCAUGHT and exit 1 with
+# a traceback, so the exit-4 path this tool documents was unreachable from that line. The
+# resource carries the run id for every record beneath it, so two log records are two
+# unattributable records, not one.
+{ rec RUN-A; printf '{"resourceLogs":[{"resource":{"attributes":[{"key":"observatory.run.id"}]},"scopeLogs":[{"logRecords":[{"body":{"stringValue":"claude_code.skill_activated"}},{"body":{"stringValue":"claude_code.api_request"}}]}]}]}\n'; } > "$TMP/bad-resource.jsonl"
 
-echo "verify-skill-activation: 21 cases"
+echo "verify-skill-activation: 24 cases"
 
 check "a project-source activation is reported by source"            0 "bundled_activations: 0" one-project.jsonl RUN-A
 check "a run present with no skill event is a REAL zero"  0 "activations_by_source: -" present-no-skill.jsonl RUN-A
@@ -105,6 +110,9 @@ check "  and it does not abort the whole read"             4 "status: PARTIAL"  
 check "damage does NOT promote an absent run to present"   3 "status: UNKNOWN"               absent-plus-badline.jsonl RUN-A
 # And the case that must NOT be damage, or every source-less activation would be reclassified
 # out of the bucket built for it.
+check "a malformed RESOURCE is damage, not a crash"         4 "status: PARTIAL"               bad-resource.jsonl RUN-A
+check "  and every record under it is counted unattributable" 4 "damaged_records: 2"          bad-resource.jsonl RUN-A
+check "  and the run is still seen as present"             4 "bundled_activations: 0"        bad-resource.jsonl RUN-A
 check "a source-less activation is NOT damage"             0 "damaged_records: 0"            no-source.jsonl RUN-A
 
 echo

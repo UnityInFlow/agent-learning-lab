@@ -123,7 +123,19 @@ with open(events) as fh:
             continue
         parsed_any = True
         for rl in doc.get("resourceLogs", []):
-            res = attrs(rl.get("resource", {}))
+            try:
+                res = attrs(rl.get("resource", {}))
+            except DamagedRecord:
+                # §4a round 1, found at 2/2 recurrence: this call sat OUTSIDE the try below,
+                # so a malformed RESOURCE attribute raised uncaught and the script exited 1
+                # with a traceback — making the exit-4 path it documents unreachable from
+                # here. The resource carries observatory.run.id for every record beneath it,
+                # so when it is unreadable none of them can be attributed. Count them all.
+                damaged_records += sum(
+                    len(sl.get("logRecords", []) or [])
+                    for sl in (rl.get("scopeLogs", []) or [])
+                ) or 1
+                continue
             for sl in rl.get("scopeLogs", []):
                 for lr in sl.get("logRecords", []):
                     try:
