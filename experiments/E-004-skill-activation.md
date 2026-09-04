@@ -33,10 +33,17 @@ it makes — one-arm (binomial, needs no control) or between-arm (needs the cont
    document implicit selection as a match between the prompt and the description; arm B's
    description names BE-003's exact domain (Kotlin Spring service, shipment confirmation,
    controller/service conventions), so the match is direct rather than inferential.
-2. **[structural] The control arm records 0 project-scope skill activations on 5 of 5.** Not a
-   statistical claim — no skill is installed, so there is nothing to load. Bundled skills
-   (`skill.source = bundled`) may still activate and are **excluded from the outcome by
-   definition**, because the outcome counts only the installed skill.
+2. **[structural] The control arm records 0 installed-scope skill activations on 5 of 5.** Not a
+   statistical claim — no skill is installed, so there is nothing to load. **Every scope this
+   experiment did not install is excluded from the outcome by definition**: `bundled` (Claude
+   Code ships its own), `plugin` (the operator may have some), and events carrying no
+   `skill.source` at all. Each is counted and reported on its own line by
+   `tools/skill-activation.sh`. *Tightened 2026-09-04 after the §4a gate found the script
+   counting `plugin` as the installed skill — and `plugin` is the only non-bundled source ever
+   observed here, so a plugin firing on the control arm would have failed this prediction for a
+   skill this experiment did not install.* **`skill.source` for a project skill is still
+   unknown**; the preflight must pin it, or `installed_scope` is a category with nothing proven
+   to be in it.
 3. **[between-arm] The misdescribed arm loads on ≤ 1 of 5, at least 3 fewer than the matched
    arm.** Mechanism: the `SKILL.md` **body is byte-identical** between arms B and C; only the
    frontmatter `description` differs. If selection reads the body, C loads as often as B; if it
@@ -71,7 +78,7 @@ in *Sanity checks*, not by eye.
 | Mechanism | `--customization build/customizations/skill-v0.1/` (arm B) and `.../skill-v0.1-misdescribed/` (arm C), each containing `sample-service/.claude/skills/shipment-service-conventions/SKILL.md` (see the amendment below). The runner `cp -R`s the overlay into the worktree and commits it as a setup commit *before* the agent starts |
 | Content hash | recorded per arm in *Sanity checks* after the build: `sha256` of each `SKILL.md`, and separately of the **body alone** (the two body hashes must be equal) |
 | Preflight assertion | one run per treated arm before the batch. Proof that the skill reached the model is **`claude_code.skill_activated` present in telemetry for that run id** — the model loading it, not the file existing. `skillsHash` is *not* usable as the delivery proof, which is prediction 4 |
-| Control assertion | arm A installs no customization: `--customization` is not passed, so the overlay never exists in the worktree. Structural, not merely uninstalled. Verified per run by `customization.*Hash` all `null` **and** zero project-scope `skill_activated` events |
+| Control assertion | arm A installs no customization: `--customization` is not passed, so the overlay never exists in the worktree. Structural, not merely uninstalled. Verified per run by `customization.*Hash` all `null` **and** zero installed-scope `skill_activated` events |
 
 > Placing a file is not delivering a treatment. Phase 1 cost ~$4 and 20 runs to learn this.
 > **This experiment cannot use the runner's own `skillsHash` as its delivery proof**, because
@@ -187,7 +194,7 @@ registered as a limitation.
 
 | Outcome | measured spread it comes from | MDE at the registered `n` | registered before the run? |
 |---|---|---|---|
-| primary: project-scope activation rate, matched vs misdescribed | **none exists** — never measured here. Derived from Fisher exact at n=5+5 | only **near-total separation resolves**: 5/5 vs 0/5 → p = 0.0079; 4/5 vs 0/5 → p = 0.048; **4/5 vs 1/5 → p = 0.206, NOT detectable** | yes |
+| primary: installed-scope activation rate, matched vs misdescribed | **none exists** — never measured here. Derived from Fisher exact at n=5+5 | only **near-total separation resolves**: 5/5 vs 0/5 → p = 0.0079; 4/5 vs 0/5 → p = 0.048; **4/5 vs 1/5 → p = 0.206, NOT detectable** | yes |
 | primary, one-arm form: matched arm ≥ 4 of 5 | binomial | if the true rate were 0.2, observing ≥4 of 5 has p = 0.0067 — so a *pass* is informative; a 3-of-5 result is **neither** a pass nor a refutation | yes |
 | secondary: `skillsHash` null rate | 0 of 228 runs on this instrument have ever carried a non-null `skillsHash` | any single non-null value refutes prediction 4; **n=1 suffices** because it is an existence claim | yes |
 
@@ -242,7 +249,8 @@ at this `n`, and the rule below says so.
 
 | # | Condition | Verdict |
 |---|---|---|
-| 1 | The pair reaches **Fisher `p < 0.05`** — i.e. (matched, misdescribed) is (5,0), (5,1) or (4,0) | **CONFIRM** — the description selects, and it is measured here |
+| 0 | **misdescribed > matched** by any margin | **DIRECTION REVERSED — record it, do not classify it below.** Every row beneath assumes the hypothesis' direction. Report the pair and its `p`, and stop. *Added 2026-09-04: the §4a gate found rows 1–4 enumerate only matched ≥ misdescribed, so a reverse result could be classified two ways on identical data.* |
+| 1 | The pair reaches **Fisher `p < 0.05`** *in the predicted direction* — (matched, misdescribed) is (5,0), (5,1) or (4,0) | **CONFIRM** — the description selects, and it is measured here |
 | 2 | Matched ≥ 4/5, **and** the pair does **not** reach `p < 0.05` | **PARTIAL** — the skill loads, and this `n` cannot show the description is what selected it. Register the `n` that could |
 | 3 | Matched 2–3 of 5 | **NOT DETECTABLE at n=5**, whatever the misdescribed arm does. Register the `n` that would resolve it |
 | 4 | Matched ≤ 1/5 | **prediction 1 REFUTED as a one-arm claim** — if the true rate were 0.8, ≤1 of 5 has p = 0.0067. **No attribution follows**: by the amendment above, a miss on this delivery path is a joint failure of *description matched* and *agent reached `sample-service/` in time*, and this design cannot separate them. Do **not** record it as "the vendors' mechanism does not reproduce" |
