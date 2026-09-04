@@ -338,6 +338,24 @@ control reporting success over a smaller scope than it claims.
 **`--enable-skills` is passed on ALL THREE ARMS, including the control**, so the switch is not
 itself a difference between arms. Registered here as a controlled variable.
 
+> **AMENDMENT 2026-09-04, from `findings/track-b-validation-2026-09-04-3.md` correction (b) —
+> that sentence is ASSERTED, not recorded, and its layer is L3.** Apply the layer rule in order:
+> can the bad value still be written down? Yes — a run could be launched without the flag and
+> nothing would notice. Does something execute and reject it? **No, not for arm A.** The runner's
+> refusal (`run-agent.sh` §5, proved by `runner/verify-skill-delivery.sh` check A) fires only
+> when a customization installs a `SKILL.md`; **arm A installs no customization at all**, so on
+> the control arm that guard is unreachable by construction. And the run record's `runtime` block
+> still lacks the V6 surface fields (`userSettingsIsolated`, `shimsStripped`, `surface` are
+> **absent, not null** — carried correction 2 in `TRACK-B-STATE.md`), so the resolved flag set is
+> not on the record either. Therefore: **the flag was passed on all three arms by the same
+> `make` invocation, and for arm A that is my word, at L3.** It is not load-bearing for the
+> result — arm A's prediction is a zero, and a control that was accidentally *denied* skills
+> would produce the same zero it produced — but it must not be read as a measured control.
+> The cheap L2, for whoever builds the next skill arm: put a hash of the resolved `CLAUDE_ARGS`
+> on the run record, or restore the V6 `runtime.surface` fields. Carried into
+> `TRACK-B-STATE.md` as a note against stop 9, which is the next stop that passes flags per arm.
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
+
 **The isolation the default bought is not lost.** `--disable-slash-commands` exists because the
 operator's user-scope plugin skills leaked into runs (harness bug #13, a plugin skill in 5 of 23
 runs of `EXP-BE002-CLAUDEMD`). `--setting-sources project` already closes that on its own:
@@ -870,6 +888,22 @@ own headline, and the *Failure analysis* below is written against it rather than
       runner did not change during the batch. The runner changes for this stop all landed
       **before** the first batch run, and the one deferred fix
       (`classify-skill-contamination.sh`) was held precisely because a batch was in flight.
+
+> **AMENDMENT 2026-09-04, from `findings/track-b-validation-2026-09-04-3.md` correction (a) —
+> the harness version moved between stop 6 and stop 8, and this file did not say so.** The bullet
+> above is true within the batch and was silent across stops. B3/E-003 and E-002 ran on Claude
+> Code **`2.1.259`**; every run of `EXP-P3-SKILL-DESC`, `EXP-P3-NESTED-PROBE` and the 07:08Z
+> preflight ran on **`2.1.260`**. `grep 2.1.259` returned nothing in this file or in
+> `phases/03-skills/README.md`, which is the defect: the move was real and undisclosed.
+> **This is the third harness move in the track**, after `2.1.251 → 2.1.259` (B2 → B3, disclosed
+> in [`E-003`](E-003-instructions-v0.1.md) and `phases/b03-global-instructions/README.md`) and
+> obs#72's runner changes (disclosed in the harness-changes table above). It does **not** change
+> this experiment's decision: all 15 runs and all three arms are on one version, so the
+> within-batch comparison that produced `p = 0.0079` is untouched. It **does** constrain any
+> later step that compares a stop-8 number against a B3 or B2 number without a concurrent
+> control, exactly as `2.1.251 → 2.1.259` did for B3. Nothing above is rewritten; this note is
+> the disclosure.
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
 - [x] **the treated arms were not distinguished by `customization.*Hash`** — all five hashes are
       `null` on all 15 runs, control and treated alike. That is prediction 4, and it is the
       reason delivery is proved from telemetry.

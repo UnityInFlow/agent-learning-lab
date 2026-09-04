@@ -550,6 +550,23 @@ body marker and the nested path answers `Unknown command`), with four correction
 CONFIRMED. Every correction below is applied as an in-place fix carrying a pointer to this
 section; no prediction, result, sheet or run folder was rewritten.
 
+> **AMENDMENT 2026-09-04, from `findings/track-b-validation-2026-09-04-3.md` correction (d) —
+> the words "the block itself CONFIRMED by independent reproduction" above are WITHDRAWN by the
+> validator that wrote them.** The registry facts that pass reproduced were true (root path
+> answers with the body marker, nested path answers `Unknown command`). The conclusion drawn from
+> them — that a nested skill cannot be delivered to a run — was wrong, because **the reproduction
+> was run with `--setting-sources project` and the model flag and DROPPED
+> `--disable-slash-commands`**, which is the one flag that decided the outcome. This repository's
+> own flag probe settles it the other way:
+> [`evidence/p03/skill-flag-probe-20260904T102230Z.md`](../../evidence/p03/skill-flag-probe-20260904T102230Z.md),
+> **6 of 6 activate without the flag at both paths, 0 of 6 with it, Fisher `p = 0.0022`.** The
+> third pass withdraws the confirmation here rather than by editing its own second-pass file,
+> which stays on disk as the record. **This is the house failure mode for the third time in this
+> stop**: a control reporting success over a scope smaller than it claims — and the halt's own
+> registration probe had already failed the same way, hand-run with the runner's flags *minus
+> that one*. Nothing above is deleted; the sentence stands with this withdrawal attached.
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
+
 **(a) The registration citation was stale.** This workbook said E-004 was *"committed `5d14182`
 before any run"*. True of the first commit and of the design, not true of the text a reader sees:
 four later commits edited the file — including a rewrite of prediction 2 — all of them **before
@@ -650,9 +667,26 @@ it says L3 and the row does not close a gate.
 | …and could not have reached the control | arm A installs no customization; `git ls-files -- .claude` is empty in its worktrees; 0 activations of any source on 5 of 5 | **L2** | `git -C <arm-A worktree> ls-files -- .claude` → nothing |
 | …the harness would refuse an undeliverable skill treatment | `run-agent.sh` **dies** when a customization installs a `SKILL.md` and skills would be disabled | **L2** — it executes and exits 1, naming the switch and the files | `./runner/verify-skill-delivery.sh` → `7 passed, 0 failed`; check A is the refusal |
 | …and would not credit someone else's skill to the treatment | `classify-skill-contamination.sh`: `bundled` clean, `projectSettings` clean **only if this run installed one**, everything else contaminated, unparseable telemetry **unclassifiable** rather than clean | **L2** — 16 fixtures; and the caller treats exits 2 and 3 alike, so the fix cannot be undone by the line that calls it | `./runner/verify-skill-contamination.sh` → `16 passed, 0 failed` |
-| …a scored cell is re-read by hand | `maintainability = 2` on run `45a70775`, written and **committed at `40f38e2` before `codex-score.sh` ran**; the sheet says `2` | **L2** for the ordering — git decides it, not prose. **L3** for the reading itself — a human applied an anchor | `git show 40f38e2` versus the sheet's mtime in `findings/codex/` |
+| …a scored cell is re-read by hand | `maintainability = 2` on run `45a70775`, written and **committed at `40f38e2` before `codex-score.sh` ran**; the sheet says `2` | **L3** for the ordering — corrected 2026-09-04, note ‡ below. **L3** for the reading itself — a human applied an anchor | `git show 40f38e2` versus the sheet's mtime in `findings/codex/` |
 | …no registered variable moved | model `claude-haiku-4-5-20251001`, evaluator `1.0.0`, benchmark `BE-003` at `0448643`, rubric `396e1799eb2b`; `git status --porcelain` in `agent-observatory-benchmarks` is **empty** | **L2** — read from the run records, not from the flags that were passed | `curl :8081/api/runs \| jq '[.[]\|select(.experimentKey=="EXP-P3-SKILL-DESC")]\|{m:([.[].runtime.model]\|unique)}'` |
-| …the prediction preceded the runs | corrected design `f8ff084` **10:34:48Z**, pinned source `7cf5adb` 10:40:29Z, contamination finding `35abde7` 10:46:37Z; **first batch run `startedAt` 11:03:44Z** | **L2** — both sides read from git and the API | `git log --format=%cI -1 f8ff084` against the run record's `startedAt` |
+| …the prediction preceded the runs | corrected design `f8ff084` **10:34:48Z**, pinned source `7cf5adb` 10:40:29Z, contamination finding `35abde7` 10:46:37Z; **first batch run `startedAt` 11:03:44Z** | **L3** — corrected 2026-09-04, note ‡ below | `git log --format=%cI -1 f8ff084` against the run record's `startedAt` |
+
+**‡ AMENDMENT 2026-09-04, from `findings/track-b-validation-2026-09-04-3.md` correction (c) —
+two rows of the table above were labelled L2 where nothing executes.** The rows are *the
+prediction preceded the runs* and *the ordering half of a scored cell is re-read by hand*. Both
+cited git and the API, and both were wrong about the layer for the same reason: **git and the
+observatory API WRITE the timestamps; a human COMPARES them.** No script in this repository reads
+a prediction commit's `%cI`, reads a run record's `startedAt`, and refuses anything when the
+second precedes the first. Apply the rule in order — the bad value (a run started before its
+prediction was committed) can still be written down, and nothing runs to reject it — so the proof
+is **L3**, words a reader chooses to check. This is the identical correction the first validator
+pass made to B2's table; it was applied there and not carried here, which is why it recurred.
+**The stop's closure does not depend on the label**: the three prediction commits are reachable
+from `origin/main` and their timestamps do precede the first run's, so the fact is true and the
+*proof* is a human comparison. The L2 version is a pre-push check that refuses a workbook citing
+a sha `main` cannot reach, or one that compares the two timestamps — offered to the author under
+decision 4 and not required by them before continuing.
+`Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
 
 **`n` for every number.** Every activation count is `n = 5` per arm and is stated as *true of these
 runs*. The cost figures are medians of `n = 5` with their ranges printed, and the −7.6 % is
