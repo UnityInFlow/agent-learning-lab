@@ -130,3 +130,57 @@ claude --setting-sources project --model claude-haiku-4-5-20251001 -p "/probe" <
   earlier BE-001/BE-002 work. Every custom skill recorded so far is `plugin`-scope and reports
   the redacted name `custom_skill`; only `bundled` skills report a real name. **No project-scope
   skill has ever been recorded on this instrument**, so E-004's prediction 5 remains untested.
+
+---
+
+## Correction — 2026-09-04, from the §9 validator's second pass
+
+Source: [`../../findings/track-b-validation-2026-09-04-2.md`](../../findings/track-b-validation-2026-09-04-2.md),
+correction (b). Appended rather than edited in place; nothing above was changed.
+
+**"Both runs recorded 0 project-scope activations" is an inference, not a printed number.** The
+merged `tools/skill-activation.sh` at `049e871` prints four source buckets —
+`bundled_activations`, `plugin_activations`, `unknown_source_activations`,
+`other_source_activations` — and **deliberately labels none of them "the installed skill"**, after
+the §4a gate showed three times that every attempt to do so kept an open *everything-else-is-mine*
+bucket. What the two probe runs actually show is `status: measured` with **0 in every bucket**,
+from which no project-scope activation follows. That is the honest form of the same fact, and it
+is weaker than the sentence above states.
+
+**Every reproduction command above was re-checked and still reproduces.** The block itself was
+independently reproduced by the validator in a scratch repository, same binary and model: the root
+path answers by quoting the body marker, the nested path answers `Unknown command`.
+
+**What the block does and does not prove.** It proves a nested skill is absent from the `/name`
+registry at session start. It does **not** prove a nested skill cannot activate *during* a run,
+which is what E-004 actually measures. The telemetry above already carries
+`invocation_triggers: … nested-skill=1` on run `899232bb`, and the *"What is not claimed"* section
+records the same binary loading a nested skill after a file in that subdirectory was read. The
+nested path is therefore probed at `n = 5` under experiment key `EXP-P3-NESTED-PROBE` before any
+file §7 protects is moved.
+
+Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04
+
+## Superseded in part — 2026-09-04, by the flag probe
+
+[`skill-flag-probe-20260904T102230Z.md`](skill-flag-probe-20260904T102230Z.md) contradicts the
+central diagnosis on this page and is the later, stronger evidence. Nothing above has been edited.
+
+**What still holds.** Every command above still reproduces. Root `.claude/skills/` is gitignored
+in the benchmarks repo; the runner's setup commit does refuse an all-ignored overlay; and a nested
+skill is genuinely **not** in the `/name` registry at session start.
+
+**What does not hold: the conclusion drawn from it.** *"A Claude Code project skill cannot be
+delivered to a BE-003 run"* was true of the runs that had been done and false as a statement about
+the instrument. The cause is not the path. It is that `run-agent.sh` passes
+`--disable-slash-commands` — *"Disable all skills"* — on every claude run. Without that flag the
+nested path activates **3 of 3**; with it, neither path activates at all (0 of 6, Fisher
+p = 0.0022).
+
+**And the reason this page could not see that.** Its registration probe was run by hand as
+`claude --setting-sources project --model … -p "/name"` — the runner's flag set *minus the flag
+that decides the outcome*. A reproduction of a harness that omits one of the harness's flags is a
+control reporting success over a smaller scope than it claims. That is this project's house failure
+mode, and this page is an instance of it.
+
+Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04

@@ -56,3 +56,49 @@ It is kept because it is the evidence for the negative result in
 [`evidence/p03/skill-delivery-probe-20260904T072000Z.md`](../../evidence/p03/skill-delivery-probe-20260904T072000Z.md).
 **Do not add it to an experiment.** The measured arms are `skill-v0.1` and
 `skill-v0.1-misdescribed`, whose bodies are byte-identical and which differ only in `description`.
+
+## `skill-v0.2` and `skill-v0.2-misdescribed` — the same bytes, a different path
+
+Added 2026-09-04. **The `SKILL.md` files are byte-identical to their `v0.1` counterparts**;
+what changed is where the overlay installs them:
+
+| version | install path | why |
+|---|---|---|
+| `skill-v0.1{,-misdescribed}` | `sample-service/.claude/skills/…` | commits without help, but a nested skill is **not** in the `/name` registry at session start |
+| `skill-v0.2{,-misdescribed}` | `.claude/skills/…` (worktree root) | registered at session start, so delivery can be proved **without** relying on the activation the experiment is trying to measure |
+
+**Why a new version rather than an edit.** The rule above is that a version which has been
+measured is never edited. `v0.1` has no measured runs, but it *was* installed on preflight run
+`c090f67e-0003-4c35-8ccf-9572b2584462`, and moving its directory would leave that run's overlay
+unreproducible from this repository. `v0.1` therefore stays exactly where it is.
+
+**Why the root path is worth the runner change it needed.** Two reasons, and the first is the
+one the §4a gate forced:
+
+1. **The misdescribed arm's delivery proof would otherwise be circular.** Its prediction is that
+   the skill does *not* load. At a nested path nothing but an activation can show the skill was
+   available to that run, so "it did not load" and "it was never there" are the same observation.
+   At the root path `claude -p "/shipment-service-conventions"` in the kept worktree answers the
+   question independently of description-driven selection.
+2. It removes the confound the nested path forced onto the one-arm prediction, where a miss was a
+   joint failure of *the description matched* and *the agent reached `sample-service/` in time*.
+
+The root path is ignored by the benchmarks repo (`.gitignore:19` is `.claude/*`), so the runner
+force-adds the overlay's own paths into the setup commit — a disclosed harness move, recorded in
+`agent-observatory/runner/run-agent.sh` and proved by `runner/verify-skill-delivery.sh` check F.
+
+**Parity between the two arms is now asserted by something that executes**, not by a sha pasted
+into a table once:
+
+```
+./tools/check-overlay-parity.sh --allow-differ description \
+  build/customizations/skill-v0.2 build/customizations/skill-v0.2-misdescribed
+→ body identical: .claude/skills/shipment-service-conventions/SKILL.md sha256:d10a2c3988be520e
+→ declared difference: … frontmatter 'description'
+→ parity holds; the arms differ only in description
+```
+
+It exits 2 on any undeclared difference and **3 when the two arms are identical**, because a
+treatment that was never applied looks like a working experiment from every other angle.
+
+Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-04

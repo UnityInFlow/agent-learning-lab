@@ -53,7 +53,29 @@ check() { # check <label> <expected-exit> <expected-substring> <file> <run-id>
 printf 'not json at all\n{"broken":\n' > "$TMP/garbage.jsonl"
 : > "$TMP/empty.jsonl"
 
-echo "verify-skill-activation: 15 cases"
+# --- damage, which is neither presence nor absence --------------------------
+# Round 3 of the §4a gate: a run whose stream is PARTLY unreadable reported `measured` with
+# a clean-looking zero, indistinguishable from a genuinely clean zero. The dropped line is
+# exactly where a refuting activation would have been, so the error runs one way.
+{ rec RUN-A; printf '{"resourceLogs": TRUNCATED\n'; } > "$TMP/present-plus-badline.jsonl"
+# a record carrying RUN-A whose attribute list is structurally broken
+{ rec RUN-A; printf '{"resourceLogs":[{"resource":{"attributes":[]},"scopeLogs":[{"logRecords":[{"body":{"stringValue":"claude_code.skill_activated"},"attributes":[{"key":"observatory.run.id"}]}]}]}]}\n'; } > "$TMP/present-plus-badrecord.jsonl"
+# damage must not resurrect an ABSENT run into a measured one
+{ rec RUN-B; printf 'not json\n'; } > "$TMP/absent-plus-badline.jsonl"
+# §4a round 1, at 2/2: a malformed RESOURCE attribute used to raise UNCAUGHT and exit 1 with
+# a traceback, so the exit-4 path this tool documents was unreachable from that line. The
+# resource carries the run id for every record beneath it, so two log records are two
+# unattributable records, not one.
+{ rec RUN-A; printf '{"resourceLogs":[{"resource":{"attributes":[{"key":"observatory.run.id"}]},"scopeLogs":[{"logRecords":[{"body":{"stringValue":"claude_code.skill_activated"}},{"body":{"stringValue":"claude_code.api_request"}}]}]}]}\n'; } > "$TMP/bad-resource.jsonl"
+# §4a round 2, at 2/2: VALID JSON that is not a usable record. Both of these parsed fine and
+# then crashed the script with an unhandled traceback and exit 1 — a status the documented
+# contract does not define.
+{ rec RUN-A; printf '[]\n'; } > "$TMP/valid-json-not-object.jsonl"
+{ rec RUN-A; printf '{"resourceLogs":null}\n'; } > "$TMP/resourcelogs-null.jsonl"
+# and the same shapes with NO real record behind them must still read as absent, not damaged
+{ rec RUN-B; printf '[]\n'; } > "$TMP/absent-plus-nonobject.jsonl"
+
+echo "verify-skill-activation: 28 cases"
 
 check "a project-source activation is reported by source"            0 "bundled_activations: 0" one-project.jsonl RUN-A
 check "a run present with no skill event is a REAL zero"  0 "activations_by_source: -" present-no-skill.jsonl RUN-A
@@ -82,6 +104,27 @@ check "an unparseable telemetry file is rejected"         2 "no parseable JSON" 
 
 # an empty file parses to nothing -> also exit 2, not a silent zero
 check "an empty telemetry file is rejected, not zeroed"   2 "no parseable JSON"            empty.jsonl RUN-A
+
+# THE CASES ROUND 3 OF THE §4a GATE ASKED FOR. A count from a damaged stream is a lower
+# bound; reporting it as `measured` is the same error as reporting an absent run as zero,
+# one step further in.
+check "a present run with an unparseable line is PARTIAL"  4 "status: PARTIAL-telemetry-damaged" present-plus-badline.jsonl RUN-A
+check "  and the damage is counted, not just flagged"      4 "malformed_lines: 1"            present-plus-badline.jsonl RUN-A
+check "an unreadable RECORD is damage too"                 4 "damaged_records: 1"            present-plus-badrecord.jsonl RUN-A
+check "  and it does not abort the whole read"             4 "status: PARTIAL"               present-plus-badrecord.jsonl RUN-A
+# Absence outranks damage: a run that is not there has still not been measured, and saying
+# "lower bound" about it would imply a bound exists.
+check "damage does NOT promote an absent run to present"   3 "status: UNKNOWN"               absent-plus-badline.jsonl RUN-A
+# And the case that must NOT be damage, or every source-less activation would be reclassified
+# out of the bucket built for it.
+check "a malformed RESOURCE is damage, not a crash"         4 "status: PARTIAL"               bad-resource.jsonl RUN-A
+check "  and every record under it is counted unattributable" 4 "damaged_records: 2"          bad-resource.jsonl RUN-A
+check "  and the run is still seen as present"             4 "bundled_activations: 0"        bad-resource.jsonl RUN-A
+check "valid JSON that is not an object is malformed, not a crash" 4 "malformed_lines: 1"  valid-json-not-object.jsonl RUN-A
+check "  and it is PARTIAL, an exit the contract defines"  4 "status: PARTIAL"              valid-json-not-object.jsonl RUN-A
+check "a null resourceLogs is malformed, not a crash"      4 "malformed_lines: 1"           resourcelogs-null.jsonl RUN-A
+check "  and absence still outranks it"                    3 "status: UNKNOWN"              absent-plus-nonobject.jsonl RUN-A
+check "a source-less activation is NOT damage"             0 "damaged_records: 0"            no-source.jsonl RUN-A
 
 echo
 echo "verify-skill-activation: ${pass} passed, ${fail} failed"
