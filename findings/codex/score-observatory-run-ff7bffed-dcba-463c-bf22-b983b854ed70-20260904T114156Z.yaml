@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality.yaml
+  rubric_sha:     396e1799eb2b
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-ff7bffed-dcba-463c-bf22-b983b854ed70
+  mode:           run
+  run_id:         ff7bffed-dcba-463c-bf22-b983b854ed70
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/ff7bffed-dcba-463c-bf22-b983b854ed70
+  attachments:    3 changed file(s), 3 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260904T114156Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "Both refusal paths throw existing ApiException subclasses; the shipment package constructs no error body."
+    evidence: "ShipmentController.kt:55, ShipmentController.kt:61"
+  - name: "maintainability"
+    score: 1
+    anchor_level: 1
+    reason: "The status decision is split across two independent if constructs."
+    evidence: "ShipmentController.kt:60, ShipmentController.kt:67"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Second-call body and refusal envelope are asserted; separate state re-read is absent."
+    evidence: "ShipmentControllerTest.kt:93, ShipmentControllerTest.kt:100, ShipmentControllerTest.kt:115"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "The controller class documentation outside confirm differs from the baseline."
+    evidence: "ShipmentController.kt:14, baseline/ShipmentController.kt:14"
+ambiguous_categories: []
