@@ -345,7 +345,9 @@ file. Those are §4 steps 3 and 4, and they belong to the next session — the p
 committed before the first run, and writing a prediction is not something to start at the end of
 a context window.
 
-> **UPDATE 2026-09-04T16:25Z — §4 step 3 is now done.** The experiment is registered as
+> **UPDATE 2026-09-04T15:56Z — §4 step 3 is now done.** (This line first said `16:25Z`; see the
+> timestamp correction at the top of E-005 — three prose timestamps in this session were written
+> from estimate rather than from `date -u`, and all three ran ahead of the clock.) The experiment is registered as
 > [`experiments/E-005-agent-tool-boundary.md`](../../experiments/E-005-agent-tool-boundary.md):
 > three arms (`C` control, `T` `tools: Read, Grep, Glob`, `D` read-only description), each
 > differing from the control in **exactly one thing**, `n = 10` per arm, a deterministic

@@ -3,8 +3,16 @@
 **Spine stop 9, Phase 4A — agents and permissions.** Workbook:
 [`phases/04a-agents-permissions/README.md`](../phases/04a-agents-permissions/README.md).
 
-`Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-04T16:20Z; the author did not
+`Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-04T15:56Z; the author did not
 review before the run.` PROMPT sha `6b8be13c3daa`.
+
+> **Timestamp corrected 2026-09-04T15:58Z, one commit after registration.** This line first
+> read `16:20Z`, which is ~25 minutes in the FUTURE of the machine clock — I wrote wall-clock
+> estimates instead of reading `date -u`. The **prediction commit is `5fe1ebf`,
+> `2026-09-04T15:56:36Z`**, and that sha and that timestamp are what §9 check 2 compares against
+> the first run's `startedAt`. Nothing in the predictions changed; only this line and two others
+> like it. A registration record that misstates its own time is worth exactly as much as the
+> clock it invented.
 
 > **Everything down to and including Decision rule is written BEFORE the first run.** The
 > commit that carries this file must precede the first run's `startedAt`, and both timestamps
