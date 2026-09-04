@@ -444,6 +444,53 @@ observed again. It is why the delivery proof above is telemetry and not a hash.
 
 Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04, before the batch.
 
+### The preflight found a second instrument defect, and this one would have voided the batch silently
+
+**Registered before the batch.** Run `46ffad94` — the matched arm, the run that proved delivery —
+was recorded by the runner as:
+
+```
+!! CONTAMINATED: a plugin skill executed 1× despite --disable-slash-commands (harness bug #13)
+   recorded as F15 (infrastructure) … EXCLUDE this run from comparisons
+```
+
+Its telemetry says `plugin_activations: 0` and `activations_by_source: projectSettings=1`. **The
+skill it loaded was the one this experiment installed.** The runner counted `Skill` *tool calls*
+and reported every one of them as a leaked plugin skill.
+
+**What that would have done to this experiment, unwatched:** every run of the matched arm loads a
+skill, so every run of the matched arm would have been marked infrastructure failure and excluded.
+The batch would have finished with arm B at `n = 0`, arms A and C intact, and a report saying the
+treatment arm produced no usable runs. **A guard that excludes the treatment arm does not look
+like a bug. It looks like a null result.**
+
+**And it is the same shape, for the fourth time in this stop.** `tools/skill-activation.sh` had an
+open *everything-else-is-mine* bucket three times, each fix naming one more scope. This is the
+mirror image — *every skill is theirs* — and it lands on the **treatment** arm rather than the
+control. The category was wrong in both directions.
+
+The rule was correct when it was written: with `--disable-slash-commands` unconditional, nothing
+could legitimately call a skill, so any call was a leak. Adding `--enable-skills` falsified its
+premise, and nothing in the harness noticed.
+
+**Fixed by source, in `agent-observatory/runner/lib/classify-skill-contamination.sh`**, with
+12 fixtures (`runner/verify-skill-contamination.sh`, 12 passed):
+
+| skills | source | verdict |
+|---|---|---|
+| disabled | any | **contaminated** — unchanged, and this is every run recorded before 2026-09-04 |
+| enabled | `bundled` | clean — Claude Code ships its own, equally in every arm |
+| enabled | `projectSettings` | clean **only if this run installed a skill**; on an arm that installed none it is the control being contaminated |
+| enabled | anything else (`plugin`, `user`, `enterprise`, unseen) | **contaminated** |
+
+It is an **allowlist**, so a source nobody has seen yet fails outside it rather than into it.
+
+**Run `46ffad94`'s F15 record is left exactly as it stands.** It is a true record of what the
+harness decided at the time, it is a preflight run that can never join an `n`, and rewriting it
+would destroy the evidence for this finding. The batch runs under the fixed guard.
+
+Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04, before the batch.
+
 ## Controlled variables
 
 - [x] starting commit / benchmark revision SHA — `agent-observatory-benchmarks` at `0448643`, the same as B3
