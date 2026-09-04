@@ -1,0 +1,45 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality.yaml
+  rubric_sha:     396e1799eb2b
+  target:         ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/good-nested-ifs
+  mode:           fixture
+  baseline:       ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/known-good
+  baseline_state: attached
+  scored_utc:     20260904T144950Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "Both refusals use baseline ApiException subclasses; no error body is constructed"
+    evidence: "ShipmentController.kt:45, ShipmentController.kt:57"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "Status decision uses an if/else-if/else chain"
+    evidence: "ShipmentController.kt:50"
+  - name: "test-quality"
+    score: null
+    anchor_level: null
+    reason: "nothing to grade"
+    evidence: "No file under src/test/ among the attachments"
+  - name: "change-focus"
+    score: 2
+    anchor_level: 2
+    reason: "create, getById, and list match baseline; only confirm differs"
+    evidence: "ShipmentController.kt:23, ShipmentController.kt:65, ShipmentController.kt:74; baseline ShipmentController.kt:23,65,74"
+ambiguous_categories: ["test-quality"]

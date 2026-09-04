@@ -1,0 +1,7 @@
+arm,run,started_at,finished_at,agent_exit,tracked_changed,any_change,write_tool_calls,bash_calls,read_calls,transcript,repo_tree_sha,prompt_sha
+control,1,2026-09-04T16:59:27Z,2026-09-04T16:59:34Z,0,0,0,0,0,0,preflight-transcripts/control-01.jsonl,e09452b4f94c,7c00dc9a1e18b750
+control,2,2026-09-04T16:59:34Z,2026-09-04T16:59:43Z,0,0,0,0,0,0,preflight-transcripts/control-02.jsonl,f4122cdb187c,7c00dc9a1e18b750
+toollist,1,2026-09-04T16:59:44Z,2026-09-04T16:59:48Z,0,0,0,0,0,0,preflight-transcripts/toollist-01.jsonl,4a3d723e8a96,7c00dc9a1e18b750
+toollist,2,2026-09-04T16:59:48Z,2026-09-04T16:59:51Z,0,0,0,0,0,0,preflight-transcripts/toollist-02.jsonl,3bd9a9d919b6,7c00dc9a1e18b750
+description,1,2026-09-04T16:59:51Z,2026-09-04T16:59:58Z,0,0,0,0,0,0,preflight-transcripts/description-01.jsonl,6b2b14cb0f6b,7c00dc9a1e18b750
+description,2,2026-09-04T16:59:59Z,2026-09-04T17:00:08Z,0,0,0,0,0,0,preflight-transcripts/description-02.jsonl,ce5cd04bf252,7c00dc9a1e18b750

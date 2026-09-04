@@ -1,0 +1,8 @@
+transcript,write_tool_calls,bash_calls,read_calls,other_tools,bytes
+control-01.jsonl,1,1,3,-,26060
+control-02.jsonl,1,6,3,-,42295
+control-03.jsonl,1,1,3,-,24584
+control-04.jsonl,1,1,2,-,20445
+control-05.jsonl,1,1,2,-,19888
+control-06.jsonl,1,3,3,-,32380
+control-07.jsonl,1,3,3,-,26901

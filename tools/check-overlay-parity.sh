@@ -47,10 +47,15 @@
 
 set -euo pipefail
 
-ALLOW=()
+ALLOW=(); ADDED=()
 usage() {
   cat >&2 <<'EOF'
-usage: check-overlay-parity.sh [--allow-differ KEY]... <overlay-a> <overlay-b>
+usage: check-overlay-parity.sh [--allow-differ KEY]... [--allow-added KEY]... <overlay-a> <overlay-b>
+
+  --allow-differ KEY  the key's VALUE may differ; the key must be PRESENT IN BOTH arms.
+  --allow-added  KEY  the key may be present in one arm and absent in the other. Use this
+                      only when the treatment IS the presence of the key (E-005's arm C has
+                      no `tools:` line at all and arm T adds one).
 
 Exit codes:
   0  parity holds
@@ -64,6 +69,7 @@ EOF
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --allow-differ) [[ $# -ge 2 ]] || usage; ALLOW+=("$2"); shift 2 ;;
+    --allow-added)  [[ $# -ge 2 ]] || usage; ADDED+=("$2"); shift 2 ;;
     -h|--help) usage ;;
     *) break ;;
   esac
@@ -73,11 +79,13 @@ A="$1"; B="$2"
 [[ -d "$A" ]] || { echo "check-overlay-parity: not a directory: $A" >&2; exit 1; }
 [[ -d "$B" ]] || { echo "check-overlay-parity: not a directory: $B" >&2; exit 1; }
 
-A="$A" B="$B" ALLOW="${ALLOW[*]:-}" python3 <<'PY'
+A="$A" B="$B" ALLOW="${ALLOW[*]:-}" ADDED="${ADDED[*]:-}" python3 <<'PY'
 import os, sys, hashlib, collections
 
 A, B = os.environ["A"], os.environ["B"]
 allow = set(os.environ.get("ALLOW", "").split())
+added = set(os.environ.get("ADDED", "").split())
+allow |= added   # an --allow-added key is also allowed to differ in value
 
 def rel_files(root):
     # followlinks=False is load-bearing: a symlinked SKILL.md with identical bytes would
@@ -102,25 +110,58 @@ def rel_files(root):
     return out
 
 def split_front(raw):
-    """Return (frontmatter_raw_lines, body_bytes). No frontmatter -> ([], whole file)."""
-    # CRLF is normalised for the FRONTMATTER SCAN ONLY, so a valid CRLF file is not reported
-    # as a whole-file body difference (§4a round 3). The body comparison below still runs on
-    # the ORIGINAL bytes, so a genuine line-ending difference between the arms is still a
-    # difference — which is the point.
-    probe = raw.replace(b"\r\n", b"\n")
-    if not probe.startswith(b"---\n"):
+    """Return (frontmatter_raw_lines, body_bytes). No frontmatter -> ([], whole file).
+
+    LINE-BASED, not byte-offset based. §4a round 2 at stop 9, found by the codex critic and
+    reproduced before it was believed: the previous version located the closing marker with an
+    unconstrained `raw.find(b"---", raw.find(b"---") + 3)`, so a `---` INSIDE A FRONTMATTER
+    VALUE -- `description: reviews --- cautiously` -- was taken for the delimiter. The body
+    slices then differed and the checker exited 2 on a VALID one-variable pair. It failed
+    closed, which is the safe direction, but a control that rejects a correct experiment is
+    still wrong, and nothing in the fixture set covered it.
+
+    Splitting on lines whose STRIPPED content is exactly `---` also handles CRLF without a
+    separate normalisation pass, so the body is taken from the original bytes and a genuine
+    line-ending difference between the arms is still a difference.
+    """
+    lines = raw.splitlines(keepends=True)
+    if not lines or lines[0].strip() != b"---":
         return [], raw
-    end = probe.find(b"\n---\n", 3)
-    if end == -1:
-        return [], raw
-    head = probe[4:end + 1].decode("utf-8", "replace")
-    # Body is taken from the original bytes by matching the same marker there.
-    real_end = raw.find(b"---", raw.find(b"---") + 3)
-    body_start = raw.find(b"\n", real_end) + 1
-    return head.splitlines(), raw[body_start:]
+    for i in range(1, len(lines)):
+        if lines[i].strip() == b"---":
+            head = b"".join(lines[1:i]).decode("utf-8", "replace")
+            return head.splitlines(), b"".join(lines[i + 1:])
+    return [], raw
 
 def key_of(line):
     return line.split(":", 1)[0].strip() if ":" in line else line.strip()
+
+def frontmatter_class(rel):
+    """Which frontmatter-bearing class this path is, or None for an opaque file.
+
+    ADDED 2026-09-04 at spine stop 9. Until then this script recognised SKILL.md and nothing
+    else, so an agent overlay -- `.claude/agents/*.md`, the customization class Phase 4A is
+    about -- fell into the opaque branch and was reported as `non-skill file differs`, exit 2,
+    *whether or not the declared key was the one that differed*. It refused a correct parity
+    claim and an incorrect one identically, which makes it unusable as a control for this class
+    rather than wrong about it. It failed CLOSED, which is why this is a gap and not a defect.
+
+    The list is deliberately an ALLOWLIST OF PATHS, not "any file starting with ---". Sniffing
+    for a leading `---` would silently promote arbitrary files into the frontmatter branch,
+    where a difference can be EXCUSED by --allow-differ; an unrecognised file must keep
+    failing on any byte difference. This project has now paid four times for a classifier whose
+    default bucket was the permissive one (tools/skill-activation.sh, three rounds; the
+    runner's contamination guard, once). The default here stays `None`.
+    """
+    base = os.path.basename(rel)
+    parts = rel.replace(os.sep, "/").split("/")
+    if base == "SKILL.md":
+        return "SKILL.md"
+    if ".claude" in parts and "agents" in parts and base.endswith(".md"):
+        return "agent"
+    if ".github" in parts and "agents" in parts and base.endswith(".agent.md"):
+        return "agent"
+    return None
 
 fa, fb = rel_files(A), rel_files(B)
 problems = []
@@ -155,7 +196,8 @@ for rel in sorted(fa & fb):
 
     ra = open(pa, "rb").read()
     rb = open(pb, "rb").read()
-    if os.path.basename(rel) != "SKILL.md":
+    kind = frontmatter_class(rel)
+    if kind is None:
         if ra != rb:
             problems.append(f"non-skill file differs: {rel}")
         continue
@@ -165,7 +207,7 @@ for rel in sorted(fa & fb):
     if bodya != bodyb:
         ha = hashlib.sha256(bodya).hexdigest()[:16]
         hb = hashlib.sha256(bodyb).hexdigest()[:16]
-        problems.append(f"SKILL.md BODY differs: {rel} ({ha} vs {hb})")
+        problems.append(f"{kind} BODY differs: {rel} ({ha} vs {hb})")
     else:
         print(f"body identical: {rel} sha256:{hashlib.sha256(bodya).hexdigest()[:16]}")
 
@@ -181,10 +223,24 @@ for rel in sorted(fa & fb):
     # Raw-line comparison. Multiset difference, so a line moved is not a difference but a
     # line changed, added or removed is — including comment lines, which a dict drops.
     ca, cb = collections.Counter(lines_a), collections.Counter(lines_b)
+    # A DECLARED KEY MUST EXIST ON BOTH SIDES. §4a round 1 at stop 9, found by the codex
+    # critic and reproduced by hand before it was believed: with `description:` present in
+    # arm A and the LINE DELETED OUTRIGHT in arm B, the multiset difference carried one line
+    # whose key was declared, `here` was satisfied, and the script exited 0 -- reporting "the
+    # arms differ only in description" for a pair where one arm HAS NO SUCH FIELD. A deleted
+    # key is not a changed key: it is the treatment field missing, which is the same class of
+    # broken experiment as exit 3 and was being reported as parity.
+    keys_a = {key_of(x) for x in lines_a if ":" in x}
+    keys_b = {key_of(x) for x in lines_b if ":" in x}
+    for k in sorted(allow - added):
+        if (k in keys_a) != (k in keys_b):
+            side = A if k in keys_a else B
+            problems.append(f"declared key '{k}' is present in {side} and ABSENT in the "
+                            f"other arm: {rel} — a deleted key is not a declared difference")
     here = set()
     for line in sorted((ca - cb) + (cb - ca)):
         k = key_of(line)
-        if k in allow:
+        if k in allow and (k in added or (k in keys_a and k in keys_b)):
             here.add(k)
             declared_seen.add(k)
         else:

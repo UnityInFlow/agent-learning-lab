@@ -764,8 +764,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 9af4adc prose: cac0dcb4c220 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 9af4adc prose: cac0dcb4c220 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 16e68c7 prose: aba92aa88e19 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 16e68c7 prose: aba92aa88e19 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The
@@ -1387,3 +1387,92 @@ republish.
 2. **A prediction for the deliberate-failure run**, before it runs.
 3. **B2's exit-gate answer** — the material is in the phase README under "What was learned
    about the plain agent that 0A did not teach"; deciding what goes in the gate block is yours.
+
+## What the autonomous run changed, stops 4 → 9, 2026-09-03/04
+
+**Position: spine stop 9 of 28 closed.** Stops 4, 5, 6, 7 and 8 closed and merged before it
+(lab#53 → `27d67e5`, lab#54 → `df4a022`, lab#55 → `93ee5f7`, lab#56 → `049e871`,
+lab#58 → `ebd0b39`, obs#72 → `5179432`). Stop 9 is lab#60. **Still no agent under test, by
+design — nothing before stop 10 builds one.**
+
+### Stop 9's result, and the two sentences worth carrying
+
+**A `tools:` allowlist is L2. It was observed refusing.** 30 runs, `n = 10` per arm: tool list
+**0/10**, read-only description **0/10**, ungoverned control **10/10**, both treated arms
+`p = 0.00001`. One transcript carries the runtime's own words — *"No such tool available: Write.
+Write is disabled for this session, in subagents as well as here."* **This is the first observed
+refusal in this track**, and the first time a customization class here has had a delivery proof
+that executes (`--agent <bogus>` exits 1 and prints the registry).
+
+**A read-only description held 10/10 and is still L3.** The arm made **zero** write attempts, so
+nothing tested it. A disposition on this task, not a boundary — and the distinction is the whole
+point of the stop.
+
+**Then one word reopened it.** The deliberate failure added `Bash` to the allowlist and nothing
+else: **10/10** tracked changes, `p = 0.000011` against the same list without it, and
+**`p = 1.0` against no list at all**. Median duration 16.0 s versus the control's 16.5 s. The
+mechanism was uniform — `find`, then `cat > ./calc.py` with a heredoc, then `python3 -c` to
+verify. **`tools:` filters tool NAMES; nothing inspects what a permitted tool can do.**
+
+### What that does to B4 at stop 10, which is next
+
+B4 builds a `backend-feature-implementer` whose registered allowances include ***"run approved
+commands"***. On this evidence **that allowance and a tool-list write boundary cannot both be
+claimed** — the first dissolves the second. Four routes exist and **none is tested here**:
+exclude `Bash`; an OS sandbox underneath; `permissionMode`; or a command-gating hook. Whichever
+B4 picks needs its own arm, and the choice belongs in its design, before its runs.
+
+### Five validator passes processed, and two of their findings were load-bearing
+
+`findings/track-b-validation-2026-09-04-{5,6,7,8,9}.md`. **No stop was marked NOT CLOSED.**
+
+1. **Stop 8's `invocation_trigger` column was wrong on 2 of 5 matched runs.** `33a4090d` and
+   `8998ef3b` are `nested-skill`, not `claude-proactive`. **Four passes on two model families
+   found it before this project's author did**, and the repository's own `skill-activation.sh`
+   confirms it. The registered outcome is unchanged (5/0/0, `p = 0.00794`); the **mechanism
+   sentence narrows** — counting only `claude-proactive` gives 3/5 vs 0/5, `p = 0.167`. Stop 8's
+   headline is now the sentence that holds on every reading: *a matched description produces an
+   activation and a mismatched one does not.* **What `nested-skill` is emitted for is not known**
+   and is the first registered follow-up; it is answerable from data already on disk.
+2. **The `p = 0.0022` flag-probe evidence was in `/private/tmp` and in no repository**, cited by
+   a relative path that resolved to nothing. All 17 files are now at `evidence/p03/flagprobe/`
+   and the matrix was re-derived **from the preserved copy**. `/private/tmp` had already hollowed
+   the five scored B2 worktrees, so this was one cleanup away from gone.
+
+Also corrected: *"exist in this clone only"* was **false** in three places — every prediction
+commit is retrievable from `refs/pull/{43,53,56}/head`. The independence checks named **two of
+the three paths** the runner archives into every worktree. `E-004` cited an experiment key with
+**zero runs** on the instrument.
+
+### What is BLOCKED ON YOU
+
+1. **Item B — two skills cannot be told apart.** `skill.name` is redacted to the literal
+   `custom_skill` for project scope. With one installed skill that is unambiguous; with two the
+   outcome is **not measurable at all**. Any follow-up needing two skills at once is unbuildable
+   until this is solved or designed around. **Unchanged by this stop.**
+2. **Item C — the resolved flag set is still not on any run record.** Stop 9 was the natural
+   place to fix it and **did not**: `run-e005.sh` mitigates it with one committed, diffable
+   `CLAUDE_FLAGS` array used by every arm of every run, which is weaker than a record and
+   stronger than a claim. The cheap L2 remains a hash of the resolved args on the run record, or
+   restoring the V6 `runtime.surface` fields. **Still not built.**
+3. **The fourth arm you approved (decision 7) has not run.** Five runs on BE-003 with the skill
+   body present as a plain tracked file that is not a skill, to separate *selected* from *read*
+   in stop 8's maintainability co-variate. Due before B6 opens at stop 13, at a phase boundary.
+4. **`nested-skill` (new, from this stop's validator passes).** Cheaper than the fourth arm and
+   it bears on stop 8's **registered** outcome rather than a co-variate. Also due before stop 13.
+
+### Two things about the instruments, because both are the house shape
+
+**A control that did not cover the class it was pointed at.** `check-overlay-parity.sh`, built at
+stop 8 with 16 fixtures, recognised `SKILL.md` and nothing else — so it refused agent overlays
+*whether or not the declared key was the one that differed*. It failed **closed**, which is why
+this is a gap and not a defect. Now covers `.claude/agents/*.md`; fixtures **16 → 27**, and the
+case count is now **asserted** rather than announced, because it claimed 16 while running 26.
+
+**A `git add -A -f` that exited 0 while staging nothing.** Preserving the flag-probe evidence,
+`sub/` turned out to be a scratch git repository, so `cp -R` brought its `.git` along and git
+staged **a single gitlink** — a pointer to a repository that exists nowhere else — instead of 17
+files. `git status` showed one clean `A` line. Caught by counting the staged files against the
+files on disk, not by reading the exit code.
+
+`Written by Opus 5 (claude-opus-5), autonomous, 2026-09-04.`

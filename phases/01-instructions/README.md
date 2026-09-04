@@ -266,10 +266,29 @@ behind them, and labels each one honestly.*
 |---|---|---|---|
 | "What deserves always-on context?" | `EXP-BE002-AGENTSMD-V3` (10+10), `EXP-BE002-CLAUDEMD-V2` (18+18), `EXP-BE002-CLAUDEMD` (11+12) in `GET /api/runs`; and the 14-of-14 `ApiError.kt` KDoc census in B2 | **L3** — the answer is a judgement read off measurements, and nothing executes it. The *measurements* are L2; the sentence "less than this phase assumed" is not | `curl $API/api/runs`, group by `experimentKey`, compare the arms |
 | "Why is an instruction not enforcement?" | `GUARDRAILS.md` layer model; and B3's later `REJECT` on 25 runs (`experiments/E-003-instructions-v0.1.md`) | **L3** — prose a human reads. It is the definition of L3, so it cannot be proved at a higher layer than L3 without contradiction | read `GUARDRAILS.md`, then E-003's outcome table |
-| "Can I prove the instruction entered the model's context on a given run?" | `customization.instructionsHash` = `sha256:13a7b6afb4d4b07312035d72a21c3049` on **39** runs, `null` on **40**, across the three named keys. Re-derived 2026-09-04 against the live API: AGENTSMD-V3 10/10, CLAUDEMD-V2 18/18, CLAUDEMD 11/12 — **39 hash / 40 null, zero exceptions** | **L2** — the field is written by the runner per run, **and the runner refuses a customization whose instruction file the runtime does not read.** That refusal executes, which is what makes this row L2 and not L3 | `curl $API/api/runs`, filter the three keys, tally `customization.instructionsHash` non-null vs null |
+| "Can I prove the instruction entered the model's context on a given run?" | `customization.instructionsHash` = `sha256:13a7b6afb4d4b07312035d72a21c3049` on **39** runs, `null` on **40**, across the three named keys. Re-derived 2026-09-04 against the live API: AGENTSMD-V3 10/10, CLAUDEMD-V2 18/18, CLAUDEMD 11/12 — **39 hash / 40 null, zero exceptions** | **SPLIT, corrected 2026-09-04 — see note † below.** **L2** for *the file was present under the name the runtime reads and its digest was recorded*: the runner writes the field per run and `die`s on a foreign filename, and that refusal executes. **L3** for *the instruction entered the model's context*, which is what the clause actually asks — nothing executes that | `curl $API/api/runs`, filter the three keys, tally `customization.instructionsHash` non-null vs null |
 | "What belongs in a skill instead?" | none — **NOT MEASURED** | **L3, and the honest label is "no proof"** — Phase 3 owns it and has not run | nothing to re-derive; the row is open |
 | "What is path-scoped?" | none — **NOT MEASURED**, Lab 1.2 never ran | **L3, no proof** | nothing to re-derive; the row is open |
 | "Which Copilot surfaces actually support `AGENTS.md`?" | none — **NOT MEASURED, blocked by Decision G** | **L3, no proof**, and it must stay that way: no claim about a Copilot-run agent is permitted until that arm exists | nothing to re-derive; the row is blocked, not merely open |
+
+**† AMENDMENT 2026-09-04 — the context row was L2 on the strength of a refusal that covers a
+narrower case than the clause.** Raised by `findings/track-b-validation-2026-09-04-8.md`
+correction 5.1 and confirmed independently by `-9.md` on a different model. The row justified its
+L2 with *"the runner refuses a customization whose instruction file the runtime does not read."*
+That refusal is real and I read it — `agent-observatory/runner/run-agent.sh:358–368` calls `die`
+— but **it fires only when a *foreign* filename is present and the runtime's own is absent**
+(`AGENTS.md` installed for a `claude` run). Nothing executes that checks the correctly-named file
+was ever read. Apply the rule in order: can *"the file sat at the right path and the model never
+took it in"* still be written down? Yes. Does something execute and reject it? No. So the context
+half is **L3**.
+
+E-003 states this correctly and this table did not carry it forward: *"The runner now refuses a
+customization whose instruction file the runtime does not read, which makes the **filename** half
+of that failure L2. The content half is still this table's job."* The hash claim keeps its L2 and
+loses nothing; what it proves is bytes-at-a-path, which is real and is not the same as delivery.
+**This bears on B3's null at stop 6, not on this phase's `INCONCLUSIVE`** — see that workbook.
+
+`Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
 
 **Three of six rows have no proof at any layer, and that is the phase's result.** `INCONCLUSIVE`
 on `n = 10+10` is not a hedge; it is what three unmeasured gate items and one measured null add

@@ -331,11 +331,40 @@ run, so the clause could not quietly do nothing. The safeguard is the study desi
 clause.
 
 **(b) All nine commits in the Commit table are squash-orphaned.** `2015555 97e2ed5 e963460
-eb02928 5d10e31 d6a13f2 225db94 d55150a 29561a2` exist in this clone only; on `main` there is
-only the squash `27d67e5`. So B3's prediction-precedes-run proof **cannot be re-derived by a
-stranger cloning this repository.** Same consequence as B2's correction (c), and **raised to
+eb02928 5d10e31 d6a13f2 225db94 d55150a 29561a2` ~~exist in this clone only~~; on `main` there is
+only the squash `27d67e5`. ~~So B3's prediction-precedes-run proof **cannot be re-derived by a
+stranger cloning this repository.**~~ Same consequence as B2's correction (c), and **raised to
 the author** rather than fixed here, because the fix is a repo-convention change and §7
 reserves those.
+
+> **AMENDMENT 2026-09-04 — the struck half of (b) is FALSE.** Sources:
+> `findings/track-b-validation-2026-09-04-6.md` correction 4.1 and `-9.md` correction 6.B, two
+> passes on different models. Stop branches are deleted from the remote (`git ls-remote --heads
+> origin` returns only `main` and the live stop-9 branch), **but `refs/pull/*/head` survives
+> deletion.** All nine commits above are reachable from `refs/pull/53/head`, verified here with
+> `git merge-base --is-ancestor` after fetching it fresh from the remote. A stranger runs
+> `git fetch origin refs/pull/53/head` and can then perform the prediction-precedes-run check on
+> every one of them. **Unreachable from `main`, retrievable from the PR ref** — that is the
+> accurate sentence, and it is the one `TRACK-B-STATE.md` author decision 4 already made while
+> this workbook said the opposite. The ordering rows stay **L3**; what changes is that the check
+> is reproducible, not that it is enforced.
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
+
+> **AMENDMENT 2026-09-04 — "deleted three rules" and the third worktree path.** Two smaller
+> corrections, from `-8.md` (6.1, 6.2) and `-9.md` (6.A, 6.2 confirmed).
+> **(i)** The §5 row and (a) both say a human *"deleted three rules"*.
+> `build/customizations/instructions-v0.1/CLAUDE.md` **is still on disk** — 57 words, still
+> hashing to `90f95226cc3d429f6f3e157e4741bbd1`, re-checked today — and it must be, because this
+> table's first row cites it as evidence and §6 forbids removing an artifact under measurement.
+> "Removed" is a **decision to retire a version**, honoured in practice (nothing after stop 6
+> uses it), not a deletion. The row is already L3 and its answer does not change.
+> **(ii)** This stop's independence check says the benchmark is byte-identical on `tasks/` and
+> `sample-service/`. The runner archives a third path — `run-agent.sh:211`,
+> `WORKTREE_KEEP=(sample-service .gitignore)` — and `.gitignore` differs by 16 lines across the
+> sha move. Measured immaterial on all 44 stop 4–6 worktrees: **zero contain a `.claude` path and
+> zero have an untracked file**, so the changed lines could not have moved the evaluator's scope
+> guard on any B3 run. See B2's amendment for the full re-derivation.
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
 
 **(c) One sentence overreached its evidence.** Raised by the validator under its `n` check
 rather than as a formal correction, and it is right. The sentence read: *"the construct is

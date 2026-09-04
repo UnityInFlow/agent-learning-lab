@@ -550,6 +550,23 @@ body marker and the nested path answers `Unknown command`), with four correction
 CONFIRMED. Every correction below is applied as an in-place fix carrying a pointer to this
 section; no prediction, result, sheet or run folder was rewritten.
 
+> **AMENDMENT 2026-09-04, from `findings/track-b-validation-2026-09-04-3.md` correction (d) —
+> the words "the block itself CONFIRMED by independent reproduction" above are WITHDRAWN by the
+> validator that wrote them.** The registry facts that pass reproduced were true (root path
+> answers with the body marker, nested path answers `Unknown command`). The conclusion drawn from
+> them — that a nested skill cannot be delivered to a run — was wrong, because **the reproduction
+> was run with `--setting-sources project` and the model flag and DROPPED
+> `--disable-slash-commands`**, which is the one flag that decided the outcome. This repository's
+> own flag probe settles it the other way:
+> [`evidence/p03/skill-flag-probe-20260904T102230Z.md`](../../evidence/p03/skill-flag-probe-20260904T102230Z.md),
+> **6 of 6 activate without the flag at both paths, 0 of 6 with it, Fisher `p = 0.0022`.** The
+> third pass withdraws the confirmation here rather than by editing its own second-pass file,
+> which stays on disk as the record. **This is the house failure mode for the third time in this
+> stop**: a control reporting success over a scope smaller than it claims — and the halt's own
+> registration probe had already failed the same way, hand-run with the runner's flags *minus
+> that one*. Nothing above is deleted; the sentence stands with this withdrawal attached.
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
+
 **(a) The registration citation was stale.** This workbook said E-004 was *"committed `5d14182`
 before any run"*. True of the first commit and of the design, not true of the text a reader sees:
 four later commits edited the file — including a rewrite of prediction 2 — all of them **before
@@ -641,18 +658,92 @@ it says L3 and the row does not close a gate.
 |---|---|---|---|
 | "Phase 3 skills: reading" | four sources ✅ in `SOURCES.md`; three extracted here 2026-09-04 | **L2** for *the URLs resolve* — `check-links.sh` executes and fails closed. **L3** for *they were read* — nothing executes that | `./tools/check-links.sh` |
 | "extract" | three `## Extract` sections, dated, quoting verbatim | **L3** — nothing checks an extract against its source | open the four URLs, search for the quoted sentences |
-| **"one lab that records skill activation on the observatory"** | `EXP-P3-SKILL-DESC`, 15 runs 2026-09-04T11:03–11:34Z; [`E-004`](../../experiments/E-004-skill-activation.md) | **L2** — the activation count comes from `claude_code.skill_activated` telemetry per run, not from prose | `curl :8081/api/runs \| jq '[.[]\|select(.experimentKey=="EXP-P3-SKILL-DESC")]\|length'` → 15 |
+| **"one lab that records skill activation on the observatory"** | `EXP-P3-SKILL-DESC`, 15 runs 2026-09-04T11:03–11:34Z; [`E-004`](../../experiments/E-004-skill-activation.md) | **L2** — the activation count comes from `claude_code.skill_activated` telemetry per run, not from prose | `curl :8081/api/runs \| jq '[.[]\|select(.experimentKey=="EXP-P3-SKILL-DESC" and .evaluation.exitCode==0)]\|length'` → **15**. *Corrected 2026-09-04: without the `exitCode` filter this returns **16**, because the key also holds the registered F13 exclusion `62deb6c5` (exit 12, 10:50:29Z). The exclusion is disclosed lower in this section; the command a stranger was handed did not apply it* |
 | …**"that lab's evidence on disk"** — the closing condition | matched `d6aec246 45a70775 2cf0c720 33a4090d 8998ef3b` = **1 activation each**; misdescribed `95f42409 fc3665a7 77c60831 cc41f3f0 946144c3` = **0 each**; control `d671d1b7 7b4428be 394ee79a ff7bffed c51a7a0c` = **0 each** | **L2** | `./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl <run-id>` on any of the fifteen |
 | …the outcome counts only the scope this experiment installed | `skill.source = projectSettings`, **pinned by preflight run `46ffad94` before any batch was read**; every other source excluded by name | **L2** — `skill-activation.sh` counts per source and labels none "mine"; 28 fixtures, each asserting an exit code *and* a stdout line | `./tools/verify-skill-activation.sh` → `28 passed, 0 failed` |
 | …a real zero is distinguishable from a missing and from a damaged measurement | statuses `measured` / `UNKNOWN-run-absent-from-telemetry` / `PARTIAL-telemetry-damaged`, exits 0 / 3 / 4. All 15 runs report `measured`, `malformed_lines: 0`, `damaged_records: 0` | **L2** — it executes and refuses | `./tools/verify-skill-activation.sh`; then a fabricated run id → `status: UNKNOWN…`, all counts `null`, exit 3 |
 | …the arms differ in exactly one thing | body `sha256:d10a2c3988be520e` equal across both overlays; only `description` differs | **L1** for the bytes — they are identical or they are not. **L2** for the whole comparison — `check-overlay-parity.sh` executes, exits 2 on any undeclared difference and **3 if the arms are identical** | `./tools/check-overlay-parity.sh --allow-differ description build/customizations/skill-v0.2{,-misdescribed}`; `./tools/verify-overlay-parity-checker.sh` → `16 passed` |
-| …**the treatment reached the model** | the model *used* it: 5 of 5 matched runs carry an activation with `invocation_trigger = claude-proactive`. Independently for arm C, where the prediction is a zero: explicit `/shipment-service-conventions` in the kept worktrees loaded the skill and quoted its body in **4 of 6** probed, `Unknown command` in **0** | **L2** — both are executions, and arm C's proof does not consult the description, so it is not circular with the prediction it supports | `cd $TMPDIR/observatory-run-95f42409-… && claude --permission-mode acceptEdits --strict-mcp-config --setting-sources project --model claude-haiku-4-5-20251001 -p "/shipment-service-conventions"` |
+| …**the treatment reached the model** | the model *used* it: **5 of 5** matched runs carry an activation with `skill.source = projectSettings`. **Corrected 2026-09-04 — the trigger is NOT uniform:** `d6aec246 45a70775 2cf0c720` are `claude-proactive`, **`33a4090d` and `8998ef3b` are `nested-skill`** (note § below). Separately for arm C, where the prediction is a zero: explicit `/shipment-service-conventions` in the kept worktrees loaded the skill and quoted its body in **4 of 6** probed, `Unknown command` in **0** — **no transcript of those six was kept** | **L2 for the matched arm** — the activation is a runtime-emitted event, re-derived from `events.jsonl` by four independent parsers. **L3 for the arm-C half** — corrected 2026-09-04, note ‖ below: the probe was an execution and left no artifact, so what remains is the statement that it was run | matched: `./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl <run-id>` on all five. Arm C: not re-derivable — the transcripts are gone |
 | …and could not have reached the control | arm A installs no customization; `git ls-files -- .claude` is empty in its worktrees; 0 activations of any source on 5 of 5 | **L2** | `git -C <arm-A worktree> ls-files -- .claude` → nothing |
 | …the harness would refuse an undeliverable skill treatment | `run-agent.sh` **dies** when a customization installs a `SKILL.md` and skills would be disabled | **L2** — it executes and exits 1, naming the switch and the files | `./runner/verify-skill-delivery.sh` → `7 passed, 0 failed`; check A is the refusal |
 | …and would not credit someone else's skill to the treatment | `classify-skill-contamination.sh`: `bundled` clean, `projectSettings` clean **only if this run installed one**, everything else contaminated, unparseable telemetry **unclassifiable** rather than clean | **L2** — 16 fixtures; and the caller treats exits 2 and 3 alike, so the fix cannot be undone by the line that calls it | `./runner/verify-skill-contamination.sh` → `16 passed, 0 failed` |
-| …a scored cell is re-read by hand | `maintainability = 2` on run `45a70775`, written and **committed at `40f38e2` before `codex-score.sh` ran**; the sheet says `2` | **L2** for the ordering — git decides it, not prose. **L3** for the reading itself — a human applied an anchor | `git show 40f38e2` versus the sheet's mtime in `findings/codex/` |
+| …a scored cell is re-read by hand | `maintainability = 2` on run `45a70775`, written and **committed at `40f38e2` before `codex-score.sh` ran**; the sheet says `2` | **L3** for the ordering — corrected 2026-09-04, note ‡ below. **L3** for the reading itself — a human applied an anchor | `git log --format=%cI -1 40f38e2` → **11:39:51Z**, against the sheet's own `scored_utc:` field → **20260904T113956Z**. *Corrected 2026-09-04: this cell said "versus the sheet's mtime", and every stop-8 sheet's mtime is now 12:09:49Z — all fifteen were rewritten by a later checkout, so mtime tells a stranger nothing. `scored_utc` is written by `codex-score.sh:175` at scorer start. The margin is **5 seconds***|
 | …no registered variable moved | model `claude-haiku-4-5-20251001`, evaluator `1.0.0`, benchmark `BE-003` at `0448643`, rubric `396e1799eb2b`; `git status --porcelain` in `agent-observatory-benchmarks` is **empty** | **L2** — read from the run records, not from the flags that were passed | `curl :8081/api/runs \| jq '[.[]\|select(.experimentKey=="EXP-P3-SKILL-DESC")]\|{m:([.[].runtime.model]\|unique)}'` |
-| …the prediction preceded the runs | corrected design `f8ff084` **10:34:48Z**, pinned source `7cf5adb` 10:40:29Z, contamination finding `35abde7` 10:46:37Z; **first batch run `startedAt` 11:03:44Z** | **L2** — both sides read from git and the API | `git log --format=%cI -1 f8ff084` against the run record's `startedAt` |
+| …the prediction preceded the runs | corrected design `f8ff084` **10:34:48Z**, pinned source `7cf5adb` 10:40:29Z, contamination finding `35abde7` 10:46:37Z; **first batch run `startedAt` 11:03:44Z** | **L3** — corrected 2026-09-04, note ‡ below | `git log --format=%cI -1 f8ff084` against the run record's `startedAt` |
+
+**‡ AMENDMENT 2026-09-04, from `findings/track-b-validation-2026-09-04-3.md` correction (c) —
+two rows of the table above were labelled L2 where nothing executes.** The rows are *the
+prediction preceded the runs* and *the ordering half of a scored cell is re-read by hand*. Both
+cited git and the API, and both were wrong about the layer for the same reason: **git and the
+observatory API WRITE the timestamps; a human COMPARES them.** No script in this repository reads
+a prediction commit's `%cI`, reads a run record's `startedAt`, and refuses anything when the
+second precedes the first. Apply the rule in order — the bad value (a run started before its
+prediction was committed) can still be written down, and nothing runs to reject it — so the proof
+is **L3**, words a reader chooses to check. This is the identical correction the first validator
+pass made to B2's table; it was applied there and not carried here, which is why it recurred.
+**The stop's closure does not depend on the label**: the three prediction commits are reachable
+from `origin/main` and their timestamps do precede the first run's, so the fact is true and the
+*proof* is a human comparison. The L2 version is a pre-push check that refuses a workbook citing
+a sha `main` cannot reach, or one that compares the two timestamps — offered to the author under
+decision 4 and not required by them before continuing.
+`Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
+
+**§ AMENDMENT 2026-09-04 — the trigger is not uniform, and it is the value that names the
+mechanism.** Found by `findings/track-b-validation-2026-09-04-6.md`, re-derived by `-7.md`,
+`-8.md` and `-9.md` — four passes on two model families — and confirmed here by this
+repository's own instrument: `./tools/skill-activation.sh … 33a4090d-…` prints
+`invocation_triggers: nested-skill=1`. The table row and E-004's results column both said
+`claude-proactive` on all five. **Three are; `33a4090d` and `8998ef3b` are `nested-skill`.**
+
+**Sized, so it is neither dismissed nor inflated.** The registered outcome is *an activation
+attributable to the project scope this experiment installed*, and it is unchanged: **5 / 0 / 0,
+two-sided Fisher `p = 0.00794`**, recomputed from raw telemetry by every pass that looked. What
+narrows is the **mechanism sentence**. E-004 defines `claude-proactive` as implicit selection
+from the description. If only that trigger counts as description-driven selection, the evidence
+is 3 of 5 against 0 of 5 — **`p = 0.16667`** — or 3 of 5 against the pooled 0 of 10 untreated,
+**`p = 0.02198`**. Neither is `0.0079`.
+
+**What survives at `p = 0.0079` on every reading, and is the sentence to quote from here on:
+a matched description produces an activation and a mismatched one does not.** The stop's wider
+title claim — *the description decides whether a skill loads* — is currently ahead of its
+evidence on 2 of 5 runs. **What `nested-skill` is emitted for, and whether it consults the
+description at all, is not known and is not guessed at here.** It is registered as the first
+follow-up on this experiment; the thirteen flag-probe transcripts now under
+[`evidence/p03/flagprobe/`](../../evidence/p03/flagprobe/) and the two runs' kept telemetry are
+enough to settle it without a new arm.
+
+**‖ AMENDMENT 2026-09-04 — the arm-C half of the delivery row is L3, not L2.** Raised by
+`-6.md`, re-derived by `-7.md`, `-8.md` and `-9.md`. `evidence/p03/` held exactly two files
+before today and neither is a transcript of the six `/shipment-service-conventions` probes; the
+"4 of 6" is a statement that six commands were run, with nothing kept. An execution that leaves
+no artifact is not an executing proof — apply the rule in order and it is words a reader chooses
+to trust. **The gate clause is unaffected**: *"the treatment reached the model"* is met at L2 by
+the matched arm's five activations, which four independent parsers have now reproduced. Only the
+arm-C corroboration drops a layer. Recorded rather than re-run, because re-probing today would
+not be the same evidence — the worktrees have changed underneath.
+
+**AMENDMENT 2026-09-04 — author decision 1 was not executed as specified, and no row said so.**
+From `-9.md` correction 8.A. Decision 1 asked for *"5 nested-path runs with the REQUIRED
+description under a new experiment key"* **on the observatory**. What ran was a 12-call matrix in
+a scratch repository at **`n = 3` per cell**, outside the observatory, with **no run record** —
+about a tenth of the cost, and it answered the question. The substitution is disclosed inside the
+flag-probe evidence file; the deviation from the decision's own terms was not recorded anywhere a
+reader of this workbook would find it. It is recorded here now. The API holds **no run under
+`EXP-P3-NESTED-PROBE`** — the keys on record for this stop are `EXP-P3-PREFLIGHT`,
+`EXP-P3-PREFLIGHT2` and `EXP-P3-SKILL-DESC` — so that key names the scratch probe and not an
+observatory experiment; E-004's 2.1.260 amendment cites it as though it were the latter and is
+corrected there.
+
+**AMENDMENT 2026-09-04 — "the runner did not change during the batch" is true of the run path,
+not of `runner/`.** From `-9.md` correction 8.D. `487fe8e` (11:07:24Z,
+*"verify-skill-delivery: identify the skill by name"*) landed while runs 3–15 were in flight. It
+touches only `runner/verify-skill-delivery.sh` — a fixture verifier **no run executes**. The last
+commit to `run-agent.sh` or `runner/lib/` before the batch is `f332681` at 10:46:08Z. **The
+registered variable did not move**; the sentence should say *the run path*, because a reader who
+runs `git log -- runner/` across the batch window finds a commit and the sentence tells them
+there is none.
+
+`Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
 
 **`n` for every number.** Every activation count is `n = 5` per arm and is stated as *true of these
 runs*. The cost figures are medians of `n = 5` with their ranges printed, and the −7.6 % is

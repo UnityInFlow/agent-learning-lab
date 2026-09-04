@@ -486,6 +486,30 @@ equalized.
 | one scored cell re-derived by hand | `evidence/b02/hand-reading-maintainability-4c891809.txt` — hand **2**, sheet **2** (`findings/codex/score-observatory-run-4c891809-*.yaml`) | **L1 for the reading itself** (the construct either is a no-`else` `when` in expression position or is not; Kotlin decides), **L3 for the agreement** — two readers concurring is not a control | open the controller in the kept worktree, apply anchor 2's three clauses |
 | "what did you learn that 0A did not teach" | this file, *Exit gate* | **L3** — prose a human reads. It is not a control and is not claimed as one | read it |
 
+> **AMENDMENT 2026-09-04 — the independence check below names two of the three paths the runner
+> actually hands the agent.** Sources: `findings/track-b-validation-2026-09-04-8.md` correction
+> 4.1 and `-9.md` correction 4.A. The benchmark sha moved `8aadc75` → `0448643` between the B2
+> baseline arm and E-002, and both this table and B3's justify the move as *"byte-identical on
+> `tasks/` and `sample-service/`"*, which is true. But `run-agent.sh:211` reads
+> `WORKTREE_KEEP=(sample-service .gitignore)` — **`.gitignore` is archived into every worktree
+> too**, and it is *not* byte-identical: 16 lines change, `.claude/` → `.claude/*` plus
+> `!.claude/hooks/` and `!.claude/settings.json`. That is the file the evaluator's scope guard
+> reads through `git ls-files --others --exclude-standard`, and the one author decision 2 refused
+> to touch for exactly this reason.
+>
+> **Closed by measurement rather than by argument, and re-derived here on all 44 runs rather than
+> on a sample:** every stop 4–6 worktree is still on disk (44 of 44 — 9 B2 baseline, 10 E-002,
+> 25 B3), and **none contains any `.claude` path and none has a single untracked file**
+> (`git ls-files --others --exclude-standard` returns empty on all 44). The changed lines govern
+> `.claude/` re-inclusion and untracked-file reporting; with neither present on any run, they
+> **could not have changed the guard's output** anywhere in stops 4–6. The sha move is therefore
+> immaterial *on these runs* — stated as a measurement over `n = 44`, not as a property of the
+> two shas.
+>
+> The check as written was narrower than what it reported, which is this project's own named
+> failure mode. It is corrected by naming the third path, not by re-running anything.
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
+
 **Independence check — what else changed between the arms of E-002?** Confirmed from the run
 records, not from flags: `runtime.model` identical on all ten; `runtime.version` `2.1.259` on
 all ten; `repository.commitSha` `0448643` on all ten; `evaluation.evaluatorVersion` `1.0.0` on
@@ -515,7 +539,8 @@ them.
 number was in the track report, not in this workbook.
 
 **(c) The prediction commits are unreachable from `main`, and this is now a track-wide hazard.**
-`59ac936` and `0e0c6f9` exist in this clone only. On `main`,
+~~`59ac936` and `0e0c6f9` exist in this clone only.~~ **This half of (c) is FALSE and is corrected
+below — see the 2026-09-04 amendment following this block.** On `main`,
 `git log -- experiments/E-002-isolation-contamination.md` shows one commit — the squash
 `27d67e5` at 19:07Z, **six hours after the runs it was supposed to precede.** So a stranger
 cloning this repository **cannot perform the prediction-precedes-run check at all**, for any
@@ -523,6 +548,51 @@ stop in this track. The check is L3 by (a), and now it is L3 *and* unreproducibl
 laptop. **Raised to the author** rather than fixed here: the fix is a repo-convention change —
 merge commits for stop branches instead of squashes, or a pre-push check refusing a workbook
 that cites a sha `main` cannot reach — and §7 reserves convention changes for the author.
+
+### Amendment — 2026-09-04, correcting (c) above
+
+Sources: [`findings/track-b-validation-2026-09-04-6.md`](../../findings/track-b-validation-2026-09-04-6.md)
+correction 4.1 and [`-9.md`](../../findings/track-b-validation-2026-09-04-9.md) correction 4.B,
+two independent passes on different models reaching the same finding.
+
+**(c) said the prediction commits "exist in this clone only" and that a stranger "cannot perform
+the prediction-precedes-run check at all". Both halves are false.** Every stop branch has indeed
+been deleted from the remote — `git ls-remote --heads origin` returns exactly `main` and the
+current stop-9 branch — but **`refs/pull/*/head` survives deletion**, and every prediction commit
+in this track is reachable from one.
+
+**Re-derived here by fetching from the remote, not by reading either validator's table:**
+
+| commit | PR ref it is reachable from | timestamp |
+|---|---|---|
+| `85973dc` — B2 baseline predictions | `refs/pull/43/head` | 2026-08-30T20:12:42Z |
+| `59ac936`, `0e0c6f9` — E-002 | `refs/pull/53/head` | 13:06:30Z, 13:06:46Z |
+| `2015555 97e2ed5 e963460 eb02928 5d10e31 d6a13f2 225db94 d55150a 29561a2` — B3 / E-003 | `refs/pull/53/head` | 16:59:55Z → 18:13:41Z |
+| `5d14182`, `5a14711` — E-004 registration | `refs/pull/56/head` | 07:03:58Z, 08:14:48Z |
+
+All fourteen checked with `git merge-base --is-ancestor` against the fetched refs. **The command
+a stranger runs is `git fetch origin refs/pull/53/head`** (and `43`, `56`), after which
+`git log --format=%cI -1 <sha>` answers, and `git cat-file -t 59ac936` returns `commit` — both
+executed here against a freshly fetched ref.
+
+**What this changes.** The ordering rows stay **L3** — correction (a) is untouched, because git
+writes both timestamps and a human compares them, and nothing executes to reject a run that
+started before its prediction. What changes is *reproducibility*: the check is re-derivable by
+anyone with the remote, and this workbook told them it was impossible. A guarantee documented as
+unverifiable is worth less than one that is merely unenforced, and it was the former only in the
+telling. The squash-orphan hazard is real and narrower than (c) stated: **unreachable from
+`main`, retrievable from the PR ref.**
+
+`Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
+
+### Amendment — 2026-09-04, from pass 6 correction 4.2 (missing row)
+
+The §5 table above records the *deliberate-failure* run's prediction ordering and omits the
+**baseline batch's own**. Filled: prediction `85973dc` at **2026-08-30T20:12:42Z** against
+`5bd24356.startedAt` **20:13:57Z** — 75 s. **L3**, by the same rule that demoted the other two
+ordering rows. The omission strengthened nothing and hid nothing; it was simply absent.
+
+`Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
 
 **(d) The five B2 sheets can no longer be rebuilt.** Confirmed independently: the five scored
 B2 worktrees hold **1 `.kt` file each** where the 36 E-002 and B3 worktrees hold 17. The

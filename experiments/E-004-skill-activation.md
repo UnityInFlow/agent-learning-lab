@@ -338,6 +338,24 @@ control reporting success over a smaller scope than it claims.
 **`--enable-skills` is passed on ALL THREE ARMS, including the control**, so the switch is not
 itself a difference between arms. Registered here as a controlled variable.
 
+> **AMENDMENT 2026-09-04, from `findings/track-b-validation-2026-09-04-3.md` correction (b) —
+> that sentence is ASSERTED, not recorded, and its layer is L3.** Apply the layer rule in order:
+> can the bad value still be written down? Yes — a run could be launched without the flag and
+> nothing would notice. Does something execute and reject it? **No, not for arm A.** The runner's
+> refusal (`run-agent.sh` §5, proved by `runner/verify-skill-delivery.sh` check A) fires only
+> when a customization installs a `SKILL.md`; **arm A installs no customization at all**, so on
+> the control arm that guard is unreachable by construction. And the run record's `runtime` block
+> still lacks the V6 surface fields (`userSettingsIsolated`, `shimsStripped`, `surface` are
+> **absent, not null** — carried correction 2 in `TRACK-B-STATE.md`), so the resolved flag set is
+> not on the record either. Therefore: **the flag was passed on all three arms by the same
+> `make` invocation, and for arm A that is my word, at L3.** It is not load-bearing for the
+> result — arm A's prediction is a zero, and a control that was accidentally *denied* skills
+> would produce the same zero it produced — but it must not be read as a measured control.
+> The cheap L2, for whoever builds the next skill arm: put a hash of the resolved `CLAUDE_ARGS`
+> on the run record, or restore the V6 `runtime.surface` fields. Carried into
+> `TRACK-B-STATE.md` as a note against stop 9, which is the next stop that passes flags per arm.
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
+
 **The isolation the default bought is not lost.** `--disable-slash-commands` exists because the
 operator's user-scope plugin skills leaked into runs (harness bug #13, a plugin skill in 5 of 23
 runs of `EXP-BE002-CLAUDEMD`). `--setting-sources project` already closes that on its own:
@@ -645,8 +663,8 @@ projectSettings`**, the value pinned by the preflight before any of this was rea
 | `d6aec246` | **B matched** | **1** | `projectSettings` | `claude-proactive` | pass | 0.1283 | 19 |
 | `45a70775` | **B matched** | **1** | `projectSettings` | `claude-proactive` | pass | 0.1219 | 17 |
 | `2cf0c720` | **B matched** | **1** | `projectSettings` | `claude-proactive` | pass | 0.2113 | 27 |
-| `33a4090d` | **B matched** | **1** | `projectSettings` | `claude-proactive` | pass | 0.1373 | 17 |
-| `8998ef3b` | **B matched** | **1** | `projectSettings` | `claude-proactive` | pass | 0.1374 | 16 |
+| `33a4090d` | **B matched** | **1** | `projectSettings` | **`nested-skill`** ‖ | pass | 0.1373 | 17 |
+| `8998ef3b` | **B matched** | **1** | `projectSettings` | **`nested-skill`** ‖ | pass | 0.1374 | 16 |
 | `95f42409` | C misdescribed | 0 | — | — | pass | 0.1522 | 18 |
 | `fc3665a7` | C misdescribed | 0 | — | — | pass | 0.1272 | 14 |
 | `77c60831` | C misdescribed | 0 | — | — | pass | 0.1111 | 13 |
@@ -657,6 +675,47 @@ Every run reports `status: measured`, `malformed_lines: 0`, `damaged_records: 0`
 and no `plugin` activation occurred on any arm**, so no exclusion was ever exercised. `check-run-gate.sh`
 returns 0 on all 15 and refuses `62deb6c5` with `REFUSED: the evaluator failed this run — passed=false
 exitCode=12 class=F13`.
+
+**‖ AMENDMENT 2026-09-04 — the trigger column was wrong on two of the five matched runs, and it
+is the column that names the mechanism.** Sources: `findings/track-b-validation-2026-09-04-6.md`,
+re-derived independently by `-7.md`, `-8.md` and `-9.md`. The two rows above read
+`claude-proactive` until today; the telemetry says **`nested-skill`**, and so does this
+repository's own instrument — `./tools/skill-activation.sh <events.jsonl> 33a4090d-…` prints
+`invocation_triggers: nested-skill=1`. Corrected in place above. **Four passes on two model
+families found the same thing before this experiment's author did**, which is itself the useful
+part: the value was transcribed once and then re-read from the transcription.
+
+**What does and does not move.** The registered outcome — an activation attributable to the
+project scope this experiment installed — is **5 / 0 / 0, `p = 0.00794`, unchanged**. The
+*mechanism* sentence narrows. This file defines `claude-proactive` as implicit selection from the
+description. Counting only that trigger as description-driven selection gives 3 of 5 against
+0 of 5 (**`p = 0.16667`**) or 3 of 5 against the pooled 0 of 10 untreated (**`p = 0.02198`**).
+**The claim that survives at `p = 0.0079` on every reading is the narrower one: a matched
+description produces an activation and a mismatched one does not.** The hypothesis as titled —
+*the description decides whether a skill loads* — is ahead of its evidence on 2 of 5 runs, and
+**this amendment does not repair that by reinterpreting the data after the fact**. It records the
+gap and registers the question.
+
+**Registered follow-up, not answered here: what is `nested-skill` emitted for, and does it
+consult the description?** It needs no new arm and no new runs. The thirteen `stream-json`
+transcripts from the flag probe are now committed at
+[`evidence/p03/flagprobe/`](../evidence/p03/flagprobe/) and the kept telemetry for `33a4090d`
+and `8998ef3b` is on disk. Settle it before B6 opens at stop 13, because B6's gate compares runs
+with and without a specialist skill and inherits whatever "with a skill" turns out to mean.
+
+**AMENDMENT 2026-09-04 — "the runner did not change during the batch" is true of the run path,
+not of `runner/`.** From `-9.md` correction 8.D, re-derived here against the observatory repo.
+Two commits touch `runner/` in the batch window: **`487fe8e` at 11:07:24Z**, while runs 3–15 were
+in flight, and **`90c8ac6` at 11:38:49Z**. Neither moved the run path under any run.
+`git show --name-only 487fe8e` is exactly one file, `runner/verify-skill-delivery.sh` — a fixture
+verifier **no run executes**. `90c8ac6` *does* touch `run-agent.sh`, but it landed 11:38:49Z and
+the last run started 11:32:47Z and had finished; it is after the batch, not inside it. The last
+commit to `run-agent.sh` or `runner/lib/` **before** the first run is **`f332681` at 10:46:08Z**.
+**The registered variable did not move.** The sentence should say *the run path*, because a
+reader who runs `git log -- runner/` across the window finds two commits while the text tells
+them there are none.
+
+`Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
 
 ## Hand re-read — written and committed BEFORE the scorer ran
 
@@ -870,6 +929,41 @@ own headline, and the *Failure analysis* below is written against it rather than
       runner did not change during the batch. The runner changes for this stop all landed
       **before** the first batch run, and the one deferred fix
       (`classify-skill-contamination.sh`) was held precisely because a batch was in flight.
+
+> **AMENDMENT 2026-09-04, from `findings/track-b-validation-2026-09-04-3.md` correction (a) —
+> the harness version moved between stop 6 and stop 8, and this file did not say so.** The bullet
+> above is true within the batch and was silent across stops. B3/E-003 and E-002 ran on Claude
+> Code **`2.1.259`**; every run of `EXP-P3-SKILL-DESC` and the 07:08Z
+> preflight ran on **`2.1.260`**. `grep 2.1.259` returned nothing in this file or in
+> `phases/03-skills/README.md`, which is the defect: the move was real and undisclosed.
+> **This is the third harness move in the track**, after `2.1.251 → 2.1.259` (B2 → B3, disclosed
+> in [`E-003`](E-003-instructions-v0.1.md) and `phases/b03-global-instructions/README.md`) and
+> obs#72's runner changes (disclosed in the harness-changes table above). It does **not** change
+> this experiment's decision: all 15 runs and all three arms are on one version, so the
+> within-batch comparison that produced `p = 0.0079` is untouched. It **does** constrain any
+> later step that compares a stop-8 number against a B3 or B2 number without a concurrent
+> control, exactly as `2.1.251 → 2.1.259` did for B3. Nothing above is rewritten; this note is
+> the disclosure.
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
+>
+> **SECOND AMENDMENT to the note above, 2026-09-04, from `-9.md` correction 8.A.** As first
+> written this note listed *"every run of `EXP-P3-SKILL-DESC`, `EXP-P3-NESTED-PROBE` and the
+> 07:08Z preflight"*. **`EXP-P3-NESTED-PROBE` has no runs on the instrument.** The API holds three
+> keys for this stop — `EXP-P3-PREFLIGHT`, `EXP-P3-PREFLIGHT2`, `EXP-P3-SKILL-DESC` — and no run
+> under that name, so the sentence cited a harness version for runs that do not exist under the
+> id it gave. The key has become a name for the **scratch-repository probe**, which is where
+> author decision 1 was actually answered. Struck from the sentence above.
+>
+> **The deviation behind it is recorded in `phases/03-skills/README.md` rather than left
+> implicit.** Author decision 1 asked for *"5 nested-path runs with the REQUIRED description
+> under a new experiment key"* on the observatory; what ran was a 12-call matrix in a scratch
+> repository at **`n = 3` per cell**, off the observatory, with **no run record** — a tenth of the
+> cost, and it did answer the question. Disclosed inside the flag-probe evidence file at the
+> time; not disclosed in any workbook row until now. **A citation to an experiment key that
+> returns nothing is the same failure shape this stop found four times in its own instruments** —
+> a reference that looks checkable and is not — and it appeared inside an amendment written to
+> fix a disclosure gap.
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
 - [x] **the treated arms were not distinguished by `customization.*Hash`** — all five hashes are
       `null` on all 15 runs, control and treated alike. That is prediction 4, and it is the
       reason delivery is proved from telemetry.
