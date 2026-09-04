@@ -103,9 +103,9 @@ to non-browser user agents. They load normally in a browser.
 
 | | Source | What to take from it |
 |---|---|---|
-| ✅ | [Copilot — Custom agents configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration) | **If `tools` is omitted, the agent gets all tools.** `mcp-servers` is not used by IDE agents |
-| ✅ | [Claude Code — Subagents](https://code.claude.com/docs/en/sub-agents) | Separate context, own system prompt, tool config, model selection, independent permissions |
-| ↪️ | [Codex — Subagents](https://developers.openai.com/codex/agent-configuration/subagents) → `learn.chatgpt.com/docs/agent-configuration/subagents` | Codex **does** have subagents now. Do not teach the old "Codex has no subagents" |
+| ✅ | [Copilot — Custom agents configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration) | **If `tools` is omitted, the agent gets all tools.** `mcp-servers` is not used by IDE agents. **Extracted 2026-09-04:** `tools` *filters* — allowlist only, no denylist field; `tools: []` disables all, `tools: ["*"]` enables all; `infer` is **retired** for `disable-model-invocation` + `user-invocable` |
+| ✅ | [Claude Code — Subagents](https://code.claude.com/docs/en/sub-agents) | Separate context, own system prompt, tool config, model selection, independent permissions. **Re-read 2026-09-04 and the page has MOVED: 4 documented frontmatter fields → 17.** `tools` is an **allowlist that narrows** and `disallowedTools` a denylist — *not* the pre-approving `allowed-tools` of a skill, and camel-cased where the skill field is hyphenated. `hooks`, `mcpServers` and `skills` are per-subagent and are contamination channels. Omitting `model` does **not** inherit the parent's |
+| ↪️ | [Codex — Subagents](https://developers.openai.com/codex/agent-configuration/subagents) → `learn.chatgpt.com/docs/agent-configuration/subagents` | Codex **does** have subagents now. Do not teach the old "Codex has no subagents". **Extracted 2026-09-04:** TOML under `.codex/agents/`, required `name` / `description` / `developer_instructions`, and **no `tools` field at all** — capability is restricted by `sandbox_mode`, not by tool name. A `tools:` boundary is therefore **unportable to codex**, which constrains B10 at stop 21 |
 
 ## Hooks
 
@@ -217,7 +217,7 @@ Added from labs and extracts. None of these are in `CURRICULUM.md`. All verified
 | | Source | Why it earned a place |
 |---|---|---|
 | ✅ | [Claude Code — CLI reference](https://code.claude.com/docs/en/cli-reference) | `--bare`, `-p`, `--permission-mode`, `--append-system-prompt-file`. **Four of seven harness bugs live in these flags** |
-| ✅ | [Claude Code — Model configuration](https://code.claude.com/docs/en/model-config) | Aliases vs exact model IDs. An alias silently re-pointing is an uncontrolled variable |
+| ✅ | [Claude Code — Model configuration](https://code.claude.com/docs/en/model-config) | Aliases vs exact model IDs. An alias silently re-pointing is an uncontrolled variable — the page now gives a **worked example** of it happening (*"Before v2.1.219, `opus` resolved to Opus 4.8… from v2.1.154"*). **Extracted 2026-09-04:** a subagent is a SECOND place the model is chosen, above which sits `CLAUDE_CODE_SUBAGENT_MODEL` |
 | ✅ | [Claude Code — Monitoring usage](https://code.claude.com/docs/en/monitoring-usage) | **`claude_code.tool.blocked_on_user`** — the detector for harness bug #7. Every content-capture default. `user.email` when authenticated. Extracted in [10](phases/10-production-observability/) |
 | ✅ | [Claude Code — Settings](https://code.claude.com/docs/en/settings) | Which of user/project/local won on a given run |
 | ✅ | [Claude Code — Memory](https://code.claude.com/docs/en/memory) | *"Claude Code reads `CLAUDE.md`, not `AGENTS.md`."* The sentence that voided Phase 1. Extracted in [9](phases/09-memory/) |
