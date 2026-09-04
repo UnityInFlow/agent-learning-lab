@@ -376,7 +376,7 @@ executes it — same path set, every non-`SKILL.md` file byte-identical, every `
 byte-identical, and frontmatter differing **only** in keys named by `--allow-differ`. It exits 2
 on any undeclared difference and **3 when the declared key is identical in both arms**, because a
 treatment that was never applied looks like a working experiment from every other angle.
-`tools/verify-overlay-parity-checker.sh`: **8 cases, 8 passed**. On the registered arms:
+`tools/verify-overlay-parity-checker.sh`: **13 cases, 13 passed** (8 when first written; the §4a gate found five more). On the registered arms:
 
 ```
 body identical: .claude/skills/shipment-service-conventions/SKILL.md sha256:d10a2c3988be520e
@@ -390,7 +390,7 @@ an unparseable line was skipped with `continue`, so a run whose stream was partl
 `PARTIAL-telemetry-damaged`, **exit 4**, counting `malformed_lines` and `damaged_records`
 separately; a damaged stream yields a **lower bound**, never a zero. Absence still outranks damage.
 An activation carrying no `skill.source` is explicitly **not** damage — it parses, and it has its
-own bucket. `tools/verify-skill-activation.sh`: **21 cases, 21 passed** (was 15). The real 31 MB
+own bucket. `tools/verify-skill-activation.sh`: **28 cases, 28 passed** (was 15 when the halt was written; 21 after the damage state, then 24 and 28 as the §4a gate found more). The real 31 MB
 stream reports `malformed_lines: 0, damaged_records: 0`, so nothing already on record moves.
 
 **The banner above said all three had to be resolved before this could run. All three are, and
@@ -474,7 +474,7 @@ could legitimately call a skill, so any call was a leak. Adding `--enable-skills
 premise, and nothing in the harness noticed.
 
 **Fixed by source, in `agent-observatory/runner/lib/classify-skill-contamination.sh`**, with
-12 fixtures (`runner/verify-skill-contamination.sh`, 12 passed):
+16 fixtures (`runner/verify-skill-contamination.sh`, 16 passed):
 
 | skills | source | verdict |
 |---|---|---|

@@ -268,8 +268,8 @@ treatment produced no usable runs. **A guard that excludes the treatment arm doe
 bug. It looks like a null result.**
 
 Both categories are now allowlists by name, in files with fixture sets that prove they refuse:
-`tools/skill-activation.sh` (24), `tools/check-overlay-parity.sh` (12),
-`agent-observatory/runner/lib/classify-skill-contamination.sh` (12),
+`tools/skill-activation.sh` (28), `tools/check-overlay-parity.sh` (13),
+`agent-observatory/runner/lib/classify-skill-contamination.sh` (16),
 `agent-observatory/runner/verify-skill-delivery.sh` (7).
 
 ### What the instrument now says that it could not say before
@@ -377,14 +377,25 @@ identify possible prompt injection.
       characters in total in Codex. This is an L3 answer and is labelled as one — three vendors
       asserting a mechanism is not a measurement of it, and this stop's attempt to measure it was
       blocked.
-- [ ] **Prove the skill triggered** — **NOT MEASURED, and now precisely blocked.** The instrument
-      *can* do it: `claude_code.skill_activated` carries `observatory.run.id`, `skill.name`,
-      `skill.source` and `invocation_trigger`, and [`tools/skill-activation.sh`](../../tools/skill-activation.sh)
-      reads it per run. What is missing is a delivery path, not an instrument.
-- [ ] **Prove it did *not* trigger on an unrelated task** — **NOT MEASURED.** Needs a second task
-      besides BE-003, which §7 reserves for the author. E-004 routes around this by varying the
-      *description* instead of the task, which stays within BE-003 — but that arm cannot run
-      until delivery is unblocked.
+- [x] **Prove the skill triggered** — **MEASURED. 5 of 5 runs of the matched arm**, each carrying
+      one `claude_code.skill_activated` event with `skill.source = projectSettings`,
+      `skill.name = custom_skill` and `invocation_trigger = claude-proactive` — implicit selection
+      from the description, which is the mechanism under test. **L2**: the count comes from
+      telemetry through [`tools/skill-activation.sh`](../../tools/skill-activation.sh), which has
+      28 fixtures and separates a real zero from a missing measurement and from a damaged one.
+      Runs `d6aec246`, `45a70775`, `2cf0c720`, `33a4090d`, `8998ef3b`, experiment
+      `EXP-P3-SKILL-DESC`. The delivery path that was "missing" was never missing — the runner was
+      passing `--disable-slash-commands`.
+- [x] **Prove it did *not* trigger on an unrelated task** — **MEASURED, by the substitution E-004
+      registered: the task is held fixed and the DESCRIPTION is made unrelated.** The misdescribed
+      arm — same skill, same byte-identical body, a description naming CSS keyframe animations —
+      recorded **0 activations on 5 of 5**, against 5 of 5 on the matched arm. Two-sided Fisher
+      **p = 0.0079**. **L2** for the count; **L2** for delivery, because the skill was proved
+      loadable in the arm-C worktrees by explicit `/shipment-service-conventions`, which does not
+      consult the description — four of six worktrees loaded it and quoted its body, and
+      `Unknown command` came back **zero** times.
+      **What is still not measured:** a genuinely unrelated *task*. §7 still reserves a second
+      task for the author, and this substitution is not the same claim.
 - [x] **Explain progressive disclosure** — answered, and quantified from two vendors. Name and
       description are always on; the body loads on selection; referenced files load on demand.
       Codex: *"start with each skill's name and description, then load the full `SKILL.md`
@@ -402,47 +413,58 @@ identify possible prompt injection.
       is exactly what Phase 2 found behind `allowed-tools`. A skill is a directory-shaped
       dependency: *"Copilot automatically discovers all of the files in the skill's directory."*
 
-**Three of five answered, all three from documentation and labelled L3. Two not measured, and
-both wait on the same blocker.**
+**All five answered. Three from documentation and labelled L3; the two that were blocked are now
+MEASURED at L2, `n = 5` per arm.** The blocker they waited on turned out not to exist in the form
+it was described — see [*The block was a flag, not a path*](#the-block-was-a-flag-not-a-path).
 
 ## Learning
 
 ```yaml
 learning:
   what_was_added: >
-    An extract of three previously unread sources; a registered experiment (E-004) with five
-    predictions, an MDE derived from Fisher's resolving power rather than from its own
-    thresholds, and an exhaustive decision rule; two customization overlays whose SKILL.md
-    bodies are byte-identical at d10a2c3988be520e and differ only in the description; and
-    tools/skill-activation.sh with 15 fixtures (this line said 11, the count before the last two
-    gate rounds; corrected 2026-09-04 from the second validator pass). No measured runs.
+    A measured lab (E-004, EXP-P3-SKILL-DESC, 15 runs, three arms interleaved) answering a
+    claim three vendors make and none of them measures. Two registered overlays whose
+    SKILL.md bodies are byte-identical at d10a2c3988be520e and differ only in `description`.
+    Four instrument controls that execute and have fixture sets proving they refuse:
+    tools/skill-activation.sh (28), tools/check-overlay-parity.sh (13),
+    runner/lib/classify-skill-contamination.sh (16), runner/verify-skill-delivery.sh (7).
+    Three runner changes: --enable-skills, a guard that refuses an undeliverable skill
+    overlay, and a scoped force-add of the overlay's own paths.
   why_it_exists: >
-    Three vendors state that a skill is selected by matching the task against its description.
-    None shows a measurement. The observatory turned out to already record skill activation,
-    so the claim looked cheap to test on the instrument this project already has.
+    Stop 8 halted on the diagnosis that a Claude Code project skill cannot be delivered to a
+    BE-003 run. The §9 validator's second pass said the halt proved only that a nested skill
+    is absent from the /name registry AT SESSION START, and that E-004 measures MID-RUN
+    activation. It was right, and the real cause was one flag nobody had read.
   observed_effect: >
-    None on the agent under test - the lab never batched. The observed effect is on the
-    instrument: a Claude Code project skill cannot be delivered to a BE-003 run at all. The
-    location the runner can commit is not registered by the runtime, and the location the
-    runtime registers cannot be committed by the runner.
+    Matched arm 5 of 5, misdescribed 0 of 5, control 0 of 5. Two-sided Fisher p = 0.0079.
+    The description decides whether the skill loads, with the body held byte-identical.
+    All five registered predictions held, including the one registered as most likely to be
+    wrong (skill.name IS redacted to `custom_skill` for project scope). Cost -7.6% against
+    control, which does not reach the registered +25% row and is not a finding at n=5.
   unexpected_effect: >
-    The nested location fails silently in the direction that would have manufactured a
-    result. It installs, commits, is tracked, and the runs evaluate clean - and the skill is
-    not there. Fifteen runs at that path would have produced three arms agreeing perfectly and
-    a confident conclusion that the description does not matter, drawn from runs with no skill
-    in them. Also, on two runs at a location where the skill WAS registered, the model did not
-    select it even when told it was required - n=1 each, and the reason prediction 1 is worth
-    running.
+    Two, and the second is the one that matters. First: the runner passed
+    --disable-slash-commands, "Disable all skills", on every claude run ever done here, so
+    the block was a flag and not a path - 6 of 6 activated without it, 0 of 6 with it, at
+    BOTH paths. Second: the QUALITY co-variate splits control from BOTH treated arms, not
+    matched from misdescribed. Arm C scores like arm B (4/5 vs 5/5, p=1.0) and unlike arm A
+    (1/5, pooled p=0.017) on maintainability - the one category whose anchor is word-for-word
+    the first bullet of the skill body - while never having activated the skill. That is not
+    a result, because maintainability was never a registered outcome, and it is a caveat on
+    this design: arm C is a clean control for ACTIVATION and is not one for BEHAVIOUR.
   keep_or_remove: >
-    Keep tools/skill-activation.sh - it is proven by 15 fixtures and by hand against the real
-    31MB stream, and it is what the lab will use the day it runs. Keep both overlays unedited;
-    they are the registered arms. Keep E-004 open and unanswered rather than closing it with
-    the n=1 hint, which is the whole discipline. Remove nothing.
+    Removed one thing, and the removal is a finding: the runner's blanket rule that any
+    `Skill` tool call is a leaked plugin skill. It was correct while skills were
+    unconditionally disabled and it condemned the treatment arm the moment a skill was the
+    treatment - run 46ffad94 was recorded F15 "EXCLUDE from comparisons" for loading the
+    skill it was given. Every arm of the matched arm loads a skill, so the batch would have
+    ended with arm B at n=0 and a report saying the treatment produced no usable runs.
+    Everything else is kept, including skill-v0.1 unedited because a preflight run used it.
   next_question: >
-    Which of the two halves does the author want moved - the benchmark's .gitignore, or the
-    runner's install step? Both are one line. They are not equivalent: the gitignore change
-    alters what the evaluator's scope guard can flag, and the runner change does not, which
-    makes the runner the cheaper place to fix a problem the runner created.
+    How CLOSE can the two descriptions get before selection stops? These are at maximal
+    semantic distance - a Kotlin shipment backend against CSS keyframe animations - so this
+    establishes that the description is the selector without characterising it. And it needs
+    a prior fix: skill.name is redacted to `custom_skill`, so with two installed skills this
+    instrument cannot attribute an activation to either.
 ```
 
 ## Review — §4a
@@ -587,33 +609,67 @@ Applied by Opus 5 (claude-opus-5), autonomous, 2026-09-04
 
 ## Validation
 
-Stop 8 is **BLOCKED, not closed.** Its closing condition — *that lab's evidence on disk* — is
-not met: the lab produced no measured runs. This table validates what the stop *did* establish,
-and the last row states plainly what it did not.
+Stop 8 is **CLOSED**. Its closing condition — *"one lab that records skill activation on the
+observatory — that lab's evidence on disk"* — is met: `EXP-P3-SKILL-DESC`, 15 runs, a registered
+prediction that preceded them, a decision rule applied as written, and a co-variate that argues
+against part of its own design.
+
+**The layer column is about the PROOF, not the artifact.** Where the only proof is that I say so,
+it says L3 and the row does not close a gate.
 
 | Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
 |---|---|---|---|
-| "Phase 3 skills: reading" | Four sources ✅ in `SOURCES.md`; three extracted here for the first time on 2026-09-04 | **L2 for "the URLs resolve"** — `./tools/check-links.sh` executes and fails closed. **L3 for "they were read"** — nothing executes that | `./tools/check-links.sh`; for the reading half, check the quotes against the pages by hand |
-| "extract" | Three `## Extract` sections in this file, one per source, each dated and quoting verbatim | **L3** — nothing checks an extract against its source | open the four URLs and search for the quoted sentences |
-| "one lab that records skill activation on the observatory" | [`E-004`](../../experiments/E-004-skill-activation.md), registered `5d14182`, last pre-run edit `5a14711` (amendment below); overlays under `build/customizations/skill-v0.1{,-misdescribed}/`; [`tools/skill-activation.sh`](../../tools/skill-activation.sh) | **L2 for the instrument** — 15 fixtures execute and each asserts an exit code *and* a stdout line; `./tools/verify-skill-activation.sh` exits non-zero if any fails | `./tools/verify-skill-activation.sh` → `15 passed, 0 failed` |
-| …the tool distinguishes a real zero from a missing measurement | fixtures *"a run ABSENT from telemetry is NOT reported as 0"* (exit 3) and *"its count is null, never 0"* | **L2** — it executes and refuses. Hand-checked against the real 31 MB `events.jsonl`: a fabricated run id returns `status: UNKNOWN-run-absent-from-telemetry` with **all four source counts `null`** — `bundled_activations`, `plugin_activations`, `unknown_source_activations`, `other_source_activations` — exit 3. The merged tool prints no `installed_scope` line at all; corrected 2026-09-04, amendment below | `./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl 00000000-dead-beef-0000-000000000000` |
-| …and every scope this experiment did not install is excluded — ~~the outcome counts only the skill this experiment installed~~, which the merged tool deliberately no longer claims (amendment below) | fixtures *"a bundled skill is NOT the installed skill"*, *"a plugin skill is NOT the installed skill"*, *"an event with NO skill.source is not the installed one"* | **L2** — three separate scopes are excluded by executing code, each reported on its own line. **Both exclusions were added because the §4a gate caught them, not because a fixture did** — 11 fixtures passed over both broken versions | `./tools/verify-skill-activation.sh` → `15 passed`; then `./tools/skill-activation.sh <events.jsonl> 899232bb-3a66-4326-981e-0aaa38329c09` → `plugin_activations: 2` with every other bucket `0` |
-| …the treatment differs from its control in exactly one thing | body-only `sha256` `d10a2c3988be520e` **equal** across both overlays; full-file hashes differ | **L1** — the bytes below the frontmatter either are identical or are not; `shasum` decides | `awk 'n>=2{print} /^---$/{n++}' <each SKILL.md> \| shasum -a 256` |
-| …**"that lab's evidence on disk"** — the closing condition | **NOT MET.** Zero measured runs. Three runs exist and none is data: `16cd4378` died at setup, `c090f67e` and `d8be2b5f` are preflight probes under `EXP-P3-PREFLIGHT` | **L2 for the blocker itself** — the runner *executed* and refused (`failed to commit the customization overlay`), and `claude -p "/name"` *executed* and answered `Unknown command`. The block is demonstrated, not asserted | [`evidence/p03/skill-delivery-probe-20260904T072000Z.md`](../../evidence/p03/skill-delivery-probe-20260904T072000Z.md) — it lists the commands |
+| "Phase 3 skills: reading" | four sources ✅ in `SOURCES.md`; three extracted here 2026-09-04 | **L2** for *the URLs resolve* — `check-links.sh` executes and fails closed. **L3** for *they were read* — nothing executes that | `./tools/check-links.sh` |
+| "extract" | three `## Extract` sections, dated, quoting verbatim | **L3** — nothing checks an extract against its source | open the four URLs, search for the quoted sentences |
+| **"one lab that records skill activation on the observatory"** | `EXP-P3-SKILL-DESC`, 15 runs 2026-09-04T11:03–11:34Z; [`E-004`](../../experiments/E-004-skill-activation.md) | **L2** — the activation count comes from `claude_code.skill_activated` telemetry per run, not from prose | `curl :8081/api/runs \| jq '[.[]\|select(.experimentKey=="EXP-P3-SKILL-DESC")]\|length'` → 15 |
+| …**"that lab's evidence on disk"** — the closing condition | matched `d6aec246 45a70775 2cf0c720 33a4090d 8998ef3b` = **1 activation each**; misdescribed `95f42409 fc3665a7 77c60831 cc41f3f0 946144c3` = **0 each**; control `d671d1b7 7b4428be 394ee79a ff7bffed c51a7a0c` = **0 each** | **L2** | `./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl <run-id>` on any of the fifteen |
+| …the outcome counts only the scope this experiment installed | `skill.source = projectSettings`, **pinned by preflight run `46ffad94` before any batch was read**; every other source excluded by name | **L2** — `skill-activation.sh` counts per source and labels none "mine"; 28 fixtures, each asserting an exit code *and* a stdout line | `./tools/verify-skill-activation.sh` → `28 passed, 0 failed` |
+| …a real zero is distinguishable from a missing and from a damaged measurement | statuses `measured` / `UNKNOWN-run-absent-from-telemetry` / `PARTIAL-telemetry-damaged`, exits 0 / 3 / 4. All 15 runs report `measured`, `malformed_lines: 0`, `damaged_records: 0` | **L2** — it executes and refuses | `./tools/verify-skill-activation.sh`; then a fabricated run id → `status: UNKNOWN…`, all counts `null`, exit 3 |
+| …the arms differ in exactly one thing | body `sha256:d10a2c3988be520e` equal across both overlays; only `description` differs | **L1** for the bytes — they are identical or they are not. **L2** for the whole comparison — `check-overlay-parity.sh` executes, exits 2 on any undeclared difference and **3 if the arms are identical** | `./tools/check-overlay-parity.sh --allow-differ description build/customizations/skill-v0.2{,-misdescribed}`; `./tools/verify-overlay-parity-checker.sh` → `13 passed` |
+| …**the treatment reached the model** | the model *used* it: 5 of 5 matched runs carry an activation with `invocation_trigger = claude-proactive`. Independently for arm C, where the prediction is a zero: explicit `/shipment-service-conventions` in the kept worktrees loaded the skill and quoted its body in **4 of 6** probed, `Unknown command` in **0** | **L2** — both are executions, and arm C's proof does not consult the description, so it is not circular with the prediction it supports | `cd $TMPDIR/observatory-run-95f42409-… && claude --permission-mode acceptEdits --strict-mcp-config --setting-sources project --model claude-haiku-4-5-20251001 -p "/shipment-service-conventions"` |
+| …and could not have reached the control | arm A installs no customization; `git ls-files -- .claude` is empty in its worktrees; 0 activations of any source on 5 of 5 | **L2** | `git -C <arm-A worktree> ls-files -- .claude` → nothing |
+| …the harness would refuse an undeliverable skill treatment | `run-agent.sh` **dies** when a customization installs a `SKILL.md` and skills would be disabled | **L2** — it executes and exits 1, naming the switch and the files | `./runner/verify-skill-delivery.sh` → `7 passed, 0 failed`; check A is the refusal |
+| …and would not credit someone else's skill to the treatment | `classify-skill-contamination.sh`: `bundled` clean, `projectSettings` clean **only if this run installed one**, everything else contaminated, unparseable telemetry **unclassifiable** rather than clean | **L2** — 16 fixtures; and the caller treats exits 2 and 3 alike, so the fix cannot be undone by the line that calls it | `./runner/verify-skill-contamination.sh` → `16 passed, 0 failed` |
+| …a scored cell is re-read by hand | `maintainability = 2` on run `45a70775`, written and **committed at `40f38e2` before `codex-score.sh` ran**; the sheet says `2` | **L2** for the ordering — git decides it, not prose. **L3** for the reading itself — a human applied an anchor | `git show 40f38e2` versus the sheet's mtime in `findings/codex/` |
+| …no registered variable moved | model `claude-haiku-4-5-20251001`, evaluator `1.0.0`, benchmark `BE-003` at `0448643`, rubric `396e1799eb2b`; `git status --porcelain` in `agent-observatory-benchmarks` is **empty** | **L2** — read from the run records, not from the flags that were passed | `curl :8081/api/runs \| jq '[.[]\|select(.experimentKey=="EXP-P3-SKILL-DESC")]\|{m:([.[].runtime.model]\|unique)}'` |
+| …the prediction preceded the runs | corrected design `f8ff084` **10:34:48Z**, pinned source `7cf5adb` 10:40:29Z, contamination finding `35abde7` 10:46:37Z; **first batch run `startedAt` 11:03:44Z** | **L2** — both sides read from git and the API | `git log --format=%cI -1 f8ff084` against the run record's `startedAt` |
 
-**Independence check.** No arm was compared, so there is nothing to keep independent. Nothing
-registered moved: rubric `396e1799eb2b`, evaluator `1.0.0`, benchmark `0448643`, model
-`claude-haiku-4-5-20251001` on both completed probe runs. **The benchmark repository was not
-touched** — the one-line `.gitignore` change that would unblock this stop was refused under §7
-and raised to the author instead.
+**`n` for every number.** Every activation count is `n = 5` per arm and is stated as *true of these
+runs*. The cost figures are medians of `n = 5` with their ranges printed, and the −7.6 % is
+explicitly **not** offered as a property. The three delivery/registration facts about paths and
+flags are structural: a file commits or it does not, a skill is in the registry or it is not.
+The flag matrix is `n = 3` per cell, pooled to 6 versus 6.
 
-**`n` for every number here.** The three delivery/registration facts are `n = 1` each and are
-**structural** — a file is committed or it is not; `/name` resolves or it does not. The one
-behavioural observation (the model not selecting a registered, matched skill) is `n = 1` per
-condition and is stated nowhere as a property.
+**Independence check — what else changed between arms?** Confirmed from the run records:
+`customization.*Hash` is `null` on **all fifteen runs, control and treated alike**, which is
+prediction 4 holding and means those fields **cannot** separate the arms here — delivery rests on
+telemetry, and that limitation is registered rather than worked around. `runtime.model`, the
+benchmark sha, the evaluator version and the rubric sha are single-valued across all fifteen.
+**The one thing that is NOT held equal between control and treated arms is the presence of the
+`.claude/` directory itself**, and the co-variate section of `E-004` says so and refuses to
+attribute quality to skill selection because of it.
+
+**One run excluded, per the exclusions registered before the data:** `62deb6c5`, arm A, F13,
+exit 12, 2 tool calls — it died mid-run on a claude session limit. `check-run-gate.sh` refuses it
+by name. It is reported here with its count rather than quietly dropped, and the batch was
+re-driven to a full 15.
 
 ## Commit
 
-**Not produced.** `.agents/skills/kotlin-testing/` and `experiments/B3-skills.md` both belong to
-labs that could not run. What shipped instead is `E-004`, two overlays, one tool with its
-fixtures, and the evidence file naming the blocker.
+**What shipped:** `E-004` closed with a decision rule applied as written; two registered overlays
+at `build/customizations/skill-v0.2{,-misdescribed}`; the evidence file that corrected this
+stop's own halt; and four instrument controls with fixture sets that prove they refuse —
+`tools/skill-activation.sh` (28), `tools/check-overlay-parity.sh` (13),
+`agent-observatory/runner/lib/classify-skill-contamination.sh` (16),
+`agent-observatory/runner/verify-skill-delivery.sh` (7).
+
+**What did not ship, and is not pretended to have.** `.agents/skills/kotlin-testing/` and Labs
+3.1, 3.3 and 3.4 belong to work this stop did not do. Lab 3.3 — progressive disclosure, the
+economics claim — is now cheap on this apparatus and is registered as follow-up rather than
+smuggled in. Lab 3.4 needs a disposable repository and a supply-chain scenario, neither of which
+exists here.
+
+**The `allowed-tools` question inherited from Phase 2 is still unverified.** Stop 7 found that
+`allowed-tools` pre-approves where VS Code's `tools:` restricts, from the documentation, and no
+lab here has observed either field behave. This stop installed a skill and measured its
+activation; it never gave one a tool list. It stays open.
