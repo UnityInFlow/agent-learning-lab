@@ -15,9 +15,18 @@
 # difference the caller did not declare:
 #
 #   - the same set of relative paths must exist in both              (a file added to one arm)
+#   - a path must be a symlink in both arms or in neither, and links must point at the same
+#     place                                                          (§4a round 1, 1/2)
 #   - every non-SKILL.md file must be byte-identical                 (a smuggled second change)
 #   - every SKILL.md BODY below the frontmatter must be byte-identical
-#   - SKILL.md frontmatter may differ ONLY in the keys named by --allow-differ
+#   - SKILL.md frontmatter may differ ONLY in lines whose key is named by --allow-differ
+#
+# FRONTMATTER IS COMPARED AS RAW LINES, NOT AS A PARSED DICT, and that is a correction the
+# §4a gate forced. A dict drops every line without a colon — so a `# comment` carrying a
+# real difference vanished — and it silently keeps only the LAST of a duplicated key, so an
+# overlay with two `description:` lines compared equal on the one that happened to win. A
+# duplicated key is now refused outright rather than resolved, because "which one does the
+# runtime read" is a question this script has no business guessing.
 #
 # The body comparison is on bytes below the second `---`, so a trailing-whitespace change is
 # a difference. That is deliberate: this is the file that decides whether an experiment
@@ -62,12 +71,15 @@ A="$1"; B="$2"
 [[ -d "$B" ]] || { echo "check-overlay-parity: not a directory: $B" >&2; exit 1; }
 
 A="$A" B="$B" ALLOW="${ALLOW[*]:-}" python3 <<'PY'
-import os, sys, hashlib
+import os, sys, hashlib, collections
 
 A, B = os.environ["A"], os.environ["B"]
 allow = set(os.environ.get("ALLOW", "").split())
 
 def rel_files(root):
+    # followlinks=False is the default and is load-bearing here: a symlinked SKILL.md with
+    # identical bytes would otherwise read as parity while the two overlays install
+    # different things. Links are compared as links below.
     out = set()
     for dirpath, _, names in os.walk(root):
         for n in names:
@@ -75,20 +87,17 @@ def rel_files(root):
     return out
 
 def split_front(raw):
-    """Return (frontmatter_dict, body_bytes). No frontmatter -> ({}, whole file)."""
+    """Return (frontmatter_raw_lines, body_bytes). No frontmatter -> ([], whole file)."""
     if not raw.startswith(b"---\n"):
-        return {}, raw
+        return [], raw
     end = raw.find(b"\n---\n", 3)
     if end == -1:
-        return {}, raw
+        return [], raw
     head = raw[4:end + 1].decode("utf-8", "replace")
-    body = raw[end + 5:]
-    fm = {}
-    for line in head.splitlines():
-        if ":" in line:
-            k, v = line.split(":", 1)
-            fm[k.strip()] = v.strip()
-    return fm, body
+    return head.splitlines(), raw[end + 5:]
+
+def key_of(line):
+    return line.split(":", 1)[0].strip() if ":" in line else line.strip()
 
 fa, fb = rel_files(A), rel_files(B)
 problems = []
@@ -100,29 +109,58 @@ if fa != fb:
 
 declared_seen = set()
 for rel in sorted(fa & fb):
-    ra = open(os.path.join(A, rel), "rb").read()
-    rb = open(os.path.join(B, rel), "rb").read()
+    pa, pb = os.path.join(A, rel), os.path.join(B, rel)
+
+    # A symlink and a regular file with the same bytes are not the same overlay. §4a round 1.
+    la, lb = os.path.islink(pa), os.path.islink(pb)
+    if la != lb:
+        problems.append(f"symlink on one side only: {rel} (link in {A if la else B})")
+        continue
+    if la and lb:
+        ta, tb = os.readlink(pa), os.readlink(pb)
+        if ta != tb:
+            problems.append(f"symlink targets differ: {rel} ({ta} vs {tb})")
+        continue
+
+    ra = open(pa, "rb").read()
+    rb = open(pb, "rb").read()
     if os.path.basename(rel) != "SKILL.md":
         if ra != rb:
             problems.append(f"non-skill file differs: {rel}")
         continue
-    fma, bodya = split_front(ra)
-    fmb, bodyb = split_front(rb)
+
+    lines_a, bodya = split_front(ra)
+    lines_b, bodyb = split_front(rb)
     if bodya != bodyb:
         ha = hashlib.sha256(bodya).hexdigest()[:16]
         hb = hashlib.sha256(bodyb).hexdigest()[:16]
         problems.append(f"SKILL.md BODY differs: {rel} ({ha} vs {hb})")
     else:
         print(f"body identical: {rel} sha256:{hashlib.sha256(bodya).hexdigest()[:16]}")
-    for k in sorted(set(fma) | set(fmb)):
-        va, vb = fma.get(k), fmb.get(k)
-        if va == vb:
-            continue
+
+    # A duplicated key is refused, not resolved. Deciding which of two `description:` lines
+    # the runtime honours is a guess, and a guess here is exactly the kind of "probably the
+    # same" this script exists to refuse.
+    for side, lines in ((A, lines_a), (B, lines_b)):
+        seen = collections.Counter(key_of(x) for x in lines if ":" in x)
+        for k, c in sorted(seen.items()):
+            if c > 1:
+                problems.append(f"frontmatter key '{k}' appears {c} times in {side}: {rel}")
+
+    # Raw-line comparison. Multiset difference, so a line moved is not a difference but a
+    # line changed, added or removed is — including comment lines, which a dict drops.
+    ca, cb = collections.Counter(lines_a), collections.Counter(lines_b)
+    here = set()
+    for line in sorted((ca - cb) + (cb - ca)):
+        k = key_of(line)
         if k in allow:
+            here.add(k)
             declared_seen.add(k)
-            print(f"declared difference: {rel} frontmatter '{k}'")
         else:
-            problems.append(f"frontmatter key '{k}' differs and was not declared: {rel}")
+            problems.append(f"frontmatter line differs and its key was not declared: "
+                            f"{rel}: {line.strip()!r}")
+    for k in sorted(here):
+        print(f"declared difference: {rel} frontmatter '{k}'")
 
 if problems:
     print("check-overlay-parity: the arms differ by more than the declared variable:",

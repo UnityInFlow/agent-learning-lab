@@ -107,6 +107,10 @@ it makes — one-arm (binomial, needs no control) or between-arm (needs the cont
    **So the outcome has no denominator yet.** No project-scope skill has ever been recorded on
    this instrument, so the value `skill.source` carries for one is unknown. **The preflight must
    pin that value and this prediction must then name it explicitly**, before any batch is read.
+
+   > **PINNED 2026-09-04T10:40Z, before the batch: `skill.source` is `projectSettings`.** The
+   > outcome of this experiment is the count of `skill_activated` events carrying that exact
+   > value. Every other source is excluded by name. See *Preflight result* below.
 3. **[between-arm] The misdescribed arm loads on ≤ 1 of 5, at least 3 fewer than the matched
    arm.** Mechanism: the `SKILL.md` **body is byte-identical** between arms B and C; only the
    frontmatter `description` differs. If selection reads the body, C loads as often as B; if it
@@ -402,6 +406,43 @@ and the preflight below is the thing that pins it. Until then no number in
 `skill-activation.sh` means *"my skill loaded"*, and this experiment must not pretend one does.
 
 Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-04
+
+### PREFLIGHT RESULT, 2026-09-04T10:35–10:40Z — the denominator prediction 2 was missing is now pinned
+
+**Registered before the batch, which has not run.** Two runs, one per treated arm, key
+`EXP-P3-PREFLIGHT2`, `--enable-skills` on both, overlays `skill-v0.2{,-misdescribed}` at the
+worktree root. Preflight runs carry a preflight key and **can never join an `n`.**
+
+| run | arm | `activations_by_source` | `skill_names` | `invocation_triggers` | status |
+|---|---|---|---|---|---|
+| `46ffad94` | matched | **`projectSettings=1`** | `custom_skill=1` | `claude-proactive=1` | measured |
+| `b9f9f3b9` | misdescribed | `-` | `-` | `-` | measured |
+
+**`skill.source` for a project-scope skill is the literal string `projectSettings`.** No
+project-scope skill had ever been recorded on this instrument; this is the first, and it is the
+value prediction 2 said had to be pinned before any batch is read. **Prediction 2 is now
+readable**: the control arm's outcome is `projectSettings` activations, and every other bucket —
+`bundled`, `plugin`, source-less, and any future source — is excluded by name rather than by an
+open *everything-else-is-mine* rule.
+
+**Three things follow, and only the first is a delivery fact:**
+
+1. **Delivery is proved, by the strongest available evidence: the model loaded the skill.** Not
+   that the file was installed, committed or hashed — that it was *used*. The trigger is
+   `claude-proactive`, which is implicit selection from the description, the exact mechanism this
+   experiment tests.
+2. **Prediction 5 holds at `n = 1`.** It predicted `skill.name` would be redacted to the literal
+   `custom_skill` for a project-scope skill, extrapolating across a scope boundary from `plugin`,
+   and called itself the one most likely to be wrong. It is not wrong. `n = 1`, stated as nothing
+   more.
+3. **The misdescribed arm recorded zero.** That is `n = 1`, it is the direction prediction 3
+   predicts, and **it is not evidence for it.** One run per arm cannot separate "the description
+   did not match" from "this run happened not to load it". That is what the batch is for.
+
+**`customization.skillsHash` is `null` on both treated runs** — prediction 4's mechanism,
+observed again. It is why the delivery proof above is telemetry and not a hash.
+
+Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04, before the batch.
 
 ## Controlled variables
 
