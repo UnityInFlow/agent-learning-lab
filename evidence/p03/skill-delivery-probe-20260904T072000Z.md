@@ -160,3 +160,27 @@ nested path is therefore probed at `n = 5` under experiment key `EXP-P3-NESTED-P
 file §7 protects is moved.
 
 Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04
+
+## Superseded in part — 2026-09-04, by the flag probe
+
+[`skill-flag-probe-20260904T102230Z.md`](skill-flag-probe-20260904T102230Z.md) contradicts the
+central diagnosis on this page and is the later, stronger evidence. Nothing above has been edited.
+
+**What still holds.** Every command above still reproduces. Root `.claude/skills/` is gitignored
+in the benchmarks repo; the runner's setup commit does refuse an all-ignored overlay; and a nested
+skill is genuinely **not** in the `/name` registry at session start.
+
+**What does not hold: the conclusion drawn from it.** *"A Claude Code project skill cannot be
+delivered to a BE-003 run"* was true of the runs that had been done and false as a statement about
+the instrument. The cause is not the path. It is that `run-agent.sh` passes
+`--disable-slash-commands` — *"Disable all skills"* — on every claude run. Without that flag the
+nested path activates **3 of 3**; with it, neither path activates at all (0 of 6, Fisher
+p = 0.0022).
+
+**And the reason this page could not see that.** Its registration probe was run by hand as
+`claude --setting-sources project --model … -p "/name"` — the runner's flag set *minus the flag
+that decides the outcome*. A reproduction of a harness that omits one of the harness's flags is a
+control reporting success over a smaller scope than it claims. That is this project's house failure
+mode, and this page is an instance of it.
+
+Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04

@@ -53,7 +53,17 @@ check() { # check <label> <expected-exit> <expected-substring> <file> <run-id>
 printf 'not json at all\n{"broken":\n' > "$TMP/garbage.jsonl"
 : > "$TMP/empty.jsonl"
 
-echo "verify-skill-activation: 15 cases"
+# --- damage, which is neither presence nor absence --------------------------
+# Round 3 of the §4a gate: a run whose stream is PARTLY unreadable reported `measured` with
+# a clean-looking zero, indistinguishable from a genuinely clean zero. The dropped line is
+# exactly where a refuting activation would have been, so the error runs one way.
+{ rec RUN-A; printf '{"resourceLogs": TRUNCATED\n'; } > "$TMP/present-plus-badline.jsonl"
+# a record carrying RUN-A whose attribute list is structurally broken
+{ rec RUN-A; printf '{"resourceLogs":[{"resource":{"attributes":[]},"scopeLogs":[{"logRecords":[{"body":{"stringValue":"claude_code.skill_activated"},"attributes":[{"key":"observatory.run.id"}]}]}]}]}\n'; } > "$TMP/present-plus-badrecord.jsonl"
+# damage must not resurrect an ABSENT run into a measured one
+{ rec RUN-B; printf 'not json\n'; } > "$TMP/absent-plus-badline.jsonl"
+
+echo "verify-skill-activation: 21 cases"
 
 check "a project-source activation is reported by source"            0 "bundled_activations: 0" one-project.jsonl RUN-A
 check "a run present with no skill event is a REAL zero"  0 "activations_by_source: -" present-no-skill.jsonl RUN-A
@@ -82,6 +92,20 @@ check "an unparseable telemetry file is rejected"         2 "no parseable JSON" 
 
 # an empty file parses to nothing -> also exit 2, not a silent zero
 check "an empty telemetry file is rejected, not zeroed"   2 "no parseable JSON"            empty.jsonl RUN-A
+
+# THE CASES ROUND 3 OF THE §4a GATE ASKED FOR. A count from a damaged stream is a lower
+# bound; reporting it as `measured` is the same error as reporting an absent run as zero,
+# one step further in.
+check "a present run with an unparseable line is PARTIAL"  4 "status: PARTIAL-telemetry-damaged" present-plus-badline.jsonl RUN-A
+check "  and the damage is counted, not just flagged"      4 "malformed_lines: 1"            present-plus-badline.jsonl RUN-A
+check "an unreadable RECORD is damage too"                 4 "damaged_records: 1"            present-plus-badrecord.jsonl RUN-A
+check "  and it does not abort the whole read"             4 "status: PARTIAL"               present-plus-badrecord.jsonl RUN-A
+# Absence outranks damage: a run that is not there has still not been measured, and saying
+# "lower bound" about it would imply a bound exists.
+check "damage does NOT promote an absent run to present"   3 "status: UNKNOWN"               absent-plus-badline.jsonl RUN-A
+# And the case that must NOT be damage, or every source-less activation would be reclassified
+# out of the bucket built for it.
+check "a source-less activation is NOT damage"             0 "damaged_records: 0"            no-source.jsonl RUN-A
 
 echo
 echo "verify-skill-activation: ${pass} passed, ${fail} failed"
