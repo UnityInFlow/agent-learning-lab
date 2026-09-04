@@ -386,7 +386,22 @@ most rigorous.
 |---|---|---|---|
 | 1 | **REJECT** | 3 | decision rule contradicted its own MDE; row 4 over-attributed; **the tool counted a source-less event as the installed skill** |
 | 2 | **REJECT** | 2 | rows 1–4 enumerated only one direction; **the tool counted a `plugin` event as the installed skill** |
-| 3 | see `review_this_stop` in `TRACK-B-STATE.md` | — | first attempt exited 1 (infrastructure) with a header-only file and was discarded per §4a, not counted as a round |
+| 3 | **REJECT** | 4 | **one fixed — the deepest — three left OPEN.** A first attempt exited 1 (infrastructure), left a header-only file and was discarded per §4a rather than counted |
+
+**Three rounds, three `REJECT`s. §4a caps the loop at three, and `REJECT` after round three is
+recorded as such and is not a pass.** `E-004` carries that verdict in a banner above its own
+predictions. **Three of round 3's findings are open and are named there**: arm C's delivery proof
+is circular with the prediction it is meant to confirm; nothing mechanically asserts that only
+the `description` differs between arms; and the script does not separate partial telemetry
+corruption from absent telemetry.
+
+**Round 3's repetition is the finding.** It reported the same defect a third time, and each of my
+first two fixes had named one more scope instead of rejecting the category: not-`bundled`, then
+not-`bundled`-or-empty, then not-`bundled`-or-`plugin`. Every one of those would have credited a
+user-scope or enterprise activation to the treatment **on the control arm**. The tool now reports
+a count per `skill.source` and **labels nothing as the installed skill** — there is no number in
+it meaning *"my skill loaded"*, and there cannot be until a preflight pins what source a project
+skill emits. That is a worse-looking tool and a truer one.
 
 **Round 1, finding 1 — the decision rule disagreed with the MDE in the same file.** Row 1 fired
 `CONFIRM` on *"matched ≥ 4/5 and matched − misdescribed ≥ 3"*, while the MDE table called a
