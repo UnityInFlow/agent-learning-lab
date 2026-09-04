@@ -110,22 +110,28 @@ def rel_files(root):
     return out
 
 def split_front(raw):
-    """Return (frontmatter_raw_lines, body_bytes). No frontmatter -> ([], whole file)."""
-    # CRLF is normalised for the FRONTMATTER SCAN ONLY, so a valid CRLF file is not reported
-    # as a whole-file body difference (§4a round 3). The body comparison below still runs on
-    # the ORIGINAL bytes, so a genuine line-ending difference between the arms is still a
-    # difference — which is the point.
-    probe = raw.replace(b"\r\n", b"\n")
-    if not probe.startswith(b"---\n"):
+    """Return (frontmatter_raw_lines, body_bytes). No frontmatter -> ([], whole file).
+
+    LINE-BASED, not byte-offset based. §4a round 2 at stop 9, found by the codex critic and
+    reproduced before it was believed: the previous version located the closing marker with an
+    unconstrained `raw.find(b"---", raw.find(b"---") + 3)`, so a `---` INSIDE A FRONTMATTER
+    VALUE -- `description: reviews --- cautiously` -- was taken for the delimiter. The body
+    slices then differed and the checker exited 2 on a VALID one-variable pair. It failed
+    closed, which is the safe direction, but a control that rejects a correct experiment is
+    still wrong, and nothing in the fixture set covered it.
+
+    Splitting on lines whose STRIPPED content is exactly `---` also handles CRLF without a
+    separate normalisation pass, so the body is taken from the original bytes and a genuine
+    line-ending difference between the arms is still a difference.
+    """
+    lines = raw.splitlines(keepends=True)
+    if not lines or lines[0].strip() != b"---":
         return [], raw
-    end = probe.find(b"\n---\n", 3)
-    if end == -1:
-        return [], raw
-    head = probe[4:end + 1].decode("utf-8", "replace")
-    # Body is taken from the original bytes by matching the same marker there.
-    real_end = raw.find(b"---", raw.find(b"---") + 3)
-    body_start = raw.find(b"\n", real_end) + 1
-    return head.splitlines(), raw[body_start:]
+    for i in range(1, len(lines)):
+        if lines[i].strip() == b"---":
+            head = b"".join(lines[1:i]).decode("utf-8", "replace")
+            return head.splitlines(), b"".join(lines[i + 1:])
+    return [], raw
 
 def key_of(line):
     return line.split(":", 1)[0].strip() if ":" in line else line.strip()

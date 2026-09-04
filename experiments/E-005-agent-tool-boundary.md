@@ -658,3 +658,53 @@ chosen, the boundary it claims needs its own arm, because this experiment has no
 that a boundary's *name* and a boundary's *extent* are different measurements.
 
 `Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04. Prediction f3172be committed 50 s before the first run; neither was edited after the data existed.`
+
+### §4a amendment — the parity claim above was true when written and is false now
+
+`Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04, from the §4a round-2 acceptance
+gate's single blocking finding and both line-level runs, which found it independently.`
+
+**The blocking finding is correct and it is mine.** The paragraph above says
+*"Parity is L1 here and the tool that would make it L2 does not cover this class"*, and that
+`check-overlay-parity.sh` *"reports `non-skill file differs` … whether or not the declared key is
+the one that differs."* **The shipped checker does not do that.** It classifies
+`.claude/agents/*.md` as `agent`, accepts `--allow-differ tools` on arms T and F, and its
+verifier proves that pass. So a reader of the text assigns the T-vs-F one-variable claim **L3**
+and a reader who runs the included tool assigns it **L2** — *the same comparison at two layers
+depending on which shipped file is trusted.* That is exactly the contradiction the gate names.
+
+**The temporal boundary the finding asks for, stated plainly.** Both sentences were true at the
+time they were written and the artifact did not say when that was:
+
+| when | state of `check-overlay-parity.sh` | layer of the T-vs-F parity claim |
+|---|---|---|
+| at registration, 19:49Z, before the batch | `SKILL.md` only; agent overlays fell to the opaque branch and exited 2 either way | **L3** — byte equality plus a four-line `diff`, no executing check. **This is what the prediction was registered under** |
+| after §4a round 1, same stop | `frontmatter_class()` recognises `.claude/agents/*.md`; fixtures 16 → 27 | **L2** — it executes, and it refuses |
+
+**The registered text above is left standing and is not rewritten.** §4 step 12 and §6 both
+forbid editing a prediction or a claim after its run, and the paragraph is part of the
+deliberate failure's registration. What was missing was the date, not the truth. **The current
+layer of the parity proof is L2**, and the workbook's §5 table records it as L2 with the tool
+named — that table and this amendment agree; the registered paragraph is the historical record
+of what was true before the tool was extended.
+
+**The extension happened because of this stop and is not a silent tool move.** It is committed
+separately (`73611db`, `5b97287`), its 16 original fixtures still pass unchanged so stop 8's
+closed claim over skill overlays is untouched, and the change is disclosed in
+`phases/04a-agents-permissions/README.md` under *Keep, modify, remove*.
+
+### §4a round 2 — the other four findings, and what was done with each
+
+| finding | layer | disposition |
+|---|---|---|
+| `---` inside a frontmatter **value** was taken for the closing delimiter, so a valid one-variable pair was rejected with exit 2 | L2 | **FIXED.** `split_front()` is now line-based — it splits on lines whose stripped content is exactly `---`, which also handles CRLF without a separate pass. Reproduced by hand before believing it. **Fails closed**, so no experiment was ever wrongly accepted by it; a control that rejects a *correct* experiment is still wrong. Fixture added |
+| the verifier announced **"16 cases"** while executing **26** | L2 | **FIXED, and made self-checking rather than corrected.** Two numbers that can disagree is what this file exists to refuse, so the count is now **asserted at the end**: a drift between `EXPECTED_CASES` and the cases actually executed **exits 1**. Proved by running a copy with the wrong number — it fails, with the reason |
+| the raw-line **multiset** comparison ignores order, so a reorder that changes nested YAML would pass | L2 | **DISPUTED, with the reason.** The failure needs *nested* frontmatter (`foo:` / `  x: 1`). Neither runtime's agent or skill frontmatter is nested — both are flat scalars (`name`, `description`, `model`, `tools`), and for flat scalars a reorder is semantically identical, which is why the multiset was chosen. The checker also **refuses a duplicated key outright** rather than resolving it. If a nested field ever enters this frontmatter the dispute expires and the fixture is owed; that condition is written here so it can be checked rather than remembered |
+| the deliberate-failure decision rule's rows 3 and 4 use **"most runs"** and **"near 0"**, which competent reviewers could split | L3 | **DISPUTED — and the imprecision is conceded.** The finding is right that `F = 4/10` with Bash in 5/10 would leave rows 3 and 4 ambiguous. **It is not fixed, and it must not be**: the rule was committed at 19:50:21Z, the data arrived at 19:51:11Z, and §4 step 12 says a prediction is never edited after its run. Sharpening a decision rule *after* seeing `10/10` is precisely the move this project forbids, and it would cost more than the ambiguity does. **The observed outcome fell cleanly under row 1** and no reviewer judgement was required. Carried forward as a rule for the next decision table: every row must partition the outcome space with numeric thresholds, and "most" and "near" are not thresholds |
+
+**The acceptance gate returned NO VERDICT (off-contract) and this is not an ACCEPT.** The
+line-level panel ran clean — codex twice, 36 s and 42 s, no stalls, both runs unioned. The gate
+model then broke its own output contract, which the harness caught and reported rather than
+swallowed. §4a says `UNDECIDED` after round three is recorded as such and is not a pass; this is
+round two and it is recorded the same way. Two of the four line-level findings are fixed with
+fixtures, two are disputed in writing above.

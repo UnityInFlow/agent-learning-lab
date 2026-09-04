@@ -113,7 +113,12 @@ mkdir -p "$TMP/name-differs/sample-service/.claude/skills/s"
 printf -- '---\nname: OTHER\ndescription: an unrelated domain\n---\n\n## When this applies\n\nAlways.\n' \
   > "$TMP/name-differs/sample-service/.claude/skills/s/SKILL.md"
 
-echo "verify-overlay-parity-checker: 16 cases"
+# §4a round 2 at stop 9: this line announced "16 cases" while 26 ran. Two numbers that can
+# disagree is exactly what this file exists to refuse, so the count is now ASSERTED at the end
+# rather than announced at the start -- a drift between EXPECTED_CASES and the cases actually
+# executed FAILS the verifier instead of misinforming its reader.
+EXPECTED_CASES=27
+echo "verify-overlay-parity-checker: expecting ${EXPECTED_CASES} cases"
 
 check "arms differing only in description are accepted"      0 "parity holds" \
   --allow-differ description "$TMP/a" "$TMP/b"
@@ -217,5 +222,24 @@ check "  ...unless --allow-added says presence IS the treatment" 0 "parity holds
   --allow-added description "$TMP/a" "$TMP/desc-missing"
 
 echo
+# --- §4a round 2 at stop 9: `---` INSIDE a frontmatter value ----------------------------
+# The delimiter search was byte-offset based and took these hyphens for the closing marker,
+# so a VALID one-variable pair was rejected with exit 2. Fails closed, still wrong.
+mkdir -p "$TMP/dash-a/.claude/agents" "$TMP/dash-b/.claude/agents"
+printf -- '---\nname: r\ndescription: reviews --- cautiously\nmodel: m\n---\n\nBody.\n' \
+  > "$TMP/dash-a/.claude/agents/r.md"
+printf -- '---\nname: r\ndescription: reviews cautiously\nmodel: m\n---\n\nBody.\n' \
+  > "$TMP/dash-b/.claude/agents/r.md"
+check "a '---' inside a frontmatter VALUE is not the delimiter" 0 "parity holds" \
+  --allow-differ description "$TMP/dash-a" "$TMP/dash-b"
+
+echo
 echo "verify-overlay-parity-checker: ${pass} passed, ${fail} failed"
+ran=$((pass+fail))
+if [[ "$ran" -ne "$EXPECTED_CASES" ]]; then
+  echo "verify-overlay-parity-checker: FAIL — announced ${EXPECTED_CASES} cases, executed ${ran}." >&2
+  echo "  A fixture was added or removed without updating EXPECTED_CASES. The count a reader" >&2
+  echo "  trusts and the count that ran must be the same number or this file proves nothing." >&2
+  exit 1
+fi
 [[ "$fail" -eq 0 ]]
