@@ -20,16 +20,23 @@
 # has not been measured. Reporting the second as zero would silently turn an instrument failure
 # into evidence for the control arm — which is the direction that flatters the hypothesis.
 #
-# EVERY scope this experiment did not install is counted apart from the one it did:
-# `bundled` (Claude Code ships its own), `plugin` (the operator may have some), and events with
-# no `skill.source` at all. Only what is left is reported as `installed_scope_activations`.
-# Anything looser puts activations in the arm that installed nothing — the control — which is
-# the direction that manufactures a result. `plugin` is the ONLY non-bundled source ever
-# observed on this instrument, so lumping it in with the installed skill was not hypothetical.
+# THIS SCRIPT DOES NOT DECIDE WHICH ACTIVATION WAS YOURS. It reports a count per
+# `skill.source` and stops. That is a correction, and it took the §4a gate three rounds to
+# force it, because the first three versions all had the same shape:
 #
-# NOTE: the value `skill.source` carries for a project skill is UNKNOWN — none has ever been
-# recorded here. The preflight must pin it before a batch is read, or `installed_scope` is a
-# category with nothing proven to be in it.
+#   round 1  everything not "bundled"            -> counted as the installed skill
+#   round 2  everything not "bundled"/empty      -> counted as the installed skill
+#   round 3  everything not "bundled"/"plugin"   -> counted as the installed skill
+#
+# Each fix named one more scope and kept the same unsound move: an open "everything else is
+# mine" bucket. A user-scope skill, an enterprise skill, or a source this runtime has not
+# shipped yet all land in it, and every one of them lands on the CONTROL arm too — the arm
+# that installed nothing. That is not a bug to patch a fourth time; the category was wrong.
+#
+# So: no bucket is labelled "installed". `activations_by_source` is the measurement. The
+# experiment reading it must FIRST pin what `skill.source` a project skill emits — no
+# project-scope skill has ever been recorded on this instrument — and then count that value
+# by name. Until it does, there is no number here that means "my skill loaded".
 
 set -euo pipefail
 
@@ -60,13 +67,13 @@ run_id = os.environ["RUN_ID"]
 
 present = False
 parsed_any = False
-installed = 0     # the skill THIS experiment installed: source is neither bundled nor plugin
 bundled = 0
 plugin = 0
 unknown_source = 0
+other = 0
+by_source = collections.Counter()
 names = collections.Counter()
 triggers = collections.Counter()
-sources = collections.Counter()
 
 def attrs(node):
     return {a["key"]: list(a["value"].values())[0] for a in node.get("attributes", [])}
@@ -96,7 +103,6 @@ with open(events) as fh:
                     if body != "claude_code.skill_activated":
                         continue
                     src = at.get("skill.source")
-                    sources[str(src)] += 1
                     names[str(at.get("skill.name"))] += 1
                     triggers[str(at.get("invocation_trigger"))] += 1
                     # EVERY scope this experiment did not install is counted apart from the
@@ -113,6 +119,8 @@ with open(events) as fh:
                     #
                     # The counter is therefore an allowlist by exclusion, and everything it
                     # excludes is reported on its own line rather than dropped.
+                    # NO "everything else is mine" bucket. See the header.
+                    by_source[str(src)] += 1
                     if src == "bundled":
                         bundled += 1
                     elif src == "plugin":
@@ -120,7 +128,7 @@ with open(events) as fh:
                     elif src is None or src == "":
                         unknown_source += 1
                     else:
-                        installed += 1
+                        other += 1
 
 if not parsed_any:
     print("skill-activation: no parseable JSON lines in telemetry", file=sys.stderr)
@@ -135,12 +143,12 @@ if present and unknown_source:
           "counted in NO scope — inspect them before using this run", file=sys.stderr)
 print(f"run: {run_id}")
 print(f"status: {status}")
-print(f"installed_scope_activations: {installed if present else 'null'}")
 print(f"bundled_activations: {bundled if present else 'null'}")
 print(f"plugin_activations: {plugin if present else 'null'}")
 print(f"unknown_source_activations: {unknown_source if present else 'null'}")
+print(f"other_source_activations: {other if present else 'null'}")
+print(f"activations_by_source: {fmt(by_source)}")
 print(f"skill_names: {fmt(names)}")
-print(f"skill_sources: {fmt(sources)}")
 print(f"invocation_triggers: {fmt(triggers)}")
 
 sys.exit(0 if present else 3)

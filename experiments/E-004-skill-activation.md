@@ -3,6 +3,29 @@
 **Stop 8 of the spine, Phase 3 (Agent Skills). Track A lab that runs the benchmark, so the whole
 §4 loop applies.**
 
+> ## ⛔ THIS EXPERIMENT HAS NOT RUN, AND MUST NOT RUN AS IT STANDS
+>
+> **Two things block it, and both are recorded rather than worked around.**
+>
+> **1. Delivery.** A Claude Code project skill cannot be installed into a BE-003 run at all —
+> the path the runner can commit is not the path the runtime registers. See the amendment below
+> and [`evidence/p03/skill-delivery-probe-20260904T072000Z.md`](../evidence/p03/skill-delivery-probe-20260904T072000Z.md).
+> Unblocking it is one line and it is the author's call (HANDOFF, *BLOCKED ON YOU* item 1).
+>
+> **2. The §4a acceptance gate returned `REJECT` on all three permitted rounds.** Five blocking
+> findings were fixed across rounds 1 and 2; round 3 returned four more, and §4a caps the loop at
+> three rounds. **`REJECT` after round three is recorded as such and is not a pass.** The
+> deepest finding is fixed below — the measurement script no longer claims to know which
+> activation was the installed skill — but **at least three of round 3's findings are open**:
+> arm C's delivery proof is circular with the prediction it is meant to confirm; nothing
+> mechanically asserts that only the `description` differs between arms; and the script does not
+> separate partial telemetry corruption from absent telemetry.
+>
+> **Whoever runs this must resolve those first.** The predictions below are registered and
+> unfalsified; the design around them is not yet sound.
+>
+> Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04
+
 `Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-04T07:0XZ; the author did not review
 before the run.` The exact commit and first-run timestamps are written into *Sanity checks*
 after the batch, and the commit must precede the first `startedAt`.
@@ -37,13 +60,19 @@ it makes — one-arm (binomial, needs no control) or between-arm (needs the cont
    statistical claim — no skill is installed, so there is nothing to load. **Every scope this
    experiment did not install is excluded from the outcome by definition**: `bundled` (Claude
    Code ships its own), `plugin` (the operator may have some), and events carrying no
-   `skill.source` at all. Each is counted and reported on its own line by
-   `tools/skill-activation.sh`. *Tightened 2026-09-04 after the §4a gate found the script
-   counting `plugin` as the installed skill — and `plugin` is the only non-bundled source ever
-   observed here, so a plugin firing on the control arm would have failed this prediction for a
-   skill this experiment did not install.* **`skill.source` for a project skill is still
-   unknown**; the preflight must pin it, or `installed_scope` is a category with nothing proven
-   to be in it.
+   `skill.source` at all.
+
+   **This prediction is not yet measurable, and the reason is a correction the gate forced three
+   times.** `tools/skill-activation.sh` now reports a count **per `skill.source`** and refuses to
+   label any bucket "the installed skill". Its first three versions each kept an open
+   *everything-else-is-mine* bucket — not-`bundled`, then not-`bundled`-or-empty, then
+   not-`bundled`-or-`plugin` — and every one of them would have put a user-scope, enterprise or
+   future-source activation on the **control** arm, the arm that installs nothing. Naming one
+   more scope each round was patching a category that was wrong.
+
+   **So the outcome has no denominator yet.** No project-scope skill has ever been recorded on
+   this instrument, so the value `skill.source` carries for one is unknown. **The preflight must
+   pin that value and this prediction must then name it explicitly**, before any batch is read.
 3. **[between-arm] The misdescribed arm loads on ≤ 1 of 5, at least 3 fewer than the matched
    arm.** Mechanism: the `SKILL.md` **body is byte-identical** between arms B and C; only the
    frontmatter `description` differs. If selection reads the body, C loads as often as B; if it

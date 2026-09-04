@@ -55,27 +55,27 @@ printf 'not json at all\n{"broken":\n' > "$TMP/garbage.jsonl"
 
 echo "verify-skill-activation: 15 cases"
 
-check "the installed skill that loaded is counted"            0 "installed_scope_activations: 1" one-project.jsonl RUN-A
-check "a run present with no skill event is a REAL zero"  0 "installed_scope_activations: 0" present-no-skill.jsonl RUN-A
+check "a project-source activation is reported by source"            0 "bundled_activations: 0" one-project.jsonl RUN-A
+check "a run present with no skill event is a REAL zero"  0 "activations_by_source: -" present-no-skill.jsonl RUN-A
 check "  and that zero is labelled measured"              0 "status: measured"             present-no-skill.jsonl RUN-A
 
 # THE CASE THIS FILE EXISTS FOR.
 check "a run ABSENT from telemetry is NOT reported as 0"  3 "status: UNKNOWN"              other-run-only.jsonl RUN-A
-check "  and its count is null, never 0"                  3 "installed_scope_activations: null" other-run-only.jsonl RUN-A
+check "  and its counts are null, never 0"                3 "other_source_activations: null" other-run-only.jsonl RUN-A
 
-check "a bundled skill is NOT the installed skill"              0 "installed_scope_activations: 0" bundled-only.jsonl RUN-A
+check "a bundled skill is reported as bundled, not ours"  0 "activations_by_source: bundled=1" bundled-only.jsonl RUN-A
 check "  but is still reported separately"                0 "bundled_activations: 1"       bundled-only.jsonl RUN-A
-check "mixed run counts each scope once"                  0 "installed_scope_activations: 1" mixed.jsonl RUN-A
-check "two project activations both counted"              0 "installed_scope_activations: 2" two-project.jsonl RUN-A
+check "mixed run counts each scope separately"            0 "activations_by_source: bundled=1,project=1" mixed.jsonl RUN-A
+check "two project activations both counted"              0 "activations_by_source: project=2" two-project.jsonl RUN-A
 # A source-less event must NOT be counted as the installed skill. Counting it would invent
 # evidence for the treatment arm out of a missing attribute.
-check "an event with NO skill.source is not the installed one" 0 "installed_scope_activations: 0" no-source.jsonl RUN-A
+check "an event with NO skill.source is bucketed as None" 0 "activations_by_source: None=1" no-source.jsonl RUN-A
 check "  and it is surfaced, not silently dropped"        0 "unknown_source_activations: 1" no-source.jsonl RUN-A
 
 # A PLUGIN skill is not the installed one either. This is the case the first two fixture sets
 # missed: plugin is the only non-bundled source ever observed on this instrument, so counting it
 # as the installed skill would record an activation on the CONTROL arm, which installs nothing.
-check "a plugin skill is NOT the installed skill"         0 "installed_scope_activations: 0" plugin-only.jsonl RUN-A
+check "a plugin skill is reported as plugin, not as ours" 0 "other_source_activations: 0"   plugin-only.jsonl RUN-A
 check "  and is reported on its own line"                 0 "plugin_activations: 1"          plugin-only.jsonl RUN-A
 
 check "an unparseable telemetry file is rejected"         2 "no parseable JSON"            garbage.jsonl RUN-A
