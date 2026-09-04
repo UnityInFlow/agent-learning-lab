@@ -55,7 +55,39 @@ claims, which is this project's house failure mode, wearing a probe's clothes th
 Scratch repository, `git init`, one Kotlin file under `sub/`, one skill at the path under test.
 Same binary, same model `claude-haiku-4-5-20251001`, same prompt, same flags except the one being
 varied. Three repetitions per cell. Script kept at
-`scratchpad/flagprobe/matrix.sh`; the twelve raw `stream-json` transcripts sit beside it.
+[`evidence/p03/flagprobe/matrix.sh`](flagprobe/matrix.sh); the **thirteen** raw `stream-json`
+transcripts sit beside it, with the probe's fixture repository under
+[`flagprobe/sub/`](flagprobe/sub/).
+
+> **AMENDMENT 2026-09-04, from `findings/track-b-validation-2026-09-04-9.md` correction 8.B.**
+> Until this edit the two lines above read *"Script kept at `scratchpad/flagprobe/matrix.sh`; the
+> twelve raw `stream-json` transcripts sit beside it"* — **a relative path that resolved to
+> nothing inside this repository.** The files were never committed; they lived in a previous
+> session's scratch directory under `/private/tmp`, which macOS reaps and which has already
+> hollowed the five scored B2 worktrees. So the evidence behind `p = 0.0022` — the result the
+> workspace `CLAUDE.md` instructs every future session to read before recommending a skill
+> treatment — was one cleanup away from gone, cited by a path a stranger could not open. The
+> ninth validator pass found it still present and recounted it; this amendment copies all 17
+> files into the repository and repoints the citation. The count was also wrong: there are
+> **thirteen** `sj-*.jsonl`, not twelve.
+>
+> **Re-derived from the preserved copy, not from the original**, after the copy landed:
+> `grep -c '"name":"Skill"'` over the thirteen transcripts gives flag-ON **0 of 3** at the root
+> path and **0 of 3** nested, flag-OFF **1 of 3** root and **1 of 3** nested — 0 of 6 with
+> `--disable-slash-commands`, 6 of 6 without, at both paths. The matrix reproduces exactly and
+> the result is now re-derivable by a stranger with no access to this machine's temp directory.
+>
+> **The preservation itself found an instrument defect, recorded because hiding it would be
+> worse.** `flagprobe/sub/` was a scratch *git repository*, so `cp -R` brought its `.git` along
+> and `git add -A -f` **exited 0 while staging a single gitlink** — a pointer to a repository
+> that does not exist anywhere else — rather than the 17 files. `git status` showed one clean
+> `A` line. Had the commit gone in there, the citation would have pointed at a path that
+> existed, in a tree that contained nothing, which is strictly worse than the broken relative
+> path it replaced. Caught by counting the staged files against the files on disk instead of
+> reading the exit code. This is the house failure mode in a fourth costume: **a control that
+> reported success over a scope of one when it claimed seventeen.**
+>
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
 
 ```
 claude --permission-mode acceptEdits --strict-mcp-config [--disable-slash-commands] \
