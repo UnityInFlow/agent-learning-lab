@@ -607,6 +607,49 @@ about the harness rather than about the agent:
 
 ## Observed telemetry
 
+## Hand re-read — written and committed BEFORE the scorer ran
+
+§4 step 7: *read the sheets only after you have written your own expected score for at least one
+run by hand from the kept worktree.* §5: *at least one scored cell per step is re-read by hand and
+the hand reading is written down next to the sheet's value.*
+
+**Run `45a70775-e32e-49bf-b57f-40372f4085a5`, arm B (matched), category `maintainability`,
+rubric `benchmark/rubrics/backend-quality.yaml` at sha `396e1799eb2b`.**
+
+Read from the kept worktree at `$TMPDIR/observatory-run-45a70775-…`, `git diff HEAD` against the
+setup commit.
+
+```kotlin
+// sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+val updated = when (shipment.status) {
+    ShipmentStatus.CREATED   -> shipment.copy(status = ShipmentStatus.CONFIRMED)
+    ShipmentStatus.CONFIRMED -> shipment
+    ShipmentStatus.CANCELLED -> throw ConflictException(
+        ErrorCode.SHIPMENT_CANNOT_CONFIRM_CANCELLED,
+        "Cannot confirm a cancelled shipment",
+    )
+}
+
+return repository.save(updated)
+```
+
+**My hand score: `maintainability = 2`.** Anchor 2 asks for one `when (shipment.status)` in
+EXPRESSION position carrying no `else`, and for the construct that consumes its value to be
+cited. All three are present: the `when` is assigned to `val updated`, that value is consumed by
+`repository.save(updated)`, and there is no `else` branch. I did not count branches against
+`ShipmentStatus` — the rubric explicitly forbids it, because that enum is not among the
+attachments.
+
+**A second cell I am deliberately NOT calling, and why.** `change-focus` is ambiguous on this
+submission and the ambiguity is already on record in `agent-learning-lab/CLAUDE.md`: the diff
+adds one `ErrorCode` constant in a second attached file, which is neither a method the ticket left
+alone nor an import, so anchor 2's clause list does not reach it and anchor 1's illustration does
+not either. **1 or 2 are both defensible readings and that is a rubric defect, not a scorer
+defect.** Recorded here rather than resolved, because moving a rubric sha mid-experiment is a §6
+violation.
+
+Written by Opus 5 (claude-opus-5), autonomous, 2026-09-04, before any sheet for this run existed.
+
 ## Results
 
 ## Which predictions held
