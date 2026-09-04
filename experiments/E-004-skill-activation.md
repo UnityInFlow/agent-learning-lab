@@ -223,13 +223,30 @@ Registered now, not after seeing the data:
 Registered before data. Rows are exhaustive over (matched arm loads?) × (arms separate?), and
 **cost is a separate row, never a second condition on a failure row** — E-003's repaired defect.
 
+**CORRECTED 2026-09-04, before any data, after the §4a gate returned REJECT.** The first version
+fired `CONFIRM` on *"matched ≥ 4/5 and matched − misdescribed ≥ 3"*, which **contradicted this
+experiment's own MDE table**: a 4-vs-1 result has a raw difference of 3 and a Fisher `p = 0.206`,
+so one reader would have recorded `CONFIRM` and another `NOT DETECTABLE` from identical data. A
+raw difference is the wrong variable — the same difference is decidable or not depending on where
+it sits. **The rule is now stated in the test, and the decidable cells are enumerated.** All
+two-sided Fisher, 5 per arm:
+
+| matched vs misdescribed | 0/5 | 1/5 | 2/5 | 3/5 |
+|---|---|---|---|---|
+| **5/5** | **0.0079** ✓ | **0.0476** ✓ | 0.1667 | 0.4444 |
+| **4/5** | **0.0476** ✓ | 0.2063 | 0.5238 | 1.0000 |
+| **3/5** | 0.1667 | 0.5238 | 1.0000 | 1.0000 |
+
+**Exactly three cells reach `p < 0.05`: (5,0), (5,1), (4,0).** Everything else is not detectable
+at this `n`, and the rule below says so.
+
 | # | Condition | Verdict |
 |---|---|---|
-| 1 | Matched ≥ 4/5 **and** matched − misdescribed ≥ 3 | **CONFIRM** — the description selects, and it is measured here |
-| 2 | Matched ≥ 4/5 **and** matched − misdescribed ≤ 2 | **PARTIAL** — the skill loads, but the description is not shown to be what selects it. The body, or mere presence, may be enough |
+| 1 | The pair reaches **Fisher `p < 0.05`** — i.e. (matched, misdescribed) is (5,0), (5,1) or (4,0) | **CONFIRM** — the description selects, and it is measured here |
+| 2 | Matched ≥ 4/5, **and** the pair does **not** reach `p < 0.05` | **PARTIAL** — the skill loads, and this `n` cannot show the description is what selected it. Register the `n` that could |
 | 3 | Matched 2–3 of 5 | **NOT DETECTABLE at n=5**, whatever the misdescribed arm does. Register the `n` that would resolve it |
-| 4 | Matched ≤ 1/5 | **REFUTED** — prediction 1 fails as a one-arm claim, and the vendors' documented mechanism does not reproduce on this instrument at this model |
-| 5 | Any arm records 0 activations *and* zero events of any kind for the run | **VOID that run** as an instrument failure, not a result; re-run it under a new id |
+| 4 | Matched ≤ 1/5 | **prediction 1 REFUTED as a one-arm claim** — if the true rate were 0.8, ≤1 of 5 has p = 0.0067. **No attribution follows**: by the amendment above, a miss on this delivery path is a joint failure of *description matched* and *agent reached `sample-service/` in time*, and this design cannot separate them. Do **not** record it as "the vendors' mechanism does not reproduce" |
+| 5 | Any arm records 0 activations *and* zero events of any kind for the run | **VOID that run** as an instrument failure, not a result; re-run it under a new id. `tools/skill-activation.sh` exits 3 on exactly this and reports `null`, never `0` |
 | Cost | separate row, applied to whichever verdict above is reached | if the skill arm costs > +25 % against control, that is reported **beside** the verdict and does not change it. **A skill that works and is expensive is a different decision from one that does not work** |
 
 **The instrument rows are decided independently of the above**, because they are existence claims

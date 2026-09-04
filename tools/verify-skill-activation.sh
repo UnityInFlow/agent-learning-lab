@@ -48,10 +48,11 @@ check() { # check <label> <expected-exit> <expected-substring> <file> <run-id>
 { rec RUN-A; rec RUN-A bundled run claude-proactive; } > "$TMP/bundled-only.jsonl"
 { rec RUN-A; rec RUN-A bundled run claude-proactive; rec RUN-A project sc claude-proactive; } > "$TMP/mixed.jsonl"
 { rec RUN-A project custom_skill claude-proactive; rec RUN-A project custom_skill nested-skill; } > "$TMP/two-project.jsonl"
+{ rec RUN-A; printf '{"resourceLogs":[{"resource":{"attributes":[]},"scopeLogs":[{"logRecords":[{"body":{"stringValue":"claude_code.skill_activated"},"attributes":[{"key":"observatory.run.id","value":{"stringValue":"RUN-A"}},{"key":"skill.name","value":{"stringValue":"mystery"}}]}]}]}]}\n'; } > "$TMP/no-source.jsonl"
 printf 'not json at all\n{"broken":\n' > "$TMP/garbage.jsonl"
 : > "$TMP/empty.jsonl"
 
-echo "verify-skill-activation: 11 cases"
+echo "verify-skill-activation: 13 cases"
 
 check "a project skill that loaded is counted"            0 "project_scope_activations: 1" one-project.jsonl RUN-A
 check "a run present with no skill event is a REAL zero"  0 "project_scope_activations: 0" present-no-skill.jsonl RUN-A
@@ -65,6 +66,11 @@ check "a bundled skill is NOT project scope"              0 "project_scope_activ
 check "  but is still reported separately"                0 "bundled_activations: 1"       bundled-only.jsonl RUN-A
 check "mixed run counts each scope once"                  0 "project_scope_activations: 1" mixed.jsonl RUN-A
 check "two project activations both counted"              0 "project_scope_activations: 2" two-project.jsonl RUN-A
+# A source-less event must NOT be counted as the installed skill. Counting it would invent
+# evidence for the treatment arm out of a missing attribute.
+check "an event with NO skill.source is not project scope" 0 "project_scope_activations: 0" no-source.jsonl RUN-A
+check "  and it is surfaced, not silently dropped"        0 "unknown_source_activations: 1" no-source.jsonl RUN-A
+
 check "an unparseable telemetry file is rejected"         2 "no parseable JSON"            garbage.jsonl RUN-A
 
 # an empty file parses to nothing -> also exit 2, not a silent zero

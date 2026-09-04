@@ -55,6 +55,7 @@ present = False
 parsed_any = False
 proj = 0
 bundled = 0
+unknown_source = 0
 names = collections.Counter()
 triggers = collections.Counter()
 sources = collections.Counter()
@@ -90,8 +91,15 @@ with open(events) as fh:
                     sources[str(src)] += 1
                     names[str(at.get("skill.name"))] += 1
                     triggers[str(at.get("invocation_trigger"))] += 1
+                    # An event with no skill.source is NOT project scope. The first version
+                    # of this script sent everything that was not "bundled" to the project
+                    # counter, so a source-less event would have been counted as the installed
+                    # skill loading — inventing evidence for the treatment arm out of a missing
+                    # attribute. Caught by the §4a gate, 2026-09-04, before any batch.
                     if src == "bundled":
                         bundled += 1
+                    elif src is None or src == "":
+                        unknown_source += 1
                     else:
                         proj += 1
 
@@ -103,10 +111,14 @@ def fmt(counter):
     return ",".join(f"{k}={v}" for k, v in sorted(counter.items())) or "-"
 
 status = "measured" if present else "UNKNOWN-run-absent-from-telemetry"
+if present and unknown_source:
+    print(f"skill-activation: {unknown_source} activation(s) carry no skill.source and are "
+          "counted in NEITHER scope — inspect them before using this run", file=sys.stderr)
 print(f"run: {run_id}")
 print(f"status: {status}")
 print(f"project_scope_activations: {proj if present else 'null'}")
 print(f"bundled_activations: {bundled if present else 'null'}")
+print(f"unknown_source_activations: {unknown_source if present else 'null'}")
 print(f"skill_names: {fmt(names)}")
 print(f"skill_sources: {fmt(sources)}")
 print(f"invocation_triggers: {fmt(triggers)}")
