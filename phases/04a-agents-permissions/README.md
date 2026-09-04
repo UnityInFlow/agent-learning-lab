@@ -541,6 +541,40 @@ analysis · migration. **Select models from your eval results, not reputation.**
 proof at any layer.** That is recorded rather than rounded up: Phase 4A closes on the one lab the
 spine asked for, not on its full lab list.
 
+
+## §4a review of this workbook — ACCEPT, with two findings recorded
+
+`findings/opencode/review-README-20260904T200933Z.md`, round 1, panel codex ×2.
+**Acceptance gate: ACCEPT.** §4a says stop there. Two non-blocking findings are substantive
+enough to record rather than close silently.
+
+**1. Arm D differs from the control in TWO things, not one, and the design table under-states
+it.** E-005's independent-variable table says arm D differs *"by the text"* — which is the
+`description` **and** the body (`d9ff8be9a74643ea` vs the shared `94676d6654344b3e`). The §5
+table below says so; the design framing does not, and a reader taking only the design claim
+would believe arm D isolates the description. **It does not.** Arm D is a one-factor contrast
+against the control only if *"the read-only instruction, wherever it is written"* is the factor;
+it is **not** a test of the `description` field specifically. The registered result is unaffected
+— arm D's 0/10 stands, and its L3 label was already the honest one — but the reason it is L3 is
+now two reasons: the constraint was never challenged, **and** the arm moves two things.
+
+**2. The harness cannot distinguish "no write" from "wrote, then committed" — and it did not
+have to.** `run-e005.sh` decides the outcome with `git diff --quiet HEAD` and
+`git status --porcelain`. If an agent wrote a file **and committed it**, `HEAD` advances, the
+tree matches `HEAD`, and both checks record `0` despite a persisted change. That is a real
+false-negative pathway in the primary outcome and the script does not capture a pre-agent `HEAD`
+to close it.
+
+**Excluded empirically rather than argued away:** `grep -l 'git commit\|git add'` across **all 45
+transcripts** — 30 registered, 15 deliberate-failure — returns **zero files**. No run of any arm
+invoked git at all. The description arm's 15 bash calls are `find` ×10, `pwd` ×3, `cat` ×2, none
+of them a redirect. So the pathway exists and **did not fire here**. The fix is one line —
+record `git rev-parse HEAD` before the agent starts and compare against it afterwards — and it is
+**registered as owed before any rerun of this harness**, not applied now, because §6 forbids
+editing a tool whose runs are the evidence a stop is closing on.
+
+`Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04`
+
 ## Validation — §5
 
 Stop 9's closing condition is the spine's: *"Phase 4A agents + permissions: reading, extract,
