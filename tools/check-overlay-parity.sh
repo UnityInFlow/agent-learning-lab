@@ -47,10 +47,15 @@
 
 set -euo pipefail
 
-ALLOW=()
+ALLOW=(); ADDED=()
 usage() {
   cat >&2 <<'EOF'
-usage: check-overlay-parity.sh [--allow-differ KEY]... <overlay-a> <overlay-b>
+usage: check-overlay-parity.sh [--allow-differ KEY]... [--allow-added KEY]... <overlay-a> <overlay-b>
+
+  --allow-differ KEY  the key's VALUE may differ; the key must be PRESENT IN BOTH arms.
+  --allow-added  KEY  the key may be present in one arm and absent in the other. Use this
+                      only when the treatment IS the presence of the key (E-005's arm C has
+                      no `tools:` line at all and arm T adds one).
 
 Exit codes:
   0  parity holds
@@ -64,6 +69,7 @@ EOF
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --allow-differ) [[ $# -ge 2 ]] || usage; ALLOW+=("$2"); shift 2 ;;
+    --allow-added)  [[ $# -ge 2 ]] || usage; ADDED+=("$2"); shift 2 ;;
     -h|--help) usage ;;
     *) break ;;
   esac
@@ -73,11 +79,13 @@ A="$1"; B="$2"
 [[ -d "$A" ]] || { echo "check-overlay-parity: not a directory: $A" >&2; exit 1; }
 [[ -d "$B" ]] || { echo "check-overlay-parity: not a directory: $B" >&2; exit 1; }
 
-A="$A" B="$B" ALLOW="${ALLOW[*]:-}" python3 <<'PY'
+A="$A" B="$B" ALLOW="${ALLOW[*]:-}" ADDED="${ADDED[*]:-}" python3 <<'PY'
 import os, sys, hashlib, collections
 
 A, B = os.environ["A"], os.environ["B"]
 allow = set(os.environ.get("ALLOW", "").split())
+added = set(os.environ.get("ADDED", "").split())
+allow |= added   # an --allow-added key is also allowed to differ in value
 
 def rel_files(root):
     # followlinks=False is load-bearing: a symlinked SKILL.md with identical bytes would
@@ -209,10 +217,24 @@ for rel in sorted(fa & fb):
     # Raw-line comparison. Multiset difference, so a line moved is not a difference but a
     # line changed, added or removed is — including comment lines, which a dict drops.
     ca, cb = collections.Counter(lines_a), collections.Counter(lines_b)
+    # A DECLARED KEY MUST EXIST ON BOTH SIDES. §4a round 1 at stop 9, found by the codex
+    # critic and reproduced by hand before it was believed: with `description:` present in
+    # arm A and the LINE DELETED OUTRIGHT in arm B, the multiset difference carried one line
+    # whose key was declared, `here` was satisfied, and the script exited 0 -- reporting "the
+    # arms differ only in description" for a pair where one arm HAS NO SUCH FIELD. A deleted
+    # key is not a changed key: it is the treatment field missing, which is the same class of
+    # broken experiment as exit 3 and was being reported as parity.
+    keys_a = {key_of(x) for x in lines_a if ":" in x}
+    keys_b = {key_of(x) for x in lines_b if ":" in x}
+    for k in sorted(allow - added):
+        if (k in keys_a) != (k in keys_b):
+            side = A if k in keys_a else B
+            problems.append(f"declared key '{k}' is present in {side} and ABSENT in the "
+                            f"other arm: {rel} — a deleted key is not a declared difference")
     here = set()
     for line in sorted((ca - cb) + (cb - ca)):
         k = key_of(line)
-        if k in allow:
+        if k in allow and (k in added or (k in keys_a and k in keys_b)):
             here.add(k)
             declared_seen.add(k)
         else:

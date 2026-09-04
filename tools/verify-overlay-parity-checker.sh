@@ -18,6 +18,14 @@ trap 'rm -rf "$TMP"' EXIT
 
 pass=0; fail=0
 
+# Portable in-place sed. §4a round 1 at stop 9: the codex critic pointed out that `sed -i ''`
+# is BSD-only -- on GNU sed the '' is read as the script's filename, the call fails, and under
+# `set -e` this verifier dies BEFORE its first check, reporting nothing rather than failing.
+# A verifier whose outcome depends on which sed is installed is not a control. `-i.bak` plus a
+# delete is the spelling both accept.
+sedi() { sed -i.bak "$@"; local f="${*: -1}"; rm -f "${f}.bak"; }
+
+
 skill() { # skill <dir> <description> [body-extra]
   local d="$1" desc="$2" extra="${3:-}"
   mkdir -p "$d/sample-service/.claude/skills/s"
@@ -50,6 +58,8 @@ skill "$TMP/same-desc" "matches the task"
 skill "$TMP/extra-file" "an unrelated domain"; printf 'x\n' > "$TMP/extra-file/README.md"
 skill "$TMP/shared-differs" "an unrelated domain"; printf 'y\n' > "$TMP/shared-differs/CLAUDE.md"
 cp -R "$TMP/a" "$TMP/a-plus"; printf 'x\n' > "$TMP/a-plus/CLAUDE.md"
+skill "$TMP/desc-missing" "matches the task"
+sedi '/^description: /d' "$TMP/desc-missing/sample-service/.claude/skills/s/SKILL.md"
 # --- the three the §4a gate found, all of which PASSED the first version ------
 # A symlinked SKILL.md with identical bytes: `open()` follows the link, so byte comparison
 # said parity while the two overlays install structurally different things.
@@ -59,12 +69,12 @@ cp "$TMP/a/sample-service/.claude/skills/s/SKILL.md" "$TMP/real-skill.md"
 ln -s "$TMP/real-skill.md" "$TMP/symlinked/sample-service/.claude/skills/s/SKILL.md"
 # A comment line carrying a real difference: a dict parse drops every line with no colon.
 skill "$TMP/comment-differs" "matches the task"
-sed -i '' '2i\
+sedi '2i\
 # arm C only: reviewed 2026-09-04
 ' "$TMP/comment-differs/sample-service/.claude/skills/s/SKILL.md"
 # A duplicated key: a dict keeps the LAST one and compares equal on it.
 skill "$TMP/dup-key" "matches the task"
-sed -i '' 's/^description: matches the task$/description: SOMETHING ELSE ENTIRELY\
+sedi 's/^description: matches the task$/description: SOMETHING ELSE ENTIRELY\
 description: matches the task/' "$TMP/dup-key/sample-service/.claude/skills/s/SKILL.md"
 
 # §4a round 2 at 2/2: os.walk puts DIRECTORY symlinks in dirnames, not names, so an overlay
@@ -88,7 +98,7 @@ for d in two-a two-b; do
   printf -- '---\nname: second\ndescription: identical everywhere\n---\n\nbody\n' \
     > "$TMP/$d/sample-service/.claude/skills/second/SKILL.md"
 done
-sed -i '' 's/^description: matches the task$/description: an unrelated domain/' \
+sedi 's/^description: matches the task$/description: an unrelated domain/' \
   "$TMP/two-b/sample-service/.claude/skills/s/SKILL.md"
 # CRLF frontmatter must not be reported as a whole-file body difference
 for d in crlf-a crlf-b; do
@@ -176,8 +186,8 @@ check "AGENT: a declared 'tools' difference is parity"        0 "parity holds" \
   --allow-differ tools "$TMP/ag-narrow" "$TMP/ag-wide"
 check "AGENT: an UNdeclared 'tools' difference is refused"    2 "key was not declared" \
   --allow-differ description "$TMP/ag-narrow" "$TMP/ag-wide"
-check "AGENT: a tools line added where there was none"        0 "parity holds" \
-  --allow-differ tools "$TMP/ag-none" "$TMP/ag-narrow"
+check "AGENT: a tools line added, declared --allow-added"    0 "parity holds" \
+  --allow-added tools "$TMP/ag-none" "$TMP/ag-narrow"
 check "AGENT: a differing BODY is refused even if tools ok"   2 "BODY differs" \
   --allow-differ tools "$TMP/ag-wide" "$TMP/ag-bodydiff"
 check "AGENT: two differing keys, only one declared, refused" 2 "key was not declared" \
@@ -193,6 +203,18 @@ printf -- '---\ntools: Read\n---\nbody\n' > "$TMP/ag-plain-a/notes.md"
 printf -- '---\ntools: Read, Bash\n---\nbody\n' > "$TMP/ag-plain-b/notes.md"
 check "an UNRECOGNISED frontmatter file is still opaque"      2 "non-skill file differs" \
   --allow-differ tools "$TMP/ag-plain-a" "$TMP/ag-plain-b"
+
+echo
+# --- §4a round 1 at stop 9: the codex critic's missing-key finding, reproduced by hand -----
+# A DELETED key is not a CHANGED key. Before the fix, arm A with `description:` and arm B with
+# the line removed exited 0 under --allow-differ description, reporting "the arms differ only in
+# description" for a pair where one arm has no such field at all.
+check "a DELETED declared key is refused, not called a difference" 2 "ABSENT in the other arm" \
+  --allow-differ description "$TMP/a" "$TMP/desc-missing"
+# ...and the same pair is parity when the caller says the PRESENCE is the treatment, which is
+# E-005's actual design: arm C has no `tools:` line and arm T adds one.
+check "  ...unless --allow-added says presence IS the treatment" 0 "parity holds" \
+  --allow-added description "$TMP/a" "$TMP/desc-missing"
 
 echo
 echo "verify-overlay-parity-checker: ${pass} passed, ${fail} failed"
