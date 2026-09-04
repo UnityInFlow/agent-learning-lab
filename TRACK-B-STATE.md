@@ -4,19 +4,19 @@ Owned by the autonomous run. `run-track-b.sh` reads `status:`. Everything the ne
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running
+status: blocked   # §7 halt at stop 8, step 5. The blocker is in HANDOFF.md under "What is BLOCKED ON YOU", item 1
 prompt_sha: 0580d5332a2b
 prompt_read_at: 2026-09-04T06:32:02Z
 stop: 8            # stop 7 CLOSED and merged; 8 is Phase 3 (Agent Skills) and is NOT started
-loop_step: 1       # stop 8 OPEN. Track A stop whose lab runs the benchmark, so the WHOLE §4 loop applies
+loop_step: 5       # HALTED at §4 step 5, the preflight assertion. Steps 1-4 are done; 6-10 cannot run
 branch: phase03/skills-activation   # cut from main after 93ee5f7
 in_flight:
   - "prompt changed 1dd9a22ac9b0 -> 0580d5332a2b; sections applied from stop 8 step 1 onward. The change adds validation_processed: and the §0 rule that a validator file is processed BEFORE any stop is opened or continued. Stops 4-7 were closed under the old text and are not reopened for that reason alone"
   - "validator file PROCESSED; corrections applied to four workbooks and the track report. Stop 8 not yet opened"
 validation_processed:
   - "findings/track-b-validation-2026-09-04.md - read in full, all four verdicts CONFIRMED WITH CORRECTIONS, none NOT CLOSED, so no stop reopened. Every correction applied as a dated amendment in the workbook it names; no prediction, result, sheet or run folder rewritten. The one process risk (squash-orphaned prediction commits) went to blocked_on_author because fixing it changes a repo convention"
-last_verified: "TWO PRs merged. lab#53 as 27d67e5 (stops 4, 5, 6 shipped) and lab#54 as df4a022 (stop 7), both squash, both 8 of 8 checks green on their final heads. Boards republished at position 8 and re-checked ON MAIN AFTER the squash: 2 of 2 current at prose 4119c4abf58f, exit 0. Preflight re-run in full, all seven rows ok. check-links 64 ok / 0 broken"
-next_action: "stop 8 step 1: read the three unextracted Phase 3 sources and write the extract. Then design a THREE-ARM lab on BE-003 - control (no skill) / treatment (skill whose description matches the task) / deliberate failure (IDENTICAL skill body, mismatched description) - measured from claude_code.skill_activated in telemetry, which exists and carries observatory.run.id, invocation_trigger and experiment.variant. Overlays go in build/customizations/skill-v0.1 and skill-v0.1-misdescribed, per the instructions-v0.1 precedent"
+last_verified: "Stop 8 HALTED at the preflight. Delivery block proved BOTH ways by execution: `claude -p \"/shipment-service-conventions\"` loads the skill and quotes its body at the root path, and answers `Unknown command` at the nested one, same binary/model/flags. Runs 16cd4378 (died at setup), c090f67e and d8be2b5f (completed, evaluator 0, zero project-scope activations with telemetry PRESENT). verify-skill-activation 11/11, check-links 64 ok / 0 broken, shellcheck clean. EARLIER: three PRs merged. lab#53 as 27d67e5 (stops 4, 5, 6 shipped) and lab#54 as df4a022 (stop 7), both squash, both 8 of 8 checks green on their final heads. Boards republished at position 8 and re-checked ON MAIN AFTER the squash: 2 of 2 current at prose 4119c4abf58f, exit 0. Preflight re-run in full, all seven rows ok. check-links 64 ok / 0 broken"
+next_action: "NOTHING UNTIL THE AUTHOR DECIDES. Stop 8 needs one line changed and there are two candidates - benchmarks .gitignore, or the runner's git add -A. Both are in HANDOFF.md under BLOCKED ON YOU item 1, with a recommendation (the runner, because it does not touch what the evaluator measures). E-004 is registered and the batch can start the hour it is decided: ~15 runs, ~$2.30. Do NOT batch at the nested path - it produces three arms of zeros that agree perfectly and mean nothing"
 blocked_on_author:
   - "SQUASH MERGES HAVE ORPHANED EVERY PREDICTION COMMIT IN THIS TRACK - all eleven. On main, `git log -- experiments/E-002-isolation-contamination.md` shows only the squash 27d67e5 at 19:07Z, SIX HOURS AFTER the runs it was supposed to precede. B3's nine commits are the same. So the prediction-precedes-run guarantee - the track's most-cited - CANNOT BE RE-DERIVED BY A STRANGER cloning the repo, and by the §9 validator's layer correction it is L3 as well. The fix is a repo-convention change and §7 reserves those for the author: merge commits for stop branches instead of squashes, or a pre-push check that refuses a workbook citing a sha main cannot reach. Raised by findings/track-b-validation-2026-09-04.md"
 preflight:  # re-run in full at stop 8, 2026-09-04T06:51Z. SIX rows ok on the first pass; row 2 FAILED and was fixed and re-run, see review_harness
@@ -53,7 +53,7 @@ hook_wiring: unproven in print mode — and STILL unproven after stop 7, deliber
 | 5 | Phase 1 — custom instructions | **gate ANSWERED**, result `INCONCLUSIVE`; merged in the same PR |
 | 6 | B3 — minimal global instructions | **CLOSED and MERGED**, same PR; gate met on all four items, result **REJECT**. `instructions-v0.1` is removed and not replaced — all three rules failed the gate's own "remove every rule with no measured effect" clause |
 | 7 | Phase 2 — prompt files | **CLOSED as extract only, labs deferred**, which is what the spine registers for a ◇ stop. Four sources read, three of them never extracted before; exit gate answered on all four items; `n = 0` runs and nothing claimed about the agent. Two findings: `allowed-tools` pre-approves where VS Code's `tools:` restricts, so Lab 2.1's read-only constraint needs `disallowed-tools`; and two GitHub pages disagree on prompt-file support by IDE |
-| 8 | Phase 3 — Agent Skills | **NOT STARTED** — next, and unlike stop 7 it **needs runs**: the itinerary gives it "one lab that records skill activation on the observatory". Phase 2's extract already carries the Skills frontmatter reference it will need |
+| 8 | Phase 3 — Agent Skills | **BLOCKED at §4 step 5.** Reading and extract done; E-004 registered at `5d14182` before any run; `tools/skill-activation.sh` built and proved by 11 fixtures; two overlays with byte-identical bodies. **The lab cannot run**: a Claude Code project skill cannot be delivered to a BE-003 run. Root `.claude/skills/` is gitignored so the runner refuses; nested `sample-service/.claude/skills/` commits fine and the runtime answers `Unknown command`. Three runs spent proving it, zero measured. Unblocking is one line and it is the author's call |
 
 ## Corrections carried forward, re-derived 2026-09-03
 
@@ -73,6 +73,16 @@ hook_wiring: unproven in print mode — and STILL unproven after stop 7, deliber
    agent.
 
 ## Held for the author
+
+**New from stop 8 — the halt, and it is one decision:**
+
+F. **Stop 8 needs one line changed, and there are two candidates.** Either
+   `agent-observatory-benchmarks/.gitignore` gains `!.claude/skills/` — which alters what the
+   evaluator's scope guard can flag, and §7 makes that a halt — or
+   `agent-observatory/runner/run-agent.sh` force-adds the overlay it just installed, which
+   touches nothing the evaluator measures. **Recommended: the runner.** Full reasoning in
+   HANDOFF.md under BLOCKED ON YOU item 1. E-004 is registered and the batch is ~15 runs and
+   ~$2.30 whenever this is decided.
 
 **New from stop 7 — two instrument defects, and neither is about an agent:**
 
