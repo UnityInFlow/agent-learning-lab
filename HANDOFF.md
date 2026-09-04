@@ -1,19 +1,50 @@
-# Handoff — 2026-09-03 (tenth session)
+# Handoff — 2026-09-04 (eleventh session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "What the tenth session changed" below, then "Stop 6 closed, and the answer is a
-null".** PR lab#53 is **merged** — stops 4, 5 and 6 are shipped, not just written. Stop 7,
+**Start at "Stop 8 is BLOCKED, and the block is the finding" below, then "What the tenth session
+changed".** PR lab#53 is **merged** — stops 4, 5 and 6 are shipped, not just written. Stop 7,
 Phase 2, is closed as an extract. The run's largest result is still B3's: **a global
 instruction file, proved delivered, changed nothing measurable.** The ninth-session section
 below is accurate except where the tenth corrects it; the eighth and earlier are history.
 
 ## Position
 
-**Spine 8 of 28 — B2, Phase 1, B3 and Phase 2 all CLOSED 2026-09-03. B1 closed 2026-08-30.**
-Position 8 is Phase 3, Agent Skills, not started. No agent exists and none should until
-stop 10.
+**Spine 8 of 28 — B2, Phase 1, B3, Phase 2 CLOSED and MERGED. Position 8, Phase 3, is BLOCKED.**
+B1 closed 2026-08-30. No agent exists and none should until stop 10.
+
+## Stop 8 is BLOCKED, and the block is the finding — 2026-09-04
+
+**A Claude Code project skill cannot be delivered to a BE-003 benchmark run.** The location the
+runner can commit is not the location the runtime registers, and no path satisfies both:
+
+| location | runner can commit it? | registered at session start? |
+|---|---|---|
+| `.claude/skills/<name>/SKILL.md` (worktree root) | **NO** — benchmarks `.gitignore:19` is `.claude/*`; `git add -A` skips it, the setup commit fails, the run dies | **YES** — `claude -p "/name"` loads it and quotes its body |
+| `sample-service/.claude/skills/<name>/` (nested) | **YES** — tracked, in the setup commit | **NO** — `Unknown command` |
+
+Both halves were executed, not argued, with the same binary, model and flags the runner uses.
+Evidence and the exact commands:
+[`evidence/p03/skill-delivery-probe-20260904T072000Z.md`](evidence/p03/skill-delivery-probe-20260904T072000Z.md).
+
+**The nested path is the dangerous one.** It installs, commits, is tracked, and its runs evaluate
+clean at 7/7. Had E-004 batched its fifteen runs there, all three arms would have returned zero
+activations, agreed perfectly, and produced a confident finding that *the description does not
+affect whether a skill loads* — from fifteen runs in which no skill was ever registered. **That is
+Phase 1's disaster with a different filename**, and §4 step 5 is the only reason it was caught
+before the batch instead of after.
+
+Three runs were spent: `16cd4378` died at setup; `c090f67e` and `d8be2b5f` completed with
+evaluator exit 0 and **0** project-scope activations with telemetry present, so those zeros are
+real rather than missing.
+
+**What is NOT claimed.** Nothing about whether the description selects a skill. `E-004`'s five
+predictions are registered, committed at `5d14182` before any run, and **unfalsified — not
+confirmed, not refuted, not run.** The one behavioural observation is `n = 1` per condition: at a
+location where the skill *was* registered, the model did not select it on the BE-003 task, even
+when the description read *"REQUIRED … You must load this skill before editing
+ShipmentController"*. That is the reason prediction 1 is worth running, not a result.
 
 ## What the tenth session changed, 2026-09-03 (autonomous, Opus 5)
 
@@ -294,6 +325,57 @@ Decision E, Decision F, the four B2 predictions or the baseline result.
 
 ## What is BLOCKED ON YOU, and cannot be delegated
 
+### 1. Stop 8 cannot proceed — pick which half moves (NEW, 2026-09-04)
+
+**One line unblocks it, and there are two candidates. They are not equivalent.**
+
+**(a) `agent-observatory-benchmarks/.gitignore`** — add `!.claude/skills/` beside the existing
+`!.claude/hooks/` and `!.claude/settings.json`.
+*Cost:* that file is load-bearing for the evaluator's scope guard — its own comment says the
+guard's second source is `git ls-files --others --exclude-standard`, "which respects this file".
+Allowlisting the path changes what the evaluator can flag as an unrelated changed file if an
+**agent** ever writes there. **§7 makes any change to what the evaluator measures a halt, so I did
+not make it.**
+
+**(b) `agent-observatory/runner/run-agent.sh`** — force-add the overlay it just installed, e.g.
+`git add -A -f -- <paths copied from the customization>` instead of a plain `git add -A`.
+*Cost:* none to the evaluator. The overlay is committed as the setup commit and **becomes the
+evaluation baseline**, so a tracked `.claude/skills/` file is not in the agent's diff and is not
+collected as untracked. This fixes, in the component that caused it, a problem the runner created
+by requiring its own overlay to be committable.
+
+**My recommendation is (b)**, for the reason above: it leaves what the evaluator measures exactly
+where it is. It is still yours — it changes the harness mid-track, and B3 already carries one
+disclosed harness move.
+
+Either way, `E-004` is registered and ready: predictions committed at `5d14182` before any run,
+two overlays whose bodies are byte-identical, and `tools/skill-activation.sh` proven by 11
+fixtures. **The batch is ~15 runs and ~$2.30 and can start the hour this is decided.**
+
+### 2. Squash merges have orphaned every prediction commit in the track (from the §9 validator)
+
+All eleven. On `main`, `git log -- experiments/E-002-isolation-contamination.md` shows only the
+squash `27d67e5` at 19:07Z — **six hours after the runs it was supposed to precede.** B3's nine
+commits are the same. So *prediction precedes run*, the guarantee this track cites most, **cannot
+be re-derived by a stranger cloning the repository**, and by the validator's layer correction it
+is L3 rather than L2 as well.
+
+Fixing it changes a repo convention — merge commits for stop branches instead of squashes, or a
+pre-push check refusing a workbook that cites a sha `main` cannot reach — so §7 reserves it for
+you.
+
+### 3. The review harness's default critic has failed three times running
+
+`ollama-cloud/glm-5.2` stalled twice on 2026-09-03 (once for 24 minutes against a 600 s budget,
+printing no `STALLED` line and leaving wedged processes) and returned **OFF CONTRACT** on
+2026-09-04. `codex` has succeeded on every invocation in the same window. **§4a reviews now run
+`-P codex`** — a control substitution, not a registered experimental variable, since no
+experiment's numbers come from the critic. Two related instrument facts are in `TRACK-B-STATE.md`:
+bare `pgrep` is blind here without `LC_ALL=C`, and process checks must match the opencode
+**binary**, not the wrapper's argv, or a poller registers as a live harness.
+
+
+
 **Superseded in part on 2026-08-30.** B1's two blockers — the four prediction blanks and the
 17-cell blind sheet — are **closed**, the first by adoption with recorded provenance and the
 second by Decision E replacing the human column with a second harness. Neither was completed
@@ -556,8 +638,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 34d7657 prose: 4119c4abf58f -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 34d7657 prose: 4119c4abf58f -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: cf91b3f prose: 144a48bca1e3 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: cf91b3f prose: 144a48bca1e3 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The

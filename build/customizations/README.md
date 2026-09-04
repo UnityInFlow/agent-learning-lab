@@ -43,3 +43,16 @@ installing a file proves nothing about whether a model reads it.
 **The guard is L2 for the file name and L3 for everything else about the content.** It proves
 the runtime reads that filename. It cannot prove a rule inside it changed anything, which is
 what the experiment is for.
+
+## `skill-probe-diagnostic/` is not an arm
+
+Added 2026-09-04 for E-004's preflight. It is a **diagnostic overlay**, not a registered arm and
+not a version: its description was written to be maximally imperative (*"REQUIRED … You must load
+this skill before editing ShipmentController"*) in order to test whether a skill could reach the
+model at all. It was used on run `d8be2b5f-9a88-4aa6-8aba-27fffe4de917` under
+`EXP-P3-PREFLIGHT`, which is a preflight key and can never join an `n`.
+
+It is kept because it is the evidence for the negative result in
+[`evidence/p03/skill-delivery-probe-20260904T072000Z.md`](../../evidence/p03/skill-delivery-probe-20260904T072000Z.md).
+**Do not add it to an experiment.** The measured arms are `skill-v0.1` and
+`skill-v0.1-misdescribed`, whose bodies are byte-identical and which differ only in `description`.

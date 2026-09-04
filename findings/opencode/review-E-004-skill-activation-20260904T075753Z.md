@@ -1,9 +1,9 @@
-# opencode review — run-record
+# opencode review — E-004-skill-activation
 
 ```yaml
 line_level:
   agent:         lab-critic
-  model:         ollama-cloud/glm-5.2          # registered variable — do not change mid-experiment
+  model:         codex          # registered variable — do not change mid-experiment
   agent_sha:     5ae27fa4d5e2
 acceptance:
   agent:         lab-acceptance
@@ -11,27 +11,17 @@ acceptance:
   agent_sha:     4aa690d15304
   strict:        false
 opencode:        1.18.27
-reviewed_utc:    20260904T063339Z
+reviewed_utc:    20260904T075753Z
 runs:            1           # independent sessions; findings unioned below
 families:        1           # distinct models; the recurrence denominator
 artifacts:
-  - path: templates/run-record.yaml
-    sha:  7c59a58067c8
+  - path: experiments/E-004-skill-activation.md
+    sha:  c015c6b7fce7
     dirty: false
-lab_head:        447beae
+  - path: tools/skill-activation.sh
+    sha:  3e877b8a0507
+    dirty: false
+lab_head:        d169b74
 lab_dirty:       true   # the TREE, not the artifact - see each artifact's own dirty:
 ```
 
-
-## Off-contract output — ollama-cloud/glm-5.2
-
-
-> lab-critic · glm-5.2
-
-## Panel
-
-Every family failed. No review was produced.
-
-| Family | Outcome | |
-|---|---|---|
-| ollama-cloud/glm-5.2 | OFF CONTRACT | 352s |

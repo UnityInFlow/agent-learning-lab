@@ -4,37 +4,43 @@ Owned by the autonomous run. `run-track-b.sh` reads `status:`. Everything the ne
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running
+status: blocked   # §7 halt at stop 8, step 5. The blocker is in HANDOFF.md under "What is BLOCKED ON YOU", item 1
 prompt_sha: 0580d5332a2b
 prompt_read_at: 2026-09-04T06:32:02Z
 stop: 8            # stop 7 CLOSED and merged; 8 is Phase 3 (Agent Skills) and is NOT started
-loop_step: 1       # nothing of stop 8 has been opened
-branch: main       # phase02/prompt-files-extract merged as df4a022 and deleted
+loop_step: 5       # HALTED at §4 step 5, the preflight assertion. Steps 1-4 are done; 6-10 cannot run
+branch: phase03/skills-activation   # cut from main after 93ee5f7
 in_flight:
   - "prompt changed 1dd9a22ac9b0 -> 0580d5332a2b; sections applied from stop 8 step 1 onward. The change adds validation_processed: and the §0 rule that a validator file is processed BEFORE any stop is opened or continued. Stops 4-7 were closed under the old text and are not reopened for that reason alone"
   - "validator file PROCESSED; corrections applied to four workbooks and the track report. Stop 8 not yet opened"
 validation_processed:
   - "findings/track-b-validation-2026-09-04.md - read in full, all four verdicts CONFIRMED WITH CORRECTIONS, none NOT CLOSED, so no stop reopened. Every correction applied as a dated amendment in the workbook it names; no prediction, result, sheet or run folder rewritten. The one process risk (squash-orphaned prediction commits) went to blocked_on_author because fixing it changes a repo convention"
-last_verified: "TWO PRs merged. lab#53 as 27d67e5 (stops 4, 5, 6 shipped) and lab#54 as df4a022 (stop 7), both squash, both 8 of 8 checks green on their final heads. Boards republished at position 8 and re-checked ON MAIN AFTER the squash: 2 of 2 current at prose 4119c4abf58f, exit 0. Preflight re-run in full, all seven rows ok. check-links 64 ok / 0 broken"
-next_action: "OPEN STOP 8 - Phase 3, Agent Skills - at loop step 1. It is a Track A stop that the itinerary gives a lab: 'reading, extract, one lab that records skill activation on the observatory', closing on that lab's evidence on disk. So unlike stop 7 it DOES need runs, and the whole loop applies, not the reading subset. Read phases/03-skills/README.md first. Phase 2's extract already carries the Claude Code Skills frontmatter reference it needs, including that no field is required and that description+when_to_use is capped at 1536 chars in the listing - do not re-fetch that page without reason"
+last_verified: "Stop 8 HALTED at the preflight. Delivery block proved BOTH ways by execution: `claude -p \"/shipment-service-conventions\"` loads the skill and quotes its body at the root path, and answers `Unknown command` at the nested one, same binary/model/flags. Runs 16cd4378 (died at setup), c090f67e and d8be2b5f (completed, evaluator 0, zero project-scope activations with telemetry PRESENT). verify-skill-activation 11/11, check-links 64 ok / 0 broken, shellcheck clean. EARLIER: three PRs merged. lab#53 as 27d67e5 (stops 4, 5, 6 shipped) and lab#54 as df4a022 (stop 7), both squash, both 8 of 8 checks green on their final heads. Boards republished at position 8 and re-checked ON MAIN AFTER the squash: 2 of 2 current at prose 4119c4abf58f, exit 0. Preflight re-run in full, all seven rows ok. check-links 64 ok / 0 broken"
+next_action: "NOTHING UNTIL THE AUTHOR DECIDES. Stop 8 needs one line changed and there are two candidates - benchmarks .gitignore, or the runner's git add -A. Both are in HANDOFF.md under BLOCKED ON YOU item 1, with a recommendation (the runner, because it does not touch what the evaluator measures). E-004 is registered and the batch can start the hour it is decided: ~15 runs, ~$2.30. Do NOT batch at the nested path - it produces three arms of zeros that agree perfectly and mean nothing"
 blocked_on_author:
   - "SQUASH MERGES HAVE ORPHANED EVERY PREDICTION COMMIT IN THIS TRACK - all eleven. On main, `git log -- experiments/E-002-isolation-contamination.md` shows only the squash 27d67e5 at 19:07Z, SIX HOURS AFTER the runs it was supposed to precede. B3's nine commits are the same. So the prediction-precedes-run guarantee - the track's most-cited - CANNOT BE RE-DERIVED BY A STRANGER cloning the repo, and by the §9 validator's layer correction it is L3 as well. The fix is a repo-convention change and §7 reserves those for the author: merge commits for stop branches instead of squashes, or a pre-push check that refuses a workbook citing a sha main cannot reach. Raised by findings/track-b-validation-2026-09-04.md"
-preflight:  # re-run in full at stop 7, 2026-09-03T19:09Z; all seven rows ok, three corrections below
-  hook_script: ok — 19 of 19 cases pass (the itinerary says 16; the script has grown to 19), exit 0
-  review_harness: ok — exit 0, findings/opencode/review-run-record-20260903T190518Z.md, 199 lines, 12 per-section finding blocks plus an acceptance REJECT, not header-only. No process left by this run; two PRE-EXISTING wedged ones were found and killed, see stray_processes
-  codex_harness: ok — codex-cli 0.147.0, findings/codex/score-good-nested-ifs-20260903T190604Z.yaml, exit 0, four categories present — architecture-consistency 2, maintainability 0, test-quality null ("nothing to grade", flagged in ambiguous_categories), change-focus 2
+preflight:  # re-run in full at stop 8, 2026-09-04T06:51Z. SIX rows ok on the first pass; row 2 FAILED and was fixed and re-run, see review_harness
+  hook_script: ok — 19 of 19 cases behaved as specified, exit 0
+  review_harness: ok — ON THE SECOND ATTEMPT, AND THE FAMILY HAD TO CHANGE. First attempt FAILED clean: `-n 1` on the default critic ollama-cloud/glm-5.2 returned OFF CONTRACT after 352s (prose, not the section format), harness exit 1, findings/opencode/review-run-record-20260904T063339Z.md at 981 bytes with zero finding sections. Not a stall - it terminated itself and said why. Re-run as `-P codex`: exit 0, findings/opencode/review-run-record-20260904T065312Z.md, 11672 bytes, 12 finding sections, content below the header. Acceptance returned REJECT on templates/run-record.yaml, which is a verdict about that template and not a harness failure
+  codex_harness: ok — codex-cli 0.147.0, findings/codex/score-good-nested-ifs-20260904T063409Z.yaml, four categories: architecture-consistency 2, maintainability 0, test-quality null ("nothing to grade", listed in ambiguous_categories), change-focus 2
   validators: ok — run-gate 13 + sheet-category 11 + run-record 12 + classifier 16 = 52 cases, all four exit 0
-  stack: ok — 18 of 18 smoke checks against API 8081, stack already up
-  isolation: ok — verify-codex-isolation.sh exit 0. Claude arm proved from telemetry, not the flag: events.jsonl logRecords with body claude_code.hook_execution_start, grouped by observatory.run.id, joined to GET :8081/api/runs. EXP-B3-CONTROL-CLAUDE 10/10 present, hook_execution_start 0 on 10/10, all five customization hashes null on 10/10; EXP-B3-INSTRUCTIONS-CLAUDE 0 x10 and EXP-B3-BLOAT-CLAUDE 0 x5 with instructionsHash non-null as designed. Positive control EXP-B2-CONTAM-OPEN shows 27-48 executions, so the query can see a leak. No new run launched
-  board: ok — exit 0, 2 of 2 current. RE-CHECKED after both merges: prose 4119c4abf58f, built from 34d7657, still current on main after the squash
-  timestamp: 2026-09-03T19:09:53Z
-  stray_processes: "two wedged opencode processes, pids 48589 (ollama launch opencode --model glm-5.2:cloud) and 48612, aged 2h20m, orphaned by the PRIOR session's 164550Z review — whose findings file is complete at 180 lines and committed in 27d67e5, so nothing was destroyed. Both killed 2026-09-03T19:12Z, 0 remaining"
+  stack: ok — 18 of 18 checks, API on 8081, GET /api/runs returns 200 and 228 runs
+  isolation: ok — verify-codex-isolation.sh all three checks hold for codex-cli 0.147.0. From telemetry, not the flag: events.jsonl (31 MB) joined on observatory.run.id to GET :8081/api/runs. 228 registered, 222 distinct telemetry run ids, 209 joined. SCOPED CORRECTLY: 129 of the 209 joined runs have hook_execution_start > 0, all pre-isolation; across the 25-run B3/E-003 population (CONTROL 10, INSTRUCTIONS 10, BLOAT 5) all 25 joined and every one is 0, and the 10 control runs carry null on all five customization hashes while the 15 treated carry non-null
+  board: ok — exit 0, 2 of 2 current at prose 4119c4abf58f
+  timestamp: 2026-09-04T06:57:30Z
+  stray_processes: "one orphaned opencode binary (pid 77546, started 06:50:41Z) outlived the preflight agent that spawned it. Killed 06:57:30Z; 0 remaining. It did NOT come from the row-2 re-run, which left nothing"
+
+critic_family_defect:  # new at stop 8, and it decides which family §4a uses from here
+  - "ollama-cloud/glm-5.2, the DEFAULT line-level critic, has now failed three consecutive invocations across two sessions: two stalls on 2026-09-03 (24 min against a 600s budget, no STALLED line, wedged processes left behind) and one OFF CONTRACT on 2026-09-04 (prose instead of the section format, exit 1, 981-byte findings file). codex has succeeded on all four invocations it has been given in the same window. USE `-P codex` FOR §4a REVIEWS until the author decides otherwise. This is a family substitution in the review harness, which is a control and not a registered experimental variable - no experiment's numbers come from the critic"
+  - "process checks must match the opencode BINARY (`pgrep -f 'bin/opencode'`), not the wrapper argv. Polling shells carry `opencode-review.sh` in their own command lines and register as a live harness for as long as they run - the preflight agent was fooled for ~11 minutes by its own poller. Combined with the LC_ALL=C blindness this is now two independent ways the stall check reports a process that is not there, or misses one that is"
 
 preflight_corrections:  # found BY the preflight, all three about instruments believing more than they measured
   - "pgrep is BLIND on this machine. Bare `pgrep -fl opencode` fails with 'Regular expression evaluation error (illegal byte sequence)' and returns nothing, which reads exactly like 'no stall'. Only `LC_ALL=C pgrep` sees the processes. CLAUDE.md and PROMPT §4a both tell the reader to check for a live opencode process before trusting a findings file; on this machine that check silently answers no. Every stall check from here uses LC_ALL=C"
   - "the previous preflight's isolation line, 'hook_execution_start = 0 across the registered population', was too broad. 129 of 209 telemetry-joined registered runs have >0, all from pre-isolation experiments. The claim holds exactly and only for the 25-run B3/E-003 population, which is the population E-003 used — so E-003 is untouched and the state file's wording was not"
   - "LAB_SCORE_DRY_RUN is a destination PATH, not a boolean — codex-score.sh:287. PROMPT §0a row 3 says to set it to 1, which writes the 502-line prompt to a file literally named ./1 in the repo root. The file was removed and the tree restored. Prompt and code disagree; per §1 the code wins. Use LAB_SCORE_DRY_RUN=./some-path.md"
-review_this_stop: "THREE rounds over phases/02-prompt-files/README.md, ACCEPT with blocking:[] in all three. R1 codex+deepseek review-README-20260903T193910Z.md, 5 non-blocking, all fixed. R2 same panel review-README-20260903T194325Z.md, 4 non-blocking, all fixed - the sharpest was an L2 label on an L3 object in the validation table, the exact failure mode the same file names two sections earlier. R3 codex alone review-README-20260903T194705Z.md, 2 non-blocking, both DISPUTED in the PR body because the artifact already records them. A FOURTH file, review-README-20260903T191414Z.md at 767 bytes, is a STALL not a review - kept as evidence"
+review_this_stop: "THREE rounds over E-004 + tools/skill-activation.sh, family codex (glm-5.2 failed §0a OFF CONTRACT). ALL THREE RETURNED REJECT - recorded as REJECT, which §4a says is NOT a pass. R1 review-E-004-...-072705Z.md, 3 blocking, all fixed. R2 ...-074639Z.md, 2 blocking, both fixed. R3 ...-080814Z.md, 4 blocking: ONE fixed (the deepest), THREE STILL OPEN - arm C's delivery proof is circular with the prediction it confirms, nothing mechanically asserts only the description differs, and partial telemetry corruption is not separated from absent telemetry. A fourth file ...-073617Z.md at 850 bytes is a KILL ARTIFACT from a 10-minute tool timeout, not a stall; ...-075753Z.md exited 1 (infrastructure) and was discarded per §4a rather than counted as a round"
+
+review_lesson: "The same defect was found in three consecutive rounds and each fix named one more scope instead of rejecting the category. skill-activation.sh classified anything not 'bundled' as the installed skill; then anything not bundled-or-empty; then anything not bundled-or-plugin. Every version would have credited a user-scope or enterprise activation to the treatment ON THE CONTROL ARM. Eleven fixtures passed over the first two broken versions, which is the point: a fixture set tests the cases its author thought of. The tool now reports per-source counts and labels NOTHING as the installed skill"
 
 review_harness_defect: "LAB_REVIEW_TIMEOUT DID NOT FIRE. The first stop-7 review sat at 'review 1/2' for 24 minutes against a 600s budget with both processes sleeping, printed no STALLED line, and was killed by hand. run_limited() at tools/opencode-review.sh:232 polls and is supposed to kill the process group; it did not. The re-run used -P codex,deepseek-v4-pro and codex returned in under a minute, as it always has here. NOT FIXED - routed around. Two separate stalls today, both on glm-5.2, both leaving wedged processes"
 hook_wiring: unproven in print mode — and STILL unproven after stop 7, deliberately. Every push this session ran with LAB_REVIEW_HOOK=0, because a synchronous review was in flight each time and concurrent opencode calls are this machine's known stall mode. The synchronous review of §4a is the review control for this run and has now been taken five times
@@ -49,7 +55,7 @@ hook_wiring: unproven in print mode — and STILL unproven after stop 7, deliber
 | 5 | Phase 1 — custom instructions | **gate ANSWERED**, result `INCONCLUSIVE`; merged in the same PR |
 | 6 | B3 — minimal global instructions | **CLOSED and MERGED**, same PR; gate met on all four items, result **REJECT**. `instructions-v0.1` is removed and not replaced — all three rules failed the gate's own "remove every rule with no measured effect" clause |
 | 7 | Phase 2 — prompt files | **CLOSED as extract only, labs deferred**, which is what the spine registers for a ◇ stop. Four sources read, three of them never extracted before; exit gate answered on all four items; `n = 0` runs and nothing claimed about the agent. Two findings: `allowed-tools` pre-approves where VS Code's `tools:` restricts, so Lab 2.1's read-only constraint needs `disallowed-tools`; and two GitHub pages disagree on prompt-file support by IDE |
-| 8 | Phase 3 — Agent Skills | **NOT STARTED** — next, and unlike stop 7 it **needs runs**: the itinerary gives it "one lab that records skill activation on the observatory". Phase 2's extract already carries the Skills frontmatter reference it will need |
+| 8 | Phase 3 — Agent Skills | **BLOCKED at §4 step 5.** Reading and extract done; E-004 registered at `5d14182` before any run; `tools/skill-activation.sh` built and proved by 11 fixtures; two overlays with byte-identical bodies. **The lab cannot run**: a Claude Code project skill cannot be delivered to a BE-003 run. Root `.claude/skills/` is gitignored so the runner refuses; nested `sample-service/.claude/skills/` commits fine and the runtime answers `Unknown command`. Three runs spent proving it, zero measured. Unblocking is one line and it is the author's call |
 
 ## Corrections carried forward, re-derived 2026-09-03
 
@@ -69,6 +75,16 @@ hook_wiring: unproven in print mode — and STILL unproven after stop 7, deliber
    agent.
 
 ## Held for the author
+
+**New from stop 8 — the halt, and it is one decision:**
+
+F. **Stop 8 needs one line changed, and there are two candidates.** Either
+   `agent-observatory-benchmarks/.gitignore` gains `!.claude/skills/` — which alters what the
+   evaluator's scope guard can flag, and §7 makes that a halt — or
+   `agent-observatory/runner/run-agent.sh` force-adds the overlay it just installed, which
+   touches nothing the evaluator measures. **Recommended: the runner.** Full reasoning in
+   HANDOFF.md under BLOCKED ON YOU item 1. E-004 is registered and the batch is ~15 runs and
+   ~$2.30 whenever this is decided.
 
 **New from stop 7 — two instrument defects, and neither is about an agent:**
 
