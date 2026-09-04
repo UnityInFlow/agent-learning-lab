@@ -8,3 +8,9 @@ toollist-bash,6,2026-09-04T19:52:25Z,2026-09-04T19:52:42Z,0,1,1,0,3,3,deliberate
 toollist-bash,7,2026-09-04T19:52:42Z,2026-09-04T19:52:59Z,0,1,1,0,4,3,deliberate-failure-transcripts/toollist-bash-07.jsonl,4a7fa696851f,42c2bb82628a8360
 toollist-bash,8,2026-09-04T19:52:59Z,2026-09-04T19:53:15Z,0,1,1,0,3,3,deliberate-failure-transcripts/toollist-bash-08.jsonl,e9b481758826,42c2bb82628a8360
 toollist-bash,9,2026-09-04T19:53:15Z,2026-09-04T19:53:31Z,0,1,1,0,3,3,deliberate-failure-transcripts/toollist-bash-09.jsonl,f79a14be3d83,42c2bb82628a8360
+toollist-bash,10,2026-09-04T19:53:31Z,2026-09-04T19:53:47Z,0,1,1,0,3,3,deliberate-failure-transcripts/toollist-bash-10.jsonl,13cde33e6b68,42c2bb82628a8360
+toollist,1,2026-09-04T19:53:50Z,2026-09-04T19:54:16Z,0,0,0,0,0,5,deliberate-failure-transcripts/toollist-01.jsonl,612035ba59a5,42c2bb82628a8360
+toollist,2,2026-09-04T19:54:16Z,2026-09-04T19:54:45Z,0,0,0,1,0,4,deliberate-failure-transcripts/toollist-02.jsonl,56ea19c8f102,42c2bb82628a8360
+toollist,3,2026-09-04T19:54:46Z,2026-09-04T19:55:22Z,0,0,0,0,0,6,deliberate-failure-transcripts/toollist-03.jsonl,344e96d2b1f5,42c2bb82628a8360
+toollist,4,2026-09-04T19:55:22Z,2026-09-04T19:55:48Z,0,0,0,0,0,5,deliberate-failure-transcripts/toollist-04.jsonl,8403cd53f854,42c2bb82628a8360
+toollist,5,2026-09-04T19:55:49Z,2026-09-04T19:56:31Z,0,0,0,1,0,2,deliberate-failure-transcripts/toollist-05.jsonl,e668cfebd24d,42c2bb82628a8360
