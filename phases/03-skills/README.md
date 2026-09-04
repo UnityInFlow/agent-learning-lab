@@ -215,7 +215,7 @@ description changed.
 
 Stop 8's closing condition is *"one lab that records skill activation on the observatory —
 that lab's evidence on disk"*. The lab was designed, registered
-([`E-004`](../../experiments/E-004-skill-activation.md), committed `5d14182` **before** any run),
+([`E-004`](../../experiments/E-004-skill-activation.md), first committed `5d14182`; **last pre-run edit `5a14711`**, and §9 check 2 applies against that one — see the amendment below),
 built, and **stopped at the preflight assertion**, which is the step that exists to stop it.
 
 **The treatment cannot be delivered to a BE-003 run.** Full evidence:
@@ -228,7 +228,8 @@ built, and **stopped at the preflight assertion**, which is the step that exists
 
 **The two conditions are never satisfied by the same path.** Three runs were spent establishing
 this: `16cd4378` (died at setup), `c090f67e` and `d8be2b5f` (both completed, evaluator exit 0,
-both **0** project-scope activations with telemetry present).
+both `status: measured` with **0 in every source bucket** — an inference that no project-scope
+skill activated, not a printed project-scope count; amendment below).
 
 ### Why this is worth more than the lab would have been
 
@@ -343,7 +344,8 @@ learning:
     predictions, an MDE derived from Fisher's resolving power rather than from its own
     thresholds, and an exhaustive decision rule; two customization overlays whose SKILL.md
     bodies are byte-identical at d10a2c3988be520e and differ only in the description; and
-    tools/skill-activation.sh with 11 fixtures. No measured runs.
+    tools/skill-activation.sh with 15 fixtures (this line said 11, the count before the last two
+    gate rounds; corrected 2026-09-04 from the second validator pass). No measured runs.
   why_it_exists: >
     Three vendors state that a skill is selected by matching the task against its description.
     None shows a measurement. The observatory turned out to already record skill activation,
@@ -420,9 +422,98 @@ the arm that installs nothing. Eleven fixtures passed over both versions. **The 
 the cases the author thought of, which is exactly what a fixture set cannot fix on its own.**
 
 The counter is now an allowlist by exclusion; `bundled`, `plugin` and source-less events are each
-counted and reported separately; the outcome is renamed `installed_scope` so the name stops
-implying more than it proves. **15 fixtures, and the fix is confirmed against the real stream**:
-run `899232bb` now reports `installed_scope 0 / plugin 2` where it would have claimed two.
+counted and reported separately; ~~the outcome is renamed `installed_scope`~~ — **and then that name
+was removed too**, because it still implied the tool knew which activation was ours. No bucket in
+the merged tool is named for the installed skill (corrected 2026-09-04, amendment below).
+**15 fixtures, and the fix is confirmed against the real stream**: run `899232bb` now reports
+`plugin_activations: 2` with every other bucket `0`, where an earlier version would have claimed
+those two as the treatment.
+
+## Amendment — 2026-09-04, from the §9 validator's second pass
+
+Source: [`findings/track-b-validation-2026-09-04-2.md`](../../findings/track-b-validation-2026-09-04-2.md).
+Verdict on this stop: **NOT CLOSED — and not claimed closed**; the block itself **CONFIRMED by
+independent reproduction** (a scratch repo, the same binary and model, root path answers with the
+body marker and the nested path answers `Unknown command`), with four corrections. Stops 4–7 were
+CONFIRMED. Every correction below is applied as an in-place fix carrying a pointer to this
+section; no prediction, result, sheet or run folder was rewritten.
+
+**(a) The registration citation was stale.** This workbook said E-004 was *"committed `5d14182`
+before any run"*. True of the first commit and of the design, not true of the text a reader sees:
+four later commits edited the file — including a rewrite of prediction 2 — all of them **before
+any batch run and under the §4a gate's REJECTs**. The last pre-run edit is **`5a14711`**, and §9
+check 2 applies against that sha. The full edit table and the superseded text of prediction 2 are
+now in [`E-004`](../../experiments/E-004-skill-activation.md) under its own amendment, so the
+original wording survives rather than being lost. Corrected in two places above.
+
+**(b) Three citations quoted a field the merged tool does not print.** The validation table and
+the §4a review section quoted `installed_scope_activations: null` and `installed_scope 0 /
+plugin 2`, and said the outcome had been *"renamed `installed_scope`"*. Those are the **round-2**
+tool's names. Round 3 removed that bucket entirely — *no bucket is labelled installed* — so the
+merged tool at `049e871` prints only `bundled_activations`, `plugin_activations`,
+`unknown_source_activations`, `other_source_activations` and `activations_by_source`. Both facts
+behind the citations still reproduce; only the field names were wrong. Re-run 2026-09-04 against
+the real 31 MB stream, output pasted rather than paraphrased:
+
+```
+$ ./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl \
+    00000000-dead-beef-0000-000000000000
+status: UNKNOWN-run-absent-from-telemetry
+bundled_activations: null
+plugin_activations: null
+unknown_source_activations: null
+other_source_activations: null            # exit 3
+
+$ ./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl \
+    899232bb-3a66-4326-981e-0aaa38329c09
+status: measured
+bundled_activations: 0
+plugin_activations: 2
+unknown_source_activations: 0
+other_source_activations: 0
+activations_by_source: plugin=2
+skill_names: custom_skill=2
+invocation_triggers: claude-proactive=1,nested-skill=1     # exit 0
+```
+
+**The consequence, which is larger than the wording.** *"0 project-scope activations"* on the two
+probe runs is an **inference** from *"0 in every bucket"*, not a number the instrument prints.
+The instrument cannot name a project-scope activation, because no project-scope skill has ever
+been recorded on it and the value `skill.source` would carry for one is unknown. That is the
+same hole prediction 2 records as *"the outcome has no denominator yet"*.
+
+**(c) The run record cannot see a skill treatment at all.** `customization.skillsHash` is `null`
+on both treated probe runs — `run-agent.sh:328` hashes `.github/skills.md` and nothing else — so
+**§5's independence check for any skill arm cannot use `customization.*Hash` to tell treatment
+from control.** It is `null` in both. Delivery proof rests entirely on telemetry. Recorded in
+E-004's amendment as a standing constraint on the design, not as a surprise: prediction 4 predicts
+exactly this field's blindness.
+
+**(d) Stale fixture count.** `verify-skill-activation.sh` is 15 fixtures and passes 15/15; the
+`learning:` block above and `TRACK-B-STATE.md` both said 11, the count before the last two gate
+rounds. Corrected in both.
+
+### And the finding this pass exists for — the block may be on the wrong premise
+
+The validator's closing finding, quoted because it changes what happens next:
+
+> **Stop 8's block proves that a nested skill is not in the `/name` registry at session start. It
+> does not prove that a nested skill cannot activate during a BE-003 run — and E-004's outcome is
+> mid-run activation, not registry membership.**
+
+Two things on disk point the other way, and both are in this workbook's own evidence: the
+telemetry stream already carries `invocation_triggers: … nested-skill=1` on run `899232bb`, so the
+runtime has a trigger named for exactly this case; and the probe evidence's *"What is not
+claimed"* section records a scratch repo where the same binary loaded a nested skill after reading
+a file in that subdirectory — which every BE-003 run does.
+
+**The author has decided accordingly** (2026-09-04, adopting the validator's recommendation, with
+the adoption recorded so it measures something): probe the nested path at `n = 5` under a **new**
+experiment key before any file §7 protects is moved; if it is zero on 5 of 5, take the runner
+force-add, **not** the benchmarks `.gitignore` — the evaluator's scope guard reads that file and
+changing it changes what the benchmark measures. Stop 8 is reopened at §4 step 5 on that basis.
+
+Applied by Opus 5 (claude-opus-5), autonomous, 2026-09-04
 
 ## Validation
 
@@ -434,9 +525,9 @@ and the last row states plainly what it did not.
 |---|---|---|---|
 | "Phase 3 skills: reading" | Four sources ✅ in `SOURCES.md`; three extracted here for the first time on 2026-09-04 | **L2 for "the URLs resolve"** — `./tools/check-links.sh` executes and fails closed. **L3 for "they were read"** — nothing executes that | `./tools/check-links.sh`; for the reading half, check the quotes against the pages by hand |
 | "extract" | Three `## Extract` sections in this file, one per source, each dated and quoting verbatim | **L3** — nothing checks an extract against its source | open the four URLs and search for the quoted sentences |
-| "one lab that records skill activation on the observatory" | [`E-004`](../../experiments/E-004-skill-activation.md), registered `5d14182`; overlays under `build/customizations/skill-v0.1{,-misdescribed}/`; [`tools/skill-activation.sh`](../../tools/skill-activation.sh) | **L2 for the instrument** — 15 fixtures execute and each asserts an exit code *and* a stdout line; `./tools/verify-skill-activation.sh` exits non-zero if any fails | `./tools/verify-skill-activation.sh` → `15 passed, 0 failed` |
-| …the tool distinguishes a real zero from a missing measurement | fixtures *"a run ABSENT from telemetry is NOT reported as 0"* (exit 3) and *"its count is null, never 0"* | **L2** — it executes and refuses. Hand-checked against the real 31 MB `events.jsonl`: a fabricated run id returns `status: UNKNOWN…`, `installed_scope_activations: null`, exit 3 | `./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl 00000000-dead-beef-0000-000000000000` |
-| …and the outcome counts only the skill this experiment installed | fixtures *"a bundled skill is NOT the installed skill"*, *"a plugin skill is NOT the installed skill"*, *"an event with NO skill.source is not the installed one"* | **L2** — three separate scopes are excluded by executing code, each reported on its own line. **Both exclusions were added because the §4a gate caught them, not because a fixture did** — 11 fixtures passed over both broken versions | `./tools/verify-skill-activation.sh` → `15 passed`; then `./tools/skill-activation.sh <events.jsonl> 899232bb-3a66-4326-981e-0aaa38329c09` → `installed_scope 0 / plugin 2` |
+| "one lab that records skill activation on the observatory" | [`E-004`](../../experiments/E-004-skill-activation.md), registered `5d14182`, last pre-run edit `5a14711` (amendment below); overlays under `build/customizations/skill-v0.1{,-misdescribed}/`; [`tools/skill-activation.sh`](../../tools/skill-activation.sh) | **L2 for the instrument** — 15 fixtures execute and each asserts an exit code *and* a stdout line; `./tools/verify-skill-activation.sh` exits non-zero if any fails | `./tools/verify-skill-activation.sh` → `15 passed, 0 failed` |
+| …the tool distinguishes a real zero from a missing measurement | fixtures *"a run ABSENT from telemetry is NOT reported as 0"* (exit 3) and *"its count is null, never 0"* | **L2** — it executes and refuses. Hand-checked against the real 31 MB `events.jsonl`: a fabricated run id returns `status: UNKNOWN-run-absent-from-telemetry` with **all four source counts `null`** — `bundled_activations`, `plugin_activations`, `unknown_source_activations`, `other_source_activations` — exit 3. The merged tool prints no `installed_scope` line at all; corrected 2026-09-04, amendment below | `./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl 00000000-dead-beef-0000-000000000000` |
+| …and every scope this experiment did not install is excluded — ~~the outcome counts only the skill this experiment installed~~, which the merged tool deliberately no longer claims (amendment below) | fixtures *"a bundled skill is NOT the installed skill"*, *"a plugin skill is NOT the installed skill"*, *"an event with NO skill.source is not the installed one"* | **L2** — three separate scopes are excluded by executing code, each reported on its own line. **Both exclusions were added because the §4a gate caught them, not because a fixture did** — 11 fixtures passed over both broken versions | `./tools/verify-skill-activation.sh` → `15 passed`; then `./tools/skill-activation.sh <events.jsonl> 899232bb-3a66-4326-981e-0aaa38329c09` → `plugin_activations: 2` with every other bucket `0` |
 | …the treatment differs from its control in exactly one thing | body-only `sha256` `d10a2c3988be520e` **equal** across both overlays; full-file hashes differ | **L1** — the bytes below the frontmatter either are identical or are not; `shasum` decides | `awk 'n>=2{print} /^---$/{n++}' <each SKILL.md> \| shasum -a 256` |
 | …**"that lab's evidence on disk"** — the closing condition | **NOT MET.** Zero measured runs. Three runs exist and none is data: `16cd4378` died at setup, `c090f67e` and `d8be2b5f` are preflight probes under `EXP-P3-PREFLIGHT` | **L2 for the blocker itself** — the runner *executed* and refused (`failed to commit the customization overlay`), and `claude -p "/name"` *executed* and answered `Unknown command`. The block is demonstrated, not asserted | [`evidence/p03/skill-delivery-probe-20260904T072000Z.md`](../../evidence/p03/skill-delivery-probe-20260904T072000Z.md) — it lists the commands |
 

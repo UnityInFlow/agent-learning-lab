@@ -130,3 +130,33 @@ claude --setting-sources project --model claude-haiku-4-5-20251001 -p "/probe" <
   earlier BE-001/BE-002 work. Every custom skill recorded so far is `plugin`-scope and reports
   the redacted name `custom_skill`; only `bundled` skills report a real name. **No project-scope
   skill has ever been recorded on this instrument**, so E-004's prediction 5 remains untested.
+
+---
+
+## Correction — 2026-09-04, from the §9 validator's second pass
+
+Source: [`../../findings/track-b-validation-2026-09-04-2.md`](../../findings/track-b-validation-2026-09-04-2.md),
+correction (b). Appended rather than edited in place; nothing above was changed.
+
+**"Both runs recorded 0 project-scope activations" is an inference, not a printed number.** The
+merged `tools/skill-activation.sh` at `049e871` prints four source buckets —
+`bundled_activations`, `plugin_activations`, `unknown_source_activations`,
+`other_source_activations` — and **deliberately labels none of them "the installed skill"**, after
+the §4a gate showed three times that every attempt to do so kept an open *everything-else-is-mine*
+bucket. What the two probe runs actually show is `status: measured` with **0 in every bucket**,
+from which no project-scope activation follows. That is the honest form of the same fact, and it
+is weaker than the sentence above states.
+
+**Every reproduction command above was re-checked and still reproduces.** The block itself was
+independently reproduced by the validator in a scratch repository, same binary and model: the root
+path answers by quoting the body marker, the nested path answers `Unknown command`.
+
+**What the block does and does not prove.** It proves a nested skill is absent from the `/name`
+registry at session start. It does **not** prove a nested skill cannot activate *during* a run,
+which is what E-004 actually measures. The telemetry above already carries
+`invocation_triggers: … nested-skill=1` on run `899232bb`, and the *"What is not claimed"* section
+records the same binary loading a nested skill after a file in that subdirectory was read. The
+nested path is therefore probed at `n = 5` under experiment key `EXP-P3-NESTED-PROBE` before any
+file §7 protects is moved.
+
+Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04

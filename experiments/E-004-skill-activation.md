@@ -92,6 +92,69 @@ it makes — one-arm (binomial, needs no control) or between-arm (needs the cont
 
 *A prediction you did not write down is always retroactively correct.*
 
+### AMENDMENT — 2026-09-04, from the §9 validator's second pass
+
+Source: [`findings/track-b-validation-2026-09-04-2.md`](../findings/track-b-validation-2026-09-04-2.md),
+corrections (a) and (c). Applied additively: no prediction, result, sheet or run folder was
+rewritten.
+
+**Correction (a) — the registration citation is stale, and prediction 2 was rewritten after it.**
+This file has been cited here, in [`phases/03-skills/README.md`](../phases/03-skills/README.md)
+and in `TRACK-B-STATE.md` as *"registered `5d14182` before any run"*. `5d14182` is where the
+predictions were first committed and is still where the design was registered — but the text a
+reader sees is not the text at `5d14182`. Four later commits edited it. **All four landed before
+any batch run and under the §4a gate's REJECTs**, so no evidence was destroyed and no wrong
+prediction was revised; the citation is nevertheless no longer true of what a reader sees.
+
+The whole pre-run edit history, so a stranger does not have to reconstruct it:
+
+| commit | committed (UTC) | what it changed in this file |
+|---|---|---|
+| `5d14182` | 2026-09-04T07:03:58Z | predictions first registered |
+| `1d503ec` | 2026-09-04T07:08:52Z | delivery amendment — overlay path moved root → nested |
+| `0075565` | 2026-09-04T07:36:16Z | §4a round 1 REJECT — decision rule restated in Fisher's test |
+| `d169b74` | 2026-09-04T07:57:48Z | §4a round 2 REJECT — prediction 2 tightened, decision row 0 added |
+| `5a14711` | 2026-09-04T08:14:48Z | §4a round 3 — banner added, prediction 2 gains its no-denominator paragraph |
+
+**The last pre-run edit is `5a14711`.** §9 check 2 — *does the prediction commit precede the first
+run's `startedAt`* — must be applied against `5a14711` for any run of this experiment's registered
+batch, not against `5d14182`.
+
+Those six shas are reachable in this clone and in `refs/pull/56/head`, and **not from `main`**,
+which squashed them. That is the same process defect the first validator pass raised; from stop 8
+on, stop branches merge with a merge commit (`--merge`), never a squash — author decision 4,
+2026-09-04.
+
+**The superseded text of prediction 2, kept rather than lost.** As registered at `5d14182`:
+
+> 2. **[structural] The control arm records 0 project-scope skill activations on 5 of 5.** Not a
+>    statistical claim — no skill is installed, so there is nothing to load. Bundled skills
+>    (`skill.source = bundled`) may still activate and are **excluded from the outcome by
+>    definition**, because the outcome counts only the installed skill.
+
+It was superseded because the §4a gate demonstrated twice that *"the outcome counts only the
+installed skill"* is a claim the instrument could not keep: every version of
+`tools/skill-activation.sh` implemented it as an open *everything-else-is-mine* bucket, which on
+the **control** arm would have credited a user-scope, enterprise or future-source activation to a
+treatment that installs nothing. The current text makes the same structural claim without the part
+the tool cannot support.
+
+**Correction (c) — the run record cannot see this treatment, so §5's independence check must not
+use it.** `customization.skillsHash` is `null` on both treated probe runs (`c090f67e`,
+`d8be2b5f`), because `agent-observatory/runner/run-agent.sh:328` hashes `.github/skills.md` and
+nothing else. Prediction 4 registers exactly that, so it is not a surprise — but it has a
+consequence this file had not written down:
+
+> **For any skill arm in this track, `customization.*Hash` cannot distinguish treatment from
+> control.** It is `null` in both. Delivery proof rests entirely on telemetry, and the value
+> `skill.source` carries for a project-scope skill is — by `tools/skill-activation.sh`'s own
+> header — still unknown.
+
+Prediction 2's *"the outcome has no denominator yet"* paragraph and this row are the same problem
+seen from two sides. Pinning that value is the first thing any run of this experiment must do.
+
+Applied by Opus 5 (claude-opus-5), autonomous, 2026-09-04
+
 ## Independent variable
 
 **Exactly one thing: the `description:` line in the skill's frontmatter.**
