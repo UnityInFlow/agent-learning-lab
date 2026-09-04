@@ -1,20 +1,76 @@
-# Handoff — 2026-09-04 (eleventh session)
+# Handoff — 2026-09-04 (twelfth session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "Stop 8 is BLOCKED, and the block is the finding" below, then "What the tenth session
-changed".** PR lab#53 is **merged** — stops 4, 5 and 6 are shipped, not just written. Stop 7,
-Phase 2, is closed as an extract. The run's largest result is still B3's: **a global
-instruction file, proved delivered, changed nothing measurable.** The ninth-session section
-below is accurate except where the tenth corrects it; the eighth and earlier are history.
+**Start at "Stop 8 is CLOSED, and its own halt was the wrong diagnosis" below.** Stops 4, 5, 6
+and 7 are merged. Stop 8 is closed with a measured result. The run's largest result is still
+B3's — *a global instruction file, proved delivered, changed nothing measurable* — and stop 8
+now sits beside it as the opposite shape: **a customization that changed something measurable,
+and an instrument that would have hidden it.**
 
 ## Position
 
-**Spine 8 of 28 — B2, Phase 1, B3, Phase 2 CLOSED and MERGED. Position 8, Phase 3, is BLOCKED.**
-B1 closed 2026-08-30. No agent exists and none should until stop 10.
+**Spine 8 of 28. Positions 4, 5, 6, 7 and 8 CLOSED.** B1 closed 2026-08-30. No agent exists and
+none should until stop 10.
 
-## Stop 8 is BLOCKED, and the block is the finding — 2026-09-04
+## Stop 8 is CLOSED, and its own halt was the wrong diagnosis — 2026-09-04
+
+**E-004 answers a claim three vendors make and none of them measures: does a skill's
+`description` decide whether it loads?** With the body held byte-identical and only the
+description changed:
+
+| arm | activations | source | trigger |
+|---|---|---|---|
+| B, description matches the task | **5 of 5** | `projectSettings` | `claude-proactive` |
+| C, description names an unrelated domain | **0 of 5** | — | — |
+| A, no skill installed | **0 of 5** | — | — |
+
+**Two-sided Fisher p = 0.0079** — the `(5,0)` cell, one of exactly three the MDE table registered
+as decidable at `n = 5`. **CONFIRM**, by decision-rule row 1. All five predictions held, including
+the one registered as most likely to be wrong. Cost −7.6 % against control, which does not reach
+the registered +25 % row and is not a finding at this `n`.
+
+### The halt this stop opened with was on a wrong premise
+
+It halted claiming a project skill *cannot be delivered at all*, blaming the path. **The cause was
+a flag.** `runner/run-agent.sh` passed `--disable-slash-commands` — *"Disable all skills"* — on
+every claude run this project has ever done. **6 of 6 activated without it, 0 of 6 with it, at
+both paths, p = 0.0022.** The nested path activates mid-run perfectly well; it is merely absent
+from the `/name` registry at session start, which is all the first probe actually tested.
+
+**And the first probe could not have seen it**: it was hand-run as
+`claude --setting-sources project --model … -p "/name"` — the runner's flags **minus the one that
+decides the outcome**. A reproduction of a harness that drops one of the harness's flags is a
+control reporting success over a smaller scope than it claims.
+
+**Your decision on it was right about *where* and could not have been right about *which line*.**
+Option (b), the runner force-add, is in the runner now — the root skill path needs it — but on its
+own it would have committed the file into runs with skills switched off, and fifteen runs would
+have agreed perfectly on a confident null. **The benchmarks repository was never touched.**
+
+### Four instrument defects, one shape, seen from both sides
+
+| where | the rule it had | what it did |
+|---|---|---|
+| `tools/skill-activation.sh` ×3 | everything not `bundled` / not `bundled`-or-empty / not `bundled`-or-`plugin` is **mine** | would have credited a foreign activation to the treatment **on the control arm** |
+| `runner/run-agent.sh` guard | **every** `Skill` call is a leaked plugin skill | marked the first matched-arm run **F15, "EXCLUDE from comparisons"**, for loading the skill it was given |
+
+Every matched-arm run loads a skill, so that guard would have ended the batch with **arm B at
+`n = 0`** and a report saying the treatment produced no usable runs. **A guard that excludes the
+treatment arm does not look like a bug. It looks like a null result.** Both categories are now
+allowlists by name, in files with fixture sets that prove they refuse — 28, 13, 16 and 7 cases,
+every count re-checked against a live run rather than against prose.
+
+### What the instrument can now say, and what it still cannot
+
+**Can:** `skill.source` for a project-scope skill is `projectSettings` — the first ever recorded
+here. **Cannot:** tell two installed skills apart, because `skill.name` is redacted to
+`custom_skill` (prediction 5, held on 5 of 5).
+
+<details><summary>The stop-8 section as written at the halt — kept because it is the record of what was believed</summary>
+
+### Stop 8 is BLOCKED, and the block is the finding — as written at the halt
 
 **A Claude Code project skill cannot be delivered to a BE-003 benchmark run.** The location the
 runner can commit is not the location the runtime registers, and no path satisfies both:
@@ -323,9 +379,76 @@ push happening. **PR #43 is now green on the real tip — 8 of 8 checks, `MERGEA
 `REVIEW_REQUIRED`.** Every earlier green on that PR was against `84ab009` and had never seen
 Decision E, Decision F, the four B2 predictions or the baseline result.
 
+</details>
+
 ## What is BLOCKED ON YOU, and cannot be delegated
 
-### 1. Stop 8 cannot proceed — pick which half moves (NEW, 2026-09-04)
+### 1. ~~Stop 8 cannot proceed~~ — RESOLVED 2026-09-04, and the diagnosis behind it was wrong
+
+**Closed. Neither of the two candidate lines was the blocker.** The item below is kept verbatim
+underneath because it is the record of what was believed and what was recommended, and because
+your decision on it — *fix it in the runner, never in the benchmarks `.gitignore`* — was right
+about **where** and could not have been right about **which line**.
+
+**What the blocker actually was:** `agent-observatory/runner/run-agent.sh` passed
+**`--disable-slash-commands`** on every claude run, and `claude --help` defines it as *"Disable
+all skills"*. No skill of any scope could load, at any path, in any run this project has ever
+done. Measured — 3 repetitions per cell, detector a `Skill` tool_use in the stream:
+**6 of 6 activated without the flag, 0 of 6 with it, at BOTH the root and the nested path,
+two-sided Fisher p = 0.0022.** Evidence:
+[`evidence/p03/skill-flag-probe-20260904T102230Z.md`](evidence/p03/skill-flag-probe-20260904T102230Z.md).
+
+**So option (b), the force-add, would not have unblocked it on its own.** It would have put the
+file in the setup commit of a run with skills switched off, and fifteen runs would have returned
+zero activations in all three arms and concluded that the description does not matter. The
+force-add IS in the runner now — it is needed for the **root** skill path, which is the one the
+runtime registers at session start — but the flag was the thing.
+
+**The benchmarks repository was never touched.** `git status --porcelain` in
+`agent-observatory-benchmarks` is empty and `.gitignore` is unchanged.
+
+---
+
+## NEW, and this one IS yours — 2026-09-04
+
+### A. E-004's control is clean for activation and is NOT clean for behaviour
+
+Stop 8's headline is solid: matched 5 of 5, misdescribed 0 of 5, control 0 of 5, p = 0.0079.
+**The co-variate is the problem.** Three of the four rubric categories are constant across all
+fifteen runs; the entire spread is `maintainability`, whose anchor 2 is word-for-word the first
+bullet of the skill body. And on it, **arm C scores like arm B and unlike arm A** — 4 of 5 versus
+5 of 5 (p = 1.0), against the control's 1 of 5 (pooled treated vs control, p = 0.017) — **while
+never having activated the skill.**
+
+**It is not a result and I have not made it one**: `maintainability` was never a registered
+outcome of E-004, so it gets the same shelf as B3's test-writing asymmetry. But two mechanisms
+would produce it and this design cannot separate them:
+
+1. **The file was read, not selected.** Arm C's `SKILL.md` is a tracked file in the worktree; an
+   agent exploring the repo can open it and follow it with no activation event. **This is
+   measured as possible, not speculated**: in the flag probe, 1 of 6 runs with skills *disabled*
+   emitted the skill body's marker after reading `SKILL.md` as an ordinary file.
+2. The arms differ by more than the skill — arm A has no `.claude/` directory at all.
+
+**It cannot be settled from what is on disk.** The observatory's `tool_result` events carry
+`tool_name` and no file path, and the kept agent logs hold only the final message.
+
+**What would settle it is a fourth arm** — the same file installed where the runtime cannot
+register it — and **§7 reserves a new arm for you.** It is cheap (5 runs, ~$0.75) and it decides
+whether anything behavioural may ever be attributed to skill *selection* on this instrument.
+
+### B. Two skills cannot be told apart by this instrument
+
+`skill.name` is redacted to the literal `custom_skill` for project scope — E-004's prediction 5,
+registered as the one most likely to be wrong, and it held on 5 of 5. With one installed skill
+that is unambiguous. **With two it is not measurable at all**, so the obvious follow-up — a ladder
+of descriptions between "shipment confirmation" and "CSS animations" — needs this solved first.
+
+---
+
+<details><summary>The item as written at the halt, 2026-09-04 morning</summary>
+
+#### 1. Stop 8 cannot proceed — pick which half moves (NEW, 2026-09-04)
 
 **One line unblocks it, and there are two candidates. They are not equivalent.**
 
@@ -351,6 +474,9 @@ disclosed harness move.
 Either way, `E-004` is registered and ready: predictions committed at `5d14182` before any run,
 two overlays whose bodies are byte-identical, and `tools/skill-activation.sh` proven by 11
 fixtures. **The batch is ~15 runs and ~$2.30 and can start the hour this is decided.**
+
+
+</details>
 
 ### 2. Squash merges have orphaned every prediction commit in the track (from the §9 validator)
 
