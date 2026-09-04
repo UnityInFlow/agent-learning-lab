@@ -1,10 +1,13 @@
 # Phase 3 — Agent Skills
 
 **Guardrail layer: L3 — guidance only, not a boundary** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
-**Status:** ⛔ **BLOCKED — stop 8 of the spine.** Reading and extract done 2026-09-04. Lab 3.2 is
-the stop's closing condition and **could not run**: a Claude Code project skill cannot be
-delivered to a BE-003 run. Caught at §4 step 5, before the batch. See *Lab 3.2 status* below ·
-**Depends on:** Phase 2
+**Status:** 🔬 **RUNNING — stop 8 of the spine.** Reading and extract done 2026-09-04. Lab 3.2
+is the stop's closing condition. It was halted at §4 step 5 on 2026-09-04 morning on the
+diagnosis that *a Claude Code project skill cannot be delivered to a BE-003 run*; **that
+diagnosis was wrong, and the correction is the stop's main finding** — see
+[*The block was a flag, not a path*](#the-block-was-a-flag-not-a-path) below and
+[`evidence/p03/skill-flag-probe-20260904T102230Z.md`](../../evidence/p03/skill-flag-probe-20260904T102230Z.md).
+Delivery is proved on both treated arms and E-004 is batching · **Depends on:** Phase 2
 
 ## Goal
 
@@ -208,6 +211,73 @@ All three vendors state that the **description**, not the body, decides whether 
 None of them shows a measurement. **That claim is the treatment of this stop's lab** — it is
 falsifiable on this instrument, on one task, with the body held byte-identical and only the
 description changed.
+
+---
+
+## The block was a flag, not a path
+
+**Superseding the section below, 2026-09-04.** That section is left standing because it is the
+record of what was believed, and because the *reasoning* in it — why a silent null would have
+been worse than a halt — is right and is the reason the correction was found at all.
+
+`agent-observatory/runner/run-agent.sh` passed **`--disable-slash-commands`** on every claude run.
+`claude --help` defines it as **"Disable all skills"**. So no skill of any scope could load, at any
+path, in any run this project has ever done. Measured rather than read — three repetitions per
+cell, detector a `Skill` tool_use in the stream:
+
+| | root `.claude/skills/` | nested `sample-service/.claude/skills/` |
+|---|---|---|
+| **without** the flag | **3 of 3 activated** | **3 of 3 activated** |
+| **with** it | **0 of 3** | **0 of 3** |
+
+Pooled, 6 of 6 against 0 of 6, two-sided Fisher **p = 0.0022**.
+
+**Every claim in the table below is still true, and the conclusion drawn from it was not.**
+Root `.claude/skills/` *is* gitignored in the benchmarks repo; the nested path *does* commit; a
+nested skill *is* absent from the `/name` registry at session start. What none of it established
+is the thing it was used for. **The nested path activates mid-run** — which is what E-004
+measures — and the §9 validator's second pass said so before this probe ran.
+
+**Why the first probe could not see it.** Its registration test was run by hand as
+`claude --setting-sources project --model … -p "/name"` — the runner's flag set **minus the flag
+that decides the outcome**. A reproduction of a harness that drops one of the harness's flags is a
+control reporting success over a smaller scope than it claims, which is this project's house
+failure mode wearing a probe's clothes.
+
+**And the author's pre-made decision would not have unblocked it either.** Author decision 2 chose
+the runner force-add over a `.gitignore` change. The force-add is real and is now in the runner —
+but on its own it would have put the file in the setup commit of a run that had skills switched
+off, and fifteen runs would have come back with three arms in perfect agreement and a confident
+null. **The decision was right about *where* to change a line and could not have been right about
+*which* line, because the flag had not been read by anyone.**
+
+### The four instrument defects this stop found, and they are one shape
+
+| # | where | the rule it had | what it did |
+|---|---|---|---|
+| 1 | `tools/skill-activation.sh` | everything not `bundled` is the installed skill | §4a round 1 |
+| 2 | same | everything not `bundled`/empty is | §4a round 2 |
+| 3 | same | everything not `bundled`/`plugin` is | §4a round 3 — and `plugin` is the only non-bundled source ever seen here, so a plugin firing on the **control** arm would have recorded an activation in the arm that installs nothing |
+| 4 | `run-agent.sh` contamination guard | **every** `Skill` call is a leaked plugin skill | marked the first matched-arm run F15, *"EXCLUDE this run from comparisons"* |
+
+The first three are an open *everything-else-is-mine* bucket, and each fix named one more scope
+instead of rejecting the category. **The fourth is the same bucket inverted — *everything is
+theirs*** — and it lands on the **treatment** arm instead of the control. Every matched-arm run
+loads a skill, so the batch would have ended with arm B at `n = 0` and a report saying the
+treatment produced no usable runs. **A guard that excludes the treatment arm does not look like a
+bug. It looks like a null result.**
+
+Both categories are now allowlists by name, in files with fixture sets that prove they refuse:
+`tools/skill-activation.sh` (24), `tools/check-overlay-parity.sh` (12),
+`agent-observatory/runner/lib/classify-skill-contamination.sh` (12),
+`agent-observatory/runner/verify-skill-delivery.sh` (7).
+
+### What the instrument now says that it could not say before
+
+**`skill.source` for a project-scope skill is `projectSettings`.** No project-scope skill had ever
+been recorded on this instrument, which is why E-004's prediction 2 was registered without a
+denominator and said so. Preflight run `46ffad94` is the first, and the value was written into the
+prediction before any batch was read.
 
 ---
 
