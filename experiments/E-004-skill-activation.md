@@ -81,6 +81,13 @@ task's domain will be loaded; the *same* skill body behind a description naming 
 domain will not. Activation is therefore a property of the description text, and is visible in
 `claude_code.skill_activated` telemetry per run.
 
+> **LIMIT OF WHAT THIS DESIGN CAN ESTABLISH — added 2026-09-04 after the §4a gate found it at
+> 2/2, and it constrains how the result may be read.** The contrast identifies that **changing
+> the description changes activation**. It does **not** identify that the body plays no part: a
+> selector reading *both*, in which an unrelated description vetoes an otherwise matching body,
+> produces exactly the same 5-of-5 against 0-of-5. The exclusive *"not the body"* half of this
+> hypothesis is **not identifiable from this design** and must not be reported as measured.
+
 ## Predictions
 
 Numbered, specific, falsifiable. Direction and magnitude stated. Each says which *kind* of claim
@@ -498,7 +505,7 @@ Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-04, before the batch.
 - [x] harness + version — one `claude` CLI version for all 15 runs, recorded in *Sanity checks*
 - [x] model — **`claude-haiku-4-5-20251001`**, exact id, the controlled variable of the whole track
 - [x] permissions / permission mode — identical across arms, runner defaults
-- [x] environment: hooks, plugins, skills, MCP servers, settings sources — `ISOLATE_USER_SETTINGS=1` on every run; **verified by observing `hook_execution_start = 0` per run in telemetry, not by trusting the flag**
+- [x] environment: hooks, plugins, skills, MCP servers, settings sources — `ISOLATE_USER_SETTINGS=1` on every run; **verified by observing `hook_execution_start = 0` per run in telemetry, not by trusting the flag.** **CORRECTED 2026-09-04 after the §4a gate, which found it at 2/2: a zero hook count is evidence about HOOKS and about nothing else on that list.** A user-scope setting or MCP server defining no hook would leak while this check stayed green. Separately evidenced: **plugin skills**, by `plugin_activations` = 0 across all 28 isolated runs and by `/gsd-help` returning `Unknown command` under `--setting-sources project`. **Settings sources and MCP servers rest on the flags alone and are therefore L3 here**
 - [x] runner commit — one commit for all 15 runs, recorded in *Sanity checks*
 
 **The one thing that is deliberately *not* controlled** is bundled-skill activation: Claude Code
@@ -558,6 +565,19 @@ Registered now, not after seeing the data:
 - Runs spanning a machine sleep have their **duration** excluded, not the run.
 - Bundled-skill activations (`skill.source = bundled`) are excluded from the outcome by
   definition, in every arm equally.
+
+**AMENDED 2026-09-04 after the §4a gate, at 2/2 — two dispositions this list did not name.** Both
+are recorded as gaps rather than applied retroactively: **no run in this batch hit either**, and
+all 15 report `status: measured` with `malformed_lines: 0` and `damaged_records: 0`.
+
+- **`PARTIAL-telemetry-damaged` (exit 4) had no registered disposition.** Its count is a *lower
+  bound*, so a `0` from a damaged stream must not be entered as a real zero. The rule for any
+  future batch: **a `PARTIAL` run is excluded from the activation outcome and reported with its
+  count**, exactly as a non-joining run is.
+- **A permission block caused by the treatment itself is not infrastructure.** If an activated
+  skill asks for a command needing approval and the run dies, that is downstream of the treatment,
+  and excluding it would delete the treatment's own effect. This list did not separate those from
+  exogenous blocks. Unexercised here, registered for the next batch.
 
 ## Decision rule
 
@@ -759,75 +779,6 @@ attributed to skill selection on this evidence.
 final message. Settling it needs **a fourth arm** — the same file present where the runtime cannot
 register it — and §7 reserves a new arm for the author. Raised in HANDOFF rather than run.
 
-## Hand re-read — written and committed BEFORE the scorer ran
-
-§4 step 7: *read the sheets only after you have written your own expected score for at least one
-run by hand from the kept worktree.* §5: *at least one scored cell per step is re-read by hand and
-the hand reading is written down next to the sheet's value.*
-
-**Run `45a70775-e32e-49bf-b57f-40372f4085a5`, arm B (matched), category `maintainability`,
-rubric `benchmark/rubrics/backend-quality.yaml` at sha `396e1799eb2b`.**
-
-Read from the kept worktree at `$TMPDIR/observatory-run-45a70775-…`, `git diff HEAD` against the
-setup commit.
-
-```kotlin
-// sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
-val updated = when (shipment.status) {
-    ShipmentStatus.CREATED   -> shipment.copy(status = ShipmentStatus.CONFIRMED)
-    ShipmentStatus.CONFIRMED -> shipment
-    ShipmentStatus.CANCELLED -> throw ConflictException(
-        ErrorCode.SHIPMENT_CANNOT_CONFIRM_CANCELLED,
-        "Cannot confirm a cancelled shipment",
-    )
-}
-
-return repository.save(updated)
-```
-
-**My hand score: `maintainability = 2`.** Anchor 2 asks for one `when (shipment.status)` in
-EXPRESSION position carrying no `else`, and for the construct that consumes its value to be
-cited. All three are present: the `when` is assigned to `val updated`, that value is consumed by
-`repository.save(updated)`, and there is no `else` branch. I did not count branches against
-`ShipmentStatus` — the rubric explicitly forbids it, because that enum is not among the
-attachments.
-
-**A second cell I am deliberately NOT calling, and why.** `change-focus` is ambiguous on this
-submission and the ambiguity is already on record in `agent-learning-lab/CLAUDE.md`: the diff
-adds one `ErrorCode` constant in a second attached file, which is neither a method the ticket left
-alone nor an import, so anchor 2's clause list does not reach it and anchor 1's illustration does
-not either. **1 or 2 are both defensible readings and that is a rubric defect, not a scorer
-defect.** Recorded here rather than resolved, because moving a rubric sha mid-experiment is a §6
-violation.
-
-Written by Opus 5 (claude-opus-5), autonomous, 2026-09-04, before any sheet for this run existed.
-
-## Results
-
-**Matched 5 of 5. Misdescribed 0 of 5. Control 0 of 5.**
-
-Two-sided Fisher, matched against misdescribed: **p = 0.0079**. That is the `(5,0)` cell, one of
-exactly three the MDE table registered as reaching `p < 0.05` at this `n`.
-
-Cost, median and range, `n = 5` per arm — reported **beside** the verdict, never as a condition
-on it:
-
-| arm | median $/run | range | tool calls, median |
-|---|---|---|---|
-| A control | 0.1485 | 0.1123 – 0.1751 | 18 |
-| B matched | 0.1373 | 0.1219 – 0.2113 | 17 |
-| C misdescribed | 0.1458 | 0.1111 – 0.1545 | 18 |
-
-Matched against control: **−7.6 %**. The registered cost row fires at **> +25 %**; it does not
-fire. **A −7.6 % median difference at `n = 5` with these ranges is not a finding — the arms
-overlap almost entirely — and it is reported only to show the cost row was evaluated.**
-
-### Quality co-variate
-
-Scored with the registered scorer, `codex-score.sh` against `benchmark/rubrics/backend-quality.yaml`
-at sha `396e1799eb2b`. **The primary outcome of this experiment is not a rubric score**, and the
-sheets are reported as a co-variate.
-
 ## Which predictions held
 
 **All five.** That is an uncomfortable result in a project whose house rule is to disbelieve its
@@ -851,10 +802,22 @@ own headline, and the *Failure analysis* below is written against it rather than
    worktree, `claude … -p "/shipment-service-conventions"` with the runner's own flags. Result
    across the six arm-C worktrees probed (five batch runs plus preflight `b9f9f3b9`): **four
    loaded the skill and quoted its body, two returned an off-topic answer, and `Unknown command`
-   came back zero times.** The two off-topic replies are inconclusive probes, not refusals — both
-   occurred in worktrees the agent had already modified, where the model answered about the
-   pending change instead. Delivery is therefore proven for arm C and is not inferred from its
-   own outcome.
+   came back zero times.**
+
+   **The observable that separates the three outcomes, since the §4a gate found it undefined at
+   2/2:** `Unknown command: /shipment-service-conventions` is a **refusal** — the runtime says the
+   skill is not registered. A reply quoting the body (*"exhaustive `when`"*, *"no `else` branch"*)
+   is a **positive load**. Anything else is **inconclusive**: the model answered a different
+   question, which happened in both cases in worktrees the agent had already modified, where it
+   responded to the pending change instead.
+
+   **What that buys, stated at its weakest.** Delivery is *positively* demonstrated on **4 of 6**
+   arm-C worktrees, including two of the five batch runs. It is not demonstrated on the other two,
+   and it is **refuted on none**. The registered `(5,0)` result is computed over all five arm-C
+   runs; **a reader who insists on positive delivery proof per run would compute it over the two
+   proven ones, giving `(5,0)` against `n = 2` — still in the predicted direction, no longer at
+   `p < 0.05`.** That reading is written here rather than argued away, and the cheap repair is
+   named in *Follow-up*: probe every worktree before it is reaped, not a sample.
 2. **Something other than the description differed between B and C.** Closed at L1/L2:
    `shasum` of the bodies below the frontmatter is `d10a2c3988be520e` on both, and
    `tools/check-overlay-parity.sh` executes the whole comparison — same path set, symlinks
@@ -920,8 +883,15 @@ the MDE table registered as decidable at this `n`. The cost row was evaluated an
 
 **What is now measured, and it was not before:** on this instrument, on BE-003, at
 `claude-haiku-4-5-20251001`, **changing only a skill's `description` — with the body held
-byte-identical — decides whether the skill loads.** Three vendors document that mechanism and
-none of them showed a measurement. This is one, with its `n`.
+byte-identical — changes whether the skill loads, from 5 of 5 to 0 of 5.** Three vendors document
+that mechanism and none of them showed a measurement. This is one, with its `n`.
+
+**Stated exactly, because the §4a gate found both looser readings at 2/2.** *"The description
+decides"* is shorthand for two narrower claims: (i) the description is **causally sufficient** to
+change activation under this contrast — measured; and (ii) the body plays **no** part — **not
+identifiable from this design**, since a selector reading both, where an unrelated description
+vetoes a matching body, fits the data equally. Nor is the effect **deterministic**: a repeat at
+4 of 5 would still satisfy the registered `CONFIRM` rule.
 
 **What is NOT measured, and must not be read out of this:** how *close* two descriptions can get
 before selection degrades. The two here are at maximal semantic distance. The result establishes
@@ -959,3 +929,7 @@ Registered here rather than acted on, because each needs its own prediction firs
    attached file matches neither anchor 1's illustration nor anchor 2's clause list. Recorded in
    the hand re-read above; a rubric round, never a sha moved mid-experiment.
 5. **One runtime.** Codex documents the same mechanism and is untested here.
+6. **Probe every treated worktree for delivery, not a sample, and do it before `$TMPDIR` reaps
+   them.** Two of six arm-C probes came back inconclusive, and a strict reader can shrink this
+   experiment's effective `n` on that basis. Six extra `claude -p "/name"` calls at the end of a
+   batch close it permanently.

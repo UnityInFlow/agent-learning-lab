@@ -76,11 +76,34 @@ printf 'two\n' > "$TMP/target-two/s/SKILL.md"
 ln -s "$TMP/target-one" "$TMP/dirlink-a/sample-service/.claude/skills"
 ln -s "$TMP/target-two" "$TMP/dirlink-b/sample-service/.claude/skills"
 
+# §4a round 3, at 2/2: git records the file mode, so chmod +x is a second difference the setup
+# commits carry while a byte comparison stays green.
+skill "$TMP/mode-differs" "an unrelated domain"
+chmod +x "$TMP/mode-differs/sample-service/.claude/skills/s/SKILL.md"
+# §4a round 3: with TWO skills, a difference in one used to satisfy the allowance for BOTH, so
+# an unapplied treatment in the second passed silently.
+for d in two-a two-b; do
+  skill "$TMP/$d" "matches the task"
+  mkdir -p "$TMP/$d/sample-service/.claude/skills/second"
+  printf -- '---\nname: second\ndescription: identical everywhere\n---\n\nbody\n' \
+    > "$TMP/$d/sample-service/.claude/skills/second/SKILL.md"
+done
+sed -i '' 's/^description: matches the task$/description: an unrelated domain/' \
+  "$TMP/two-b/sample-service/.claude/skills/s/SKILL.md"
+# CRLF frontmatter must not be reported as a whole-file body difference
+for d in crlf-a crlf-b; do
+  mkdir -p "$TMP/$d/sample-service/.claude/skills/s"
+done
+printf -- '---\r\nname: s\r\ndescription: matches the task\r\n---\r\n\r\nbody\r\n' \
+  > "$TMP/crlf-a/sample-service/.claude/skills/s/SKILL.md"
+printf -- '---\r\nname: s\r\ndescription: an unrelated domain\r\n---\r\n\r\nbody\r\n' \
+  > "$TMP/crlf-b/sample-service/.claude/skills/s/SKILL.md"
+
 mkdir -p "$TMP/name-differs/sample-service/.claude/skills/s"
 printf -- '---\nname: OTHER\ndescription: an unrelated domain\n---\n\n## When this applies\n\nAlways.\n' \
   > "$TMP/name-differs/sample-service/.claude/skills/s/SKILL.md"
 
-echo "verify-overlay-parity-checker: 13 cases"
+echo "verify-overlay-parity-checker: 16 cases"
 
 check "arms differing only in description are accepted"      0 "parity holds" \
   --allow-differ description "$TMP/a" "$TMP/b"
@@ -113,6 +136,12 @@ check "a DUPLICATED frontmatter key is refused, not resolved" 2 "appears 2 times
   --allow-differ description "$TMP/a" "$TMP/dup-key"
 check "DIRECTORY symlinks to different targets are refused"  2 "symlink targets differ" \
   --allow-differ description "$TMP/dirlink-a" "$TMP/dirlink-b"
+check "a differing FILE MODE is refused, bytes or not"       2 "file mode differs" \
+  --allow-differ description "$TMP/a" "$TMP/mode-differs"
+check "a second skill with the treatment UNAPPLIED is refused" 3 "IDENTICAL in both arms" \
+  --allow-differ description "$TMP/two-a" "$TMP/two-b"
+check "CRLF frontmatter is not a whole-file body difference"  0 "parity holds" \
+  --allow-differ description "$TMP/crlf-a" "$TMP/crlf-b"
 # and the duplicate must be caught even when the winning line matches, which is the whole point
 check "  even when the last of the duplicates matches"       2 "appears 2 times" \
   --allow-differ description "$TMP/same-desc" "$TMP/dup-key"

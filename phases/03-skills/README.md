@@ -268,7 +268,7 @@ treatment produced no usable runs. **A guard that excludes the treatment arm doe
 bug. It looks like a null result.**
 
 Both categories are now allowlists by name, in files with fixture sets that prove they refuse:
-`tools/skill-activation.sh` (28), `tools/check-overlay-parity.sh` (13),
+`tools/skill-activation.sh` (28), `tools/check-overlay-parity.sh` (16),
 `agent-observatory/runner/lib/classify-skill-contamination.sh` (16),
 `agent-observatory/runner/verify-skill-delivery.sh` (7).
 
@@ -281,7 +281,16 @@ prediction before any batch was read.
 
 ---
 
-## Lab 3.2 status — **BLOCKED at §4 step 5, and the block is the result**
+## ~~Lab 3.2 status — BLOCKED at §4 step 5~~ — SUPERSEDED, kept as the record of what was believed
+
+> **⚠️ THIS SECTION IS HISTORICAL AND ITS STATUS CLAIM IS FALSE.** Lab 3.2 ran on 2026-09-04 and
+> stop 8 is **CLOSED**; see [*The block was a flag, not a path*](#the-block-was-a-flag-not-a-path)
+> and *Validation* below. Nothing in it is edited, because its reasoning — why a silent null would
+> have been worse than a halt — is right and is why the real cause was found. Only its conclusion
+> was wrong. A reader entering by heading was previously able to leave with the opposite status,
+> which the §4a gate found at 2/2.
+
+### Lab 3.2 status as written at the halt — **BLOCKED at §4 step 5, and the block is the result**
 
 Stop 8's closing condition is *"one lab that records skill activation on the observatory —
 that lab's evidence on disk"*. The lab was designed, registered
@@ -314,7 +323,13 @@ tracked, and the runs evaluate clean.
 reached the model before you batch* — is the rule written from that, and it is the only reason
 this was caught before the batch rather than after.
 
-## Predict before you run — **unanswered, and left that way**
+## ~~Predict before you run — unanswered~~ — SUPERSEDED
+
+> **⚠️ HISTORICAL.** Written at the halt. Predictions 1–5 were subsequently **run and all five
+> held**; question 1 (false-trigger rate on an unrelated task) is still unanswered and still needs
+> a second task. See *Validation* and [`E-004`](../../experiments/E-004-skill-activation.md).
+
+### As written at the halt — unanswered, and left that way
 
 The three questions stay open. Question 1 (*"what fraction of unrelated tasks falsely trigger
 your skill?"*) needs a second task, which §7 reserves for the author. Questions 2 and 3 need the
@@ -386,14 +401,16 @@ identify possible prompt injection.
       Runs `d6aec246`, `45a70775`, `2cf0c720`, `33a4090d`, `8998ef3b`, experiment
       `EXP-P3-SKILL-DESC`. The delivery path that was "missing" was never missing — the runner was
       passing `--disable-slash-commands`.
-- [x] **Prove it did *not* trigger on an unrelated task** — **MEASURED, by the substitution E-004
-      registered: the task is held fixed and the DESCRIPTION is made unrelated.** The misdescribed
+- [~] **Prove it did *not* trigger on an unrelated task** — **ANSWERED BY SUBSTITUTION, NOT BY
+      THE CLAUSE AS WRITTEN, and marked `[~]` rather than `[x]` for that reason.** E-004 holds the
+      task fixed and makes the DESCRIPTION unrelated. The misdescribed
       arm — same skill, same byte-identical body, a description naming CSS keyframe animations —
       recorded **0 activations on 5 of 5**, against 5 of 5 on the matched arm. Two-sided Fisher
       **p = 0.0079**. **L2** for the count; **L2** for delivery, because the skill was proved
       loadable in the arm-C worktrees by explicit `/shipment-service-conventions`, which does not
-      consult the description — four of six worktrees loaded it and quoted its body, and
-      `Unknown command` came back **zero** times.
+      consult the description — four of six worktrees loaded it and quoted its body, `Unknown command` came back **zero**
+      times, and the other two returned an off-topic answer in a worktree the agent had already
+      modified — **inconclusive probes, not refusals**, and counted as neither.
       **What is still not measured:** a genuinely unrelated *task*. §7 still reserves a second
       task for the author, and this substitution is not the same claim.
 - [x] **Explain progressive disclosure** — answered, and quantified from two vendors. Name and
@@ -413,8 +430,10 @@ identify possible prompt injection.
       is exactly what Phase 2 found behind `allowed-tools`. A skill is a directory-shaped
       dependency: *"Copilot automatically discovers all of the files in the skill's directory."*
 
-**All five answered. Three from documentation and labelled L3; the two that were blocked are now
-MEASURED at L2, `n = 5` per arm.** The blocker they waited on turned out not to exist in the form
+**Four answered outright, one answered by substitution and marked `[~]`.** Three are from
+documentation and labelled L3; *"prove the skill triggered"* is MEASURED at L2, `n = 5` per arm;
+and *"prove it did not trigger on an unrelated task"* is answered for an unrelated **description**
+and remains unanswered for an unrelated **task**, which is a different claim and is not ticked. The blocker they waited on turned out not to exist in the form
 it was described — see [*The block was a flag, not a path*](#the-block-was-a-flag-not-a-path).
 
 ## Learning
@@ -426,7 +445,7 @@ learning:
     claim three vendors make and none of them measures. Two registered overlays whose
     SKILL.md bodies are byte-identical at d10a2c3988be520e and differ only in `description`.
     Four instrument controls that execute and have fixture sets proving they refuse:
-    tools/skill-activation.sh (28), tools/check-overlay-parity.sh (13),
+    tools/skill-activation.sh (28), tools/check-overlay-parity.sh (16),
     runner/lib/classify-skill-contamination.sh (16), runner/verify-skill-delivery.sh (7).
     Three runner changes: --enable-skills, a guard that refuses an undeliverable skill
     overlay, and a scoped force-add of the overlay's own paths.
@@ -524,8 +543,9 @@ those two as the treatment.
 ## Amendment — 2026-09-04, from the §9 validator's second pass
 
 Source: [`findings/track-b-validation-2026-09-04-2.md`](../../findings/track-b-validation-2026-09-04-2.md).
-Verdict on this stop: **NOT CLOSED — and not claimed closed**; the block itself **CONFIRMED by
-independent reproduction** (a scratch repo, the same binary and model, root path answers with the
+Verdict on this stop **at the time of that pass**: **NOT CLOSED — and not claimed closed**
+(**superseded 2026-09-04: the stop is now CLOSED**, see *Validation*); the block itself **CONFIRMED
+by independent reproduction** (a scratch repo, the same binary and model, root path answers with the
 body marker and the nested path answers `Unknown command`), with four corrections. Stops 4–7 were
 CONFIRMED. Every correction below is applied as an in-place fix carrying a pointer to this
 section; no prediction, result, sheet or run folder was rewritten.
@@ -625,7 +645,7 @@ it says L3 and the row does not close a gate.
 | …**"that lab's evidence on disk"** — the closing condition | matched `d6aec246 45a70775 2cf0c720 33a4090d 8998ef3b` = **1 activation each**; misdescribed `95f42409 fc3665a7 77c60831 cc41f3f0 946144c3` = **0 each**; control `d671d1b7 7b4428be 394ee79a ff7bffed c51a7a0c` = **0 each** | **L2** | `./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl <run-id>` on any of the fifteen |
 | …the outcome counts only the scope this experiment installed | `skill.source = projectSettings`, **pinned by preflight run `46ffad94` before any batch was read**; every other source excluded by name | **L2** — `skill-activation.sh` counts per source and labels none "mine"; 28 fixtures, each asserting an exit code *and* a stdout line | `./tools/verify-skill-activation.sh` → `28 passed, 0 failed` |
 | …a real zero is distinguishable from a missing and from a damaged measurement | statuses `measured` / `UNKNOWN-run-absent-from-telemetry` / `PARTIAL-telemetry-damaged`, exits 0 / 3 / 4. All 15 runs report `measured`, `malformed_lines: 0`, `damaged_records: 0` | **L2** — it executes and refuses | `./tools/verify-skill-activation.sh`; then a fabricated run id → `status: UNKNOWN…`, all counts `null`, exit 3 |
-| …the arms differ in exactly one thing | body `sha256:d10a2c3988be520e` equal across both overlays; only `description` differs | **L1** for the bytes — they are identical or they are not. **L2** for the whole comparison — `check-overlay-parity.sh` executes, exits 2 on any undeclared difference and **3 if the arms are identical** | `./tools/check-overlay-parity.sh --allow-differ description build/customizations/skill-v0.2{,-misdescribed}`; `./tools/verify-overlay-parity-checker.sh` → `13 passed` |
+| …the arms differ in exactly one thing | body `sha256:d10a2c3988be520e` equal across both overlays; only `description` differs | **L1** for the bytes — they are identical or they are not. **L2** for the whole comparison — `check-overlay-parity.sh` executes, exits 2 on any undeclared difference and **3 if the arms are identical** | `./tools/check-overlay-parity.sh --allow-differ description build/customizations/skill-v0.2{,-misdescribed}`; `./tools/verify-overlay-parity-checker.sh` → `16 passed` |
 | …**the treatment reached the model** | the model *used* it: 5 of 5 matched runs carry an activation with `invocation_trigger = claude-proactive`. Independently for arm C, where the prediction is a zero: explicit `/shipment-service-conventions` in the kept worktrees loaded the skill and quoted its body in **4 of 6** probed, `Unknown command` in **0** | **L2** — both are executions, and arm C's proof does not consult the description, so it is not circular with the prediction it supports | `cd $TMPDIR/observatory-run-95f42409-… && claude --permission-mode acceptEdits --strict-mcp-config --setting-sources project --model claude-haiku-4-5-20251001 -p "/shipment-service-conventions"` |
 | …and could not have reached the control | arm A installs no customization; `git ls-files -- .claude` is empty in its worktrees; 0 activations of any source on 5 of 5 | **L2** | `git -C <arm-A worktree> ls-files -- .claude` → nothing |
 | …the harness would refuse an undeliverable skill treatment | `run-agent.sh` **dies** when a customization installs a `SKILL.md` and skills would be disabled | **L2** — it executes and exits 1, naming the switch and the files | `./runner/verify-skill-delivery.sh` → `7 passed, 0 failed`; check A is the refusal |
@@ -659,7 +679,7 @@ re-driven to a full 15.
 **What shipped:** `E-004` closed with a decision rule applied as written; two registered overlays
 at `build/customizations/skill-v0.2{,-misdescribed}`; the evidence file that corrected this
 stop's own halt; and four instrument controls with fixture sets that prove they refuse —
-`tools/skill-activation.sh` (28), `tools/check-overlay-parity.sh` (13),
+`tools/skill-activation.sh` (28), `tools/check-overlay-parity.sh` (16),
 `agent-observatory/runner/lib/classify-skill-contamination.sh` (16),
 `agent-observatory/runner/verify-skill-delivery.sh` (7).
 

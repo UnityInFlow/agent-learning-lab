@@ -17,6 +17,9 @@
 #   - the same set of relative paths must exist in both              (a file added to one arm)
 #   - a path must be a symlink in both arms or in neither, and links must point at the same
 #     place — FILE links and DIRECTORY links alike  (§4a round 1 at 1/2, round 2 at 2/2)
+#   - a path must carry the same PERMISSION BITS in both arms       (§4a round 3, 2/2 — git
+#     records the mode, so `chmod +x` on one arm is a second difference the setup commits carry
+#     while a byte comparison stays green)
 #   - every non-SKILL.md file must be byte-identical                 (a smuggled second change)
 #   - every SKILL.md BODY below the frontmatter must be byte-identical
 #   - SKILL.md frontmatter may differ ONLY in lines whose key is named by --allow-differ
@@ -100,13 +103,21 @@ def rel_files(root):
 
 def split_front(raw):
     """Return (frontmatter_raw_lines, body_bytes). No frontmatter -> ([], whole file)."""
-    if not raw.startswith(b"---\n"):
+    # CRLF is normalised for the FRONTMATTER SCAN ONLY, so a valid CRLF file is not reported
+    # as a whole-file body difference (§4a round 3). The body comparison below still runs on
+    # the ORIGINAL bytes, so a genuine line-ending difference between the arms is still a
+    # difference — which is the point.
+    probe = raw.replace(b"\r\n", b"\n")
+    if not probe.startswith(b"---\n"):
         return [], raw
-    end = raw.find(b"\n---\n", 3)
+    end = probe.find(b"\n---\n", 3)
     if end == -1:
         return [], raw
-    head = raw[4:end + 1].decode("utf-8", "replace")
-    return head.splitlines(), raw[end + 5:]
+    head = probe[4:end + 1].decode("utf-8", "replace")
+    # Body is taken from the original bytes by matching the same marker there.
+    real_end = raw.find(b"---", raw.find(b"---") + 3)
+    body_start = raw.find(b"\n", real_end) + 1
+    return head.splitlines(), raw[body_start:]
 
 def key_of(line):
     return line.split(":", 1)[0].strip() if ":" in line else line.strip()
@@ -120,6 +131,7 @@ if fa != fb:
         problems.append(f"only in {B}: {p}")
 
 declared_seen = set()
+unapplied = []
 for rel in sorted(fa & fb):
     pa, pb = os.path.join(A, rel), os.path.join(B, rel)
 
@@ -137,6 +149,10 @@ for rel in sorted(fa & fb):
     if os.path.isdir(pa) or os.path.isdir(pb):
         problems.append(f"directory where a file was expected: {rel}")
         continue
+    ma, mb = os.stat(pa).st_mode & 0o777, os.stat(pb).st_mode & 0o777
+    if ma != mb:
+        problems.append(f"file mode differs: {rel} ({ma:04o} vs {mb:04o})")
+
     ra = open(pa, "rb").read()
     rb = open(pb, "rb").read()
     if os.path.basename(rel) != "SKILL.md":
@@ -176,6 +192,12 @@ for rel in sorted(fa & fb):
                             f"{rel}: {line.strip()!r}")
     for k in sorted(here):
         print(f"declared difference: {rel} frontmatter '{k}'")
+    # §4a round 3: `declared_seen` was global, so with TWO SKILL.md files a difference in the
+    # first satisfied the allowance for both and an UNAPPLIED treatment in the second passed
+    # silently. Every SKILL.md must carry every declared difference itself.
+    missing_here = allow - here
+    if missing_here:
+        unapplied.append((rel, sorted(missing_here)))
 
 if problems:
     print("check-overlay-parity: the arms differ by more than the declared variable:",
@@ -184,12 +206,16 @@ if problems:
         print(f"  {p}", file=sys.stderr)
     sys.exit(2)
 
-missing = allow - declared_seen
-if missing:
-    print("check-overlay-parity: declared-differ key(s) are IDENTICAL in both arms: "
-          + ", ".join(sorted(missing)), file=sys.stderr)
-    print("  The treatment is not applied. This looks like a working experiment from every "
-          "other angle.", file=sys.stderr)
+# A real difference outranks a missing one: exit 2 has already fired above if there was one.
+# Exit 3 is reserved for "every declared difference is absent SOMEWHERE", which is the case
+# that looks like a working experiment from every other angle.
+if unapplied:
+    print("check-overlay-parity: declared-differ key(s) are IDENTICAL in both arms:",
+          file=sys.stderr)
+    for rel, keys in unapplied:
+        print(f"  {rel}: {', '.join(keys)}", file=sys.stderr)
+    print("  The treatment is not applied there. This looks like a working experiment from "
+          "every other angle.", file=sys.stderr)
     sys.exit(3)
 
 print(f"check-overlay-parity: parity holds; the arms differ only in {', '.join(sorted(allow))}")
