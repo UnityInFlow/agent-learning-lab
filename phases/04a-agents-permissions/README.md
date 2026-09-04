@@ -345,6 +345,18 @@ file. Those are §4 steps 3 and 4, and they belong to the next session — the p
 committed before the first run, and writing a prediction is not something to start at the end of
 a context window.
 
+> **UPDATE 2026-09-04T16:25Z — §4 step 3 is now done.** The experiment is registered as
+> [`experiments/E-005-agent-tool-boundary.md`](../../experiments/E-005-agent-tool-boundary.md):
+> three arms (`C` control, `T` `tools: Read, Grep, Glob`, `D` read-only description), each
+> differing from the control in **exactly one thing**, `n = 10` per arm, a deterministic
+> git-decided outcome, and five numbered predictions with the one most likely to be wrong named
+> as such. Overlays are committed under `build/customizations/agent-v0.1-{control,toollist,description}/`
+> with C and T **byte-identical below the frontmatter** at `94676d6654344b3e`. **No run has
+> happened.** Still not built: the checker that refuses a `tools`-less overlay and its
+> `verify-*.sh` fixture set — §4 step 4 — and the preflight of §4 step 5, which must show
+> `Write` absent from arm T's schema and present in C's and D's **before** the batch, and which
+> voids the design rather than the result if it does not.
+
 ---
 
 ## Predict before you run
