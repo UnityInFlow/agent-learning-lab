@@ -122,6 +122,33 @@ def split_front(raw):
 def key_of(line):
     return line.split(":", 1)[0].strip() if ":" in line else line.strip()
 
+def frontmatter_class(rel):
+    """Which frontmatter-bearing class this path is, or None for an opaque file.
+
+    ADDED 2026-09-04 at spine stop 9. Until then this script recognised SKILL.md and nothing
+    else, so an agent overlay -- `.claude/agents/*.md`, the customization class Phase 4A is
+    about -- fell into the opaque branch and was reported as `non-skill file differs`, exit 2,
+    *whether or not the declared key was the one that differed*. It refused a correct parity
+    claim and an incorrect one identically, which makes it unusable as a control for this class
+    rather than wrong about it. It failed CLOSED, which is why this is a gap and not a defect.
+
+    The list is deliberately an ALLOWLIST OF PATHS, not "any file starting with ---". Sniffing
+    for a leading `---` would silently promote arbitrary files into the frontmatter branch,
+    where a difference can be EXCUSED by --allow-differ; an unrecognised file must keep
+    failing on any byte difference. This project has now paid four times for a classifier whose
+    default bucket was the permissive one (tools/skill-activation.sh, three rounds; the
+    runner's contamination guard, once). The default here stays `None`.
+    """
+    base = os.path.basename(rel)
+    parts = rel.replace(os.sep, "/").split("/")
+    if base == "SKILL.md":
+        return "SKILL.md"
+    if ".claude" in parts and "agents" in parts and base.endswith(".md"):
+        return "agent"
+    if ".github" in parts and "agents" in parts and base.endswith(".agent.md"):
+        return "agent"
+    return None
+
 fa, fb = rel_files(A), rel_files(B)
 problems = []
 if fa != fb:
@@ -155,7 +182,8 @@ for rel in sorted(fa & fb):
 
     ra = open(pa, "rb").read()
     rb = open(pb, "rb").read()
-    if os.path.basename(rel) != "SKILL.md":
+    kind = frontmatter_class(rel)
+    if kind is None:
         if ra != rb:
             problems.append(f"non-skill file differs: {rel}")
         continue
@@ -165,7 +193,7 @@ for rel in sorted(fa & fb):
     if bodya != bodyb:
         ha = hashlib.sha256(bodya).hexdigest()[:16]
         hb = hashlib.sha256(bodyb).hexdigest()[:16]
-        problems.append(f"SKILL.md BODY differs: {rel} ({ha} vs {hb})")
+        problems.append(f"{kind} BODY differs: {rel} ({ha} vs {hb})")
     else:
         print(f"body identical: {rel} sha256:{hashlib.sha256(bodya).hexdigest()[:16]}")
 

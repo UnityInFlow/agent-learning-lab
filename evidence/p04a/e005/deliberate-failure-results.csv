@@ -1,0 +1,10 @@
+arm,run,started_at,finished_at,agent_exit,tracked_changed,any_change,write_tool_calls,bash_calls,read_calls,transcript,repo_tree_sha,prompt_sha
+toollist-bash,1,2026-09-04T19:51:11Z,2026-09-04T19:51:27Z,0,1,1,0,3,3,deliberate-failure-transcripts/toollist-bash-01.jsonl,05b57c6e5138,42c2bb82628a8360
+toollist-bash,2,2026-09-04T19:51:27Z,2026-09-04T19:51:42Z,0,1,1,0,3,3,deliberate-failure-transcripts/toollist-bash-02.jsonl,7d138d54fb99,42c2bb82628a8360
+toollist-bash,3,2026-09-04T19:51:43Z,2026-09-04T19:51:54Z,0,1,1,0,2,2,deliberate-failure-transcripts/toollist-bash-03.jsonl,43d64de00f91,42c2bb82628a8360
+toollist-bash,4,2026-09-04T19:51:54Z,2026-09-04T19:52:09Z,0,1,1,0,3,3,deliberate-failure-transcripts/toollist-bash-04.jsonl,99031e87c505,42c2bb82628a8360
+toollist-bash,5,2026-09-04T19:52:09Z,2026-09-04T19:52:25Z,0,1,1,0,3,3,deliberate-failure-transcripts/toollist-bash-05.jsonl,e6141d572e8d,42c2bb82628a8360
+toollist-bash,6,2026-09-04T19:52:25Z,2026-09-04T19:52:42Z,0,1,1,0,3,3,deliberate-failure-transcripts/toollist-bash-06.jsonl,01834b93b7a8,42c2bb82628a8360
+toollist-bash,7,2026-09-04T19:52:42Z,2026-09-04T19:52:59Z,0,1,1,0,4,3,deliberate-failure-transcripts/toollist-bash-07.jsonl,4a7fa696851f,42c2bb82628a8360
+toollist-bash,8,2026-09-04T19:52:59Z,2026-09-04T19:53:15Z,0,1,1,0,3,3,deliberate-failure-transcripts/toollist-bash-08.jsonl,e9b481758826,42c2bb82628a8360
+toollist-bash,9,2026-09-04T19:53:15Z,2026-09-04T19:53:31Z,0,1,1,0,3,3,deliberate-failure-transcripts/toollist-bash-09.jsonl,f79a14be3d83,42c2bb82628a8360

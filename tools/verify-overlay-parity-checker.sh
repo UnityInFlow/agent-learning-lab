@@ -146,6 +146,54 @@ check "CRLF frontmatter is not a whole-file body difference"  0 "parity holds" \
 check "  even when the last of the duplicates matches"       2 "appears 2 times" \
   --allow-differ description "$TMP/same-desc" "$TMP/dup-key"
 
+# --- agent overlays, added 2026-09-04 at spine stop 9 -------------------------
+# Until stop 9 this script proved the checker only on SKILL.md. An agent overlay fell into the
+# opaque branch and exited 2 whether or not the declared key was the one that differed, so the
+# checker was unusable as a parity control for the customization class Phase 4A is about.
+# These six prove the new class BOTH ways: it must pass a correct declaration and it must still
+# refuse every way of breaking the one-variable claim.
+agent() { # agent <dir> <tools-line-or-empty> <description> [body-extra]
+  local d="$1" tools="$2" desc="$3" extra="${4:-}"
+  mkdir -p "$d/.claude/agents"
+  {
+    printf -- '---\nname: repo-reviewer\ndescription: %s\nmodel: claude-haiku-4-5-20251001\n' "$desc"
+    if [[ -n "$tools" ]]; then printf 'tools: %s\n' "$tools"; fi
+    printf -- '---\n\nYou are a backend reviewer.\n'
+    if [[ -n "$extra" ]]; then printf '%s\n' "$extra"; fi
+  } > "$d/.claude/agents/repo-reviewer.md"
+}
+agent "$TMP/ag-narrow"  "Read, Grep, Glob"        "Reviews code."
+agent "$TMP/ag-wide"    "Read, Grep, Glob, Bash"  "Reviews code."
+agent "$TMP/ag-none"    ""                        "Reviews code."
+agent "$TMP/ag-bodydiff" "Read, Grep, Glob, Bash" "Reviews code." "Also never write files."
+agent "$TMP/ag-descdiff" "Read, Grep, Glob"       "Reviews code, read-only."
+mkdir -p "$TMP/ag-github/.github/agents"
+cp "$TMP/ag-narrow/.claude/agents/repo-reviewer.md" "$TMP/ag-github/.github/agents/repo-reviewer.agent.md"
+mkdir -p "$TMP/ag-github2/.github/agents"
+cp "$TMP/ag-wide/.claude/agents/repo-reviewer.md" "$TMP/ag-github2/.github/agents/repo-reviewer.agent.md"
+
+check "AGENT: a declared 'tools' difference is parity"        0 "parity holds" \
+  --allow-differ tools "$TMP/ag-narrow" "$TMP/ag-wide"
+check "AGENT: an UNdeclared 'tools' difference is refused"    2 "key was not declared" \
+  --allow-differ description "$TMP/ag-narrow" "$TMP/ag-wide"
+check "AGENT: a tools line added where there was none"        0 "parity holds" \
+  --allow-differ tools "$TMP/ag-none" "$TMP/ag-narrow"
+check "AGENT: a differing BODY is refused even if tools ok"   2 "BODY differs" \
+  --allow-differ tools "$TMP/ag-wide" "$TMP/ag-bodydiff"
+check "AGENT: two differing keys, only one declared, refused" 2 "key was not declared" \
+  --allow-differ tools "$TMP/ag-narrow" "$TMP/ag-descdiff"
+check "AGENT: identical arms are the unapplied-treatment case" 3 "IDENTICAL in both arms" \
+  --allow-differ tools "$TMP/ag-narrow" "$TMP/ag-narrow"
+check "AGENT: .github/agents/*.agent.md is the same class"    0 "parity holds" \
+  --allow-differ tools "$TMP/ag-github" "$TMP/ag-github2"
+# And the default bucket must stay STRICT: a markdown file that is not a recognised class
+# must still fail on any byte difference, never be excused by --allow-differ.
+mkdir -p "$TMP/ag-plain-a" "$TMP/ag-plain-b"
+printf -- '---\ntools: Read\n---\nbody\n' > "$TMP/ag-plain-a/notes.md"
+printf -- '---\ntools: Read, Bash\n---\nbody\n' > "$TMP/ag-plain-b/notes.md"
+check "an UNRECOGNISED frontmatter file is still opaque"      2 "non-skill file differs" \
+  --allow-differ tools "$TMP/ag-plain-a" "$TMP/ag-plain-b"
+
 echo
 echo "verify-overlay-parity-checker: ${pass} passed, ${fail} failed"
 [[ "$fail" -eq 0 ]]
