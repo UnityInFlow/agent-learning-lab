@@ -1,8 +1,10 @@
 # Phase 3 — Agent Skills
 
 **Guardrail layer: L3 — guidance only, not a boundary** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
-**Status:** 🔬 **In progress — stop 8 of the spine.** Reading and extract done 2026-09-04;
-Lab 3.2 runs the benchmark and is the stop's closing condition · **Depends on:** Phase 2
+**Status:** ⛔ **BLOCKED — stop 8 of the spine.** Reading and extract done 2026-09-04. Lab 3.2 is
+the stop's closing condition and **could not run**: a Claude Code project skill cannot be
+delivered to a BE-003 run. Caught at §4 step 5, before the batch. See *Lab 3.2 status* below ·
+**Depends on:** Phase 2
 
 ## Goal
 
@@ -209,12 +211,50 @@ description changed.
 
 ---
 
-## Predict before you run
+## Lab 3.2 status — **BLOCKED at §4 step 5, and the block is the result**
 
-1. What fraction of unrelated tasks will falsely trigger your skill?
-2. Does a lean `AGENTS.md` + skill beat a fat `AGENTS.md` on *relevant* tasks? On
-   *irrelevant* ones?
-3. What does the description have to say for the model to load it reliably?
+Stop 8's closing condition is *"one lab that records skill activation on the observatory —
+that lab's evidence on disk"*. The lab was designed, registered
+([`E-004`](../../experiments/E-004-skill-activation.md), committed `5d14182` **before** any run),
+built, and **stopped at the preflight assertion**, which is the step that exists to stop it.
+
+**The treatment cannot be delivered to a BE-003 run.** Full evidence:
+[`evidence/p03/skill-delivery-probe-20260904T072000Z.md`](../../evidence/p03/skill-delivery-probe-20260904T072000Z.md).
+
+| location | runner can commit it? | registered at session start? |
+|---|---|---|
+| `.claude/skills/<name>/SKILL.md` (root) | **NO** — `.gitignore:19` `.claude/*`; `git add -A` skips it and the setup commit fails | **YES** — `/name` loads it and quotes its body |
+| `sample-service/.claude/skills/<name>/` (nested) | **YES** — tracked, in setup commit `8300382` | **NO** — `Unknown command` |
+
+**The two conditions are never satisfied by the same path.** Three runs were spent establishing
+this: `16cd4378` (died at setup), `c090f67e` and `d8be2b5f` (both completed, evaluator exit 0,
+both **0** project-scope activations with telemetry present).
+
+### Why this is worth more than the lab would have been
+
+Had the batch run at the nested path, fifteen runs would have returned zero activations in all
+three arms, the arms would have agreed perfectly, and E-004 would have concluded **"the
+description does not affect whether a skill loads"** — from fifteen runs in which no skill was
+ever registered. Every check the harness has would have passed: the file installs, commits, is
+tracked, and the runs evaluate clean.
+
+**That is Phase 1's disaster with a different filename.** Phase 1 spent ~$4 and 20 runs comparing
+*file present* with *file absent* and got a real-looking null. §4 step 5 — *prove the treatment
+reached the model before you batch* — is the rule written from that, and it is the only reason
+this was caught before the batch rather than after.
+
+## Predict before you run — **unanswered, and left that way**
+
+The three questions stay open. Question 1 (*"what fraction of unrelated tasks falsely trigger
+your skill?"*) needs a second task, which §7 reserves for the author. Questions 2 and 3 need the
+delivery block lifted. `E-004`'s five predictions are registered and unfalsified — **not
+confirmed, not refuted, not run.**
+
+The one behavioural observation available is `n = 1` per condition and is stated as nothing more:
+at a location where the skill **was** registered, the model did not choose to load it on the
+BE-003 task — neither with a matched description nor with one reading *"REQUIRED … You must load
+this skill before editing ShipmentController"*. If that survives contact with `n = 5`, E-004's
+prediction 1 is refuted and the vendors' documented mechanism does not reproduce here.
 
 ## Lab 3.1 — Testing convention skill
 
@@ -256,15 +296,111 @@ identify possible prompt injection.
 
 ## Exit gate
 
-- [ ] Design a good description
-- [ ] Prove the skill triggered
-- [ ] Prove it did **not** trigger on an unrelated task
-- [ ] Explain progressive disclosure
-- [ ] Explain why skill scripts are supply-chain risk
+- [x] **Design a good description** — answered from the documentation, not from measurement. All
+      three vendors state the description is the selector: Copilot *"will decide when to use your
+      skills based on your prompt and the skill's description"*; Codex *"can choose a skill when
+      your task matches the skill `description`"* and therefore *"write concise descriptions with
+      clear scope and boundaries"*; Claude Code uses it *"to decide when to load the skill
+      automatically"*. **What "good" costs is also documented**: the description is the always-on
+      half, capped at 1,536 characters per skill in Claude Code and at 2 % of context or 8,000
+      characters in total in Codex. This is an L3 answer and is labelled as one — three vendors
+      asserting a mechanism is not a measurement of it, and this stop's attempt to measure it was
+      blocked.
+- [ ] **Prove the skill triggered** — **NOT MEASURED, and now precisely blocked.** The instrument
+      *can* do it: `claude_code.skill_activated` carries `observatory.run.id`, `skill.name`,
+      `skill.source` and `invocation_trigger`, and [`tools/skill-activation.sh`](../../tools/skill-activation.sh)
+      reads it per run. What is missing is a delivery path, not an instrument.
+- [ ] **Prove it did *not* trigger on an unrelated task** — **NOT MEASURED.** Needs a second task
+      besides BE-003, which §7 reserves for the author. E-004 routes around this by varying the
+      *description* instead of the task, which stays within BE-003 — but that arm cannot run
+      until delivery is unblocked.
+- [x] **Explain progressive disclosure** — answered, and quantified from two vendors. Name and
+      description are always on; the body loads on selection; referenced files load on demand.
+      Codex: *"start with each skill's name and description, then load the full `SKILL.md`
+      instructions when they decide to use that skill."* Claude Code prices the always-on half
+      against `CLAUDE.md`: *"a skill's body loads only when it's used, so long reference material
+      costs almost nothing until you need it."* **Unmeasured here, and measurable**: the run
+      record already stores prompt tokens, and E-003 has already run the always-on arm at 57 and
+      1,455 words. That is the three-arm experiment Phase 2 proposed and it is still unrun.
+- [x] **Explain why skill scripts are supply-chain risk** — answered from the vendor's own
+      warning: *"Skills are not verified by GitHub and may contain prompt injections, hidden
+      instructions, or malicious scripts."* And on execution: pre-approving `shell` or `bash`
+      *"removes the confirmation step for running terminal commands and can allow
+      attacker-controlled skills or prompt injections to execute arbitrary commands."* Note the
+      shape — **the danger is that a permission prompt was the only thing standing there**, which
+      is exactly what Phase 2 found behind `allowed-tools`. A skill is a directory-shaped
+      dependency: *"Copilot automatically discovers all of the files in the skill's directory."*
+
+**Three of five answered, all three from documentation and labelled L3. Two not measured, and
+both wait on the same blocker.**
+
+## Learning
+
+```yaml
+learning:
+  what_was_added: >
+    An extract of three previously unread sources; a registered experiment (E-004) with five
+    predictions, an MDE derived from Fisher's resolving power rather than from its own
+    thresholds, and an exhaustive decision rule; two customization overlays whose SKILL.md
+    bodies are byte-identical at d10a2c3988be520e and differ only in the description; and
+    tools/skill-activation.sh with 11 fixtures. No measured runs.
+  why_it_exists: >
+    Three vendors state that a skill is selected by matching the task against its description.
+    None shows a measurement. The observatory turned out to already record skill activation,
+    so the claim looked cheap to test on the instrument this project already has.
+  observed_effect: >
+    None on the agent under test - the lab never batched. The observed effect is on the
+    instrument: a Claude Code project skill cannot be delivered to a BE-003 run at all. The
+    location the runner can commit is not registered by the runtime, and the location the
+    runtime registers cannot be committed by the runner.
+  unexpected_effect: >
+    The nested location fails silently in the direction that would have manufactured a
+    result. It installs, commits, is tracked, and the runs evaluate clean - and the skill is
+    not there. Fifteen runs at that path would have produced three arms agreeing perfectly and
+    a confident conclusion that the description does not matter, drawn from runs with no skill
+    in them. Also, on two runs at a location where the skill WAS registered, the model did not
+    select it even when told it was required - n=1 each, and the reason prediction 1 is worth
+    running.
+  keep_or_remove: >
+    Keep tools/skill-activation.sh - it is proven by 11 fixtures and by hand against the real
+    31MB stream, and it is what the lab will use the day it runs. Keep both overlays unedited;
+    they are the registered arms. Keep E-004 open and unanswered rather than closing it with
+    the n=1 hint, which is the whole discipline. Remove nothing.
+  next_question: >
+    Which of the two halves does the author want moved - the benchmark's .gitignore, or the
+    runner's install step? Both are one line. They are not equivalent: the gitignore change
+    alters what the evaluator's scope guard can flag, and the runner change does not, which
+    makes the runner the cheaper place to fix a problem the runner created.
+```
+
+## Validation
+
+Stop 8 is **BLOCKED, not closed.** Its closing condition — *that lab's evidence on disk* — is
+not met: the lab produced no measured runs. This table validates what the stop *did* establish,
+and the last row states plainly what it did not.
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| "Phase 3 skills: reading" | Four sources ✅ in `SOURCES.md`; three extracted here for the first time on 2026-09-04 | **L2 for "the URLs resolve"** — `./tools/check-links.sh` executes and fails closed. **L3 for "they were read"** — nothing executes that | `./tools/check-links.sh`; for the reading half, check the quotes against the pages by hand |
+| "extract" | Three `## Extract` sections in this file, one per source, each dated and quoting verbatim | **L3** — nothing checks an extract against its source | open the four URLs and search for the quoted sentences |
+| "one lab that records skill activation on the observatory" | [`E-004`](../../experiments/E-004-skill-activation.md), registered `5d14182`; overlays under `build/customizations/skill-v0.1{,-misdescribed}/`; [`tools/skill-activation.sh`](../../tools/skill-activation.sh) | **L2 for the instrument** — 11 fixtures execute and each asserts an exit code *and* a stdout line; `./tools/verify-skill-activation.sh` exits non-zero if any fails | `./tools/verify-skill-activation.sh` → `11 passed, 0 failed` |
+| …the tool distinguishes a real zero from a missing measurement | fixtures *"a run ABSENT from telemetry is NOT reported as 0"* (exit 3) and *"its count is null, never 0"* | **L2** — it executes and refuses. Hand-checked against the real 31 MB `events.jsonl`: a fabricated run id returns `status: UNKNOWN…`, `project_scope_activations: null`, exit 3 | `./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl 00000000-dead-beef-0000-000000000000` |
+| …the treatment differs from its control in exactly one thing | body-only `sha256` `d10a2c3988be520e` **equal** across both overlays; full-file hashes differ | **L1** — the bytes below the frontmatter either are identical or are not; `shasum` decides | `awk 'n>=2{print} /^---$/{n++}' <each SKILL.md> \| shasum -a 256` |
+| …**"that lab's evidence on disk"** — the closing condition | **NOT MET.** Zero measured runs. Three runs exist and none is data: `16cd4378` died at setup, `c090f67e` and `d8be2b5f` are preflight probes under `EXP-P3-PREFLIGHT` | **L2 for the blocker itself** — the runner *executed* and refused (`failed to commit the customization overlay`), and `claude -p "/name"` *executed* and answered `Unknown command`. The block is demonstrated, not asserted | [`evidence/p03/skill-delivery-probe-20260904T072000Z.md`](../../evidence/p03/skill-delivery-probe-20260904T072000Z.md) — it lists the commands |
+
+**Independence check.** No arm was compared, so there is nothing to keep independent. Nothing
+registered moved: rubric `396e1799eb2b`, evaluator `1.0.0`, benchmark `0448643`, model
+`claude-haiku-4-5-20251001` on both completed probe runs. **The benchmark repository was not
+touched** — the one-line `.gitignore` change that would unblock this stop was refused under §7
+and raised to the author instead.
+
+**`n` for every number here.** The three delivery/registration facts are `n = 1` each and are
+**structural** — a file is committed or it is not; `/name` resolves or it does not. The one
+behavioural observation (the model not selecting a registered, matched skill) is `n = 1` per
+condition and is stated nowhere as a property.
 
 ## Commit
 
-```
-.agents/skills/kotlin-testing/
-experiments/B3-skills.md
-```
+**Not produced.** `.agents/skills/kotlin-testing/` and `experiments/B3-skills.md` both belong to
+labs that could not run. What shipped instead is `E-004`, two overlays, one tool with its
+fixtures, and the evidence file naming the blocker.
