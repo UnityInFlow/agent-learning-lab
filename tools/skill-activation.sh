@@ -20,9 +20,16 @@
 # has not been measured. Reporting the second as zero would silently turn an instrument failure
 # into evidence for the control arm — which is the direction that flatters the hypothesis.
 #
-# Bundled skills are counted separately and NEVER in the project-scope figure. Claude Code ships
-# its own skills and may load one on any arm, including the control; counting those would put
-# activations in the arm that installed nothing.
+# EVERY scope this experiment did not install is counted apart from the one it did:
+# `bundled` (Claude Code ships its own), `plugin` (the operator may have some), and events with
+# no `skill.source` at all. Only what is left is reported as `installed_scope_activations`.
+# Anything looser puts activations in the arm that installed nothing — the control — which is
+# the direction that manufactures a result. `plugin` is the ONLY non-bundled source ever
+# observed on this instrument, so lumping it in with the installed skill was not hypothetical.
+#
+# NOTE: the value `skill.source` carries for a project skill is UNKNOWN — none has ever been
+# recorded here. The preflight must pin it before a batch is read, or `installed_scope` is a
+# category with nothing proven to be in it.
 
 set -euo pipefail
 
@@ -53,8 +60,9 @@ run_id = os.environ["RUN_ID"]
 
 present = False
 parsed_any = False
-proj = 0
+installed = 0     # the skill THIS experiment installed: source is neither bundled nor plugin
 bundled = 0
+plugin = 0
 unknown_source = 0
 names = collections.Counter()
 triggers = collections.Counter()
@@ -91,17 +99,28 @@ with open(events) as fh:
                     sources[str(src)] += 1
                     names[str(at.get("skill.name"))] += 1
                     triggers[str(at.get("invocation_trigger"))] += 1
-                    # An event with no skill.source is NOT project scope. The first version
-                    # of this script sent everything that was not "bundled" to the project
-                    # counter, so a source-less event would have been counted as the installed
-                    # skill loading — inventing evidence for the treatment arm out of a missing
-                    # attribute. Caught by the §4a gate, 2026-09-04, before any batch.
+                    # EVERY scope this experiment did not install is counted apart from the
+                    # one it did. Two §4a rounds were needed to get this right, and both
+                    # failures had the same shape: a value that is not "bundled" falling
+                    # through to the installed-skill counter, inventing evidence for the
+                    # treatment arm out of an attribute that means something else.
+                    #
+                    #   round 1: a MISSING skill.source counted as the installed skill
+                    #   round 2: a PLUGIN skill counted as the installed skill — and plugin is
+                    #            the only non-bundled source ever observed on this instrument,
+                    #            so a plugin firing on the CONTROL arm would have recorded an
+                    #            activation in the arm that installed nothing
+                    #
+                    # The counter is therefore an allowlist by exclusion, and everything it
+                    # excludes is reported on its own line rather than dropped.
                     if src == "bundled":
                         bundled += 1
+                    elif src == "plugin":
+                        plugin += 1
                     elif src is None or src == "":
                         unknown_source += 1
                     else:
-                        proj += 1
+                        installed += 1
 
 if not parsed_any:
     print("skill-activation: no parseable JSON lines in telemetry", file=sys.stderr)
@@ -113,11 +132,12 @@ def fmt(counter):
 status = "measured" if present else "UNKNOWN-run-absent-from-telemetry"
 if present and unknown_source:
     print(f"skill-activation: {unknown_source} activation(s) carry no skill.source and are "
-          "counted in NEITHER scope — inspect them before using this run", file=sys.stderr)
+          "counted in NO scope — inspect them before using this run", file=sys.stderr)
 print(f"run: {run_id}")
 print(f"status: {status}")
-print(f"project_scope_activations: {proj if present else 'null'}")
+print(f"installed_scope_activations: {installed if present else 'null'}")
 print(f"bundled_activations: {bundled if present else 'null'}")
+print(f"plugin_activations: {plugin if present else 'null'}")
 print(f"unknown_source_activations: {unknown_source if present else 'null'}")
 print(f"skill_names: {fmt(names)}")
 print(f"skill_sources: {fmt(sources)}")

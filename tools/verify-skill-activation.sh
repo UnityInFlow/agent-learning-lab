@@ -49,27 +49,34 @@ check() { # check <label> <expected-exit> <expected-substring> <file> <run-id>
 { rec RUN-A; rec RUN-A bundled run claude-proactive; rec RUN-A project sc claude-proactive; } > "$TMP/mixed.jsonl"
 { rec RUN-A project custom_skill claude-proactive; rec RUN-A project custom_skill nested-skill; } > "$TMP/two-project.jsonl"
 { rec RUN-A; printf '{"resourceLogs":[{"resource":{"attributes":[]},"scopeLogs":[{"logRecords":[{"body":{"stringValue":"claude_code.skill_activated"},"attributes":[{"key":"observatory.run.id","value":{"stringValue":"RUN-A"}},{"key":"skill.name","value":{"stringValue":"mystery"}}]}]}]}]}\n'; } > "$TMP/no-source.jsonl"
+{ rec RUN-A; rec RUN-A plugin custom_skill claude-proactive; } > "$TMP/plugin-only.jsonl"
 printf 'not json at all\n{"broken":\n' > "$TMP/garbage.jsonl"
 : > "$TMP/empty.jsonl"
 
-echo "verify-skill-activation: 13 cases"
+echo "verify-skill-activation: 15 cases"
 
-check "a project skill that loaded is counted"            0 "project_scope_activations: 1" one-project.jsonl RUN-A
-check "a run present with no skill event is a REAL zero"  0 "project_scope_activations: 0" present-no-skill.jsonl RUN-A
+check "the installed skill that loaded is counted"            0 "installed_scope_activations: 1" one-project.jsonl RUN-A
+check "a run present with no skill event is a REAL zero"  0 "installed_scope_activations: 0" present-no-skill.jsonl RUN-A
 check "  and that zero is labelled measured"              0 "status: measured"             present-no-skill.jsonl RUN-A
 
 # THE CASE THIS FILE EXISTS FOR.
 check "a run ABSENT from telemetry is NOT reported as 0"  3 "status: UNKNOWN"              other-run-only.jsonl RUN-A
-check "  and its count is null, never 0"                  3 "project_scope_activations: null" other-run-only.jsonl RUN-A
+check "  and its count is null, never 0"                  3 "installed_scope_activations: null" other-run-only.jsonl RUN-A
 
-check "a bundled skill is NOT project scope"              0 "project_scope_activations: 0" bundled-only.jsonl RUN-A
+check "a bundled skill is NOT the installed skill"              0 "installed_scope_activations: 0" bundled-only.jsonl RUN-A
 check "  but is still reported separately"                0 "bundled_activations: 1"       bundled-only.jsonl RUN-A
-check "mixed run counts each scope once"                  0 "project_scope_activations: 1" mixed.jsonl RUN-A
-check "two project activations both counted"              0 "project_scope_activations: 2" two-project.jsonl RUN-A
+check "mixed run counts each scope once"                  0 "installed_scope_activations: 1" mixed.jsonl RUN-A
+check "two project activations both counted"              0 "installed_scope_activations: 2" two-project.jsonl RUN-A
 # A source-less event must NOT be counted as the installed skill. Counting it would invent
 # evidence for the treatment arm out of a missing attribute.
-check "an event with NO skill.source is not project scope" 0 "project_scope_activations: 0" no-source.jsonl RUN-A
+check "an event with NO skill.source is not the installed one" 0 "installed_scope_activations: 0" no-source.jsonl RUN-A
 check "  and it is surfaced, not silently dropped"        0 "unknown_source_activations: 1" no-source.jsonl RUN-A
+
+# A PLUGIN skill is not the installed one either. This is the case the first two fixture sets
+# missed: plugin is the only non-bundled source ever observed on this instrument, so counting it
+# as the installed skill would record an activation on the CONTROL arm, which installs nothing.
+check "a plugin skill is NOT the installed skill"         0 "installed_scope_activations: 0" plugin-only.jsonl RUN-A
+check "  and is reported on its own line"                 0 "plugin_activations: 1"          plugin-only.jsonl RUN-A
 
 check "an unparseable telemetry file is rejected"         2 "no parseable JSON"            garbage.jsonl RUN-A
 
