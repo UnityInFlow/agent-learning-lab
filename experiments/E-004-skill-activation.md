@@ -68,7 +68,7 @@ in *Sanity checks*, not by eye.
 
 | | |
 |---|---|
-| Mechanism | `--customization build/customizations/skill-v0.1/` (arm B) and `.../skill-v0.1-misdescribed/` (arm C), each containing `.claude/skills/shipment-service-conventions/SKILL.md`. The runner `cp -R`s the overlay into the worktree and commits it as a setup commit *before* the agent starts |
+| Mechanism | `--customization build/customizations/skill-v0.1/` (arm B) and `.../skill-v0.1-misdescribed/` (arm C), each containing `sample-service/.claude/skills/shipment-service-conventions/SKILL.md` (see the amendment below). The runner `cp -R`s the overlay into the worktree and commits it as a setup commit *before* the agent starts |
 | Content hash | recorded per arm in *Sanity checks* after the build: `sha256` of each `SKILL.md`, and separately of the **body alone** (the two body hashes must be equal) |
 | Preflight assertion | one run per treated arm before the batch. Proof that the skill reached the model is **`claude_code.skill_activated` present in telemetry for that run id** — the model loading it, not the file existing. `skillsHash` is *not* usable as the delivery proof, which is prediction 4 |
 | Control assertion | arm A installs no customization: `--customization` is not passed, so the overlay never exists in the worktree. Structural, not merely uninstalled. Verified per run by `customization.*Hash` all `null` **and** zero project-scope `skill_activated` events |
@@ -78,6 +78,77 @@ in *Sanity checks*, not by eye.
 > prediction 4 says that field is blind to this treatment. The delivery proof is the activation
 > event itself, which is a stronger assertion — it shows the model *used* the file, not that the
 > harness *placed* it.
+
+### AMENDED 2026-09-04T07:12Z, before any measured run — the delivery path moved
+
+**No run has produced data.** The first preflight attempt died before the agent started, and
+this amendment is written before the batch, in the open, as `E-002` did when its control
+assertion had to move. The predictions above are **unchanged** — they are about description
+versus body, not about a path.
+
+**What happened.** The overlay was written to `.claude/skills/shipment-service-conventions/`
+at the worktree root, which is the documented Claude Code project-skill location. The run
+failed at setup:
+
+```
+run 16cd4378-5730-4bb2-a2dc-97931f35b2dd
+On branch main
+nothing to commit, working tree clean
+run-agent: failed to commit the customization overlay
+```
+
+**Cause, confirmed:** `agent-observatory-benchmarks/.gitignore:19` is `.claude/*`, allowlisting
+only `!.claude/hooks/` and `!.claude/settings.json`. `git check-ignore -v` on the installed file
+returns that line. The runner installs an overlay with `cp -R` and then `git add -A`, which
+respects `.gitignore`, so the skill was copied to disk and then excluded from the setup commit.
+
+**This is the runner's L2 guard working, and it is worth naming.** In Phase 1 a treatment was
+installed at a path the runtime does not read, and every check the harness had reported success
+for twenty runs. Here the harness **refused to start a run whose treatment it could not commit.**
+A loud failure at setup is the outcome that phase was supposed to buy.
+
+**Where the skill goes instead:** `sample-service/.claude/skills/shipment-service-conventions/`.
+That path is *not* ignored — `.claude/*` contains a separator, so it is anchored to the
+`.gitignore`'s own directory and does not match nested `.claude/` directories. Verified with
+`git check-ignore -q`, which returns 1 (not ignored) for the nested path and 0 for the root one.
+
+**The caveat this buys, stated before the runs rather than after.** The runner starts the agent
+with `cd "$WORKTREE"`, so the worktree root is the project directory and `sample-service/` is
+*below* it. Claude Code documents two different loading rules:
+
+> "Project skills load from `.claude/skills/` in the directory where you start Claude Code **and
+> in every parent directory up to the repository root**."
+> "Skills **also** load from nested `.claude/skills/` directories below your working directory.
+> **When Claude reads or edits a file in a subdirectory**, skills from that subdirectory's
+> `.claude/skills/` become available."
+
+So this skill is **not in the listing at turn 1.** It becomes available only once the agent
+touches a file under `sample-service/` — which this task requires, since `task.md` says *"The
+service under test is `sample-service`"* — but the timing is a real condition, not a formality.
+
+**What that does and does not damage:**
+
+- **Prediction 3, the between-arm contrast, is unaffected.** Arms B and C install at the *same*
+  nested path, so both become available at the same moment in the run. The only difference
+  between them remains the `description`. This is the experiment's primary comparison and it is
+  intact.
+- **Prediction 1, the one-arm rate, is now a joint claim** — "the agent reached
+  `sample-service/` *and* the description matched". A miss can no longer be attributed to the
+  description alone. Recorded as a **known confound on prediction 1 only**, registered here
+  before the data.
+
+**What was refused.** The alternative fix is one line in the benchmark repository's
+`.gitignore` (`!.claude/skills/`). That file is load-bearing for the evaluator's scope guard —
+its own comments say the guard's second source is `git ls-files --others --exclude-standard`,
+"which respects this file". Editing it changes what the evaluator can flag as an unrelated
+changed file, and **§7 makes any change to what the evaluator measures a halt.** It was not
+made. It is raised to the author instead.
+
+`.agents/skills/` was also considered and rejected: it is not ignored, but Claude Code's
+"Where skills live" table does not list it, so delivering there would repeat Phase 1 exactly —
+a file installed, hashed, and never read.
+
+Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-04
 
 ## Controlled variables
 
