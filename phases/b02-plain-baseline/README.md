@@ -481,8 +481,8 @@ equalized.
 | "≥3 run folders with diffs, verification results" | `GET /api/runs` → `EXP-B2-BASELINE-CLAUDE` (9), `-CODEX` (5); each `evaluation.exitCode 0` | **L2** — the evaluator executes and records its own verdict | `curl $API/api/runs`, filter `experimentKey`, read `evaluation.exitCode` |
 | "and completed rubrics" | `findings/codex/score-observatory-run-{0a222393,5bd24356,8322e71b,aa72e2c2,72fdc94f}-*.yaml` + the five opencode sheets | **L2** — admission runs: `check-run-gate.sh` refuses a run with no recorded pass | `./tools/check-run-gate.sh <run.json>` on each; re-run 2026-09-03, **5 of 5 exit 0** |
 | "a baseline report with median and range, never an average alone" | `evidence/b02/baseline-report-20260901T192000Z.txt` | **L2** — a test asserts no mean exists in the parsed tree | `make baseline-report EXPERIMENT=EXP-B2-BASELINE-CLAUDE`, then grep the tree for a mean |
-| deliberate failure, prediction committed before the run | `59ac936` @ 13:06:30Z vs `4c891809.startedAt` 13:07:19Z | **L2** — both timestamps are machine-written; neither is prose | `git log --date=iso-strict-local` and `GET /api/runs/4c891809.../startedAt` |
-| the deliberate failure's independent variable reached one arm and not the other | `claude_code.hook_execution_start` in `agent-observatory/infra/telemetry-out/events.jsonl`: **0×5 isolated, 27–48×5 open**, with `hook_registered` > 0 on all ten | **L2** — the runtime emits the events; the counter reproduces `RUNBOOK.md`'s independent figure of 26 on the rehearsal run | filter the JSONL on `observatory.run.id`, count the two bodies |
+| deliberate failure, prediction committed before the run | `59ac936` @ 13:06:30Z vs `4c891809.startedAt` 13:07:19Z | **L3** — *corrected 2026-09-04, see amendment below.* Both timestamps are machine-written, but **a human compares them.** Apply the rule in order: can a run that started before its prediction commit still be written down? Yes. Does something execute and reject it? No. Machine-written evidence is not an executing check | `git log --date=iso-strict-local` and `GET /api/runs/4c891809.../startedAt`, then compare them yourself |
+| the deliberate failure's independent variable reached one arm and not the other | `claude_code.hook_execution_start` in `agent-observatory/infra/telemetry-out/events.jsonl`: **0×5 isolated, 27–48×5 open**, with `hook_registered` > 0 on all ten | **L3** — *corrected 2026-09-04, see amendment below.* The runtime emits the events, but **a human counts them** and nothing rejects a run whose counts came out wrong. The counter still reproduces `RUNBOOK.md`'s independent figure of 26 on the rehearsal run | filter the JSONL on `observatory.run.id`, count the two bodies yourself |
 | one scored cell re-derived by hand | `evidence/b02/hand-reading-maintainability-4c891809.txt` — hand **2**, sheet **2** (`findings/codex/score-observatory-run-4c891809-*.yaml`) | **L1 for the reading itself** (the construct either is a no-`else` `when` in expression position or is not; Kotlin decides), **L3 for the agreement** — two readers concurring is not a control | open the controller in the kept worktree, apply anchor 2's three clauses |
 | "what did you learn that 0A did not teach" | this file, *Exit gate* | **L3** — prose a human reads. It is not a control and is not claimed as one | read it |
 
@@ -492,6 +492,43 @@ all ten; `repository.commitSha` `0448643` on all ten; `evaluation.evaluatorVersi
 all ten; `customization.*Hash` **null on all ten** (no treatment installed in either arm — this
 is B2, nothing is customized). The one thing that differs is hook execution, and it differs
 27–48 against 0.
+
+### Amendment — 2026-09-04, from the §9 validator
+
+Source: [`findings/track-b-validation-2026-09-04.md`](../../findings/track-b-validation-2026-09-04.md).
+Verdict on this stop: **CONFIRMED WITH CORRECTIONS.** Every gate clause mapped to evidence that
+exists and opens; the prediction commit precedes the first run by 49 s read from git and the
+API; the re-derived cell matched; no registered variable moved without disclosure. Four
+corrections, applied here without rewriting any prediction, result, sheet or run folder:
+
+**(a) Two proof rows were labelled L2 and are L3.** Corrected in the table above. The rows were
+*"prediction committed before the run"* and *"the independent variable reached one arm and not
+the other"*, justified by the evidence being machine-written. **That is not the test.** The rule
+asks whether something *executes and rejects the bad value*. Nothing does: a human compares two
+timestamps, and a human counts two event bodies. **Machine-written evidence is not an executing
+check** — and this is the same error Phase 2's table later caught on itself. Two of this table's
+strongest-looking rows were the weakest kind of proof, and the validator was right to open with
+them.
+
+**(b) `lab#49` does not exist.** Stops 4, 5 and 6 shipped in **lab#53**, merged
+2026-09-03T19:07:36Z as `27d67e5`. Corrected in `findings/track-b-2026-09-03.md`. The wrong
+number was in the track report, not in this workbook.
+
+**(c) The prediction commits are unreachable from `main`, and this is now a track-wide hazard.**
+`59ac936` and `0e0c6f9` exist in this clone only. On `main`,
+`git log -- experiments/E-002-isolation-contamination.md` shows one commit — the squash
+`27d67e5` at 19:07Z, **six hours after the runs it was supposed to precede.** So a stranger
+cloning this repository **cannot perform the prediction-precedes-run check at all**, for any
+stop in this track. The check is L3 by (a), and now it is L3 *and* unreproducible off this
+laptop. **Raised to the author** rather than fixed here: the fix is a repo-convention change —
+merge commits for stop branches instead of squashes, or a pre-push check refusing a workbook
+that cites a sha `main` cannot reach — and §7 reserves convention changes for the author.
+
+**(d) The five B2 sheets can no longer be rebuilt.** Confirmed independently: the five scored
+B2 worktrees hold **1 `.kt` file each** where the 36 E-002 and B3 worktrees hold 17. The
+closure's *"and completed rubrics"* clause therefore rests on sheets whose inputs are gone.
+This was disclosed before the validator ran, and a fresh run was substituted for the hand
+re-derivation. **Not fixable, and recorded rather than quietly carried.**
 
 **Two rows a validator should attack first.**
 

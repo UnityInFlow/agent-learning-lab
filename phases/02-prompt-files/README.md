@@ -545,7 +545,7 @@ The clauses below are that condition plus the workbook's own exit gate.
 |---|---|---|---|
 | "Phase 2 (◇ no B counterpart): required reading and extract only" — required reading | The four sources are ✅ in [`SOURCES.md`](../../SOURCES.md) lines 61, 89, 90, 91. Run 2026-09-03T19:2xZ: `ok=64 moved=8 blocked=2 unverified=0 broken=0`, exit 0 — **and none of the four is among the 8 moved or the 2 blocked**, so all four resolve directly and the redirect warning does not apply to this phase | **L2 for "the four URLs resolve"; L3 for "they were read."** `./tools/check-links.sh` executes and fails closed on a dead link — that is the enforced half, and it is CI job *verified reading is still verified*. **Nothing executes that checks anyone opened the page**, so the ticked boxes above are guidance, not a control. *The first version of this row said L2 flat, which is an L2 label on an L3 object — the thing this same file names as the house failure mode two sections up. Caught by the stop-7 review, second round.* | `cd agent-learning-lab && ./tools/check-links.sh`, read the counts, then check the MOVED/BLOCKED lines for these four URLs. For the reading half there is no command — check the quotes against the pages by hand |
 | …and extract only | Four `## Extract` sections in this file, one per source, each dated and quoting verbatim | **L3** — nothing executes a check that an extract matches its source. The proof that it was *read* is L2 above; the proof that it was read *correctly* is that the quotes are checkable by hand, which is a human act | Open each of the four URLs and search for the quoted sentence |
-| "Mark 'extract only, labs deferred by the autonomous run'" | The status line at the top of this file, and `DEFERRED` on Lab 2.1, Lab 2.2, Failure injection and Predict-before-you-run | **L3** — a marker is words a reader chooses to honour | `grep -n DEFERRED phases/02-prompt-files/README.md` returns 5 lines: four markers (the Predict-before-you-run paragraph and the three lab headings) and this table row citing them |
+| "Mark 'extract only, labs deferred by the autonomous run'" | The status line at the top of this file, and `DEFERRED` on Lab 2.1, Lab 2.2, Failure injection and Predict-before-you-run | **L3** — a marker is words a reader chooses to honour | `grep -c "^## .*DEFERRED" phases/02-prompt-files/README.md` returns **3** — the three deferred lab headings — and the status line at the top carries the fourth marker. *A bare `grep -c DEFERRED` was cited here until 2026-09-04 and is not usable as a re-derivation: prose that mentions the marker is itself a match, so the number moves every time anyone writes about it. The §9 validator got 6 where this row said 5, for exactly that reason. Anchoring the count to headings makes it stable* |
 | Exit gate: "Instructions vs prompt file" | Answered above from two verbatim quotes (VS Code "Unlike custom instructions that are applied automatically…"; Copilot "While custom instructions help to add codebase-wide context…") | **L3** — a written answer | Compare the answer against the two quoted sentences |
 | Exit gate: "Prompt vs skill" | Answered above from "Claude uses skills when relevant, or you can invoke one directly with `/skill-name`" plus the `disable-model-invocation` / `user-invocable` rows | **L3** | Read the frontmatter reference table on the Skills page |
 | Exit gate: "Why Claude's current custom-command story maps to Skills" | Answered above from "Custom commands have been merged into skills… Your existing `.claude/commands/` files keep working" | **L3** | Read the Note block at the top of the Skills page |
@@ -558,6 +558,27 @@ fixture or model id. The registered variables are byte-identical to the ones E-0
 under. Confirmed by `git diff --stat` on this branch touching only
 `phases/02-prompt-files/README.md`, `TRACK-B-STATE.md`, `HANDOFF.md` and this stop's review
 file.
+
+## Amendment — 2026-09-04, from the §9 validator
+
+Source: [`findings/track-b-validation-2026-09-04.md`](../../findings/track-b-validation-2026-09-04.md).
+Verdict: **CONFIRMED WITH CORRECTIONS**, one correction, trivial in size and not in kind.
+
+**The validation table cited a count that cannot be re-derived stably.** It said a bare
+`grep -c DEFERRED` returns 5; the validator got 6. Both were right when measured, and that is
+the defect: **the marker appears in prose *about* the markers, so any sentence discussing the
+count changes it** — including the correction itself, which pushed it to 7. A
+*"how a stranger re-derives it"* instruction that gives a different answer to each reader is
+worse than none, because it fails in the direction of looking checkable. Re-anchored above to
+`grep -c "^## .*DEFERRED"`, which counts the three deferred lab headings and is stable under
+editing.
+
+The validator also re-derived this stop's headline finding independently, fetching
+`code.claude.com/docs/en/skills` on 2026-09-04 and confirming **verbatim** that `allowed-tools`
+is *"Tools Claude can use without asking permission during the turn that invokes this skill"*
+and `disallowed-tools` is *"Tools removed from Claude's available pool while this skill is
+active"*. It marked the layer labels here honest, including the L2/L3 split this file made on
+itself.
 
 **`n` for every number in this file: `n = 0` runs.** Nothing above is stated as a property of
 the agent under test. Every claim is a claim about what four documentation pages say on

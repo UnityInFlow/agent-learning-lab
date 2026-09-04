@@ -260,8 +260,18 @@ arm then did something better than the job it was given.
 **DF3 is the one to keep.** Burying the rules 25× deeper made the construct *more* frequent, not
 less. Pooled across all three arms it appears **8 of 25**, and no pair separates —
 bloat vs treatment p = 0.25, bloat vs control p = 0.33, treatment vs control p = 1.00. On this
-task, at this model, the construct is chosen at roughly one run in three **whatever the
-instruction file says, or whether one exists.**
+task, at this model, the construct is chosen at roughly one run in three ~~**whatever the
+instruction file says, or whether one exists.**~~
+
+> **Corrected 2026-09-04, from [`findings/track-b-validation-2026-09-04.md`](../../findings/track-b-validation-2026-09-04.md).**
+> The struck words overreach. `8 of 25`, from arms of 10, 10 and 5, supports a claim about
+> **these three files on these 25 runs** — it does not support *"whatever the instruction file
+> says"*, which quantifies over instruction files in general. The sentence should read: **on
+> this task, at this model, the construct was chosen on 8 of these 25 runs, and none of the
+> three files tested moved it.** The original wording is struck rather than deleted, because
+> the overreach is the finding. [`E-003`](../../experiments/E-003-instructions-v0.1.md) carries
+> the same sentence but immediately guards it with *"What this does not license"*; this
+> workbook did not, and that is the whole difference between a result and a slogan.
 
 **And the arm answered a question nobody registered.** A 25× larger always-on file costs
 **+4.2 %**. Three documents in these repositories argue for keeping instruction files short, and
@@ -281,6 +291,59 @@ means the brevity recommendation **cannot be made from cost** on the evidence th
 
 **The gate clause is not decorative.** R3 was written into the file precisely so this clause
 would have to remove something or admit it cannot. It removed R3 — and then R1 and R2 as well.
+
+### Validation
+
+*Added 2026-09-04. The table above answers the gate and carries its evidence, but it has three
+columns where §5 requires four: it never says **what layer each proof sits at**, nor **how a
+stranger re-derives it**. Flagged by
+[`findings/track-b-validation-2026-09-04.md`](../../findings/track-b-validation-2026-09-04.md)
+and supplied here. No gate answer changes.*
+
+| Gate clause (verbatim) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| "version it `instructions-v0.1`" | `build/customizations/instructions-v0.1/CLAUDE.md`, 57 words, `shasum -a 256` first 32 = `90f95226cc3d429f6f3e157e4741bbd1`; the same digest in `customization.instructionsHash` on 10/10 treated runs | **L2** — the runner computes the digest and records it per run, and refuses a customization whose instruction file the runtime does not read. **The "never edited" half is L3**: nothing prevents an edit, the directory convention is a habit | `shasum -a 256 build/customizations/instructions-v0.1/CLAUDE.md`, take 32 chars, compare against `customization.instructionsHash` in `GET /api/runs` |
+| "each rule has a stated expected effect" | R1, R2, R3 in [`E-003`](../../experiments/E-003-instructions-v0.1.md), each with direction, magnitude and mechanism, committed `2015555` @ 16:59:55Z | **L3** — a human reads three paragraphs and judges whether each states a direction, a magnitude and a mechanism. Nothing parses them | open E-003, read the three rules, check each has all three parts |
+| "3 controlled comparisons vs B2" | The three rows in the outcomes table; run keys `EXP-B3-INSTRUCTIONS-CLAUDE` (10), `EXP-B3-CONTROL-CLAUDE` (10), `EXP-B3-BLOAT-CLAUDE` (5); 20 codex sheets at `rubric_sha 396e1799eb2b`, `schema_sha 5ee1b8ec16ab` | **L2 for admission** — `check-run-gate.sh` executes and refuses a run with no recorded evaluator pass, and all 25 runs carry `evaluation.exitCode 0`. **L3 for "vs B2"**: the comparison is against a *concurrent replication*, not B2's stored runs, and that substitution is a judgement stated in prose | `./tools/check-run-gate.sh` on each run record; then `curl $API/api/runs` and group by the three keys |
+| "remove every rule with no measured effect" | R1 removed on 2/10 v 3/10 (`p = 1.00`); R2 removed, both registered outcomes inside the pre-registered MDE; R3 removed at 20/20 both arms, pooled 34/34 with B2 | **L3** — *the clause does not execute.* A human read four numbers and deleted three rules. **This is the row most likely to be mistaken for a control**, because it reads like one and it did remove something. What makes it trustworthy is not enforcement: it is that **R3 was planted predicted-inert before the run**, so the clause had to remove something or expose itself. That is a study design, not a machine | read the outcomes table, apply the clause to each rule yourself, and check R3's pre-registration in E-003 predates the runs |
+| one scored cell re-derived by hand | `evidence/b03/` census, committed `eb02928` @ 17:55:38Z, **before** the first sheet at 17:59:42Z. Independently re-read by the §9 validator on run `367a809d`: **validator 0 · census 0 · codex sheet 0** | **L1 for the reading** — the construct either is a no-`else` `when` in expression position or it is not, and Kotlin decides. **L3 for the agreement** — three readers concurring is not a control | open `ShipmentController.confirm()` in `367a809d`'s kept worktree and apply anchor 0's clauses |
+| treatment reached the treated arm and not the control | `instructionsHash` `90f952…` on 10/10 treatment + preflight, `null` on 10/10 control, `807c5d…` on 5/5 bloat; `hook_execution_start` = 0 on all 26 from `events.jsonl` | **L2 for the hash** (runner-written and refusal-backed, as row 1); **L3 for the hook count** — a human filters a JSONL and counts, and nothing rejects a run whose count came out wrong | `curl $API/api/runs`; then filter `events.jsonl` on `observatory.run.id` and count `claude_code.hook_execution_start` |
+
+**Independence check.** `runtime.model` `claude-haiku-4-5-20251001` and
+`evaluation.evaluatorVersion` `1.0.0` on all 25; benchmark `0448643`, byte-identical to B2's on
+`tasks/` and `sample-service/`; rubric `396e1799eb2b` unchanged. **One registered variable did
+move and is disclosed**: the harness, `2.1.251` → `2.1.259`. That is exactly why the gate's
+"vs B2" was answered against a concurrent control rather than B2's stored runs, and the control
+reproduces B2 on six measures.
+
+## Amendment — 2026-09-04, from the §9 validator
+
+Verdict: **CONFIRMED WITH CORRECTIONS.** The validator re-derived a scored cell independently
+(run `367a809d`, maintainability anchor 0 — its reading, the pre-scorer census and the codex
+sheet all agree), confirmed the prediction commits precede their runs from git objects and the
+API, and confirmed hash separation is perfect with zero exceptions. Three corrections:
+
+**(a) No §5 table existed.** Supplied above. Writing the layer column changed nothing about the
+verdict and did change how one row should be read: **"remove every rule with no measured effect"
+is L3, not a control.** Nothing executes it. It removed three rules because a human applied it
+honestly to numbers already on record — and because R3 was planted predicted-inert before the
+run, so the clause could not quietly do nothing. The safeguard is the study design, not the
+clause.
+
+**(b) All nine commits in the Commit table are squash-orphaned.** `2015555 97e2ed5 e963460
+eb02928 5d10e31 d6a13f2 225db94 d55150a 29561a2` exist in this clone only; on `main` there is
+only the squash `27d67e5`. So B3's prediction-precedes-run proof **cannot be re-derived by a
+stranger cloning this repository.** Same consequence as B2's correction (c), and **raised to
+the author** rather than fixed here, because the fix is a repo-convention change and §7
+reserves those.
+
+**(c) One sentence overreached its evidence.** Raised by the validator under its `n` check
+rather than as a formal correction, and it is right. The sentence read: *"the construct is
+chosen at roughly one run in three whatever the instruction file says, or whether one exists."*
+The pooled figure is **8 of 25 across arms of 10, 10 and 5** — it is stated with its `n`, but
+*"whatever the file says"* generalises over instruction files in general, and three arms cannot
+support that. **Corrected in place** to claim only what 25 runs can carry.
+
 
 ### What the step delivers
 

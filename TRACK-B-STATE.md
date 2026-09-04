@@ -5,15 +5,20 @@ needs is in this file; nothing lives in a conversation.
 
 ```yaml
 status: running
-prompt_sha: 1dd9a22ac9b0
-prompt_read_at: 2026-09-03T19:04:02Z
+prompt_sha: 0580d5332a2b
+prompt_read_at: 2026-09-04T06:32:02Z
 stop: 8            # stop 7 CLOSED and merged; 8 is Phase 3 (Agent Skills) and is NOT started
 loop_step: 1       # nothing of stop 8 has been opened
 branch: main       # phase02/prompt-files-extract merged as df4a022 and deleted
-in_flight: []      # nothing running, nothing unmerged
+in_flight:
+  - "prompt changed 1dd9a22ac9b0 -> 0580d5332a2b; sections applied from stop 8 step 1 onward. The change adds validation_processed: and the §0 rule that a validator file is processed BEFORE any stop is opened or continued. Stops 4-7 were closed under the old text and are not reopened for that reason alone"
+  - "validator file PROCESSED; corrections applied to four workbooks and the track report. Stop 8 not yet opened"
+validation_processed:
+  - "findings/track-b-validation-2026-09-04.md - read in full, all four verdicts CONFIRMED WITH CORRECTIONS, none NOT CLOSED, so no stop reopened. Every correction applied as a dated amendment in the workbook it names; no prediction, result, sheet or run folder rewritten. The one process risk (squash-orphaned prediction commits) went to blocked_on_author because fixing it changes a repo convention"
 last_verified: "TWO PRs merged. lab#53 as 27d67e5 (stops 4, 5, 6 shipped) and lab#54 as df4a022 (stop 7), both squash, both 8 of 8 checks green on their final heads. Boards republished at position 8 and re-checked ON MAIN AFTER the squash: 2 of 2 current at prose 4119c4abf58f, exit 0. Preflight re-run in full, all seven rows ok. check-links 64 ok / 0 broken"
 next_action: "OPEN STOP 8 - Phase 3, Agent Skills - at loop step 1. It is a Track A stop that the itinerary gives a lab: 'reading, extract, one lab that records skill activation on the observatory', closing on that lab's evidence on disk. So unlike stop 7 it DOES need runs, and the whole loop applies, not the reading subset. Read phases/03-skills/README.md first. Phase 2's extract already carries the Claude Code Skills frontmatter reference it needs, including that no field is required and that description+when_to_use is capped at 1536 chars in the listing - do not re-fetch that page without reason"
-blocked_on_author: []
+blocked_on_author:
+  - "SQUASH MERGES HAVE ORPHANED EVERY PREDICTION COMMIT IN THIS TRACK - all eleven. On main, `git log -- experiments/E-002-isolation-contamination.md` shows only the squash 27d67e5 at 19:07Z, SIX HOURS AFTER the runs it was supposed to precede. B3's nine commits are the same. So the prediction-precedes-run guarantee - the track's most-cited - CANNOT BE RE-DERIVED BY A STRANGER cloning the repo, and by the §9 validator's layer correction it is L3 as well. The fix is a repo-convention change and §7 reserves those for the author: merge commits for stop branches instead of squashes, or a pre-push check that refuses a workbook citing a sha main cannot reach. Raised by findings/track-b-validation-2026-09-04.md"
 preflight:  # re-run in full at stop 7, 2026-09-03T19:09Z; all seven rows ok, three corrections below
   hook_script: ok — 19 of 19 cases pass (the itinerary says 16; the script has grown to 19), exit 0
   review_harness: ok — exit 0, findings/opencode/review-run-record-20260903T190518Z.md, 199 lines, 12 per-section finding blocks plus an acceptance REJECT, not header-only. No process left by this run; two PRE-EXISTING wedged ones were found and killed, see stray_processes
