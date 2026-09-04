@@ -121,8 +121,25 @@ with open(events) as fh:
         except json.JSONDecodeError:
             malformed_lines += 1
             continue
+        # VALID JSON IS NOT THE SAME AS A USABLE RECORD. §4a round 2, found at 2/2: a line
+        # of `[]` parsed fine and then `doc.get` raised AttributeError, and a line of
+        # `{"resourceLogs": null}` parsed fine and then iterating None raised TypeError.
+        # Both left the script exiting 1 through an unhandled traceback — a status its
+        # documented contract does not define, and which reads as "the tool is broken"
+        # rather than "this line is". A line that is not an object carrying a list of
+        # resourceLogs is malformed for this tool's purposes, and is counted as such.
+        if not isinstance(doc, dict):
+            malformed_lines += 1
+            continue
+        resource_logs = doc.get("resourceLogs", [])
+        if not isinstance(resource_logs, list):
+            malformed_lines += 1
+            continue
         parsed_any = True
-        for rl in doc.get("resourceLogs", []):
+        for rl in resource_logs:
+            if not isinstance(rl, dict):
+                malformed_lines += 1
+                continue
             try:
                 res = attrs(rl.get("resource", {}))
             except DamagedRecord:

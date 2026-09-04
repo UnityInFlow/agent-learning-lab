@@ -16,7 +16,7 @@
 #
 #   - the same set of relative paths must exist in both              (a file added to one arm)
 #   - a path must be a symlink in both arms or in neither, and links must point at the same
-#     place                                                          (§4a round 1, 1/2)
+#     place — FILE links and DIRECTORY links alike  (§4a round 1 at 1/2, round 2 at 2/2)
 #   - every non-SKILL.md file must be byte-identical                 (a smuggled second change)
 #   - every SKILL.md BODY below the frontmatter must be byte-identical
 #   - SKILL.md frontmatter may differ ONLY in lines whose key is named by --allow-differ
@@ -77,11 +77,23 @@ A, B = os.environ["A"], os.environ["B"]
 allow = set(os.environ.get("ALLOW", "").split())
 
 def rel_files(root):
-    # followlinks=False is the default and is load-bearing here: a symlinked SKILL.md with
-    # identical bytes would otherwise read as parity while the two overlays install
-    # different things. Links are compared as links below.
+    # followlinks=False is load-bearing: a symlinked SKILL.md with identical bytes would
+    # otherwise read as parity while the two overlays install different things. Links are
+    # compared as links below.
+    #
+    # DIRECTORY symlinks have to be collected explicitly. os.walk puts them in `dirnames`,
+    # not `names`, and does not descend into them with followlinks=False — so an earlier
+    # version of this function, which read only `names`, could not see them at all. Two
+    # overlays whose `.claude/skills` pointed at different directories compared as two
+    # EMPTY overlays. §4a round 2, found at 2/2. A link is recorded as an entry in its own
+    # right and its target is compared below; nothing is read through it.
     out = set()
-    for dirpath, _, names in os.walk(root):
+    for dirpath, dirnames, names in os.walk(root):
+        for d in list(dirnames):
+            full = os.path.join(dirpath, d)
+            if os.path.islink(full):
+                out.add(os.path.relpath(full, root))
+                dirnames.remove(d)
         for n in names:
             out.add(os.path.relpath(os.path.join(dirpath, n), root))
     return out
@@ -122,6 +134,9 @@ for rel in sorted(fa & fb):
             problems.append(f"symlink targets differ: {rel} ({ta} vs {tb})")
         continue
 
+    if os.path.isdir(pa) or os.path.isdir(pb):
+        problems.append(f"directory where a file was expected: {rel}")
+        continue
     ra = open(pa, "rb").read()
     rb = open(pb, "rb").read()
     if os.path.basename(rel) != "SKILL.md":

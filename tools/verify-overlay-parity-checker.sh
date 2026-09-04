@@ -67,11 +67,20 @@ skill "$TMP/dup-key" "matches the task"
 sed -i '' 's/^description: matches the task$/description: SOMETHING ELSE ENTIRELY\
 description: matches the task/' "$TMP/dup-key/sample-service/.claude/skills/s/SKILL.md"
 
+# §4a round 2 at 2/2: os.walk puts DIRECTORY symlinks in dirnames, not names, so an overlay
+# whose skills directory is a link compared as an EMPTY overlay against another empty one.
+mkdir -p "$TMP/dirlink-a/sample-service/.claude" "$TMP/dirlink-b/sample-service/.claude"
+mkdir -p "$TMP/target-one/s" "$TMP/target-two/s"
+printf 'one\n' > "$TMP/target-one/s/SKILL.md"
+printf 'two\n' > "$TMP/target-two/s/SKILL.md"
+ln -s "$TMP/target-one" "$TMP/dirlink-a/sample-service/.claude/skills"
+ln -s "$TMP/target-two" "$TMP/dirlink-b/sample-service/.claude/skills"
+
 mkdir -p "$TMP/name-differs/sample-service/.claude/skills/s"
 printf -- '---\nname: OTHER\ndescription: an unrelated domain\n---\n\n## When this applies\n\nAlways.\n' \
   > "$TMP/name-differs/sample-service/.claude/skills/s/SKILL.md"
 
-echo "verify-overlay-parity-checker: 12 cases"
+echo "verify-overlay-parity-checker: 13 cases"
 
 check "arms differing only in description are accepted"      0 "parity holds" \
   --allow-differ description "$TMP/a" "$TMP/b"
@@ -102,6 +111,8 @@ check "a differing frontmatter COMMENT line is refused"      2 "key was not decl
   --allow-differ description "$TMP/a" "$TMP/comment-differs"
 check "a DUPLICATED frontmatter key is refused, not resolved" 2 "appears 2 times" \
   --allow-differ description "$TMP/a" "$TMP/dup-key"
+check "DIRECTORY symlinks to different targets are refused"  2 "symlink targets differ" \
+  --allow-differ description "$TMP/dirlink-a" "$TMP/dirlink-b"
 # and the duplicate must be caught even when the winning line matches, which is the whole point
 check "  even when the last of the duplicates matches"       2 "appears 2 times" \
   --allow-differ description "$TMP/same-desc" "$TMP/dup-key"

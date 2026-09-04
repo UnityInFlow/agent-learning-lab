@@ -67,8 +67,15 @@ printf 'not json at all\n{"broken":\n' > "$TMP/garbage.jsonl"
 # resource carries the run id for every record beneath it, so two log records are two
 # unattributable records, not one.
 { rec RUN-A; printf '{"resourceLogs":[{"resource":{"attributes":[{"key":"observatory.run.id"}]},"scopeLogs":[{"logRecords":[{"body":{"stringValue":"claude_code.skill_activated"}},{"body":{"stringValue":"claude_code.api_request"}}]}]}]}\n'; } > "$TMP/bad-resource.jsonl"
+# §4a round 2, at 2/2: VALID JSON that is not a usable record. Both of these parsed fine and
+# then crashed the script with an unhandled traceback and exit 1 — a status the documented
+# contract does not define.
+{ rec RUN-A; printf '[]\n'; } > "$TMP/valid-json-not-object.jsonl"
+{ rec RUN-A; printf '{"resourceLogs":null}\n'; } > "$TMP/resourcelogs-null.jsonl"
+# and the same shapes with NO real record behind them must still read as absent, not damaged
+{ rec RUN-B; printf '[]\n'; } > "$TMP/absent-plus-nonobject.jsonl"
 
-echo "verify-skill-activation: 24 cases"
+echo "verify-skill-activation: 28 cases"
 
 check "a project-source activation is reported by source"            0 "bundled_activations: 0" one-project.jsonl RUN-A
 check "a run present with no skill event is a REAL zero"  0 "activations_by_source: -" present-no-skill.jsonl RUN-A
@@ -113,6 +120,10 @@ check "damage does NOT promote an absent run to present"   3 "status: UNKNOWN"  
 check "a malformed RESOURCE is damage, not a crash"         4 "status: PARTIAL"               bad-resource.jsonl RUN-A
 check "  and every record under it is counted unattributable" 4 "damaged_records: 2"          bad-resource.jsonl RUN-A
 check "  and the run is still seen as present"             4 "bundled_activations: 0"        bad-resource.jsonl RUN-A
+check "valid JSON that is not an object is malformed, not a crash" 4 "malformed_lines: 1"  valid-json-not-object.jsonl RUN-A
+check "  and it is PARTIAL, an exit the contract defines"  4 "status: PARTIAL"              valid-json-not-object.jsonl RUN-A
+check "a null resourceLogs is malformed, not a crash"      4 "malformed_lines: 1"           resourcelogs-null.jsonl RUN-A
+check "  and absence still outranks it"                    3 "status: UNKNOWN"              absent-plus-nonobject.jsonl RUN-A
 check "a source-less activation is NOT damage"             0 "damaged_records: 0"            no-source.jsonl RUN-A
 
 echo
