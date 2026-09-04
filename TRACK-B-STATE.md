@@ -4,10 +4,10 @@ Owned by the autonomous run. `run-track-b.sh` reads `status:`. Everything the ne
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running   # stop 8 CLOSED and MERGED 2026-09-04. Two NEW items sit in blocked_on_author, and NEITHER blocks stop 9 - both are about how a skill result may be READ, not about whether the next stop can run
+status: running   # stop 9 open at the extract boundary; NOT blocked, NOT refused. Four items sit in blocked_on_author and NONE blocks stop 9 - all four are about how a SKILL result may be read, or about a flag set that is not on the run record, not about whether the next stop can run
 prompt_sha: 6b8be13c3daa       # CHANGED under this run; the whole prompt was re-read 2026-09-04T14:36Z
 prompt_read_at: 2026-09-04T14:36:00Z
-stop: 9            # stop 8 CLOSED and MERGED (lab#58 -> ebd0b39, obs#72 -> 5179432). 9 is Phase 4A, agents + permissions, and is NOT started
+stop: 9            # Phase 4A, agents + permissions. STARTED and at its FIRST boundary (extract done, lab not run). Stop 8 CLOSED and MERGED (lab#58 -> ebd0b39, obs#72 -> 5179432)
 loop_step: 2       # §4 step 1 (reading + extract) and step 2 (design + layer labels) DONE. Step 3, the experiment file and its prediction commit, is NEXT and is deliberately NOT started at the end of a context window
 branch: stop9/validator-pass-3-corrections   # NEVER commit on main again, see process_violations_stop8. PREVIOUSLY: phase03/nested-probe and p03/enable-skills both MERGED WITH MERGE COMMITS and deleted. Author decision 4 worked: every prediction sha is reachable from main, checked with `git merge-base --is-ancestor`, and `git log -- experiments/E-004-*.md` on main shows the real history rather than one squash
 in_flight:
