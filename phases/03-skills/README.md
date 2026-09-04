@@ -362,7 +362,7 @@ learning:
     select it even when told it was required - n=1 each, and the reason prediction 1 is worth
     running.
   keep_or_remove: >
-    Keep tools/skill-activation.sh - it is proven by 11 fixtures and by hand against the real
+    Keep tools/skill-activation.sh - it is proven by 15 fixtures and by hand against the real
     31MB stream, and it is what the lab will use the day it runs. Keep both overlays unedited;
     they are the registered arms. Keep E-004 open and unanswered rather than closing it with
     the n=1 hint, which is the whole discipline. Remove nothing.
@@ -372,6 +372,42 @@ learning:
     alters what the evaluator's scope guard can flag, and the runner change does not, which
     makes the runner the cheaper place to fix a problem the runner created.
 ```
+
+## Review — §4a
+
+Subjects: `experiments/E-004-skill-activation.md` and `tools/skill-activation.sh`. Family
+`codex`, after `glm-5.2` failed the §0a preflight OFF CONTRACT — its third consecutive failure.
+
+**The gate returned `REJECT` twice, and every blocking finding was correct.** Both rounds found
+the same shape of defect, one field apart, and both were in the parts of the work that looked
+most rigorous.
+
+| Round | Verdict | Blocking findings | What happened |
+|---|---|---|---|
+| 1 | **REJECT** | 3 | decision rule contradicted its own MDE; row 4 over-attributed; **the tool counted a source-less event as the installed skill** |
+| 2 | **REJECT** | 2 | rows 1–4 enumerated only one direction; **the tool counted a `plugin` event as the installed skill** |
+| 3 | see `review_this_stop` in `TRACK-B-STATE.md` | — | first attempt exited 1 (infrastructure) with a header-only file and was discarded per §4a, not counted as a round |
+
+**Round 1, finding 1 — the decision rule disagreed with the MDE in the same file.** Row 1 fired
+`CONFIRM` on *"matched ≥ 4/5 and matched − misdescribed ≥ 3"*, while the MDE table called a
+4-vs-1 result (`p = 0.206`) **not detectable**. Two readers, identical data, opposite verdicts.
+The error was using a **raw difference** as the variable: the same difference is decidable or not
+depending where it sits. All twelve cells are now computed in the file and exactly three reach
+`p < 0.05`.
+
+**Rounds 1 and 2, the tool — the same bug twice, and it is the bug the tool was written to
+prevent.** `skill-activation.sh` exists because a run with no telemetry and a run with no
+activation both produce zero. It shipped counting *anything that is not `bundled`* as the
+installed skill. Round 1 found a **missing** `skill.source` falling through; round 2 found
+**`plugin`** falling through — and `plugin` is the only non-bundled source ever observed on this
+instrument, so a plugin skill firing on the **control** arm would have recorded an activation in
+the arm that installs nothing. Eleven fixtures passed over both versions. **The fixtures tested
+the cases the author thought of, which is exactly what a fixture set cannot fix on its own.**
+
+The counter is now an allowlist by exclusion; `bundled`, `plugin` and source-less events are each
+counted and reported separately; the outcome is renamed `installed_scope` so the name stops
+implying more than it proves. **15 fixtures, and the fix is confirmed against the real stream**:
+run `899232bb` now reports `installed_scope 0 / plugin 2` where it would have claimed two.
 
 ## Validation
 
@@ -383,8 +419,9 @@ and the last row states plainly what it did not.
 |---|---|---|---|
 | "Phase 3 skills: reading" | Four sources ✅ in `SOURCES.md`; three extracted here for the first time on 2026-09-04 | **L2 for "the URLs resolve"** — `./tools/check-links.sh` executes and fails closed. **L3 for "they were read"** — nothing executes that | `./tools/check-links.sh`; for the reading half, check the quotes against the pages by hand |
 | "extract" | Three `## Extract` sections in this file, one per source, each dated and quoting verbatim | **L3** — nothing checks an extract against its source | open the four URLs and search for the quoted sentences |
-| "one lab that records skill activation on the observatory" | [`E-004`](../../experiments/E-004-skill-activation.md), registered `5d14182`; overlays under `build/customizations/skill-v0.1{,-misdescribed}/`; [`tools/skill-activation.sh`](../../tools/skill-activation.sh) | **L2 for the instrument** — 11 fixtures execute and each asserts an exit code *and* a stdout line; `./tools/verify-skill-activation.sh` exits non-zero if any fails | `./tools/verify-skill-activation.sh` → `11 passed, 0 failed` |
-| …the tool distinguishes a real zero from a missing measurement | fixtures *"a run ABSENT from telemetry is NOT reported as 0"* (exit 3) and *"its count is null, never 0"* | **L2** — it executes and refuses. Hand-checked against the real 31 MB `events.jsonl`: a fabricated run id returns `status: UNKNOWN…`, `project_scope_activations: null`, exit 3 | `./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl 00000000-dead-beef-0000-000000000000` |
+| "one lab that records skill activation on the observatory" | [`E-004`](../../experiments/E-004-skill-activation.md), registered `5d14182`; overlays under `build/customizations/skill-v0.1{,-misdescribed}/`; [`tools/skill-activation.sh`](../../tools/skill-activation.sh) | **L2 for the instrument** — 15 fixtures execute and each asserts an exit code *and* a stdout line; `./tools/verify-skill-activation.sh` exits non-zero if any fails | `./tools/verify-skill-activation.sh` → `15 passed, 0 failed` |
+| …the tool distinguishes a real zero from a missing measurement | fixtures *"a run ABSENT from telemetry is NOT reported as 0"* (exit 3) and *"its count is null, never 0"* | **L2** — it executes and refuses. Hand-checked against the real 31 MB `events.jsonl`: a fabricated run id returns `status: UNKNOWN…`, `installed_scope_activations: null`, exit 3 | `./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl 00000000-dead-beef-0000-000000000000` |
+| …and the outcome counts only the skill this experiment installed | fixtures *"a bundled skill is NOT the installed skill"*, *"a plugin skill is NOT the installed skill"*, *"an event with NO skill.source is not the installed one"* | **L2** — three separate scopes are excluded by executing code, each reported on its own line. **Both exclusions were added because the §4a gate caught them, not because a fixture did** — 11 fixtures passed over both broken versions | `./tools/verify-skill-activation.sh` → `15 passed`; then `./tools/skill-activation.sh <events.jsonl> 899232bb-3a66-4326-981e-0aaa38329c09` → `installed_scope 0 / plugin 2` |
 | …the treatment differs from its control in exactly one thing | body-only `sha256` `d10a2c3988be520e` **equal** across both overlays; full-file hashes differ | **L1** — the bytes below the frontmatter either are identical or are not; `shasum` decides | `awk 'n>=2{print} /^---$/{n++}' <each SKILL.md> \| shasum -a 256` |
 | …**"that lab's evidence on disk"** — the closing condition | **NOT MET.** Zero measured runs. Three runs exist and none is data: `16cd4378` died at setup, `c090f67e` and `d8be2b5f` are preflight probes under `EXP-P3-PREFLIGHT` | **L2 for the blocker itself** — the runner *executed* and refused (`failed to commit the customization overlay`), and `claude -p "/name"` *executed* and answered `Unknown command`. The block is demonstrated, not asserted | [`evidence/p03/skill-delivery-probe-20260904T072000Z.md`](../../evidence/p03/skill-delivery-probe-20260904T072000Z.md) — it lists the commands |
 
