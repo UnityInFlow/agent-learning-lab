@@ -22,3 +22,16 @@ lab_head:        447beae
 lab_dirty:       true   # the TREE, not the artifact - see each artifact's own dirty:
 ```
 
+
+## Off-contract output — ollama-cloud/glm-5.2
+
+
+> lab-critic · glm-5.2
+
+## Panel
+
+Every family failed. No review was produced.
+
+| Family | Outcome | |
+|---|---|---|
+| ollama-cloud/glm-5.2 | OFF CONTRACT | 352s |

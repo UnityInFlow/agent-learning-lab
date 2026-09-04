@@ -1,0 +1,196 @@
+# Experiment E-004 — does the *description* decide whether a skill loads?
+
+**Stop 8 of the spine, Phase 3 (Agent Skills). Track A lab that runs the benchmark, so the whole
+§4 loop applies.**
+
+`Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-04T07:0XZ; the author did not review
+before the run.` The exact commit and first-run timestamps are written into *Sanity checks*
+after the batch, and the commit must precede the first `startedAt`.
+
+## Question
+
+Three vendors state, in their own documentation, that an agent chooses a skill by matching the
+task against the skill's **description**. None of them shows a measurement. On this instrument,
+on one task, at one model: **does changing only the description — with the skill body held
+byte-identical — change whether the skill loads?**
+
+And underneath it, the question this stop exists to answer at all: **can the observatory record
+skill activation?**
+
+## Hypothesis
+
+Skill selection is driven by the description, not the body. A skill whose description names the
+task's domain will be loaded; the *same* skill body behind a description naming an unrelated
+domain will not. Activation is therefore a property of the description text, and is visible in
+`claude_code.skill_activated` telemetry per run.
+
+## Predictions
+
+Numbered, specific, falsifiable. Direction and magnitude stated. Each says which *kind* of claim
+it makes — one-arm (binomial, needs no control) or between-arm (needs the control that occurred).
+
+1. **[one-arm] The matched arm loads the skill on ≥ 4 of 5 runs.** Mechanism: all three vendors
+   document implicit selection as a match between the prompt and the description; arm B's
+   description names BE-003's exact domain (Kotlin Spring service, shipment confirmation,
+   controller/service conventions), so the match is direct rather than inferential.
+2. **[structural] The control arm records 0 project-scope skill activations on 5 of 5.** Not a
+   statistical claim — no skill is installed, so there is nothing to load. Bundled skills
+   (`skill.source = bundled`) may still activate and are **excluded from the outcome by
+   definition**, because the outcome counts only the installed skill.
+3. **[between-arm] The misdescribed arm loads on ≤ 1 of 5, at least 3 fewer than the matched
+   arm.** Mechanism: the `SKILL.md` **body is byte-identical** between arms B and C; only the
+   frontmatter `description` differs. If selection reads the body, C loads as often as B; if it
+   reads the description, C does not load on a shipment task.
+4. **[instrument] `customization.skillsHash` is `null` on 5 of 5 runs in *both* treated arms,**
+   despite a skill being installed, committed by the runner as a setup commit, and (per 1)
+   loading. Mechanism: `agent-observatory/runner/run-agent.sh:328` computes it as
+   `hash_of .github/skills.md` — one fixed file, at a path this treatment does not create,
+   because a Claude Code project skill lives at `.claude/skills/<name>/SKILL.md`. **Falsifiable:
+   a non-null `skillsHash` refutes this outright.**
+5. **[instrument, low confidence — the one most likely to be wrong] For a project-scope skill,
+   `skill.name` is redacted to the literal string `custom_skill`.** Basis: on this instrument the
+   only custom skills ever recorded are plugin-scope, and all 20 report `custom_skill`, while the
+   10 bundled records report a real name (`run`). **No project-scope skill has ever been recorded
+   here**, so this extrapolates across a scope boundary from `plugin` to `project` and may simply
+   be wrong. `skill.source` for a project skill is likewise **unknown and is not predicted.**
+
+*A prediction you did not write down is always retroactively correct.*
+
+## Independent variable
+
+**Exactly one thing: the `description:` line in the skill's frontmatter.**
+
+Arms B and C install a skill at the same path, with the same `name`, and with a **byte-identical
+body below the frontmatter**. Arm A installs nothing. The body's identity is asserted mechanically
+in *Sanity checks*, not by eye.
+
+## How the treatment is delivered — and proved
+
+| | |
+|---|---|
+| Mechanism | `--customization build/customizations/skill-v0.1/` (arm B) and `.../skill-v0.1-misdescribed/` (arm C), each containing `.claude/skills/shipment-service-conventions/SKILL.md`. The runner `cp -R`s the overlay into the worktree and commits it as a setup commit *before* the agent starts |
+| Content hash | recorded per arm in *Sanity checks* after the build: `sha256` of each `SKILL.md`, and separately of the **body alone** (the two body hashes must be equal) |
+| Preflight assertion | one run per treated arm before the batch. Proof that the skill reached the model is **`claude_code.skill_activated` present in telemetry for that run id** — the model loading it, not the file existing. `skillsHash` is *not* usable as the delivery proof, which is prediction 4 |
+| Control assertion | arm A installs no customization: `--customization` is not passed, so the overlay never exists in the worktree. Structural, not merely uninstalled. Verified per run by `customization.*Hash` all `null` **and** zero project-scope `skill_activated` events |
+
+> Placing a file is not delivering a treatment. Phase 1 cost ~$4 and 20 runs to learn this.
+> **This experiment cannot use the runner's own `skillsHash` as its delivery proof**, because
+> prediction 4 says that field is blind to this treatment. The delivery proof is the activation
+> event itself, which is a stronger assertion — it shows the model *used* the file, not that the
+> harness *placed* it.
+
+## Controlled variables
+
+- [x] starting commit / benchmark revision SHA — `agent-observatory-benchmarks` at `0448643`, the same as B3
+- [x] task + revision — **BE-003 confirm-shipment, unchanged.** No new task; §7 reserves that for the author
+- [x] harness + version — one `claude` CLI version for all 15 runs, recorded in *Sanity checks*
+- [x] model — **`claude-haiku-4-5-20251001`**, exact id, the controlled variable of the whole track
+- [x] permissions / permission mode — identical across arms, runner defaults
+- [x] environment: hooks, plugins, skills, MCP servers, settings sources — `ISOLATE_USER_SETTINGS=1` on every run; **verified by observing `hook_execution_start = 0` per run in telemetry, not by trusting the flag**
+- [x] runner commit — one commit for all 15 runs, recorded in *Sanity checks*
+
+**The one thing that is deliberately *not* controlled** is bundled-skill activation: Claude Code
+ships its own skills and may load one on any arm. That is why the outcome counts project-scope
+activations only, and why `skill.source` is read on every event rather than assumed.
+
+## Runs
+
+Repetitions per arm: **5** · three arms, **15 runs** + 2 preflight runs · Total budget: ~**$2.60**
+at B3's observed $0.152/run.
+
+Arms are **interleaved** (A, B, C, A, B, C, …) so drift in the machine or the hour lands on all
+three. That practice has already saved one experiment in this project.
+
+*One run is a story. Five is a hint. Ten is the minimum for a decision.* **This experiment is at
+five, and says so in every claim it makes.** Five is chosen because the predicted effect is
+near-total presence-versus-absence rather than a shift in a distribution — see the MDE, which
+states exactly what five can and cannot resolve.
+
+## Minimum detectable effect
+
+**Derived before any threshold above was written, from the Fisher exact test on the registered
+`n`, not from the predictions.** There is no measured baseline for skill activation on this
+instrument — the outcome has never been recorded for a project-scope skill — so the MDE is
+derived from the *test's* resolving power at `n = 5`, and the absence of a baseline is itself
+registered as a limitation.
+
+| Outcome | measured spread it comes from | MDE at the registered `n` | registered before the run? |
+|---|---|---|---|
+| primary: project-scope activation rate, matched vs misdescribed | **none exists** — never measured here. Derived from Fisher exact at n=5+5 | only **near-total separation resolves**: 5/5 vs 0/5 → p = 0.0079; 4/5 vs 0/5 → p = 0.048; **4/5 vs 1/5 → p = 0.206, NOT detectable** | yes |
+| primary, one-arm form: matched arm ≥ 4 of 5 | binomial | if the true rate were 0.2, observing ≥4 of 5 has p = 0.0067 — so a *pass* is informative; a 3-of-5 result is **neither** a pass nor a refutation | yes |
+| secondary: `skillsHash` null rate | 0 of 228 runs on this instrument have ever carried a non-null `skillsHash` | any single non-null value refutes prediction 4; **n=1 suffices** because it is an existence claim | yes |
+
+**Derive it against the *interval* of the baseline, not the point estimate** — E-003's lesson.
+Here there is no baseline interval to derive against, which is the honest statement of the
+problem: **at n=5 per arm this design can only distinguish "always" from "never".** Any middling
+result (2–3 of 5 in either treated arm) lands inside the MDE and will be recorded as **NOT
+DETECTABLE at this n**, with the `n` that would resolve it computed and registered as follow-up —
+not as a refutation, and not as a hint dressed up as a finding.
+
+## Deterministic evaluation
+
+`agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/evaluator.sh` at evaluator version
+`1.0.0`, unchanged. `./tools/check-run-gate.sh` admits a run to scoring only on the evaluator's
+recorded pass. Rubric `benchmark/rubrics/backend-quality.yaml` at `396e1799eb2b`, unchanged, used
+for the **quality co-variate only** — the primary outcome of this experiment is not a rubric
+score.
+
+## Exclusions
+
+Registered now, not after seeing the data:
+
+- Infrastructure failures (F13/F15), permission blocks and quota exhaustion are excluded from
+  every arm and reported with their count.
+- A run whose telemetry does not join to `observatory.run.id` is excluded from the **activation**
+  outcome and reported; it is *not* excluded from cost or quality.
+- Runs spanning a machine sleep have their **duration** excluded, not the run.
+- Bundled-skill activations (`skill.source = bundled`) are excluded from the outcome by
+  definition, in every arm equally.
+
+## Decision rule
+
+Registered before data. Rows are exhaustive over (matched arm loads?) × (arms separate?), and
+**cost is a separate row, never a second condition on a failure row** — E-003's repaired defect.
+
+| # | Condition | Verdict |
+|---|---|---|
+| 1 | Matched ≥ 4/5 **and** matched − misdescribed ≥ 3 | **CONFIRM** — the description selects, and it is measured here |
+| 2 | Matched ≥ 4/5 **and** matched − misdescribed ≤ 2 | **PARTIAL** — the skill loads, but the description is not shown to be what selects it. The body, or mere presence, may be enough |
+| 3 | Matched 2–3 of 5 | **NOT DETECTABLE at n=5**, whatever the misdescribed arm does. Register the `n` that would resolve it |
+| 4 | Matched ≤ 1/5 | **REFUTED** — prediction 1 fails as a one-arm claim, and the vendors' documented mechanism does not reproduce on this instrument at this model |
+| 5 | Any arm records 0 activations *and* zero events of any kind for the run | **VOID that run** as an instrument failure, not a result; re-run it under a new id |
+| Cost | separate row, applied to whichever verdict above is reached | if the skill arm costs > +25 % against control, that is reported **beside** the verdict and does not change it. **A skill that works and is expensive is a different decision from one that does not work** |
+
+**The instrument rows are decided independently of the above**, because they are existence claims
+about the harness rather than about the agent:
+
+| Condition | Verdict |
+|---|---|
+| `skillsHash` null on all 10 treated runs | prediction 4 **holds**: the field is blind to a Claude project skill, and it is a provenance claim that cannot see its own subject. Raise to the author |
+| `skillsHash` non-null on any treated run | prediction 4 **refuted**; record the value and the path it hashed |
+| `skill.name` = `custom_skill` on project-scope events | prediction 5 holds |
+| `skill.name` = anything else | prediction 5 **refuted**; record the actual value. This is the prediction most likely to be wrong and it costs nothing to be wrong about |
+
+---
+*Everything below is filled in AFTER the runs.*
+---
+
+## Observed telemetry
+
+## Results
+
+## Which predictions held
+
+## Failure analysis
+
+## Sanity checks
+
+- [ ] prediction commit timestamp precedes the first run's `startedAt` — both read from git and the API, not from prose
+- [ ] the two `SKILL.md` **bodies** are byte-identical; only the frontmatter differs
+- [ ] `hook_execution_start = 0` on all 15 runs
+- [ ] `runtime.model`, `evaluatorVersion`, benchmark sha and rubric sha identical across all 15
+- [ ] one harness version and one runner commit across all 15
+
+## Decision
+
+## Follow-up
