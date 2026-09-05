@@ -733,6 +733,57 @@ stop closes on.
 under `diffs/` contains exactly three `diff --git` headers, counted off the kept worktrees rather
 than read from the API.
 
+### F5 — HOLDS, on both halves
+
+**Predicted:** `changedFiles` ≥ 4 on ≤ 1 of 5; `change-focus` = 1 on 5 of 5 under the registered
+scorer. **Observed: `changedFiles` ≥ 4 on 0 of 5, and `change-focus` = 1 on 5 of 5.**
+
+Registered scorer, `codex` / `gpt-5.6-sol`, `rubric_sha 396e1799eb2b` on all ten sheets — the
+registered instrument, re-read out of each sheet's own provenance block rather than assumed.
+Zero null cells in 40.
+
+| category | arm G (n=5) | concurrent control (n=5) |
+|---|---|---|
+| `architecture-consistency` | 2, 2, 2, 2, 2 | 2, 2, 2, 2, 2 |
+| `maintainability` | 2, 0, 0, 0, 0 | 2, 2, 2, 2, 0 |
+| `test-quality` | 2, 1, 1, 1, 1 | 1, 1, 1, 1, 1 |
+| `change-focus` | **1, 1, 1, 1, 1** | 1, 1, 1, 1, 1 |
+
+**`change-focus` is 1 on 10 of 10 here**, which extends the run of 1s C2 recorded at 60 of 60 to
+**70 of 70** scored `claude-code`/haiku runs on this task. F5's reasoning — *a boundary cannot buy
+focus the task has already spent, and removing it cannot spend focus the task never had* — is
+supported, and the category remains dead on BE-003 in exactly the way `blocked_on_author` already
+says it is.
+
+**One unregistered co-variate, flagged and not claimed.** `maintainability` reaches anchor 2 on
+**1 of 5** arm-G runs against **4 of 5** controls. It is not among F1–F5, it was never registered
+for arm G, `n = 5`, and Fisher on 1/5 vs 4/5 does not reach significance. **It is not a result.**
+It is noted only because it points the same way as batch 2's row-2 failure (3 of 10) and would be
+worth registering if any later step wants it.
+
+### The hand re-read, beside the sheet's value
+
+§4 step 7 requires my own score off the kept worktree **before** the sheets are opened, and §5
+requires it written next to the sheet's.
+
+| | `change-focus`, run `e8d881b9` |
+|---|---|
+| **my hand score**, `evidence/b04/armG-20260905T172219Z/hand-reread-change-focus-e8d881b9.md`, committed `34dcc01` at **2026-09-05T20:00:30+02:00** | **1** |
+| **registered scorer's sheet**, `findings/codex/score-observatory-run-e8d881b9-…-20260905T175930Z.yaml` | **1** |
+
+**They agree.** The hand reading reached 1 by the rubric's closing rule: anchor 0 fails because
+**zero** unnamed methods differ, and anchor 2 fails on its second clause alone because two class
+KDocs and an `ErrorCode` constant differ, none of them `confirm` and none an import. The commit
+timestamp is what makes "before the sheet" checkable rather than asserted.
+
+**A second reading was owed and was taken.** The subagent that ran the scorer reported all 40
+cells; I re-derived all 40 myself from the sheets' YAML. **They agree on 40 of 40.** My first
+extraction returned `MISSING` on every cell — my parser looked for the category as a mapping key
+when the sheet stores `categories:` as a list of `{name, score}` across a multi-document file.
+**The defect was in my reader, not in the sheets**, and it is recorded because a parser that
+silently returns "absent" for "present but shaped differently" is the same failure this project
+keeps meeting: a check reporting over a scope it does not cover.
+
 ### Treatment delivery and independence, re-derived rather than trusted
 
 - Overlay sha256 (first 32) `eb2a63fa5a675f23cedb79f5f005a4ed`, shipped v1.0
