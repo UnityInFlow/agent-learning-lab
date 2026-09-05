@@ -31,6 +31,20 @@
 # scored would let a batch be re-run until the number looked right.
 set -uo pipefail
 cd "$(dirname "$0")/../.." || exit 1
+
+# KEEP THE MACHINE AWAKE FOR THE WHOLE BATCH. Batch 1 (08:33:11Z-09:08:29Z, 2026-09-05) ran
+# across THREE idle sleeps - 08:41:58Z, 08:55:03Z and 09:04:11Z - and two of its five
+# gate-passing runs span one. PROMPT §4 step 6 says do not run across a machine sleep, and
+# E-006 exclusion 2 then costs those runs their duration, which is a registered outcome. A
+# sentence telling the operator to disable sleep is L3; this is the L2 version, and it covers
+# the batch rather than the session that launched it.
+if command -v caffeinate >/dev/null 2>&1 && [[ "${E006_CAFFEINATED:-0}" != "1" ]]; then
+  echo "run-e006: re-executing under caffeinate -i so the batch cannot span an idle sleep"
+  E006_CAFFEINATED=1 exec caffeinate -i "$0" "$@"
+fi
+[[ "${E006_CAFFEINATED:-0}" == "1" ]] \
+  || echo "run-e006: WARNING - caffeinate is unavailable, so an idle sleep can still contaminate durations" >&2
+
 LAB="$(pwd)"
 OBS="$(cd "$LAB/../agent-observatory" && pwd)"
 
@@ -50,7 +64,9 @@ OVERLAY_FILE="$OVERLAY_DIR/.claude/agents/backend-feature-implementer.md"
 EXPECT_OVERLAY_HASH="59c2b5db71f4c01e22a51589a1febdf9"
 EXPECT_BENCH_SHA="0448643"
 EXPECT_MODEL="claude-haiku-4-5-20251001"
-EXPECT_CLAUDE="2.1.260"
+EXPECT_CLAUDE="${EXPECT_CLAUDE:-2.1.261}"   # batch 2. Batch 1 ran wholly on 2.1.260 and was aborted;
+                                           # the bump is E-006's fifth disclosed harness move, schema re-probed
+                                           # on run fee79c79 before batch 2 (verdict=match).
 
 fail() { echo "run-e006: $*" >&2; exit 1; }
 

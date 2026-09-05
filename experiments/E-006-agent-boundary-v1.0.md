@@ -195,7 +195,9 @@ Probe scripts and all 21 transcripts: `evidence/b04/init-schema-probe.sh`,
 - [ ] starting commit / benchmark revision SHA — `0448643`, the sha B2, E-002, E-003 and E-004 ran on
 - [ ] task + revision — BE-003, `evaluator.sh` version `1.0.0`
 - [ ] harness + version — one `claude` CLI version for all runs, recorded per run and asserted
-      identical across arms after the batch. **Currently `2.1.260`**; a move mid-batch voids the batch
+      identical across arms after the batch. **Registered `2.1.260` at the prediction commit; batch 1
+      ran wholly on it and was aborted; batch 2 runs wholly on `2.1.261`, disclosed as the fifth
+      harness move with its schema re-probe on record.** A move mid-batch voids the batch
 - [ ] model — `claude-haiku-4-5-20251001`, the id B2's claude arm registered, pinned in **both**
       the overlay frontmatter and the runner's `--model`
 - [ ] permission mode and `--allowedTools` — runner default, identical on both arms
@@ -258,7 +260,53 @@ this batch and are not arms of it; no E-006 verdict is computed against a stored
 and verify-agent-delivery.sh (9 of 9), the latter also run against a copy of the runner with the
 guard deleted, where cases A, B and C go red.`
 
-## Runs
+## Runs — batch 1 ABORTED, 2026-09-05. Recorded, not hidden, and not scored
+
+**Batch 1 ran 08:33:11Z–09:08:29Z on claude `2.1.260` and produced 5 gate-passing runs of the
+20 registered.** It is abandoned as a batch. Nothing is deleted: all 20 run records, 20 kept
+worktrees and 20 `init` schema verdicts stay on disk and are cited below.
+
+| What happened | Count | Consequence |
+|---|---|---|
+| gate-passing runs (`evaluation.exitCode 0`) | **3 treatment, 2 control** | valid observations, but far short of the registered `n = 10` per arm |
+| **claude session limit**, first hit 09:00:16Z | **15 runs**, 7 treatment + 8 control | every one `taskAttempted=false`, `changedFiles=0`, `failureClass F13`, `infrastructureFailure=true`, ~23 s each. **E-006 exclusion 3 verbatim**: terminated by a session limit, excluded with its count reported |
+| **machine idle sleep** at 08:41:58Z, 08:55:03Z, 09:04:11Z | **2 of the 5** gate-passing runs span one | §4 step 6 says do not run across a machine sleep; exclusion 2 costs those runs their *duration*, a registered outcome |
+
+**Why a fresh batch rather than completing the shortfall.** The runtime moved to `2.1.261`
+after the batch ended, so any run added now would sit beside 20 runs recorded on `2.1.260`, and
+this experiment's own controlled-variable line says *one claude CLI version for all runs* and
+*a move mid-batch voids the batch*. Stitching the shortfall on would build exactly the defect
+the clause forbids. Batch 2 therefore runs **entirely on one version**, interleaved and
+concurrent as registered.
+
+**The failure the harness caught, and the one it did not.** The runner classified all 15 as F13
+rather than F03 — a quota failure recorded as infrastructure, not as a fact about the agent —
+and that classification came through the structural `result`-record check added with the
+output-format move, which is the first thing it has caught. What nothing caught was the idle
+sleep: the driver now re-executes under `caffeinate -i`, which is the L2 version of a sentence
+telling the operator to disable sleep.
+
+### The fifth harness move, disclosed before batch 2
+
+`2.1.260 → 2.1.261`, an automatic CLI update between batches. Precedents: `2.1.251 → 2.1.259`
+(stop 6), the overlay force-add (author decision 2, stop 8), `2.1.259 → 2.1.260` (stop 8), and
+the `--agent` + output-format move above.
+
+**Author decision 8 was applied before this was accepted, not after.** The delivered schema was
+re-read on the new runtime through the real runner before any batch-2 run existed:
+`EXP-B4-PREFLIGHT-2161`, run `fee79c79-d2b8-4db7-a8f1-1bba1b4ed77b`, **`init.tools` =
+`["Read","Edit","Write","Bash"]` against the identical declared line, `verdict=match`**,
+evaluator exit 0 at 7 of 7. So the overlay is still the treatment on `2.1.261` and row 0a does
+not fire. Had it fired, this would have gone to the author instead.
+
+**What stays the author's.** `TRACK-B-STATE.md` reserves *"whether a runtime-version bump should
+VOID an open batch"* for the author as a general policy, and that is untouched. This case did
+not need it: batch 1 was already aborted by the session limit, and the version rule E-006 itself
+registered — one version for all runs of a batch — decides batch 2 without a new judgement.
+
+`Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-05, before the first batch-2 run.`
+
+## Runs — batch 2, as registered
 
 **10 treatment + 10 control, interleaved.** Deliberate-failure arm registered separately at §4
 step 9. Budget ≈ 20 × $0.15 = **$3.00**.
