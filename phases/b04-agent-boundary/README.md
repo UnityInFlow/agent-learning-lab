@@ -323,8 +323,8 @@ learning:
     description is L3 and only the tool list constrains.
   observed_effect: >
     On the registered comparison, n=10 per arm: NOTHING the gate asks about moved. Acceptance
-    7/7 on 20 of 20. change-focus 1 on 20 of 20 - and on 70 of 70 across this task's whole
-    history. changedFiles 3 on 20 of 20, the task's floor. maintainability anchor 2 on 3 of 10
+    7/7 on 20 of 20. change-focus 1 on 20 of 20 - and on 73 of 73 across every scored
+    BE-003/claude-code/claude-haiku-4-5-20251001 run. changedFiles 3 on 20 of 20, the task's floor. maintainability anchor 2 on 3 of 10
     vs 1 of 10, inside its MDE. Cost FELL 6%. The only registered outcome to clear an MDE was
     toolCalls, +7.5 median with non-overlapping quartiles - a cost co-variate, not a gate outcome.
   unexpected_effect: >
@@ -356,8 +356,10 @@ learning:
   All three are in the §5 table above with their evidence paths. *(vs a concurrent plain control,
   because B3 closed REJECT and left no overlay to compare against; disclosed in the table.)*
 - **Did the diff become more focused? NO — and on this task it could not have.** `change-focus` is
-  1 on **70 of 70** scored runs and `changedFiles` sits at the task's floor of 3. **A variable
-  with no variance cannot record an improvement.** This is the answer, not a deferral.
+  1 on **73 of 73** scored `BE-003`/`claude-code`/`claude-haiku-4-5-20251001` runs and
+  `changedFiles` sits at the task's floor of 3. **A variable with no variance cannot record an
+  improvement.** *(Scope matters and is not decoration: the one `change-focus = 2` in the corpus,
+  run `514b094e`, is a **codex**-arm run. The category is dead on this model, not in itself.)* This is the answer, not a deferral.
 
 | workbook item | answered |
 |---|---|
@@ -410,7 +412,7 @@ every row below as "vs concurrent plain control".
 | *"3 comparisons vs B3"* — comparison 1, **deterministic gate outcome** | `evidence/b04/batch-20260905T095044Z/manifest.tsv`, 20 runs; per-run `evaluation.exitCode 0`, `acceptanceCriteriaPassed 7/7`, both arms 10 of 10 | **L2** — `check-run-gate.sh` executes and returns 0/1 per run; `verify-run-gate-checker.sh` proves it rejects, 13 cases | `./tools/check-run-gate.sh <record.json>` on each id in the manifest; `echo $?` |
 | *"3 comparisons vs B3"* — comparison 2, **cost and effort co-variates** | `evidence/b04/report-e006.py`; medians treatment vs control `toolCalls` 27 / 19.5, `modelCalls` 30 / 21.5, `estimatedCost` 0.144 / 0.153, duration 124 s / 95.5 s, `n = 10` per arm | **L2** — the script recomputes from committed run records and asserts runtime and model are unmoved rather than assuming | `python3 evidence/b04/report-e006.py` |
 | *"3 comparisons vs B3"* — comparison 3, **rubric quality** | 20 codex sheets under `findings/codex/`, `rubric_sha 396e1799eb2b` in each sheet's own provenance block; `maintainability` anchor 2 on **3 of 10** treatment vs 1 of 10 control | **L2** — `verify-sheet-category-checker.sh`, 11 cases, proves the category checker rejects a malformed sheet | read `rubric_sha` and `categories[].score` from each sheet; re-score any id with `./tools/codex-score.sh benchmark/rubrics/backend-quality.yaml --run-id <id>` |
-| *"record specifically whether the **diff became more focused**"* | `change-focus` = **1 on every scored run**: 60 of 60 before this stop, **70 of 70** including arm G's window. `result.changedFiles` = 3 on 20 of 20 in batch 2 and 10 of 10 in arm G's window — the task's floor | **L2** for the measurement, **L3 for the gate's intent** — the number is produced by an executing scorer, but *"more focused"* cannot be answered on an instrument whose focus metric is a constant | count `diff --git` headers in `evidence/b04/*/diffs/*.diff`; read `change-focus` from any sheet |
+| *"record specifically whether the **diff became more focused**"* | `change-focus` = **1 on 73 of 73** scored `BE-003`/`claude-code`/`claude-haiku-4-5-20251001` runs, counted across the corpus tonight; the corpus's only `change-focus = 2` is a **codex**-arm run (`514b094e`) and is outside this scope. `result.changedFiles` = 3 on 20 of 20 in batch 2 and 10 of 10 in arm G's window — the task's floor | **L2** for the measurement, **L3 for the gate's intent** — the number is produced by an executing scorer, but *"more focused"* cannot be answered on an instrument whose focus metric is a constant | count `diff --git` headers in `evidence/b04/*/diffs/*.diff`; read `change-focus` from any sheet |
 | **The answer to that clause, stated plainly** | **No. The diff did not become more focused, and on this task it could not have.** `change-focus` has no variance to move and `changedFiles` sits at its floor | **L2** — the constancy is measured across 70 runs, not assumed | as above |
 | *"the delivered `init.tools` schema recorded per arm, before the prediction commit"* (author decision 8) | `evidence/b04/init-schema/` — 53 read-backs, two populations: **22 at `n=4`/`verdict=match`**, **31 at `n=29`/`verdict=recorded-only`** | **L2** — `check-init-schema.sh` runs per run and writes the file; `verify-init-schema-check.sh`, 17 cases | `grep -h 'delivered n=' evidence/b04/init-schema/*.txt \| sort \| uniq -c` |
 | *"the treatment proved to have reached the model, and proved not to have reached the control"* | treatment `delivered n=4 ["Read","Edit","Write","Bash"]`, `declared n=4`, `verdict=match`; control `no overlay given`. **`customization.agentHash` is `null` on BOTH arms and is NOT the proof** — the API does not persist it | **L2** — the read-back is written by something that executes inside the run | open any treatment and any control file in `evidence/b04/init-schema/` |
@@ -424,7 +426,7 @@ every row below as "vs concurrent plain control".
 
 **`n = 10` per arm on batch 2 and `n = 5` per cell on arm G.** §5 says nothing from `n < 5` is a
 property; nothing here is stated as one. But the deeper limit is not `n`: **two of the three gate
-outcomes are constants on this instrument.** `change-focus` is 1 on 70 of 70 and `changedFiles` is
+outcomes are constants on this instrument.** `change-focus` is 1 on 73 of 73 *on this model* and `changedFiles` is
 3 at the task's floor. No sample size rescues a variable that does not vary, which is precisely
 why author decision 9 adds BE-004 from stop 12 — and why B4's verdict is a statement about this
 task, not about the boundary.

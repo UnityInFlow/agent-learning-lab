@@ -749,8 +749,18 @@ Zero null cells in 40.
 | `test-quality` | 2, 1, 1, 1, 1 | 1, 1, 1, 1, 1 |
 | `change-focus` | **1, 1, 1, 1, 1** | 1, 1, 1, 1, 1 |
 
-**`change-focus` is 1 on 10 of 10 here**, which extends the run of 1s C2 recorded at 60 of 60 to
-**70 of 70** scored `claude-code`/haiku runs on this task. F5's reasoning — *a boundary cannot buy
+**`change-focus` is 1 on 10 of 10 here.** Counted across the whole corpus tonight rather than
+added up from memory: **1 on 73 of 73** scored `BE-003` / `claude-code` /
+`claude-haiku-4-5-20251001` runs, every sheet at `rubric_sha 396e1799eb2b`.
+
+> **CORRECTION, 2026-09-05T18:2xZ, made by me against my own earlier text in this file.** I first
+> wrote *"70 of 70"*, arrived at by adding arm G's 10 to C2's 60. The corpus count is **73**, and
+> the arithmetic was never the point: **there is one `change-focus = 2` in the corpus** — run
+> `514b094e`, scored 2026-08-30 at the same registered rubric sha. It sits **outside** the scoped
+> population (`product codex`, `model gpt-5.6-sol`, `changedFiles` 2), so C2's scoping was right
+> and only my count was wrong. **But it changes what may be said.** `change-focus` is not a dead
+> category *per se* — on the codex arm its two scored runs are a 1 and a 2. It is dead **on this
+> model**, and every sentence in this project that calls it a constant must carry that scope. F5's reasoning — *a boundary cannot buy
 focus the task has already spent, and removing it cannot spend focus the task never had* — is
 supported, and the category remains dead on BE-003 in exactly the way `blocked_on_author` already
 says it is.
