@@ -1,0 +1,129 @@
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+index ab3fe64..5a96a60 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+@@ -33,5 +33,6 @@ enum class ErrorCode {
+     ORDER_ALREADY_EXISTS,
+     SHIPMENT_NOT_FOUND,
+     SHIPMENT_ALREADY_EXISTS,
++    SHIPMENT_CANCELLED,
+     VALIDATION_FAILED,
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7..8690366 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping
+ import org.springframework.web.bind.annotation.RestController
+ 
+ /**
+- * Baseline shipment API: create, read, list.
+- *
+- * There is deliberately no way to confirm a shipment. That is BE-003.
++ * Shipment API: create, read, list, and confirm.
+  */
+ @RestController
+ @RequestMapping("/shipments")
+@@ -53,4 +51,30 @@ class ShipmentController(
+ 
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
++
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        if (shipment.status == ShipmentStatus.CANCELLED) {
++            throw ConflictException(
++                ErrorCode.SHIPMENT_CANCELLED,
++                "Cannot confirm a cancelled shipment with id '$shipmentId'",
++            )
++        }
++
++        // If already CONFIRMED, do nothing (idempotent). If CREATED, transition to CONFIRMED.
++        val updatedShipment = if (shipment.status == ShipmentStatus.CREATED) {
++            shipment.copy(status = ShipmentStatus.CONFIRMED)
++        } else {
++            shipment
++        }
++
++        repository.save(updatedShipment)
++        return updatedShipment
++    }
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+index 64986b7..07f9cdf 100644
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+@@ -81,4 +81,67 @@ class ShipmentControllerTest {
+             .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+             .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+     }
++
++    @Test
++    fun `confirms a shipment in CREATED status`() {
++        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
++
++        mockMvc.perform(
++            post("/shipments/S-4/confirm")
++                .contentType(MediaType.APPLICATION_JSON),
++        )
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-4"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `confirming an already CONFIRMED shipment succeeds and changes nothing`() {
++        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
++
++        // First confirm
++        mockMvc.perform(
++            post("/shipments/S-5/confirm")
++                .contentType(MediaType.APPLICATION_JSON),
++        )
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++
++        // Second confirm should succeed and still be CONFIRMED
++        mockMvc.perform(
++            post("/shipments/S-5/confirm")
++                .contentType(MediaType.APPLICATION_JSON),
++        )
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `rejecting confirmation of a CANCELLED shipment with error envelope`() {
++        // Create and manually set to CANCELLED state via repository
++        val shipment = Shipment(
++            shipmentId = "S-6",
++            orderId = "O-1",
++            carrier = "DHL",
++            status = ShipmentStatus.CANCELLED,
++        )
++        repository.save(shipment)
++
++        mockMvc.perform(
++            post("/shipments/S-6/confirm")
++                .contentType(MediaType.APPLICATION_JSON),
++        )
++            .andExpect(status().isConflict)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_CANCELLED"))
++    }
++
++    @Test
++    fun `rejecting confirmation of non-existent shipment with error envelope`() {
++        mockMvc.perform(
++            post("/shipments/S-missing/confirm")
++                .contentType(MediaType.APPLICATION_JSON),
++        )
++            .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
++    }
+ }

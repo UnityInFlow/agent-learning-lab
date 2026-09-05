@@ -1,0 +1,26 @@
+# E-006 batch 20260905T095044Z
+# overlay 59c2b5db71f4c01e22a51589a1febdf9 · benchmarks 0448643 · claude 2.1.261 · model claude-haiku-4-5-20251001
+# common: RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-B4-AGENT-BOUNDARY MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1
+# treatment adds: CUSTOMIZATION=../agent-learning-lab/build/customizations/agent-v1.0 AGENT=backend-feature-implementer VARIANT=agent-v1.0
+# control adds:   VARIANT=baseline
+seq	arm	run_id	exit	worktree	init_schema_verdict
+01	treatment	1c905fc9-f7bf-4308-9a34-5a86a7497545	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1c905fc9-f7bf-4308-9a34-5a86a7497545	verdict=match
+01	control	2eab4597-4dc6-4fdc-925c-03fca513dc15	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2eab4597-4dc6-4fdc-925c-03fca513dc15	verdict=recorded-only
+02	treatment	b9a62cea-3cb8-4a96-b75a-5ce96bd73637	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b9a62cea-3cb8-4a96-b75a-5ce96bd73637	verdict=match
+02	control	e45e9ec7-4e91-448f-89ca-1cae7b290342	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e45e9ec7-4e91-448f-89ca-1cae7b290342	verdict=recorded-only
+03	treatment	2ca123ef-3f55-4ad3-8d8c-c5bb0350c480	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2ca123ef-3f55-4ad3-8d8c-c5bb0350c480	verdict=match
+03	control	67547dbc-a4de-4d95-ab46-aa54b1bbb11b	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-67547dbc-a4de-4d95-ab46-aa54b1bbb11b	verdict=recorded-only
+04	treatment	6200cb15-73db-4c1b-a1f4-2165ec38d30e	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6200cb15-73db-4c1b-a1f4-2165ec38d30e	verdict=match
+04	control	a42f949b-d408-47af-b384-8b99d07d60ca	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-a42f949b-d408-47af-b384-8b99d07d60ca	verdict=recorded-only
+05	treatment	079f72e9-60e0-4a06-9f72-ce4db89de82d	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-079f72e9-60e0-4a06-9f72-ce4db89de82d	verdict=match
+05	control	6858c44a-1631-47a4-ab55-4f4dbb7de8d4	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6858c44a-1631-47a4-ab55-4f4dbb7de8d4	verdict=recorded-only
+06	treatment	7e2626fd-91ba-423e-911e-7dda7b3726ab	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-7e2626fd-91ba-423e-911e-7dda7b3726ab	verdict=match
+06	control	1d2eab3a-5de3-4a73-a899-f616c19f4e0d	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1d2eab3a-5de3-4a73-a899-f616c19f4e0d	verdict=recorded-only
+07	treatment	0d1871ab-7db4-41da-82c9-db43d4ea7eee	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0d1871ab-7db4-41da-82c9-db43d4ea7eee	verdict=match
+07	control	1d892afd-75ba-49aa-b387-2543f99bde34	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1d892afd-75ba-49aa-b387-2543f99bde34	verdict=recorded-only
+08	treatment	d79e3964-6a2e-4acb-b13d-4d4f750d255f	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-d79e3964-6a2e-4acb-b13d-4d4f750d255f	verdict=match
+08	control	9b27ba37-a9d9-439b-a30f-f2b2aebdc038	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9b27ba37-a9d9-439b-a30f-f2b2aebdc038	verdict=recorded-only
+09	treatment	2a8a616e-05cb-4926-814a-1b46aab5592e	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2a8a616e-05cb-4926-814a-1b46aab5592e	verdict=match
+09	control	323591a9-bb15-48c7-9d8e-aa3a80111aa9	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-323591a9-bb15-48c7-9d8e-aa3a80111aa9	verdict=recorded-only
+10	treatment	57a61b29-aacb-4801-afcb-ca0cc7de0452	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-57a61b29-aacb-4801-afcb-ca0cc7de0452	verdict=match
+10	control	502bf6f1-c167-4115-b0a7-600bd75d0e27	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-502bf6f1-c167-4115-b0a7-600bd75d0e27	verdict=recorded-only

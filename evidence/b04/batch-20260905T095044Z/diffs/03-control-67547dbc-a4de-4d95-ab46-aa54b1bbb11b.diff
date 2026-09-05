@@ -1,0 +1,54 @@
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+index ab3fe64..5a743ea 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+@@ -33,5 +33,6 @@ enum class ErrorCode {
+     ORDER_ALREADY_EXISTS,
+     SHIPMENT_NOT_FOUND,
+     SHIPMENT_ALREADY_EXISTS,
++    SHIPMENT_CANNOT_BE_CONFIRMED,
+     VALIDATION_FAILED,
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7..ab05de4 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping
+ import org.springframework.web.bind.annotation.RestController
+ 
+ /**
+- * Baseline shipment API: create, read, list.
+- *
+- * There is deliberately no way to confirm a shipment. That is BE-003.
++ * Shipment API: create, read, list, confirm.
+  */
+ @RestController
+ @RequestMapping("/shipments")
+@@ -53,4 +51,27 @@ class ShipmentController(
+ 
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
++
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        if (shipment.status == ShipmentStatus.CANCELLED) {
++            throw ConflictException(
++                ErrorCode.SHIPMENT_CANNOT_BE_CONFIRMED,
++                "Cannot confirm shipment in CANCELLED status",
++            )
++        }
++
++        if (shipment.status == ShipmentStatus.CREATED) {
++            val confirmed = shipment.copy(status = ShipmentStatus.CONFIRMED)
++            return repository.save(confirmed)
++        }
++
++        return shipment
++    }
+ }
