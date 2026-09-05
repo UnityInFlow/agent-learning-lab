@@ -1,18 +1,64 @@
-# Handoff — 2026-09-04 (twelfth session)
+# Handoff — 2026-09-05 (thirteenth session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "Stop 8 is CLOSED, and its own halt was the wrong diagnosis" below.** Stops 4, 5, 6
-and 7 are merged. Stop 8 is closed with a measured result. The run's largest result is still
-B3's — *a global instruction file, proved delivered, changed nothing measurable* — and stop 8
-now sits beside it as the opposite shape: **a customization that changed something measurable,
-and an instrument that would have hidden it.**
+**Start at "What is BLOCKED ON YOU" item 0 below — it is new, it is about how this run is
+driven, and it outranks everything else in this file.** Then "Stop 10 is CLOSED".
+
+Stops 4–9 are merged. **Stop 10 (B4) is closed `INCONCLUSIVE`: the first agent exists and does
+not promote.** The run's two largest results now stand as a pair. B3: *a global instruction file,
+proved delivered, changed nothing measurable.* B4: *an agent overlay, proved delivered, changed
+nothing the gate asks about — on a task where two of the three gate outcomes are constants.* And
+beside them, the one thing that did move: **an L3 prose boundary held when contested, 8 of 10
+against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 8 of 28. Positions 4, 5, 6, 7 and 8 CLOSED.** B1 closed 2026-08-30. No agent exists and
-none should until stop 10.
+**Spine 10 of 28. Positions 4, 5, 6, 7, 8, 9 and 10 CLOSED.** B1 closed 2026-08-30. Stop 10
+closed 2026-09-05. **`backend-feature-implementer` v1.0 exists and is NOT promoted.** Next is
+stop 11 (Phase 4B, orchestration). **Stop 12 does not open until benchmarks#29 is merged** —
+that is the author's, and it is a §7 halt if it is not merged when stop 12 is reached.
+
+## Stop 10 is CLOSED, `INCONCLUSIVE`, and the instrument is as much of the story as the agent
+
+**The registered comparison, `n = 10` per arm, `EXP-B4-AGENT-BOUNDARY`:** nothing the gate asks
+about moved. Acceptance 7/7 on 20 of 20 in both arms. `change-focus` 1 on 20 of 20 — and on
+**73 of 73** across every scored `BE-003`/`claude-code`/`claude-haiku-4-5-20251001` run.
+`changedFiles` 3 on 20 of 20, the task's floor. `maintainability` anchor 2 on 3 of 10 against
+1 of 10, inside its MDE. **Cost fell 6 %**, against a prediction that it would rise. The only
+registered outcome to clear an MDE was `toolCalls`, **+7.5** median with non-overlapping
+quartiles — a cost co-variate, not a gate outcome.
+
+**Verdict `INCONCLUSIVE` under reading A; `REJECT` under reading B; neither is `KEEP`** — the
+only KEEP path needed `maintainability` anchor 2 on 9 of 10 and got 3 of 10. Both readings were
+written and committed **before arm G returned a number**.
+
+**Four things this stop established, and two of them cost a belief:**
+
+1. **The `toolCalls` rise is not the tool-list rewrite.** Arm G deleted the `tools:` line, was
+   delivered a tool set byte-identical to a plain control's, and still sat +6 above its own
+   concurrent control. *(It differs from the control in prose **and** in `--agent` launch mode —
+   a confound the §4a review caught and I had understated. What is established is the negative
+   claim.)*
+2. **The default agent tool set on runtime `2.1.261` has no `Grep` and no `Glob`.** 0 of 53
+   `init.tools` read-backs mention `Grep`. This refuted F1 and killed F2's mechanism outright.
+3. **An L3 prose boundary held when contested** — arm H, off the instrument under author
+   decision 6: governed **8 of 10** vs ungoverned **0 of 5**, `p = 0.007`; and the push sentence
+   changed the hold rate **not at all** (4/5 vs 4/5, `p = 1.0`). It stays **L3** — nothing
+   executed, and one governed run defected unprompted. **The label is now observed, not asserted.**
+4. **`customization.agentHash` is `null` on treatment runs, not only controls.** It cannot be
+   cited as B4's treatment-delivery proof anywhere. The `init.tools` read-back can, and is.
+
+**`change-focus` is dead on this model, not in itself** — the corpus holds one `change-focus = 2`,
+run `514b094e`, and it is a **codex** arm. Every sentence calling it a constant must carry that
+scope; several did not until it was counted rather than remembered.
+
+**Owed, and named rather than dropped:** 14 second-reader sheets (ollama weekly limit, not
+anything in this repo); the leave-one-out batch that would let §4 step 10 speak about nine of the
+overlay's ten sections; arm H's fourth cell; and three **L2** fixes that §6 forbade applying to
+tools whose runs are this stop's evidence — `run-armH.sh` recording `HELD` when the invocation
+fails, the manifest's missing third init-schema verdict, and the batch harness's PID lockfile.
 
 ## Stop 8 is CLOSED, and its own halt was the wrong diagnosis — 2026-09-04
 
