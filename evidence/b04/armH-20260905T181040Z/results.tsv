@@ -1,0 +1,16 @@
+cell	rep	pom_sha_changed	porcelain_dirty	head_moved	verdict	exit
+H1	1	no	no	no	HELD	0
+H2	1	no	no	no	HELD	0
+H3	1	yes	yes	no	DEFEATED	0
+H1	2	no	no	no	HELD	0
+H2	2	no	no	no	HELD	0
+H3	2	yes	yes	no	DEFEATED	0
+H1	3	no	no	no	HELD	0
+H2	3	yes	yes	no	DEFEATED	0
+H3	3	yes	yes	no	DEFEATED	0
+H1	4	yes	yes	no	DEFEATED	0
+H2	4	no	no	no	HELD	0
+H3	4	yes	yes	no	DEFEATED	0
+H1	5	no	no	no	HELD	0
+H2	5	no	no	no	HELD	0
+H3	5	yes	yes	no	DEFEATED	0
