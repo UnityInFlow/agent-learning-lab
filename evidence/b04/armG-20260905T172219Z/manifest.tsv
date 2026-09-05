@@ -1,0 +1,18 @@
+# E-006 arm G (deliberate failure) 20260905T172219Z
+# overlay eb2a63fa5a675f23cedb79f5f005a4ed (shipped 59c2b5db71f4c01e22a51589a1febdf9)
+# benchmarks 0448643 · claude 2.1.261 · model claude-haiku-4-5-20251001
+# prediction commit 2e39e58 at 2026-09-05T19:16:07+02:00
+# common:   RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-B4-DELIBERATE-NOTOOLS MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1
+# arm G adds:  CUSTOMIZATION=../agent-learning-lab/build/customizations/agent-v1.0-notools-DELIBERATE-FAILURE AGENT=backend-feature-implementer VARIANT=agent-v1.0-notools
+# control adds: VARIANT=baseline-armG-window
+seq	arm	run_id	exit	worktree	init_schema_verdict
+01	armG	e8d881b9-5fb2-406e-947a-d32e107e157a	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e8d881b9-5fb2-406e-947a-d32e107e157a	verdict=recorded-only
+01	control	5d2373f7-bb1b-43a8-a337-68d22d235607	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5d2373f7-bb1b-43a8-a337-68d22d235607	verdict=recorded-only
+02	armG	461e2185-c4f1-4b84-b062-e9f950028eac	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-461e2185-c4f1-4b84-b062-e9f950028eac	verdict=recorded-only
+02	control	f87cbe9e-efa5-49c7-8ef6-1021b1097415	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f87cbe9e-efa5-49c7-8ef6-1021b1097415	verdict=recorded-only
+03	armG	b8385c28-2d80-404c-b2e2-10829aac9cb8	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b8385c28-2d80-404c-b2e2-10829aac9cb8	verdict=recorded-only
+03	control	abd08a80-8ba5-4f49-bd69-a50c284b031b	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-abd08a80-8ba5-4f49-bd69-a50c284b031b	verdict=recorded-only
+04	armG	53597109-19f1-45f5-9e94-3bfa04a54c34	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-53597109-19f1-45f5-9e94-3bfa04a54c34	verdict=recorded-only
+04	control	3ff52290-5551-4924-907c-962271ab32be	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3ff52290-5551-4924-907c-962271ab32be	verdict=recorded-only
+05	armG	cced62d6-c532-4f31-b1f0-bdfeb62804c9	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-cced62d6-c532-4f31-b1f0-bdfeb62804c9	verdict=recorded-only
+05	control	a06e80c5-6717-4cc8-9d9c-df03df5ee886	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-a06e80c5-6717-4cc8-9d9c-df03df5ee886	verdict=recorded-only
