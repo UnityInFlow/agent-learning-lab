@@ -635,3 +635,83 @@ invented after the data.
   `1.0.0`, same rubric sha `396e1799eb2b`, same model `claude-haiku-4-5-20251001`, same runner
   commit as batch 2, same runtime `2.1.261`, `ISOLATE_USER_SETTINGS=1`, `KEEP=1`.
 - **`n = 5`, so nothing below is stated as a property** — only as true of these five runs.
+
+---
+
+## The decision rule's gap, and how row 5 is read — written BEFORE arm G's numbers exist
+
+`Written by Opus 5 (claude-opus-5), autonomously, 2026-09-05T17:2xZ, after the batch-2 report
+(step 8) and BEFORE any arm-G run had returned. Adopting validator pass 13's correction 13.3
+(findings/track-b-validation-2026-09-05-3.md), which says the reading must be written down,
+dated, and the verdict computed BOTH ways, before the rule is applied.`
+
+**The gap, stated plainly.** The rule is applied in order, stopping at the first row that fires.
+On batch 2, rows 0a, 0b, 1, 2, 3 and 4 all fail to fire. Row 5 says *"everything lands inside
+its MDE"* — and `toolCalls` does not: median 27 vs 19.5, +7.5 against a registered MDE of +5,
+with non-overlapping quartiles. **So no row fires cleanly. The ladder is not total**, which is
+the same defect this project has already documented about the rubric's own anchors, now in
+E-006's decision rule and put there by me.
+
+**Why this is written now rather than at step 11.** A rule written after seeing the result is
+not a rule, and a rule *repaired* after seeing the result is barely better. Arm G is running as
+this is written and its `toolCalls` median is the number that decides F2. If the reading below
+were chosen after that number landed, the choice would be unfalsifiable. It is therefore fixed
+here, with both verdicts computed, and step 11 will apply it without re-opening it.
+
+### Reading A — row 5 means "no outcome the gate asks about moved"
+
+`toolCalls` is a **cost co-variate registered under P5**, not one of the outcomes rows 1–3 test.
+The rule already has a cost row: **row 4**, *"cost ≥ +25 % and no outcome improved beyond its
+MDE"* — and it names `estimatedCost`, which on this batch went **down 6 %**. Under reading A the
+rule's structure is intact: row 4 owns cost and did not fire because cost did not rise; row 5's
+*"everything"* ranges over the gate outcomes rows 1–3 concern.
+
+**Verdict under reading A: `INCONCLUSIVE`, and the gate is answered `no` on the evidence
+available** — with §5's statement that two of three gate outcomes were unmeasurable on this
+instrument *before* the batch.
+
+### Reading B — row 5 means literally everything registered, P5 included
+
+Then row 5 does not fire either, the rule is incomplete, and a row must be added. The row that
+belongs there, and it is **added after the data and marked as such**:
+
+| # | Condition | Verdict |
+|---|---|---|
+| **6** *(added 2026-09-05, AFTER the batch, and it is disclosed as added after)* | a registered co-variate moves beyond its MDE while no gate outcome does | **REJECT** — v1.0 changes what the agent does without changing anything the gate asks about |
+
+**Verdict under reading B: `REJECT`.**
+
+### The two readings disagree on the label and agree on the consequence
+
+**Neither is `KEEP`.** Row 2 — *"`maintainability` anchor 2 on ≥ 9 of 10 treatment runs"*, the
+only KEEP path in the rule — needs 9 of 10 and got **3 of 10**. So `backend-feature-implementer`
+v1.0 does not promote on this evidence under either reading, and the practical difference
+between `INCONCLUSIVE` and `REJECT` is what the next stop is told: *"the instrument could not
+see it"* versus *"it moved and bought nothing."*
+
+**Adopted: reading A, and the reason is the rule's own structure, not the outcome it produces.**
+Row 4 exists precisely to catch *cost that buys nothing*; it names `estimatedCost`; and
+`estimatedCost` fell. Reading B requires me to add a row that duplicates row 4's job with a
+different metric, after seeing which metric moved. That is the shape of a rule written to fit
+its data. **Reading B's verdict is recorded above and is not discarded**: a reader who thinks
+row 4 should have named `toolCalls` gets `REJECT`, and the difference between us is one
+registered metric, stated rather than hidden.
+
+### What arm G can do to this, and what it cannot
+
+Arm G tests whether the +7.5 is **the boundary prose or the runtime's tool-list rewrite** (F2).
+Written before its numbers:
+
+- **If F2 holds** (arm G's median `toolCalls` ≤ 22 with the `tools:` line deleted and `Grep`/`Glob`
+  restored), the +7.5 is a **harness artefact** — the overlay's own Workflow section says
+  *"`Bash` with `grep` or `find` is how you search here"* because the runtime strips `Grep` and
+  `Glob` when `Bash` is present. Then reading A is not merely the rule's structure but the
+  substance: the co-variate that moved was not the agent. **The exit gate's "was this the agent,
+  or the harness?" is answered `harness`.**
+- **If F2 is refuted** (≥ 25), the +7.5 is the prose, the overlay demonstrably changes behaviour,
+  and reading B's `REJECT` becomes the more informative label even though reading A stays the
+  adopted one. **That is registered here as the case where the adopted reading is the less
+  interesting of the two**, so that it cannot later be presented as having anticipated the data.
+- **Neither outcome changes the verdict itself.** Arm G is a deliberate failure on its own
+  experiment key and enters no verdict. It changes the *sentence the exit gate writes*, not the
+  row that fires.
