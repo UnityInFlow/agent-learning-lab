@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-a42f949b-d408-47af-b384-8b99d07d60ca
+  mode:          run
+  run_id:        a42f949b-d408-47af-b384-8b99d07d60ca
+  evaluator_exit: 0
+  observatory:   http://localhost:8081/api/runs/a42f949b-d408-47af-b384-8b99d07d60ca
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.8mcRCVeZUL/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260905T110254Z
+  attachments:   3 file(s) under test, 3 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: refusals throw baseline ResourceNotFoundException and ConflictException, no ApiError constructed
+    evidence: ShipmentController.kt:60, ShipmentController.kt:66
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: status decision is sequential if statements, not an exhaustive when
+    evidence: ShipmentController.kt:65, ShipmentController.kt:72
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: body asserted and refusal envelope asserted, but no separate get re-reads state
+    evidence: ShipmentControllerTest.kt:100, ShipmentControllerTest.kt:110
+  - name: change-focus
+    score: 1
+    anchor_level: 1
+    reason: methods identical, but ErrorCode enum gains SHIPMENT_INVALID_STATE, neither method nor import
+    evidence: ApiError.kt:36
+ambiguous_categories: []
+```

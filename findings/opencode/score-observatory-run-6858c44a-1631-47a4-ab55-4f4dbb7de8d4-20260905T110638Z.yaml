@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6858c44a-1631-47a4-ab55-4f4dbb7de8d4
+  mode:          run
+  run_id:        6858c44a-1631-47a4-ab55-4f4dbb7de8d4
+  evaluator_exit: 0
+  observatory:   http://localhost:8081/api/runs/6858c44a-1631-47a4-ab55-4f4dbb7de8d4
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.x9IVtV8Lvl/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260905T110638Z
+  attachments:   3 file(s) under test, 3 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: refusals throw existing ApiException subclasses, no ApiError constructed
+    evidence: ShipmentController.kt:44, ShipmentController.kt:50
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: status decision is a bare if, not a when
+    evidence: ShipmentController.kt:49
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: body asserted and refusal envelope asserted, but no get re-read after confirm
+    evidence: ShipmentControllerTest.kt:100, ShipmentControllerTest.kt:120
+  - name: change-focus
+    score: 1
+    anchor_level: 1
+    reason: methods identical but class KDoc removed, a difference beyond confirm and imports
+    evidence: baseline ShipmentController.kt:15-19
+ambiguous_categories: []
+```

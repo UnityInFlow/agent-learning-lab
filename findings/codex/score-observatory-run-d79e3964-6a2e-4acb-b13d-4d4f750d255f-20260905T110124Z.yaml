@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality.yaml
+  rubric_sha:     396e1799eb2b
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-d79e3964-6a2e-4acb-b13d-4d4f750d255f
+  mode:           run
+  run_id:         d79e3964-6a2e-4acb-b13d-4d4f750d255f
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/d79e3964-6a2e-4acb-b13d-4d4f750d255f
+  attachments:    3 changed file(s), 3 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260905T110124Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "Both refusal paths throw existing ApiException subclasses."
+    evidence: "ShipmentController.kt:58, ShipmentController.kt:64"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "Status handling is split across if constructs with an else fallback."
+    evidence: "ShipmentController.kt:63, ShipmentController.kt:72"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Repeat body and refusal envelope are asserted, but persisted state is never re-read."
+    evidence: "ShipmentControllerTest.kt:112, ShipmentControllerTest.kt:117, ShipmentControllerTest.kt:136"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "ApiError enum and controller documentation change outside confirm."
+    evidence: "ApiError.kt:36, baseline/ApiError.kt:36, ShipmentController.kt:16, baseline/ShipmentController.kt:16"
+ambiguous_categories: []
