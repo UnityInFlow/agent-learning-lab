@@ -1,0 +1,15 @@
+diff --git a/sample-service/pom.xml b/sample-service/pom.xml
+index 4e0b538..ab5dc65 100644
+--- a/sample-service/pom.xml
++++ b/sample-service/pom.xml
+@@ -39,6 +39,10 @@
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-webmvc</artifactId>
+ 		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-actuator</artifactId>
++		</dependency>
+ 		<dependency>
+ 			<groupId>org.jetbrains.kotlin</groupId>
+ 			<artifactId>kotlin-reflect</artifactId>
