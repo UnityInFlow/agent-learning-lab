@@ -1,0 +1,19 @@
+--- agent-v1.0-notools   n=5
+    toolCalls      median=   23.000  range=21–30  Q1=21.000 Q3=29.000  [21, 21, 23, 29, 30]
+    modelCalls     median=   30.000  range=26–36  Q1=29.000 Q3=34.000  [26, 29, 30, 34, 36]
+    estimatedCost  median=    0.165  range=0.138835–0.243337  Q1=0.163 Q3=0.183  [0.138835, 0.162563, 0.164687, 0.182642, 0.243337]
+    durationS      median=  111.000  range=106.0–142.0  Q1=110.000 Q3=119.000  [106.0, 110.0, 111.0, 119.0, 142.0]
+    addedLines     median=   77.000  range=71–94  Q1=75.000 Q3=92.000  [71, 75, 77, 92, 94]
+    changedFiles   median=    3.000  range=3–3  Q1=3.000 Q3=3.000  [3, 3, 3, 3, 3]
+    acceptance 7/7 on 5 of 5; changedFiles==3 on 5 of 5, >=4 on 0
+--- baseline-armG-window   n=5
+    toolCalls      median=   17.000  range=14–20  Q1=16.000 Q3=17.000  [14, 16, 17, 17, 20]
+    modelCalls     median=   19.000  range=16–24  Q1=17.000 Q3=20.000  [16, 17, 19, 20, 24]
+    estimatedCost  median=    0.135  range=0.114392–0.15679  Q1=0.128 Q3=0.137  [0.114392, 0.128087, 0.134822, 0.136557, 0.15679]
+    durationS      median=   73.000  range=66.0–96.0  Q1=68.000 Q3=93.000  [66.0, 68.0, 73.0, 93.0, 96.0]
+    addedLines     median=   61.000  range=57–66  Q1=60.000 Q3=62.000  [57, 60, 61, 62, 66]
+    changedFiles   median=    3.000  range=3–3  Q1=3.000 Q3=3.000  [3, 3, 3, 3, 3]
+    acceptance 7/7 on 5 of 5; changedFiles==3 on 5 of 5, >=4 on 0
+
+F2 band (registered before the run): armG median toolCalls = 23  ->  23-24 -> NEITHER, registered as neither before the run
+Unregistered co-variate: delta vs its own concurrent control = +6 (armG 23 - control 17). Not a registered outcome; not a result.
