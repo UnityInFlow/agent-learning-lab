@@ -287,6 +287,52 @@ refuted.**
 instrument on this task and it is on record before the first run, not offered afterwards as an
 explanation for a null.
 
+### Amended 2026-09-05, after the step-5 preflight and BEFORE the first batch run
+
+**The preflight contradicted P1's mechanism sentence, and the sentence is wrong.** The row above
+says `changedFiles` is *"the required 3 on 19 of 19 controls and all three are forced by
+acceptance criteria 3, 4 and 5, so no passing diff is smaller — detectable only as HARM."* The
+count is right and the reason is not.
+
+| Claim in the registered row | Status | Evidence |
+|---|---|---|
+| 3 files on **19 of 19** controls | **holds** | `EXP-B2-BASELINE-CLAUDE` 9 of 9 and `EXP-B3-CONTROL-CLAUDE` 10 of 10, all at 3 |
+| the three are **forced** by the acceptance criteria | **FALSE** | **11 of 88 passing BE-003 runs changed 2 files**, and the evaluator passed every one at 7 of 7 criteria |
+| **no passing diff is smaller** | **FALSE** | `EXP-B3-INSTRUCTIONS-CLAUDE`: **4 of 10 passing runs** changed 2 files, same task, same model, same evaluator. The step-5 **control** did it too |
+
+**What the third file is.** Every 2-file passing run is a run that wrote **no test file**. B3's
+control wrote one on 10 of 10; B3's instruction arm on 6 of 10; the step-5 treatment wrote one
+(3 files) and the step-5 control did not (2 files). So the floor is **2, not 3**, and the gap
+between them is a test, not focus. A treatment that produced 2-file diffs would not be more
+focused; it would have stopped writing tests, which `test-quality` carries 25 rubric points for
+and which decision-rule row 3 already covers.
+
+**What does not change.** The registered threshold for row 1 — a 4th file on ≥ 5 of 10, `p <
+0.05` vs 0 of 10 — is **untouched**, and P1's direction and magnitude stand as registered. The
+prediction is not edited. What is corrected is a sentence about the task that was stated more
+strongly than the data supported, found before the batch rather than after it.
+
+### P6, registered here, before the first batch run
+
+**Direction.** The treatment arm writes a test file **at least as often** as the concurrent
+control. **Magnitude.** Detectable at this `n` only at **≥ 5 of 10 versus 0 of 10**
+(`p = 0.0325`); 4 of 10 versus 0 of 10 is `p = 0.087` and is **NOT DETECTABLE**, which is said
+now rather than after the count. **Mechanism.** The overlay's mission and completion rules
+require tests and verification before finishing, and BE-003's acceptance criteria demonstrably
+do not force one — so this is a place the overlay's L3 prose could actually move a measured
+outcome, in a task where two of three gate outcomes cannot move at all.
+
+**This is blocked_on_author item B, declared first for once.** That item recorded 4 of 10 treated
+runs writing no test against 0 of 10 controls at `p = 0.087` and said it *"was never a registered
+outcome, so it is not a result"*, and that making it one needs the outcome declared before the
+run. It is now declared before the run. It also says it needs `n ≥ 20` per arm; **this batch is
+`n = 10`, so a null here settles nothing** and is reported as not detectable, not as absence.
+
+`Registered by Opus 5 (claude-opus-5), autonomously, 2026-09-05, after the §4 step-5 preflight
+(runs 506e41ff treatment, 15c14398 control) and before any EXP-B4-AGENT-BOUNDARY run existed;
+the author did not review before the run. Re-derive with the changedFiles query over
+GET /api/runs joined on evaluation.exitCode == 0.`
+
 ## Deterministic evaluation
 
 `tasks/BE-003-confirm-shipment/evaluator.sh` version `1.0.0` decides correctness — exit 0 or the
