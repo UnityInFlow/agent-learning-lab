@@ -500,3 +500,138 @@ undramatic result is not a rule.
 4. **The gate's own outcome is unmeasurable in the direction it asks.** The largest threat to
    B4's *conclusion*, and it is a property of the task-plus-rubric pair, not of the agent.
 5. **A single machine, a single day, one runtime version.** As every stop in this track.
+
+---
+
+## Deliberate failure — arm G, `tools:` removed. Prediction registered BEFORE the run
+
+`Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-05T17:2xZ (see the commit for the
+exact time); the author did not review before the run. Written under PROMPT sha 6e693c0e340d.`
+
+**§4 step 9 requires a deliberate failure and §6 requires its prediction first. This one is the
+trap the step itself names.** `build/README.md#b4` registers exactly one trap:
+
+> *"if `tools:` is omitted, Copilot custom agents get **all tools**. Name them explicitly. And
+> remember the agent's description is Layer 3 — only the tool list constrains."*
+
+**Arm G deletes that one line and nothing else.**
+`build/customizations/agent-v1.0-notools-DELIBERATE-FAILURE/` is byte-identical to
+`agent-v1.0/` with line 5, `tools: Read, Edit, Write, Bash`, removed —
+`diff` reports `5d4` and nothing more. All ten prose sections, the `name:`, the `description:`
+and the `model:` pin are untouched.
+
+| | shipped v1.0 (treatment arm of batch 2) | arm G |
+|---|---|---|
+| overlay sha256, first 32 | `59c2b5db71f4c01e22a51589a1febdf9` | `eb2a63fa5a675f23cedb79f5f005a4ed` |
+| frontmatter `tools:` | `Read, Edit, Write, Bash` | **absent** |
+| `--agent backend-feature-implementer` | passed | **passed** |
+| experiment key | `EXP-B4-AGENT-BOUNDARY` | `EXP-B4-DELIBERATE-NOTOOLS` |
+
+**Why this and not the obvious one.** The obvious break is to install the overlay and withhold
+`--agent`. `run-agent.sh` **refuses** that (`section 5`: *"customization installs an agent
+overlay, and this run passes no `--agent`"*), so it tests the **guard**, which fixtures already
+prove at 9 of 9, and never reaches the boundary. Arm G defeats the boundary **while the guard
+still admits the run**, which is what a deliberate failure has to do to mean anything.
+
+**Registered as compound before the run, which is the lesson stop 9 handed forward.** E-005's
+arm F was described as *"arm T plus one word"* and was found afterwards to be *"+Bash −Grep
+−Glob"* at the delivered layer. Arm G is one line in the file and, on the measured runtime rule,
+**twenty-five tools at the delivered layer** — the four the list named plus twenty-five more,
+including the `Grep` and `Glob` that the shipped list's own `Bash` entry causes the runtime to
+strip. Nothing below attributes an effect to any one of those twenty-five. It is a deliberate
+failure, not an arm of the registered comparison, and it enters no verdict.
+
+### F1 — the trap fires. High confidence, and therefore worth little
+
+**Direction:** up. **Magnitude:** `init.tools` has length **29** on 5 of 5 and contains both
+`Grep` and `Glob`, neither of which appears in the shipped overlay's delivered list of 4.
+
+**Mechanism:** with no `tools:` key the runtime hands the agent its default set. This is already
+observed at `n = 25` — E-005's arms C (29 tools, `n = 13`) and D (29 tools, `n = 12`) declared no
+`tools:` key — but **never with `--agent` making the overlay the session agent**, which is the
+condition B4 introduced and which has never been run without a list. That is the only thing F1
+adds, and it is small.
+
+### F2 — REGISTERED AS THE ONE MOST LIKELY TO BE WRONG. B4's one surviving effect is the harness, not the agent
+
+**Direction:** down. **Magnitude:** median `toolCalls` on arm G is **≤ 22** — back inside the
+concurrent control's range (median 19.5, Q3 22) and **below the shipped treatment arm's Q1 of
+23**, against that arm's median of 27.
+
+**Mechanism:** the shipped overlay's delivered list has **no `Grep` and no `Glob`**, because the
+runtime removes both when `Bash` is present (19 of 19 observations, no exception). Its Workflow
+section then says *"`Bash` with `grep` or `find` is how you search here"* — a sentence written to
+accommodate the strip. So every search on the treatment arm is a `Bash` call, and a `Bash` grep
+returns less per call than the `Grep` tool, so the agent takes more turns. Restore `Grep` and
+`Glob` and the search cost collapses.
+
+**What each outcome means, stated before the data:**
+
+- **toolCalls ≤ 22** → the +7.5 median that is B4's *only* effect clearing an MDE is **the
+  runtime's tool-list rewrite**, not the boundary prose. The exit gate's *"was this the agent, or
+  the harness?"* is answered **harness**, and P5 — registered as the one most likely to be wrong,
+  and the one that cleared — measured a harness artefact.
+- **toolCalls ≥ 25** → the rise is **the prose**: the ten sections, the workflow, the boundary.
+  The exit gate is answered **agent**, and F2 is refuted.
+- **23–24** → neither, and it is reported as neither at `n = 5`, not rounded to whichever side is
+  more interesting.
+
+**The confound, registered now.** Arm G both restores `Grep`/`Glob` **and** adds twenty-three
+other tools. A rise from the extra tools and a fall from the restored search tools could cancel.
+A middle result is therefore genuinely ambiguous and is registered as ambiguous in advance,
+which is why the 23–24 band is written above rather than argued about after.
+
+### F3 — the guard admits the run, and in admitting it exposes a defect in a control this stop built
+
+**Direction:** n/a. **Magnitude:** `check-init-schema.sh` prints `verdict=recorded-only` and
+exits **0** on 5 of 5; `run-agent.sh`'s agent-overlay guard does not fire; every run reaches the
+evaluator.
+
+**Mechanism:** the check's own exit-code contract treats a missing `tools:` line as *"NOTHING
+ASSERTED"*, exit 0 (`runner/lib/check-init-schema.sh:101`). That is a deliberate and correct
+design — it refuses to report a pass for a check that did not run.
+
+**And it is the sting.** `verdict=recorded-only` is also what **all ten control runs of batch 2**
+recorded, because a control has no overlay at all. So the L2 init-schema check separates *"the
+delivered list matches the file"* from *"it does not" —* and is **silent in exactly the case
+where the boundary has been deleted**. A stranger reading the batch-2 manifest sees ten `match`
+and ten `recorded-only` and cannot tell a control from an overlay whose allowlist was removed.
+The one-line fix — a third verdict for *"an agent overlay is installed and declares no list"* —
+is **not applied now**: §6 forbids editing a tool whose runs are the evidence a stop is closing
+on, and this check ran on all 20 batch-2 runs. It is owed at the next stop that touches the
+runner, and recorded here rather than fixed quietly.
+
+### F4 — the gate outcome does not move
+
+**Direction:** none. **Magnitude:** acceptance 7 of 7 on **≥ 4 of 5** runs; `result.changedFiles`
+exactly 3 on **≥ 4 of 5**.
+
+**Mechanism:** P1's arithmetic, which the batch confirmed — all three files are required and
+there is no passing diff below three. The boundary was never what got the task done, so removing
+it cannot stop the task being done. A drop below 4 of 5 is a **cost of the deliberate failure**
+and is reported as one, not excluded.
+
+### F5 — and removing the boundary does not degrade focus either
+
+**Direction:** none. **Magnitude:** `changedFiles` ≥ 4 on **≤ 1 of 5**; `change-focus` = 1 on 5
+of 5 under the registered scorer.
+
+**Mechanism:** C2 as corrected — `change-focus` has been 1 on **60 of 60** scored
+`claude-code`/haiku runs on this task, and `changedFiles` sits at the task's floor. A boundary
+cannot buy focus the task has already spent, and removing it cannot spend focus the task never
+had.
+
+**If F5 holds, the honest reading of B4 is the symmetric one**: on BE-003 with
+`claude-haiku-4-5-20251001`, neither installing the boundary nor deleting it is detectable on
+the question the gate asks, and the boundary's entire measured footprint is a cost co-variate.
+That reading belongs in step 11's exit gate, and it is registered here so that it is not
+invented after the data.
+
+### What arm G is not
+
+- **It is not an arm of E-006's registered comparison.** Own experiment key, excluded from every
+  median, range, quartile and Fisher test above. No verdict is computed from it.
+- **It touches no registered variable.** Same benchmark sha `0448643`, same `evaluator.sh`
+  `1.0.0`, same rubric sha `396e1799eb2b`, same model `claude-haiku-4-5-20251001`, same runner
+  commit as batch 2, same runtime `2.1.261`, `ISOLATE_USER_SETTINGS=1`, `KEEP=1`.
+- **`n = 5`, so nothing below is stated as a property** — only as true of these five runs.
