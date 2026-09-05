@@ -383,6 +383,78 @@ Decision E, Decision F, the four B2 predictions or the baseline result.
 
 ## What is BLOCKED ON YOU, and cannot be delegated
 
+### 0. HALT — MORE THAN ONE AUTONOMOUS ORCHESTRATOR IS RUNNING THIS PROMPT AT ONCE (2026-09-05T17:46Z)
+
+**This is the blocker, it is new, and it is the only reason stop 10 did not close tonight.**
+Nothing about the agent under test is wrong. The *driver* is wrong.
+
+**What I observed, not inferred.** Four session transcripts under
+`~/.claude/projects/-Users-…-ai-learning/` carry the same first user message —
+*"Read PROMPT-opus5-track-b.md … execute sections 0 through 8 … autonomously, starting with the
+section 0a preflight"* — and all four have `isSidechain=false`, so none of them is a subagent:
+
+| session | lines | last write | state |
+|---|---|---|---|
+| `7576b7f9` | 255 | 17:45:49Z | **live, writing while I wrote this** |
+| `5a585bcf` | 223 | 17:46:07Z | me |
+| `c1168f13` | 968 | 17:41:27Z | committed `e5692aa` and `413b0a0` |
+| `4891342d` | 626 | 17:31:56Z | idle |
+
+**It has already cost something, and the cost is on the record above the fold.** At 17:41Z I
+edited `TRACK-B-STATE.md`, staged it, and my `git commit` returned *"nothing added to commit"* —
+because between my `git add` and my `git commit`, session `c1168f13` committed the shared index.
+My correction is in the tree, inside **`413b0a0`, a commit I did not author and whose message
+describes different work.** Two orchestrators are writing the file §0 designates as the single
+source of truth. **A state file that two writers race on is not a source of truth**, and every
+re-entry rule in §0 rests on it being one.
+
+**Why I stopped instead of continuing.** The next action at this stop is **arm H**, which is
+registered (`a708cf0`, 17:27:20Z) with its harness (`d3bc1cf`) and **has not run**. If two
+orchestrators each run it, `EXP-B4-DELIBERATE-*` carries two batches under one key — which is
+already in `process_violations_this_session` as a defect committed once tonight. §0's hard rule,
+*"never re-run a benchmark run you cannot prove failed to start, because a duplicate run is
+evidence you then cannot delete"*, **cannot be satisfied while a peer is running**: I cannot
+prove what a session I cannot see has started. §0 assumes serial execution in as many words —
+the driver "starts you in a fresh session, and when you end your turn it starts the next one".
+
+**Why it is yours.** Fixing it changes how the run is driven, which is a repo convention, and
+§0 sends process risks that change a convention to `blocked_on_author`.
+
+**What I tried.** Watched `HEAD` for 90 s writing nothing (unchanged, so I was not racing a
+commit at that moment); traced every process to its parent (`ps -o pid,ppid,lstart,etime`, not
+`pgrep` — `pgrep` is blind on this machine and that is already recorded); read only the first
+and last transcript record of each peer, never their bodies.
+
+**What would fix it (my recommendation, not a decision I made).** A lock, at L2, not words:
+`run-track-b.sh` takes an exclusive lockfile naming its PID and refuses to start a second
+session while one holds it; the same mechanism the batch harness needs anyway (see the L2 fix
+owed in `process_violations_this_session`). Until then the guard is L3 — a person checking that
+only one session is up.
+
+**Until you decide, one instruction stands: start exactly one session.** Everything on disk is
+consistent and nothing is half-run — see the two facts below, both re-derived tonight.
+
+### 0a. Two facts a next session needs so it does not destroy them
+
+1. **The arm-G batch is COMPLETE, and an earlier state write said the opposite.** At 17:33Z a
+   session checked for it, found nothing, wrote *"the batch died with the session"* and a plan to
+   resume at pair 03 control. It had not died: `ps` at 17:39:31Z showed pid 83575
+   `run-e006-armG.sh` alive with **PPID 1** and 17m28s elapsed — orphaned when its parent shell
+   exited, not killed. It then ran to completion on its own.
+   `evidence/b04/armG-20260905T172219Z/manifest.tsv` now holds **10 of 10 rows, every one
+   `exit=0`**: pairs 01–05, armG and concurrent plain control interleaved — armG `e8d881b9`,
+   `461e2185`, `b8385c28`, `53597109`, `cced62d6`; control `5d2373f7`, `f87cbe9e`, `abd08a80`,
+   `3ff52290`, `a06e80c5`. **The batch process is gone. Arm G needs no resume, no restart and no
+   repair — it needs scoring.** Acting on that earlier plan would have duplicated five runs.
+2. **Arm H has not run.** Registered `a708cf0`, harness `d3bc1cf`. It must run *after* arm G is
+   scored, never beside it, and exactly once.
+
+**The same shape, three times in one evening**: a check answered clean over a scope it did not
+cover — `pgrep` for the review stall, the process check for the batch, and now the state file for
+the number of orchestrators. That is this project's house failure mode, and it is now the thing
+most likely to cost an unrecoverable run.
+
+
 ### 1. ~~Stop 8 cannot proceed~~ — RESOLVED 2026-09-04, and the diagnosis behind it was wrong
 
 **Closed. Neither of the two candidate lines was the blocker.** The item below is kept verbatim
