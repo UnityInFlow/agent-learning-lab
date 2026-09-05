@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-67547dbc-a4de-4d95-ab46-aa54b1bbb11b
+  mode:          run
+  run_id:        67547dbc-a4de-4d95-ab46-aa54b1bbb11b
+  evaluator_exit: 0
+  observatory:   http://localhost:8081/api/runs/67547dbc-a4de-4d95-ab46-aa54b1bbb11b
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.aHDGGi3FDz/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260905T110036Z
+  attachments:   2 file(s) under test, 2 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: every refusal throws a baseline ApiException subclass, no ApiError constructed
+    evidence: ShipmentController.kt:58,64
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: status decision is an if-chain, not an exhaustive when
+    evidence: ShipmentController.kt:63-75
+  - name: test-quality
+    score: null
+    anchor_level: null
+    reason: no file under src/test/ among attachments
+    evidence: absence of src/test/ in attachment set
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: create/getById/list identical to baseline, only confirm added, no import change
+    evidence: ShipmentController.kt:55-76
+ambiguous_categories: [test-quality]
+```

@@ -1,0 +1,3 @@
+init-schema: delivered n=29 ["Task","Bash","CronCreate","CronDelete","CronList","DesignSync","Edit","EnterWorktree","ExitWorktree","ListAgents","Monitor","NotebookEdit","PushNotification","Read","RemoteTrigger","ReportFindings","ScheduleWakeup","SendMessage","TaskCreate","TaskGet","TaskList","TaskOutput","TaskStop","TaskUpdate","ToolSearch","WebFetch","WebSearch","Workflow","Write"]
+init-schema: no overlay given — NOTHING ASSERTED, delivered set recorded only
+init-schema: verdict=recorded-only

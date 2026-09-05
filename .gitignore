@@ -4,3 +4,9 @@ runs/raw/
 
 # memtrace local store — machine-specific runtime state, never shared
 .memdb/
+
+# Arm H scratch worktrees (evidence/b04/armH-*/wt-*): 35 MB of full source trees, one per run.
+# KEPT ON DISK, not deleted -- section 6 forbids deleting evidence. What is committed instead is
+# everything derived from them that a stranger needs: results.tsv, the per-run .jsonl transcripts,
+# provenance.txt, and pom-diffs/ (one diff per run; a zero-byte diff IS the HELD evidence).
+evidence/b04/armH-*/wt-*/

@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality.yaml
+  rubric_sha:     396e1799eb2b
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b9a62cea-3cb8-4a96-b75a-5ce96bd73637
+  mode:           run
+  run_id:         b9a62cea-3cb8-4a96-b75a-5ce96bd73637
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/b9a62cea-3cb8-4a96-b75a-5ce96bd73637
+  attachments:    3 changed file(s), 3 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260905T105417Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "Both refusals throw baseline ApiException subclasses and construct no error body"
+    evidence: "ShipmentController.kt:59, ShipmentController.kt:66"
+  - name: "maintainability"
+    score: 2
+    anchor_level: 2
+    reason: "A returned when expression handles status without an else branch"
+    evidence: "ShipmentController.kt:64"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Repeat body and refusal envelope are asserted, but persisted state is never re-read"
+    evidence: "ShipmentControllerTest.kt:91, ShipmentControllerTest.kt:109, ShipmentControllerTest.kt:115"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "ApiError and controller documentation differ outside confirm while unnamed methods remain identical"
+    evidence: "ApiError.kt:34, baseline/ApiError.kt:34, ShipmentController.kt:14, baseline/ShipmentController.kt:14"
+ambiguous_categories: []

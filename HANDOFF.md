@@ -1,18 +1,64 @@
-# Handoff — 2026-09-04 (twelfth session)
+# Handoff — 2026-09-05 (thirteenth session)
 
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "Stop 8 is CLOSED, and its own halt was the wrong diagnosis" below.** Stops 4, 5, 6
-and 7 are merged. Stop 8 is closed with a measured result. The run's largest result is still
-B3's — *a global instruction file, proved delivered, changed nothing measurable* — and stop 8
-now sits beside it as the opposite shape: **a customization that changed something measurable,
-and an instrument that would have hidden it.**
+**Start at "What is BLOCKED ON YOU" item 0 below — it is new, it is about how this run is
+driven, and it outranks everything else in this file.** Then "Stop 10 is CLOSED".
+
+Stops 4–9 are merged. **Stop 10 (B4) is closed `INCONCLUSIVE`: the first agent exists and does
+not promote.** The run's two largest results now stand as a pair. B3: *a global instruction file,
+proved delivered, changed nothing measurable.* B4: *an agent overlay, proved delivered, changed
+nothing the gate asks about — on a task where two of the three gate outcomes are constants.* And
+beside them, the one thing that did move: **an L3 prose boundary held when contested, 8 of 10
+against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 8 of 28. Positions 4, 5, 6, 7 and 8 CLOSED.** B1 closed 2026-08-30. No agent exists and
-none should until stop 10.
+**Spine 10 of 28. Positions 4, 5, 6, 7, 8, 9 and 10 CLOSED.** B1 closed 2026-08-30. Stop 10
+closed 2026-09-05. **`backend-feature-implementer` v1.0 exists and is NOT promoted.** Next is
+stop 11 (Phase 4B, orchestration). **Stop 12 does not open until benchmarks#29 is merged** —
+that is the author's, and it is a §7 halt if it is not merged when stop 12 is reached.
+
+## Stop 10 is CLOSED, `INCONCLUSIVE`, and the instrument is as much of the story as the agent
+
+**The registered comparison, `n = 10` per arm, `EXP-B4-AGENT-BOUNDARY`:** nothing the gate asks
+about moved. Acceptance 7/7 on 20 of 20 in both arms. `change-focus` 1 on 20 of 20 — and on
+**73 of 73** across every scored `BE-003`/`claude-code`/`claude-haiku-4-5-20251001` run.
+`changedFiles` 3 on 20 of 20, the task's floor. `maintainability` anchor 2 on 3 of 10 against
+1 of 10, inside its MDE. **Cost fell 6 %**, against a prediction that it would rise. The only
+registered outcome to clear an MDE was `toolCalls`, **+7.5** median with non-overlapping
+quartiles — a cost co-variate, not a gate outcome.
+
+**Verdict `INCONCLUSIVE` under reading A; `REJECT` under reading B; neither is `KEEP`** — the
+only KEEP path needed `maintainability` anchor 2 on 9 of 10 and got 3 of 10. Both readings were
+written and committed **before arm G returned a number**.
+
+**Four things this stop established, and two of them cost a belief:**
+
+1. **The `toolCalls` rise is not the tool-list rewrite.** Arm G deleted the `tools:` line, was
+   delivered a tool set byte-identical to a plain control's, and still sat +6 above its own
+   concurrent control. *(It differs from the control in prose **and** in `--agent` launch mode —
+   a confound the §4a review caught and I had understated. What is established is the negative
+   claim.)*
+2. **The default agent tool set on runtime `2.1.261` has no `Grep` and no `Glob`.** 0 of 53
+   `init.tools` read-backs mention `Grep`. This refuted F1 and killed F2's mechanism outright.
+3. **An L3 prose boundary held when contested** — arm H, off the instrument under author
+   decision 6: governed **8 of 10** vs ungoverned **0 of 5**, `p = 0.007`; and the push sentence
+   changed the hold rate **not at all** (4/5 vs 4/5, `p = 1.0`). It stays **L3** — nothing
+   executed, and one governed run defected unprompted. **The label is now observed, not asserted.**
+4. **`customization.agentHash` is `null` on treatment runs, not only controls.** It cannot be
+   cited as B4's treatment-delivery proof anywhere. The `init.tools` read-back can, and is.
+
+**`change-focus` is dead on this model, not in itself** — the corpus holds one `change-focus = 2`,
+run `514b094e`, and it is a **codex** arm. Every sentence calling it a constant must carry that
+scope; several did not until it was counted rather than remembered.
+
+**Owed, and named rather than dropped:** 14 second-reader sheets (ollama weekly limit, not
+anything in this repo); the leave-one-out batch that would let §4 step 10 speak about nine of the
+overlay's ten sections; arm H's fourth cell; and three **L2** fixes that §6 forbade applying to
+tools whose runs are this stop's evidence — `run-armH.sh` recording `HELD` when the invocation
+fails, the manifest's missing third init-schema verdict, and the batch harness's PID lockfile.
 
 ## Stop 8 is CLOSED, and its own halt was the wrong diagnosis — 2026-09-04
 
@@ -382,6 +428,78 @@ Decision E, Decision F, the four B2 predictions or the baseline result.
 </details>
 
 ## What is BLOCKED ON YOU, and cannot be delegated
+
+### 0. HALT — MORE THAN ONE AUTONOMOUS ORCHESTRATOR IS RUNNING THIS PROMPT AT ONCE (2026-09-05T17:46Z)
+
+**This is the blocker, it is new, and it is the only reason stop 10 did not close tonight.**
+Nothing about the agent under test is wrong. The *driver* is wrong.
+
+**What I observed, not inferred.** Four session transcripts under
+`~/.claude/projects/-Users-…-ai-learning/` carry the same first user message —
+*"Read PROMPT-opus5-track-b.md … execute sections 0 through 8 … autonomously, starting with the
+section 0a preflight"* — and all four have `isSidechain=false`, so none of them is a subagent:
+
+| session | lines | last write | state |
+|---|---|---|---|
+| `7576b7f9` | 255 | 17:45:49Z | **live, writing while I wrote this** |
+| `5a585bcf` | 223 | 17:46:07Z | me |
+| `c1168f13` | 968 | 17:41:27Z | committed `e5692aa` and `413b0a0` |
+| `4891342d` | 626 | 17:31:56Z | idle |
+
+**It has already cost something, and the cost is on the record above the fold.** At 17:41Z I
+edited `TRACK-B-STATE.md`, staged it, and my `git commit` returned *"nothing added to commit"* —
+because between my `git add` and my `git commit`, session `c1168f13` committed the shared index.
+My correction is in the tree, inside **`413b0a0`, a commit I did not author and whose message
+describes different work.** Two orchestrators are writing the file §0 designates as the single
+source of truth. **A state file that two writers race on is not a source of truth**, and every
+re-entry rule in §0 rests on it being one.
+
+**Why I stopped instead of continuing.** The next action at this stop is **arm H**, which is
+registered (`a708cf0`, 17:27:20Z) with its harness (`d3bc1cf`) and **has not run**. If two
+orchestrators each run it, `EXP-B4-DELIBERATE-*` carries two batches under one key — which is
+already in `process_violations_this_session` as a defect committed once tonight. §0's hard rule,
+*"never re-run a benchmark run you cannot prove failed to start, because a duplicate run is
+evidence you then cannot delete"*, **cannot be satisfied while a peer is running**: I cannot
+prove what a session I cannot see has started. §0 assumes serial execution in as many words —
+the driver "starts you in a fresh session, and when you end your turn it starts the next one".
+
+**Why it is yours.** Fixing it changes how the run is driven, which is a repo convention, and
+§0 sends process risks that change a convention to `blocked_on_author`.
+
+**What I tried.** Watched `HEAD` for 90 s writing nothing (unchanged, so I was not racing a
+commit at that moment); traced every process to its parent (`ps -o pid,ppid,lstart,etime`, not
+`pgrep` — `pgrep` is blind on this machine and that is already recorded); read only the first
+and last transcript record of each peer, never their bodies.
+
+**What would fix it (my recommendation, not a decision I made).** A lock, at L2, not words:
+`run-track-b.sh` takes an exclusive lockfile naming its PID and refuses to start a second
+session while one holds it; the same mechanism the batch harness needs anyway (see the L2 fix
+owed in `process_violations_this_session`). Until then the guard is L3 — a person checking that
+only one session is up.
+
+**Until you decide, one instruction stands: start exactly one session.** Everything on disk is
+consistent and nothing is half-run — see the two facts below, both re-derived tonight.
+
+### 0a. Two facts a next session needs so it does not destroy them
+
+1. **The arm-G batch is COMPLETE, and an earlier state write said the opposite.** At 17:33Z a
+   session checked for it, found nothing, wrote *"the batch died with the session"* and a plan to
+   resume at pair 03 control. It had not died: `ps` at 17:39:31Z showed pid 83575
+   `run-e006-armG.sh` alive with **PPID 1** and 17m28s elapsed — orphaned when its parent shell
+   exited, not killed. It then ran to completion on its own.
+   `evidence/b04/armG-20260905T172219Z/manifest.tsv` now holds **10 of 10 rows, every one
+   `exit=0`**: pairs 01–05, armG and concurrent plain control interleaved — armG `e8d881b9`,
+   `461e2185`, `b8385c28`, `53597109`, `cced62d6`; control `5d2373f7`, `f87cbe9e`, `abd08a80`,
+   `3ff52290`, `a06e80c5`. **The batch process is gone. Arm G needs no resume, no restart and no
+   repair — it needs scoring.** Acting on that earlier plan would have duplicated five runs.
+2. **Arm H has not run.** Registered `a708cf0`, harness `d3bc1cf`. It must run *after* arm G is
+   scored, never beside it, and exactly once.
+
+**The same shape, three times in one evening**: a check answered clean over a scope it did not
+cover — `pgrep` for the review stall, the process check for the batch, and now the state file for
+the number of orchestrators. That is this project's house failure mode, and it is now the thing
+most likely to cost an unrecoverable run.
+
 
 ### 1. ~~Stop 8 cannot proceed~~ — RESOLVED 2026-09-04, and the diagnosis behind it was wrong
 
@@ -764,8 +882,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 16e68c7 prose: aba92aa88e19 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 16e68c7 prose: aba92aa88e19 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 7b5b7a3 prose: feb7ed4429f3 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 7b5b7a3 prose: feb7ed4429f3 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The

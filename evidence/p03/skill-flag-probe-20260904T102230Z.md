@@ -73,8 +73,13 @@ transcripts sit beside it, with the probe's fixture repository under
 >
 > **Re-derived from the preserved copy, not from the original**, after the copy landed:
 > `grep -c '"name":"Skill"'` over the thirteen transcripts gives flag-ON **0 of 3** at the root
-> path and **0 of 3** nested, flag-OFF **1 of 3** root and **1 of 3** nested — 0 of 6 with
-> `--disable-slash-commands`, 6 of 6 without, at both paths. The matrix reproduces exactly and
+> path and **0 of 3** nested, flag-OFF **exactly 1 activation per transcript on 3 of 3** root
+> and **3 of 3** nested — 0 of 6 with `--disable-slash-commands`, 6 of 6 without, at both paths.
+> *(Wording corrected 2026-09-04 per `findings/track-b-validation-2026-09-04-10.md` §8.E: the
+> flag-OFF cells previously read "1 of 3", which is `grep -c`'s **per-transcript count** and
+> reads as though only one transcript of three activated. It is one activation in each of the
+> three. The 6-of-6 cell total was right; the two cells feeding it were written in the wrong
+> units.)* The matrix reproduces exactly and
 > the result is now re-derivable by a stranger with no access to this machine's temp directory.
 >
 > **The preservation itself found an instrument defect, recorded because hiding it would be

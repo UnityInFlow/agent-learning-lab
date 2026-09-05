@@ -496,6 +496,45 @@ track's controlled `claude-haiku-4-5-20251001`, passed explicitly in the overlay
 +tools: Read, Grep, Glob, Bash
 ```
 
+> ### AMENDMENT 2026-09-04 — the file differs by one word; **what the runtime delivered differs by three names**
+>
+> Raised as correction **9.1** in `findings/track-b-validation-2026-09-04-10.md`, adopted as
+> **author decision 8**, and **re-derived here from the kept transcripts rather than taken on
+> the validator's word.** Every arm's `system`/`init` record carries the tool set the session
+> actually received. Reading the first `init` line of all 52 kept transcripts:
+>
+> | arm | `tools:` in the overlay file | `init.tools` the runtime delivered | n |
+> |---|---|---|---|
+> | C control | *(no `tools:` key)* | the full 29-tool set | 13 |
+> | D description | *(no `tools:` key)* | the full 29-tool set, byte-identical to C's | 12 |
+> | **T toollist** | `Read, Grep, Glob` | `["Read", "Grep", "Glob"]` — **verbatim** | 17 |
+> | **F toollist-bash** | `Read, Grep, Glob, Bash` | **`["Read", "Bash"]`** — Grep and Glob **silently dropped** | 10 |
+>
+> Re-derive: `for f in evidence/p04a/e005/*transcripts/*.jsonl; do head -1 "$f"; done` and read
+> `.tools` off each `"subtype":"init"` record. 10 of 10 on arm F, no exceptions.
+>
+> **So the sentence "arm F is arm T plus one word" is true of the file and false of the
+> treatment.** At the delivered layer arm F is arm T **+`Bash` −`Grep` −`Glob`**. The header
+> above is left standing rather than rewritten, because §4 step 12 forbids rewriting a
+> registered claim after its run; this amendment is how it is corrected.
+>
+> **What survives, and it is the part the stop closed on.** F1–F3 all concerned whether a write
+> boundary survives the addition of `Bash`. Removing `Grep` and `Glob` removes two *read* tools;
+> it cannot manufacture the write capability the arm demonstrated. The mechanism observed on 10
+> of 10 — `find`, then `cat > ./calc.py` with a heredoc, then `python3 -c` — runs entirely
+> through `Bash`, and `find` is what an agent reaches for **because** `Grep` and `Glob` are gone.
+> The conclusion stands: **`tools:` filters names, not capabilities, and one shell tool in the
+> list is the whole boundary.** The *magnitude* claim narrows: this is not a one-word effect, it
+> is a three-name effect that a reader of the two files cannot see.
+>
+> **What it costs the registered arms: nothing.** C and D install no `tools:` key and were
+> delivered identical 29-tool sets; T was delivered **verbatim**. The rewrite is specific to a
+> list containing `Bash`, and no registered arm has one. Stop 9's result is unmoved.
+>
+> **What it costs every later stop: the price of a probe.** A `tools:` file is not the treatment
+> until its `init` record says so. Author decision 8 makes the probe mandatory before any B step
+> registers an allowlist, and **B4 at stop 10 is the first to pay it**.
+
 | | arm T | **arm F** |
 |---|---|---|
 | full-file sha256/16 | `482427d6d1c25055` | **`bda1069fd073e73c`** |
