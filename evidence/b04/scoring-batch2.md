@@ -105,6 +105,13 @@ Two observations are flagged for those steps rather than interpreted now:
 
 1. **`change-focus` is 1 on 20 of 20 under the registered scorer.** P2 registered exactly this
    with an MDE of `none`. The dead-category count reaches **60 of 60** across five experiments.
+
+   **AMENDED 2026-09-05, validator pass 13 correction 13.1** (`Amended by Opus 5
+   (claude-opus-5), autonomous`): the count of 60 of 60 stands and is re-derivable, but **"dead"
+   is the word E-006 §C2 retired.** The anchor is reachable — six `codex`/`gpt-5.6-sol` runs
+   passed BE-003 without touching `ApiError.kt`, and `514b094e` scored `change-focus: 2`. Read it
+   as *"constant across 60 of 60 scored `claude-code`/haiku runs"*, which is a fact about the
+   model under test, not about the rubric.
 2. **`architecture-consistency` is 2 on 20 of 20, both arms, zero variance** — and it carries
    **35 of the 100 points**. It was never registered as dead. On this batch it behaves like
    `change-focus` does, and that belongs in the exit gate and in the note to the author.

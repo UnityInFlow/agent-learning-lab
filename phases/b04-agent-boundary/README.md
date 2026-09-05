@@ -233,6 +233,21 @@ weight carrying no information. v2 dropped the two restated-gate categories and 
 `change-focus = 2` on 2026-09-04, so the anchor discriminates on the fixture set and is constant
 on the task.
 
+> **AMENDED 2026-09-05 after validator pass 13 (`findings/track-b-validation-2026-09-05-3.md`,
+> correction 13.1), which pointed at the amendment validator pass 12 had already forced into
+> `experiments/E-006-agent-boundary-v1.0.md` §C2 and that this section did not carry.**
+> `Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-05.`
+> **The bold sentence above — "the mechanism is structural", "the agent MUST add an `ErrorCode`
+> constant", "unreachable by construction" — is REFUTED.** Six passing BE-003 runs on the
+> `codex`/`gpt-5.6-sol` product touched `ApiError.kt` not at all and still met all seven
+> acceptance criteria including criterion 4 and the 409, and one of them (`514b094e`) has a codex
+> sheet scoring `change-focus: 2`. **The anchor is reachable; `claude-haiku-4-5-20251001` does not
+> reach it on this task.** The *measurement* — `change-focus` = 1 on every scored `claude-code`
+> run — is untouched and still holds at 60 of 60. What is withdrawn is the *mechanism* and the
+> word "dead": the finding is behavioural, about the model under test, not a rubric defect. Read
+> E-006 §C2 before quoting this section; the author's question is stated there in its corrected
+> form.
+
 **Nothing is being changed about it.** §6 forbids editing a registered variable mid-experiment
 and §7 makes any change to the rubric's categories or weights a halt. The rubric sha stays
 `396e1799eb2b`. The constant is **registered as a property of the instrument**, the gate is
