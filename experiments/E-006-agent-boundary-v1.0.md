@@ -148,11 +148,11 @@ version, machine or day lands on both arms equally.
 | | |
 |---|---|
 | Mechanism | `--customization build/customizations/agent-v1.0`, copied to the worktree root and committed as a setup commit before the agent starts, **plus `--agent backend-feature-implementer`** on the treatment arm only |
-| Content hash | `sha256:59c2b5db71f4c01e22a51589a1febdf9` — the first 32 hex characters of the digest, which is what the runner stores. Verify with `shasum -a 256 build/customizations/agent-v1.0/.claude/agents/backend-feature-implementer.md \| cut -c1-32` |
+| Content hash | `sha256:59c2b5db71f4c01e22a51589a1febdf9` — the first 32 hex characters of the digest. Verify with `shasum -a 256 build/customizations/agent-v1.0/.claude/agents/backend-feature-implementer.md \| cut -c1-32`. **Corrected 2026-09-05 (pass 12, C3): this row used to say *"which is what the runner stores"*, and the runner stores NOTHING for a Claude agent overlay — the row below says so itself. The 32 characters are what a reader computes, not what any field holds.** |
 | **Delivered schema** | **`init.tools` = `["Read", "Edit", "Write", "Bash"]`, identical to the overlay's `tools:` line, on 3 of 3 confirmation runs against the shipped file.** `evidence/b04/shipped-overlay-confirm-20260905/` |
 | Preflight assertion | one treatment run before the batch whose `init` record carries exactly that array, and whose setup commit tracks the overlay path |
 | Control assertion | control runs pass **no** `--customization` and **no** `--agent`. The worktree is built by `git archive` from an allowlist of `sample-service` and `.gitignore` only, so no `.claude/agents/` path can exist on a control run |
-| **What cannot be proved from the run record** | **no `customization.*Hash` field tracks a Claude agent overlay.** `run-agent.sh:431` hashes `.github/copilot-instructions.md` for `agentHash` and `.github/skills.md` for `skillsHash`. Both will be `null` on **both** arms. Independence therefore rests on the `init` record and the setup commit, exactly as stop 8's rested on telemetry. Recorded, not worked around |
+| **What cannot be proved from the run record** | **no `customization.*Hash` field tracks a Claude agent overlay.** `run-agent.sh` hashes `.github/copilot-instructions.md` for `agentHash` and `.github/skills.md` for `skillsHash` — at **`:525`** today. **Pass 12 (C3) read `:431` and found the SKILL.md guard there. The citation was correct when this was written** (`git show origin/main:runner/run-agent.sh` still has it at 431); **my own §4 step-4 edit inserted 94 lines above it.** A line number is a citation with a shelf life, and this one expired inside its own stop. Both will be `null` on **both** arms. Independence therefore rests on the `init` record and the setup commit, exactly as stop 8's rested on telemetry. Recorded, not worked around |
 
 ### Row 0a fired, and this is what it caught
 
@@ -174,6 +174,29 @@ delivers.**
 **The rule, on 36 observations with no exception: when `Bash` is present in a subagent `tools:`
 allowlist, `Grep` and `Glob` are removed from the delivered set. When `Bash` is absent, the list
 is delivered verbatim.** 16 of 16 with `Bash` dropped both; 20 of 20 without `Bash` verbatim.
+
+**CORRECTED 2026-09-05 by validator pass 12 (C1), and the correction is arithmetic, not the
+rule.** The headline above says *"36 observations … 16 of 16 with `Bash` dropped both"*. The
+table it sits under has **45 rows** (3+3+3+3+3+3+10+17) and the drop class has **19**, not 16:
+probe `candidate` 3 + `greponly` 3 + `globonly` 3 + E-005 arm F 10. Re-derived here from the
+raw records rather than from the table — 21 probe transcripts and the 27 E-005 tool-list
+transcripts, every one read for its own `system/init`:
+
+| declared list | delivered | n |
+|---|---|---|
+| contains `Bash` **and** at least one of `Grep`/`Glob` | exactly those dropped | **19 of 19** |
+| contains `Bash`, neither `Grep` nor `Glob` | verbatim | 3 of 3 |
+| **no `Bash`** | verbatim | **20 of 20** |
+| no `tools:` key | the full 29-tool set | 3 of 3 |
+
+**The rule survives with no exception and the `20 of 20` half was right; `16 of 16` should read
+`19 of 19` and `36 observations` should read `45`.** The wrong figure also stands in
+`TRACK-B-STATE.md`, `agent-observatory/runner/run-agent.sh` and
+`runner/lib/check-init-schema.sh`, all corrected additively — **and in the overlay file itself,
+which is NOT corrected.** `build/customizations/agent-v1.0/.claude/agents/backend-feature-implementer.md`
+is the treatment at sha `59c2b5db71f4c01e22a51589a1febdf9`; twenty runs were measured against
+that byte sequence, and a measured version is never edited. **The overlay's own prose carries
+the arithmetic error, recorded here rather than repaired.**
 
 **Stated as true of these runs, on one runtime version.** Claude Code `2.1.260`, model
 `claude-haiku-4-5-20251001`, this machine. It is not offered as a documented behaviour and no
@@ -359,6 +382,53 @@ and which decision-rule row 3 already covers.
 0.05` vs 0 of 10 — is **untouched**, and P1's direction and magnitude stand as registered. The
 prediction is not edited. What is corrected is a sentence about the task that was stated more
 strongly than the data supported, found before the batch rather than after it.
+
+### C2 — the mechanism under P1 and P2 is REFUTED, by data that was on disk the whole time
+
+`Corrected 2026-09-05 after validator pass 12. Verified independently before applying: the
+validator is right, and the claim it refutes is mine.`
+
+Two sentences in this file, in the workbook, and in `blocked_on_author`'s largest item say that
+BE-003's acceptance criterion 4 **forces** the `ApiError.kt` change that `change-focus` anchor 2
+forbids — so the anchor is *"unreachable by construction"*. **That is false.**
+
+Re-derived from the API over every passing BE-003 run before batch 1, with one column added that
+I had not thought to add — `runtime.product`:
+
+| the 11 two-file passing runs | wrote a test? | touched `ApiError.kt`? | acceptance |
+|---|---|---|---|
+| **5 × `claude-code` / haiku** (4 `EXP-B3-INSTRUCTIONS-CLAUDE`, step-5 control `15c14398`) | **no** | **yes** | 7 of 7 |
+| **6 × `codex` / gpt-5.6-sol** (`def66388`, `b576dd0d`, `34a01f57`, `77c7d1c3`, `38e6a3df`, `514b094e`) | **yes** | **NO** | 7 of 7 |
+
+**Six runs passed all seven acceptance criteria, including criterion 4 and the 409, without
+touching `ApiError.kt` at all.** The task does not mandate a new `ErrorCode` constant. The haiku
+population *chooses* to add one.
+
+**And the anchor has been reached on a real agent run.** `514b094e` has a codex sheet,
+`findings/codex/score-observatory-run-514b094e-…-20260830T195150Z.yaml`, scoring
+**`change-focus: 2`** — *"create, getById, and list match the baseline; only confirm was added."*
+
+**What this changes, and what it does not:**
+
+- **No registered prediction is edited.** P2's *magnitude* — `change-focus` = 1 on 10 of 10
+  treatment runs — held, and codex scored 1 on 20 of 20 of this batch. Its **mechanism** was
+  wrong.
+- **The claim's scope was narrower than its wording.** *"1 on 40 of 40 scored runs"* named four
+  experiments, all `claude-code`/haiku, and is true of them. *"Unreachable by construction"*
+  generalised past that population without checking it.
+- **The author's question changes and gets cheaper.** Not *"fifteen rubric points are constant by
+  construction, repair the anchor"* but *"the anchor discriminates on a behaviour
+  `claude-haiku-4-5-20251001` does not show on this task"* — a behavioural finding about the
+  model under test, not a rubric defect.
+- **The MDE amendment's sentence *"the gap between them is a test, not focus"* is true of 5 of
+  the 11 and the opposite of true for the other 6**, where the gap is `ApiError.kt` — which is
+  focus.
+
+**Why I did not catch it.** I ran the right query and stopped one column short. Every 2-file run
+in my result was a haiku run *because I only looked at haiku experiments*, and I read a property
+of the sample as a property of the task. That is this project's house failure mode — a control
+reporting over a scope smaller than it claims — committed by me, in the correction that was
+itself fixing an over-claim.
 
 ### P6, registered here, before the first batch run
 
