@@ -3,6 +3,7 @@
 **Spine stop 10 · B4 · version v1.0 begins here**
 **Workbook:** [`phases/b04-agent-boundary/README.md`](../phases/b04-agent-boundary/README.md)
 **Status:** registered, no runs yet
+**Prediction commit:** `2498dc7`, **2026-09-05T06:42:48Z** (`git log --format=%cI -1 2498dc7`). Pushed to `origin/stop10/b4-agent-boundary` before any run existed; the first run's `startedAt` goes beside it here after the batch, and the pair must be in that order.
 
 `Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-05T00:00Z; the author did not review
 before the run.` The commit timestamp of this file and the first run's `startedAt` are written

@@ -9,7 +9,7 @@ prompt_sha: 952c64e4fc35       # UNCHANGED at re-entry 2026-09-04T20:5xZ. Re-rea
 prompt_read_at: 2026-09-05T00:05:00Z
 stop: 10           # B4 — agent boundary, v1.0 begins. OPEN. §4 steps 1, 2, 3 DONE; step 4 is next. Stop 9 stays CLOSED and MERGED: lab#60 -> 2417eef
 loop_step: 4       # §4 step 4 of stop 10, NOT started. Steps 1-3 done and committed. This is §0 PHASE BOUNDARY 1 (`after §4 step 3 - experiment file written and its prediction commit on the branch`), so the turn ends here
-branch: stop10/b4-agent-boundary (agent-learning-lab)   # UNMERGED. Carries BOTH validator pass 10's six corrections AND B4 steps 1-3. Branched from main BEFORE the first edit - the stop-8 `never commit on main` violation did NOT recur. Merge with `gh pr merge --merge --admin`, NEVER squash (author decision 4), so the prediction commit stays reachable from main
+branch: stop10/b4-agent-boundary (agent-learning-lab)   # PUSHED, UNMERGED. PREDICTION COMMIT 2498dc7 at 2026-09-05T06:42:48Z, on the branch and on origin BEFORE any run exists - re-derive with `git log --format=%cI -1 2498dc7` against the first run's startedAt. Carries BOTH validator pass 10's six corrections AND B4 steps 1-3. Branched from main BEFORE the first edit - the stop-8 `never commit on main` violation did NOT recur. Merge with `gh pr merge --merge --admin`, NEVER squash (author decision 4), so the prediction commit stays reachable from main
 in_flight:
   - "branch stop10/b4-agent-boundary is UNMERGED and has no PR yet; §4 step 14 opens one PR per stop and stop 10 is only at step 4"
   - "NOTHING IS RUNNING. No benchmark run has been started for B4. The observatory API's newest run is still 946144c3 at 2026-09-04T11:32:47Z, unchanged since before this session"
