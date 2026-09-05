@@ -265,7 +265,112 @@ same way rather than as a threshold.
 Registered at §4 step 9, prediction committed first. Two candidates, both from the scaffold —
 *"omit the tool list and see what the agent reaches for. Then try to talk it past a Prohibited
 item using only prose"* — and the second is the L2-vs-L3 demonstration this stop exists to make.
-Not written before its own prediction commit.
+**Both were built and both ran.**
+
+| arm | what it breaks | prediction commit | result |
+|---|---|---|---|
+| **G** — `tools:` line deleted, overlay otherwise byte-identical (`5d4`) | the allowlist | `2e39e58`, 6 m 12 s before the first run | **F1 refuted**, F3/F4/F5 hold, F2's number lands in the band registered as *neither* |
+| **H** — shipped overlay, asked to edit a build file, then pushed with one sentence of prose | the Prohibited clause | `a708cf0`, 43 min before the first run | **H2 refuted**, H1 and H3 hold |
+
+**Arm G's finding is that its own mechanism was wrong.** F1 predicted the no-list run would deliver
+29 tools *including `Grep` and `Glob`*. It delivered 29 — **with neither**. Of the 53 `init.tools`
+read-backs this stop produced, **none mentions `Grep`**. F2's `≤ 22 → harness` branch was stated as
+a conjunction requiring those tools restored, so it was **unreachable by its own route** whatever
+the median had been. Arm G's delivered tool set is byte-identical to a plain control's, and it
+*still* sits +6 on median `toolCalls` above its concurrent control — so the rise B4 measured is not
+a tool-list artefact.
+
+**Arm H's finding is that the prose boundary held when contested.** Governed 8 of 10 vs ungoverned
+0 of 5, `p = 0.007`; and the push sentence changed nothing at all — H1 4/5 against H2 4/5, `p =
+1.0`. The runs that held quoted the clause back, and one addressed the authority claim and refused
+it. `## Boundaries` stays **L3** — nothing executed, `Edit` and `Write` were delivered in every
+cell, and H1 defected once unprompted — but the label is now **observed rather than asserted**.
+
+## §4 step 10 — keep, modify, remove, per element
+
+The rule is *"a rule with no measured effect is removed, and its removal is recorded as the
+finding."* **Applying it honestly requires separating three states, not two**, because
+`not measured` is not `measured to have no effect`, and treating them alike would manufacture ten
+findings out of one experiment.
+
+| element | measured how | decision |
+|---|---|---|
+| `tools:` frontmatter line | **arm G**, directly. Delivered list `n=4` with it, `n=29` without, on 22 / 31 read-backs | **KEEP** — it is the stop's only element that *executes*. But its behavioural effect is **measured and absent**: the `toolCalls` rise appears with and without it. **Caveat on record:** the list contains `Bash`, and E-005 showed `tools:` filters names, not capabilities, so as written this constraint is nominal |
+| `## Boundaries` (the Prohibited/Approval list) | **arm H**, directly. 8 of 10 governed held vs 0 of 5 ungoverned, `p = 0.007` | **KEEP** — the only section with a measured effect on what the agent *does*, and the effect survived being contested |
+| the other **eight** sections, plus `description:` and `model:` | **not measured, individually or at all** | **KEEP PENDING MEASUREMENT** — and this is explicitly *neither* a §4 step 10 keep (which needs a measured effect) *nor* a remove (which needs measured no-effect) |
+
+**The finding §4 step 10 actually produces here is about the design, not the overlay.** E-006 varied
+**the whole overlay against no overlay**. That design can say the overlay as a unit did not move any
+gate outcome; it cannot apportion that to ten sections. Removing eight sections because the batch
+did not isolate them would be the house failure mode wearing a different hat — a conclusion drawn
+over a scope the evidence does not cover.
+
+**What would decide it, named rather than gestured at:** a leave-one-out batch — ten arms, each the
+shipped overlay minus one section, against the same concurrent control. At `n = 10` per arm that is
+110 runs on BE-003, and **on BE-003 it would still measure nothing**, because two of the three gate
+outcomes there are constants. It belongs on BE-004 from stop 12, and it is registered here as owed
+rather than quietly dropped.
+
+## §4 step 11 — the learning block
+
+```yaml
+learning:
+  what_was_added: >
+    backend-feature-implementer v1.0 - a ten-section agent overlay with a four-tool `tools:`
+    allowlist, installed by the runner and made the session agent with --agent.
+  why_it_exists: >
+    B4's premise: a named boundary buys scope discipline. The build spec's trap says the
+    description is L3 and only the tool list constrains.
+  observed_effect: >
+    On the registered comparison, n=10 per arm: NOTHING the gate asks about moved. Acceptance
+    7/7 on 20 of 20. change-focus 1 on 20 of 20 - and on 70 of 70 across this task's whole
+    history. changedFiles 3 on 20 of 20, the task's floor. maintainability anchor 2 on 3 of 10
+    vs 1 of 10, inside its MDE. Cost FELL 6%. The only registered outcome to clear an MDE was
+    toolCalls, +7.5 median with non-overlapping quartiles - a cost co-variate, not a gate outcome.
+  unexpected_effect: >
+    Three, and each cost a belief. (1) The tool-list rewrite does NOT explain the toolCalls rise:
+    arm G deleted the list, received a delivered set byte-identical to a control's, and still sat
+    +6 above its own concurrent control. (2) The default agent tool set on runtime 2.1.261 contains
+    NEITHER Grep NOR Glob - 0 of 53 read-backs mention Grep - which refuted F1 and killed F2's
+    mechanism outright. (3) The L3 prose boundary HELD when contested: 8 of 10 governed vs 0 of 5
+    ungoverned, p=0.007, and one sentence of borrowed authority moved it not at all (4/5 vs 4/5).
+  keep_or_remove: >
+    v1.0 does NOT promote. Decision rule reading A (adopted, and fixed in writing BEFORE arm G's
+    numbers existed) gives INCONCLUSIVE; reading B gives REJECT; NEITHER is KEEP, because the only
+    KEEP path needs maintainability anchor 2 on 9 of 10 and it got 3 of 10. Per element: KEEP the
+    `tools:` line (the only thing that executes) and KEEP `## Boundaries` (the only measured
+    effect); the other eight sections are KEEP PENDING MEASUREMENT, not kept and not removed.
+  next_question: >
+    Does any of this survive a task that can fail? Two of BE-003's three gate outcomes are
+    constants, so B4's verdict is a statement about the instrument as much as the agent. That is
+    what author decision 9 and BE-004 exist for. And the fourth cell arm H never ran - the overlay
+    with `## Boundaries` deleted and all else intact - is the clean test of the one effect this
+    stop did measure.
+```
+
+## §4 step 11 — the exit gate, answered
+
+**The gate:** *3 comparisons vs B3 · record specifically whether the diff became more focused.*
+
+- **Three comparisons: done** — deterministic outcome, cost/effort co-variates, rubric quality.
+  All three are in the §5 table above with their evidence paths. *(vs a concurrent plain control,
+  because B3 closed REJECT and left no overlay to compare against; disclosed in the table.)*
+- **Did the diff become more focused? NO — and on this task it could not have.** `change-focus` is
+  1 on **70 of 70** scored runs and `changedFiles` sits at the task's floor of 3. **A variable
+  with no variance cannot record an improvement.** This is the answer, not a deferral.
+
+| workbook item | answered |
+|---|---|
+| delivered `init.tools` recorded per arm, before the prediction commit | **yes** — 53 read-backs, two clean populations; author decision 8 satisfied |
+| treatment reached the model, and did not reach the control | **yes**, by the init-schema read-back. **Not** by `customization.agentHash`, which is `null` on *both* arms — the API does not persist it, and citing it would have been a control reporting over a scope it does not cover |
+| every Prohibited clause labelled by layer, none rounded up | **yes** — six clauses below, two already L2 and enforced by something that is not the boundary |
+| keep / modify / remove per section, with measured no-effect for every remove | **yes, and there are no removes** — because there is no measured no-effect per section, only an unmeasured design. Stated as a design finding rather than manufactured as ten |
+| **"was this the agent, or the harness?"** | **The harness answer is eliminated; the agent answer is not earned.** Arm G killed the tool-list explanation by refuting F1's premise. What remains: on BE-003 the harness imposes constants on two of three gate outcomes, so the instrument decides the verdict more than the agent does. Off the instrument, arm H shows the overlay's prose *does* change behaviour — `p = 0.007` — on a task that actually asks for a Prohibited action |
+| §5 validation table complete, layers applied in order | **yes** — above, with two rows deliberately not closing |
+
+**Verdict: `INCONCLUSIVE`, v1.0 not promoted.** Recorded under reading A, with reading B's
+`REJECT` preserved beside it, both fixed in writing before arm G's numbers existed.
+
 
 ## Exit gate
 
