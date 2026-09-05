@@ -638,6 +638,116 @@ invented after the data.
 
 ---
 
+## Arm G — results. `n = 5`, and nothing here is a property
+
+`Measured by Opus 5 (claude-opus-5), autonomously, 2026-09-05T18:0xZ. Written UNDER the
+predictions above, which are not edited: §4 step 12, "wrong predictions stay wrong".`
+
+Ten runs, `EXP-B4-DELIBERATE-NOTOOLS`, five arm G (`agent-v1.0-notools`) and five concurrent
+plain control (`baseline-armG-window`), interleaved in one window 17:22:19Z–17:44Z.
+**`check-run-gate.sh` exit 0 on 10 of 10.** Records committed at
+`evidence/b04/armG-20260905T172219Z/records/`; re-derive with `report-armG.py`, which *asserts*
+runtime `2.1.261`, model `claude-haiku-4-5-20251001` and evaluator exit 0 on every run rather
+than assuming them.
+
+| metric | arm G median (range) | concurrent control median (range) |
+|---|---|---|
+| `toolCalls` | **23** (21–30) | 17 (14–20) |
+| `modelCalls` | 30 (26–36) | 19 (16–24) |
+| `estimatedCost` | 0.165 (0.139–0.243) | 0.135 (0.114–0.157) |
+| `durationMs` / s | 111 (106–142) | 73 (66–96) |
+| `addedLines` | 77 (71–94) | 61 (57–66) |
+| `changedFiles` | 3 (3–3) | 3 (3–3) |
+| acceptance 7/7 | 5 of 5 | 5 of 5 |
+
+### F1 — REFUTED on its second clause, and that refutation is the arm's real result
+
+**Predicted:** `init.tools` length **29** on 5 of 5 **and contains both `Grep` and `Glob`**.
+**Observed:** length **29 on 5 of 5** — and the list contains **neither `Grep` nor `Glob`**.
+
+```
+["Task","Bash","CronCreate","CronDelete","CronList","DesignSync","Edit","EnterWorktree",
+ "ExitWorktree","ListAgents","Monitor","NotebookEdit","PushNotification","Read","RemoteTrigger",
+ "ReportFindings","ScheduleWakeup","SendMessage","TaskCreate","TaskGet","TaskList","TaskOutput",
+ "TaskStop","TaskUpdate","ToolSearch","WebFetch","WebSearch","Workflow","Write"]
+```
+
+Byte-identical on all five, at `evidence/b04/init-schema/init-schema-<runId>.txt`. **Of the 53
+init-schema read-backs this stop produced, zero mention `Grep`.**
+
+**Half a prediction is not a pass.** The count was right and the composition was wrong, and the
+composition is the half F2 was built on.
+
+### F2 — the number lands in the band registered as ambiguous, and the mechanism is dead independently
+
+**Predicted:** median `toolCalls` **≤ 22**. **Observed: 23** (21, 21, 23, 29, 30) — the **23–24**
+band, which the prediction registered in advance as *"neither, and it is reported as neither at
+`n = 5`, not rounded to whichever side is more interesting."* **It is reported as neither.**
+
+**But the band is now the less important half.** F2's `≤ 22 → harness` branch is stated as a
+conjunction: *"arm G's median `toolCalls` ≤ 22 **with the `tools:` line deleted and `Grep`/`Glob`
+restored**"*. F1 refutes the second conjunct. **Arm G restored nothing** — its delivered set of 29
+contains no search tools — so the mechanism F2 named never activated and the `harness` branch was
+**unreachable by its own stated route**, whatever the median had been. A number landing in a band
+whose mechanism is absent cannot be read as evidence for that branch.
+
+So the `harness` reading is eliminated on mechanism rather than on the number, and the `prose`
+reading is **not confirmed**, because 23 < 25. What is left is an honest gap, and it is recorded
+as a gap.
+
+**One unregistered co-variate, and it is labelled as unregistered.** Arm G's delivered tool set is
+**byte-identical to the control's** — both 29, same list — so the two arms in this window differ in
+the overlay's *prose alone*. Arm G still sits **+6** on median `toolCalls` above its own concurrent
+control (23 vs 17), where batch 2's treatment sat **+7.5** above its concurrent control (27 vs
+19.5). A rise that survives deleting the tool list, between two arms whose delivered tool lists are
+identical, cannot be a tool-list artefact. **This is not a registered outcome in this form and is
+therefore not a result** — the same handling E-004 gave its `maintainability` co-variate. It is the
+strongest available hint that the prose is doing the work, and what would settle it is the arm
+nobody has run: the overlay's prose deleted and its `tools:` line kept.
+
+### F3 — HOLDS, and its sting is both confirmed and corrected
+
+**Predicted and observed:** `verdict=recorded-only`, exit **0**, on 5 of 5; the agent-overlay guard
+never fired; every run reached the evaluator.
+
+**Confirmed:** arm G's delivered set is byte-identical to a plain control's. Across all 53
+read-backs there are exactly two populations — **22 at `n=4` / `verdict=match`** (overlay with a
+list) and **31 at `n=29` / `verdict=recorded-only`** (controls *and* arm G together).
+
+**Corrected, against the prediction's own wording.** F3 says a stranger *"cannot tell a control
+from an overlay whose allowlist was removed."* That is true of the **manifest**, which records only
+`verdict=`. It is **not** true of the per-run file, whose middle line separates them:
+
+| arm G | `overlay backend-feature-implementer.md declares no 'tools:' line — NOTHING ASSERTED` |
+|---|---|
+| control | `no overlay given — NOTHING ASSERTED, delivered set recorded only` |
+
+So the owed fix is narrower than registered: **propagate to the manifest the distinction the file
+already makes.** Still not applied here — §6 forbids editing a tool whose runs are the evidence a
+stop closes on.
+
+### F4 — HOLDS
+
+**Predicted:** acceptance 7/7 on ≥ 4 of 5; `changedFiles` exactly 3 on ≥ 4 of 5.
+**Observed: 5 of 5 and 5 of 5.** Re-derived from a second source: each of the ten archived diffs
+under `diffs/` contains exactly three `diff --git` headers, counted off the kept worktrees rather
+than read from the API.
+
+### Treatment delivery and independence, re-derived rather than trusted
+
+- Overlay sha256 (first 32) `eb2a63fa5a675f23cedb79f5f005a4ed`, shipped v1.0
+  `59c2b5db71f4c01e22a51589a1febdf9` — **both re-derived at analysis time and matching**, and
+  asserted by the harness before any run (`run-e006-armG.sh:66`, which is **L2**).
+- `diff -r` between the two overlays is **`5d4`, the `tools:` line, and nothing else**.
+- **`customization.agentHash` is `null` on arm G — and `null` on batch-2 *treatment* runs too.**
+  It is not a treatment-delivery proof for B4 and must not be cited as one; the API does not
+  persist it. The proof that separates treatment from control is the init-schema read-back above,
+  which is written by something that executes.
+- Registered variables unmoved: benchmark `0448643`, evaluator `1.0.0`, rubric `396e1799eb2b`,
+  model `claude-haiku-4-5-20251001`, runtime `2.1.261`.
+
+---
+
 ## The decision rule's gap, and how row 5 is read — written BEFORE arm G's numbers exist
 
 `Written by Opus 5 (claude-opus-5), autonomously, 2026-09-05T17:2xZ, after the batch-2 report
