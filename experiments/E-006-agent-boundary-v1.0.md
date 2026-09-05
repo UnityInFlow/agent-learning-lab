@@ -221,6 +221,43 @@ Precedents and provenance: `2.1.251 → 2.1.259` (stop 6), the overlay force-add
 variable and changes nothing the benchmark or evaluator measures.
 `Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-05.`
 
+**Amended 2026-09-05, before the first batch run, when the change was built.** The harness move
+is larger than the paragraph above described, and the extra part is disclosed here rather than
+discovered later.
+
+| What moved | Applies to | Why it had to |
+|---|---|---|
+| `--agent <name>` in `CLAUDE_ARGS` | **treatment arm only** | without it the overlay is a subagent nobody invokes |
+| a section-5 guard refusing an agent overlay with no `--agent`, a `--agent` naming no installed file, and `--agent` with no `--customization` | both arms | the control passes none of them, so it can never fire there |
+| `--output-format stream-json --verbose` on the non-interactive claude launch | **both arms, identically** | the `system`/`init` record is the only place the delivered tool schema exists |
+| an executing check comparing `init.tools` to the overlay's `tools:` line, exit 9 on a mismatch | both arms; **asserted** on the treatment arm, **recorded only** on the control | author decision 8 |
+| structural F13 detection from the stream's terminal `result` record | both arms | see below |
+
+**The output-format change is on BOTH arms and that is the point.** Putting it on the treatment
+arm alone would make the launch itself a between-arm difference and confound the comparison with
+the instrument added to protect it — decision-rule row 0b would fire on this experiment's own
+harness.
+
+**It also forced a second change, and skipping that one would have been the quiet failure.**
+`INFRA_SIGNATURE` is a list of five phrase groups matched against the agent log, and it is how a
+quota exhaustion is recorded as F13 (infrastructure) rather than F03 (incorrect code). Under
+`stream-json` a claude failure arrives as a terminal `result` record whose `is_error` is true and
+whose `subtype` names the class — words that appear in none of those phrases. Left alone, the
+format change would have **weakened F13 detection for the only arm every experiment in this track
+uses**, and the damage would have looked like a fact about the agent. `run-agent.sh` now also
+reads that record structurally, gated on the run having produced no diff, so it cannot condemn a
+run that passed the evaluator.
+
+**What crosses this line.** Nothing inside E-006: both arms run under it, concurrently and
+interleaved. What crosses it is any comparison against a **stored** B2 or B3 run, including the
+reference populations §5's MDE column is derived from. Those were used to fix thresholds *before*
+this batch and are not arms of it; no E-006 verdict is computed against a stored run.
+
+`Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-05T09:xxZ. Built in agent-observatory
+968b498 on branch stop10/b4-agent-delivery, and proved by verify-init-schema-check.sh (17 of 17)
+and verify-agent-delivery.sh (9 of 9), the latter also run against a copy of the runner with the
+guard deleted, where cases A, B and C go red.`
+
 ## Runs
 
 **10 treatment + 10 control, interleaved.** Deliberate-failure arm registered separately at §4
