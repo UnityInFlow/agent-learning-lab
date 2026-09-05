@@ -35,10 +35,25 @@ for f in sorted(glob.glob(os.path.join(HERE, 'records', '*.json'))):
                      acc=ev['acceptanceCriteriaPassed'], accTotal=ev['acceptanceCriteriaTotal'],
                      passed=ev['passed'], exitCode=ev['exitCode']))
 
-# A registered variable that moved would void the comparison. Assert, do not assume.
-assert {r['runtime'] for r in rows} == {'2.1.261 (Claude Code)'}, 'runtime moved'
-assert {r['model'] for r in rows} == {'claude-haiku-4-5-20251001'}, 'model moved'
-assert all(r['exitCode'] == 0 for r in rows), 'a run did not pass the evaluator'
+# A registered variable that moved would void the comparison. CHECK, do not assume -- and do it
+# with `raise`, not `assert`: `python3 -O` strips assertions, and a checker that a flag can switch
+# off is a control that reports success over a scope smaller than it claims.
+# (Findings 3, 4 and 5 of the 4a review of this file, 2026-09-05. Fixed, not disputed.)
+def _require(cond, msg):
+    if not cond:
+        raise SystemExit(f'report-armG: REFUSING to print a comparison -- {msg}')
+
+_require({r['runtime'] for r in rows} == {'2.1.261 (Claude Code)'}, 'runtime moved')
+_require({r['model'] for r in rows} == {'claude-haiku-4-5-20251001'}, 'model moved')
+_require(all(r['exitCode'] == 0 for r in rows), 'a run did not pass the evaluator')
+# exitCode 0 and `passed` false is a shape this script used to accept silently.
+_require(all(r['passed'] for r in rows), 'a run has exitCode 0 but evaluation.passed false')
+# Cardinality and membership: without this, adding or losing a record still prints a comparison.
+_require({r['variant'] for r in rows} == {ARM, CTL},
+         f'unexpected variants present: {sorted({r["variant"] for r in rows})}')
+for _v in (ARM, CTL):
+    _n = sum(1 for r in rows if r['variant'] == _v)
+    _require(_n == 5, f'{_v} has {_n} records, registered n = 5')
 
 for variant in (ARM, CTL):
     g = [r for r in rows if r['variant'] == variant]
@@ -47,7 +62,11 @@ for variant in (ARM, CTL):
         xs = [r[m] for r in g]
         print(f'    {m:14s} median={st.median(xs):9.3f}  range={min(xs)}–{max(xs)}'
               f'  Q1={quartile(xs,.25):.3f} Q3={quartile(xs,.75):.3f}  {sorted(xs)}')
-    print(f'    acceptance {g[0]["accTotal"]}/{g[0]["accTotal"]} on '
+    # Drawn from every record, not from g[0]: a group whose records disagree on the
+    # denominator used to be reported under the first record's. (Finding 5 of the 4a review.)
+    _tots = sorted({r['accTotal'] for r in g})
+    _tot = _tots[0] if len(_tots) == 1 else '/'.join(map(str, _tots)) + '(MIXED)'
+    print(f'    acceptance {_tot}/{_tot} on '
           f'{sum(1 for r in g if r["acc"] == r["accTotal"])} of {len(g)}; '
           f'changedFiles==3 on {sum(1 for r in g if r["changedFiles"] == 3)} of {len(g)}, '
           f'>=4 on {sum(1 for r in g if r["changedFiles"] >= 4)}')

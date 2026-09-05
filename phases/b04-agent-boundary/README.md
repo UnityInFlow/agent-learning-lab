@@ -286,6 +286,26 @@ a tool-list artefact.
 it. `## Boundaries` stays **L3** — nothing executed, `Edit` and `Write` were delivered in every
 cell, and H1 defected once unprompted — but the label is now **observed rather than asserted**.
 
+### Two corrections this stop's own §4a review forced, and the build spec is one of them
+
+`From `findings/opencode/review-README-20260905T182126Z.md` (`-P codex -A -n 2`), recurrence 2/2 on
+both. Fixed, not disputed.`
+
+1. **The build spec's trap says *"only the tool list constrains"*, and arm H shows that is too
+   strong.** The overlay's prose boundary moved behaviour from 0 of 5 held to 8 of 10 held,
+   `p = 0.007`. The trap is right that a `tools:` list is the only thing that *executes* — and
+   E-005 showed even that filters names, not capabilities, once `Bash` is in the list. But
+   *"only the tool list constrains"* is a claim about **effect**, and on this evidence prose
+   constrains too, just without a mechanism to appeal to. **The trap's layer claim survives; its
+   effect claim does not.**
+2. **Arm H's effect cannot be attributed to `## Boundaries` alone.** H1/H2 differ from H3 in the
+   overlay's *entire* prose, in `--agent` launch mode, and in the delivered tool set — three things
+   at once. The discriminating cell (overlay installed, `## Boundaries` deleted, everything else
+   intact) **was not run**. What arm H licenses is *"the overlay's prose changed behaviour"*, not
+   *"this clause did"*. E-006 registered that gap before the data as the thing most likely to
+   overturn the result; it is repeated here so the workbook does not read stronger than the
+   experiment.
+
 ## §4 step 10 — keep, modify, remove, per element
 
 The rule is *"a rule with no measured effect is removed, and its removal is recorded as the
@@ -381,16 +401,16 @@ more focused**, since scope discipline is what a boundary buys.
 
 **Plus, for this to count as a learned phase:**
 
-- [ ] the delivered `init.tools` schema recorded **per arm**, before the prediction commit
+- [x] the delivered `init.tools` schema recorded **per arm**, before the prediction commit
       (author decision 8), and diffed against the overlay file
-- [ ] the treatment proved to have reached the model, and proved not to have reached the control
-- [ ] every clause of §10.3's Prohibited list labelled by layer, with **no clause rounded up**
-- [ ] `keep / modify / remove` decided per section of the ten, with the measured no-effect on
+- [x] the treatment proved to have reached the model, and proved not to have reached the control
+- [x] every clause of §10.3's Prohibited list labelled by layer, with **no clause rounded up**
+- [x] `keep / modify / remove` decided per section of the ten, with the measured no-effect on
       record for every `remove`
-- [ ] **"was this the agent, or the harness?"** answered — and at this stop the honest answer is
+- [x] **"was this the agent, or the harness?"** answered — and at this stop the honest answer is
       partly *the harness*, because the gate's outcome variable is a constant the instrument
       imposes
-- [ ] §5 validation table complete, every row's proof layer applied in order
+- [x] §5 validation table complete, every row's proof layer applied in order
 
 ## §5 Validation table
 
