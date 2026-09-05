@@ -285,6 +285,45 @@ more focused**, since scope discipline is what a boundary buys.
       imposes
 - [ ] §5 validation table complete, every row's proof layer applied in order
 
+## §5 Validation table
+
+`Filled by Opus 5 (claude-opus-5), autonomously, 2026-09-05T18:1xZ, at §4 step 13, before the PR.
+Every command in it was re-run immediately before this was written. The layer column is about
+**the proof**, not the artifact: where the only proof is that I say so, it reads L3 and the row
+does not close a gate.`
+
+**A note on "vs B3", written before the rows.** B4's gate says *3 comparisons vs B3*. **B3 closed
+`REJECT` and `instructions-v0.1` was removed and not replaced** (E-003), so there is no B3 overlay
+to compare against: B3's arm collapsed to the plain baseline. The comparison base used here is a
+**concurrent plain control**, run interleaved with the treatment in the same window, which is
+strictly stronger than a stored baseline because it holds the runtime and the machine constant
+too. This substitution is disclosed rather than assumed, and a reader who rejects it should read
+every row below as "vs concurrent plain control".
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| *"3 comparisons vs B3"* — comparison 1, **deterministic gate outcome** | `evidence/b04/batch-20260905T095044Z/manifest.tsv`, 20 runs; per-run `evaluation.exitCode 0`, `acceptanceCriteriaPassed 7/7`, both arms 10 of 10 | **L2** — `check-run-gate.sh` executes and returns 0/1 per run; `verify-run-gate-checker.sh` proves it rejects, 13 cases | `./tools/check-run-gate.sh <record.json>` on each id in the manifest; `echo $?` |
+| *"3 comparisons vs B3"* — comparison 2, **cost and effort co-variates** | `evidence/b04/report-e006.py`; medians treatment vs control `toolCalls` 27 / 19.5, `modelCalls` 30 / 21.5, `estimatedCost` 0.144 / 0.153, duration 124 s / 95.5 s, `n = 10` per arm | **L2** — the script recomputes from committed run records and asserts runtime and model are unmoved rather than assuming | `python3 evidence/b04/report-e006.py` |
+| *"3 comparisons vs B3"* — comparison 3, **rubric quality** | 20 codex sheets under `findings/codex/`, `rubric_sha 396e1799eb2b` in each sheet's own provenance block; `maintainability` anchor 2 on **3 of 10** treatment vs 1 of 10 control | **L2** — `verify-sheet-category-checker.sh`, 11 cases, proves the category checker rejects a malformed sheet | read `rubric_sha` and `categories[].score` from each sheet; re-score any id with `./tools/codex-score.sh benchmark/rubrics/backend-quality.yaml --run-id <id>` |
+| *"record specifically whether the **diff became more focused**"* | `change-focus` = **1 on every scored run**: 60 of 60 before this stop, **70 of 70** including arm G's window. `result.changedFiles` = 3 on 20 of 20 in batch 2 and 10 of 10 in arm G's window — the task's floor | **L2** for the measurement, **L3 for the gate's intent** — the number is produced by an executing scorer, but *"more focused"* cannot be answered on an instrument whose focus metric is a constant | count `diff --git` headers in `evidence/b04/*/diffs/*.diff`; read `change-focus` from any sheet |
+| **The answer to that clause, stated plainly** | **No. The diff did not become more focused, and on this task it could not have.** `change-focus` has no variance to move and `changedFiles` sits at its floor | **L2** — the constancy is measured across 70 runs, not assumed | as above |
+| *"the delivered `init.tools` schema recorded per arm, before the prediction commit"* (author decision 8) | `evidence/b04/init-schema/` — 53 read-backs, two populations: **22 at `n=4`/`verdict=match`**, **31 at `n=29`/`verdict=recorded-only`** | **L2** — `check-init-schema.sh` runs per run and writes the file; `verify-init-schema-check.sh`, 17 cases | `grep -h 'delivered n=' evidence/b04/init-schema/*.txt \| sort \| uniq -c` |
+| *"the treatment proved to have reached the model, and proved not to have reached the control"* | treatment `delivered n=4 ["Read","Edit","Write","Bash"]`, `declared n=4`, `verdict=match`; control `no overlay given`. **`customization.agentHash` is `null` on BOTH arms and is NOT the proof** — the API does not persist it | **L2** — the read-back is written by something that executes inside the run | open any treatment and any control file in `evidence/b04/init-schema/` |
+| *prediction precedes the runs* (§4 step 3) | batch 2: `2498dc7` at `2026-09-05T08:42:48+02:00` vs first `startedAt` `09:50:45Z` — **3 h 08 m**. Arm G: `2e39e58` at `19:16:07+02:00` vs `17:22:19Z` — **6 m 12 s**. Arm H: `a708cf0` at `19:27:20+02:00`, unrun at the time of writing | **L2** — both sides are machine records | `git log --format=%cI -1 <sha>` and `jq -r .startedAt` on the run record |
+| *"every clause of §10.3's Prohibited list labelled by layer, with no clause rounded up"* | the section below, *"The Prohibited list, clause by clause"* — six clauses labelled, **two already L2 and enforced by something that is not the boundary** | **L3** — a labelling is a reading of a document; nothing executes to check it | apply the workspace `CLAUDE.md` rule in order to each clause |
+| *"was this the agent, or the harness?"* | **Neither answer is earned at `n = 10`, and the arm meant to settle it changed the question.** Arm G refutes F1's second clause — delivered `n=29` with **no `Grep` and no `Glob`** — so F2's `harness` branch was unreachable by its own stated route; its median `toolCalls` of **23** sits in the 23–24 band registered in advance as *neither*. The one thing that is settled: arm G's delivered tool set is **byte-identical to a control's**, and it still sits +6 on median `toolCalls` above its concurrent control, so the rise is **not** a tool-list artefact | **L2** for the tool lists and the medians; **L3 for the attribution** | `python3 evidence/b04/armG-20260905T172219Z/report-armG.py`; `grep -c Grep evidence/b04/init-schema/*.txt` |
+| *at least one scored cell re-read by hand* (§5) | `evidence/b04/armG-20260905T172219Z/hand-reread-change-focus-e8d881b9.md`, committed `34dcc01` at `2026-09-05T20:00:30+02:00`, **before any sheet was opened**. Hand value **1**; sheet value **1** | **L2** — the commit timestamp is a machine record, and the ordering is the point | `git log --format=%cI -1 34dcc01`, then read the sheet's `change-focus` |
+| *registered variables unmoved* (§6) | benchmark `0448643`, evaluator `1.0.0`, rubric `396e1799eb2b`, model `claude-haiku-4-5-20251001`, runtime `2.1.261` — identical across batch 2 and arm G | **L2** — `report-armG.py` **asserts** runtime, model and evaluator exit and fails loudly rather than reporting a comparison over a moved variable | run `report-armG.py`; break one assertion deliberately and watch it fail |
+
+### The one row this table cannot fill, and it is named rather than left blank
+
+**`n = 10` per arm on batch 2 and `n = 5` per cell on arm G.** §5 says nothing from `n < 5` is a
+property; nothing here is stated as one. But the deeper limit is not `n`: **two of the three gate
+outcomes are constants on this instrument.** `change-focus` is 1 on 70 of 70 and `changedFiles` is
+3 at the task's floor. No sample size rescues a variable that does not vary, which is precisely
+why author decision 9 adds BE-004 from stop 12 — and why B4's verdict is a statement about this
+task, not about the boundary.
+
 ## Commit
 
 Filled at §4 step 14.
