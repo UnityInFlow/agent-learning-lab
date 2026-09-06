@@ -3,8 +3,9 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "What is BLOCKED ON YOU" item 0 below — it is new, it is about how this run is
-driven, and it outranks everything else in this file.** Then "Stop 10 is CLOSED".
+**Start at "What is BLOCKED ON YOU" item 000 below — it is the live halt, it names the one thing
+that has to happen before the run can move, and it outranks everything else in this file.** Then
+item 0, then "Stop 11 is CLOSED".
 
 Stops 4–9 are merged. **Stop 10 (B4) is closed `INCONCLUSIVE`: the first agent exists and does
 not promote.** The run's two largest results now stand as a pair. B3: *a global instruction file,
@@ -22,7 +23,47 @@ stop 12 (B5). **Stop 12 does not open until benchmarks#29 is merged** — that i
 it is a §7 halt if it is not merged when stop 12 is reached.
 
 **lab#14 (Phase 4B) STAYS OPEN**: labs 4B.1, 4B.2 and 4B.3 are deferred, and §4 step 14 says a
-Phase issue stays open while any of its labs is.
+Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
+(`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
+pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## What the fourteenth session did — validator pass 16, and no stop opened
+
+**2026-09-06, after the halt. No runs, no experiment, no stop-12 artifact** (§6 forbids a future
+step's artifacts early). `findings/track-b-validation-2026-09-06-3.md` was on disk, untracked and
+unprocessed; §0 says a new validator file is handled before any stop continues. It is the **first
+§9 audit of stop 11's closure** — passes 14 and 15 saw it only while it was open — and its verdict
+is **CONFIRMED WITH CORRECTIONS**, no failing gate row.
+
+**All eight corrections were verified against the files before being applied, and all eight were
+correct.** Applied additively; no prediction, result, sheet or run folder rewritten:
+
+| # | What it caught | Where |
+|---|---|---|
+| 1 | **lab#14 closed** while five documents say it stays open | GitHub — reopened |
+| 2 | **the halt's paperwork did not exist** — no `findings/track-b-<date>.md`, no BLOCKED item | `findings/track-b-2026-09-06.md`, item 000 above |
+| 3 | **three stale summary headers**: E-007 still announcing a destroyed database, the workbook still "🟨 open — §4 step 1", the workspace `CLAUDE.md` still "position 10, OPEN" | all three corrected in place |
+| 4 | the hand-re-read ordering labelled **L2 where it is L3** — nothing executes to reject a sheet that predates the hand commit. **Third recurrence** | workbook §5, note ‡ |
+| 5 | the refuted **"70 of 70 — a dead category"** wording re-entered two registered documents the day after pass 13 removed it. It is **73 of 73**, and E-006 §C2 found one `change-focus = 2` | additive notes; registered text untouched |
+| 6 | `changedFiles` and `addedLines` were **registered report-only and then never reported** | E-007 — re-derived from the API by me, not adopted: `addedLines` **90 vs 64, Δ +26**, quartiles non-overlapping; `changedFiles` **3 on 20 of 20** |
+| 7 | the §5 row still claiming **no registered variable moved**, when Claude Code went `2.1.261 → 2.1.263` | workbook §5, note § |
+| 8 | **"Four of seven held"** counts O7 as held; the table below it says it missed its band. It is **three of seven** | additive amendment |
+
+**The shape worth carrying: five of the eight are a summary claiming more than the detail beneath
+it.** Not one of them changes a number, a verdict or a gate — E-007 is still `NOT DETECTABLE`,
+row 4 — and all five would be believed by a reader who stopped at the first line. **Two are
+recurrences of corrections this run has already had** (the L2/L3 timestamp label, third time; a
+Phase issue closed with labs deferred, second time), which is the argument for making them execute
+rather than for correcting them again.
+
+**Pass 16's closing finding is adopted, not disputed, and it is the most useful thing in it.** The
+one effect stop 11 detected — `test-quality` 5 of 10 vs 0 of 10 — reduces on all twenty sheets to a
+single rubric clause, and arm O wrote a median **26 more lines, mostly tests**. The treatment was
+*the split including* the implementer's four lines of prose; P2 showed the `tools:` line moves
+nothing. **So the one thing that moved may be the worker's prose rather than the decomposition —
+E-003's result wearing E-007's treatment.** The fourth cell that would settle it (plain baseline
+plus those four lines, no split, `n = 10`) is **a new arm, so it is yours under §7**, and it is
+recorded in `blocked_on_author` rather than run.
 
 ## Stop 11 is CLOSED, the answer is `NOT DETECTABLE`, and the day's own halt was false
 
@@ -499,6 +540,45 @@ Decision E, Decision F, the four B2 predictions or the baseline result.
 </details>
 
 ## What is BLOCKED ON YOU, and cannot be delegated
+
+### 000. HALT — STOP 12 CANNOT OPEN UNTIL YOU MERGE `agent-observatory-benchmarks` PR #29 (2026-09-06)
+
+**This is the live halt. It is a gate, not a defect, and nothing is wrong with the instrument.**
+
+`gh pr view 29 --repo UnityInFlow/agent-observatory-benchmarks` → **`STATE=OPEN`**, re-checked
+`2026-09-06T20:3xZ`. Branch `be-004-cancel-order`, base `main`, title *"BE-004 cancel-order: a
+cross-module task with an all-or-nothing trap"*.
+
+**Why this stops the run rather than being worked around.** §3's itinerary and **author decision
+9** both say the same thing in the same words: *"Stop 12 does not open until benchmarks#29 is
+merged; if it is not, halt naming the PR."* §7 makes a new task a halt condition in its own right,
+and the decision that pre-made BE-004 as a permitted second task also pre-made the merge as
+**yours**. Opening stop 12 against an unmerged PR would mean running B5 on a task whose evaluator
+and fixtures are not on `main`, which is a registered-variable move.
+
+**What is already prepared, so the merge is the only thing missing:**
+
+- **BE-004's reference population** has no stored B2 run. Its MDE inputs must come from **its own
+  concurrent control at `n = 10`**, registered *before* the batch — this is written into
+  `TRACK-B-STATE.md` `next_action` and does not need deciding again.
+- **BE-004's rubric does not exist and is a registered instrument.** The draft is
+  `backend-quality-be004.DRAFT.yaml` at the workspace root; the v2 rubric's anchors name `confirm`
+  and `when (shipment.status)` and **null on BE-004**. Before any BE-004 run is scored the draft
+  must be proved on the five fixtures the way E-001 Decision B proved v2. **A dimension that does
+  not separate is a §7 halt, not something to edit past.**
+- Every other input is unchanged: model, runtime pinning, evaluator and benchmark sha discipline,
+  prediction-before-run, merge-not-squash, author decisions 1–8.
+
+**What was done instead of waiting idle**, this session: validator pass 16 processed in full and
+its eight corrections applied (branch `stop11/validator-pass-16-corrections`), lab#14 reopened,
+`findings/track-b-2026-09-06.md` written, and the §0a preflight re-run as §0a requires after a
+halt. **No stop-12 artifact was created** — §6 forbids a future step's artifacts early, and that
+rule is why this halt produced corrections rather than a head start.
+
+*Recorded by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06. Attribution for the fact that
+this item was missing from this section at all:
+`findings/track-b-validation-2026-09-06-3.md` (validator pass 16), correction 2 — the halt was
+named only in § Position, and §5's halt file had not been written either.*
 
 ### 00. HALT — THE OBSERVATORY DATABASE IS EMPTY. EVERY RUN RECORD THE PROJECT EVER MADE IS GONE (2026-09-06T13:1xZ)
 
