@@ -182,6 +182,22 @@ analyses from who changes code — is not expressible in this runtime.** Only th
 partitioned. The `tools:` field on a subagent "Inherits every tool available to subagents if
 omitted", and can only narrow.
 
+> **Corrected by observation, 2026-09-06T05:11Z — the paragraph above is what the page says,
+> and it is not what the runtime does when the parent is an `--agent` overlay.** The §4 step 2
+> probe (`evidence/p04b/lab-4b4/probe-20260906T050917Z/`, 3 runs per variant, flags verbatim from
+> the runner) delivered the main session `["Read","Task","Grep","Glob"]` on **3 of 3** P1 runs —
+> the file's four names, no rewrite, no `Edit`/`Write`/`Bash` — and on **3 of 3** the worker
+> subagent made a `Write` call visible in the parent's stream and `probe.txt` existed afterwards
+> containing `ok`. **The worker inherited the *conversation's* pool, not the main agent's
+> narrowed list.** "Main conversation" in the page's sentence is the session, and an `--agent`
+> overlay's `tools:` narrows the agent, not the session. So a structural split *is* available:
+> the orchestrator cannot write and the worker can. The claim above stays as written because it
+> is what a reader of the page would conclude, and this stop's first result is that the page
+> under-describes the runtime. Two more things the probe recorded: the delegation tool is listed
+> as `Task` in `init.tools` and appears as `Agent` in `tool_use` blocks — outcome 1 counts either
+> name; and every `model` value in all six streams was `claude-haiku-4-5-20251001`, so the
+> worker's `model:` pin held on 6 of 6 (observed, still nothing rejects a wrong one).
+
 Depth: "By default, a subagent can spawn subagents of its own, up to three layers below the main
 conversation." Return path: "Only the top-level subagent's summary returns to you" — the
 handoff back is a summary, which is Lab 4B.3's failure mode stated as a feature.
@@ -281,6 +297,113 @@ autonomous run**: 4B.1 is B5's measurement, 4B.2 needs a task with independent p
 after benchmarks#29), and 4B.3's handoff-fidelity question is folded into 4B.4's design as a
 registered outcome (the worker must receive one ticket detail the orchestrator has no reason to
 forward). Design and layers in §4 step 2 below.
+
+---
+
+## §4 step 2 — design, layers, and the trap
+
+`Decided by Claude Fable 5.1 (claude-fable-5-1), autonomous, 2026-09-06, before any run.`
+
+### The lab: E-007 — orchestration overhead on a task too small to split
+
+**Question.** On BE-003, what does an orchestrator–worker decomposition cost, and what does it
+return, against a concurrent plain baseline — with delegation *counted*, not assumed?
+
+**Arms.** `n = 10` per arm, interleaved, one experiment key, same runner, benchmark commit,
+evaluator, model (`claude-haiku-4-5-20251001`) and rubric sha (`396e1799eb2b`) as E-006 batch 2.
+
+| Arm | Delivered as | What the model sees |
+|---|---|---|
+| **O** — orchestrated | `--customization build/customizations/orchestration-4b4-P<1\|2>/ --agent orchestrator` | the main session *is* `orchestrator`, whose only job is to hand the ticket to the `implementer` subagent and verify its report; `implementer` is the second file in the same overlay |
+| **C** — concurrent control | no overlay, no `--agent` | the plain baseline, exactly as E-006's control |
+
+**Two overlay variants exist and the probe below picks one before the prediction commit.**
+
+- **P1** — `orchestrator` carries `tools: Read, Grep, Glob, Task`. It cannot `Edit`, `Write` or
+  run `Bash`; the only way the ticket gets done is through the worker. **A structural split** —
+  *if* the worker still inherits a pool that can write.
+- **P2** — no `tools:` key on either file. The split is prose: the orchestrator is told to
+  delegate and told not to edit. **An L3 split whose activation is L2-observable.**
+
+The extract's reading of the subagents page says P1 cannot work — a subagent's pool is its
+parent's, narrowed — and a `tools:` list is rewritten before delivery (E-005). Neither is taken on
+faith. **Author decision 8 applies to both files**: the init-schema probe runs each variant three
+times off the observatory, reads the main session's delivered `init.tools`, and observes whether
+the worker could write a file when the parent could not. The rule, fixed now:
+
+> **P1 is the treatment iff, on 3 of 3 P1 probe runs, the parent's delivered pool lacks
+> `Edit`/`Write`/`Bash` *and* the worker wrote the file.** Otherwise P2 is the treatment and the
+> P1 result is recorded as the extract's inheritance claim, observed rather than read.
+
+**Probe result, 2026-09-06T05:09–05:11Z — P1 admitted, 3 of 3.** `probe-20260906T050917Z/`:
+P1 delivered `["Read","Task","Grep","Glob"]` ×3, parent cannot write, `probe.txt` = `ok` ×3, one
+`Agent` (`Task`) call per run; P2 delivered the full 29 ×3, `probe.txt` = `ok` ×3, one call per
+run. **The treatment is `orchestration-4b4-P1`** (orchestrator `4f2af4ba7f740c33…`, implementer
+`6096f5ea35383112…`, sha256 prefixes). P2 (`1b259ccc09066cad…`, implementer byte-identical) is
+now the natural §4 step 9 deliberate failure — *remove the structural line and see whether the
+orchestrator still delegates* — and its prediction is written at step 9, not here.
+
+**Registered outcomes** (magnitudes and mechanisms in E-007):
+
+1. **Delegation** — `Task` `tool_result` events per run in the observatory telemetry. L2: the
+   count comes from something that executes. Control: 0 of 38 on file.
+2. **Cost** — `efficiency.estimatedCost` median vs the concurrent control.
+3. **Duration**, **`toolCalls`**, **`modelCalls`** — medians with quartiles.
+4. **Correctness** — evaluator exit code per arm; pass rate is a result, not a nuisance.
+5. **Quality** — `maintainability` anchor 2 reached, codex sheet, rubric `396e1799eb2b`.
+6. **Report-only, not outcomes:** `changedFiles` (3 on 19 of 19 historical controls — at the
+   floor), `addedLines`, `change-focus` (1 on 70 of 70 scored runs — a dead category).
+
+**Lab 4B.3 folded in — handoff fidelity, with its classification rule fixed before the run.**
+The orchestrator is instructed to pass the ticket *verbatim*. BE-003's gate checks the error
+cases, which is where a paraphrase loses a detail. Rule: an arm-O run that fails the evaluator is
+opened and classified **handoff loss** if the worker's delegated prompt (in the kept transcript)
+omits or alters an acceptance criterion the ticket states; **worker failure** otherwise. This is
+an L3 reading of a transcript and is labelled so; the *count* of failures is L2.
+
+**The gate's number, in the only form one task can give it.** BE-003 is 3 files and a median of
+69 added lines (concurrent control, `n = 10`). If arm O costs more and returns nothing the gate
+can see, the size below which decomposition loses is **at least this size** — a lower bound with
+its `n`, not a threshold. The threshold needs a second size, which is BE-004 at stop 12.
+
+### Every artifact, labelled — the rule applied in order, stopping at the first yes
+
+| Artifact | Layer | Why |
+|---|---|---|
+| `--agent orchestrator` delivery | **L2** | `claude --agent <unknown>` exits 1 and prints the registry (observed at stop 10); the runner's guard refuses an agent overlay without `--agent` (9 fixtures) |
+| `orchestrator` `tools:` line (P1 only) | **L2 if the probe admits P1** — the runtime refuses an absent tool by name (observed, stop 9). **Not present under P2** | the bad value can be written down, so not L1; something executes and rejects |
+| the orchestrator's *delegate, do not edit* prose | **L3** | nothing executes it. Its effect is measured by outcome 1 |
+| the `implementer` body | **L3** | prose |
+| `model:` pins on both files | **L3** | observed on `runtime.model` (main session) but nothing rejects a wrong pin; the worker's model is not on the run record at all — see the probe |
+| the init-schema probe | **L2** | an executing check over the `init` record, `verify-init-schema-check.sh` 17 fixtures |
+| delegation count from telemetry | **L2 as observation** | `tool_result` events with `tool_name = Task`, per run id, `jq` over `events.jsonl` |
+| `customization.agentHash` | **not available** | unchanged since stop 10: no field tracks a Claude agent overlay; independence rests on the `init` record, the setup commit and the telemetry, as E-006 §5 did |
+
+### The trap, and which layer converts it
+
+Two, and they face opposite ways.
+
+1. **The orchestrator does the work itself and *narrates* delegation.** A transcript that reads
+   as decomposed with 0 `Task` calls is the plain baseline wearing a costume. Converted by
+   **outcome 1 at L2**: the telemetry count, never the transcript.
+2. **The worker inherits a narrowed pool and cannot do the task**, so arm O measures an agent
+   that cannot write, not decomposition — E-005's *"an agent that cannot do what the task
+   instructs is not being measured on the task"*. Converted by **the probe at L2, before the
+   prediction commit**, which is why P1 is conditional and P2 is the fallback.
+
+The workbook's own trap — *"if a split does not reduce what the parent must hold, it is
+overhead"* — is what the cost and `modelCalls` outcomes measure directly.
+
+### Delivery proof, per arm
+
+- **Arm O:** `--agent orchestrator` accepted (exit ≠ 1 at start); `init.tools` per run diffed
+  against the variant's declared list by the runner's `check-init-schema.sh` (verdict `matches`
+  for P1, `recorded-only` for P2); ≥ 1 `Task` event in telemetry; the overlay directory's tree
+  hash in the setup commit.
+- **Arm C:** no overlay directory in the worktree; `customization.*Hash` all `null`; 0 `Task`
+  events.
+- **Both:** `runtime.model = claude-haiku-4-5-20251001`, benchmark sha and evaluator version
+  equal to E-006 batch 2, recorded per run in the batch manifest.
 
 ---
 
