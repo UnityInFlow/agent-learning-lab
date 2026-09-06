@@ -122,6 +122,11 @@ registered non-zero code. Gate-failing runs are reported per arm and not scored.
    lab ran, as the 17:34Z preflight taught.
 5. F13 session-limit exits are reported with their count and excluded from every median.
 
+> **Appended 2026-09-06, before the first run on this key — read this before acting on
+> exclusion 3.** "Verdict is not `matches`" is resolved to *set* equality, not string equality:
+> `order-differs` is admissible and recorded, `mismatch` is row 0a. Full reasoning, both
+> readings and the harness move it required: **§ Amendment 2026-09-06** below.
+
 ## Decision rule, fixed before the run
 
 | # | Condition | Verdict |
@@ -134,6 +139,11 @@ registered non-zero code. Gate-failing runs are reported per arm and not scored.
 | 5 | O6 higher than arm C by ≥ 3 | **REFUTE** — the split returned correctness |
 
 Rows 3 and 5 outrank row 1. The hypothesis is confirmed only by row 1 or row 2.
+
+> **Appended 2026-09-06, before the first run on this key.** Row 0a's `≠ matches` is read as
+> *set* inequality — see **§ Amendment 2026-09-06** below. Under the strict string reading the
+> experiment voids itself on every run of an intact arm, which is why the reading had to be
+> settled in writing before the batch rather than discovered in its results.
 
 ## Threats to validity, registered before the run
 
@@ -157,6 +167,113 @@ Candidate fixed now, prediction written then: variant **P2** — the same overla
 orchestrator's `tools:` line removed (`1b259ccc09066cad`), prose intact. The question it asks is
 whether an L3 instruction to delegate delegates when nothing structural forces it, which is the
 L2-vs-L3 demonstration this stop exists to make.
+
+## Amendment 2026-09-06 — what `matches` means, and the harness move it forced
+
+*Written **before the first run on `EXP-4B-ORCH-OVERHEAD`**, at §4 step 4, by
+`Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06`. Nothing above it is rewritten: the
+predictions, the MDE table and the decision rule stand at `c21781b` exactly as committed.
+No run existed on this key when this was written, and the batch had not started.*
+
+**What was found.** Step 4 begins with the check `next_action` demanded: does
+`runner/lib/check-init-schema.sh` compare the declared list as a *set* or as a *list*? It does
+both, in that order — exit 0 for an exact match, **exit 6 `order-differs`** for the same set in
+a different order, exit 5 `mismatch` for a different set. Run against all three P1 probe
+transcripts already on disk, with the shipped overlay as the declaration:
+
+```
+evidence/p04b/lab-4b4/probe-20260906T050917Z/P1-{1,2,3}.jsonl
+  delivered n=4 ["Read","Task","Grep","Glob"]
+  declared  n=4 ["Read","Grep","Glob","Task"]
+  verdict=order-differs        EXIT=6      (3 of 3)
+```
+
+**Why that was a blocker and not a footnote.** `runner/run-agent.sh` section 12b decided with
+`SCHEMA_RC -ne 0` on any arm carrying `--agent`, and exit 9 there means *"the file is not the
+treatment, the batch is VOID pending a redesign"*. So **every arm-O run of this batch would
+have voided itself**, for a treatment that had arrived with all four tools intact. The caller
+was stricter than the check it calls: `check-init-schema.sh`'s own header gives *"VOID,
+redesign, do not score"* to exit 5 **alone**, and to exit 6 *"Reported, never silently passed"*.
+Nothing executed that would have revealed the disagreement.
+
+**Both readings, written down before the verdict can be computed under either** (the discipline
+validator pass 13.3 asked for at stop 10):
+
+| Reading | `matches` means | Consequence for this batch |
+|---|---|---|
+| **A, strict** | the checker's literal `verdict=match`, exit 0 | every arm-O run is row 0a. The experiment is unrunnable *by construction* and contradicts its own § *How the treatment is delivered*, which registers `["Read","Task","Grep","Glob"]` as the expected observation |
+| **B, set equality — ADOPTED** | the delivered **set** equals the declared set; a permutation is recorded, not fatal | arm O stands; the per-run verdict token goes in the manifest and in § Sanity checks; `mismatch`, `no-init-record` and `no-tools-key` remain row 0a |
+
+Reading B is adopted because a `tools:` allowlist is a statement about **capability** — that is
+the only thing E-005 ever measured one doing — and a permutation removes no capability. Reading
+A is preserved here so a validator can re-derive the choice rather than take it.
+
+**The harness move, disclosed.** Fixing this in the overlay — rewriting its `tools:` line into
+the delivered order so the two strings match — was **rejected**: it would make the runtime's
+rewriting invisible by construction, which is the defect author decision 8 exists to expose,
+not a fix for it. The fix went into the runner instead:
+
+| Artifact | What it is | Layer |
+|---|---|---|
+| `agent-observatory/runner/lib/schema-verdict-policy.sh` | the six-code decision table, extracted so it can be executed rather than remembered | **L2** — it runs, and it returns 9 |
+| `agent-observatory/runner/verify-schema-verdict-policy.sh` | **16 cases**, all passing: the four codes that must still void, the two that proceed, four control-arm cases, three usage cases, and two **end-to-end** cases feeding the real checker's exit code to the real policy | **L2** |
+| `runner/run-agent.sh` § 12b | calls the policy; also gains `SCHEMA_CHECKED`, so a run that never reached the checker can no longer be reported as having passed it | **L2** |
+
+**Exactly one exit code moved: 6.** 5, 4, 3, 2 and any unregistered future code still exit 9,
+and `verify-schema-verdict-policy.sh` proves that by executing them. This is a change to the
+**runner's batch-stop signal only** — the evaluator's exit-code mapping, the benchmark commit,
+the fixtures, the rubric sha and the model id are untouched — which is why it is not a §7 halt
+under *"any proposed change to what the benchmark or evaluator measures"*. It is recorded as a
+**disclosed harness move**, the fourth in this track after `2.1.251 → 2.1.259`, the runner
+force-add (author decision 2), and `2.1.259 → 2.1.260`.
+
+**What a reader should distrust about it.** Loosening a control so that one's own arm passes is
+this project's house failure mode, and this is that shape. The defences are on the record and
+each is checkable: the checker's registered contract already separated 5 from 6 *before* this
+arm existed; the capability set is unchanged under a permutation; the alternative fix would
+have hidden the runtime's behaviour; and the four fatal codes are proved still fatal by
+something that executes. If a validator judges the move wrong, the batch is re-runnable under
+reading A only by first making the runtime deliver the declared order, which nothing in this
+project knows how to do.
+
+### Second finding of the same step: the runtime moved, and § Controlled variables was already wrong when it was committed
+
+`§ Controlled variables` says the Claude Code version is *"held equal to E-006 batch 2"*, which
+is **2.1.261**. At step 4, `claude --version` reports **2.1.263**, and the binary's own symlink
+dates the change:
+
+```
+/Users/…/.local/bin/claude -> …/versions/2.1.263      repointed  2026-09-06 06:38 local = 04:38Z
+probe-20260906T050917Z                                 ran        2026-09-06 05:09Z
+c21781b  (the prediction commit carrying that sentence) 2026-09-06 05:14:31Z
+```
+
+So the upgrade preceded both the probe and the prediction commit. **The sentence was false when
+it was written**, and it is corrected here rather than in place, because `c21781b` is the
+prediction commit and §4 step 12 forbids editing it. Three consequences, all registered before
+the batch:
+
+1. **The delivered-order observation is a 2.1.263 fact, not a 2.1.261 one.** The three P1 probe
+   streams ran 31 minutes after the upgrade. The `["Read","Task","Grep","Glob"]` result and the
+   `order-differs` verdict above therefore describe the binary this batch will actually use —
+   which is the version of that claim worth having, and it was luck rather than design.
+2. **The within-batch comparison is untouched.** Arms O and C are interleaved pair by pair on
+   one binary in one window, which is why this design carries its own concurrent control at
+   `n = 10` instead of comparing against a stored baseline.
+3. **The reference population in § Predictions and § MDE is on a *different runtime*.** Those
+   medians — cost $0.156, duration 97 s, `toolCalls` 20, `modelCalls` 22 — come from E-006
+   batch 2 at 2.1.261. The registered magnitudes stand exactly as committed and are **not**
+   revised. What changes is which number answers them: **every verdict is computed against this
+   batch's own 2.1.261-free concurrent control**, and where that control's median differs
+   materially from the reference population, § Results says so and reports both. A prediction
+   that turns out to have been aimed at a moved baseline is recorded as such, not repaired.
+
+`runtime.version` is on every observatory run record and in this batch's manifest, so a
+stranger can separate 2.1.263 runs from every earlier experiment without trusting this note.
+**Disclosed harness move, the fifth in this track**, and unlike the first four it is one nobody
+chose: the runtime upgraded itself between two sessions. Whether a version bump should void an
+open batch remains the author's call (`TRACK-B-STATE.md` `blocked_on_author`); it does not
+arise here, because this key had zero runs when the bump happened.
 
 ## Observed telemetry
 

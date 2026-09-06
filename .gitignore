@@ -13,3 +13,6 @@ evidence/b04/armH-*/wt-*/
 
 # lab probe scratch worktrees (nested git repos; a gitlink is not evidence) - stop 11
 evidence/**/wt-*/
+
+# The E-007 batch driver's PID lockfile: runtime state, never evidence.
+evidence/p04b/lab-4b4/.batch.lock
