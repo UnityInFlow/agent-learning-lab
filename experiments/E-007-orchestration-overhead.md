@@ -534,6 +534,57 @@ rubric version that no measured comparison depends on.
 autonomous, 2026-09-06. The interpretation, the anchor ruling and the decision not to repair the
 rubric are the orchestrator's, not the subagent's.*
 
+## §4 step 8 — the report, and why the registered tool could not produce it
+
+Run 2026-09-06T13:0xZ, over the twenty gate-passing runs and no others. Every run in the batch
+cleared `check-run-gate.sh`, so "compare only among runs that passed every gate" excludes nothing
+here — `n = 10` per arm, not a survivor subset.
+
+| | |
+|---|---|
+| command | `make baseline-report EXPERIMENT=EXP-4B-ORCH-OVERHEAD API_PORT=18081` |
+| output | `evidence/p04b/lab-4b4/batch-20260906T080905Z/step8/baseline-report.txt` |
+| per-arm derivation | `evidence/p04b/lab-4b4/batch-20260906T080905Z/step8/per-arm.py` → `per-arm.txt` |
+
+**The registered report tool cannot answer this experiment's question, and that is a finding
+about the instrument rather than about orchestration.** `baseline-report.py` is single-arm: it
+selects on `experimentKey` and pools everything under it. Both arms of E-007 share one key, so its
+median duration of 100 s is the median of arm O and arm C mixed together and is **not** the
+comparison. It is kept above because it is the registered command and its pooled figures are a
+cross-check on the derivation below — the pooled duration min/median/max (54 / 100 / 140) is
+reproduced exactly by `per-arm.py` over the same twenty documents.
+
+`per-arm.py` is committed beside the output and re-derives every cell from the run documents as
+the API returns them; its docstring carries the `curl` loop that refetches them. Median and range
+only, never a mean.
+
+| metric | arm O median (range), `n=10` | arm C median (range), `n=10` | O − C |
+|---|---|---|---|
+| duration (s) | **118** (73–140) | **88** (54–126) | **+30 s, +34.1 %** |
+| estimated cost ($) | **0.1266** (0.0933–0.1528) | **0.1462** (0.1047–0.1558) | **−0.0196, −13.4 %** |
+| input+output tokens | **10 632** (8 841–12 866) | **7 552** (6 710–8 800) | **+3 080, +40.8 %** |
+| cached tokens | **410 770** (272 478–546 413) | **635 840** (327 568–682 682) | **−225 070, −35.4 %** |
+| tool calls | **21** (14–25) | **18** (15–19) | **+3, +16.7 %** |
+| model calls | **26** (20–30) | **22** (12–22) | **+4, +18.2 %** |
+
+**The two directions that matter, stated as what they are.** Arm O is **slower** and
+**cheaper**: +34 % on median duration, −13 % on median cost. It bills *more* input+output tokens
+(+41 %) while reading *fewer* cached tokens (−35 %), and cached reads are the cheaper unit — so
+the cost fall is not a contradiction of the token rise, it is its arithmetic.
+
+**The ranges overlap heavily and the medians should not be read as separation.** Arm O's duration
+range (73–140 s) contains most of arm C's (54–126 s); pair 03 alone has arm O at 73 s and arm C at
+126 s, the reverse of the median ordering. What is registered here is the median and the spread.
+Whether that clears the decision rule registered before the run is §4 step 10's question and is
+not answered in this section.
+
+**`toolFailures` is not uniformly zero across the batch** — values of 0, 1 and 2 occur. It was not
+a registered outcome and is not treated as one; it is recorded so that a later reading of these
+runs does not discover it as news.
+
+*Reported by Opus 5 (claude-opus-5), autonomous, 2026-09-06. The pooled/per-arm distinction and
+the decision to commit the derivation script rather than paste numbers are the orchestrator's.*
+
 ## Results
 
 *(after the run)*

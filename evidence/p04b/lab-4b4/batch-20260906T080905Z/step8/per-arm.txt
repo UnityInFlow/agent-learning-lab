@@ -1,0 +1,27 @@
+metric         arm   n        min     median        max    O-C median
+---------------------------------------------------------------------
+duration (s)   O    10         73        118        140
+duration (s)   C    10         54         88        126
+                                                                   30  (+34.1%)
+
+cost ($)       O    10     0.0933     0.1266     0.1528
+cost ($)       C    10     0.1047     0.1462     0.1558
+                                                              -0.0196  (-13.4%)
+
+in+out tokens  O    10       8841      10632      12866
+in+out tokens  C    10       6710       7552       8800
+                                                                 3080  (+40.8%)
+
+cached tokens  O    10     272478     410770     546413
+cached tokens  C    10     327568     635840     682682
+                                                              -225070  (-35.4%)
+
+tool calls     O    10         14         21         25
+tool calls     C    10         15         18         19
+                                                                    3  (+16.7%)
+
+model calls    O    10         20         26         30
+model calls    C    10         12         22         22
+                                                                    4  (+18.2%)
+
+tool failures observed, both arms: [0, 1, 2]

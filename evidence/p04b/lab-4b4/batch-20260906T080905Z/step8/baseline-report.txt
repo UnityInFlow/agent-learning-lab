@@ -1,0 +1,21 @@
+# $ make baseline-report EXPERIMENT=EXP-4B-ORCH-OVERHEAD API_PORT=18081
+# run 2026-09-06T13:0xZ from agent-observatory. API_PORT=18081 is the SSH tunnel to the
+# colima VM; the normal host route localhost:8081 was dead at this time (see E-007).
+# NOTE: baseline-report.py is SINGLE-ARM. Both arms share this experiment key, so the
+# figures below POOL arm O and arm C and are NOT the comparison. See per-arm.txt.
+
+
+=== EXP-4B-ORCH-OVERHEAD ===
+  20 measuring run(s)
+
+  pass rate   20/20
+
+  outcome            n         min        p25     median        p75        max
+  ---------------- ---  ---------- ---------- ---------- ---------- ----------
+  duration (s)      20          54         87        100        124        140
+  estimated cost    20      0.0933     0.1187     0.1320     0.1480     0.1558
+  total tokens      20        6710       7582       8820      10615      12866
+  tool calls        20          14         18         18         20         25
+  model calls       20          12         20         22         26         30
+  cache tokens      20      293168     408964     516020     652174     707316
+

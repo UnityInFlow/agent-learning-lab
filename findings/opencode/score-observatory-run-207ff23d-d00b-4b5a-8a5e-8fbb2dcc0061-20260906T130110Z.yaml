@@ -1,0 +1,24 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-207ff23d-d00b-4b5a-8a5e-8fbb2dcc0061
+  mode:          run
+  run_id:        207ff23d-d00b-4b5a-8a5e-8fbb2dcc0061
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/207ff23d-d00b-4b5a-8a5e-8fbb2dcc0061
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.Od3KuKasGX/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260906T130110Z
+  attachments:   3 file(s) under test, 3 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+Error: you (hermannjirka15) have reached your weekly usage limit, upgrade for higher limits: https://ollama.com/upgrade or add extra usage: https://ollama.com/settings (ref: 01d96835-679a-4de2-8a09-3f5186c4b0d0)
