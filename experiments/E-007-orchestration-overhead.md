@@ -480,6 +480,50 @@ re-read that §5 requires is written down *before* any sheet is opened.
 
 ## The database loss — read this before any number below it
 
+> ## RETRACTED IN FULL, 2026-09-06T17:5xZ. THERE WAS NO DATABASE LOSS.
+>
+> **Attribution: `findings/track-b-validation-2026-09-06-2.md` (validator pass 15,
+> claude-sonnet-5), item 1 and its closing finding. Every claim below this block is FALSE and
+> is kept verbatim, unedited, because it is the record of how it was made.**
+>
+> **What is actually true, re-derived by me before adopting the validator's word** (§6: when a
+> check goes green, re-verify one of its cases by hand):
+>
+> | Check | Command | Result |
+> |---|---|---|
+> | the real stack | `docker --context colima ps` | `agent-observatory-observatory-api-1` **Up 7 days (healthy)**, `0.0.0.0:8081->8080/tcp`; `agent-observatory-observatory-web-1` Up 8 days |
+> | the tunnel this session opened | `lsof -nP -iTCP:18081 -sTCP:LISTEN` | `ssh` pid **9688** still LISTEN on `127.0.0.1:18081` |
+> | the database | `curl -s 'http://127.0.0.1:18081/api/runs?limit=500'` | **HTTP 200, 325 run records**, this batch's twenty among them |
+>
+> **The mechanism of the error, which is this project's house failure mode wearing Docker.**
+> This machine has three docker contexts (`colima`, `default`, `desktop-linux *`). The project's
+> stack has always run in **`colima`** — a fact this same session had already written into
+> `TRACK-B-STATE.md:22`. `make smoke` and `make up` ran against the **`desktop-linux`** default,
+> where no `agent-observatory` container existed, so compose built a **second, disjoint, empty
+> stack** on ports 8091/5435 with a volume created `2026-09-06T13:08:24Z`. Every one of the three
+> facts cited below is individually true and none of them is about the database this project
+> uses. **A control reported over a scope smaller than it claimed:** `docker volume inspect`
+> without `--context` answers for one context and reads as an answer about the machine.
+>
+> **And the halt contradicted the same session's own committed work.** All twenty codex sheets
+> carry `provenance.observatory: http://127.0.0.1:18081/api/runs/<id>` and were written
+> `12:59:10Z`–`13:08:53Z` **through this very tunnel**; `4c12d8b` committed them at `13:13:34Z`;
+> the halt commit `8d43a10` landed at `13:21:25Z` — eight minutes after committing the sheets it
+> declares impossible to produce. The sentence *"O7 cannot be measured"* was written about a cell
+> that had been on disk for twenty minutes.
+>
+> **What this changes below:** nothing about any measured number — the validator re-derived O1,
+> O2, O3, O4, O5 and O6 from disk and telemetry and all six reproduce exactly (item 4 of its
+> file). What it changes is the **provenance disclaimer** on § Results — *"nothing here is
+> re-derivable from the API"* is false; all of it is, through `127.0.0.1:18081` — and it
+> **removes the halt**: O7 is measured at **4 of 10** (§ below), decision-rule row 3 does not
+> fire, and the exit gate is answerable.
+>
+> **What it does NOT change, and what stays owed:** the runner still archives no copy of the run
+> record it POSTs (`run-agent.sh:1177`), and nothing in `agent-observatory/` backs this database
+> up — greppped for `backup`/`pg_dump`, nothing. The loss described below did not happen; it
+> remains possible. That is now a `blocked_on_author` item on its own, not a closed one.
+
 **Between 2026-09-06T08:55Z (the last successful API read of this batch) and 12:49Z (this
 session's start) the Docker environment on this machine was wiped.** Not by anything in this
 session: the §0a preflight's stack row failed *before* I ran a single docker command
@@ -552,6 +596,67 @@ mechanism registered in the hypothesis is wrong**, and it was called wrong twice
 was read — once at the preflight pair (n=1) and once in the state file, both in writing, both
 before any median was computed. What decomposition cost here was **time** (+34 %) and **turns**
 (+4 model calls), not money.
+
+### O7, measured — and the decision rule finished, 2026-09-06T18:0xZ
+
+**Attribution: `findings/track-b-validation-2026-09-06-2.md` (pass 15) item 3, which found the
+twenty registered sheets already committed and pointed at the cell the halt above calls
+unmeasurable. Added additively; nothing above is rewritten.**
+
+**The reading is written down before the number is applied**, as pass 13's directive 13.3
+established for stop 10: *row 3 fires only on `O7 ≥ 9 of 10` in arm O, counted as the number of
+arm-O runs whose `maintainability` cell scores the anchor-2 value; a cell that is `null` is
+counted as neither, and the denominator stays 10.* There are no nulls, so the two readings
+coincide and no second computation is needed.
+
+Re-derived by me this session by re-running the committed asserting collector,
+`evidence/p04b/lab-4b4/batch-20260906T080905Z/step7/collect-sheets.py`, over `findings/codex` and
+the batch manifest — not by reading the sheets:
+
+| Outcome | Registered threshold | Observed | Verdict | Provenance |
+|---|---|---|---|---|
+| **O7** `maintainability` anchor 2 | 1–3 of 10; only ≥ 9 of 10 detectable | **4 of 10** in arm O (raw `0 2 0 0 2 0 2 0 2 0`); arm C **5 of 10** (`0 2 2 2 2 0 0 2 0 0`) | **HELD in substance, missed by one on the letter** — the registered band was 1–3 and the value is 4; it is far inside the MDE, so this is NOT DETECTABLE movement, not a refutation | 20 codex sheets, all `rubric_sha: 396e1799eb2b`, zero nulls, `provenance.observatory: http://127.0.0.1:18081/api/runs/<id>` |
+
+**O7 is 4 of 10, not ≥ 9, so row 3 does not fire.** Nothing improved that the gate can see: arm O
+is *lower* than arm C on maintainability (4 vs 5), which is inside the noise of a category whose
+control moved 1 of 10 → 5 of 10 between two batches five weeks apart.
+
+**The decision rule, applied in order and completed:**
+
+| Row | Condition | Fires? |
+|---|---|---|
+| 0a | verdict ≠ `matches` (set reading) or O1 < 9/10 | **no** — set delivered 10/10, O1 10/10 |
+| 1 | O2 ≥ +25 % **and** O3 ≥ +40 % **and** O6 not higher **and** O7 < 9/10 | **no** — O2 is **−13.4 %**, O3 is +34.1 % |
+| 2 | O6 lower than arm C by ≥ 3 | **no** — 10/10 vs 10/10 |
+| 3 | O7 ≥ 9 of 10 | **no** — **4 of 10** |
+| 4 | O2 < +25 % **and** O3 < +40 % **and** nothing improved | **YES** |
+| 5 | O6 higher than arm C by ≥ 3 | **no** |
+
+## Verdict: **NOT DETECTABLE** (row 4). The lower bound the gate asked for is NOT set.
+
+**Stated with its `n`:** on BE-003 with `claude-haiku-4-5-20251001`, `n = 10` per arm, one
+interleaved 44-minute window, splitting this task into orchestrator + implementer produced **no
+cost penalty** (−13.4 %, opposite to the registered +60 %), **a duration penalty below the
+registered threshold** (+34.1 % against ≥ +40 %), **no correctness change** (10/10 vs 10/10) and
+**no quality change the rubric can see** (4 of 10 vs 5 of 10). The registered claim — that
+decomposition costs more than it returns below some task size — **is not supported by this batch,
+and is not refuted either.** It is below this instrument's floor at this `n`.
+
+### A defect in the registered decision rule, recorded and NOT repaired
+
+**O5 held both its clauses and no row of the decision rule reads O5.** `modelCalls` moved +4 with
+non-overlapping quartiles (24–27 vs 19–22) — the only registered outcome besides O1 to clear its
+own MDE — and the rule that decides this experiment cannot see it. O1 is likewise absent from
+every row except as a delivery check in 0a. So the rule reduces a six-outcome experiment to O2,
+O3, O6 and O7, and **an overhead that showed up in turns rather than in money or seconds lands as
+NOT DETECTABLE.**
+
+This is not corrected. §6 forbids moving a registered variable mid-experiment and the decision
+rule is registered; editing it after seeing the numbers is precisely the move this project
+exists to refuse. **It is registered as the first follow-up**, and the honest reading of this
+batch is the one written above *plus* this sentence: **the split did cost something measurable —
+four extra model calls per run, quartiles not overlapping, n = 10 — and the pre-registered rule
+had no place to put it.**
 
 ## Observed telemetry
 

@@ -431,6 +431,39 @@ Decision E, Decision F, the four B2 predictions or the baseline result.
 
 ### 00. HALT — THE OBSERVATORY DATABASE IS EMPTY. EVERY RUN RECORD THE PROJECT EVER MADE IS GONE (2026-09-06T13:1xZ)
 
+> ## ~~00~~ RETRACTED IN FULL 2026-09-06T18:0xZ — **NOTHING WAS LOST AND THIS WAS NEVER A HALT.**
+>
+> **Attribution: `findings/track-b-validation-2026-09-06-2.md` (validator pass 15,
+> claude-sonnet-5). The item below is kept verbatim because it is the record of the error, not
+> because any of it is true. It is no longer blocked on you. What replaces it is item 00b.**
+>
+> **Re-verified by me before adopting the validator's word**, per §6 (*when a check goes green,
+> re-verify one of its cases by hand*):
+>
+> - `docker --context colima ps` → `agent-observatory-observatory-api-1` **Up 7 days (healthy)**,
+>   `0.0.0.0:8081->8080/tcp`; web **Up 8 days**. Never stopped, never wiped.
+> - `lsof -nP -iTCP:18081 -sTCP:LISTEN` → the SSH tunnel this same session opened, `ssh` pid
+>   **9688**, still listening.
+> - `curl -s 'http://127.0.0.1:18081/api/runs?limit=500'` → **HTTP 200, 325 run records**,
+>   including all twenty of the E-007 batch and every key back to `EXP-B2-BASELINE-CLAUDE`.
+>
+> **The mechanism.** This machine has three docker contexts — `colima`, `default`,
+> `desktop-linux *`. The project's stack has always run in **colima**, which the halting session
+> had itself already written into `TRACK-B-STATE.md:22`. `make smoke` and `make up` ran against
+> the **desktop-linux default**, where no `agent-observatory` container has ever existed, so
+> compose created a **second, empty, disjoint stack** on 8091/5435 and `docker volume inspect`
+> — invoked without `--context` — answered about *that* volume. Each of the three facts cited
+> below is individually true; none of them is about this project's database.
+>
+> **It also contradicted its own committed work by eight minutes.** All twenty codex sheets were
+> written `12:59:10Z`–`13:08:53Z` through that tunnel and committed at `13:13:34Z` (`4c12d8b`);
+> the halt commit `8d43a10` at `13:21:25Z` says those sheets cannot be produced.
+>
+> **Consequence:** the halt is lifted, O7 is measured at **4 of 10**, decision-rule row 3 does
+> not fire, and stop 11's exit gate is answerable. No number changed — pass 15 re-derived O1–O6
+> from disk and telemetry and all six reproduce exactly.
+
+
 **This is the blocker and it outranks everything below it. It is not about the agent under test
 and it was not caused by this session.** Stop 11 halts at §4 step 7 with the batch complete.
 
@@ -493,6 +526,31 @@ ids**. Those ids no longer resolve to anything: the sheets, manifests and report
 and fine, but *"open the run record and check `runtime.model`"* is no longer a re-derivable step
 for stops 4–10. §9's item 4 and item 7 both depend on it. **Nothing in this project ever backed
 that database up**, and until something does, the same wipe repeats.
+
+### 00b. THE OBSERVATORY DATABASE HAS NO BACKUP, AND THE RUNNER KEEPS NO COPY OF WHAT IT POSTS (2026-09-06T18:0xZ)
+
+**This is what item 00 should have said, and it is real even though the loss was not.**
+
+The scare was false; the exposure it revealed is not. Three facts, each verified:
+
+1. **`run-agent.sh:1177` builds the run record in memory and POSTs it. Nothing archives it to
+   disk.** If the POST is the only copy, the record exists in exactly one place.
+2. **Nothing in `agent-observatory/` backs that database up** — pass 15 grepped `Makefile` and
+   `infra/` for `backup`, `pg_dump`, `dump\.` and found nothing relevant. I did not re-grep;
+   this one is carried on the validator's word and labelled as such.
+3. **Every §5 table in stops 4–10 cites run ids**, and §9 validator items 4 and 7 both work by
+   opening a run record and reading `runtime.model`, `instructionsHash` and `customization.*Hash`
+   out of it. A real loss would make six closed stops permanently un-re-derivable — which is
+   exactly what the false alarm spent four hours believing.
+
+**What is yours:** whether the runner should write its POSTed payload beside the kept worktree
+(one line, L2, and it would have made the whole scare a non-event), and whether the volume gets
+a scheduled `pg_dump`. **Not mine** — it changes what the runner archives on every future run,
+which is a harness move under §7.
+
+**The cheap L3 that costs nothing and is already true:** the stack is in the **colima** context.
+Any `docker`, `make smoke` or `make up` in this project without `--context colima` is answering
+about a different machine.
 
 ### 0. HALT — MORE THAN ONE AUTONOMOUS ORCHESTRATOR IS RUNNING THIS PROMPT AT ONCE (2026-09-05T17:46Z)
 
