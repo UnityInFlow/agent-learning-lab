@@ -6,3 +6,5 @@
 # arm P2 adds:  CUSTOMIZATION=../agent-learning-lab/build/customizations/orchestration-4b4-P2 AGENT=orchestrator VARIANT=orchestration-4b4-P2
 # control adds: VARIANT=baseline-e007-p2-window
 seq	arm	run_id	exit	worktree	init_schema_verdict	delegations
+01	O	eac5b2b1-238e-4d8b-893c-bfe51a776e65	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-eac5b2b1-238e-4d8b-893c-bfe51a776e65	verdict=recorded-only	1
+01	control	43d316a3-7f02-4e95-b4a3-77e138503dbe	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-43d316a3-7f02-4e95-b4a3-77e138503dbe	verdict=recorded-only	0

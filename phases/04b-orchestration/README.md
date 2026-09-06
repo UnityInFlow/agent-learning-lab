@@ -476,12 +476,104 @@ prove otherwise. Measure the overhead and write it down.
 
 ## Exit gate
 
-- [ ] Workflow vs agent — who chooses the next step
-- [ ] Name all five patterns and which one your v1 uses
-- [ ] Why context isolation, not specialization, is the reason to split
-- [ ] What your handoff contract carries, and what it drops
-- [ ] **The task size below which decomposition costs more than it returns — as a number**
-- [ ] When orchestration should be deterministic code rather than a model decision
+*Answered 2026-09-06 at §4 step 11, from this stop's own extract and its one measured lab.
+Every number carries its `n`. Where the proof is words, the row says L3 and does not round up.*
+
+- [x] **Workflow vs agent — who chooses the next step**
+      **The agent chooses turn by turn; the workflow chose in advance.** In the vendor's own
+      words: *"With subagents, skills, and agent teams, Claude is the orchestrator: it decides
+      turn by turn what to spawn or assign next, and every result lands in a context window. A
+      workflow script holds the loop, the branching, and the intermediate results itself, so
+      Claude's context holds only the final answer."* The distinction is **where the control flow
+      lives**, not how many agents run. E-007's arm O is the first kind — the orchestrator holds
+      a numbered procedure and decides — and that is why removing one line from its frontmatter
+      can change what it does at all, which is §4 step 9's whole subject.
+- [x] **Name all five patterns and which one your v1 uses**
+      Prompt chaining · routing · parallelisation (sectioning and voting) · orchestrator–workers
+      · evaluator–optimiser. **v1 is prompt chaining** — sequential stages, one context handed
+      forward — and the extract records that this was the right choice *for a reason*: a backend
+      feature is dependency-dense and context-shared, which is the profile the source names as a
+      poor fit for fan-out. **E-007 built the orchestrator–workers pattern deliberately, on a task
+      the vendor's own page says should stay in the main conversation**, to measure what it costs
+      there. It is not a proposal for v1.
+- [x] **Why context isolation, not specialization, is the reason to split**
+      Because specialisation is available without a split and isolation is not. The same model
+      answers both roles here — `claude-haiku-4-5-20251001` is pinned in both overlay files — so
+      nothing about the worker is more specialised than the orchestrator; the only thing the split
+      creates is **a second context window that the parent never has to hold.** The extract's own
+      numbers say the same from the other side: multi-agent buys 90.2 % on a task where *"token
+      usage by itself explains 80 % of the variance"*, i.e. where the binding constraint is
+      context, and costs 15× where it is not.
+- [x] **What your handoff contract carries, and what it drops**
+      **Carries:** the ticket text *verbatim and in full* (instructed, not enforced — **L3**), plus
+      exactly one appended sentence, `Run ./mvnw test from sample-service/ before finishing and
+      report the result.` **Returns:** a three-line contract — `Delegations`, `Verification`,
+      `Not done`. **Drops, and this is the honest half:** everything the worker saw and did not
+      report. The orchestrator cannot read the worker's transcript, so *"Not done"* is the
+      worker's own account of its own failure — **self-report, at L3, and the failure mode the
+      extract names for exactly this shape is premature completion**, Claude *"declar[ing] the job
+      done after partial progress."*
+      **Measured, `n = 10`:** the handoff dropped nothing the gate can see — **O6, evaluator pass
+      rate, 10 of 10 in arm O against 10 of 10 in its concurrent control.** BE-003's gate lives in
+      its error cases, so a paraphrased ticket would have shown up there. *This is the strongest
+      available statement and it is still only about what the evaluator tests.*
+- [x] **The task size below which decomposition costs more than it returns — as a number**
+      **There is no number, and the absence is the result.** E-007 registered this as the gate's
+      deliverable and pre-registered the shape of the answer: *if O2 and O3 hold and neither O6 nor
+      O7 improves, the size is at least 3 files / 69 added lines — a lower bound, never a
+      threshold.* **The premise failed. `n = 10` per arm:** cost **−13.4 %** against a registered
+      **+60 %** (arm O was *cheaper*), duration **+34.1 %** against a **≥ +40 %** threshold, pass
+      rate **10/10 vs 10/10**, `maintainability` anchor 2 **4 of 10 vs 5 of 10**. Decision rule
+      **row 4 — NOT DETECTABLE.** The lower bound is **not set**, and saying otherwise would be
+      manufacturing a threshold out of a null.
+      **What the batch did detect, and where the registered rule could not put it:** `modelCalls`
+      **+4** with non-overlapping quartiles (24–27 vs 19–22), and delegation itself at **10 of 10
+      vs 0 of 10**. Overhead was real and it was in **turns**, not in money or seconds. **No row of
+      the decision rule reads O5**, which is a defect in the rule, recorded and deliberately not
+      repaired — editing a decision rule after seeing its numbers is the move this project exists
+      to refuse.
+      **The number this gate asks for needs a second task size, and that is BE-004 at stop 12.**
+- [x] **When orchestration should be deterministic code rather than a model decision**
+      **When the loop, the branching and the intermediate results would otherwise land in a
+      model's context** — the vendor's own formulation. A workflow script keeps them in the
+      script, so *"Claude's context holds only the final answer."* Two things make this concrete
+      rather than stylistic: the primitives return **typed** results (`agent()` takes a JSON
+      `schema:` and resolves to `null` on an unrecoverable error, so **a null is a measurement
+      here too**), and the caps are **L1** — *"Up to 16 concurrent agents"*, *"1,000 agents total
+      per run — Prevents runaway loops."* That last one is the extract's first failure mode
+      (*"agents spawning 50 subagents for simple queries"*) converted from advice into a limit
+      something enforces. **The layer test applies to this gate answer itself:** an orchestrator
+      told *"at most two delegations"* in prose is L3; a runner that cannot spawn a 1 001st agent
+      is L1.
+
+## §5 — validation table
+
+*Written at §4 step 13, before the PR. Every row's evidence is a path, an id or a sha, never a
+sentence. The **layer column is about the proof, not the artifact**: if the only thing saying a
+clause held is that I say so, it reads L3 and the clause is not closed on it.*
+
+**Where to read this from.** The observatory API is at `http://127.0.0.1:18081` (SSH tunnel into
+the colima VM; every colima host forward on this machine is dead and answers `000` while
+reporting the port OPEN). Run ids below resolve there and nowhere else on this machine — in
+particular **not** at `localhost:8081` and **not** at `localhost:8091`, which is a second, empty
+`agent-observatory` stack created in the wrong docker context on 2026-09-06 and left in place as
+the artifact of a recorded process violation.
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| *"Workflow vs agent — who chooses the next step"* | `phases/04b-orchestration/README.md` § Extract → *Dynamic workflows*, quoting the vendor page; answered in § Exit gate | **L3** — an extract and an answer; nothing executes | open the workbook's Exit gate and the quoted block above it; both quotes are traceable to `SOURCES.md` and `./tools/check-links.sh` passes on them |
+| *"Name all five patterns and which one your v1 uses"* | same, § Extract → *Building effective agents*; Exit gate item 2 | **L3** | as above |
+| *"Why context isolation, not specialization, is the reason to split"* | Exit gate item 3; supported by both overlay files pinning the **same** model `claude-haiku-4-5-20251001` — `build/customizations/orchestration-4b4-P1/.claude/agents/{orchestrator,implementer}.md`, shas `4f2af4ba7f740c33` / `6096f5ea35383112` | **L3** for the argument; **L2** for *"the same model answers both roles"* — `runtime.model` is `claude-haiku-4-5-20251001` on **20 of 20** run records | `curl -s 'http://127.0.0.1:18081/api/runs?limit=500' \| jq -r '.[]\|select(.experimentKey=="EXP-4B-ORCH-OVERHEAD")\|.runtime.model' \| sort \| uniq -c` |
+| *"What your handoff contract carries, and what it drops"* — **carries** | `orchestrator.md` § Workflow step 2 (ticket verbatim + one appended sentence); `implementer.md` § Output contract | **L3** — the instruction is prose; nothing rejects a paraphrase | `shasum -a 256` the two overlay files and read them |
+| *"…and what it drops"* — **the gate saw nothing dropped**, `n = 10` | O6: `evaluation.json` `exitCode: 0` in **all 20** kept worktrees `$TMPDIR/observatory-run-<runId>`; `./tools/check-run-gate.sh` on each → **20 admitted, 0 refused** | **L2** — `check-run-gate.sh` executes and refuses; it reads `evaluation.json` off disk and makes no network call | `for w in $TMPDIR/observatory-run-*/; do ./tools/check-run-gate.sh "$w/evaluation.json"; done` |
+| *"The task size below which decomposition costs more than it returns — as a number"* | **Not set.** `experiments/E-007-orchestration-overhead.md` § Results and § *O7, measured*; decision rule **row 4, NOT DETECTABLE**. O2 −13.4 %, O3 +34.1 %, O6 10/10 vs 10/10, O7 4 of 10 vs 5 of 10, all `n = 10` per arm | **L2 for the inputs, L3 for the verdict** — the numbers come from executing sources (telemetry, `evaluation.json`, 20 asserting sheets); *applying the rule* is a human reading a table, and nothing executes to reject a wrong reading | re-run `evidence/p04b/lab-4b4/batch-20260906T080905Z/step7/collect-sheets.py findings/codex evidence/p04b/lab-4b4/batch-20260906T080905Z/manifest.tsv`; it re-derives the score table and **asserts** `rubric_sha` on every sheet rather than reporting it |
+| *"When orchestration should be deterministic code rather than a model decision"* | Exit gate item 6, quoting *Dynamic workflows* incl. the `1,000 agents per run` cap | **L3** for the answer; the cap it cites is **L1** in the product being quoted, which is the point of the row and not a claim about this repo | open the workbook; the quotes are in § Extract with their source rows in `SOURCES.md` |
+| **O1 — the treatment activated**: arm O ≥ 1 delegation on 10/10, arm C 0/10, exactly one on ≥ 7/10 | `agent-observatory/infra/telemetry-out/events.jsonl`, `tool_result` events with `tool_name ∈ {Task, Agent}` joined by `observatory.run.id`; **10/10 vs 0/10, exactly one on 9 of 10** (`beae5092` has 2) | **L2** — counted from the runtime's own emitted events, not from the manifest's in-flight column and not from a flag | filter `events.jsonl` by `observatory.run.id` against the 20 ids in `evidence/p04b/lab-4b4/batch-20260906T080905Z/manifest.tsv` and count |
+| **The treatment reached arm O and not arm C** | `evidence/p04b/lab-4b4/init-schema/init-schema-<runId>.txt`, one per run: arm O **`delivered n=4 ["Read","Task","Grep","Glob"]`** vs declared `["Read","Grep","Glob","Task"]`, verdict `order-differs`, on 10 of 10; arm C **`delivered n=29`**, verdict `recorded-only`, on 10 of 10 | **L2** — read out of the runtime's own `system/init` record by `runner/lib/check-init-schema.sh`, which executes and can return 9. **NOT** from disk layout, and **not** from `customization.*Hash`, which is `null` on all 20 records including arm O | **join the ids to the batch manifest — do NOT glob the directory.** `awk -F'\t' '!/^#/ && $3 ~ /^[0-9a-f]{8}/ {print $2"\t"$3}' evidence/p04b/lab-4b4/batch-20260906T080905Z/manifest.tsv \| while IFS=$'\t' read -r arm rid; do f=evidence/p04b/lab-4b4/init-schema/init-schema-$rid.txt; [ -f "$f" ] && printf '%s\t%s\t%s\n' "$arm" "$(grep -o 'verdict=[a-z-]*' "$f"\|head -1)" "$(grep -o 'delivered n=[0-9]*' "$f"\|head -1)"; done \| sort \| uniq -c` → **`10 control recorded-only n=29` / `10 O order-differs n=4`**. *The unscoped glob over that directory is WRONG and was written here first: the directory also holds the §4 step 5 preflight pair and, from step 9, the P2 batch, so it returns 11/12 and reads as a miscount of a 20-run batch. A re-derivation command answering over a larger scope than its claim is the same defect as one answering over a smaller scope; it was caught by running it.* |
+| **The prediction preceded the first run** | prediction commit `c21781b` at `2026-09-06T05:14:31Z`; first run `startedAt 2026-09-06T08:09:06Z`; **2 h 54 m 35 s** | **L3** — git and the API both write timestamps, but a **human** compares them. `run-e007.sh` *does* refuse to start before its `PRED_COMMIT`, which is L2 for the batch and does not retroactively prove an earlier one | `git log --format=%cI -1 c21781b` against the earliest `startedAt` in the API for `EXP-4B-ORCH-OVERHEAD` |
+| **One scored cell re-read by hand, before any sheet existed** | `evidence/p04b/lab-4b4/hand-score-207ff23d.md`, committed `cd715e6` at `2026-09-06T12:58:11Z`; earliest sheet for the batch `12:59:10Z` — **59 seconds later**. Hand: `architecture-consistency 2`, `maintainability 0`, with `path:line`. Sheet: `2` and `0`, its evidence quoting the same clause | **L2 for the ordering** (two independent recorded timestamps); **L3 for the agreement** — I compared two documents | `git log --format=%cI -1 cd715e6`; `ls -t findings/codex/score-observatory-run-207ff23d-*.yaml \| head -1` |
+| **No registered variable moved between E-006 batch 2 and this batch** | `runtime.model` `claude-haiku-4-5-20251001` and Claude Code `2.1.263` on 20 of 20; benchmarks HEAD `0448643`; rubric `396e1799eb2b` asserted on **20 of 20 sheets** by the collector; evaluator `1.0.0` | **L2** — the batch driver `run-e007.sh` asserts model, benchmarks sha and claude version **before** the first run and exits 1 on any mismatch; the collector asserts the rubric sha per sheet | `./evidence/p04b/lab-4b4/verify-run-e007.sh` → **12 of 12**, every guard driven until it fired |
+| **The batch driver refuses** (a control shown to reject, not assumed to) | `evidence/p04b/lab-4b4/verify-run-e007.sh` → `12 passed, 0 failed, of 12 registered cases`; `EXPECTED_CASES=12` asserted at the end so a drift in scope exits 1 rather than misinforming | **L2** | run it |
 
 ## Commit
 
