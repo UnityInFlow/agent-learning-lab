@@ -157,3 +157,37 @@ verify your work before finishing.
 ---------------------------------------------------------------
 
 ==> reading telemetry back from the collector's event log
+claude-telemetry: no events found for run 5df49968-45f8-4c0d-8d1a-67f37a0ff350 in /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-observatory/infra/telemetry-out/events.jsonl
+    no telemetry found — behaviour metrics stay empty rather than guessed
+
+BE-003 evaluator 1.0.0
+  repo      /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-5df49968-45f8-4c0d-8d1a-67f37a0ff350
+  service   sample-service
+  baseline  b7cb8248f67f
+
+Changed files (3):
+  - sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+  - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+  - sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+
+  AC1 build                          PASS
+  AC2 existing tests                 PASS
+      agent's own tests              pass (recorded, not an AC)
+  AC3/AC5 functional suite           PASS
+  AC4 error contract                 PASS
+  AC6 no new dependencies            PASS
+  AC0 task attempted                 yes (2 production file(s))
+  AC7 scope discipline               PASS
+
+  acceptance 7/7   exit 0
+  evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5df49968-45f8-4c0d-8d1a-67f37a0ff350/evaluation.json
+evaluator exit code: 0
+
+==> registering benchmark and run with the Observatory
+
+  run recorded:  http://localhost:18081/api/runs/5df49968-45f8-4c0d-8d1a-67f37a0ff350
+  UI:            http://localhost:5174/runs/5df49968-45f8-4c0d-8d1a-67f37a0ff350
+  trace search:  { resource.observatory.run.id = "5df49968-45f8-4c0d-8d1a-67f37a0ff350" }
+
+  schema policy: decision=record-only reason=no-declaring-overlay schema_rc=0
+  worktree kept at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5df49968-45f8-4c0d-8d1a-67f37a0ff350

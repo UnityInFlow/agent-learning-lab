@@ -980,6 +980,77 @@ passed`.** The API is the same API, the database is the same 325-record database
 registered variable moves. This is written down because the alternative reading of a dead
 forward — *"the database is gone"* — cost this run a four-hour false halt earlier today.
 
+### §4 step 9 — the result. F2 is REFUTED, and one line turned out to change nothing measurable
+
+**Batch `EXP-4B-ORCH-DELIB`, 5 P2 + 5 concurrent plain controls, interleaved as pairs,
+`2026-09-06T18:10:48Z–18:44:20Z` (33 m 32 s, no machine sleep, nothing else of this lab running).
+Model `claude-haiku-4-5-20251001` on 10 of 10, evaluator exit 0 on 10 of 10, benchmarks `0448643`,
+Claude Code `2.1.263`. Prediction `eab540e` at `18:08:51Z` precedes the first run by 1 m 57 s, and
+the driver refused to start otherwise.** Manifest and per-run reader:
+`evidence/p04b/lab-4b4/p2-batch-20260906T181047Z/`.
+
+| # | Registered | Observed | |
+|---|---|---|---|
+| **F1** | delegation on **3–5 of 5** | **5 of 5**, exactly one each | **HELD**, at the top of the band |
+| **F2** | orchestrator writes code itself on **≥ 1 of 5** | **0 of 5** | **REFUTED** — and it was registered as the one most likely to be wrong |
+| **F3** | evaluator ≥ 4 of 5, not worse than control by 2 | **5 of 5**, control **5 of 5** | **HELD** |
+| **F4** | `delivered n=29`, `recorded-only`, 5 of 5 | **5 of 5**, both arms | **HELD** |
+
+**The comparison the deliberate failure exists to make:**
+
+| | delegated | orchestrator wrote code itself |
+|---|---|---|
+| **arm O** — `tools:` line present, **L2** | 10 of 10 | **0 of 10 — impossible**, `Write`/`Edit`/`Bash` absent from the delivered pool |
+| **P2** — line deleted, prose only, **L3** | **5 of 5** | **0 of 5 — possible, and it did not happen** |
+| plain control — no overlay | 0 of 10 (main), 0 of 5 (here) | **5 of 5 here**, `Edit` 3–5 per run |
+
+**P2 against arm O on delegation: Fisher `p = 1.0`.** Deleting the one element of this treatment
+that *executes* moved the measured behaviour **not at all**. **P2 against its concurrent control:
+`p = 0.0079`** — so the prose is doing the work, and doing all of it.
+
+**The measure can fire, and that is not an assumption.** The control arm is a positive control for
+F2 by construction: same 29-tool pool, no orchestration instruction, and it wrote code in its own
+stream on **5 of 5** runs (`Edit` ×3 to ×5). A zero on the treated arm is therefore a real zero and
+not an instrument that cannot register the event — which is exactly the gap stop 9's read-only
+*description* arm left open, and the reason that arm is still labelled L3.
+
+### What this does and does not license, quoted from the registration rather than composed now
+
+The prediction block said, before the runs: *"If F2 comes back **0 of 5**, that is 'at n = 5, on
+this task, with this body, the L3 instruction was not observed to fail' — it is **not** 'L3 is as
+good as L2', and it must not be written up as one. …**one** F2 event refutes the equivalence;
+**no** F2 events refute nothing."*
+
+**That is the reading, unchanged by having seen the number.** What was measured is that a
+*procedurally explicit* body — a numbered step naming the tool, the `subagent_type` and the order —
+produced compliance on 5 of 5 where a plain agent with the same tools implements the ticket itself
+on 5 of 5. What was **not** measured is the worst case, because nothing here tested it: no
+delegation failed, no worker returned a failure to be re-delegated, and the task is one the model
+completes comfortably. **`tools:` does not make delegation more likely; it makes not-delegating
+impossible.** Its effect lives in the tail, and five runs of a compliant model on a task it passes
+20 of 20 times do not sample the tail.
+
+**The honest one-sentence version, with its `n`:** *of these five runs, the L3 instruction alone
+delegated as reliably as the L2 boundary did, and the L2 boundary's value was not tested.*
+
+### The co-variate, and what the telemetry loss actually cost
+
+`durationMs` comes from the runner's own clock and survived; **`estimatedCost`, `inputTokens`,
+`cachedTokens`, `toolCalls`, `modelCalls` and `traceId` are `null` on all 10 P2-batch records** and
+populated on all 20 main-batch records. That is the gRPC misconfiguration above, scoped exactly.
+
+**Duration, `n = 5` per arm, within-window:** P2 median **110 s** (99–153) against its concurrent
+control **108 s** (81–130) — **+1.9 %**, nothing.
+
+**And the concurrent control earned its $0.65 here rather than in theory.** The *same* plain
+baseline ran at a median of **88 s** in the morning window and **108 s** in the evening one — the
+machine moved **+23 %** between them. A P2-versus-morning-control comparison would have reported a
+duration penalty that is an artefact of the clock. **This is the whole argument for a concurrent
+control, observed on one day.** Note also that P1's arm O ran **+34.1 %** over its own concurrent
+control while P2 ran **+1.9 %** over its own; that difference is **not a result** — different
+windows, `n = 10` versus `n = 5`, duration is not a registered outcome for P2, and the two were
+never designed to be compared. It is recorded as a question, not an answer.
+
 ## Results
 
 *(after the run)*
@@ -1073,9 +1144,54 @@ The corrected command joins the ids to the batch manifest. **A check answering o
 than its claim is the same defect as one answering over a smaller scope**, and it is the third
 instance recorded in this stop alone.
 
-## Decision
+## Decision — §4 step 10, per element
 
-*(after the run)*
+**Nothing here is promoted. Stop 11 is a Track A stop; it builds no version, and `v1.0` from B4 is
+untouched.** The overlay stays in `build/customizations/orchestration-4b4-P1/` as measured
+evidence and **is never edited** — a measured artefact is not revised, a change is a new
+directory.
+
+| Element | Layer | Measured effect | Decision |
+|---|---|---|---|
+| the orchestrator's **procedure body** (numbered delegate-and-verify) | **L3** | delegation **5 of 5** with nothing structural forcing it, against a plain control at **0 of 5** on the same pool, `p = 0.0079` | **KEEP.** This is a measured effect, not an assumed one, and it is the strongest positive result this stop produced |
+| the orchestrator's **`tools:` line** | **L2** (observed refusing, stop 9) | delegation **10/10 with** it and **5/5 without** it — `p = 1.0`. **No measured effect on this task at this `n`** | **KEEP, against the default rule.** See below — this is a judgement call and it is flagged as one |
+| the **`model:` pins** (both files) | **L3** | `claude-haiku-4-5-20251001` on 30 of 30 runs across both batches; nothing executes to reject a wrong one | **KEEP** as a mitigation, labelled L3, not counted as a control |
+| the **implementer's four-line body** | **L3** | **not separable in this design** — it was present in every treated run of both variants | **KEEP and disclose**: the treatment is *the split including that prose*, as § Independent variable already says |
+| the **batch driver + its 12-case verifier**, the **init-schema read-back**, the **transcript reader** | **L2** | each shown to refuse or to assert: 12 of 12 guards driven until they fired; the reader aborts rather than report a zero if `parent_tool_use_id` disappears | **KEEP** |
+
+### The one decision that departs from *"a rule with no measured effect is removed"*
+
+**By the letter of the rule, the `tools:` line should be removed.** It has no measured effect:
+5 of 5 delegated without it, `p = 1.0` against the arm that had it. I am not removing it, and the
+reason is not that I like it.
+
+**`tools:` is not a rule that makes delegation more likely. It is a boundary that makes
+not-delegating impossible.** Its effect is on the worst case, and a batch of five runs, on a task
+this model passes 20 of 20 times, in which no delegation failed and no worker returned an error,
+**does not sample the worst case.** Removing an L2 boundary on the strength of a null drawn from
+the cases where it was never needed is the same error this project already labelled at stop 9,
+where a read-only *description* produced zero write attempts and the arm stayed **L3 because
+nothing tested it**. A boundary that cannot be crossed and a boundary that happened not to be
+crossed are different objects; the measurement here cannot tell them apart, so it does not get to
+decide.
+
+**This is a judgement call, it is reversible, and it is the author's to reverse.** What would
+settle it is not more of the same runs but a condition that tempts the orchestrator: a worker that
+fails, a ticket the worker returns incomplete, or a task where implementing directly is visibly
+faster. **Registered as a follow-up**, not folded into this stop.
+
+*Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-06.*
+
+## Results — the stop's verdict in one place
+
+| | |
+|---|---|
+| **Main batch verdict** | **NOT DETECTABLE** (decision rule row 4), `n = 10` per arm |
+| **The gate's number** | **NOT SET.** The task size below which decomposition costs more than it returns is not established by this batch, and no lower bound is claimed |
+| **Deliberate failure** | **F2 REFUTED at 0 of 5**; F1, F3, F4 held. Deleting the L2 line changed delegation `p = 1.0` |
+| **What was measured that the rule could not use** | `modelCalls` **+4**, quartiles 24–27 vs 19–22, `n = 10` |
+| **Refuted predictions** | **O2** (cost, `+60 %` registered, `−13.4 %` observed — wrong by sign), **F2** (`≥1 of 5` registered, `0 of 5` observed). Both were registered before their runs and neither is edited |
+| **Stop 11's own status** | closes as a Track A stop — reading, extract and one lab with evidence on disk. **lab#14 stays OPEN**: labs 4B.1, 4B.2 and 4B.3 are deferred |
 
 ## Follow-up
 
