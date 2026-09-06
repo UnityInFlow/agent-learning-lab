@@ -15,10 +15,81 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 10 of 28. Positions 4, 5, 6, 7, 8, 9 and 10 CLOSED.** B1 closed 2026-08-30. Stop 10
-closed 2026-09-05. **`backend-feature-implementer` v1.0 exists and is NOT promoted.** Next is
-stop 11 (Phase 4B, orchestration). **Stop 12 does not open until benchmarks#29 is merged** —
-that is the author's, and it is a §7 halt if it is not merged when stop 12 is reached.
+**Spine 11 of 28. Positions 4, 5, 6, 7, 8, 9, 10 and 11 CLOSED.** B1 closed 2026-08-30. Stop 10
+closed 2026-09-05, stop 11 on 2026-09-06. **`backend-feature-implementer` v1.0 exists and is NOT
+promoted; stop 11 promoted nothing either — it is a Track A stop and builds no version.** Next is
+stop 12 (B5). **Stop 12 does not open until benchmarks#29 is merged** — that is the author's, and
+it is a §7 halt if it is not merged when stop 12 is reached.
+
+**lab#14 (Phase 4B) STAYS OPEN**: labs 4B.1, 4B.2 and 4B.3 are deferred, and §4 step 14 says a
+Phase issue stays open while any of its labs is.
+
+## Stop 11 is CLOSED, the answer is `NOT DETECTABLE`, and the day's own halt was false
+
+**Two results and one retraction, 2026-09-06.**
+
+### The halt this session inherited was wrong, and nothing was ever lost
+
+`findings/track-b-validation-2026-09-06-2.md` (validator pass 15) found the §7 halt **NOT
+SUPPORTED**. I re-verified it before adopting it: `docker --context colima ps` shows the API **Up
+7 days (healthy)**, the SSH tunnel this project opened is still live at `127.0.0.1:18081`, and it
+returns **325 run records** — every experiment key back to `EXP-B2-BASELINE-CLAUDE`. The machine
+has three docker contexts; the stack has always run in **colima**, and `make smoke`, `make up` and
+`docker volume inspect` were run against the **desktop-linux default**, where compose built a
+second, empty, disjoint stack. Each fact the halt cited was individually true and none was about
+this database. It also contradicted its own committed work by eight minutes. **Item 00 is
+retracted in place, the false text kept verbatim; item 00b is what it should have said.**
+
+**What actually broke is worth carrying:** every colima host port-forward on this machine is dead
+in a way that reads as healthy — `nc -z 127.0.0.1 8081` says **OPEN** and `curl` returns **000**.
+`make smoke` through SSH tunnels returns **All 18 checks passed**. **Any docker, make or compose
+command in this project without `--context colima` is answering about a different machine.**
+
+### Lab 4B.4 — decomposition on a task too small to split
+
+**`n = 10` per arm, one 44-minute interleaved window.** The split happened on **10 of 10** and
+never on the control. It cost **four extra model calls** (quartiles 24–27 vs 19–22) and **no
+money**: arm O was **13.4 % cheaper** against a registered **+60 %**. Duration **+34.1 %** against
+a **≥ +40 %** threshold. Correctness **10/10 vs 10/10**. `maintainability` anchor 2 **4 of 10 vs
+5 of 10**. Decision rule **row 4 — NOT DETECTABLE**.
+
+**The gate's one numeric deliverable is NOT SET**, and that is the result rather than a shortfall
+of it. The threshold needs a second task size: BE-004 at stop 12.
+
+**The cost prediction was refuted by sign, and the reason is the exit gate's own third item.** The
+orchestrator makes **exactly one tool call — `Agent` — and nothing else**. It never loads the
+files; the worker does. **The split moves the context rather than duplicating it.**
+
+**Two defects that are mine, not the agent's.** First, **no row of the registered decision rule
+reads `modelCalls`** — the one overhead that cleared its MDE cannot reach the verdict, so a real
+effect lands as NOT DETECTABLE. Recorded, **not repaired**: editing a decision rule after seeing
+its numbers is the move this project exists to refuse. Second, the step-9 batch **exported no
+telemetry**, because the runner sends claude telemetry over **gRPC** and my driver tunnelled the
+HTTP port only.
+
+### The deliberate failure: one line deleted, and nothing measurable changed
+
+**Variant P2 is the orchestrator file minus `tools: Read, Grep, Glob, Task`** — the single element
+of the treatment that *executes*. `n = 5` plus 5 concurrent controls.
+
+| | delegated | wrote code in its own stream |
+|---|---|---|
+| **arm O**, `tools:` present — **L2** | 10 of 10 | **0 of 10 — impossible** |
+| **P2**, line deleted — **L3** | **5 of 5** | **0 of 5 — possible, did not happen** |
+| plain control | 0 of 5 | **5 of 5**, `Edit` ×3–×5 |
+
+**P2 against arm O: `p = 1.0`.** Against its concurrent control: `p = 0.0079`. **F2 was refuted**,
+and it was registered as the one most likely to be wrong.
+
+**The pre-registered reading stands unchanged:** *at `n = 5` the L3 instruction was not observed to
+fail* is **not** *L3 is as good as L2*. `tools:` does not make delegation more likely; it makes
+not-delegating impossible, and five runs on a task this model passes 20 of 20 times sample no
+tail. **Step 10 keeps the line against the project's own default rule and says so** — a judgement
+call, reversible, and the author's to reverse.
+
+**The measure can fire, and that is proved rather than assumed:** the control arm is a positive
+control for F2 by construction, and it fired on 5 of 5. That is exactly the gap stop 9's read-only
+*description* arm left open, and why that arm is still labelled L3.
 
 ## Stop 10 is CLOSED, `INCONCLUSIVE`, and the instrument is as much of the story as the agent
 
