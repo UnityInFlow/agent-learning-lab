@@ -342,6 +342,76 @@ putting a newline inside a TSV field — the stray `0` row in the preflight mani
 manifest is evidence and stays exactly as it is; the driver no longer does it. Verifier back to
 **12 of 12**, ShellCheck clean.
 
+## §4 step 6 — the batch, recorded 2026-09-06T08:09:06–08:53:40Z
+
+**20 of 20 runs, every one evaluator exit 0 and 7 of 7 acceptance criteria.** One key,
+`EXP-4B-ORCH-OVERHEAD`; ten O/C pairs interleaved; no gate-failing run and therefore no
+excluded run under registered exclusion 1. Manifest, logs and window:
+`evidence/p04b/lab-4b4/batch-20260906T080905Z/`. All 20 `--keep` worktrees verified present on
+disk at `$TMPDIR/observatory-run-<runId>`; 20 per-run `init.tools` records at
+`evidence/p04b/lab-4b4/init-schema/`.
+
+**The prediction precedes every run, checked from git and the run record rather than asserted**
+(§4 step 3 requires both timestamps be written here after the runs):
+
+| | |
+|---|---|
+| prediction commit `c21781b` | **2026-09-06T05:14:31Z** |
+| first run `207ff23d` `startedAt` | **2026-09-06T08:09:06Z** |
+| margin | **2 h 54 m 35 s** |
+
+The driver re-checks this itself before the first run and refuses otherwise; the check is in
+`run-e007.sh` and is exercised by `verify-run-e007.sh` case 9.
+
+| seq | arm | runId | started–finished | dur | cost | tool | model | schema verdict | deleg |
+|---|---|---|---|---|---|---|---|---|---|
+| 01 | O | `207ff23d` | 08:09:06–08:11:16 | 130 s | $0.1528 | 23 | 27 | `order-differs` | 1 |
+| 01 | C | `a2a7cdb1` | 08:11:45–08:13:24 | 99 s | $0.1558 | 18 | 22 | `recorded-only` | 0 |
+| 02 | O | `4d7c537d` | 08:14:02–08:16:08 | 126 s | $0.1321 | 23 | 28 | `order-differs` | 1 |
+| 02 | C | `11cab10d` | 08:16:46–08:18:31 | 105 s | $0.1445 | 18 | 19 | `recorded-only` | 0 |
+| 03 | O | `89ea9063` | 08:19:05–08:20:18 | 73 s | $0.0933 | 16 | 20 | `order-differs` | 1 |
+| 03 | C | `4374f319` | 08:20:56–08:23:02 | 126 s | $0.1479 | 18 | 22 | `recorded-only` | 0 |
+| 04 | O | `1f806f3d` | 08:23:38–08:25:50 | 132 s | $0.1318 | 22 | 27 | `order-differs` | 1 |
+| 04 | C | `9fe27bf1` | 08:26:21–08:27:32 | 71 s | $0.1307 | 15 | 19 | `recorded-only` | 0 |
+| 05 | O | `da442dd9` | 08:28:05–08:30:25 | 140 s | $0.1284 | 20 | 25 | `order-differs` | 1 |
+| 05 | C | `b0b723f8` | 08:30:58–08:32:24 | 86 s | $0.1494 | 18 | 22 | `recorded-only` | 0 |
+| 06 | O | `92f59ff6` | 08:32:53–08:34:37 | 104 s | $0.1247 | 22 | 26 | `order-differs` | 1 |
+| 06 | C | `b1609bb9` | 08:35:07–08:36:01 | 54 s | $0.1047 | 15 | 12 | `recorded-only` | 0 |
+| 07 | O | `beae5092` | 08:36:36–08:38:18 | 102 s | $0.1159 | 19 | 26 | `order-differs` | **2** |
+| 07 | C | `383c915b` | 08:38:56–08:40:33 | 97 s | $0.1484 | 19 | 22 | `recorded-only` | 0 |
+| 08 | O | `fb894d7d` | 08:41:04–08:42:33 | 89 s | $0.0950 | 14 | 20 | `order-differs` | 1 |
+| 08 | C | `59c1467d` | 08:43:02–08:44:13 | 71 s | $0.1196 | 16 | 18 | `recorded-only` | 0 |
+| 09 | O | `2744a92c` | 08:44:51–08:46:43 | 112 s | $0.1160 | 19 | 24 | `order-differs` | 1 |
+| 09 | C | `a0202230` | 08:47:11–08:48:38 | 87 s | $0.1411 | 18 | 22 | `recorded-only` | 0 |
+| 10 | O | `c0b6721e` | 08:49:06–08:51:10 | 124 s | $0.1415 | 25 | 30 | `order-differs` | 1 |
+| 10 | C | `c7e4d207` | 08:51:39–08:53:08 | 89 s | $0.1489 | 18 | 22 | `recorded-only` | 0 |
+
+**Independence, from the run records and not from the flags that were passed.** Every one of
+these is a *single* value across all 20 runs: `experimentKey` `EXP-4B-ORCH-OVERHEAD`;
+`runtime.version` `2.1.263 (Claude Code)`; `runtime.model` `claude-haiku-4-5-20251001`;
+`repository.commitSha` `04486433f3d5e4b1a6e263f58ae47655bc647af5`; `evaluation.evaluatorVersion`
+`1.0.0`. Registered exclusion 2 (a wrong model) fires on nothing.
+
+**Row 0a does not fire.** All ten arm-O runs delivered the declared **set** —
+`["Read","Task","Grep","Glob"]`, permuted, verdict `order-differs` 10 of 10 — and all ten
+controls recorded the full pool. No `mismatch`, no `no-init-record`, no `no-tools-key`.
+
+**The batch did not span a sleep** (`caffeinate -i`, one continuous 44 m 34 s window) and **no
+other process of this lab ran during it** — no review, no scorer, no second batch. Registered
+exclusion 4 fires on nothing, so `durationMs` is usable on all 20 runs. This is the discipline
+stop 10 did *not* keep, when a preflight run on top of a live batch cost four runs' durations.
+
+**The delegation column here is the driver's cheap log-derived count, not the registered
+number.** O1's registered observable is the observatory telemetry, and it is read at §4 step 7.
+What the column already shows is that the shape is there: **≥ 1 on 10 of 10 arm-O runs, 0 on 10
+of 10 controls, and exactly 1 on 9 of 10** — `beae5092` delegated twice, which the orchestrator's
+own workflow permits on a reported failure and which § Threats registered as reportable and not
+voiding.
+
+**No median, quartile, ratio or verdict is computed here.** That is §4 step 8, after §4 step 7
+has put a `check-run-gate.sh` result and a codex sheet against each run id, and after the hand
+re-read that §5 requires is written down *before* any sheet is opened.
+
 ## Observed telemetry
 
 *(after the run)*
