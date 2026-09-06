@@ -474,6 +474,53 @@ prove otherwise. Measure the overhead and write it down.
 
 > "Consider adding complexity **only** when it demonstrably improves outcomes."
 
+### What it measured, and what came back
+
+**Run as E-007 on `EXP-4B-ORCH-OVERHEAD`, `n = 10` per arm, interleaved pairs in one 44-minute
+window on 2026-09-06, model `claude-haiku-4-5-20251001`, runtime `2.1.263`, benchmarks `0448643`,
+rubric `396e1799eb2b`.** Full working in
+[`experiments/E-007-orchestration-overhead.md`](../../experiments/E-007-orchestration-overhead.md).
+
+**The lab did its job — it just did not return the number the gate asked for.**
+
+| | Registered | Observed | |
+|---|---|---|---|
+| the split happened | 10/10 vs 0/10 | **10/10 vs 0/10**, exactly one delegation on 9 of 10 | held |
+| cost | **+60 %** | **−13.4 %** | **refuted, by sign** |
+| duration | ≥ +40 % | +34.1 % | below threshold |
+| tool calls | ≥ +5 | +3 | below threshold |
+| model calls | ≥ +4, quartiles apart | **+4, 24–27 vs 19–22** | **held** |
+| correctness | ≥ 8/10, not worse by 3 | **10/10 vs 10/10** | held |
+| quality (`maintainability` 2) | 1–3 of 10 | 4 of 10 (control 5) | inside its MDE |
+
+**Verdict: NOT DETECTABLE**, decision-rule row 4. *"Consider adding complexity only when it
+demonstrably improves outcomes"* — on this task, at this `n`, decomposition **neither improved
+nor measurably cost** anything the gate can see. **The correct conclusion is not "so decompose
+freely."** It is that BE-003 is too small for this instrument to price the split, which is the
+same sentence the source above writes as *"most coding tasks involve fewer truly parallelizable
+tasks than research"*, arriving from the measurement side.
+
+**The one thing the batch settled outright is the mechanism, and it settled it against the
+prediction.** E-007 predicted the split would cost money because *"two contexts create two cache
+prefixes."* Arm O was **cheaper**. Reading the orchestrator's own transcript stream shows why: on
+`eac5b2b1` it makes **exactly one tool call — `Agent` — and nothing else.** It never loads the
+files; the worker does. **The split does not duplicate the context, it moves it**, and the parent
+is left holding almost nothing. That is the exit gate's third item — *context isolation, not
+specialization, is the reason to split* — turning up as a refutation of this lab's own cost
+prediction rather than as a quote from the reading.
+
+**What the lab could not weigh, and it is a defect in the lab, not in the agent.** `modelCalls`
+cleared its MDE and **no row of the registered decision rule reads `modelCalls`.** The overhead
+this split actually produced — four extra turns per run, quartiles not overlapping — has nowhere
+to land in the verdict. Registered as the first follow-up; not repaired, because editing a
+decision rule after seeing its numbers is the move this project exists to refuse.
+
+**Labs 4B.1, 4B.2 and 4B.3 are DEFERRED** and lab#14 stays open on that account: 4B.1 is B5's
+measurement at stop 12, 4B.2 needs a task with independent parts (BE-004, after benchmarks#29),
+and 4B.3's handoff-fidelity question was folded into this lab as O6 — which held at 10/10 vs
+10/10, so *on BE-003's gate* the handoff dropped nothing.
+
+
 ## Exit gate
 
 *Answered 2026-09-06 at §4 step 11, from this stop's own extract and its one measured lab.
@@ -545,6 +592,82 @@ Every number carries its `n`. Where the proof is words, the row says L3 and does
       something enforces. **The layer test applies to this gate answer itself:** an orchestrator
       told *"at most two delegations"* in prose is L3; a runner that cannot spawn a 1 001st agent
       is L1.
+
+## Learning block — the six questions, §4 step 11
+
+```yaml
+learning:
+  what_was_added: >
+    Two Claude Code agent files delivered as one --customization overlay
+    (orchestration-4b4-P1): an `orchestrator` with tools: Read, Grep, Glob, Task and a
+    numbered delegate-and-verify procedure, and an `implementer` with no tools: key and a
+    four-line report contract. Both pin claude-haiku-4-5-20251001. Plus the instruments
+    the lab needed: a batch driver with a twelve-case verifier, an init-schema read-back
+    per run, and a transcript reader that separates the orchestrator's own tool calls from
+    its worker's using parent_tool_use_id.
+  why_it_exists: >
+    To price the orchestrator/worker split on a task the vendor's own guidance says should
+    stay in one conversation — "most coding tasks involve fewer truly parallelizable tasks
+    than research" — and so to answer the gate's one numeric question: the task size below
+    which decomposition costs more than it returns.
+  observed_effect: >
+    The split happened on 10 of 10 and never on the control (0 of 10). It cost four extra
+    model calls per run with non-overlapping quartiles. It cost NOTHING in money — arm O
+    was 13.4 % CHEAPER against a registered +60 % — it missed the duration threshold at
+    +34.1 % against +40 %, and it changed neither correctness (10/10 vs 10/10) nor anything
+    the rubric can see (maintainability 4 of 10 vs 5 of 10). Decision rule row 4:
+    NOT DETECTABLE. THE GATE'S NUMBER IS NOT SET, and that is the result rather than a
+    shortfall of it.
+  unexpected_effect: >
+    Three, and the first is the useful one. (1) THE COST PREDICTION WAS REFUTED BY SIGN.
+    The orchestrator makes exactly one tool call — Agent — and never loads the files, so
+    the split MOVES the context rather than duplicating it. That is the exit gate's
+    context-isolation item arriving as a refutation of this lab's own mechanism.
+    (2) The registered decision rule cannot read modelCalls, the one overhead that cleared
+    its MDE, so a real effect lands as NOT DETECTABLE. (3) 50 of the rubric's 100 points
+    carried zero variance across both arms again, which is a fact about the instrument on
+    this model and task, not about orchestration.
+  keep_or_remove: >
+    NOT PROMOTED. The overlay stays where it is as measured evidence and is never edited —
+    a measured version is a new version, not an edit. Nothing from this stop enters v1.0.
+    Per-element decisions and the one that departs from the default rule are in
+    § Step 10 below.
+  next_question: >
+    The threshold rather than the bound: the same design on BE-004 at stop 12, where the
+    task is large enough that a split has something to divide. And, before that, the
+    registered follow-up this batch created: a decision rule that can read the outcome it
+    measured.
+```
+
+### "Was this the agent, or the harness?"
+
+**Both, and the split between them is the honest content of this stop.**
+
+**The agent:** it delegated when told to, on 10 of 10, and it delegated *once* on 9 of 10 rather
+than fanning out — the failure mode the reading names (*"agents spawning 50 subagents for simple
+queries"*) did not occur. It passed the ticket well enough that the evaluator saw no difference
+(10/10 vs 10/10). None of that is instrument.
+
+**The harness, and there are four separate places it decided the answer:**
+
+1. **The rubric could barely move.** `architecture-consistency` 2 on 20 of 20, `change-focus` 1 on
+   20 of 20 — half the rubric's weight at zero variance across both arms, continuing over five
+   experiments and 73 runs. **O7 is a weak reading, not a strong null.**
+2. **The decision rule could not read `modelCalls`.** The verdict is NOT DETECTABLE while a
+   registered outcome cleared its MDE. That is the harness deciding, in the sense that matters.
+3. **The run record cannot witness this treatment at all.** `customization.*Hash` is `null` on 20
+   of 20 **including arm O**; independence rests on the setup commit's tree, the `init` read-back
+   and telemetry. A stranger checking the obvious field finds nothing.
+4. **The runtime permutes a declared `tools:` list.** `Read, Grep, Glob, Task` came back as
+   `["Read","Task","Grep","Glob"]` on 10 of 10, which forced the *set*-equality reading of
+   exclusion 3 to be settled **in writing before the batch** rather than discovered in its
+   results.
+
+**And one place the harness was simply broken, disclosed rather than routed around:** the §4 step 9
+batch exported no telemetry, because the runner sends `claude` telemetry over **gRPC** to
+`OTLP_GRPC_ENDPOINT` and the driver's tunnel overrides covered the HTTP port and not that one. See
+E-007 § *An instrument fault of my own making*. **That is mine, not the agent's, and not the
+runtime's.**
 
 ## §5 — validation table
 

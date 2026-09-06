@@ -911,6 +911,44 @@ crossed five times are different objects, and the second one's `n` goes in every
 it. The asymmetry is the point: **one** F2 event refutes the equivalence; **no** F2 events refute
 nothing.
 
+### An instrument fault of my own making, found mid-batch and NOT worked around silently
+
+*Written 2026-09-06T18:2xZ, while the P2 batch was still running and before any of its numbers
+were read as a result.*
+
+**The P2 batch exports no telemetry, and the cause is one missing environment variable of mine.**
+`runner/lib/telemetry-env.sh:53` sets, for the `claude` runtime,
+`OTEL_EXPORTER_OTLP_PROTOCOL=grpc` and `OTEL_EXPORTER_OTLP_ENDPOINT="$OTLP_GRPC_ENDPOINT"`,
+default `http://localhost:4317`. `run-e007-p2.sh`'s `ARM_COMMON` overrides `API_PORT`,
+`OTLP_HTTP_PORT` and `TEMPO_PORT` onto SSH tunnels — **and not `OTLP_GRPC_PORT`.** Port 4317 is
+one of the dead colima forwards, so every export is posted into a socket that accepts and answers
+nothing. `infra/telemetry-out/events.jsonl` has not been written since `08:53Z`, which is when the
+*main* batch ended; `grep -c` for each P2 run id returns **0**.
+
+**This is the same defect as the one that opened the day**, one layer down: a forward that accepts
+the connection and delivers nothing, and a configuration that looked complete because the three
+overrides I *did* write were the three I had thought of.
+
+**What it costs, exactly.** F2, F3 and F4 are unaffected — F2 is a transcript measure by
+construction (telemetry cannot separate the orchestrator's calls from its worker's, which is the
+whole of what F2 asks), F3 is the evaluator's exit code, F4 is the `init` record. **Only F1's
+registered source is gone**, and F1 was registered as *"same query as O1"*, i.e. the observatory
+telemetry.
+
+**What I am NOT doing, and why.** Not re-running the batch: the runs are valid — correct overlay,
+correct model, correct benchmark sha, evaluator verdicts recorded, transcripts complete — and
+re-running them would spend about $1.60 to recover a *second view of an event the transcript
+already records upstream of the collector*. Not opening the missing tunnel mid-batch either: an
+environment change between run 02 and run 03 is precisely the mid-batch move this project
+condemns, and OTLP export is network work inside the measured process.
+
+**What I am doing instead, and the condition on it.** F1 is read from the transcript
+(`parent_tool_use_id` null → the orchestrator's own stream) for all five P2 runs, **and the
+substitution is proved rather than asserted**: the same transcript measure is run over the *main*
+batch's twenty logs, where telemetry **does** exist, and the two must agree run for run. If they
+do not agree on 20 of 20, F1 is reported as unmeasured and the batch is re-run. That check is
+below, and it was specified here **before** it was run.
+
 ### Design, disclosed before the run
 
 - **`n = 5` P2 + 5 concurrent plain controls**, interleaved as pairs, on key
@@ -948,17 +986,92 @@ forward — *"the database is gone"* — cost this run a four-hour false halt ea
 
 ## Which predictions held
 
-*(after the run)*
+**Main batch, `EXP-4B-ORCH-OVERHEAD`, `n = 10` per arm.** Four of seven held, one was refuted in
+the opposite direction to the one registered, and two landed below their own thresholds.
+
+| # | Registered | Observed | |
+|---|---|---|---|
+| **O1** | ≥1 delegation 10/10, control 0/10, exactly one on ≥7/10 | **10/10 · 0/10 · 9/10** | **HELD**, all three clauses. Registered as *least likely to be wrong*, and it was |
+| **O2** | **+60 %** cost, detectable ≥ +25 % | **−13.4 %** | **REFUTED, and in the opposite direction.** The mechanism — *"two contexts create two cache prefixes"* — is wrong on this task |
+| **O3** | ≥ +40 % duration | **+34.1 %** | **not met**, below its registered threshold. Not "no effect": an effect inside the MDE |
+| **O4** | ≥ **+5** tool calls *and* non-overlapping quartiles | **+3**, quartiles non-overlapping | **not met** — the conjunction fails on magnitude while its second clause holds |
+| **O5** | ≥ **+4** model calls *and* non-overlapping quartiles | **+4**, quartiles 24–27 vs 19–22 | **HELD, both clauses** — and the decision rule has no row that can read it |
+| **O6** | ≥8/10 and not lower than control by ≥3 | **10/10 vs 10/10** | **HELD** — and it was registered as *the one most likely to be wrong*. The handoff dropped nothing BE-003's gate tests |
+| **O7** | 1–3 of 10; only ≥9/10 detectable | **4 of 10** (control 5 of 10) | **missed its band by one, far inside its MDE.** Not a refutation: NOT DETECTABLE movement, and *lower* than the control |
+
+**The two that matter are the two registered as extreme, and they went opposite ways.** The
+prediction called *least* likely to be wrong (O1) held exactly. The one called *most* likely to be
+wrong (O6) also held — a small orchestrator did **not** paraphrase BE-003's error cases away. What
+broke instead was the prediction nobody flagged: **cost**, by 74 percentage points and by sign.
+
+**A prediction that was wrong is kept wrong.** O2's `+60 %` is not edited, and the mechanism
+sentence beneath it is not repaired. It was called wrong twice in writing *before* any median was
+computed — once at the preflight pair (`n = 1`) and once in the state file — and both of those
+calls are in the record too.
 
 ## Failure analysis
 
-*(after the run)*
+**There were no gate failures to analyse in the main batch: 20 of 20 runs exit 0.** Registered
+exclusions 1, 2, 4 and 5 never fired; exclusion 3 (row 0a) did not fire because the delivered set
+was the declared set on 10 of 10, permuted. **No run was excluded, and none was re-run.** That is
+the honest content of this section and it is short on purpose — a failure analysis with nothing to
+analyse should say so rather than manufacture a narrative.
+
+**What failed instead was a prediction and an instrument, and both are worth the space.**
+
+**1. The cost mechanism was wrong, and it was wrong in a direction that teaches something.**
+`+60 %` rested on *"a second agent with its own system prompt and its own cache prefix re-reads
+what the first skimmed."* The second half is right and the conclusion does not follow. Read the
+orchestrator's own stream and the reason is visible in one line: on run `eac5b2b1` it made
+**exactly one tool call, `Agent`**, and nothing else. The orchestrator never loads the files at
+all — the worker does — so the split does not duplicate a large context, it **moves** it, and
+leaves the parent holding almost nothing. That is *context isolation working as advertised*, which
+is the exit gate's third item, arriving as a refutation of my own cost prediction rather than as
+the confirmation the extract had set up.
+
+**2. The instrument could barely move on this task, and that is a harness fact, not an agent
+fact.** Of the rubric's 100 points, `architecture-consistency` scored **2 on 20 of 20** and
+`change-focus` **1 on 20 of 20** — 50 points at zero variance across both arms, continuing the
+pattern E-006 §C2 recorded over five experiments and 73 runs. Only `maintainability` moved, and it
+moved by one run in the *control's* favour. **So O7 is a weak instrument reading, not a strong
+null**, and the sentence that survives is the one with its `n` attached: *of these ten runs per
+arm, the rubric saw no difference*.
+
+**3. A defect in the registered decision rule, found by applying it.** O5 held both its clauses
+and no row reads O5; O1 appears only as a delivery check. A six-outcome experiment is decided by
+four of its outcomes, and the two that measured the split's actual overhead — that it happened at
+all, and that it cost four extra model calls — cannot reach the verdict. **Recorded, not
+repaired.** Editing a decision rule after seeing its numbers is the move this project exists to
+refuse, and the correct place for the fix is the next experiment's registration.
 
 ## Sanity checks
 
-*(after the run: prediction commit timestamp precedes first `startedAt`; per-run schema verdicts;
-`runtime.model` on 20 of 20; benchmark sha and evaluator version equal across arms; a hand
-re-read of one `maintainability` cell written before any sheet is opened.)*
+*Run at §4 step 13, each one executed again rather than recalled. The main batch,
+`EXP-4B-ORCH-OVERHEAD`, `n = 10` per arm.*
+
+| Check | Command | Result |
+|---|---|---|
+| the prediction preceded the first run | `git log --format=%cI -1 c21781b` vs the earliest `startedAt` on the key | `2026-09-06T05:14:31Z` vs `08:09:06Z` — **2 h 54 m 35 s**. The batch driver also refuses to start before its `PRED_COMMIT`, so this is enforced going forward and merely checked backwards |
+| per-run schema verdicts | join the manifest's ids to `evidence/p04b/lab-4b4/init-schema/init-schema-<id>.txt` | **10 arm O `order-differs`, `delivered n=4`; 10 control `recorded-only`, `delivered n=29`.** Row 0a does not fire (set equality — see § Amendment) |
+| `runtime.model` on 20 of 20 | `curl -s 'http://127.0.0.1:18081/api/runs?limit=500' \| jq '…'` | `claude-haiku-4-5-20251001` on 20 of 20, Claude Code `2.1.263` on 20 of 20 |
+| benchmark sha and evaluator equal across arms | asserted by `run-e007.sh` before the first run; `verify-run-e007.sh` drives the guard until it fires | benchmarks `0448643`, evaluator `1.0.0`; verifier **12 of 12** |
+| rubric sha equal across all sheets | `collect-sheets.py`, which **asserts** rather than reports | `396e1799eb2b` on **20 of 20**, **zero null cells** |
+| a hand re-read written before any sheet was opened | `git log --format=%cI -1 cd715e6` vs the earliest sheet's timestamp | hand `12:58:11Z`, first sheet `12:59:10Z` — **59 s**. Hand and harness agree on both checked cells of `207ff23d` (`architecture-consistency 2`, `maintainability 0`) |
+| O1 re-derived independently, in the main context | count `tool_result` events with `tool_name ∈ {Task, Agent}` in `events.jsonl`, joined to the manifest's 20 ids | **10/10 vs 0/10, exactly one on 9 of 10**, one run at 2. Matches the recorded value |
+
+**The limit of the independence proof, restated because it has not moved.**
+`customization.*Hash` is `null` on **all 20 run records including arm O** — no field on the run
+record witnesses a Claude *agent* overlay. Independence therefore rests on the setup commit's
+tree, the `init` read-back and the telemetry, exactly as E-006 §5 did. **A stranger checking
+`customization.*Hash` to see whether the treatment was delivered will find nothing and must not
+read that as absence.**
+
+**And one re-derivation command in the §5 table was wrong when first written, and running it is
+what caught it.** Globbing `evidence/p04b/lab-4b4/init-schema/*.txt` returns 11 and 12, not 10 and
+10, because that directory also holds the §4 step 5 preflight pair and, from step 9, the P2 batch.
+The corrected command joins the ids to the batch manifest. **A check answering over a larger scope
+than its claim is the same defect as one answering over a smaller scope**, and it is the third
+instance recorded in this stop alone.
 
 ## Decision
 

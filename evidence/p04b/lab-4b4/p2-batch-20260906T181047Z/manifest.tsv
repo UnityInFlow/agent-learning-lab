@@ -8,3 +8,6 @@
 seq	arm	run_id	exit	worktree	init_schema_verdict	delegations
 01	O	eac5b2b1-238e-4d8b-893c-bfe51a776e65	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-eac5b2b1-238e-4d8b-893c-bfe51a776e65	verdict=recorded-only	1
 01	control	43d316a3-7f02-4e95-b4a3-77e138503dbe	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-43d316a3-7f02-4e95-b4a3-77e138503dbe	verdict=recorded-only	0
+02	O	4eb5658f-6194-4656-9a20-4e28ad8fdbb2	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4eb5658f-6194-4656-9a20-4e28ad8fdbb2	verdict=recorded-only	1
+02	control	d967b92c-939f-41b1-b693-7ec7983128a5	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-d967b92c-939f-41b1-b693-7ec7983128a5	verdict=recorded-only	0
+03	O	3b25f467-d675-4ef9-b099-38711275c9b0	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3b25f467-d675-4ef9-b099-38711275c9b0	verdict=recorded-only	1
