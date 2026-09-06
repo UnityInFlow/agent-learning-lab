@@ -342,6 +342,70 @@ putting a newline inside a TSV field — the stray `0` row in the preflight mani
 manifest is evidence and stays exactly as it is; the driver no longer does it. Verifier back to
 **12 of 12**, ShellCheck clean.
 
+## Amendment 2026-09-06, second — I measured the premise and MY PREDICTION WAS WRONG
+
+*Written after validator pass 14 (`findings/track-b-validation-2026-09-06.md`) named, as the
+single finding most likely to overturn this stop, that Reading B's premise —"a permutation
+removes no capability"— was **asserted, not measured**. It was right. Probe registered at
+`a4c219a` **before** it ran; results below.
+`Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06.`*
+
+`evidence/p04b/lab-4b4/order-probe.sh`, four declared orders of the same four names, 2 reps
+each, off the observatory under author decision 6. Results
+(`evidence/p04b/lab-4b4/order-probe-20260906T125134Z/summary.tsv`):
+
+| order | declared | delivered | verdict | reps |
+|---|---|---|---|---|
+| **A** | `Read, Grep, Glob, Task` *(the registered treatment)* | `["Read","Task","Grep","Glob"]` | `order-differs` | 2 of 2 |
+| **B** | `Task, Glob, Grep, Read` | `["Task","Read","Glob","Grep"]` | `order-differs` | 2 of 2 |
+| **C** | `Glob, Task, Read, Grep` | `["Task","Read","Glob","Grep"]` | `order-differs` | 2 of 2 |
+| **D** | `Read, Task, Grep, Glob` | `["Read","Task","Grep","Glob"]` | **`match`** | 2 of 2 |
+
+**The prediction registered at `a4c219a` said all four orders would deliver one canonical array.
+Two distinct arrays came back. It is refuted and it stays on the record as refuted.** The
+delivered order is **a function of the declared order**, not a constant of the runtime: A and D
+land on one array, B and C on another, and the split is not random — it reproduced 2 of 2 in
+every cell.
+
+**Two sentences of the first amendment are now wrong, and here they are, corrected in place of
+being quietly dropped:**
+
+1. *"the declared position cannot carry information to the model, because the model is handed
+   the delivered array and never the declaration"* — **the premise is refuted as stated.** The
+   declaration demonstrably reaches the resolution step; a different declared order produces a
+   different delivered order.
+2. *"the batch is re-runnable under reading A only by first making the runtime deliver the
+   declared order, which nothing in this project knows how to do"* — **false, and order D is how.**
+   Declaring the tools in the order the runtime delivers them returns `verdict=match`, 2 of 2.
+   That was registered as the cell most likely to be wrong and it is the one that held.
+
+**What this does NOT do is void the batch, and the reason is specific rather than convenient.**
+Row 0a is set-inequality, and the **set** was delivered intact on 10 of 10 arm-O runs: all four
+declared tools, every run. This probe moves *nothing* about which tools arm O had. It refutes my
+**rationale**, not the admission rule. And within the batch the declared order is a **constant** —
+all ten arm-O runs used order A — so it cannot vary against anything and cannot explain any
+O-vs-C difference. Arm C declares no list at all.
+
+**What remains genuinely open, stated as the open question it is rather than closed by
+assertion a second time.** Whether the *delivered* order changes model behaviour — whether
+position acts as a priority, a default-selection order, or anything at all — is **still
+unmeasured**. This probe narrowed the question (the declaration is not discarded) without
+answering it. It is not answerable from this batch, because order is constant across arm O. The
+honest statement of the treatment is therefore: *arm O is the overlay declared as
+`Read, Grep, Glob, Task` and delivered as `["Read","Task","Grep","Glob"]`* — both orders named,
+neither claimed to be inert.
+
+**What every later stop that declares a `tools:` list should do, and it costs nothing.**
+Declare the tools in the delivered order and the verdict is `match` rather than `order-differs`,
+which removes this entire question from B6 (stop 13), B7 (stop 15) and B10 (stop 21). Finding
+the delivered order takes one probe run. **This is not applied retroactively to arm O**: the
+overlay is the registered treatment at `4f2af4ba7f740c33`, twenty runs were measured against
+those bytes, and editing it now would be editing a treatment after its data.
+
+**Pass 14's mechanical half was cleared by the validator itself**, which ran
+`verify-schema-verdict-policy.sh` rather than trusting that it existed: 16 of 16, confirming
+codes `5`, `4`, `3`, `2` and an unregistered code still void, and only `0` and `6` proceed.
+
 ## §4 step 6 — the batch, recorded 2026-09-06T08:09:06–08:53:40Z
 
 **20 of 20 runs, every one evaluator exit 0 and 7 of 7 acceptance criteria.** One key,

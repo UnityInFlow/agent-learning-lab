@@ -1,0 +1,9 @@
+order	declared	rep	delivered	verdict
+A	Read, Grep, Glob, Task	1	["Read","Task","Grep","Glob"]	verdict=order-differs
+A	Read, Grep, Glob, Task	2	["Read","Task","Grep","Glob"]	verdict=order-differs
+B	Task, Glob, Grep, Read	1	["Task","Read","Glob","Grep"]	verdict=order-differs
+B	Task, Glob, Grep, Read	2	["Task","Read","Glob","Grep"]	verdict=order-differs
+C	Glob, Task, Read, Grep	1	["Task","Read","Glob","Grep"]	verdict=order-differs
+C	Glob, Task, Read, Grep	2	["Task","Read","Glob","Grep"]	verdict=order-differs
+D	Read, Task, Grep, Glob	1	["Read","Task","Grep","Glob"]	verdict=match
+D	Read, Task, Grep, Glob	2	["Read","Task","Grep","Glob"]	verdict=match
