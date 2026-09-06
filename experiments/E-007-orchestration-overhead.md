@@ -480,6 +480,60 @@ re-read that §5 requires is written down *before* any sheet is opened.
 
 *(after the run)*
 
+## §4 step 7 — the hand re-read, written before any sheet for this batch existed
+
+§4 step 7 forbids reading a sheet before an expected score exists on paper, and §5 requires at
+least one scored cell per step to be re-read by hand off the kept worktree. Both are discharged
+here. **No `codex-score.sh` sheet for any of the twenty E-007 run ids existed when these two
+values were fixed** — the first scoring attempt of this session failed before writing anything
+(see the API note below), so `findings/codex/` held no E-007 sheet at all. The reading was taken
+from the kept worktree and the rubric at its registered sha, by a subagent briefed to open the
+source and the rubric and forbidden to open a sheet.
+
+| | |
+|---|---|
+| run | `207ff23d-d00b-4b5a-8a5e-8fbb2dcc0061` (arm O, seq 01) |
+| worktree | `$TMPDIR/observatory-run-207ff23d-d00b-4b5a-8a5e-8fbb2dcc0061` |
+| rubric | `benchmark/rubrics/backend-quality.yaml` at **`396e1799eb2b`**, unmodified since `0be66e7` (2026-09-01) |
+| file read | `sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:55–75` |
+| values fixed at | **2026-09-06T12:53Z** |
+
+**`architecture-consistency` = 2, by hand.** Two refusal paths, both throwing a subclass that is
+already in the attached baseline: `ShipmentController.kt:58` throws
+`ResourceNotFoundException(ErrorCode.SHIPMENT_NOT_FOUND, …)`, `ShipmentController.kt:64` throws
+`ConflictException(ErrorCode.SHIPMENT_CANNOT_CONFIRM_CANCELLED, …)`; both are present in the
+baseline's `ApiExceptions.kt` (`git show 249e638:…ApiExceptions.kt`, lines 19–20 and 23–24), so
+neither is a type this submission introduced. No `ApiError(` or `ApiErrorBody(` literal occurs
+anywhere in the shipment package, and no `ResponseEntity<Any>` return type occurs; `confirm`
+returns `ResponseEntity<Shipment>`. That is every clause of anchor 2.
+
+**`maintainability` = 0, by hand.** The status decision at `ShipmentController.kt:63–74` is a
+`when (shipment.status)` in **statement** position: its value is discarded — not returned, not
+assigned, not passed as an argument, not the tail expression of a lambda — and each branch does
+its own `throw` or `return`. It carries no `else`. Anchor 0's third clause is *"a `when` in
+STATEMENT position — its value discarded, used by nothing"*, and it is met.
+
+### A defect in the instrument, found by the hand re-read and NOT repaired
+
+Anchor 1 of `maintainability` lists, among the residual cases, *"also a `when` that is neither
+exhaustive nor carries an `else`"*. This run's `when` is exactly that — and it is **also** anchor
+0's statement-position case. The two anchors overlap on a real submission, so a scorer reading
+anchor 1's list literally scores 1 where a scorer applying the residual rule scores 0.
+
+The rule that resolves it is already written into the rubric and into §4 step 2's layer
+discipline: anchor 1 is defined as **THE RESIDUAL — "neither the 0 condition nor every clause of
+2"**. The 0 condition is met, so the residual cannot be reached, and the cell is 0. The overlap
+is a defect in the anchor's prose, not in the outcome.
+
+**It is not being fixed now, and that is deliberate.** The rubric is a registered variable of this
+experiment and of every experiment back to B2; editing it mid-batch is a §7 halt, and editing it
+between arms would be worse. It is recorded here, carried to `## Follow-up`, and belongs to a
+rubric version that no measured comparison depends on.
+
+*Hand re-read performed at the orchestrator's direction and recorded by Opus 5 (claude-opus-5),
+autonomous, 2026-09-06. The interpretation, the anchor ruling and the decision not to repair the
+rubric are the orchestrator's, not the subagent's.*
+
 ## Results
 
 *(after the run)*
@@ -504,6 +558,11 @@ re-read of one `maintainability` cell written before any sheet is opened.)*
 
 ## Follow-up
 
+- **`maintainability` anchors 0 and 1 overlap** on a statement-position `when` that carries no
+  `else` — anchor 0 names it by position, anchor 1 names it in its residual list. The residual
+  rule decides it (0), but the prose should not need the rule. Belongs to a later rubric version;
+  it is a registered variable and was not touched mid-experiment. Found by this step's hand
+  re-read, 2026-09-06.
 - The threshold, not the bound: the same design on BE-004 at stop 12 under author decision 9.
 - Whether the observatory attributes a subagent's tool calls to the parent run (threat 3) is an
   instrument question for the observatory repo if the preflight pair answers it badly.
