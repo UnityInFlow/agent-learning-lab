@@ -867,6 +867,81 @@ runs does not discover it as news.
 *Reported by Opus 5 (claude-opus-5), autonomous, 2026-09-06. The pooled/per-arm distinction and
 the decision to commit the derivation script rather than paste numbers are the orchestrator's.*
 
+## §4 step 9 — the deliberate failure, variant P2: predictions registered BEFORE the run
+
+*Written 2026-09-06T18:2xZ, **before `run-e007-p2.sh` existed and before any run on
+`EXP-4B-ORCH-DELIB`**. Predicted by Opus 5 (claude-opus-5), autonomously,
+2026-09-06T18:2xZ; the author did not review before the run.*
+
+**The break is one line and nothing else.** `diff` between the two orchestrator files is a
+single deletion:
+
+```
+5d4
+< tools: Read, Grep, Glob, Task
+```
+
+`implementer.md` is **byte-identical** between the two overlays (`6096f5ea35383112` in both).
+The orchestrator goes `4f2af4ba7f740c33` → **`1b259ccc09066cad`**, which is the sha this
+experiment registered as the P2 candidate at §4 step 3, before the batch — it is not chosen now.
+
+**Why this is the right break for this stop.** Stop 11's whole subject is the layer model
+applied to orchestration. In P1 the orchestrator's delivered pool is `Read, Task, Grep, Glob`:
+there is **no Write, no Edit, no Bash**, so implementing the ticket itself is not something it
+declines — it is something it cannot do. That is **L2: something executes and refuses.** P2
+deletes that line, the agent inherits the full session pool (29 tools, as arm C's ten records
+show), and the *only* thing left saying "you do not implement it" is prose in the body. That is
+**L3: words a model reads and chooses to follow.** Same words, same worker, same ticket, same
+model — one line of difference, and the layer changes.
+
+### The registered predictions
+
+| # | Outcome | Direction · magnitude | Mechanism |
+|---|---|---|---|
+| **F1** | delegation — `≥ 1` `tool_result` with `tool_name ∈ {Task, Agent}`, telemetry, same query as O1 | **3 to 5 of 5** — reduced from arm O's 10/10 but nowhere near arm C's 0/10 | the body is not a disposition, it is a numbered procedure that names the tool, the `subagent_type` and the order. Stop 10's arm H measured exactly this distinction: an explicit governance instruction moved a hold rate to **8 of 10 vs 0 of 5**, while one sentence of borrowed authority moved it **not at all** (4/5 vs 4/5). This body is the first kind |
+| **F2** | **the orchestrator writes code itself** — ≥ 1 `tool_result` for `Write`, `Edit` or `MultiEdit` **in the orchestrator's own stream**, on **≥ 1 of 5** runs | **≥ 1 of 5** | **This is the whole demonstration and it is the one to read first.** In P1 this event is not unlikely, it is *impossible*: the tool is absent from the delivered pool and the runtime refuses by name (observed at stop 9, `toollist-05`). In P2 it is merely discouraged. A single occurrence converts "L2 and L3 are both boundaries" into "one of them is". **Registered as the one most likely to be wrong** — five runs is a small window for a lapse, and haiku is compliant with explicit procedures |
+| **F3** | evaluator pass rate on the P2 arm | **≥ 4 of 5**, and not lower than its concurrent control by 2 or more | whoever does the work, it is the same model on the same ticket, and BE-003 passed **20 of 20** in this stop's batch. If P2 fails the gate the cause is the handoff, not the task |
+| **F4** | delivered schema, per arm | P2 arm: `delivered n=29`, verdict **`recorded-only`** on 5 of 5 — *identical to arm C*; control arm the same | P2 declares no `tools:` key, so there is nothing for the runtime to narrow. **This is F1's control**: if the pool is not the full 29, the arm is not what it claims and F1 measures something else |
+
+**What no result here can establish, written before the numbers so it cannot be softened after
+them.** If F2 comes back **0 of 5**, that is *"at n = 5, on this task, with this body, the L3
+instruction was not observed to fail"* — it is **not** "L3 is as good as L2", and it must not be
+written up as one. A boundary that cannot be crossed and a boundary that happened not to be
+crossed five times are different objects, and the second one's `n` goes in every sentence about
+it. The asymmetry is the point: **one** F2 event refutes the equivalence; **no** F2 events refute
+nothing.
+
+### Design, disclosed before the run
+
+- **`n = 5` P2 + 5 concurrent plain controls**, interleaved as pairs, on key
+  **`EXP-4B-ORCH-DELIB`** — a key of its own, never `EXP-4B-ORCH-OVERHEAD`. Reusing one key for
+  two batches is a recorded process violation of this run (E-006 holds 40 runs under one key);
+  it is not repeated.
+- **The concurrent control is kept even though arm C already exists at n = 10.** It costs about
+  $0.65 and it buys a same-window reference for cost, duration and tool counts, so any statement
+  about what P2 *costs* is self-contained instead of reaching back ten hours. It also keeps the
+  P2 driver structurally identical to `run-e007.sh`, whose twelve-case verifier is the only
+  thing standing in front of money.
+- **Driver: a new file, `evidence/p04b/lab-4b4/run-e007-p2.sh`.** `run-e007.sh` is **not edited**
+  — its runs are the evidence this stop closes on, and this project has a standing rule against
+  editing a tool whose runs are the evidence. The P2 driver's overlay guard is the *inverse* of
+  P1's: it refuses if `orchestrator.md` declares **any** `tools:` line, which is the specific
+  mistake worth catching here — running P1 under the deliberate failure's name, or the reverse.
+- **The comparison for F1 is arm O (10 of 10) from this stop's own batch**, same model, same
+  runtime `2.1.263`, same benchmark sha `0448643`, same day. Fisher on 0/5 vs 10/10 is
+  `p = 0.0003`; on 5/5 vs 10/10 it is `p = 1.0`.
+
+### Environment disclosure, because the last session got this wrong
+
+These runs POST to the observatory through **`http://127.0.0.1:18081`** and export telemetry
+through **`http://127.0.0.1:14318`** — SSH tunnels into the colima VM, opened because *every*
+colima host port-forward on this machine is dead (`nc -z` reports the port OPEN and `curl`
+returns `000`, which is a port check answering over a smaller scope than it claims). **The stack
+itself is untouched and healthy: `make smoke` through the tunnels returns `All 18 checks
+passed`.** The API is the same API, the database is the same 325-record database, and no
+registered variable moves. This is written down because the alternative reading of a dead
+forward — *"the database is gone"* — cost this run a four-hour false halt earlier today.
+
 ## Results
 
 *(after the run)*
