@@ -12,15 +12,15 @@ provenance:
   schema_pinned:  4 categories, names constrained to the rubric's
   rubric_path:    benchmark/rubrics/backend-quality.yaml
   rubric_sha:     396e1799eb2b
-  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-fb894d7d-903c-4a28-930d-643a603ecf31
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c0b6721e-e1fe-4387-9e2b-bbd46bb420de
   mode:           run
-  run_id:         fb894d7d-903c-4a28-930d-643a603ecf31
+  run_id:         c0b6721e-e1fe-4387-9e2b-bbd46bb420de
   evaluator_exit: 0
-  observatory:    http://127.0.0.1:18081/api/runs/fb894d7d-903c-4a28-930d-643a603ecf31
+  observatory:    http://127.0.0.1:18081/api/runs/c0b6721e-e1fe-4387-9e2b-bbd46bb420de
   attachments:    3 changed file(s), 3 with a pre-agent side (Decision D)
   baseline:       null
   baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
-  scored_utc:     20260906T130649Z
+  scored_utc:     20260906T130828Z
   session:        fresh    # --ephemeral; independence requires no memory
   isolation:      --ignore-user-config --ignore-rules --sandbox read-only
 ---
@@ -29,21 +29,21 @@ categories:
   - name: "architecture-consistency"
     score: 2
     anchor_level: 2
-    reason: "Both refusal paths use baseline ApiException subclasses"
-    evidence: "ShipmentController.kt:58,65"
+    reason: "Both refusals use baseline ApiException subclasses; shipment package constructs no error body."
+    evidence: "ShipmentController.kt:58, ShipmentController.kt:70"
   - name: "maintainability"
     score: 0
     anchor_level: 0
-    reason: "Status decisions use if constructs"
-    evidence: "ShipmentController.kt:70"
+    reason: "Status decisions use separate if statements."
+    evidence: "ShipmentController.kt:64"
   - name: "test-quality"
     score: 1
     anchor_level: 1
-    reason: "Repeat body and refusal envelope are asserted, but persisted state is not re-read"
-    evidence: "ShipmentControllerTest.kt:102,113,127"
+    reason: "Repeat body and refusal envelope are asserted, but persisted state is never re-read."
+    evidence: "ShipmentControllerTest.kt:106"
   - name: "change-focus"
     score: 1
     anchor_level: 1
-    reason: "ApiError and class documentation differ outside confirm"
-    evidence: "ApiError.kt:35; ShipmentController.kt:14; baseline ApiError.kt:34; baseline ShipmentController.kt:14"
+    reason: "Unnamed methods match baseline, but ErrorCode changes outside confirm."
+    evidence: "ApiError.kt:37; baseline/ApiError.kt:36"
 ambiguous_categories: []

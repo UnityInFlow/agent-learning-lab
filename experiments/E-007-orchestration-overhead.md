@@ -534,6 +534,106 @@ rubric version that no measured comparison depends on.
 autonomous, 2026-09-06. The interpretation, the anchor ruling and the decision not to repair the
 rubric are the orchestrator's, not the subagent's.*
 
+## §4 step 7 — the twenty registered sheets, and the one cell that was checked by hand
+
+Scored 2026-09-06T12:59–13:09Z, `codex-score.sh` against `benchmark/rubrics/backend-quality.yaml`
+at **`396e1799eb2b`**, the registered sha. Every one of the twenty sheets carries that sha in its
+own provenance block and names `harness: codex`, `model: gpt-5.6-sol`, `schema_pinned: 4
+categories` — checked by assertion in the collector, not by eye.
+
+| | |
+|---|---|
+| collector | `evidence/p04b/lab-4b4/batch-20260906T080905Z/step7/collect-sheets.py` |
+| output | `…/step7/scores.txt` |
+| sheets | `findings/codex/score-observatory-run-<runId>-20260906T1[23]*.yaml`, twenty of them |
+
+| run | arm | architecture-consistency | maintainability | test-quality | change-focus |
+|---|---|---|---|---|---|
+| `207ff23d` | O | 2 | **0** | 2 | 1 |
+| `4d7c537d` | O | 2 | 2 | 1 | 1 |
+| `89ea9063` | O | 2 | 0 | 1 | 1 |
+| `1f806f3d` | O | 2 | 0 | 2 | 1 |
+| `da442dd9` | O | 2 | 2 | 2 | 1 |
+| `92f59ff6` | O | 2 | 0 | 1 | 1 |
+| `beae5092` | O | 2 | 2 | 2 | 1 |
+| `fb894d7d` | O | 2 | 0 | 1 | 1 |
+| `2744a92c` | O | 2 | 2 | 2 | 1 |
+| `c0b6721e` | O | 2 | 0 | 1 | 1 |
+| `a2a7cdb1` | C | 2 | 0 | 1 | 1 |
+| `11cab10d` | C | 2 | 2 | 1 | 1 |
+| `4374f319` | C | 2 | 2 | 1 | 1 |
+| `9fe27bf1` | C | 2 | 2 | 1 | 1 |
+| `b0b723f8` | C | 2 | 2 | 1 | 1 |
+| `b1609bb9` | C | 2 | 0 | 1 | 1 |
+| `383c915b` | C | 2 | 0 | 1 | 1 |
+| `59c1467d` | C | 2 | 2 | 1 | 1 |
+| `a0202230` | C | 2 | 0 | 1 | 1 |
+| `c7e4d207` | C | 2 | 0 | 1 | 1 |
+
+### The hand re-read agrees with the harness on both cells it checked
+
+The values fixed by hand at 12:53Z, before any sheet existed, were `architecture-consistency = 2`
+and `maintainability = 0` for `207ff23d`. **The codex sheet for `207ff23d` says 2 and 0.** Both
+cells agree, and they agree for the same stated reason: the sheet's `maintainability` evidence
+reads *"The status when is in statement position"*, which is the clause the hand reading applied.
+There is no disagreement to take to the diff at this step.
+
+That is one run of twenty and it is not a validation of the harness in general. It is the check
+§4 step 7 and §5 require, and it passed.
+
+### Two of the four dimensions did not move at all
+
+`architecture-consistency` is **2 on 20 of 20**. `change-focus` is **1 on 20 of 20**. Together
+they are 50 of the rubric's 100 weighted points, and on this task with this model they carry no
+information — which is exactly the standing item in `blocked_on_author` ("which rubric categories
+CAN move on BE-003 with haiku?"), now observed for a third experiment rather than argued.
+
+### The two dimensions that did move, reported as counts because the median lies here
+
+| dimension | arm O, `n=10` | arm C, `n=10` |
+|---|---|---|
+| `maintainability` | four 2s, six 0s — **median 0** | five 2s, five 0s — median reads 1.0 |
+| `test-quality` | five 2s, five 1s — median reads 1.5 | ten 1s — **median 1** |
+
+**`maintainability` is bimodal and never once scored 1**, so arm C's "median 1.0" is an
+interpolation between two 0s and two 2s and is a value no run received. `test-quality`'s "1.5" is
+the same artifact. Both are reported as counts above for that reason; the medians are in
+`scores.txt` and are not the honest summary of a two-valued distribution at even `n`.
+
+**The one difference worth carrying forward: `test-quality` reached 2 on five of ten arm-O runs
+and on zero of ten arm-C runs.** Every arm-C run scored exactly 1. Whether that clears the
+decision rule registered before the batch is §4 step 10's question and is **not** answered here —
+this section reports what the instrument produced.
+
+### A control of mine that reported success over a smaller scope than it claimed
+
+The first extraction pass reported all four cells MISSING for `c7e4d207` and would have entered a
+scored run as unscored. The sheet was complete; **the collector had read it while
+`codex-score.sh` was still writing it.** The presence check that gated the read tested that a
+FILENAME existed, and was treated as testing that a SHEET existed.
+
+Fixed the way this project's other controls are: `collect-sheets.py` now **asserts** — the
+registered rubric sha on every sheet, every one of the four categories parsing, and exactly twenty
+sheets — so an unparseable cell is an error that stops the run rather than a silent absence. A
+missing cell is not a null cell (§6): `null` is a measurement, and nothing here produced one.
+
+### The second reader is owed and still refused
+
+`opencode-score.sh` was probed once at 13:01Z on `207ff23d` and returned exit 1 with
+`Error: you (hermannjirka15) have reached your weekly usage limit` from ollama-cloud — the same
+weekly limit first seen 2026-09-05T18:06Z, with no reset time disclosed. Sheet:
+`findings/opencode/score-observatory-run-207ff23d-…-20260906T130110Z.yaml`. No stall: the process
+exited and left nothing running.
+
+**No substitution was made.** §4c's Decision H governs a *codex* outage and does not fire here;
+codex is up and is the registered scorer, so the experiment's numbers are complete. What is
+missing is the cross-harness distance, and the debt is now **20 sheets from this stop on top of
+the 14 owed from stop 10**. It is recorded, not waived.
+
+*Scored under the orchestrator's direction and recorded by Opus 5 (claude-opus-5), autonomous,
+2026-09-06. The reading of the bimodal medians, the decision to report counts, and the refusal to
+substitute a scorer are the orchestrator's.*
+
 ## §4 step 8 — the report, and why the registered tool could not produce it
 
 Run 2026-09-06T13:0xZ, over the twenty gate-passing runs and no others. Every run in the batch
