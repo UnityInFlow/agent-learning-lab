@@ -1,7 +1,15 @@
 # Phase 4B — Agent orchestration and multi-layer design
 
 **Guardrail layer: L3 — unless the split is structural, in which case L1.**
-**Status:** 🟨 open — spine stop 11, §4 step 1 · **Depends on:** Phase 4A (closed 2026-09-04, lab#60)
+**Status:** ✅ closed — spine stop 11, §4 step 14 complete, PR lab#64 → `c085508` · verdict
+**`NOT DETECTABLE`** · **lab#14 stays OPEN**, labs 4B.1/4B.2/4B.3 deferred ·
+**Depends on:** Phase 4A (closed 2026-09-04, lab#60)
+
+> **Corrected 2026-09-06. Attribution: `findings/track-b-validation-2026-09-06-3.md` (validator
+> pass 16, claude-fable-5-1), correction 3.** This line read *"🟨 open — spine stop 11, §4 step 1"*
+> on the workbook of a stop that closed and merged the same day. A status header is the one line
+> a reader trusts without checking, which is why a stale one is worth a correction of its own.
+> *Corrected by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06.*
 
 > Opened by the autonomous run on 2026-09-05, branch `stop11/phase-4b-orchestration`.
 > **Provenance note:** this session's orchestrator is Claude Fable 5.1 (`claude-fable-5-1`),
@@ -358,6 +366,16 @@ orchestrator still delegates* — and its prediction is written at step 9, not h
 6. **Report-only, not outcomes:** `changedFiles` (3 on 19 of 19 historical controls — at the
    floor), `addedLines`, `change-focus` (1 on 70 of 70 scored runs — a dead category).
 
+   > **Corrected 2026-09-06 — "70 of 70" and "a dead category" are both wrong.** Attribution:
+   > `findings/track-b-validation-2026-09-06-3.md` (pass 16), correction 5. The count is
+   > **73 of 73** per `E-006 § C2`, and that section found **one `change-focus` = 2** —
+   > `514b094e`, a codex-arm run — so the category is dead **on `claude-haiku-4-5-20251001`
+   > running BE-003**, not in itself. Pass 13's correction 13.1 fixed this same wording in three
+   > places on 2026-09-05 and it re-entered here the next day. The original line is kept
+   > unedited above; nothing in the stop's outcomes rests on it, and `change-focus` came back
+   > **1 on 20 of 20** in both arms.
+   > *Corrected by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06.*
+
 **Lab 4B.3 folded in — handoff fidelity, with its classification rule fixed before the run.**
 The orchestrator is instructed to pass the ticket *verbatim*. BE-003's gate checks the error
 cases, which is where a paraphrase loses a detail. Rule: an arm-O run that fails the evaluator is
@@ -701,12 +719,12 @@ the artifact of a recorded process violation.
 | *"What your handoff contract carries, and what it drops"* — **carries** | `orchestrator.md` § Workflow step 2 (ticket verbatim + one appended sentence); `implementer.md` § Output contract | **L3** — the instruction is prose; nothing rejects a paraphrase | `shasum -a 256` the two overlay files and read them |
 | *"…and what it drops"* — **the gate saw nothing dropped**, `n = 10` | O6: `evaluation.json` `exitCode: 0` in **all 20** kept worktrees `$TMPDIR/observatory-run-<runId>`; `./tools/check-run-gate.sh` on each → **20 admitted, 0 refused** | **L2** — `check-run-gate.sh` executes and refuses; it reads `evaluation.json` off disk and makes no network call | `for w in $TMPDIR/observatory-run-*/; do ./tools/check-run-gate.sh "$w/evaluation.json"; done` |
 | *"The task size below which decomposition costs more than it returns — as a number"* | **Not set.** `experiments/E-007-orchestration-overhead.md` § Results and § *O7, measured*; decision rule **row 4, NOT DETECTABLE**. O2 −13.4 %, O3 +34.1 %, O6 10/10 vs 10/10, O7 4 of 10 vs 5 of 10, all `n = 10` per arm | **L2 for the inputs, L3 for the verdict** — the numbers come from executing sources (telemetry, `evaluation.json`, 20 asserting sheets); *applying the rule* is a human reading a table, and nothing executes to reject a wrong reading | re-run `evidence/p04b/lab-4b4/batch-20260906T080905Z/step7/collect-sheets.py findings/codex evidence/p04b/lab-4b4/batch-20260906T080905Z/manifest.tsv`; it re-derives the score table and **asserts** `rubric_sha` on every sheet rather than reporting it |
-| *"When orchestration should be deterministic code rather than a model decision"* | Exit gate item 6, quoting *Dynamic workflows* incl. the `1,000 agents per run` cap | **L3** for the answer; the cap it cites is **L1** in the product being quoted, which is the point of the row and not a claim about this repo | open the workbook; the quotes are in § Extract with their source rows in `SOURCES.md` |
+| *"When orchestration should be deterministic code rather than a model decision"* | Exit gate item 6, quoting *Dynamic workflows* incl. the `1,000 agents per run` cap | **L3** for the answer; the cap it cites is **L2** in the product being quoted *(relabelled from L1, see note ¶)*, which is the point of the row and not a claim about this repo | open the workbook; the quotes are in § Extract with their source rows in `SOURCES.md` |
 | **O1 — the treatment activated**: arm O ≥ 1 delegation on 10/10, arm C 0/10, exactly one on ≥ 7/10 | `agent-observatory/infra/telemetry-out/events.jsonl`, `tool_result` events with `tool_name ∈ {Task, Agent}` joined by `observatory.run.id`; **10/10 vs 0/10, exactly one on 9 of 10** (`beae5092` has 2) | **L2** — counted from the runtime's own emitted events, not from the manifest's in-flight column and not from a flag | filter `events.jsonl` by `observatory.run.id` against the 20 ids in `evidence/p04b/lab-4b4/batch-20260906T080905Z/manifest.tsv` and count |
 | **The treatment reached arm O and not arm C** | `evidence/p04b/lab-4b4/init-schema/init-schema-<runId>.txt`, one per run: arm O **`delivered n=4 ["Read","Task","Grep","Glob"]`** vs declared `["Read","Grep","Glob","Task"]`, verdict `order-differs`, on 10 of 10; arm C **`delivered n=29`**, verdict `recorded-only`, on 10 of 10 | **L2** — read out of the runtime's own `system/init` record by `runner/lib/check-init-schema.sh`, which executes and can return 9. **NOT** from disk layout, and **not** from `customization.*Hash`, which is `null` on all 20 records including arm O | **join the ids to the batch manifest — do NOT glob the directory.** `awk -F'\t' '!/^#/ && $3 ~ /^[0-9a-f]{8}/ {print $2"\t"$3}' evidence/p04b/lab-4b4/batch-20260906T080905Z/manifest.tsv \| while IFS=$'\t' read -r arm rid; do f=evidence/p04b/lab-4b4/init-schema/init-schema-$rid.txt; [ -f "$f" ] && printf '%s\t%s\t%s\n' "$arm" "$(grep -o 'verdict=[a-z-]*' "$f"\|head -1)" "$(grep -o 'delivered n=[0-9]*' "$f"\|head -1)"; done \| sort \| uniq -c` → **`10 control recorded-only n=29` / `10 O order-differs n=4`**. *The unscoped glob over that directory is WRONG and was written here first: the directory also holds the §4 step 5 preflight pair and, from step 9, the P2 batch, so it returns 11/12 and reads as a miscount of a 20-run batch. A re-derivation command answering over a larger scope than its claim is the same defect as one answering over a smaller scope; it was caught by running it.* |
 | **The prediction preceded the first run** | prediction commit `c21781b` at `2026-09-06T05:14:31Z`; first run `startedAt 2026-09-06T08:09:06Z`; **2 h 54 m 35 s** | **L3** — git and the API both write timestamps, but a **human** compares them. `run-e007.sh` *does* refuse to start before its `PRED_COMMIT`, which is L2 for the batch and does not retroactively prove an earlier one | `git log --format=%cI -1 c21781b` against the earliest `startedAt` in the API for `EXP-4B-ORCH-OVERHEAD` |
-| **One scored cell re-read by hand, before any sheet existed** | `evidence/p04b/lab-4b4/hand-score-207ff23d.md`, committed `cd715e6` at `2026-09-06T12:58:11Z`; earliest sheet for the batch `12:59:10Z` — **59 seconds later**. Hand: `architecture-consistency 2`, `maintainability 0`, with `path:line`. Sheet: `2` and `0`, its evidence quoting the same clause | **L2 for the ordering** (two independent recorded timestamps); **L3 for the agreement** — I compared two documents | `git log --format=%cI -1 cd715e6`; `ls -t findings/codex/score-observatory-run-207ff23d-*.yaml \| head -1` |
-| **No registered variable moved between E-006 batch 2 and this batch** | `runtime.model` `claude-haiku-4-5-20251001` and Claude Code `2.1.263` on 20 of 20; benchmarks HEAD `0448643`; rubric `396e1799eb2b` asserted on **20 of 20 sheets** by the collector; evaluator `1.0.0` | **L2** — the batch driver `run-e007.sh` asserts model, benchmarks sha and claude version **before** the first run and exits 1 on any mismatch; the collector asserts the rubric sha per sheet | `./evidence/p04b/lab-4b4/verify-run-e007.sh` → **12 of 12**, every guard driven until it fired |
+| **One scored cell re-read by hand, before any sheet existed** | `evidence/p04b/lab-4b4/hand-score-207ff23d.md`, committed `cd715e6` at `2026-09-06T12:58:11Z`; earliest sheet for the batch `12:59:10Z` — **59 seconds later**. Hand: `architecture-consistency 2`, `maintainability 0`, with `path:line`. Sheet: `2` and `0`, its evidence quoting the same clause | **L3 for the ordering** *(relabelled from L2, see note ‡)*; **L3 for the agreement** — I compared two documents | `git log --format=%cI -1 cd715e6`; `ls -t findings/codex/score-observatory-run-207ff23d-*.yaml \| head -1` |
+| **No registered variable moved between E-006 batch 2 and this batch** | `runtime.model` `claude-haiku-4-5-20251001` and Claude Code `2.1.263` on 20 of 20; benchmarks HEAD `0448643`; rubric `396e1799eb2b` asserted on **20 of 20 sheets** by the collector; evaluator `1.0.0` | **L2 for the clause as scoped below** — the batch driver `run-e007.sh` asserts model, benchmarks sha and claude version **before** the first run and exits 1 on any mismatch; the collector asserts the rubric sha per sheet. **EXCEPTION, see note §: the Claude Code version DID move, 2.1.261 → 2.1.263, and this row's clause is false as written.** | `./evidence/p04b/lab-4b4/verify-run-e007.sh` → **12 of 12**, every guard driven until it fired |
 | **The batch driver refuses** (a control shown to reject, not assumed to) | `evidence/p04b/lab-4b4/verify-run-e007.sh` → `12 passed, 0 failed, of 12 registered cases`; `EXPECTED_CASES=12` asserted at the end so a drift in scope exits 1 rather than misinforming | **L2** | run it |
 | **F1 (step 9) — the split still happened without the L2 line** | `evidence/p04b/lab-4b4/p2-batch-20260906T181047Z/analysis/read-p2.py`: **5 of 5** P2 runs delegate exactly once, **0 of 5** controls do | **L2** — counted from the runtime's own transcript stream, and the reader **aborts** rather than report a zero if `parent_tool_use_id` is missing | `python3 evidence/p04b/lab-4b4/p2-batch-20260906T181047Z/analysis/read-p2.py evidence/p04b/lab-4b4/p2-batch-20260906T181047Z` |
 | **F1's source was substituted, and the substitution is PROVED** | the P2 batch exported no telemetry (gRPC misconfiguration, E-007 § *An instrument fault of my own making*), so F1 is read from the transcript. `crossvalidate-f1.py`: **telemetry and transcript agree on 20 of 20 main-batch runs, count for count**, including `beae5092` at 2 | **L2** — the script **exits 1** if any run disagrees; it is a check, not a comparison I eyeballed | `python3 evidence/p04b/lab-4b4/p2-batch-20260906T181047Z/analysis/crossvalidate-f1.py; echo $?` → `EXIT=0` |
@@ -714,6 +732,50 @@ the artifact of a recorded process violation.
 | **F3/F4 (step 9)** | evaluator exit 0 on **10 of 10**; `delivered n=29`, verdict `recorded-only`, on **5 of 5** each arm | **L2** — evaluator exit codes and the runtime's own `init` record | `grep -v '^#' evidence/p04b/lab-4b4/p2-batch-20260906T181047Z/manifest.tsv` |
 | **What the telemetry loss cost, scoped exactly** | on all 10 P2-batch records `estimatedCost`, `inputTokens`, `cachedTokens`, `toolCalls`, `modelCalls` and `traceId` are **`null`**; `durationMs` (the runner's own clock) survived. All 20 main-batch records carry every field | **L2** — read back off the API, per record, not inferred from the misconfiguration | `curl -s 'http://127.0.0.1:18081/api/runs?limit=500' \| jq '.[]\|select(.experimentKey=="EXP-4B-ORCH-DELIB")\|.efficiency'` |
 | **Every verification command re-run immediately before writing "done"** | `check-run-gate.sh` over the 20 kept worktrees → **`20 ok`, 0 refused**; `verify-run-e007.sh` → **`all 12 cases behaved as specified`**; `verify-run-e007-p2.sh` → **`all 12 cases behaved as specified`**; `crossvalidate-f1.py` → **exit 0, 20 of 20 agree** | **L2** — four executing checks, output pasted rather than recalled | run the four commands in this row |
+
+**¶ The `1,000 agents per run` cap is L2, not L1, and this row was the last place still saying
+L1 — relabelled 2026-09-06.** Found by the §4a round run on this PR
+(`findings/opencode/review-E-007-orchestration-overhead-20260906T221333Z.md`), the only one of its
+34 findings that named a contradiction inside this repository rather than an ambiguity in
+registered text. **The Exit gate already carried the correction** — *"CORRECTED from L1 to L2,
+2026-09-06, §4a finding at 2/2, by applying the workspace rule in order: a 1 001st spawn can still
+be written down"* — and validator pass 16 checked that sentence and confirmed it. **Neither pass
+checked this row**, so the workbook stated both labels for the same control, four hundred lines
+apart. Applying the rule in order: the bad value *can* still be written down (a 1 001st spawn is
+requestable), and something *executes* and rejects it, so **L2**. This is a claim about the
+product being quoted, not about a control in this repository, and that scoping is unchanged.
+**It is the third time in two days that a correction landed in one location and the §5 table kept
+the superseded claim** — the other two are notes ‡ and § below — which is the argument for the
+table citing its sources rather than restating them.
+*Corrected by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06.*
+
+**‡ The ordering row is L3, not L2 — relabelled 2026-09-06.** Attribution:
+`findings/track-b-validation-2026-09-06-3.md` (validator pass 16, claude-fable-5-1), correction 4.
+Applying the workspace rule in order: *can the bad value still be written down after the fix?* Yes
+— a sheet can be written before the hand reading. *Does something execute and reject it?* **No.**
+Git records a commit time and `codex-score.sh` puts a timestamp in a filename; **a human compares
+the two**, and nothing refuses a sheet that predates the hand commit. Two recorded timestamps make
+the comparison *checkable*, which is not the same as *enforced*, and the row directly above this
+one (*"The prediction preceded the first run"*) already applied the rule correctly and said L3 for
+exactly this shape. **This is the third recurrence of this correction in the track** — the first
+pass made it against B2, pass 3 made it again at stop 8 noting it had already recurred, and it has
+now recurred twice more. The 59-second margin and the agreement of the two readings are unchanged
+and are still facts; only the claim about what *guarantees* the ordering is corrected.
+*Corrected by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06.*
+
+**§ The registered-variable row's clause is false as written, and the exception is the runtime
+version — added 2026-09-06.** Attribution: same file, correction 7. **Claude Code moved
+`2.1.261 → 2.1.263`** between E-006 batch 2 and this batch. It was disclosed before the batch (see
+E-007 § *Second finding* and § Sanity checks) and the §4a round found the contradiction at 2/2
+recurrence — but the round's own table said the correction had been made *"in E-007's sanity checks
+and the §5 table"*, and **only the first of those two was true**: this row's evidence cell listed
+`2.1.263` without ever saying it had moved, so a reader of the table alone would take the clause at
+face value. What the row may still claim: `runtime.model`, the benchmarks sha, the rubric sha and
+the evaluator version did not move, and `run-e007.sh` executes and refuses on each. What it may not
+claim: that *no* registered variable moved. **The comparison is protected by this batch's own
+concurrent control, which ran on the same binary in the same window — not by version equality
+across batches**, and every verdict in E-007 is computed against that control for this reason.
+*Corrected by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06.*
 
 ## §4a review round — every finding, fixed or disputed
 

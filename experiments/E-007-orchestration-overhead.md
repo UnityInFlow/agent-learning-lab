@@ -2,9 +2,25 @@
 
 **Stop:** 11 (Phase 4B, Lab 4B.4) · **Workbook:** [`phases/04b-orchestration/README.md`](../phases/04b-orchestration/README.md)
 **Experiment key:** `EXP-4B-ORCH-OVERHEAD` · **Benchmark:** BE-003 · **Agent under test:** `claude-haiku-4-5-20251001`
-**Status:** 20 runs complete and gate-admitted · **O1 and O6 held, O5 held, O2 REFUTED in the
-opposite direction, O3 and O4 below their registered thresholds** · **O7 BLOCKED and the exit
-gate with it** — the observatory database was destroyed before scoring; see § *The database loss*
+**Status:** **CLOSED — verdict `NOT DETECTABLE` (decision rule row 4).** 20 runs complete and
+gate-admitted · **O1, O5 and O6 held; O2 REFUTED in the opposite direction; O3 and O4 below their
+registered thresholds; O7 = 4 of 10, one outside its registered band and far inside its MDE.**
+
+> **Corrected 2026-09-06 by the autonomous run. Attribution:
+> `findings/track-b-validation-2026-09-06-3.md` (validator pass 16, claude-fable-5-1),
+> correction 3.** Until this edit the Status line above read:
+>
+> > *"**O7 BLOCKED and the exit gate with it** — the observatory database was destroyed before
+> > scoring; see § The database loss"*
+>
+> Both halves of that sentence were false by the time the file was merged, and both had already
+> been retracted **lower down in this same file** — § *The database loss* opens with a
+> `RETRACTED IN FULL` block (there was no loss; the halting session read a second, empty docker
+> context) and § *O7, measured* carries O7 at 4 of 10 with the verdict computed. **Only the
+> summary a reader hits first was left claiming less than the detail beneath it** — pass 13's
+> correction 13.2 in a different file, and the third time this run has been corrected on that
+> exact shape. Nothing beneath this line is edited; the retraction blocks stay where they are.
+> *Corrected by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06.*
 
 `Predicted by Claude Fable 5.1 (claude-fable-5-1), autonomously, 2026-09-06T05:2xZ (see the commit
 for the exact time); the author did not review before the run.` Written after the §4 step 2 probe
@@ -43,6 +59,27 @@ range 0.115–0.192); `durationMs` median **97 s** (85–102, range 68–116); `
 | **O6** | evaluator pass rate, arm O | **≥ 8 of 10**, and not lower than arm C by 3 or more | the ticket is passed verbatim by instruction, so the error cases survive the handoff. **Registered as the one most likely to be wrong**: a small orchestrator paraphrases, and BE-003's gate lives in the error cases |
 | **O7** | `maintainability` anchor 2 (codex, rubric `396e1799eb2b`) | **1–3 of 10**, no change; only ≥ 9 of 10 would be detectable | nothing in the split touches how the worker writes Kotlin |
 | — | `changedFiles`, `addedLines`, `change-focus` | **report only** | `changedFiles` at the floor on 19 of 19 historical controls; `change-focus` = 1 on 70 of 70 scored runs. Not outcomes |
+
+> **Correction, added 2026-09-06 — the report-only row above quotes a count and a word that had
+> both already been refuted, and the registered text is kept unedited.** Attribution:
+> `findings/track-b-validation-2026-09-06-3.md` (validator pass 16, claude-fable-5-1),
+> correction 5.
+>
+> The row says *"`change-focus` = 1 on 70 of 70 scored runs"* and the workbook's matching line
+> calls it *"a dead category"*. **Both are wrong, and both were corrected the day before this
+> file was registered.** `E-006 § C2` has the number at **73 of 73** on this model, and it found
+> **one `change-focus` = 2** — run `514b094e`, a codex-arm run. So the category is dead **on
+> `claude-haiku-4-5-20251001` running BE-003**, which is a fact about a model-and-task pair, not
+> a property of the category: a different arm moved it. Pass 13's correction 13.1 amended this
+> exact wording in three places on 2026-09-05, and it **re-entered two registered documents on
+> 2026-09-06** — here at registration `c21781b`, and at the workbook's outcome list.
+>
+> **This file already disagrees with itself about it**: § Failure analysis carries *73 runs*
+> while the registered row above carries *70 of 70*. The registered row stays exactly as it was
+> written — a prediction's premises are not repaired after the fact — and this note is what a
+> reader needs beside it. Nothing in O1–O7 depends on the count: `change-focus` is report-only
+> by this same row, and it came back **1 on 20 of 20** in both arms.
+> *Corrected by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06.*
 
 **The gate's number, in the form this task can give it.** If O2 and O3 hold and neither O6 nor O7
 improves, then the task size below which decomposition costs more than it returns is **at least
@@ -868,6 +905,43 @@ and on zero of ten arm-C runs.** Every arm-C run scored exactly 1. Whether that 
 decision rule registered before the batch is §4 step 10's question and is **not** answered here —
 this section reports what the instrument produced.
 
+### The report-only items, reported — added 2026-09-06 after the stop closed
+
+**Attribution: `findings/track-b-validation-2026-09-06-3.md` (validator pass 16,
+claude-fable-5-1), correction 6.** § Predictions registers `changedFiles`, `addedLines` and
+`change-focus` as **report only**. `change-focus` was reported (1 on 20 of 20, above);
+**`changedFiles` and `addedLines` were registered and then never reported for the main batch.**
+Registering something as report-only is a commitment to report it, so here it is.
+
+**Re-derived by me from the API records rather than adopted from the validator's table** (§4b: a
+subagent's — or a validator's — number is data, not a verdict), `n = 10` per arm,
+`EXP-4B-ORCH-OVERHEAD`:
+
+| metric | arm O median (q1–q3, range) | arm C median (q1–q3, range) | Δ median |
+|---|---|---|---|
+| `addedLines` | **90** (81–102, 68–106) | **64** (62–67, 56–72) | **+26** |
+| `changedFiles` | **3 on 10 of 10** | **3 on 10 of 10** | **0 — at the task's floor** |
+
+`changedFiles` is the floor BE-003 cannot go below and behaves exactly as the registered row
+predicted from 19 historical controls; it separates nothing and was right to be report-only.
+
+**`addedLines` is the one that is worth having, and it did not have to be.** The two
+distributions do not overlap at the quartiles (81–102 against 62–67) and barely overlap at the
+range. **Arm O wrote about 26 more lines per run, and the extra lines are test code** — which is
+where the only dimension that moved, `test-quality`, moved: the validator checked the diffs of
+one run per arm and found `1f806f3d` (arm O) adding 78 test lines against `a2a7cdb1` (arm C)
+adding 43, against totals of 104 and 67 that I re-derived here. **This is not an outcome and no
+verdict may be computed from it** — it was registered report-only before the run and stays
+report-only afterwards, which is the whole point of registering the label first. It is stated as
+*true of these runs*.
+
+**Why it matters anyway:** it is a second, independent measurement pointing at the same place as
+the `test-quality` result, and it sharpens pass 16's closing finding rather than answering it —
+more test lines is what you would expect *both* from a split that hands a worker a focused brief
+*and* from the implementer's four lines of prose telling that worker to write "tests for every
+case it names". The registered design cannot separate those two, which is threat 1.
+*Added by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06.*
+
 ### A control of mine that reported success over a smaller scope than it claimed
 
 The first extraction pass reported all four cells MISSING for `c7e4d207` and would have entered a
@@ -1155,6 +1229,21 @@ never designed to be compared. It is recorded as a question, not an answer.
 
 **Main batch, `EXP-4B-ORCH-OVERHEAD`, `n = 10` per arm.** Four of seven held, one was refuted in
 the opposite direction to the one registered, and two landed below their own thresholds.
+
+> **Corrected 2026-09-06 — it is three of seven, not four. The table below is right and this
+> sentence rounded up.** Attribution: `findings/track-b-validation-2026-09-06-3.md` (validator
+> pass 16, claude-fable-5-1), correction 8. Counting the table's own verdict column: **held —
+> O1, O5, O6 (three)**; **refuted — O2**; **below threshold, not met — O3, O4**; **outside its
+> registered band — O7**, which the table's last row states plainly as *"missed its band by
+> one"*. The sentence counted O7 as held. It is not: 4 of 10 sits outside the registered
+> `1–3 of 10`, and the honest description is the one the table already gives — *missed its band
+> by one, far inside its MDE, and lower than the control*, which is a movement too small to
+> detect rather than a prediction that came true. **The direction of the error is the one that
+> matters**: a summary counting a near-miss as a hit is the same shape as a status header
+> claiming a result the file beneath it does not have, and both were found in this file by the
+> same pass. The verdict is unchanged — decision rule **row 4, `NOT DETECTABLE`** — because no
+> row of that rule reads O7's near-miss either way.
+> *Corrected by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-06.*
 
 | # | Registered | Observed | |
 |---|---|---|---|
