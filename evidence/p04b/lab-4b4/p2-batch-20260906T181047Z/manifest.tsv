@@ -1,0 +1,8 @@
+# E-007 §4 step 9 DELIBERATE FAILURE (P2) 20260906T181047Z  key=EXP-4B-ORCH-DELIB pairs=5
+# orchestrator 1b259ccc09066cad (P2, NO tools: line) · implementer 6096f5ea35383112
+# benchmarks 0448643 · claude 2.1.263 · model claude-haiku-4-5-20251001
+# prediction commit eab540e at 2026-09-06T20:08:51+02:00
+# common:       RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-4B-ORCH-DELIB MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1 API_PORT=18081 OTLP_HTTP_PORT=14318 TEMPO_PORT=13200
+# arm P2 adds:  CUSTOMIZATION=../agent-learning-lab/build/customizations/orchestration-4b4-P2 AGENT=orchestrator VARIANT=orchestration-4b4-P2
+# control adds: VARIANT=baseline-e007-p2-window
+seq	arm	run_id	exit	worktree	init_schema_verdict	delegations
