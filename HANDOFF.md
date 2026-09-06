@@ -429,6 +429,71 @@ Decision E, Decision F, the four B2 predictions or the baseline result.
 
 ## What is BLOCKED ON YOU, and cannot be delegated
 
+### 00. HALT — THE OBSERVATORY DATABASE IS EMPTY. EVERY RUN RECORD THE PROJECT EVER MADE IS GONE (2026-09-06T13:1xZ)
+
+**This is the blocker and it outranks everything below it. It is not about the agent under test
+and it was not caused by this session.** Stop 11 halts at §4 step 7 with the batch complete.
+
+**What happened.** Between `08:55Z` (the last successful API read of the E-007 batch) and
+`12:49Z` (this session's start) the Docker environment on this machine was wiped — images and
+volumes. Evidence that it preceded anything I did: the §0a preflight's stack row failed *before
+I ran a single docker command* (`make smoke` → **"18 of 18 checks failed"**), the observatory's
+images had to be re-pulled from scratch, and `docker volume inspect
+agent-observatory_postgres-data` reports `created=2026-09-06T13:08:24Z` — the volume behind the
+API right now is the empty one **my own `make up` created**. `GET /api/runs?limit=500` returns
+**0 runs**, against roughly **250** across stops 4–11.
+
+**What I tried, in order, before calling it a halt.** `make down` + `make up` (volumes preserved
+— I checked that `make clean`, not `make down`, is the destructive target before running
+either); `POSTGRES_PORT` / `API_PORT` overrides; then starting `postgres` and `observatory-api`
+alone. Each hit a *different* port already bound — 5432, then 9090, then 8081 — all held by
+`limactl` with nothing behind them, i.e. **leaked port-forwards in the Docker VM**, which is the
+same wipe's fingerprint. I could not edit `infra/.env` (permission-denied to that directory), so
+I brought the API up on **8091** (`LAB_OBSERVATORY_API` is the supported override) and confirmed
+it healthy. It serves an empty database.
+
+**I did not restore the records and you should not let anyone restore them this way.** The runner
+builds the record in memory and POSTs it (`run-agent.sh:1177`); nothing archives it to disk. I
+hold the E-007 batch's key fields in a committed table, but re-POSTing them would create records
+that *look* original while missing everything I never captured. That is fabricating evidence.
+
+**What survived, verified rather than assumed:** all **20 of 20** kept worktrees; an
+`evaluation.json` inside every one (**`check-run-gate.sh`: 20 admitted, 0 refused, entirely
+without the API**); `events.jsonl` at 8.1 MB with delegation events for 20 of 20 runs; and every
+committed artifact of every stop.
+
+**So most of stop 11 survived, and it is written up in `E-007`:** O1 **HELD** on all three
+clauses from telemetry, its registered source; O6 **HELD** 10/10 vs 10/10 from on-disk
+`evaluation.json`; O5 **HELD**; **O2 REFUTED in the opposite direction** (arm O was **13.4 %
+cheaper**, against a registered **+60 %**); O3 and O4 below their thresholds. **O4's per-run
+counts from surviving telemetry are identical, run for run, to the API numbers committed before
+the loss** — two independent sources agreeing, one of which no longer exists.
+
+**What is blocked is exactly one cell.** `O7` needs `codex-score.sh --run-id`, which admits a run
+through Decision D's **Path B — the evaluator's verdict as recorded in the API** — and correctly
+refuses against an empty database. O7 is the *only* thing separating decision-rule **row 3
+(REFUTE)** from **row 4 (NOT DETECTABLE)**. One unmeasured cell is the whole cost of this halt.
+
+**Three ways forward. All three are yours, not mine, and I have taken none of them.**
+
+1. **Let the scorer admit a run from disk** — `evaluation.json` plus the kept worktree, which is
+   the same evidence Path B reads, only not via HTTP. Cheapest, and the gate already proved it
+   works from disk on 20 of 20. But it **changes the registered scorer mid-experiment**, and
+   Decision C makes that instrument the thing that produces the numbers. §6's call, not mine.
+2. **Re-run the batch** under a *new* key (never the same one — stop 10 paid for that lesson).
+   ≈ $4 and ~45 min. The predictions at `c21781b` still precede any new run, so the discipline
+   survives; but it measures a different day's runtime and the current batch's O1/O5/O6 results
+   would be orphaned from their re-scored siblings.
+3. **Accept the stop as partially closed** — O1, O5, O6 measured and O2 refuted, with O7 and the
+   exit-gate row recorded as unmeasurable. This is the only option that spends nothing and
+   invents nothing.
+
+**Also yours, and larger than stop 11.** Every earlier stop's §5 validation table cites **run
+ids**. Those ids no longer resolve to anything: the sheets, manifests and reports are committed
+and fine, but *"open the run record and check `runtime.model`"* is no longer a re-derivable step
+for stops 4–10. §9's item 4 and item 7 both depend on it. **Nothing in this project ever backed
+that database up**, and until something does, the same wipe repeats.
+
 ### 0. HALT — MORE THAN ONE AUTONOMOUS ORCHESTRATOR IS RUNNING THIS PROMPT AT ONCE (2026-09-05T17:46Z)
 
 **This is the blocker, it is new, and it is the only reason stop 10 did not close tonight.**

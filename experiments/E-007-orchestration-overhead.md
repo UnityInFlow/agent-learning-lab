@@ -2,7 +2,9 @@
 
 **Stop:** 11 (Phase 4B, Lab 4B.4) · **Workbook:** [`phases/04b-orchestration/README.md`](../phases/04b-orchestration/README.md)
 **Experiment key:** `EXP-4B-ORCH-OVERHEAD` · **Benchmark:** BE-003 · **Agent under test:** `claude-haiku-4-5-20251001`
-**Status:** predictions registered, no runs
+**Status:** 20 runs complete and gate-admitted · **O1 and O6 held, O5 held, O2 REFUTED in the
+opposite direction, O3 and O4 below their registered thresholds** · **O7 BLOCKED and the exit
+gate with it** — the observatory database was destroyed before scoring; see § *The database loss*
 
 `Predicted by Claude Fable 5.1 (claude-fable-5-1), autonomously, 2026-09-06T05:2xZ (see the commit
 for the exact time); the author did not review before the run.` Written after the §4 step 2 probe
@@ -475,6 +477,81 @@ voiding.
 **No median, quartile, ratio or verdict is computed here.** That is §4 step 8, after §4 step 7
 has put a `check-run-gate.sh` result and a codex sheet against each run id, and after the hand
 re-read that §5 requires is written down *before* any sheet is opened.
+
+## The database loss — read this before any number below it
+
+**Between 2026-09-06T08:55Z (the last successful API read of this batch) and 12:49Z (this
+session's start) the Docker environment on this machine was wiped.** Not by anything in this
+session: the §0a preflight's stack row failed *before* I ran a single docker command
+(`make smoke` → *"18 of 18 checks failed"*), the observatory's images had to be re-pulled from
+scratch, and `docker volume inspect agent-observatory_postgres-data` gives
+`created=2026-09-06T13:08:24Z` — the volume serving the API now is one **my own `make up`
+created minutes ago**. It is empty.
+
+**`GET /api/runs?limit=500` returns 0 runs. Every observatory run record this project has ever
+produced — roughly 250 runs across stops 4 to 11 — is gone from the database.** The runner
+builds its record in memory and POSTs it (`run-agent.sh:1177`); it never archives it to disk,
+so there is no copy to restore from, and reconstructing one from my committed table would be
+manufacturing a record that claims a completeness it does not have. I have not done that and it
+should not be done.
+
+**What survived, verified rather than assumed:**
+
+| Artifact | State | Verified by |
+|---|---|---|
+| 20 of 20 kept worktrees | **present** | `test -d` on each `$TMPDIR/observatory-run-<runId>` |
+| `evaluation.json` per run | **present in every worktree** | `check-run-gate.sh` run on each: **20 admitted, 0 refused** |
+| telemetry `events.jsonl` | **present, 8.1 MB** | delegation events found for 20 of 20 runs |
+| every committed artifact | **untouched** | manifests, `init-schema/`, the §4 step 6 table, sheets and evidence of stops 4–10 are in git |
+
+**The consequence, stated exactly.** `codex-score.sh --run-id` admits a run through Decision D's
+Path B — *the evaluator's verdict as recorded in the API*. With an empty database it refuses,
+correctly. **O7 cannot be measured**, and O7 is what separates decision-rule row 3 (REFUTE) from
+row 4 (NOT DETECTABLE). **So the exit gate cannot be answered, and this stop halts under §7.**
+
+Everything that does not depend on the blocker was finished first, and is below.
+
+## Results — §4 step 8, as far as the surviving evidence allows
+
+**Provenance is given per metric, because it now differs per metric.** Nothing here is stated as
+re-derivable from the API, because the API can no longer derive any of it.
+
+| Outcome | Registered threshold | Observed | Verdict | Provenance of the observation |
+|---|---|---|---|---|
+| **O1** delegation | O ≥ 1 on 10/10; C 0/10; exactly 1 on ≥ 7/10 | **10/10 · 0/10 · 9/10** | **HELD, all three clauses** | **Telemetry — the registered source, which survived.** Independently recomputed this session |
+| **O2** cost median | **+60 %**, detectable ≥ +25 % | **−13.4 %** ($0.1265 vs $0.1462) | **REFUTED — and in the opposite direction** | committed §4 step 6 table, read from the API before the loss |
+| **O3** duration median | ≥ +40 % | **+34.1 %** (118 s vs 88 s) | **not met** — below the registered threshold | same |
+| **O4** `toolCalls` median | ≥ **+5** *and* non-overlapping quartiles | **+3** (21 vs 18); quartiles 19–23 vs 16–18, non-overlapping | **not met** — the conjunction fails on magnitude | **telemetry AND the committed table, identical on 20 of 20 runs** |
+| **O5** `modelCalls` median | ≥ **+4** *and* non-overlapping quartiles | **+4** (26 vs 22); quartiles 24–27 vs 19–22, non-overlapping | **HELD, both clauses** | committed table |
+| **O6** evaluator pass rate | ≥ 8/10 and not lower than C by ≥ 3 | **10/10 vs 10/10** | **HELD** — and it was registered as *most likely to be wrong* | **on-disk `evaluation.json`, 20 of 20 gate-admitted** |
+| **O7** `maintainability` anchor 2 | 1–3 of 10 | **BLOCKED** | **not measurable** | needs codex sheets; needs the API |
+
+**O4's corroboration is worth stating on its own.** The surviving telemetry's per-run tool counts
+are **identical, run for run, to the API-derived numbers committed at `53d2aa0` before the
+database was lost** — arm O `[14,16,19,19,20,22,22,23,23,25]`, arm C
+`[15,15,16,18,18,18,18,18,18,19]`. Two independent sources, one of which no longer exists,
+agreeing exactly. That is the strongest available answer to *"how do we know the committed table
+was not mis-transcribed."* It does not extend to cost or duration, which telemetry does not carry.
+
+**Where the decision rule stands, and why it cannot be finished.**
+
+- Row 0a — **does not fire.** Set delivered on 10 of 10; O1 at 10/10, far above its 9/10 floor.
+- Row 1 (CONFIRM) — **does not fire.** It requires O2 ≥ +25 % *and* O3 ≥ +40 %. O2 is negative
+  and O3 is 34.1 %.
+- Row 2 — **does not fire.** O6 is 10/10 in both arms.
+- Row 5 — **does not fire.** O6 is not higher in arm O either.
+- Row 3 (REFUTE) vs row 4 (NOT DETECTABLE) — **undecidable without O7.** Row 4's conditions are
+  otherwise met (O2 < +25 %, O3 < +40 %, nothing improved), but row 3 outranks row 1 and turns on
+  O7 ≥ 9 of 10. **This single unmeasured cell is the whole of what the halt costs.**
+
+**The one thing this batch settled regardless of O7, and it is the hypothesis' own mechanism.**
+E-007 predicted decomposition would cost **+60 %** in money because *"two contexts create two
+cache prefixes."* **Arm O was 13.4 % cheaper than its own concurrent control**, on ten pairs
+interleaved in one 44-minute window on one binary. Whatever O7 turns out to be, **the cost
+mechanism registered in the hypothesis is wrong**, and it was called wrong twice before the batch
+was read — once at the preflight pair (n=1) and once in the state file, both in writing, both
+before any median was computed. What decomposition cost here was **time** (+34 %) and **turns**
+(+4 model calls), not money.
 
 ## Observed telemetry
 
