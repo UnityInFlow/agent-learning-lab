@@ -568,7 +568,7 @@ re-derivable from the API, because the API can no longer derive any of it.
 | **O4** `toolCalls` median | ≥ **+5** *and* non-overlapping quartiles | **+3** (21 vs 18); quartiles 19–23 vs 16–18, non-overlapping | **not met** — the conjunction fails on magnitude | **telemetry AND the committed table, identical on 20 of 20 runs** |
 | **O5** `modelCalls` median | ≥ **+4** *and* non-overlapping quartiles | **+4** (26 vs 22); quartiles 24–27 vs 19–22, non-overlapping | **HELD, both clauses** | committed table |
 | **O6** evaluator pass rate | ≥ 8/10 and not lower than C by ≥ 3 | **10/10 vs 10/10** | **HELD** — and it was registered as *most likely to be wrong* | **on-disk `evaluation.json`, 20 of 20 gate-admitted** |
-| **O7** `maintainability` anchor 2 | 1–3 of 10 | **BLOCKED** | **not measurable** | needs codex sheets; needs the API |
+| **O7** `maintainability` anchor 2 | 1–3 of 10 | ~~BLOCKED~~ → **4 of 10** | ~~not measurable~~ → **SUPERSEDED** | **THIS ROW IS DEAD.** It was written under the false database-loss halt and is kept only as the record of it. **§ *O7, measured* below GOVERNS: 4 of 10, control 5 of 10**, from twenty codex sheets that already existed when this row was written. §4a finding at 2/2 — two sections gave O7 two values and no supersession rule; this is the rule |
 
 **O4's corroboration is worth stating on its own.** The surviving telemetry's per-run tool counts
 are **identical, run for run, to the API-derived numbers committed at `53d2aa0` before the
@@ -642,6 +642,68 @@ registered threshold** (+34.1 % against ≥ +40 %), **no correctness change** (1
 decomposition costs more than it returns below some task size — **is not supported by this batch,
 and is not refuted either.** It is below this instrument's floor at this `n`.
 
+### Revision after the §4a review round — `test-quality` MOVED, and I had written that nothing did
+
+*Applied 2026-09-06T19:0xZ from `findings/opencode/review-E-007-orchestration-overhead-20260906T184803Z.md`
+(codex panel, `-P codex -A -n 2`, exit 0, 92 finding sections). The finding recurred at **2/2** in
+three separate forms and it is correct. **The claim it refutes is mine and it is corrected here
+rather than quietly softened above.***
+
+**What I wrote:** *"no quality change the rubric can see"*, and `observed_effect: … nor anything
+the rubric can see`. **What the sheets say:**
+
+| dimension | arm O | arm C | |
+|---|---|---|---|
+| `architecture-consistency` | `2` ×10 | `2` ×10 | no variance |
+| `change-focus` | `1` ×10 | `1` ×10 | no variance |
+| `maintainability` (**O7**) | anchor 2 on **4 of 10** | **5 of 10** | inside its MDE |
+| **`test-quality`** | `2 1 1 2 2 1 2 1 2 1` — **anchor 2 on 5 of 10** | `1` ×10 — **0 of 10** | **Fisher two-sided `p = 0.0325`** |
+
+**So the rubric did see something, in the treated arm's favour, and this experiment cannot credit
+it — because `test-quality` is in neither of the two lists the registration wrote.** It is not one
+of O1–O7, and it is not in the *"report only"* line, which names `changedFiles`, `addedLines` and
+`change-focus` and stops there. **That omission is the defect**, and it was mine, made before the
+run.
+
+#### The decision rule under both readings, as pass 13's directive 13.3 requires
+
+Row 4 reads *"O2 < +25 % **and** O3 < +40 % **and nothing improved**"*. The first two clauses hold
+on any reading. The third is ambiguous and the ambiguity was not resolved before the batch:
+
+| Reading | *"nothing improved"* means | Row 4 | Verdict |
+|---|---|---|---|
+| **A** | none of the **registered** outcomes improved — i.e. O6 and O7, the two the rule names elsewhere by number | **fires** | **NOT DETECTABLE** |
+| **B** | nothing measured improved, registered or not | **does not fire** — `test-quality` improved at `p = 0.033` | **NO ROW FIRES.** Rows 1, 2, 3 and 5 are all already excluded, so the registered rule returns *no verdict at all* |
+
+**Reading A is adopted as primary**, because every other clause in that rule names a registered
+outcome by its number and reading B would let any unregistered co-variate decide a pre-registered
+experiment. **Reading B is recorded, not buried**, and under it this experiment has **no verdict**.
+Both are stated because the rule did not say, and choosing after seeing the numbers is exactly
+what the directive exists to prevent.
+
+#### The finding this actually produces, which is better than the verdict
+
+**Both things this batch detected are outside its own decision rule.** `modelCalls` **+4** with
+non-overlapping quartiles — the split's real cost — has no row that reads it. `test-quality`
+**5 of 10 vs 0 of 10, `p = 0.033`** — a possible *return* from the split — was never registered as
+an outcome at all. The rule sees O2, O3, O6 and O7; the experiment moved on `modelCalls` and
+`test-quality`.
+
+**E-007 registered the wrong outcomes.** That is the honest headline of this stop, it is a
+statement about my design and not about the agent, and it is worth more than `NOT DETECTABLE`.
+
+**It is NOT repaired here.** `test-quality` is not promoted to an outcome after the fact, the
+decision rule is not rewritten, and `NOT DETECTABLE` stands as the verdict under the adopted
+reading. §6 forbids moving a registered variable mid-experiment, and a rule edited to fit its own
+results measures nothing. **The repair is a registration, in the next experiment**, and it is the
+first follow-up.
+
+**A caution on `test-quality` specifically, so it is not over-read.** B1 recorded that this
+dimension *"holds 25 of the 100 and is decidable on two of the five variants — the other three
+submitted no test file"*, and E-001 left three of twenty cells structurally null on it. Here there
+are **no nulls in 20**, so every cell was decidable — but `p = 0.033` at `n = 10` per arm on an
+unregistered dimension is a lead, not a result, and it is stated as *true of these twenty runs*.
+
 ### A defect in the registered decision rule, recorded and NOT repaired
 
 **O5 held both its clauses and no row of the decision rule reads O5.** `modelCalls` moved +4 with
@@ -657,6 +719,25 @@ exists to refuse. **It is registered as the first follow-up**, and the honest re
 batch is the one written above *plus* this sentence: **the split did cost something measurable —
 four extra model calls per run, quartiles not overlapping, n = 10 — and the pre-registered rule
 had no place to put it.**
+
+### Two claims about O2, which this file was making at once — corrected 2026-09-06 after the §4a review
+
+The §4a critic found, at **2/2 recurrence and in three separate forms**, that `−13.4 %` was called
+**REFUTED** in one section and **NOT DETECTABLE** in another. Both words were mine and they are not
+interchangeable. **The finding is correct.** Separated:
+
+1. **The prediction `+60 %` is REFUTED.** It named a direction and a magnitude; the observed value
+   is on the other side of zero. No reading of `−13.4 %` is consistent with *"about $0.25 where the
+   control costs $0.156"*, and its stated mechanism — *"two contexts create two cache prefixes"* —
+   is wrong about what the orchestrator does.
+2. **No cost EFFECT is claimed, in either direction.** The registered MDE is `≥ +25 %` on the
+   median and `|−13.4 %|` is inside it. **Arm O is not established as cheaper.** It is established
+   as *not more expensive by the amount predicted*.
+
+**The decision rule uses claim 2, not claim 1** — row 1 asks whether `O2 ≥ +25 %`, and it is not,
+so row 1 does not fire. Claim 1 is about the hypothesis' mechanism and is what makes this batch
+worth reading. **Wherever this file says "cheaper", read "not more expensive, and 13.4 % below the
+control's median at `n = 10`, which is inside the instrument's floor."**
 
 ## Observed telemetry
 
@@ -1008,6 +1089,15 @@ the driver refused to start otherwise.** Manifest and per-run reader:
 that *executes* moved the measured behaviour **not at all**. **P2 against its concurrent control:
 `p = 0.0079`** — so the prose is doing the work, and doing all of it.
 
+**F2's definition was narrower than its concept, and widening it changes nothing here.** The §4a
+critic noted that `Write`/`Edit`/`MultiEdit` is not the whole of *writing code*: stop 9's
+deliberate failure got its file written entirely through **`Bash`** — `find`, then a
+`cat > ./calc.py` heredoc — with **zero `Write` calls**. Re-derived with `Bash` counted as a write
+path, the orchestrator's own stream on all five P2 runs contains **only `Agent` and `ToolSearch`**:
+`{'Agent': 1}` ×3 and `{'ToolSearch': 1, 'Agent': 1}` ×2. **F2 is 0 of 5 on either definition**, so
+the narrow wording hid nothing here. It is recorded because it *would* have hidden everything on
+stop 9's task, and the next experiment reusing this measure should register the wide definition.
+
 **The measure can fire, and that is not an assumption.** The control arm is a positive control for
 F2 by construction: same 29-tool pool, no orchestration instruction, and it wrote code in its own
 stream on **5 of 5** runs (`Edit` ×3 to ×5). A zero on the treated arm is therefore a real zero and
@@ -1020,6 +1110,12 @@ The prediction block said, before the runs: *"If F2 comes back **0 of 5**, that 
 this task, with this body, the L3 instruction was not observed to fail' — it is **not** 'L3 is as
 good as L2', and it must not be written up as one. …**one** F2 event refutes the equivalence;
 **no** F2 events refute nothing."*
+
+**Two different things are being said, and the §4a critic was right that this file ran them
+together (2/2).** **F2 as a prediction is REFUTED**: it said `≥ 1 of 5` and the answer is `0`.
+**The inference "L3 is equivalent to L2" is NOT licensed** by that zero — that is what the
+registration guarded, and it is a claim about the boundary, not about F2. A refuted prediction and
+an unlicensed inference are perfectly compatible.
 
 **That is the reading, unchanged by having seen the number.** What was measured is that a
 *procedurally explicit* body — a numbered step naming the tool, the `subagent_type` and the order —
@@ -1063,7 +1159,7 @@ the opposite direction to the one registered, and two landed below their own thr
 | # | Registered | Observed | |
 |---|---|---|---|
 | **O1** | ≥1 delegation 10/10, control 0/10, exactly one on ≥7/10 | **10/10 · 0/10 · 9/10** | **HELD**, all three clauses. Registered as *least likely to be wrong*, and it was |
-| **O2** | **+60 %** cost, detectable ≥ +25 % | **−13.4 %** | **REFUTED, and in the opposite direction.** The mechanism — *"two contexts create two cache prefixes"* — is wrong on this task |
+| **O2** | **+60 %** cost, detectable ≥ +25 % | **−13.4 %** | **The PREDICTION is refuted; no cost EFFECT is claimed.** See § *Two claims about O2* — these are different statements and this file was making both without separating them, a §4a finding at 2/2 |
 | **O3** | ≥ +40 % duration | **+34.1 %** | **not met**, below its registered threshold. Not "no effect": an effect inside the MDE |
 | **O4** | ≥ **+5** tool calls *and* non-overlapping quartiles | **+3**, quartiles non-overlapping | **not met** — the conjunction fails on magnitude while its second clause holds |
 | **O5** | ≥ **+4** model calls *and* non-overlapping quartiles | **+4**, quartiles 24–27 vs 19–22 | **HELD, both clauses** — and the decision rule has no row that can read it |
@@ -1093,7 +1189,9 @@ analyse should say so rather than manufacture a narrative.
 **1. The cost mechanism was wrong, and it was wrong in a direction that teaches something.**
 `+60 %` rested on *"a second agent with its own system prompt and its own cache prefix re-reads
 what the first skimmed."* The second half is right and the conclusion does not follow. Read the
-orchestrator's own stream and the reason is visible in one line: on run `eac5b2b1` it made
+orchestrator's own stream and the reason is visible in one line: on run `eac5b2b1` — **a §4 step 9
+P2 run, NOT one of the twenty in the table above; cited because its orchestrator is unrestricted, so
+the behaviour is chosen rather than forced (§4a finding, 2/2)** — it made
 **exactly one tool call, `Agent`**, and nothing else. The orchestrator never loads the files at
 all — the worker does — so the split does not duplicate a large context, it **moves** it, and
 leaves the parent holding almost nothing. That is *context isolation working as advertised*, which
@@ -1126,6 +1224,7 @@ refuse, and the correct place for the fix is the next experiment's registration.
 | per-run schema verdicts | join the manifest's ids to `evidence/p04b/lab-4b4/init-schema/init-schema-<id>.txt` | **10 arm O `order-differs`, `delivered n=4`; 10 control `recorded-only`, `delivered n=29`.** Row 0a does not fire (set equality — see § Amendment) |
 | `runtime.model` on 20 of 20 | `curl -s 'http://127.0.0.1:18081/api/runs?limit=500' \| jq '…'` | `claude-haiku-4-5-20251001` on 20 of 20, Claude Code `2.1.263` on 20 of 20 |
 | benchmark sha and evaluator equal across arms | asserted by `run-e007.sh` before the first run; `verify-run-e007.sh` drives the guard until it fires | benchmarks `0448643`, evaluator `1.0.0`; verifier **12 of 12** |
+| **a registered variable DID move, and this file said otherwise** | § Controlled variables registers Claude Code **`2.1.261`** (E-006 batch 2); every run of this batch is **`2.1.263`**, the binary having been repointed at `04:38Z`, before the prediction commit — disclosed in § *Amendment 2026-09-06* | **L2** — asserted per batch by `run-e007.sh`, which refuses any other version | **CORRECTED 2026-09-06 after the §4a review, found at 2/2.** *"No registered variable moved"* is FALSE as stated. The comparison is protected by this batch's **own concurrent control**, not by version equality with E-006 |
 | rubric sha equal across all sheets | `collect-sheets.py`, which **asserts** rather than reports | `396e1799eb2b` on **20 of 20**, **zero null cells** |
 | a hand re-read written before any sheet was opened | `git log --format=%cI -1 cd715e6` vs the earliest sheet's timestamp | hand `12:58:11Z`, first sheet `12:59:10Z` — **59 s**. Hand and harness agree on both checked cells of `207ff23d` (`architecture-consistency 2`, `maintainability 0`) |
 | O1 re-derived independently, in the main context | count `tool_result` events with `tool_name ∈ {Task, Agent}` in `events.jsonl`, joined to the manifest's 20 ids | **10/10 vs 0/10, exactly one on 9 of 10**, one run at 2. Matches the recorded value |

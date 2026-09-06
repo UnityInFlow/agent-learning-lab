@@ -320,8 +320,12 @@ evaluator, model (`claude-haiku-4-5-20251001`) and rubric sha (`396e1799eb2b`) a
 **Two overlay variants exist and the probe below picks one before the prediction commit.**
 
 - **P1** — `orchestrator` carries `tools: Read, Grep, Glob, Task`. It cannot `Edit`, `Write` or
-  run `Bash`; the only way the ticket gets done is through the worker. **A structural split** —
-  *if* the worker still inherits a pool that can write.
+  run `Bash`; the only way the ticket gets done is through the worker. **An L2 split** —
+  *if* the worker still inherits a pool that can write. **The words "a structural split" stood
+  here until 2026-09-06 and were wrong**, a §4a finding at 2/2: *structural* is L1 in this
+  project's vocabulary, and a `tools:` allowlist is L2 — the runtime **executes** and refuses by
+  name (observed at stop 9, `toollist-05`). The distinction is the whole subject of this stop and
+  it was mis-worded in the paragraph that introduces it.
 - **P2** — no `tools:` key on either file. The split is prose: the orchestrator is told to
   delegate and told not to edit. **An L3 split whose activation is L2-observable.**
 
@@ -492,6 +496,7 @@ rubric `396e1799eb2b`.** Full working in
 | model calls | ≥ +4, quartiles apart | **+4, 24–27 vs 19–22** | **held** |
 | correctness | ≥ 8/10, not worse by 3 | **10/10 vs 10/10** | held |
 | quality (`maintainability` 2) | 1–3 of 10 | 4 of 10 (control 5) | inside its MDE |
+| **`test-quality` 2 — NOT a registered outcome** | *(never registered, and not on the report-only list either)* | **5 of 10 vs 0 of 10**, Fisher `p = 0.033` | **it moved, and this experiment cannot credit it.** Added 2026-09-06 after the §4a review found the omission at 2/2 |
 
 **Verdict: NOT DETECTABLE**, decision-rule row 4. *"Consider adding complexity only when it
 demonstrably improves outcomes"* — on this task, at this `n`, decomposition **neither improved
@@ -570,7 +575,7 @@ Every number carries its `n`. Where the proof is words, the row says L3 and does
       O7 improves, the size is at least 3 files / 69 added lines — a lower bound, never a
       threshold.* **The premise failed. `n = 10` per arm:** cost **−13.4 %** against a registered
       **+60 %** (arm O was *cheaper*), duration **+34.1 %** against a **≥ +40 %** threshold, pass
-      rate **10/10 vs 10/10**, `maintainability` anchor 2 **4 of 10 vs 5 of 10**. Decision rule
+      rate **10/10 vs 10/10**, `maintainability` anchor 2 **4 of 10 vs 5 of 10**. **And `test-quality` anchor 2 moved 5 of 10 vs 0 of 10, `p = 0.033` — an unregistered dimension, so row 4 fires only under the reading that "nothing improved" means "no REGISTERED outcome improved". Both readings are computed in E-007 § *`test-quality` MOVED*; under the wider reading NO ROW FIRES and the rule returns no verdict at all**. Decision rule
       **row 4 — NOT DETECTABLE.** The lower bound is **not set**, and saying otherwise would be
       manufacturing a threshold out of a null.
       **What the batch did detect, and where the registered rule could not put it:** `modelCalls`
@@ -586,8 +591,12 @@ Every number carries its `n`. Where the proof is words, the row says L3 and does
       script, so *"Claude's context holds only the final answer."* Two things make this concrete
       rather than stylistic: the primitives return **typed** results (`agent()` takes a JSON
       `schema:` and resolves to `null` on an unrecoverable error, so **a null is a measurement
-      here too**), and the caps are **L1** — *"Up to 16 concurrent agents"*, *"1,000 agents total
-      per run — Prevents runaway loops."* That last one is the extract's first failure mode
+      here too**), and the caps are **L2** — *"Up to 16 concurrent agents"*, *"1,000 agents total
+      per run — Prevents runaway loops."* **CORRECTED from L1 to L2, 2026-09-06, §4a finding at
+      2/2, by applying the workspace rule in order: a 1 001st spawn can still be *written down* —
+      the script may ask — so it is not structural; something *executes* and rejects it, which is
+      L2. The distinction matters here more than usually, because this whole gate answer is about
+      the difference between a limit that runs and a sentence that asks.** That last one is the extract's first failure mode
       (*"agents spawning 50 subagents for simple queries"*) converted from advice into a limit
       something enforces. **The layer test applies to this gate answer itself:** an orchestrator
       told *"at most two delegations"* in prose is L3; a runner that cannot spawn a 1 001st agent
@@ -614,8 +623,10 @@ learning:
     The split happened on 10 of 10 and never on the control (0 of 10). It cost four extra
     model calls per run with non-overlapping quartiles. It cost NOTHING in money — arm O
     was 13.4 % CHEAPER against a registered +60 % — it missed the duration threshold at
-    +34.1 % against +40 %, and it changed neither correctness (10/10 vs 10/10) nor anything
-    the rubric can see (maintainability 4 of 10 vs 5 of 10). Decision rule row 4:
+    +34.1 % against +40 %, and it changed neither correctness (10/10 vs 10/10) nor the
+    REGISTERED quality outcome (maintainability 4 of 10 vs 5 of 10). BUT test-quality, which is
+    NEITHER a registered outcome NOR on the report-only list, moved 5 of 10 vs 0 of 10 at
+    p = 0.033 — so "nothing the rubric can see" WAS WRONG and is corrected. Decision rule row 4:
     NOT DETECTABLE. THE GATE'S NUMBER IS NOT SET, and that is the result rather than a
     shortfall of it.
   unexpected_effect: >
@@ -704,9 +715,78 @@ the artifact of a recorded process violation.
 | **What the telemetry loss cost, scoped exactly** | on all 10 P2-batch records `estimatedCost`, `inputTokens`, `cachedTokens`, `toolCalls`, `modelCalls` and `traceId` are **`null`**; `durationMs` (the runner's own clock) survived. All 20 main-batch records carry every field | **L2** — read back off the API, per record, not inferred from the misconfiguration | `curl -s 'http://127.0.0.1:18081/api/runs?limit=500' \| jq '.[]\|select(.experimentKey=="EXP-4B-ORCH-DELIB")\|.efficiency'` |
 | **Every verification command re-run immediately before writing "done"** | `check-run-gate.sh` over the 20 kept worktrees → **`20 ok`, 0 refused**; `verify-run-e007.sh` → **`all 12 cases behaved as specified`**; `verify-run-e007-p2.sh` → **`all 12 cases behaved as specified`**; `crossvalidate-f1.py` → **exit 0, 20 of 20 agree** | **L2** — four executing checks, output pasted rather than recalled | run the four commands in this row |
 
+## §4a review round — every finding, fixed or disputed
+
+**One round, `./tools/opencode-review.sh -P codex -A -n 2 experiments/E-007-orchestration-overhead.md
+phases/04b-orchestration/README.md`, 2026-09-06T18:48:03Z. Exit 0 — a result, not infrastructure.
+`findings/opencode/review-E-007-orchestration-overhead-20260906T184803Z.md`, 38 170 bytes, 92
+finding sections, no stall (a header-only file here is ~900 bytes with 0 sections).**
+
+**Panel:** codex only, per author decision 3 — ollama-cloud is at its **weekly** limit and the
+default panel returns header-only stalls. **Acceptance gate skipped (`-A`)**, so this round has
+**no ACCEPT verdict**; §4a says `UNDECIDED` after round three is recorded as such and is not a
+pass, and the same honesty applies to a gate that was never run. **This round is a line-level
+review only.** Recurrence is recomputed run-by-run (run 1 flagged 36 sections, run 2 flagged 18,
+all a subset), because a single-family panel collapses the file's own recurrence column to `1/1`.
+
+### Fixed — the ones that changed a claim
+
+| # | Rec. | Finding | What changed |
+|---|---|---|---|
+| 1 | **2/2** | **`test-quality` moved and the write-up said nothing did.** Arm O anchor 2 on **5 of 10**, control **0 of 10** | **The largest fix of the round.** Re-derived: `p = 0.0325`. `test-quality` is in **neither** the registered outcome list nor the report-only list — an omission in my registration. E-007 § *`test-quality` MOVED* computes the verdict under **both** readings of row 4's *"nothing improved"*; under the wider one **no row fires at all**. `observed_effect` and the Lab 4B.4 table corrected |
+| 2 | **2/2** | `−13.4 %` called **REFUTED** in one place and **NOT DETECTABLE** in another | E-007 § *Two claims about O2*: the **prediction** is refuted (wrong side of zero); no cost **effect** is claimed (inside the MDE). The decision rule uses the second |
+| 3 | **2/2** | *"No registered variable moved"* contradicts this file's own disclosure that Claude Code went **2.1.261 → 2.1.263** | The claim is **false as stated** and is corrected in E-007's sanity checks and the §5 table. The comparison is protected by the batch's **own concurrent control**, not by version equality |
+| 4 | **2/2** | O7 is **BLOCKED** in one table and **4 of 10** in a later one, with no supersession rule | The old row is struck and marked **THIS ROW IS DEAD**, with the rule stated: § *O7, measured* governs |
+| 5 | **2/2** | **F2 "REFUTED"** collides with the preregistration's *"0 of 5 refutes nothing"* | Separated: F2 **as a prediction** is refuted; the **inference** *"L3 ≡ L2"* is not licensed. Both are true |
+| 6 | **2/2** | The `1,000 agents per run` cap called **L1** | **Corrected to L2** by applying the rule in order: a 1 001st spawn can still be *written down*; something executes and rejects it |
+| 7 | **2/2** | P1 called **"a structural split"** in prose while the table calls `tools:` **L2** | Corrected to **"an L2 split"**, with the old words quoted. *Structural* is L1 here, and this was mis-worded in the paragraph that introduces the stop's whole subject |
+| 8 | **2/2** | The **Commit block** lists two files and describes none of this stop | Replaced with what stop 11 actually committed, plus what is **not** committed (kept worktrees under `$TMPDIR`, run records in a database with no backup) |
+| 9 | **2/2** | Run `eac5b2b1` is cited in the main-batch analysis but is not in its 20-run table | Labelled: it is a **§4 step 9 P2 run**, cited because its orchestrator is unrestricted, so the one-call behaviour is chosen rather than forced |
+| 10 | 1/2 | **F2 counts `Write`/`Edit`/`MultiEdit` but not `Bash`**, and stop 9's failure wrote its file entirely through a `Bash` heredoc | Re-derived with `Bash` counted: the orchestrator's own stream is `{Agent}` ×3 and `{ToolSearch, Agent}` ×2. **0 of 5 on either definition** — the narrow wording hid nothing *here*, and would have hidden everything on stop 9's task. Recorded for the next experiment that reuses the measure |
+
+### Disputed — with the reason, not the word "stylistic"
+
+| # | Rec. | Finding | Dispute |
+|---|---|---|---|
+| 11 | **2/2** | The database-loss section asserts *"THERE WAS NO LOSS"* and also preserves the claim that every record is gone | **Working as intended and already ruled on in the text.** The retraction block opens with *"Every claim below this block is FALSE and is kept verbatim, unedited, because it is the record of how it was made."* Deleting the false text would destroy the evidence of the error, which §6 forbids. Finding 4 was the real instance of this problem — a table **outside** the retraction — and that one is fixed |
+| 12 | 1/2 | *"Task size"* is undefined; 3 files/69 lines and 10 files/40 lines order differently by file count than by lines | **Correct, and it is the gate's question rather than an error in the answer.** The stop's answer is that **no number was set**; inventing a unit to express a bound that does not exist would be worse. The unit has to be chosen when a second size exists — BE-004, stop 12 — and it is registered as a follow-up there |
+| 13 | 1/2 | `make baseline-report` pools both arms into one ~100 s median; only a bespoke script yields 118 s vs 88 s | **True and already recorded** as the reason §4 step 8's registered tool could not produce this stop's report. Not a defect introduced here; carried as owed against the observatory |
+| 14 | 1/2 | The order probe shows A/D and B/C deliver different arrays but gives no behavioural comparison | **Correct and explicitly left open.** The workbook says the delivered order is **constant across all ten arm-O runs**, so it cannot explain any O-vs-C difference, and that whether delivered order changes behaviour *"is what this batch cannot answer"*. Answering it is a new arm and therefore §7 the author's |
+| 15 | 1/2 | Quoted source pages live in an uncommitted scratchpad, so a reader cannot verify the fragments | **Conceded as a real risk, not fixed in this stop, and named as owed.** It is the same shape as the `p = 0.0022` flag-probe evidence that lived in `/private/tmp` until a validator caught it. Preserving five vendor pages is a Track-A-wide job, not stop 11's |
+| 16 | 1/2 | F13 exclusion says cost is dropped "from every median" without saying which fields an F13 run still measures | **Moot here — no F13 run occurred**, 20 of 20 and 10 of 10 exit 0. Registered as wording to tighten before a batch that produces one |
+
+**Not re-run after revision, and the reason.** §4a allows up to three rounds; this artifact pair
+had one. The revisions above are **additive corrections to prose and labels** — no number, no
+prediction, no sheet and no run folder changed — and a second round would review the corrections
+rather than the work. **That is a judgement, and the honest cost of it is that these fixes are
+unreviewed.** The tools of this stop (`run-e007-p2.sh`, `verify-run-e007-p2.sh`, `read-p2.py`,
+`crossvalidate-f1.py`) **were not sent to the critic at all** — named here as §4a requires, and
+they carry `verify-*.sh` fixture sets instead, which is the review that executes.
+
 ## Commit
 
+**The template's two lines were a scaffold and never described this stop. Replaced 2026-09-06 with
+what stop 11 actually committed — a §4a finding at 2/2.**
+
 ```
-.claude/agents/*.md · workflow definition
-findings/B4b-orchestration.md
+build/customizations/orchestration-4b4-P1/.claude/agents/{orchestrator,implementer}.md
+    the measured overlay — 4f2af4ba7f740c33 / 6096f5ea35383112, NEVER edited after measurement
+build/customizations/orchestration-4b4-P2/.claude/agents/{orchestrator,implementer}.md
+    the §4 step 9 deliberate failure — 1b259ccc09066cad, P1 minus one line
+experiments/E-007-orchestration-overhead.md          the experiment, predictions and both verdicts
+phases/04b-orchestration/README.md                   this workbook
+evidence/p04b/lab-4b4/run-e007.sh        + verify-run-e007.sh        12 cases
+evidence/p04b/lab-4b4/run-e007-p2.sh     + verify-run-e007-p2.sh     12 cases
+evidence/p04b/lab-4b4/init-schema-probe.sh · order-probe.sh · hand-score-207ff23d.md
+evidence/p04b/lab-4b4/batch-20260906T080905Z/        the main batch, 20 runs
+evidence/p04b/lab-4b4/p2-batch-20260906T181047Z/     the deliberate failure, 10 runs
+    analysis/read-p2.py            F1–F4 from the transcript, aborts rather than report a zero
+    analysis/crossvalidate-f1.py   proves the transcript stands in for telemetry, 20 of 20
+evidence/p04b/lab-4b4/init-schema/                   the delivered-pool read-back, per run
+findings/codex/score-observatory-run-*-20260906T1[23]*.yaml   20 registered sheets
+findings/opencode/review-E-007-orchestration-overhead-20260906T184803Z.md   the §4a round
 ```
+
+**NOT committed, and named here rather than left to be discovered:** the kept worktrees live under
+`$TMPDIR/observatory-run-<runId>` and macOS reaps them; the run records live only in the
+observatory database, which **has no backup** (HANDOFF item 00b).
