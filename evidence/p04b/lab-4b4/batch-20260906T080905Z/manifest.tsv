@@ -1,0 +1,28 @@
+# E-007 Lab 4B.4 20260906T080905Z  key=EXP-4B-ORCH-OVERHEAD pairs=10
+# orchestrator 4f2af4ba7f740c33 · implementer 6096f5ea35383112
+# benchmarks 0448643 · claude 2.1.263 · model claude-haiku-4-5-20251001
+# prediction commit c21781b at 2026-09-06T07:14:31+02:00
+# common:       RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-4B-ORCH-OVERHEAD MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1
+# arm O adds:   CUSTOMIZATION=../agent-learning-lab/build/customizations/orchestration-4b4-P1 AGENT=orchestrator VARIANT=orchestration-4b4-P1
+# control adds: VARIANT=baseline-e007-window
+seq	arm	run_id	exit	worktree	init_schema_verdict	delegations
+01	O	207ff23d-d00b-4b5a-8a5e-8fbb2dcc0061	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-207ff23d-d00b-4b5a-8a5e-8fbb2dcc0061	verdict=order-differs	1
+01	control	a2a7cdb1-f3b7-4bd6-8917-ea897d03327c	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-a2a7cdb1-f3b7-4bd6-8917-ea897d03327c	verdict=recorded-only	0
+02	O	4d7c537d-f2b8-442b-828f-ad2db07c2ade	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4d7c537d-f2b8-442b-828f-ad2db07c2ade	verdict=order-differs	1
+02	control	11cab10d-3606-435c-83c1-ff8fd2ad6162	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-11cab10d-3606-435c-83c1-ff8fd2ad6162	verdict=recorded-only	0
+03	O	89ea9063-2465-47c4-a3da-3b6b82dbccec	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-89ea9063-2465-47c4-a3da-3b6b82dbccec	verdict=order-differs	1
+03	control	4374f319-f5f3-4367-9274-430c65a0984b	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4374f319-f5f3-4367-9274-430c65a0984b	verdict=recorded-only	0
+04	O	1f806f3d-0529-4b34-b1f2-3ad98941cd36	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1f806f3d-0529-4b34-b1f2-3ad98941cd36	verdict=order-differs	1
+04	control	9fe27bf1-1e86-49e8-90a0-676b6c438d65	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9fe27bf1-1e86-49e8-90a0-676b6c438d65	verdict=recorded-only	0
+05	O	da442dd9-2bfd-4f3a-9894-b6f71a2891ad	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-da442dd9-2bfd-4f3a-9894-b6f71a2891ad	verdict=order-differs	1
+05	control	b0b723f8-43db-422c-b2f9-56c8a8d43d44	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b0b723f8-43db-422c-b2f9-56c8a8d43d44	verdict=recorded-only	0
+06	O	92f59ff6-d0d8-4678-b2e0-e8304af22762	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-92f59ff6-d0d8-4678-b2e0-e8304af22762	verdict=order-differs	1
+06	control	b1609bb9-45f0-400a-a2e1-a6b54d4b72a6	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b1609bb9-45f0-400a-a2e1-a6b54d4b72a6	verdict=recorded-only	0
+07	O	beae5092-71e1-4a2c-bb16-72417e50ba29	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-beae5092-71e1-4a2c-bb16-72417e50ba29	verdict=order-differs	2
+07	control	383c915b-0ce1-45ac-8c1b-1ced7c48c7b0	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-383c915b-0ce1-45ac-8c1b-1ced7c48c7b0	verdict=recorded-only	0
+08	O	fb894d7d-903c-4a28-930d-643a603ecf31	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-fb894d7d-903c-4a28-930d-643a603ecf31	verdict=order-differs	1
+08	control	59c1467d-7651-402b-a8ea-d7f75014feb4	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-59c1467d-7651-402b-a8ea-d7f75014feb4	verdict=recorded-only	0
+09	O	2744a92c-9fcb-46dc-8e9a-3eb7e591658f	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2744a92c-9fcb-46dc-8e9a-3eb7e591658f	verdict=order-differs	1
+09	control	a0202230-a05b-4b1e-8b2b-0850432cfd8d	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-a0202230-a05b-4b1e-8b2b-0850432cfd8d	verdict=recorded-only	0
+10	O	c0b6721e-e1fe-4387-9e2b-bbd46bb420de	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c0b6721e-e1fe-4387-9e2b-bbd46bb420de	verdict=order-differs	1
+10	control	c7e4d207-cfa6-40ef-b7be-44d73d177bba	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c7e4d207-cfa6-40ef-b7be-44d73d177bba	verdict=recorded-only	0

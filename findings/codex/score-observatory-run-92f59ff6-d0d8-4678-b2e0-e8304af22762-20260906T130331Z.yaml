@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality.yaml
+  rubric_sha:     396e1799eb2b
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-92f59ff6-d0d8-4678-b2e0-e8304af22762
+  mode:           run
+  run_id:         92f59ff6-d0d8-4678-b2e0-e8304af22762
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:18081/api/runs/92f59ff6-d0d8-4678-b2e0-e8304af22762
+  attachments:    3 changed file(s), 3 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260906T130331Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "Both refusals throw baseline ApiException subclasses; shipment constructs no error body"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:48,55"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "Status decisions use separate if statements"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:53"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Second response body and refusal envelopes are asserted, but persisted state is never re-read"
+    evidence: "sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt:94"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "The ErrorCode enum and controller documentation also differ from baseline"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt:36; baseline/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt:35"
+ambiguous_categories: []

@@ -15,10 +15,81 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 10 of 28. Positions 4, 5, 6, 7, 8, 9 and 10 CLOSED.** B1 closed 2026-08-30. Stop 10
-closed 2026-09-05. **`backend-feature-implementer` v1.0 exists and is NOT promoted.** Next is
-stop 11 (Phase 4B, orchestration). **Stop 12 does not open until benchmarks#29 is merged** —
-that is the author's, and it is a §7 halt if it is not merged when stop 12 is reached.
+**Spine 11 of 28. Positions 4, 5, 6, 7, 8, 9, 10 and 11 CLOSED.** B1 closed 2026-08-30. Stop 10
+closed 2026-09-05, stop 11 on 2026-09-06. **`backend-feature-implementer` v1.0 exists and is NOT
+promoted; stop 11 promoted nothing either — it is a Track A stop and builds no version.** Next is
+stop 12 (B5). **Stop 12 does not open until benchmarks#29 is merged** — that is the author's, and
+it is a §7 halt if it is not merged when stop 12 is reached.
+
+**lab#14 (Phase 4B) STAYS OPEN**: labs 4B.1, 4B.2 and 4B.3 are deferred, and §4 step 14 says a
+Phase issue stays open while any of its labs is.
+
+## Stop 11 is CLOSED, the answer is `NOT DETECTABLE`, and the day's own halt was false
+
+**Two results and one retraction, 2026-09-06.**
+
+### The halt this session inherited was wrong, and nothing was ever lost
+
+`findings/track-b-validation-2026-09-06-2.md` (validator pass 15) found the §7 halt **NOT
+SUPPORTED**. I re-verified it before adopting it: `docker --context colima ps` shows the API **Up
+7 days (healthy)**, the SSH tunnel this project opened is still live at `127.0.0.1:18081`, and it
+returns **325 run records** — every experiment key back to `EXP-B2-BASELINE-CLAUDE`. The machine
+has three docker contexts; the stack has always run in **colima**, and `make smoke`, `make up` and
+`docker volume inspect` were run against the **desktop-linux default**, where compose built a
+second, empty, disjoint stack. Each fact the halt cited was individually true and none was about
+this database. It also contradicted its own committed work by eight minutes. **Item 00 is
+retracted in place, the false text kept verbatim; item 00b is what it should have said.**
+
+**What actually broke is worth carrying:** every colima host port-forward on this machine is dead
+in a way that reads as healthy — `nc -z 127.0.0.1 8081` says **OPEN** and `curl` returns **000**.
+`make smoke` through SSH tunnels returns **All 18 checks passed**. **Any docker, make or compose
+command in this project without `--context colima` is answering about a different machine.**
+
+### Lab 4B.4 — decomposition on a task too small to split
+
+**`n = 10` per arm, one 44-minute interleaved window.** The split happened on **10 of 10** and
+never on the control. It cost **four extra model calls** (quartiles 24–27 vs 19–22) and **no
+money**: arm O was **13.4 % cheaper** against a registered **+60 %**. Duration **+34.1 %** against
+a **≥ +40 %** threshold. Correctness **10/10 vs 10/10**. `maintainability` anchor 2 **4 of 10 vs
+5 of 10**. Decision rule **row 4 — NOT DETECTABLE**.
+
+**The gate's one numeric deliverable is NOT SET**, and that is the result rather than a shortfall
+of it. The threshold needs a second task size: BE-004 at stop 12.
+
+**The cost prediction was refuted by sign, and the reason is the exit gate's own third item.** The
+orchestrator makes **exactly one tool call — `Agent` — and nothing else**. It never loads the
+files; the worker does. **The split moves the context rather than duplicating it.**
+
+**Two defects that are mine, not the agent's.** First, **no row of the registered decision rule
+reads `modelCalls`** — the one overhead that cleared its MDE cannot reach the verdict, so a real
+effect lands as NOT DETECTABLE. Recorded, **not repaired**: editing a decision rule after seeing
+its numbers is the move this project exists to refuse. Second, the step-9 batch **exported no
+telemetry**, because the runner sends claude telemetry over **gRPC** and my driver tunnelled the
+HTTP port only.
+
+### The deliberate failure: one line deleted, and nothing measurable changed
+
+**Variant P2 is the orchestrator file minus `tools: Read, Grep, Glob, Task`** — the single element
+of the treatment that *executes*. `n = 5` plus 5 concurrent controls.
+
+| | delegated | wrote code in its own stream |
+|---|---|---|
+| **arm O**, `tools:` present — **L2** | 10 of 10 | **0 of 10 — impossible** |
+| **P2**, line deleted — **L3** | **5 of 5** | **0 of 5 — possible, did not happen** |
+| plain control | 0 of 5 | **5 of 5**, `Edit` ×3–×5 |
+
+**P2 against arm O: `p = 1.0`.** Against its concurrent control: `p = 0.0079`. **F2 was refuted**,
+and it was registered as the one most likely to be wrong.
+
+**The pre-registered reading stands unchanged:** *at `n = 5` the L3 instruction was not observed to
+fail* is **not** *L3 is as good as L2*. `tools:` does not make delegation more likely; it makes
+not-delegating impossible, and five runs on a task this model passes 20 of 20 times sample no
+tail. **Step 10 keeps the line against the project's own default rule and says so** — a judgement
+call, reversible, and the author's to reverse.
+
+**The measure can fire, and that is proved rather than assumed:** the control arm is a positive
+control for F2 by construction, and it fired on 5 of 5. That is exactly the gap stop 9's read-only
+*description* arm left open, and why that arm is still labelled L3.
 
 ## Stop 10 is CLOSED, `INCONCLUSIVE`, and the instrument is as much of the story as the agent
 
@@ -428,6 +499,129 @@ Decision E, Decision F, the four B2 predictions or the baseline result.
 </details>
 
 ## What is BLOCKED ON YOU, and cannot be delegated
+
+### 00. HALT — THE OBSERVATORY DATABASE IS EMPTY. EVERY RUN RECORD THE PROJECT EVER MADE IS GONE (2026-09-06T13:1xZ)
+
+> ## ~~00~~ RETRACTED IN FULL 2026-09-06T18:0xZ — **NOTHING WAS LOST AND THIS WAS NEVER A HALT.**
+>
+> **Attribution: `findings/track-b-validation-2026-09-06-2.md` (validator pass 15,
+> claude-sonnet-5). The item below is kept verbatim because it is the record of the error, not
+> because any of it is true. It is no longer blocked on you. What replaces it is item 00b.**
+>
+> **Re-verified by me before adopting the validator's word**, per §6 (*when a check goes green,
+> re-verify one of its cases by hand*):
+>
+> - `docker --context colima ps` → `agent-observatory-observatory-api-1` **Up 7 days (healthy)**,
+>   `0.0.0.0:8081->8080/tcp`; web **Up 8 days**. Never stopped, never wiped.
+> - `lsof -nP -iTCP:18081 -sTCP:LISTEN` → the SSH tunnel this same session opened, `ssh` pid
+>   **9688**, still listening.
+> - `curl -s 'http://127.0.0.1:18081/api/runs?limit=500'` → **HTTP 200, 325 run records**,
+>   including all twenty of the E-007 batch and every key back to `EXP-B2-BASELINE-CLAUDE`.
+>
+> **The mechanism.** This machine has three docker contexts — `colima`, `default`,
+> `desktop-linux *`. The project's stack has always run in **colima**, which the halting session
+> had itself already written into `TRACK-B-STATE.md:22`. `make smoke` and `make up` ran against
+> the **desktop-linux default**, where no `agent-observatory` container has ever existed, so
+> compose created a **second, empty, disjoint stack** on 8091/5435 and `docker volume inspect`
+> — invoked without `--context` — answered about *that* volume. Each of the three facts cited
+> below is individually true; none of them is about this project's database.
+>
+> **It also contradicted its own committed work by eight minutes.** All twenty codex sheets were
+> written `12:59:10Z`–`13:08:53Z` through that tunnel and committed at `13:13:34Z` (`4c12d8b`);
+> the halt commit `8d43a10` at `13:21:25Z` says those sheets cannot be produced.
+>
+> **Consequence:** the halt is lifted, O7 is measured at **4 of 10**, decision-rule row 3 does
+> not fire, and stop 11's exit gate is answerable. No number changed — pass 15 re-derived O1–O6
+> from disk and telemetry and all six reproduce exactly.
+
+
+**This is the blocker and it outranks everything below it. It is not about the agent under test
+and it was not caused by this session.** Stop 11 halts at §4 step 7 with the batch complete.
+
+**What happened.** Between `08:55Z` (the last successful API read of the E-007 batch) and
+`12:49Z` (this session's start) the Docker environment on this machine was wiped — images and
+volumes. Evidence that it preceded anything I did: the §0a preflight's stack row failed *before
+I ran a single docker command* (`make smoke` → **"18 of 18 checks failed"**), the observatory's
+images had to be re-pulled from scratch, and `docker volume inspect
+agent-observatory_postgres-data` reports `created=2026-09-06T13:08:24Z` — the volume behind the
+API right now is the empty one **my own `make up` created**. `GET /api/runs?limit=500` returns
+**0 runs**, against roughly **250** across stops 4–11.
+
+**What I tried, in order, before calling it a halt.** `make down` + `make up` (volumes preserved
+— I checked that `make clean`, not `make down`, is the destructive target before running
+either); `POSTGRES_PORT` / `API_PORT` overrides; then starting `postgres` and `observatory-api`
+alone. Each hit a *different* port already bound — 5432, then 9090, then 8081 — all held by
+`limactl` with nothing behind them, i.e. **leaked port-forwards in the Docker VM**, which is the
+same wipe's fingerprint. I could not edit `infra/.env` (permission-denied to that directory), so
+I brought the API up on **8091** (`LAB_OBSERVATORY_API` is the supported override) and confirmed
+it healthy. It serves an empty database.
+
+**I did not restore the records and you should not let anyone restore them this way.** The runner
+builds the record in memory and POSTs it (`run-agent.sh:1177`); nothing archives it to disk. I
+hold the E-007 batch's key fields in a committed table, but re-POSTing them would create records
+that *look* original while missing everything I never captured. That is fabricating evidence.
+
+**What survived, verified rather than assumed:** all **20 of 20** kept worktrees; an
+`evaluation.json` inside every one (**`check-run-gate.sh`: 20 admitted, 0 refused, entirely
+without the API**); `events.jsonl` at 8.1 MB with delegation events for 20 of 20 runs; and every
+committed artifact of every stop.
+
+**So most of stop 11 survived, and it is written up in `E-007`:** O1 **HELD** on all three
+clauses from telemetry, its registered source; O6 **HELD** 10/10 vs 10/10 from on-disk
+`evaluation.json`; O5 **HELD**; **O2 REFUTED in the opposite direction** (arm O was **13.4 %
+cheaper**, against a registered **+60 %**); O3 and O4 below their thresholds. **O4's per-run
+counts from surviving telemetry are identical, run for run, to the API numbers committed before
+the loss** — two independent sources agreeing, one of which no longer exists.
+
+**What is blocked is exactly one cell.** `O7` needs `codex-score.sh --run-id`, which admits a run
+through Decision D's **Path B — the evaluator's verdict as recorded in the API** — and correctly
+refuses against an empty database. O7 is the *only* thing separating decision-rule **row 3
+(REFUTE)** from **row 4 (NOT DETECTABLE)**. One unmeasured cell is the whole cost of this halt.
+
+**Three ways forward. All three are yours, not mine, and I have taken none of them.**
+
+1. **Let the scorer admit a run from disk** — `evaluation.json` plus the kept worktree, which is
+   the same evidence Path B reads, only not via HTTP. Cheapest, and the gate already proved it
+   works from disk on 20 of 20. But it **changes the registered scorer mid-experiment**, and
+   Decision C makes that instrument the thing that produces the numbers. §6's call, not mine.
+2. **Re-run the batch** under a *new* key (never the same one — stop 10 paid for that lesson).
+   ≈ $4 and ~45 min. The predictions at `c21781b` still precede any new run, so the discipline
+   survives; but it measures a different day's runtime and the current batch's O1/O5/O6 results
+   would be orphaned from their re-scored siblings.
+3. **Accept the stop as partially closed** — O1, O5, O6 measured and O2 refuted, with O7 and the
+   exit-gate row recorded as unmeasurable. This is the only option that spends nothing and
+   invents nothing.
+
+**Also yours, and larger than stop 11.** Every earlier stop's §5 validation table cites **run
+ids**. Those ids no longer resolve to anything: the sheets, manifests and reports are committed
+and fine, but *"open the run record and check `runtime.model`"* is no longer a re-derivable step
+for stops 4–10. §9's item 4 and item 7 both depend on it. **Nothing in this project ever backed
+that database up**, and until something does, the same wipe repeats.
+
+### 00b. THE OBSERVATORY DATABASE HAS NO BACKUP, AND THE RUNNER KEEPS NO COPY OF WHAT IT POSTS (2026-09-06T18:0xZ)
+
+**This is what item 00 should have said, and it is real even though the loss was not.**
+
+The scare was false; the exposure it revealed is not. Three facts, each verified:
+
+1. **`run-agent.sh:1177` builds the run record in memory and POSTs it. Nothing archives it to
+   disk.** If the POST is the only copy, the record exists in exactly one place.
+2. **Nothing in `agent-observatory/` backs that database up** — pass 15 grepped `Makefile` and
+   `infra/` for `backup`, `pg_dump`, `dump\.` and found nothing relevant. I did not re-grep;
+   this one is carried on the validator's word and labelled as such.
+3. **Every §5 table in stops 4–10 cites run ids**, and §9 validator items 4 and 7 both work by
+   opening a run record and reading `runtime.model`, `instructionsHash` and `customization.*Hash`
+   out of it. A real loss would make six closed stops permanently un-re-derivable — which is
+   exactly what the false alarm spent four hours believing.
+
+**What is yours:** whether the runner should write its POSTed payload beside the kept worktree
+(one line, L2, and it would have made the whole scare a non-event), and whether the volume gets
+a scheduled `pg_dump`. **Not mine** — it changes what the runner archives on every future run,
+which is a harness move under §7.
+
+**The cheap L3 that costs nothing and is already true:** the stack is in the **colima** context.
+Any `docker`, `make smoke` or `make up` in this project without `--context colima` is answering
+about a different machine.
 
 ### 0. HALT — MORE THAN ONE AUTONOMOUS ORCHESTRATOR IS RUNNING THIS PROMPT AT ONCE (2026-09-05T17:46Z)
 
@@ -882,8 +1076,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 7b5b7a3 prose: feb7ed4429f3 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 7b5b7a3 prose: feb7ed4429f3 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: a57fd9b prose: 0bc526aa09d3 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: a57fd9b prose: 0bc526aa09d3 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The

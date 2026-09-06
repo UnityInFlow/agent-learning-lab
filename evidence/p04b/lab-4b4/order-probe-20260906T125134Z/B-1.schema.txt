@@ -1,0 +1,4 @@
+init-schema: delivered n=4 ["Task","Read","Glob","Grep"]
+init-schema: declared  n=4 ["Task","Glob","Grep","Read"]
+init-schema: SAME SET, DIFFERENT ORDER — reported, not passed
+init-schema: verdict=order-differs

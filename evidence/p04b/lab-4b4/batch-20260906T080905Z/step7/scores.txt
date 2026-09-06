@@ -1,0 +1,40 @@
+20 sheets, every one at rubric 396e1799eb2b, every category parsed.
+
+run       arm  architecture- maintainabili  test-quality  change-focus
+----------------------------------------------------------------------
+207ff23d  O                2             0             2             1
+4d7c537d  O                2             2             1             1
+89ea9063  O                2             0             1             1
+1f806f3d  O                2             0             2             1
+da442dd9  O                2             2             2             1
+92f59ff6  O                2             0             1             1
+beae5092  O                2             2             2             1
+fb894d7d  O                2             0             1             1
+2744a92c  O                2             2             2             1
+c0b6721e  O                2             0             1             1
+a2a7cdb1  C                2             0             1             1
+11cab10d  C                2             2             1             1
+4374f319  C                2             2             1             1
+9fe27bf1  C                2             2             1             1
+b0b723f8  C                2             2             1             1
+b1609bb9  C                2             0             1             1
+383c915b  C                2             0             1             1
+59c1467d  C                2             2             1             1
+a0202230  C                2             0             1             1
+c7e4d207  C                2             0             1             1
+
+PER-ARM, n = 10 each (median; nulls counted separately, never as 0)
+  architecture-consistency     O: median 2.0 (n=10, nulls=0)   C: median 2.0 (n=10, nulls=0)
+  maintainability              O: median 0.0 (n=10, nulls=0)   C: median 1.0 (n=10, nulls=0)
+  test-quality                 O: median 1.5 (n=10, nulls=0)   C: median 1.0 (n=10, nulls=0)
+  change-focus                 O: median 1.0 (n=10, nulls=0)   C: median 1.0 (n=10, nulls=0)
+
+RAW, in manifest order
+  architecture-consistency   O: 2 2 2 2 2 2 2 2 2 2
+  architecture-consistency   C: 2 2 2 2 2 2 2 2 2 2
+  maintainability            O: 0 2 0 0 2 0 2 0 2 0
+  maintainability            C: 0 2 2 2 2 0 0 2 0 0
+  test-quality               O: 2 1 1 2 2 1 2 1 2 1
+  test-quality               C: 1 1 1 1 1 1 1 1 1 1
+  change-focus               O: 1 1 1 1 1 1 1 1 1 1
+  change-focus               C: 1 1 1 1 1 1 1 1 1 1

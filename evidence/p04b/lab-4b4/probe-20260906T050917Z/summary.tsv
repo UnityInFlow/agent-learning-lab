@@ -1,0 +1,7 @@
+run	n_tools	parent_can_write	task_calls	tools_seen	models_seen	final
+P1-1	4	False	1	['Agent', 'Write']	['claude-haiku-4-5-20251001']	DELEGATED=yes FILE=exists
+P1-2	4	False	1	['Agent', 'Write']	['claude-haiku-4-5-20251001']	DELEGATED=yes FILE=exists
+P1-3	4	False	1	['Agent', 'Write']	['claude-haiku-4-5-20251001']	DELEGATED=yes FILE=exists
+P2-1	29	True	1	['Agent', 'Write']	['claude-haiku-4-5-20251001']	DELEGATED=yes FILE=exists
+P2-2	29	True	1	['Agent', 'Write']	['claude-haiku-4-5-20251001']	DELEGATED=yes FILE=exists
+P2-3	29	True	1	['Agent', 'Read', 'Write']	['claude-haiku-4-5-20251001']	DELEGATED=yes FILE=exists
