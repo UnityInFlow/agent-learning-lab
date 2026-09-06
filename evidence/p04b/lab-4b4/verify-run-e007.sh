@@ -25,9 +25,10 @@ LAB="$(pwd)"
 DRIVER="$LAB/evidence/p04b/lab-4b4/run-e007.sh"
 [[ -x "$DRIVER" ]] || { echo "verify-run-e007: $DRIVER missing or not executable"; exit 2; }
 
-# Nine driven guards, plus two invariants that are cases in their own right: a refused batch
-# must not delete the live holder's lock, and none of this may touch the registered overlay.
-EXPECTED_CASES=11
+# Nine driven guards, plus three invariants that are cases in their own right: a refused batch
+# must not delete the live holder's lock, must not leave a `batch-<STAMP>/` directory behind,
+# and none of this may touch the registered overlay.
+EXPECTED_CASES=12
 pass=0
 fail=0
 
@@ -137,6 +138,20 @@ check "a moved runtime version is refused" 1 "the runtime moved under the batch"
 
 check "an unreachable prediction commit is refused" 1 "is not in this repository" -- \
   env E007_LOCK="$TMP/p.lock" E007_CAFFEINATED=1 PAIRS=1 PRED_COMMIT=deadbee "$DRIVER"
+
+# --- a refused invocation must leave NO batch directory ----------------------
+# The two cases above run against the REAL tree, so if `mkdir` were still ahead of the guards
+# they would each drop an empty `batch-<STAMP>/` into the evidence directory — which is exactly
+# what happened on this verifier's first outing, five times.
+echo "verify-run-e007: a refused batch leaves no directory in the evidence tree"
+before="$(ls -d "$LAB"/evidence/p04b/lab-4b4/batch-* 2>/dev/null | wc -l | tr -d ' ')"
+env E007_LOCK="$TMP/nodir.lock" E007_CAFFEINATED=1 PAIRS=1 EXPECT_CLAUDE=0.0.0 "$DRIVER" >/dev/null 2>&1
+after="$(ls -d "$LAB"/evidence/p04b/lab-4b4/batch-* 2>/dev/null | wc -l | tr -d ' ')"
+if [[ "$before" == "$after" ]]; then
+  pass=$((pass + 1)); printf '  ok    %-42s %s dirs before and after\n' "no batch dir created by a refusal" "$after"
+else
+  fail=$((fail + 1)); printf '  FAIL  %-42s %s -> %s\n' "a refusal created a batch dir" "$before" "$after"
+fi
 
 # --- case 0: the registered overlay is byte-identical to what it was ---------
 echo "verify-run-e007: the registered overlay was not touched by any of the above"

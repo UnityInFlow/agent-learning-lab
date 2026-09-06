@@ -78,8 +78,12 @@ release_lock() { [[ "$LOCK_HELD" == "1" ]] && rm -f "$LOCK"; }
 trap release_lock EXIT INT TERM
 
 acquire_lock
-mkdir -p "$EVID" "$ISD" || fail "cannot create $EVID"
 MANIFEST="$EVID/manifest.tsv"
+# NOTE THE ABSENCE OF mkdir HERE. It used to be on this line, ahead of every guard, so any
+# invocation that was going to be REFUSED still created a `batch-<STAMP>/` directory first —
+# and `verify-run-e007.sh`'s own fixture cases left five empty ones in the evidence tree, each
+# of which reads to a stranger like an aborted batch. The directory is created once the guards
+# have passed, immediately before the manifest is written. Case 12 of the verifier asserts it.
 
 # --- the registered variables, asserted before the first run ---------------
 OVERLAY_DIR="$LAB/build/customizations/orchestration-4b4-P1"
@@ -157,6 +161,8 @@ ARM_CONTROL=(
   VARIANT=baseline-e007-window
 )
 
+mkdir -p "$EVID" "$ISD" || fail "cannot create $EVID"
+
 {
   echo "# E-007 Lab 4B.4 $STAMP  key=$EXPERIMENT_KEY pairs=$PAIRS"
   echo "# orchestrator $EXPECT_ORCH_HASH · implementer $EXPECT_IMPL_HASH"
@@ -185,7 +191,12 @@ one_run() {
   # O1's raw count, from the runner's own log, as a cheap in-flight check. The REGISTERED
   # number is the observatory telemetry at §4 step 7; this column exists so a batch that is
   # delegating zero times is visible at pair 01 instead of at pair 10.
-  deleg="$(grep -acE '"(name|tool_name)":"(Task|Agent)"' "$log" 2>/dev/null || echo 0)"
+  # `grep -c` ALREADY PRINTS 0 and exits 1 when it matches nothing, so the `|| echo 0` this
+  # line used to carry printed a SECOND zero and put a newline inside a TSV field. The
+  # preflight pair's manifest has the stray `0` row it produced; that file is evidence and
+  # stays as it is, with this note as the explanation.
+  deleg="$(grep -acE '"(name|tool_name)":"(Task|Agent)"' "$log" 2>/dev/null)"
+  deleg="${deleg:-0}"
   printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
     "$seq" "$arm" "${rid:-NONE}" "$rc" "${wt:-NONE}" "${verdict:-NONE}" "$deleg" >> "$MANIFEST"
   echo "  -> ${rid:-NO RUN ID} exit=$rc ${verdict:-no-schema-verdict} deleg~$deleg"

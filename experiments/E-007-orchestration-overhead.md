@@ -275,6 +275,73 @@ chose: the runtime upgraded itself between two sessions. Whether a version bump 
 open batch remains the author's call (`TRACK-B-STATE.md` `blocked_on_author`); it does not
 arise here, because this key had zero runs when the bump happened.
 
+## §4 step 5 — the preflight pair, observed 2026-09-06T08:00–08:05Z
+
+One pair on its own key, **`EXP-4B-ORCH-PREFLIGHT`**. It enters no median, range, quartile or
+Fisher test in this experiment and no verdict is computed from it.
+Manifest: `evidence/p04b/lab-4b4/batch-20260906T080032Z/manifest.tsv`.
+
+| | Arm O `075857fe` | Arm C `783bc227` |
+|---|---|---|
+| variant | `orchestration-4b4-P1` | `baseline-e007-window` |
+| `--agent orchestrator` | accepted | n/a |
+| `init.tools` **delivered** | **4**: `["Read","Task","Grep","Glob"]` | **29**, the full pool |
+| schema verdict | `order-differs` — **recorded, not void** | `recorded-only` |
+| delegation (`tool_result`, `Agent`/`Task`) | **1** | **0** |
+| `customization.*Hash` | all `null` | all `null` |
+| `runtime.version` / `.model` | 2.1.263 / `claude-haiku-4-5-20251001` | same |
+| evaluator | exit 0, 7 of 7 | exit 0, 7 of 7 |
+| `durationMs` · `estimatedCost` | 126 000 · $0.1515 | 111 000 · $0.1658 |
+| `toolCalls` · `modelCalls` | 24 · 28 | 20 · 24 |
+| `addedLines` · `changedFiles` | 88 · 3 | 61 · 3 |
+
+**Every preflight assertion this experiment registered is met**, and the two that were open
+questions are now answered:
+
+**1. Threat 3 is answered, and the answer is the good one.** The registered doubt was whether
+the observatory attributes a *worker's* tool calls to the *parent's* run id — if it did not,
+O4 would have to be reported with a caveat instead of claimed. Telemetry for `075857fe`
+carries **24 `tool_result` events under the parent run id, exactly matching
+`behavior.toolCalls`**, and they break down as `Read` 12, `Edit` 6, `Bash` 5, `Agent` 1.
+**The orchestrator's delivered pool contains neither `Edit` nor `Bash`**, so those eleven
+calls could not have been made by the parent: they are the worker's, counted under the parent.
+**O4 is claimable.** This is observation, not inference from a flag — the same standard author
+decision 8 imposed on the tool list.
+
+**2. The arms are not separable by `customization.*Hash`, exactly as registered.** Both are
+all-`null`, including `agentHash`, on a run that demonstrably carried an agent overlay. The
+discriminator is the pair `init.tools` **4 vs 29** and delegations **1 vs 0**, plus the setup
+commit's tree — which is what § *How the treatment is delivered* said it would have to be.
+
+**3. A control fact worth having: the plain baseline *can* delegate and does not.** Arm C's
+delivered pool of 29 tools **includes `Task`**. Its 0 delegations are therefore a difference in
+**behaviour**, not in capability — O1's control arm is not measuring a missing tool.
+
+**4. The isolation row of §0a, observed on a live run rather than inferred.**
+`ISOLATE_USER_SETTINGS=1` on both arms: `hook_registered` **23** (the number every run on file
+shows, isolated or not) and `hook_execution_start` **absent — 0** on both.
+
+**What the n = 1 numbers do to the predictions: nothing, and that is deliberate.** They are
+recorded because hiding them would be worse, and they are not a result — one pair on a
+preflight key, and § MDE says nothing below its floor is readable at all. For the record, and
+for a validator to hold me to later: against its own same-window control, arm O was **8.6 %
+CHEAPER** ($0.1515 vs $0.1658) where **O2 predicts +60 %**; **+13.5 %** on duration where
+**O3 predicts ≥ +40 %**; **+4** on `toolCalls` where **O4 predicts ≥ +5**; and **+4** on
+`modelCalls`, which is what **O5** predicts. If the batch reads like this pair, O2 is refuted
+outright and its stated mechanism — two contexts, two cache prefixes — is wrong. **The
+predictions are not touched.** They are committed at `c21781b` and §4 step 12 is the whole
+reason this project is worth doing.
+
+**Two defects in the batch driver, found by the preflight and fixed before the batch.** Both
+are mine and neither touches a registered variable. (a) `mkdir "$EVID"` ran **ahead of every
+guard**, so a refused invocation still created a `batch-<STAMP>/` directory — `verify-run-e007.sh`'s
+own fixtures left five empty ones, each of which reads like an aborted batch. Moved after the
+guards; verifier case 12 now asserts a refusal creates none, and the five empty directories
+were removed after each was confirmed empty. (b) `grep -c || echo 0` printed **two** zeros,
+putting a newline inside a TSV field — the stray `0` row in the preflight manifest above. That
+manifest is evidence and stays exactly as it is; the driver no longer does it. Verifier back to
+**12 of 12**, ShellCheck clean.
+
 ## Observed telemetry
 
 *(after the run)*

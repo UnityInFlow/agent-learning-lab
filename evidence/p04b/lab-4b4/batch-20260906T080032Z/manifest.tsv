@@ -1,0 +1,11 @@
+# E-007 Lab 4B.4 20260906T080032Z  key=EXP-4B-ORCH-PREFLIGHT pairs=1
+# orchestrator 4f2af4ba7f740c33 · implementer 6096f5ea35383112
+# benchmarks 0448643 · claude 2.1.263 · model claude-haiku-4-5-20251001
+# prediction commit c21781b at 2026-09-06T07:14:31+02:00
+# common:       RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-4B-ORCH-PREFLIGHT MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1
+# arm O adds:   CUSTOMIZATION=../agent-learning-lab/build/customizations/orchestration-4b4-P1 AGENT=orchestrator VARIANT=orchestration-4b4-P1
+# control adds: VARIANT=baseline-e007-window
+seq	arm	run_id	exit	worktree	init_schema_verdict	delegations
+01	O	075857fe-049c-4354-bfe5-88df688425c1	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-075857fe-049c-4354-bfe5-88df688425c1	verdict=order-differs	1
+01	control	783bc227-e8ad-4b18-9e02-00d52b686559	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-783bc227-e8ad-4b18-9e02-00d52b686559	verdict=recorded-only	0
+0

@@ -405,6 +405,30 @@ overhead"* — is what the cost and `modelCalls` outcomes measure directly.
 - **Both:** `runtime.model = claude-haiku-4-5-20251001`, benchmark sha and evaluator version
   equal to E-006 batch 2, recorded per run in the batch manifest.
 
+> **Amended 2026-09-06 at §4 step 5, after the preflight pair. Three things above this line are
+> wrong and the originals are kept so the correction can be checked.**
+> `Claude Opus 5 (claude-opus-5), autonomous.`
+>
+> 1. **"verdict `matches` for P1" is not what happens and could not have been.** The runtime
+>    permutes the declared list: declared `[Read,Grep,Glob,Task]`, delivered
+>    `["Read","Task","Grep","Glob"]`, on 3 of 3 probes **and on the live preflight run
+>    `075857fe`**. The verdict is `order-differs`, which is *set* equality — admissible and
+>    recorded. A `mismatch` (different **set**) remains row 0a. Full reasoning, both readings
+>    and the runner fix it forced: `experiments/E-007-orchestration-overhead.md`,
+>    § *Amendment 2026-09-06*.
+> 2. **`customization.*Hash` cannot support arm C's row.** They are `null` on *both* arms —
+>    including `agentHash` on a run that provably carried an agent overlay. The arms are
+>    separated by `init.tools` (**4 vs 29**) and by delegation events (**1 vs 0**), not by a
+>    hash. Arm C's bullet asserts something true that discriminates nothing.
+> 3. **"benchmark sha and evaluator version equal to E-006 batch 2" holds; the Claude Code
+>    version does not.** The binary moved to **2.1.263** at 04:38Z on 2026-09-06, before both
+>    the probe and the prediction commit. Disclosed as the fifth harness move in E-007; the
+>    within-batch O-vs-C comparison is unaffected because both arms run on one binary in one
+>    window.
+>
+> Also observed and worth keeping: **arm C's 29-tool pool contains `Task`**, so its zero
+> delegations are a fact about behaviour, not about capability.
+
 ---
 
 ## Predict before you run
