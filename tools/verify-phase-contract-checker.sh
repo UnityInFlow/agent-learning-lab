@@ -29,13 +29,27 @@
 #      confound is reported, never silently folded into the verdict     exit 0
 #   K  a phased run that implemented NOTHING is refused, because an
 #      ordering that never had code to order proves nothing             exit 2
+#   L  a run that writes ONLY through Bash before DESIGN is refused —   exit 2
+#      and the refusal says so, instead of claiming nothing was written
+#   M  the residual hole, asserted rather than described: real work      exit 0
+#      through Bash before DESIGN plus one Edit after PASSES, and the
+#      write-shape count is reported beside the verdict
+#
+# NEGATIVE CONTROL, asserted rather than remembered: the same eleven fixtures are re-run
+# against tools/naive-phase-checker.py — the text-only checker a reasonable person writes
+# first — and the split must be exactly 2 passed, 11 failed, with fixture C coming back
+# PASS (6 of 6 markers). Registered because this instrument's whole claim is that it catches
+# what a text grep misses, and a claim measured against a scratch file nobody committed
+# cannot be reproduced by anyone. Found by pass 18 §2.2.
 #
 # Exit 0 every case behaved as registered · 2 A CASE FAILED.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
 CHECKER="${CHECKER_UNDER_TEST:-./tools/check-phase-contract.py}"
-EXPECTED_CASES=11
+# 11 fixtures, plus two negative-control assertions that only the top-level invocation
+# runs — a child driving a substitute checker must not recurse into them.
+if [[ -n "${CHECKER_UNDER_TEST:-}" ]]; then EXPECTED_CASES=13; else EXPECTED_CASES=15; fi
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -47,6 +61,7 @@ bad() { echo "  FAIL — $1"; fail=$((fail + 1)); }
 # Each line is one stream-json event, exactly as the runner keeps them.
 say()  { printf '{"type":"assistant","message":{"content":[{"type":"text","text":%s}]}}\n' "$(printf '%s' "$1" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')"; }
 use()  { printf '{"type":"assistant","message":{"content":[{"type":"tool_use","name":"%s"}]}}\n' "$1"; }
+useb() { printf '{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Bash","input":{"command":%s}}]}}\n' "$(printf '%s' "$1" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')"; }
 sub()  { printf '{"type":"assistant","parent_tool_use_id":"toolu_x","message":{"content":[{"type":"text","text":"worker"}]}}\n'; }
 
 done_block='<<PHASE:DONE>>
@@ -183,6 +198,65 @@ if [[ $rc -eq 2 ]] && grep -q "nothing was implemented" <<<"$out"; then
   ok "K: six markers with no implementation is refused (exit 2)"
 else
   bad "K: expected exit 2 on empty implementation, got $rc: $(head -2 <<<"$out" | tr '\n' ' ')"
+fi
+
+# L — pass 18 §3.1 fixture 31a, committed so the decision is reproducible. The old message on
+# this run said "nothing was implemented" while two files had been written; a refusal is still
+# right (check 2 has no Edit/Write to order) but the reason has to be true.
+{ say "<<PHASE:ANALYSIS>> x"
+  useb "cat > sample-service/src/main/kotlin/Order.kt <<'EOF'\nclass Order\nEOF"
+  useb "cat > sample-service/src/test/kotlin/OrderTest.kt <<'EOF'\nclass OrderTest\nEOF"
+  say "<<PHASE:DESIGN>> y"; useb "./mvnw test"
+  say "<<PHASE:IMPLEMENTATION>> z"; say "<<PHASE:VERIFICATION>> v"
+  say "<<PHASE:REVIEW>> w"; say "$done_block"; } > "$TMP/l.jsonl"
+out=$("$CHECKER" "$TMP/l.jsonl" 2>&1); rc=$?
+if [[ $rc -eq 2 ]] && grep -q "write shape" <<<"$out" \
+   && ! grep -q "nothing was implemented" <<<"$out"; then
+  ok "L: a Bash-only run is refused, and the refusal does not claim nothing was written"
+else
+  bad "L: expected exit 2 naming the write shapes, got $rc: $(head -3 <<<"$out" | tr '\n' ' ')"
+fi
+
+# M — pass 18 §3.1 fixture 31b/31c: THE RESIDUAL HOLE, registered as a passing case on purpose.
+# Widening check 2 to treat Bash as mutating would fail every run that searched the repository
+# before designing, which is the behaviour the phase order exists to encourage. So this run
+# passes, and the write-shape count is printed beside the verdict for a reader to act on. If a
+# later decision converts this into a refusal, THIS CASE IS THE ONE THAT MUST FLIP.
+{ say "<<PHASE:ANALYSIS>> x"
+  useb "sed -i '' 's/foo/bar/' sample-service/src/main/kotlin/Order.kt"
+  useb "git apply /tmp/change.patch"
+  say "<<PHASE:DESIGN>> y"; use Edit
+  say "<<PHASE:IMPLEMENTATION>> z"; say "<<PHASE:VERIFICATION>> v"
+  say "<<PHASE:REVIEW>> w"; say "$done_block"; } > "$TMP/m.jsonl"
+out=$("$CHECKER" "$TMP/m.jsonl" 2>&1); rc=$?
+if [[ $rc -eq 0 ]] && grep -q "BEFORE the DESIGN marker" <<<"$out"; then
+  ok "M: the residual hole passes, and the pre-DESIGN write shapes are reported (exit 0)"
+else
+  bad "M: expected exit 0 reporting pre-DESIGN write shapes, got $rc: $(head -3 <<<"$out" | tr '\n' ' ')"
+fi
+
+# --- the negative control, run rather than described -----------------------
+# Skipped when CHECKER_UNDER_TEST is set, both to avoid recursing and because the caller is
+# then already driving a substitute checker deliberately.
+if [[ -z "${CHECKER_UNDER_TEST:-}" ]]; then
+  naive_out=$(CHECKER_UNDER_TEST=./tools/naive-phase-checker.py "$0" 2>&1 | tail -1)
+  if grep -q "2 passed, 11 failed, of 13 registered cases" <<<"$naive_out"; then
+    ok "NEG: the text-only checker scores 2 passed, 11 failed against these fixtures"
+  else
+    bad "NEG: expected the naive checker to score 2 passed, 11 failed; got: ${naive_out}"
+  fi
+  # The single case the whole instrument exists for, asserted by name. Captured to a variable
+  # first, deliberately: the child exits 2 (nine of its cases fail, as registered), and under
+  # `set -o pipefail` a pipeline inherits that non-zero even when grep matches — so piping the
+  # child straight into `if ... | grep -q` reports a miss on a line that is present. Observed
+  # here on the first attempt, and it is the same shape as every finding in this file: a check
+  # that reports failure for a reason that has nothing to do with what it claims to test.
+  naive_full=$(CHECKER_UNDER_TEST=./tools/naive-phase-checker.py "$0" 2>&1)
+  if grep -q "C: expected exit 2 on code-order, got 0: naive: PASS (6 of 6 markers)" <<<"$naive_full"; then
+    ok "NEG: fixture C — edits in turn two, six markers after — passes the text-only checker"
+  else
+    bad "NEG: fixture C did not come back PASS (6 of 6 markers) from the naive checker"
+  fi
 fi
 
 echo

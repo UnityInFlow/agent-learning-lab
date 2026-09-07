@@ -32,6 +32,21 @@ WHAT EACH CHECK IS WORTH, stated so the caller does not round it up:
                  is reported whatever the arm, because "the control did not delegate" is a
                  claim this project has already had to retract once.
 
+                 CORRECTED 2026-09-07, before this branch was pushed. Attribution:
+                 findings/track-b-validation-2026-09-07-2.md (pass 18, claude-fable-5-1) §3.4.
+                 ~~The facts block reported a single `delegations` count.~~ It reported a SUM
+                 of two different things and called it one. On E-008 control run 9043f824 the
+                 sum is 37 — one `Agent` call with subagent_type Explore, plus 36 events
+                 carrying its parent_tool_use_id — while the batch manifest records 1. A
+                 reader comparing 37 with 1 concludes the two instruments disagree; they agree
+                 exactly, about different units. Now reported as `delegating_calls` (1) and
+                 `delegated_events` (36) with no sum offered.
+
+                 The 9043f824 finding itself stands and is the reason this check exists: the
+                 observatory's own telemetry counter read 0 delegations on that run. Pass 18
+                 ran this checker over all 38 kept fourth-cell streams — 37 events on that one
+                 run, 0 on every other, matching the counter everywhere it was not blind.
+
 Exit 0 every check passed · 2 a check failed · 3 the input is unusable as a transcript.
 A failed check is a finding about the run. An unusable input is a finding about the harness,
 and the two must never share an exit code — collapsing them is how an experiment discards its
@@ -52,6 +67,15 @@ MARKER = re.compile(r"<<PHASE:([A-Z]+)>>")
 # under-detects and says so; a wider one would be wrong in the expensive direction.
 MUTATING = {"Edit", "Write", "MultiEdit", "NotebookEdit", "str_replace_editor"}
 DELEGATING = {"Task", "Agent"}
+
+# Shell fragments that WRITE. Reported as a fact beside the verdict, never folded into it —
+# see the note under check 2. A shape here is not proof: `grep x src > /tmp/out` matches and
+# changes nothing in the repository, and this cannot tell the two apart without resolving the
+# target path. Over-reporting a fact is cheap; over-refusing a run is not.
+WRITE_SHAPES = [
+    r">>?\s*\S", r"\btee\b", r"\bsed\b[^|;]*-i", r"\bgit\s+apply\b", r"\bpatch\b",
+    r"\bmv\b", r"\bcp\b", r"\btouch\b", r"\bmkdir\b", r"\brm\b",
+]
 
 # Tokens from the phase template. Finding one verbatim means the template was echoed.
 PLACEHOLDERS = [
@@ -98,7 +122,12 @@ def load_stream(path):
                 if block.get("type") == "text":
                     events.append(("text", "", block.get("text") or ""))
                 elif block.get("type") == "tool_use":
-                    events.append(("tool_use", block.get("name") or "?", ""))
+                    # The command is carried too, not just the name: `input` is where the
+                    # shell lives, and dropping it is what made check 2's under-detection
+                    # invisible (pass 18 §3.1).
+                    inp = block.get("input") or {}
+                    cmd = inp.get("command") if isinstance(inp, dict) else ""
+                    events.append(("tool_use", block.get("name") or "?", cmd or ""))
     if assistant_seen == 0:
         raise ValueError("no assistant events — an empty or truncated transcript is not a "
                          "run that worked without phases")
@@ -106,7 +135,10 @@ def load_stream(path):
 
 
 def check(events):
-    findings, marker_at, first_mut, delegations = [], {}, None, []
+    findings, marker_at, first_mut = [], {}, None
+    # Two counters, never summed — see check 5 in the module docstring.
+    delegating_calls, delegated_events, delegation_kinds = 0, 0, set()
+    bash_writes = []
     dup = []
     order = []
 
@@ -120,12 +152,16 @@ def check(events):
                     marker_at[phase] = idx
                 order.append(phase)
         elif kind == "tool_use":
+            if name == "Bash" and text and any(re.search(w, text) for w in WRITE_SHAPES):
+                bash_writes.append(idx)
             if name in MUTATING and first_mut is None:
                 first_mut = (idx, name)
             if name in DELEGATING:
-                delegations.append(name)
+                delegating_calls += 1
+                delegation_kinds.add(name)
         elif kind == "delegated_event":
-            delegations.append("parent_tool_use_id")
+            delegated_events += 1
+            delegation_kinds.add("parent_tool_use_id")
 
     # 1 — markers
     missing = [p for p in PHASES if p not in marker_at]
@@ -146,8 +182,19 @@ def check(events):
     # 2 — no code before DESIGN
     if "DESIGN" in marker_at:
         if first_mut is None:
-            findings.append(("code-order", "no mutating tool call in the whole run — nothing "
-                                           "was implemented, so the order proves nothing"))
+            if bash_writes:
+                # CORRECTED 2026-09-07 (pass 18 §3.1): the old message said "nothing was
+                # implemented" on a run that wrote two files through Bash. A refusal is still
+                # right — check 2 has no Edit/Write to order — but the reason has to be true.
+                findings.append(("code-order",
+                                 "no Edit/Write in the whole run, but %d Bash call(s) carry a "
+                                 "write shape (first at position %d, DESIGN at %d) — this run "
+                                 "may well have implemented something, through a tool this "
+                                 "check cannot order. Not scorable as a phased run."
+                                 % (len(bash_writes), bash_writes[0], marker_at["DESIGN"])))
+            else:
+                findings.append(("code-order", "no mutating tool call in the whole run — nothing "
+                                               "was implemented, so the order proves nothing"))
         elif first_mut[0] < marker_at["DESIGN"]:
             findings.append(("code-order", "first %s at stream position %d, DESIGN marker at "
                                            "%d — code was written before DESIGN"
@@ -175,8 +222,13 @@ def check(events):
         "first_mutating_tool": first_mut[1] if first_mut else None,
         "first_mutating_position": first_mut[0] if first_mut else None,
         "design_marker_position": marker_at.get("DESIGN"),
-        "delegations": len(delegations),
-        "delegation_kinds": sorted(set(delegations)),
+        "bash_write_shape_calls": len(bash_writes),
+        "bash_write_shape_before_design": (
+            len([i for i in bash_writes if i < marker_at["DESIGN"]])
+            if "DESIGN" in marker_at else None),
+        "delegating_calls": delegating_calls,
+        "delegated_events": delegated_events,
+        "delegation_kinds": sorted(delegation_kinds),
     }
 
 
@@ -204,13 +256,24 @@ def main():
                           "facts": facts}, indent=2))
     else:
         print("check-phase-contract: %s" % status)
-        print("  markers %d of %d · first mutating tool %s at %s · DESIGN at %s · delegations %d"
+        print("  markers %d of %d · first mutating tool %s at %s · DESIGN at %s · "
+              "delegating calls %d, delegated events %d"
               % (facts["markers_found"], facts["markers_expected"],
                  facts["first_mutating_tool"], facts["first_mutating_position"],
-                 facts["design_marker_position"], facts["delegations"]))
-        if facts["delegations"]:
-            print("  NOTE: this run delegated (%s). On a no-split arm that is a confound, "
-                  "not a detail." % ", ".join(facts["delegation_kinds"]))
+                 facts["design_marker_position"],
+                 facts["delegating_calls"], facts["delegated_events"]))
+        bwd = facts["bash_write_shape_before_design"]
+        if bwd:
+            print("  NOTE: %d Bash call(s) carrying a write shape ran BEFORE the DESIGN marker "
+                  "(%d in the run). Check 2 does not read these — see WRITE_SHAPES. A run whose "
+                  "real work went through Bash before DESIGN and then touched one file after it "
+                  "passes this check; that is the known residual hole, reported rather than "
+                  "scored." % (bwd, facts["bash_write_shape_calls"]))
+        if facts["delegating_calls"] or facts["delegated_events"]:
+            print("  NOTE: this run delegated — %d call(s), %d event(s) from them (%s). On a "
+                  "no-split arm that is a confound, not a detail."
+                  % (facts["delegating_calls"], facts["delegated_events"],
+                     ", ".join(facts["delegation_kinds"])))
         for c, d in findings:
             print("  FAIL [%s] %s" % (c, d))
     return 0 if status == "PASS" else 2
