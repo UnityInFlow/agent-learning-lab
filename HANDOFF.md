@@ -19,13 +19,75 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 **Spine 11 of 28. Positions 4, 5, 6, 7, 8, 9, 10 and 11 CLOSED.** B1 closed 2026-08-30. Stop 10
 closed 2026-09-05, stop 11 on 2026-09-06. **`backend-feature-implementer` v1.0 exists and is NOT
 promoted; stop 11 promoted nothing either — it is a Track A stop and builds no version.** Next is
-stop 12 (B5). **Stop 12 does not open until benchmarks#29 is merged** — that is the author's, and
-it is a §7 halt if it is not merged when stop 12 is reached.
+stop 12 (B5). **`benchmarks#29` was MERGED 2026-09-07T09:32:57Z at `eea144ef`, on the author's
+explicit instruction, so stop 12 is UNBLOCKED — and it is NOT YET OPENED.** No §4 step of it has
+run and no stop-12 artifact exists; opening it is the next session's first act. From stop 12 on,
+**author decision 9 governs: two tasks, BE-003 and BE-004, each its own experiment key, prediction
+commit, concurrent control, MDE table and §5 row, and no verdict computed across tasks.**
 
 **lab#14 (Phase 4B) STAYS OPEN**: labs 4B.1, 4B.2 and 4B.3 are deferred, and §4 step 14 says a
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## benchmarks#29 is MERGED — stop 12 is unblocked and not yet opened, 2026-09-07
+
+**The seventeen-session halt is discharged.** `agent-observatory-benchmarks#29` — BE-004
+cancel-order — merged at **`eea144ef940fda4cb6090561fdd901aed0013c8e`**, 2026-09-07T09:32:57Z, a
+genuine two-parent merge, `--merge` not squash. §7 and author decision 9 both say that merge is the
+author's and not the autonomous run's; **it was made on the author's explicit instruction**, which
+is that call being exercised rather than taken.
+
+**Verified on `main`, not taken from CI.** The green check on the PR was a claim about a branch.
+Author decision 9's *"proved by `verify-evaluator.sh` (12 cases)"* is a claim about the instrument
+every BE-004 number will depend on, so it was re-run here: on a fresh `--ff-only` pull,
+`tasks/BE-004-cancel-order/` is present with nine fixtures, and
+`./tasks/BE-004-cancel-order/verify-evaluator.sh` returns **`all 12 cases behaved as specified —
+evaluator discriminates`, exit 0**. Trusting CI instead would have been the house failure mode with
+a green tick on it.
+
+**Stop 12 is NOT open.** Nothing of it has been created — §6 forbids a future step's artifacts
+early, and the state file's `status` moves to `running` so the driver opens it in a fresh session.
+
+**What opening it costs, in the order it has to happen.** The first real work is an instrument, not
+a batch: **a BE-004 rubric is a registered instrument and does not exist yet.** The draft is
+`backend-quality-be004.DRAFT.yaml` at the workspace root, and before any BE-004 run is scored every
+dimension must separate its variant from `known-good` in the predicted direction across the five
+gate-passing fixtures, scored by codex, with the committed file's sha registered in the experiment.
+**A dimension that does not separate is a §7 halt, not something to edit past.**
+
+**This day's own finding lands directly on that proof.** `change-focus` is the single dimension
+where codex and the fallback scorer part — 16 of 34, always the same direction — so BE-004's
+`change-focus` separation must be demonstrated **on codex**; a deepseek demonstration does not
+substitute. It is also the dimension the draft deliberately leaves reachable by `known-good`
+(validator pass 12, correction C2), which makes it the most likely of the five to fail its proof.
+
+### A correction to this day's other section: the concordance is a confirmation
+
+`agent-learning-lab/CLAUDE.md` has recorded since 2026-09-01, at `n = 5`, that *"where they
+disagreed, opencode's fact was wrong"* — naming a deleted class KDoc and a new `ErrorCode` constant
+in a second attached file, **the same two causes** this batch finds at `n = 34`. The write-up's
+first draft said the earlier concordance was *"taken on a set too small to expose this"*. It was
+small and it exposed it anyway; the sentence is withdrawn and quoted rather than deleted.
+
+**What is actually new** is scale (3 of 5 → 18 of 34), a direction uniform across all eighteen, and
+the anchor-by-anchor adjudication on all 34 — which closes what that record left open as *"a live
+rubric question … it belongs in a rubric round"*. It does not: anchor 2 requires that **only**
+`confirm` and its by-symbol imports differ, `ApiError.kt` is neither, anchor 0 fails as well, and so
+the residual `1` is the rubric's own answer as written. **No rubric round is owed.**
+
+The lesson is this project's own: the sheets and the worktrees were checked, and the file the
+guidance says to read first was not.
+
+### What is BLOCKED ON YOU
+
+1. ~~Merge `benchmarks#29`.~~ **Done 2026-09-07, by you.**
+2. **Decision H now has a measurement it did not have.** §4c would promote
+   `ollama-cloud/deepseek-v4-pro` to registered scorer on a codex outage over twelve hours. On this
+   day's evidence that swap changes the `change-focus` cell on 18 of 34 runs of this shape, in one
+   direction, silently. The decision is yours and is **not** amended.
+3. **A condition this run recommends for stop 12, for your yes or no:** that BE-004's rubric prove
+   its `change-focus` separation **on codex** specifically.
 
 ## What the 2026-09-07 session did — the ollama limit lifted, and a 34-sheet debt became a result
 
