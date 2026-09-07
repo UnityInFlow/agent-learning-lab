@@ -3,7 +3,7 @@
 > **Fill in everything down to and including Predictions BEFORE the first run.**
 > Commit it, and check the commit timestamp precedes the first run's `startedAt`.
 
-**Status: registered, no run on the key.** Successor to
+**Status: batch complete 2026-09-07T13:31Z, 20 of 20 admitted, row 0a did not fire; scoring next.** Successor to
 [`E-008`](E-008-fourth-cell-prose-without-split.md), which is **CLOSED VOID** under its own
 decision rule row 0a: a plain control run called the built-in `Explore` agent, and row 0a as
 registered voided on a delegation by *any* run. E-008's question is unanswered and author
@@ -201,3 +201,41 @@ None registered. This cell is itself the counterpart of E-007's P2 arm.
 ---
 *Everything below is filled in AFTER the runs.*
 ---
+
+## §4 step 6 — the batch, recorded 2026-09-07T12:50:10–13:31:01Z
+
+Key `EXP-4B-FOURTH-CELL-2`, 10 pairs interleaved F then control, driver `run-e009.sh` pid 24715
+under `caffeinate -i`, manifest
+`evidence/p04b/lab-4b4/fourth-cell/e009-batch-20260907T125010Z/manifest.tsv`, **driver exit 0**,
+40 min 51 s. `events.jsonl` grew 10 375 694 → 12 720 763 bytes (+2.34 MB).
+
+| pair | arm F | exit | hash | stream / telemetry deleg. | control | exit | hash | stream / telemetry |
+|---|---|---|---|---|---|---|---|---|
+| 01 | `efe48ffc` | 0 | registered | 0 / 0 | `ce630aed` | 0 | `null` | 0 / 0 |
+| 02 | `474fb3ea` | 0 | registered | 0 / 0 | `21c21018` | 0 | `null` | 0 / 0 |
+| 03 | `867d5b2c` | 0 | registered | 0 / 0 | `99a43552` | 0 | `null` | 0 / 0 |
+| 04 | `19b48d40` | 0 | registered | 0 / 0 | `9f88527f` | 0 | `null` | 0 / 0 |
+| 05 | `52ba65fa` | 0 | registered | 0 / 0 | `3e721954` | 0 | `null` | 0 / 0 |
+| 06 | `7175cc44` | 0 | registered | 0 / 0 | `66ddf446` | 0 | `null` | 0 / 0 |
+| 07 | `e368c3e1` | 0 | registered | 0 / 0 | `dacb9838` | 0 | `null` | 0 / 0 |
+| 08 | `fc12cdc6` | 0 | registered | 0 / 0 | `5c93586e` | 0 | `null` | 0 / 0 |
+| 09 | `f80e4db3` | 0 | registered | 0 / 0 | `088451a1` | 0 | `null` | 0 / 0 |
+| 10 | `3f978191` | 0 | registered | 0 / 0 | `182df867` | 0 | `null` | 0 / 0 |
+
+**Row 0a did not fire.** 10 of 10 arm-F records carry
+`sha256:51f16eeb1618cd212405818c5165dcba`; 10 of 10 controls carry `null`; **no run delegated in
+either source**; every run is runtime 2.1.263 and model `claude-haiku-4-5-20251001`; the
+evaluator passed **20 of 20**, so 20 of 20 are admitted.
+
+- **Q2 held**, 20 of 20.
+- **Q3 held**, 10 of 10 arm-F runs at zero in both sources.
+- **Q4 held** at **0 of 10**, inside the registered 0–2. E-008 saw 1 of 8; this batch saw 0 of
+  10. Pooled across both registrations that is **1 control delegation in 18**, and the honest
+  reading of Q4 is that a plain baseline on BE-003 reaches for a built-in agent **rarely, not
+  never** — which is exactly the claim E-008's P6 got wrong in the other direction.
+
+**Disclosed rather than found later:** a process belonging to **another project**
+(`scripts/gate03-sweep.sh`, a `.planning/` sweep — not this lab's, not a benchmark, scorer or
+review process of this experiment) was alive on the machine when the batch ended. Duration and
+cost are **report-only in this experiment by prior disclosure**, so nothing registered is
+affected; it is recorded because the alternative is a reader discovering it in a log.
