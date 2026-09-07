@@ -65,6 +65,16 @@ E-003's result wearing E-007's treatment.** The fourth cell that would settle it
 plus those four lines, no split, `n = 10`) is **a new arm, so it is yours under §7**, and it is
 recorded in `blocked_on_author` rather than run.
 
+> **This sentence was false when written, 2026-09-06, and is corrected rather than deleted.**
+> Attribution: `findings/track-b-validation-2026-09-07.md` (validator pass 17, claude-fable-5-1).
+> The fourth cell was **not** in `blocked_on_author` — that list had eleven items and none of them
+> was this one. It existed only in prose, here and in two other narrative places, **while this line
+> and the state file's own entry both reported it as filed.** It is now `blocked_on_author` item 2
+> and **item 00c** above. *A sentence reporting that something was filed in a place it was not
+> filed is this project's house failure mode at its smallest, and it was committed in the same
+> session that spent its length cataloguing that shape.*
+> *Corrected by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-07.*
+
 ## Stop 11 is CLOSED, the answer is `NOT DETECTABLE`, and the day's own halt was false
 
 **Two results and one retraction, 2026-09-06.**
@@ -678,6 +688,38 @@ and fine, but *"open the run record and check `runtime.model`"* is no longer a r
 for stops 4–10. §9's item 4 and item 7 both depend on it. **Nothing in this project ever backed
 that database up**, and until something does, the same wipe repeats.
 
+### 00c. E-007's FOURTH CELL HAS NOT RUN, AND IT DECIDES WHETHER STOP 11 MEASURED ORCHESTRATION AT ALL (2026-09-07)
+
+**Added by validator pass 17, which caught this being reported as filed in a list it was not in.**
+Until now it existed in three narrative places — this file's session section,
+`findings/track-b-2026-09-06.md`'s *overturn* column, and the pass-16 `validation_processed`
+entry — **and in no decision list**, while two of those three said it was in `blocked_on_author`.
+It now is, as item 2. The claim was false; this item and that one are the repair.
+
+**The arm:** a plain baseline **plus the implementer overlay's four lines of prose**, **no split**,
+`n = 10` on BE-003, with its own concurrent control.
+
+**What it decides.** Stop 11's only detected effect is `test-quality` anchor 2 at **5 of 10 vs
+0 of 10**, `p = 0.0325` — and on all twenty sheets it reduces to **one rubric clause**: *did a test
+re-read persisted state through a separate `get(...)`*. Arm O also wrote a median **26 more lines,
+mostly tests**. The registered treatment was *the split **including*** those four lines, which tell
+the worker to write *"tests for every case it names"*, and the deliberate failure showed the
+`tools:` line moves nothing. **So the thing that moved may be the worker's prose rather than the
+decomposition** — E-003's result, a prose instruction, wearing E-007's treatment.
+
+- If the fourth cell **reproduces 5 of 10**, stop 11's *"decomposition returned nothing the gate
+  can see"* is true, and its one detected effect **is not about orchestration at all**.
+- If it does **not**, `test-quality` is a real return from the split, and E-007 becomes the first
+  experiment in this track to have measured a benefit and registered no way to say so.
+
+**It is a new arm, so §7 makes it yours and not mine.**
+
+**Deadline, by the same logic pass 3 gave decision 7's fourth arm: before the next stop whose gate
+reads `test-quality`.** That is **stop 12** — author decision 9 registers BE-004 arms that
+**inherit the same overlay body**, so an unanswered fourth cell **propagates the confound into the
+new task** rather than staying behind with the old one. Decision 7's fourth arm has now sat unrun
+for three days; this is the same failure mode one item along.
+
 ### 00b. THE OBSERVATORY DATABASE HAS NO BACKUP, AND THE RUNNER KEEPS NO COPY OF WHAT IT POSTS (2026-09-06T18:0xZ)
 
 **This is what item 00 should have said, and it is real even though the loss was not.**
@@ -1156,8 +1198,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: d14d1ec prose: 12716f4646e1 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: d14d1ec prose: 12716f4646e1 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 31728ba prose: 6f0438d85653 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 31728ba prose: 6f0438d85653 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The
