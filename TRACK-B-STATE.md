@@ -194,8 +194,19 @@ preflight:  # §0a RE-RUN IN FULL 2026-09-07T07:2x-08:1xZ, AFTER THE HALT, as §
     rather than killed, because their only effect is to print once. pid 24814 (`opencode run --command
     review issue #239`) belongs to ANOTHER PROJECT. The LC_ALL=C prefix is mandatory: bare pgrep is
     blind on this machine."
-  hook_wiring: "unchanged and still not proven by a push in print mode. §4a`s synchronous review remains
-    the review control for this run and was taken twice this session."
+  hook_wiring: "STILL UNPROVEN, AND I NEARLY RECORDED IT AS PROVEN. §4a`s synchronous review remains the
+    review control for this run and was taken THREE times this session. THE NEAR-MISS, recorded because it is
+    the house shape pointed at myself: after pushing lab#70 - a push that DOES touch a contract glob
+    (experiments/), which is exactly the condition §0a says would make the hook speak - `pgrep` showed
+    `bash .claude/hooks/opencode-review.sh` running, and I said out loud that the push hook had fired. IT HAD
+    NOT. `ps -o command` on its child gives `opencode run -m ollama-cloud/glm-5.2 review PR #258 - the target
+    is issue #257`, which is ANOTHER PROJECT`s review, in another session, that happened to start near my
+    push. A RELATIVE PATH IN A pgrep LINE NAMES NO REPOSITORY: `.claude/hooks/opencode-review.sh` looks like
+    this lab`s because this lab has a file at that path, and so does the other project. The tell was one
+    command away and I asserted before running it. NO new findings/opencode/review-*.md appeared for the push
+    in 12+ minutes, so there is no evidence the hook fired at all, and hook_wiring stays `unproven in print
+    mode` where it has been since stop 7. NOTHING OF THIS LAB`S IS RUNNING: the only processes carrying this
+    lab`s paths are pids 2651 and 8025, the sleeping watcher loops already named under in_flight."
   live_run_row_status: "unproven - the §0a isolation row`s second half (one claude run with
     ISOLATE_USER_SETTINGS=1 whose record shows 0 hook executions and customization.*Hash all null) was
     NOT run. Stated as unproven rather than carried as ok, per §0a`s own sentence."
