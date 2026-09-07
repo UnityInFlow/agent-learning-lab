@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Collect the four registered scores from E-008's twenty codex sheets (arm F + control).
 
-    ./collect-sheets.py <findings/codex dir> <manifest.tsv>
+    ./collect-sheets.py <findings/codex dir> <manifest.tsv> [<manifest-2.tsv> ...]
+
+E-008's batch is two manifests (pairs 01-05 and 06-10, see the instrument-fault note in the
+experiment file); they concatenate here and the assertion is on the registered TWENTY.
 
 Reads only the sheets; asserts every one carries the REGISTERED rubric sha and that all
 four categories parse. A sheet that is present but unparseable is an ERROR, not a null:
@@ -14,16 +17,18 @@ import re, sys, glob, os, statistics as st
 
 RUBRIC_SHA = '396e1799eb2b'
 CATS = ['architecture-consistency', 'maintainability', 'test-quality', 'change-focus']
-sheets_dir, manifest = sys.argv[1], sys.argv[2]
+sheets_dir, manifests = sys.argv[1], sys.argv[2:]
 
 arm = {}
-for line in open(manifest):
+for manifest in manifests:
+  for line in open(manifest):
     if line.startswith('#'):
         continue
     p = line.rstrip('\n').split('\t')
     if p[0] == 'seq':
         continue
     arm[p[2]] = p[1]                      # full run id -> F | control
+assert len(arm) == 20, f'{len(arm)} run ids across {len(manifests)} manifest(s); registered 20'
 
 rows = []
 for rid, a in arm.items():

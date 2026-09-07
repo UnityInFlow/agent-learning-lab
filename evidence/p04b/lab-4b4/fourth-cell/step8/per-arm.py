@@ -3,18 +3,22 @@
 single-arm and pools both arms under one key — E-007 §4 step 8 recorded that), plus P6's
 delegation count from the observatory telemetry file.
 
-    ./per-arm.py <manifest.tsv> [events.jsonl]
+    ./per-arm.py <manifest.tsv>[,<manifest-2.tsv>] [events.jsonl]
+
+Two manifests (pairs 01-05 and 06-10) are given comma-separated; see E-008's instrument-fault note.
 """
 import sys, json, re, statistics as st, urllib.request
 API = 'http://127.0.0.1:18081'
-manifest = sys.argv[1]; events = sys.argv[2] if len(sys.argv) > 2 else None
+manifests = sys.argv[1].split(','); events = sys.argv[2] if len(sys.argv) > 2 else None
 runs = []
-for line in open(manifest):
+for manifest in manifests:
+  for line in open(manifest):
     if line.startswith('#'): continue
     p = line.rstrip('\n').split('\t')
     if p[0] == 'seq': continue
     runs.append((p[0], p[1], p[2]))
-assert len(runs) == 10, f'{len(runs)} rows'
+N = len(runs) // 2
+print(f'# {len(runs)} rows from {len(manifests)} manifest(s) — registered n is 10 per arm; this is n = {N} per arm')
 recs = {}
 for seq, arm, rid in runs:
     with urllib.request.urlopen(f'{API}/api/runs/{rid}', timeout=15) as r:
@@ -34,14 +38,14 @@ metrics = {
   'addedLines': lambda d: d['result']['addedLines'],
   'changedFiles': lambda d: len(d['result']['changedFiles']),
 }
-print(f'E-008 per-arm, n = 5 pairs, from {API}\n')
+print(f'E-008 per-arm, n = {N} per arm, from {API}\n')
 print(f"{'seq':4}{'arm':9}{'run':10}{'model':28}{'ver':8}{'instrHash':38}{'eval':5}" + ''.join(f'{m:>13}' for m in metrics))
 for seq, arm, rid in runs:
     d = recs[rid]
     ih = (d.get('customization') or {}).get('instructionsHash') or 'null'
     ev = d['evaluation'].get('exitCode') if isinstance(d.get('evaluation'), dict) else d.get('evaluation')
     print(f"{seq:4}{arm:9}{rid[:8]:10}{d['runtime']['model']:28}{d['runtime']['version'].split()[0]:8}{ih:38}{str(ev):5}" + ''.join(f'{metrics[m](d):>13.4g}' for m in metrics))
-print('\nPER ARM: median (q1–q3, range)')
+print(f'\nPER ARM, n = {N} each: median (q1–q3, range)')
 for m, f in metrics.items():
     out = f'  {m:14}'
     for arm in ('F', 'control'):
