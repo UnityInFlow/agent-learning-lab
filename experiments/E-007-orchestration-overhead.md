@@ -971,6 +971,42 @@ the 14 owed from stop 10**. It is recorded, not waived.
 2026-09-06. The reading of the bimodal medians, the decision to report counts, and the refusal to
 substitute a scorer are the orchestrator's.*
 
+
+#### AMENDMENT 2026-09-07 — the debt is discharged, and the second reader has a blind spot
+
+Nothing above is rewritten. The twenty sheets this section records as owed now exist.
+
+The ollama-cloud weekly limit lifted at some point before 2026-09-07T07:27Z, found by that day's
+§0a preflight: the default review panel returned twelve findings where the day before it returned a
+765-byte header-only stall. All twenty runs of `EXP-4B-ORCH-OVERHEAD` were then scored with
+`ollama-cloud/deepseek-v4-pro` against `backend-quality.yaml` at `396e1799eb2b` — the same sha
+every registered codex sheet in this experiment asserts. No benchmark run was started; every sheet
+reads a run record and a kept worktree that already existed.
+
+**No number in this experiment moves.** codex is the registered scorer under Decision C and stop 11
+closed on its sheets; the verdict stays `NOT DETECTABLE`. What the second reading adds is the
+cross-harness distance this section said was missing.
+
+Across these twenty runs and stop 10's fourteen — 136 cells — the two harnesses agree exactly on
+118. `architecture-consistency`, `maintainability` and `test-quality` agree **34/34 each**.
+`change-focus` agrees **16/34**, and every one of the eighteen disagreements runs the same way:
+the second reader scores 2 (or `null`) where codex scores 1, never the reverse.
+
+One cell from this batch was re-derived by hand off the kept worktree. `207ff23d`: codex 1,
+*"Class documentation outside confirm differs from baseline"*; `git diff HEAD` shows the class KDoc
+replaced. Anchor 2 requires that **only** `confirm` and its by-symbol imports differ, so it fails
+and the residual is 1. **codex is right**, and the second reader's reason — *"only confirm added;
+create/getById/list and imports identical"* — is true and does not address the class doc. The
+mechanism, confirmed again on stop 10's `a06e80c5` where the missed change is a second file: the
+second reader reads `change-focus` as a question about the controller's methods and imports; codex
+reads it as a question about the whole change.
+
+Full write-up, batch logs, the concordance script and the two hand re-derivations:
+[`evidence/second-reader/README.md`](../evidence/second-reader/README.md).
+
+*Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-07. Additive: the section above stands as
+written on 2026-09-06, including its statement that the sheets were refused, which was true then.*
+
 ## §4 step 8 — the report, and why the registered tool could not produce it
 
 Run 2026-09-06T13:0xZ, over the twenty gate-passing runs and no others. Every run in the batch

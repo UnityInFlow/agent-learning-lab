@@ -1137,3 +1137,38 @@ dependency it was not asked for in a ticket regardless of any overlay. H3 argues
 the ungoverned control performed the same edit 5 of 5 on the same ask. The clean test is a **fourth
 cell**: the overlay installed with the `## Boundaries` section deleted and everything else intact.
 That is not run here, and it is named so the gap is visible.
+
+## AMENDMENT 2026-09-07 — the fourteen owed second-reader sheets exist, and they disagree in one place
+
+Additive. Nothing above is rewritten and no number in this experiment moves.
+
+Fourteen `opencode-score.sh` sheets were owed from this stop — arm G's ten
+(`EXP-B4-DELIBERATE-NOTOOLS`) and four carried from batch 2 (`EXP-B4-AGENT-BOUNDARY`) — and were
+blocked on the ollama-cloud **weekly** usage limit from 2026-09-05T18:06Z. The limit lifted before
+2026-09-07T07:27Z; all fourteen were scored that morning with `ollama-cloud/deepseek-v4-pro`, the
+§4c registered fallback and no other, against `backend-quality.yaml` at `396e1799eb2b` — the sha
+every registered codex sheet here asserts. No benchmark run was started.
+
+**codex remains the registered scorer under Decision C and every number this experiment reports is
+unchanged; the verdict stays `INCONCLUSIVE`.** The second reading exists to measure cross-harness
+distance, and it now has.
+
+Over these fourteen runs and stop 11's twenty — 136 cells — the harnesses agree exactly on 118.
+`architecture-consistency`, `maintainability` and `test-quality` agree **34/34 each**.
+`change-focus` agrees **16/34**, and all eighteen disagreements point the same way: the second
+reader scores 2, or `null`, where codex scores 1. Never the reverse.
+
+One cell from this stop was re-derived by hand off the kept worktree. `a06e80c5`: codex 1,
+*"Unnamed methods match, but ApiError.kt also changes"*. `git diff HEAD --stat` shows three changed
+files and `ApiError.kt` gaining one line, `SHIPMENT_INVALID_STATUS,`. Anchor 2 requires that
+**only** `confirm` and its by-symbol imports differ; a new enum constant in a second file is
+neither, so anchor 2 fails and the residual is 1. **codex is right.** The second reader's reason —
+*"create/getById/list identical to baseline, only confirm added, no import change"* — is true of
+the controller and never looks at the second file. That is the mechanism: the second reader reads
+`change-focus` as a question about the controller's methods and imports, codex as a question about
+the whole change.
+
+Full write-up, batch logs, the concordance script and both hand re-derivations:
+[`evidence/second-reader/README.md`](../evidence/second-reader/README.md).
+
+*Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-07.*

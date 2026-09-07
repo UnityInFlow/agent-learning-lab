@@ -1,0 +1,5 @@
+=== [1] 461e2185-c4f1-4b84-b062-e9f950028eac start 2026-09-07T07:41:01Z
+scoring observatory-run-461e2185-c4f1-4b84-b062-e9f950028eac with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-461e2185-c4f1-4b84-b062-e9f950028eac-20260907T074101Z.yaml
+--- exit=0 end 2026-09-07T07:41:24Z
+BATCH COMPLETE 1 attempted 2026-09-07T07:41:24Z
