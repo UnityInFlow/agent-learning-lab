@@ -1,0 +1,129 @@
+=== [1] b8385c28-2d80-404c-b2e2-10829aac9cb8 start 2026-09-07T07:41:55Z
+scoring observatory-run-b8385c28-2d80-404c-b2e2-10829aac9cb8 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-b8385c28-2d80-404c-b2e2-10829aac9cb8-20260907T074155Z.yaml
+--- exit=0 end 2026-09-07T07:43:35Z
+=== [2] 53597109-19f1-45f5-9e94-3bfa04a54c34 start 2026-09-07T07:43:35Z
+scoring observatory-run-53597109-19f1-45f5-9e94-3bfa04a54c34 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-53597109-19f1-45f5-9e94-3bfa04a54c34-20260907T074336Z.yaml
+--- exit=0 end 2026-09-07T07:43:55Z
+=== [3] cced62d6-c532-4f31-b1f0-bdfeb62804c9 start 2026-09-07T07:43:55Z
+scoring observatory-run-cced62d6-c532-4f31-b1f0-bdfeb62804c9 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-cced62d6-c532-4f31-b1f0-bdfeb62804c9-20260907T074355Z.yaml
+--- exit=0 end 2026-09-07T07:44:16Z
+=== [4] 5d2373f7-bb1b-43a8-a337-68d22d235607 start 2026-09-07T07:44:16Z
+scoring observatory-run-5d2373f7-bb1b-43a8-a337-68d22d235607 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-5d2373f7-bb1b-43a8-a337-68d22d235607-20260907T074416Z.yaml
+--- exit=0 end 2026-09-07T07:44:37Z
+=== [5] f87cbe9e-efa5-49c7-8ef6-1021b1097415 start 2026-09-07T07:44:37Z
+scoring observatory-run-f87cbe9e-efa5-49c7-8ef6-1021b1097415 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-f87cbe9e-efa5-49c7-8ef6-1021b1097415-20260907T074438Z.yaml
+--- exit=0 end 2026-09-07T07:46:49Z
+=== [6] abd08a80-8ba5-4f49-bd69-a50c284b031b start 2026-09-07T07:46:49Z
+prose, or a truncated sheet. This is what it did with this rubric, so it is
+evidence. Read it before re-running. See findings/opencode/score-observatory-run-abd08a80-8ba5-4f49-bd69-a50c284b031b-20260907T074650Z.yaml
+--- exit=2 end 2026-09-07T07:48:11Z
+=== [7] 3ff52290-5551-4924-907c-962271ab32be start 2026-09-07T07:48:11Z
+scoring observatory-run-3ff52290-5551-4924-907c-962271ab32be with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-3ff52290-5551-4924-907c-962271ab32be-20260907T074811Z.yaml
+--- exit=0 end 2026-09-07T07:48:40Z
+=== [8] a06e80c5-6717-4cc8-9d9c-df03df5ee886 start 2026-09-07T07:48:40Z
+scoring observatory-run-a06e80c5-6717-4cc8-9d9c-df03df5ee886 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-a06e80c5-6717-4cc8-9d9c-df03df5ee886-20260907T074840Z.yaml
+--- exit=0 end 2026-09-07T07:49:24Z
+=== [9] 2a8a616e-05cb-4926-814a-1b46aab5592e start 2026-09-07T07:49:24Z
+scoring observatory-run-2a8a616e-05cb-4926-814a-1b46aab5592e with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-2a8a616e-05cb-4926-814a-1b46aab5592e-20260907T074924Z.yaml
+--- exit=0 end 2026-09-07T07:50:49Z
+=== [10] 323591a9-bb15-48c7-9d8e-aa3a80111aa9 start 2026-09-07T07:50:49Z
+scoring observatory-run-323591a9-bb15-48c7-9d8e-aa3a80111aa9 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-323591a9-bb15-48c7-9d8e-aa3a80111aa9-20260907T075050Z.yaml
+--- exit=0 end 2026-09-07T07:51:50Z
+=== [11] 57a61b29-aacb-4801-afcb-ca0cc7de0452 start 2026-09-07T07:51:50Z
+scoring observatory-run-57a61b29-aacb-4801-afcb-ca0cc7de0452 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-57a61b29-aacb-4801-afcb-ca0cc7de0452-20260907T075151Z.yaml
+--- exit=0 end 2026-09-07T07:52:12Z
+=== [12] 502bf6f1-c167-4115-b0a7-600bd75d0e27 start 2026-09-07T07:52:12Z
+scoring observatory-run-502bf6f1-c167-4115-b0a7-600bd75d0e27 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-502bf6f1-c167-4115-b0a7-600bd75d0e27-20260907T075212Z.yaml
+--- exit=0 end 2026-09-07T07:52:47Z
+=== [13] c7e4d207-cfa6-40ef-b7be-44d73d177bba start 2026-09-07T07:52:47Z
+scoring observatory-run-c7e4d207-cfa6-40ef-b7be-44d73d177bba with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-c7e4d207-cfa6-40ef-b7be-44d73d177bba-20260907T075247Z.yaml
+--- exit=0 end 2026-09-07T07:53:06Z
+=== [14] c0b6721e-e1fe-4387-9e2b-bbd46bb420de start 2026-09-07T07:53:06Z
+scoring observatory-run-c0b6721e-e1fe-4387-9e2b-bbd46bb420de with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-c0b6721e-e1fe-4387-9e2b-bbd46bb420de-20260907T075306Z.yaml
+--- exit=0 end 2026-09-07T07:55:29Z
+=== [15] a0202230-a05b-4b1e-8b2b-0850432cfd8d start 2026-09-07T07:55:29Z
+scoring observatory-run-a0202230-a05b-4b1e-8b2b-0850432cfd8d with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-a0202230-a05b-4b1e-8b2b-0850432cfd8d-20260907T075530Z.yaml
+--- exit=0 end 2026-09-07T07:56:02Z
+=== [16] 2744a92c-9fcb-46dc-8e9a-3eb7e591658f start 2026-09-07T07:56:03Z
+scoring observatory-run-2744a92c-9fcb-46dc-8e9a-3eb7e591658f with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-2744a92c-9fcb-46dc-8e9a-3eb7e591658f-20260907T075603Z.yaml
+--- exit=0 end 2026-09-07T07:56:28Z
+=== [17] 59c1467d-7651-402b-a8ea-d7f75014feb4 start 2026-09-07T07:56:28Z
+scoring observatory-run-59c1467d-7651-402b-a8ea-d7f75014feb4 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-59c1467d-7651-402b-a8ea-d7f75014feb4-20260907T075628Z.yaml
+--- exit=0 end 2026-09-07T07:59:08Z
+=== [18] fb894d7d-903c-4a28-930d-643a603ecf31 start 2026-09-07T07:59:08Z
+scoring observatory-run-fb894d7d-903c-4a28-930d-643a603ecf31 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-fb894d7d-903c-4a28-930d-643a603ecf31-20260907T075908Z.yaml
+--- exit=0 end 2026-09-07T08:01:17Z
+=== [19] 383c915b-0ce1-45ac-8c1b-1ced7c48c7b0 start 2026-09-07T08:01:17Z
+scoring observatory-run-383c915b-0ce1-45ac-8c1b-1ced7c48c7b0 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-383c915b-0ce1-45ac-8c1b-1ced7c48c7b0-20260907T080118Z.yaml
+--- exit=0 end 2026-09-07T08:01:42Z
+=== [20] beae5092-71e1-4a2c-bb16-72417e50ba29 start 2026-09-07T08:01:42Z
+scoring observatory-run-beae5092-71e1-4a2c-bb16-72417e50ba29 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-beae5092-71e1-4a2c-bb16-72417e50ba29-20260907T080143Z.yaml
+--- exit=0 end 2026-09-07T08:04:44Z
+=== [21] b1609bb9-45f0-400a-a2e1-a6b54d4b72a6 start 2026-09-07T08:04:44Z
+scoring observatory-run-b1609bb9-45f0-400a-a2e1-a6b54d4b72a6 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-b1609bb9-45f0-400a-a2e1-a6b54d4b72a6-20260907T080444Z.yaml
+--- exit=0 end 2026-09-07T08:05:19Z
+=== [22] 92f59ff6-d0d8-4678-b2e0-e8304af22762 start 2026-09-07T08:05:19Z
+scoring observatory-run-92f59ff6-d0d8-4678-b2e0-e8304af22762 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-92f59ff6-d0d8-4678-b2e0-e8304af22762-20260907T080520Z.yaml
+--- exit=0 end 2026-09-07T08:06:43Z
+=== [23] b0b723f8-43db-422c-b2f9-56c8a8d43d44 start 2026-09-07T08:06:43Z
+scoring observatory-run-b0b723f8-43db-422c-b2f9-56c8a8d43d44 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-b0b723f8-43db-422c-b2f9-56c8a8d43d44-20260907T080643Z.yaml
+--- exit=0 end 2026-09-07T08:07:20Z
+=== [24] da442dd9-2bfd-4f3a-9894-b6f71a2891ad start 2026-09-07T08:07:20Z
+scoring observatory-run-da442dd9-2bfd-4f3a-9894-b6f71a2891ad with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-da442dd9-2bfd-4f3a-9894-b6f71a2891ad-20260907T080720Z.yaml
+--- exit=0 end 2026-09-07T08:08:37Z
+=== [25] 9fe27bf1-1e86-49e8-90a0-676b6c438d65 start 2026-09-07T08:08:37Z
+scoring observatory-run-9fe27bf1-1e86-49e8-90a0-676b6c438d65 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-9fe27bf1-1e86-49e8-90a0-676b6c438d65-20260907T080838Z.yaml
+--- exit=0 end 2026-09-07T08:09:18Z
+=== [26] 1f806f3d-0529-4b34-b1f2-3ad98941cd36 start 2026-09-07T08:09:18Z
+scoring observatory-run-1f806f3d-0529-4b34-b1f2-3ad98941cd36 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-1f806f3d-0529-4b34-b1f2-3ad98941cd36-20260907T080919Z.yaml
+--- exit=0 end 2026-09-07T08:10:44Z
+=== [27] 4374f319-f5f3-4367-9274-430c65a0984b start 2026-09-07T08:10:44Z
+scoring observatory-run-4374f319-f5f3-4367-9274-430c65a0984b with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-4374f319-f5f3-4367-9274-430c65a0984b-20260907T081044Z.yaml
+--- exit=0 end 2026-09-07T08:11:15Z
+=== [28] 89ea9063-2465-47c4-a3da-3b6b82dbccec start 2026-09-07T08:11:15Z
+scoring observatory-run-89ea9063-2465-47c4-a3da-3b6b82dbccec with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-89ea9063-2465-47c4-a3da-3b6b82dbccec-20260907T081115Z.yaml
+--- exit=0 end 2026-09-07T08:11:34Z
+=== [29] 11cab10d-3606-435c-83c1-ff8fd2ad6162 start 2026-09-07T08:11:34Z
+scoring observatory-run-11cab10d-3606-435c-83c1-ff8fd2ad6162 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-11cab10d-3606-435c-83c1-ff8fd2ad6162-20260907T081134Z.yaml
+--- exit=0 end 2026-09-07T08:12:46Z
+=== [30] 4d7c537d-f2b8-442b-828f-ad2db07c2ade start 2026-09-07T08:12:46Z
+scoring observatory-run-4d7c537d-f2b8-442b-828f-ad2db07c2ade with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-4d7c537d-f2b8-442b-828f-ad2db07c2ade-20260907T081247Z.yaml
+--- exit=0 end 2026-09-07T08:13:38Z
+=== [31] a2a7cdb1-f3b7-4bd6-8917-ea897d03327c start 2026-09-07T08:13:38Z
+scoring observatory-run-a2a7cdb1-f3b7-4bd6-8917-ea897d03327c with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-a2a7cdb1-f3b7-4bd6-8917-ea897d03327c-20260907T081338Z.yaml
+--- exit=0 end 2026-09-07T08:14:13Z
+=== [32] 207ff23d-d00b-4b5a-8a5e-8fbb2dcc0061 start 2026-09-07T08:14:13Z
+scoring observatory-run-207ff23d-d00b-4b5a-8a5e-8fbb2dcc0061 with ollama-cloud/deepseek-v4-pro — 3 source file(s), 3 baseline file(s) ...
+findings/opencode/score-observatory-run-207ff23d-d00b-4b5a-8a5e-8fbb2dcc0061-20260907T081413Z.yaml
+--- exit=0 end 2026-09-07T08:14:34Z
+BATCH COMPLETE 32 attempted 2026-09-07T08:14:34Z

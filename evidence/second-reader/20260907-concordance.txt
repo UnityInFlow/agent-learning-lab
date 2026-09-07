@@ -1,0 +1,24 @@
+cells compared: 136 exact: 118
+  architecture-consistency: 34/34
+  change-focus: 16/34
+  maintainability: 34/34
+  test-quality: 34/34
+disagreements: 18
+   e8d881b9 change-focus opencode= 2 codex= 1
+   461e2185 change-focus opencode= 2 codex= 1
+   53597109 change-focus opencode= 2 codex= 1
+   cced62d6 change-focus opencode= 2 codex= 1
+   5d2373f7 change-focus opencode= 2 codex= 1
+   3ff52290 change-focus opencode= 2 codex= 1
+   a06e80c5 change-focus opencode= 2 codex= 1
+   2a8a616e change-focus opencode= None codex= 1
+   57a61b29 change-focus opencode= 2 codex= 1
+   c7e4d207 change-focus opencode= 2 codex= 1
+   c0b6721e change-focus opencode= None codex= 1
+   a0202230 change-focus opencode= 2 codex= 1
+   383c915b change-focus opencode= 2 codex= 1
+   beae5092 change-focus opencode= None codex= 1
+   b1609bb9 change-focus opencode= 2 codex= 1
+   9fe27bf1 change-focus opencode= 2 codex= 1
+   89ea9063 change-focus opencode= 2 codex= 1
+   207ff23d change-focus opencode= 2 codex= 1

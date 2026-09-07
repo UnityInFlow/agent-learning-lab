@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f87cbe9e-efa5-49c7-8ef6-1021b1097415
+  mode:          run
+  run_id:        f87cbe9e-efa5-49c7-8ef6-1021b1097415
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/f87cbe9e-efa5-49c7-8ef6-1021b1097415
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.TLv4IYHaJ1/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260907T074438Z
+  attachments:   3 file(s) under test, 3 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: refusals throw existing ApiException subclasses, no ApiError constructed
+    evidence: ShipmentController.kt:60,66
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: status decision is if statements with fallthrough return, non-exhaustive
+    evidence: ShipmentController.kt:65,72,76
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: body and envelope asserted, but no separate get re-reads persisted state
+    evidence: ShipmentControllerTest.kt:100,113
+  - name: change-focus
+    score: 1
+    anchor_level: 1
+    reason: new ErrorCode constant differs beyond confirm and imports
+    evidence: ApiError.kt:36
+ambiguous_categories: []
+```
