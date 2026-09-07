@@ -45,6 +45,11 @@ LAB="$(pwd)"
 OBS="$(cd "$LAB/../agent-observatory" && pwd)" || exit 1
 
 PAIRS="${PAIRS:-5}"
+# START numbers the first pair of THIS invocation. E-008 registers n = 10 PER ARM, and the
+# first invocation ran the default 5 pairs (copied from run-e007-p2.sh, whose registered n WAS
+# 5 per arm) - an instrument fault of the author of this script, disclosed in E-008. The second
+# half runs with START=6 PAIRS=5 so its rows read 06-10 and the two manifests concatenate.
+START="${START:-1}"
 EXPERIMENT_KEY="${EXPERIMENT_KEY:-EXP-4B-FOURTH-CELL}"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 CELL="$LAB/evidence/p04b/lab-4b4/fourth-cell"
@@ -166,7 +171,7 @@ events_bytes() { [[ -f "$EVENTS" ]] && wc -c < "$EVENTS" | tr -d ' ' || echo 0; 
 mkdir -p "$EVID" || fail "cannot create $EVID"
 
 {
-  echo "# E-008 fourth cell $STAMP  key=$EXPERIMENT_KEY pairs=$PAIRS"
+  echo "# E-008 fourth cell $STAMP  key=$EXPERIMENT_KEY pairs=$PAIRS start=$START"
   echo "# overlay CLAUDE.md $EXPECT_HASH16 (runner form $EXPECT_INSTRUCTIONS_HASH) = implementer.md lines 7-, verbatim"
   echo "# BE-003 tree $EXPECT_BE003_TREE at benchmarks $got_bench · claude $got_claude · model $EXPECT_MODEL"
   echo "# prediction commit $PRED_COMMIT at $pred_at"
@@ -225,7 +230,7 @@ abort_batch() {
 }
 
 LAST_RC=0; LAST_HASH=""; LAST_DELEG=0
-for i in $(seq 1 "$PAIRS"); do
+for i in $(seq "$START" $((START + PAIRS - 1))); do
   s="$(printf '%02d' "$i")"
   one_run F "$s" "${ARM_F[@]}"
   if [[ $LAST_RC -eq 9 ]]; then

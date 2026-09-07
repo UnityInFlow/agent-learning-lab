@@ -3,7 +3,7 @@
 > **Fill in everything down to and including Predictions BEFORE the first run.**
 > Commit it, and check the commit timestamp precedes the first run's `startedAt`.
 
-**Status: batch complete 2026-09-07T12:25Z, 20 of 20 admitted; scoring in progress.** Follow-up experiment of
+**Status: first half of the batch complete 2026-09-07T12:25Z (5 pairs); second half (pairs 06–10) running — see the instrument-fault note under § 4 step 6.** Follow-up experiment of
 [`E-007`](E-007-orchestration-overhead.md), ordered by **author decision 10.1** (§3 of the
 Track B prompt, prompt sha `92d4f1e3332d`), which names the arm, the `n`, the delivery route,
 the registered outcome and the two readings; this file registers the numbers. Spine stop 11
@@ -308,13 +308,42 @@ no model and is disclosed here rather than left to be found). `events.jsonl` gre
 | 04 | `e87e272b` | 0 | `sha256:51f16eeb…` | 0 | `7525fad5` | 0 | `null` | 0 |
 | 05 | `178eec3f` | 0 | `sha256:51f16eeb…` | 0 | `5c76c344` | 0 | `null` | 0 |
 
-**Row 0a did not fire**: 10 of 10 arm-F records carry the registered hash
+**Row 0a did not fire on delivery** (but see the instrument-fault note below: this is 5 pairs, not 10): 5 of 5 arm-F records carry the registered hash
 (`sha256:51f16eeb1618cd212405818c5165dcba`, read back from the API by the driver and re-read
-at step 7), 10 of 10 controls carry `null`, 20 of 20 runs show 0 delegation events in their
-streams, and the evaluator passed **20 of 20**. Every run is admitted to scoring. **P5 and P6
-held on all 20 runs.**
+at step 7), 5 of 5 controls carry `null`, 10 of 10 runs show 0 delegation events in their
+streams, and the evaluator passed **10 of 10**. Every run is admitted to scoring. **P5 and P6
+held on these 10 runs.** *(Corrected the same hour: this paragraph first said 10/10, 10/10, 20/20 — the count of rows was read as the count of pairs.)*
 
-Worktrees kept under `$TMPDIR/observatory-run-<runId>` for all 20 (paths in the manifest).
+Worktrees kept under `$TMPDIR/observatory-run-<runId>` for all 10 (paths in the manifest).
+
+### An instrument fault of my own making, found after the batch and NOT worked around silently
+
+**The batch above is half the registered `n`.** § Runs registers **10 F + 10 C**; the driver's
+`PAIRS` default is **5**, copied from `run-e007-p2.sh` — whose registered `n` *was* 5 per arm —
+and I launched it without overriding it, then wrote "20 of 20 admitted" above while the table
+plainly shows 5 pairs. Found at §4 step 8 when `per-arm.py` printed `n = 5 pairs`. **Under row
+0a as written (fewer than 8 admitted runs in either arm) this half-batch alone is VOID**; the
+registration stands, so the remedy is to *complete* the batch on the same key, not to re-register
+at 5.
+
+**What had already happened when I noticed:** a sonnet scoring subagent had been started at
+step 7 and had written **one** codex sheet,
+`findings/codex/score-observatory-run-582c0b39-…-20260907T122712Z.yaml` (arm F, pair 01), before
+it was stopped at 12:2xZ; no codex process was left running. **That sheet stays on disk (§6) and
+stays unread until all 20 sheets exist** — the hand re-read of the same run (`1`, commit
+`56d8cfb`, 12:09Z) precedes it by 18 minutes and is unaffected. Nothing the model sees in pairs
+06–10 depends on a sheet, so the second half is not contaminated by it; what could be
+contaminated is *my* reading of the second half, and the discipline against that is the same as
+before: no sheet is opened before the twenty exist and the counts are produced by
+`collect-sheets.py`, not by eye.
+
+**Remedy, applied:** the driver gains `START` (row numbering only — no guard changed), its
+verifier is re-run, and a second invocation `START=6 PAIRS=5` runs pairs 06–10 on the same key,
+same overlay hash, same runtime, same tunnels, ≈ 15 minutes after the first ended, with its own
+manifest under a second `batch-<STAMP>/` directory. The two manifests concatenate to the
+registered 20 runs. The independence check in § Results reports both windows.
+
+*Disclosed by Claude Fable 5.1 (claude-fable-5-1), hand-started session, 2026-09-07T12:3xZ.*
 
 ---
 *Everything below is filled in AFTER the runs.*
