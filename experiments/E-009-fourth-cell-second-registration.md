@@ -297,10 +297,14 @@ hypothesis — a control wrongly scored 2 makes the control look better than it 
 | arm F 0/10 vs its concurrent control 1/10 | **`p = 1.0`** — no separation |
 | arm F 0/10 vs E-007 arm O 5/10 | **`p = 0.0325`** |
 | E-007 arm O 5/10 vs its own control 0/10 | `p = 0.0325` |
-| arm O 5/10 vs the two concurrent plain controls pooled, 1 of 20 | `p = 0.0088` |
+| arm O 5/10 vs the two concurrent plain controls pooled, 1 of 20 ‡ | `p = 0.0088` |
 | arm F 0/10 vs those same pooled controls | `p = 1.0` |
 | arm O 5/10 vs the historical census of plain controls, 3 of 48 | `p = 0.0024` |
 | arm F 0/10 vs that census | `p = 1.0` |
+
+‡ **The pooled and census rows are unregistered, post-hoc and supporting only** (§4a finding 14).
+The verdict comes from `c` and `k` **inside this batch**, through the rule fixed before the run;
+neither pooled row could have changed a decision-rule row.
 
 **Arm F sits inside the plain-baseline population on every comparison available. The split sits
 outside all of them.**
@@ -356,9 +360,17 @@ removes existing lines, so the 2 is defensible and the two runs really do differ
 repeated in three documents: `change-focus` on this model and task is **rare, not dead** — now
 two observations, on two different runtimes, across roughly 95 scored runs.
 
+> **WITHDRAWN 2026-09-07 by the §4a round, finding 25 — see § §4a review round below.** The
+> project already adjudicated this anchor at `n = 34`: anchor 2 requires that **only** `confirm`
+> and its by-symbol imports differ, and `474fb3ea` changed `ApiError.kt` too, so its
+> `change-focus` is **1**. Codex itself scored **1** on this same shape at stop 10 (`a06e80c5`).
+> The cell is a scorer inconsistency already on file, not a category moving; the standing
+> claim stands and the three documents should **not** be corrected. The paragraph above is
+> kept unedited because a retraction that deletes what it retracts teaches nothing.
+
 ## Failure analysis
 
-**Was it the agent, or the harness?** The agent. The treatment was delivered on 10 of 10 with
+**Was it the agent, or the harness?** The agent — with the limit § How the treatment is delivered states, and the §4a round (findings 16, 22) insisted be repeated here: **nothing on the run record proves the runtime *read* `CLAUDE.md`**, only that the file was present and hashed. The supportable form is that **no instrument between the prediction and the result failed in a way this batch can detect**. The treatment was delivered on 10 of 10 with
 the hash read back per run, the runtime never moved, the evaluator passed 20 of 20, both
 delegation sources agree at zero, the rubric sha is asserted on every sheet, the scorer returned
 zero nulls, and three cells were re-derived by hand including the one that sets `c`. **There is
@@ -389,6 +401,12 @@ for a separate `get(...)` half the time.
 
 **Reading (b), decision rule row 2: `test-quality` is a return from the split, not from the
 prose it carried.**
+
+> **Read this with the qualification added by the §4a round (findings 9, 10, 18, all 2/2), below:**
+> the effect does not survive removing the split while keeping the words in project memory. Two
+> explanations remain open — the decomposition itself, and a worker reading the ticket in a fresh
+> context under a system prompt — and **this experiment cannot separate them.** § Threats
+> registered that confound before the run; § Follow-up item 1 names the arm that would settle it.
 
 `c = 1`, `k = 0`, `p_C = 1.0` (≥ 0.05), `k ≤ 2` → row 2, stated as the rule requires: **true of
 these runs.** `p_O = 0.0325` sits beside it, and at `k = 0` that comparison is one of the two
@@ -437,7 +455,7 @@ the proof**, not about the artifact.
 | the treatment reached the model | `customization.instructionsHash` = `sha256:51f16eeb1618cd212405818c5165dcba` on 10 of 10 arm-F run records; column 6 of `e009-batch-20260907T125010Z/manifest.tsv`, written by the driver from the API per run | **L2** — `run-e009.sh` reads it back and aborts the batch at exit 8 on a mismatch; `verify-run-e009.sh` drives the overlay guards to fire, 12 of 12 | `curl $API/api/runs/<id> \| jq .customization.instructionsHash` for each arm-F id |
 | the control did not receive it | `instructionsHash: null` on 10 of 10 control records; same column. Worktrees are built by `git archive` from an allowlist of `sample-service` + `.gitignore`, so `null` means absent, not merely uninstalled | **L2** — same read-back, same abort | same query on the control ids |
 | the overlay is the implementer's prose, verbatim | `diff <(tail -n +7 build/customizations/orchestration-4b4-P1/.claude/agents/implementer.md) build/customizations/implementer-prose-4b4/CLAUDE.md` is empty; sha `51f16eeb1618cd21` | **L2** — asserted by the driver before every batch; verifier cases 5 and 6 prove it refuses both a one-sided and a consistent two-sided edit | run the `diff` and `shasum -a 256` |
-| no split in either arm | `deleg_stream` and `deleg_telemetry` both 0 on 20 of 20 (manifest columns 7–8); no `control-delegations.txt` was written | **L2** — an arm-F delegation aborts the batch; a control delegation is written to a file | `grep -cE '"(name\|tool_name)":"(Task\|Agent)"'` over each `NN-arm.log`, and over `events.jsonl` filtered by run id |
+| no split in either arm | `deleg_stream` and `deleg_telemetry` both 0 on 20 of 20 (manifest columns 7–8); no `control-delegations.txt` was written | **L2 for arm F, L1-by-absence for the control** † |  `grep -cE '"(name\|tool_name)":"(Task\|Agent)"'` over each `NN-arm.log`, and over `events.jsonl` filtered by run id |
 | the registered outcome | `test-quality` anchor 2: arm F **0 of 10**, control **1 of 10**; `step7/collect-sheets.py` asserts 20 sheets, rubric `396e1799eb2b` on every one, all four categories parsing | **L2** — the collector asserts rather than reports; it was written after a presence check on a *filename* was mistaken for a check on a *sheet* | `python3 step7/collect-sheets.py findings/codex <manifest>` |
 | the prediction preceded the runs | prediction commit `1e189fc` at 2026-09-07T12:49:35Z; first run `startedAt` 12:50:1xZ | **L2** — the driver reads the commit's timestamp and refuses to start if it does not precede now | `git log --format=%cI -1 1e189fc` against `curl $API/api/runs/efe48ffc… \| jq .startedAt` |
 | a scored cell re-read by hand, before the sheets | `evidence/p04b/lab-4b4/fourth-cell/hand-score-efe48ffc.md`, commit `e43c685` at 12:53:42Z; this batch's earliest sheet is 13:33:53Z | **L3** — a person doing it in the right order. The **ordering** is L2 by timestamp; the reading itself is judgement | compare `git log --format=%cI -1 e43c685` with `ls -1t findings/codex/` |
@@ -450,7 +468,166 @@ property: the single `change-focus` = 2 and the single control `test-quality` = 
 reported as one run, and the E-008 control delegation is reported as 1 of 8 and pooled as 1 of
 18.
 
+† **Corrected 2026-09-07 after the §4a round, finding 20 (2/2).** This row first read a flat
+**L2** for both halves, and that was wrong in the project's own recurring way. An arm-F delegation
+**aborts the batch** — something executes and rejects it, L2. A control delegation is **written to
+a file and the batch continues**, by design: nothing rejects it, so for the control half the entry
+is a *measurement*, not a control. It reaches the gate clause anyway because a control delegation
+**cannot make the cell a split** — the clause is about the treatment arm's integrity, and for the
+control arm there is nothing to enforce. Recording the label honestly matters more than the row
+looking symmetrical: the L2/L3 mislabel is on its fourth recurrence in this project.
+
 **Independence check — what else changed between arms?** Nothing that the run records can show:
 same model, same runtime version, same benchmark tree, same evaluator, same flags, same
 interleaved window, `skillsHash`, `agentHash`, `hooksHash` and `mcpHash` all `null` on 20 of 20.
 The one asymmetry is the independent variable.
+
+## §4a review round — 2026-09-07, and one finding overturns a claim in this file
+
+Panel: **codex** (`-P codex -A -n 2`), agent `lab-critic` sha `5ae27fa4d5e2`, opencode 1.18.27,
+artifact sha `519442a7487a`, two independent runs unioned, **25 distinct findings**, 25 286 bytes,
+28 sections. **Exit 0 and not a stall** — established by a live-process check, not by file size.
+The acceptance gate was **skipped** (`-A`, author decision 3's codex route), so there is **no
+`ACCEPT` verdict** and this round is recorded as *findings dispositioned*, never as a gate pass.
+
+Every finding is fixed or disputed below. The full list with recurrence is in the PR body;
+`findings/opencode/review-E-009-fourth-cell-second-registration-20260907T135316Z.md` is the file.
+
+### The one that overturns something — finding 25, and the critic is right
+
+> *Scoring run `474fb3ea` a 2 rather than a 1 is reviewer-dependent: the defence relies on
+> "relative nearness" while the stated anchor is categorical, and the diff touches three files
+> plus a new constant.*
+
+**Sustained, and my `change-focus` correction is withdrawn.** This project adjudicated exactly
+this anchor at `n = 34` and wrote the answer into `HANDOFF.md`:
+
+> *anchor 2 requires that **only** `confirm` and its by-symbol imports differ, `ApiError.kt` is
+> neither, anchor 0 fails as well, and so the residual `1` is the rubric's own answer as
+> written. **No rubric round is owed.***
+
+`474fb3ea` changed **three files including `ApiError.kt`**, which gained
+`SHIPMENT_CANNOT_BE_CONFIRMED`. By that adjudication its `change-focus` is **1**. Worse for my
+reading: `evidence/second-reader/README.md` records **codex itself scoring 1 on this same shape**
+at stop 10 — run `a06e80c5`, *"Unnamed methods match, but ApiError.kt also changes"*, three
+changed files with `ApiError.kt` gaining one line.
+
+**So the cell is a scorer inconsistency of a class already on file, not a category moving.** The
+sheet's own stated reason — *"create, getById, and list remain identical to baseline"* — is the
+very reason the concordance work found insufficient, because it answers a question the anchor
+does not ask.
+
+**What I wrote and now withdraw:** *"`change-focus` on this model and task is rare, not dead —
+now two observations."* **It is one observation on a codex arm (`514b094e`) and one likely
+mis-score here.** The standing claim — dead on `claude-haiku-4-5-20251001` running BE-003 —
+**stands**, and the three documents I said should be corrected should not be. The withdrawn text
+above stays where it is, with this note beside it, because a retraction that deletes what it
+retracts leaves nothing to learn from.
+
+**I hand-checked this cell and still got it wrong.** The check I ran asked *"do these two diffs
+differ in a way the anchor could see?"* and they do. The question the anchor asks is *"does
+anything but `confirm` and its imports differ?"* and it does. **A hand re-read is only as good as
+the question it asks**, which is the same failure as a control reporting success over a scope
+smaller than it claims — this time in my own reading rather than in a script.
+
+### The strongest structural finding — 9, 10 and 18, all 2/2
+
+> *The observed counts are equally consistent with "decomposition causes the effect" and "the
+> prose only works in a worker system-prompt seat", yet the decision rule forces one verdict —
+> and § Threats names that confound while the rule does not honour it.*
+
+**Sustained in substance, and it does not move the verdict.** § Threats registered *"Same words,
+different seat"* **before the run**, and this file already says a null *"means the prose as an
+instruction file does not reproduce the effect, not that the prose did nothing in the worker's
+seat."* The critic's point is that § Decision then states the causal claim flatly, 200 lines
+away from that caveat. **That is a real defect of presentation and it is fixed here rather than
+argued with:**
+
+> **Read § Decision as: the effect does not survive removing the split while keeping the words
+> in project memory.** Two explanations remain open — the decomposition itself, and a worker
+> reading the ticket in a fresh context under a system prompt. **This experiment cannot separate
+> them**, § Follow-up item 1 names the arm that would, and that arm is the author's.
+
+The registered decision-rule row is **not** edited: row 2's label *"reading (b) — `test-quality`
+is a return from the split"* was fixed before the run and stays as written, wording included.
+What is added is the qualification at the point a reader meets the claim.
+
+### Fixed, with the fix stated
+
+- **12 — only 3 of 20 sheets were re-derived by hand, two of them chosen after seeing results.**
+  True. Here is the robustness the finding asks for, computed rather than asserted: with arm F at
+  0 of 10, the verdict is **row 2 for a control count of 0, 1 or 2** (`p_C` = 1.0, 1.0, 0.474)
+  and only moves to row 0b at **3**. With the control at 1 of 10, the verdict is **row 2 for an
+  arm-F count of 0, 1 or 2** and moves to row 3 at 3. **One flipped cell in either arm changes
+  nothing; it takes three.** The hand re-read that was written *before* any sheet existed
+  (`efe48ffc`) is the one the ordering discipline requires; the other two were chosen afterwards
+  and are labelled as such.
+- **14 — pooling controls across registrations for `p = 0.0088` is an unregistered cross-batch
+  analysis.** True. **That number is supporting, not deciding**: the verdict comes from `c` and
+  `k` **inside this batch** through the registered rule. The pooled and census comparisons are
+  hereby labelled **unregistered, post-hoc, and reported for context only** — they would not have
+  changed a row.
+- **4 — every pair runs F before C, uncounterbalanced.** True, not registered, and inherited from
+  E-007's driver. A time-varying confound would bias every F run one way. **Disclosed as a threat
+  found after the fact**; the arms are interleaved pair-by-pair so drift across the 41-minute
+  window is shared, but within-pair order is not counterbalanced and this file does not claim it
+  is. Counterbalancing is a driver change and is not made mid-experiment.
+- **5, 11, 24 — the other project's sweep, and *when* it overlapped.** Answered with the clock:
+  `scripts/gate03-sweep.sh` started **13:30:39Z** and the batch ended **13:31:01Z**, so it
+  overlapped the final **22 seconds** — inside pair 10's control run at most. Duration and cost
+  were report-only here by prior disclosure, so no registered number is touched.
+- **17 — "no flattering number appeared" is directionally ambiguous.** Correct, and the sentence
+  was sloppy. Restated: **the control's single anchor-2 makes the treatment arm look worse, not
+  better, so it is not a flattering number** — it is the number that most affects the decision
+  row, which is why it was the cell re-derived by hand.
+- **16, 22 — "was it the agent, or the harness? The agent" is unproven; a runtime that records
+  the hash without reading the file gives the same result.** Sustained as a limit, already stated
+  in § How the treatment is delivered (*"what still cannot be proved from the run record: that
+  the runtime read the file"*), and now cross-referenced from § Failure analysis. **The stronger
+  form of the claim this file can support: no instrument between the prediction and the result
+  failed in a way this batch can detect.**
+- **6 — the MDE table is computed at `n = 10` while row 0a admits `n = 8`.** True gap in the
+  registration; it did not bite, because both arms came in at 10. Recorded so the next
+  registration writes the MDE at its own floor.
+- **13 — 17 of 20 sheets have no second reading.** True. The second reader is **owed, not
+  waived**: this batch adds **20** sheets to the standing debt. `change-focus` from the fallback
+  is report-only under author decision 10.3 in any case.
+
+### Disputed, with the reason
+
+- **3, 23 — Q2–Q4 are counted among "predictions that held" while Q1 is called the one registered
+  outcome.** The prediction table labels them in place: Q2 *"void condition, not an outcome"*,
+  Q3 a void condition, Q4 *"reported, never voiding"*. A reader who reaches the table cannot
+  reach the ambiguity; a reader who reads only the summary line can, and that is a summary
+  claiming more than the detail beneath it — this project's house failure. **Disputed as a defect
+  of the document, accepted as a naming risk**, and the table is left as written.
+- **1 — a null cannot distinguish "decomposition" from "prose only in a worker seat".** Correct
+  and **already registered before the run** as the seat threat; the fix above states it at the
+  claim. Not a separate defect.
+- **7 — whether a passing run with a null rubric cell counts as admitted is unspecified.**
+  Disputed: § Exclusions says a `null` *"counts as not anchor 2 in Q1's count and is reported
+  separately"*, which is exactly that specification. The batch produced **zero nulls**.
+- **8 — excluding evaluator-failing runs could exclude treatment-caused failures.** Correct in
+  general and inert here: **20 of 20 passed**, so the exclusion never fired and cannot have
+  biased the sample.
+- **19 — the proposed reverse cell does not separate fresh context from decomposition.**
+  Sustained as a caveat on a follow-up, not a defect of this result. § Follow-up item 1 is
+  reworded to say the reverse cell narrows the question rather than settling it; the arm is the
+  author's either way.
+- **21 — is `test-quality` a duplicate of the evaluator gate?** No: the evaluator decides
+  correctness and every run of both arms passed it, so the gate is a constant across everything
+  the rubric can score here. That is the exact defect the v2 rubric was written to remove, and
+  `test-quality` is not a restatement of it — anchor 2's clauses describe test *construction*,
+  which the evaluator never inspects.
+- **2 — Q1 pairs a magnitude with a significance test that can disagree.** Both halves failed
+  together (0 of 10, `p_C = 1.0`), so no reader has to adjudicate a split verdict. Recorded for
+  the next registration: **state which half decides when they part.**
+- **15 — a shared scoring bias between codex and the author could pass undetected.** True and
+  unfixable from inside a single-scorer design; it is why Decision C keeps a second reader, and
+  why the debt in finding 13 is recorded rather than waived.
+- **20 — the L2 label on the delegation row.** Sustained and **fixed in the §5 table itself**,
+  with the correction noted there rather than here.
+
+*Dispositioned by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-07. The round was pointed at
+the whole artifact rather than at a diff, so several findings re-read text registered before the
+runs; where that is so, the text stays and the note sits beside it.*
