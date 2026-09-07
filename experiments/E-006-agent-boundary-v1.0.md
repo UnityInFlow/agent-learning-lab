@@ -1158,6 +1158,23 @@ Over these fourteen runs and stop 11's twenty — 136 cells — the harnesses ag
 `change-focus` agrees **16/34**, and all eighteen disagreements point the same way: the second
 reader scores 2, or `null`, where codex scores 1. Never the reverse.
 
+Adjudicated in full, not sampled. Over these 34 runs codex returns `1` **thirty-four times out of
+thirty-four**; the second reader returns `2` fifteen times, `1` sixteen times and `null` three
+times. **Both anchors were evaluated, not just the one that was convenient** — the acceptance gate
+rejected an earlier draft of the write-up for evaluating anchor 2 alone, and it was right, since a
+run where anchor 0 holds scores 0 rather than the residual. Anchor 0 (*"two or more methods the
+ticket did not name differ"*) fails on 34 of 34: no unnamed method is touched at all
+(`anchor0-check.py`, from `git diff -U0` hunk ranges). Anchor 2 fails on 34 of 34: every run also
+changes `ApiError.kt`, which is neither `confirm` nor an import. So the score is the residual, `1`,
+on all 34, and **codex is correct on all 34 by the rubric's own rule** — there is no unexamined cell
+in which the second reader's `2` could be right.
+
+What was *withdrawn* under the same review is the reading that the scorer is demonstrably unstable:
+the 34 runs are 34 distinct diffs, so no two identical inputs were scored differently, and some
+unexamined feature may yet sort the second reader's answers. The correctness result above does not
+depend on that and stands; the mechanism does not, and is left open in
+`evidence/second-reader/README.md`.
+
 One cell from this stop was re-derived by hand off the kept worktree. `a06e80c5`: codex 1,
 *"Unnamed methods match, but ApiError.kt also changes"*. `git diff HEAD --stat` shows three changed
 files and `ApiError.kt` gaining one line, `SHIPMENT_INVALID_STATUS,`. Anchor 2 requires that

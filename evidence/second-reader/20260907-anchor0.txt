@@ -1,0 +1,5 @@
+runs checked: 34
+anchor 0 holds (2+ unnamed methods differ): 0
+exactly one unnamed method differs      : 0
+no unnamed method differs               : 34
+  example e8d881b9 no unnamed method touched

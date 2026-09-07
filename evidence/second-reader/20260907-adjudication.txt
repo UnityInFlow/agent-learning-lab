@@ -1,0 +1,21 @@
+run        files  outside-confirm change found                                
+e8d881b9   2      other main file(s): ApiError.kt; 3 removed doc/class line(s)
+461e2185   2      other main file(s): ApiError.kt; 3 removed doc/class line(s)
+53597109   2      other main file(s): ApiError.kt; 3 removed doc/class line(s)
+cced62d6   2      other main file(s): ApiError.kt
+5d2373f7   2      other main file(s): ApiError.kt
+3ff52290   2      other main file(s): ApiError.kt
+a06e80c5   2      other main file(s): ApiError.kt
+2a8a616e   2      other main file(s): ApiError.kt; 3 removed doc/class line(s)
+57a61b29   2      other main file(s): ApiError.kt
+c7e4d207   2      other main file(s): ApiError.kt
+c0b6721e   2      other main file(s): ApiError.kt
+a0202230   2      other main file(s): ApiError.kt; 5 removed doc/class line(s)
+383c915b   2      other main file(s): ApiError.kt
+beae5092   2      other main file(s): ApiError.kt; 2 removed doc/class line(s)
+b1609bb9   2      other main file(s): ApiError.kt
+9fe27bf1   2      other main file(s): ApiError.kt
+89ea9063   2      other main file(s): ApiError.kt
+207ff23d   2      other main file(s): ApiError.kt; 3 removed doc/class line(s)
+
+18 of 18 disagreeing runs carry a change outside confirm and its imports

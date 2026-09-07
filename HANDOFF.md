@@ -27,6 +27,80 @@ Phase issue stays open while any of its labs is. **It was closed in error at the
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
 
+## What the 2026-09-07 session did — the ollama limit lifted, and a 34-sheet debt became a result
+
+**No stop was opened and no stop-12 artifact exists.** benchmarks#29 is still `OPEN`, re-verified by
+two routes (`gh pr view` and the REST API); benchmarks `main` is still `04486433`, dated
+2026-09-03. §7 and author decision 9 both say stop 12 does not open until it is merged, and the
+merge is the author's. The position is unchanged: **spine 11 of 28**.
+
+**#29 is ready and only the merge is missing** — not a draft, one commit, 52 files, zero requested
+reviewers, and its single check `every evaluator discriminates` passed in 19m19s. Nothing is waiting
+on a fix.
+
+**The §0a preflight found something that changed the session.** The *default* `opencode-review.sh`
+panel — the ollama one — returned a 14 534-byte findings file with twelve sections where the same
+command the day before returned 903 bytes and zero. **The ollama-cloud weekly usage limit has
+lifted.** The scoring route was then proved separately rather than inferred from the review route.
+
+**So the 34 second-reader sheets owed since 2026-09-05 were produced.** Fourteen from stop 10, twenty
+from stop 11, recorded as *not waived* in three documents. No benchmark run was started; every sheet
+reads a run record and a kept worktree that already existed, at the registered rubric sha
+`396e1799eb2b`. **codex remains the registered scorer under Decision C and no number in either stop
+moves**: stop 10 stays `INCONCLUSIVE`, stop 11 stays `NOT DETECTABLE`.
+
+**They carry a result.** 118 of 136 cells agree exactly. `architecture-consistency`,
+`maintainability` and `test-quality` agree **34/34 each**. `change-focus` agrees **16/34**, and all
+eighteen disagreements run one way — the second reader scores `2` fifteen times and `null` three
+times where codex scores `1`. Codex returns `1` on all 34.
+
+**All 34 were adjudicated against the rubric, not sampled.** Anchor 0 fails on 34 of 34 (no unnamed
+method is touched at all) and anchor 2 fails on 34 of 34 (`ApiError.kt` changes in every run and is
+neither `confirm` nor an import), so the score is the residual `1` on every run and **codex is
+correct on all 34 by the rubric's own rule**. Two cells were also re-derived by hand at line level.
+
+**Two claims were withdrawn under review rather than defended**, and that is the part worth reading:
+the first write-up said the 34 inputs were structurally identical and that the second reader is
+therefore demonstrably unstable. The acceptance gate rejected the draft for evaluating only one of
+the two anchors — correctly — and round 3 objected that unexamined input differences could be
+sorting the scores. Tested: the 34 runs are **34 distinct diffs**, so no two identical inputs were
+scored differently and the instability reading is not established. The correctness result does not
+depend on it and stands; the mechanism is left open with three candidate readings.
+
+**The review record, stated as it is rather than as I would like it:** three §4a rounds on
+`-P codex`, twenty-one findings, **every one fixed or explicitly conceded and not one disputed** —
+and the gate's last executing verdict is **REJECT**, against the version that omitted anchor 0. No
+fourth round is permitted to say whether the fixes moved it, so this artifact is recorded as
+*findings addressed, verdict REJECT standing*, not as a pass.
+
+Everything is in [`evidence/second-reader/README.md`](evidence/second-reader/README.md) with the
+batch logs, four re-derivable scripts and the two hand re-derivations;
+[`E-006`](experiments/E-006-agent-boundary-v1.0.md) and
+[`E-007`](experiments/E-007-orchestration-overhead.md) carry dated additive amendments.
+
+### Two instruments that would have lied, both the house shape
+
+- `verify-agent-delivery.sh` and `verify-skill-delivery.sh` in `agent-observatory` **both exit 1**
+  with *"Observatory API not reachable at http://localhost:8081 — run 'make up' first"*, because
+  they read `API_PORT` from `infra/.env` and **8081 is a dead colima forward**. Re-run with
+  `API=http://127.0.0.1:18081` they pass 9/9 and 7/7. A verifier that reads as a broken stack when
+  the stack is fine — the third recording of this shape.
+- The preflight subagent reported the review-harness row as a 765-byte, zero-section file *still
+  running*. True at that minute, false by the time the row would have been written. Taking it would
+  have left the ollama limit recorded as still in force and all 34 sheets still owed.
+
+### What is BLOCKED ON YOU
+
+1. **Merge `agent-observatory-benchmarks#29` (BE-004 cancel-order).** It is the only thing standing
+   between this track and stop 12. Green, mergeable, unreviewed by request.
+2. **Decision H now has a measurement it did not have.** §4c would promote
+   `ollama-cloud/deepseek-v4-pro` to registered scorer on a codex outage over twelve hours. On this
+   evidence that swap changes the `change-focus` cell on 18 of 34 runs of this shape, in one
+   direction, silently. The decision is yours and is **not** amended here.
+3. **A condition this session recommends for stop 12, for your yes or no:** that the BE-004 rubric's
+   `change-focus` separation be demonstrated **on codex** specifically, since that is the one
+   dimension where the two harnesses part.
+
 ## What the fourteenth session did — validator pass 16, and no stop opened
 
 **2026-09-06, after the halt. No runs, no experiment, no stop-12 artifact** (§6 forbids a future

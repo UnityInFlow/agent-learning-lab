@@ -1,0 +1,38 @@
+34 runs fall into 34 distinct main-source diffs
+
+diff ed3c4a3e  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff 5b7e2355  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff 817d99dd  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 5aeddfd7  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff f5edc739  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff 5ab2b6ef  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff c5100154  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 02ee7d28  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff ce9e9436  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff c55bf52f  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff e9a5d879  n= 1  second reader {'null': 1}  codex {'1': 1}
+diff aebb33ee  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 0bcdbef0  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff f3922527  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 0ed6479b  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff d531f5dc  n= 1  second reader {'null': 1}  codex {'1': 1}
+diff c85bf931  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff c5b78744  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 4aaf232f  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 286b0e0f  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff b9ca57a6  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff 5e38d033  n= 1  second reader {'null': 1}  codex {'1': 1}
+diff ca252c18  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff 25054fdf  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 97503b43  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 0531d4a2  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 6ab606c0  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff ab3c0980  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 73c97afc  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 3f3f28f2  n= 1  second reader {'2': 1}  codex {'1': 1}
+diff e275b9e6  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 517a684e  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff fe96d8ec  n= 1  second reader {'1': 1}  codex {'1': 1}
+diff 21049ce1  n= 1  second reader {'2': 1}  codex {'1': 1}
+
+diff groups where the second reader disagrees with itself: 0
