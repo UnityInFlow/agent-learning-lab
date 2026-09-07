@@ -107,7 +107,7 @@ EXPECT_INSTRUCTIONS_HASH="sha256:51f16eeb1618cd212405818c5165dcba"   # the runne
 EXPECT_BE003_TREE="eeb15a753adc94e92bc3f74c50e1b02fc3b53030"
 EXPECT_MODEL="claude-haiku-4-5-20251001"
 EXPECT_CLAUDE="${EXPECT_CLAUDE:-2.1.263}"
-PRED_COMMIT="${PRED_COMMIT:-E009PRED}"
+PRED_COMMIT="${PRED_COMMIT:-1e189fc}"
 
 # 1. exactly one file, and it is CLAUDE.md. Counted, not assumed: a second file is how a
 #    "no split" cell becomes a split.
