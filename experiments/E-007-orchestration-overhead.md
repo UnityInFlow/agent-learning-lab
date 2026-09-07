@@ -776,6 +776,92 @@ so row 1 does not fire. Claim 1 is about the hypothesis' mechanism and is what m
 worth reading. **Wherever this file says "cheaper", read "not more expensive, and 13.4 % below the
 control's median at `n = 10`, which is inside the instrument's floor."**
 
+
+## Amendment 2026-09-07 — the counter that measured O1 can read zero for a run that delegated
+
+*Filed by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-07, from evidence produced by
+[`E-008`](E-008-fourth-cell-prose-without-split.md) §4 step 6. **No number, prediction or verdict
+in this file is edited.** E-007 remains `NOT DETECTABLE`, decision rule row 4.*
+
+**What E-008 observed.** In a plain-baseline run of E-008's control arm (`9043f824`, BE-003,
+`claude-haiku-4-5-20251001`, runtime 2.1.263 — the same model, task and runtime as this
+experiment), the model called the **built-in** `Explore` agent: a `tool_use` block with
+`"name":"Agent"` in the runner's stream, followed by the runtime's own
+`{"subtype":"task_started","subagent_type":"Explore","is_backgrounded":true,"spawn_depth":1}`.
+The observatory telemetry for that run id carries **24 events and zero** with
+`tool_name ∈ {Task, Agent}`.
+
+**Why it matters here.** O1 is *"delegation — `tool_result` events with `tool_name ∈ {Task,
+Agent}` per run, from the observatory telemetry"*, and its result is **arm O 10 of 10 vs arm C
+0 of 10**. The arm-O half is a positive detection and is unaffected: the counter saw those
+delegations, they happened, and O1's `p = 0.00001` rests on them. **The arm-C half is a
+zero from a counter now shown to miss a delegation of this shape** — built-in agent,
+backgrounded, result not emitted as a `tool_result` naming `Agent`. It is not blind in general;
+it is blind to that shape.
+
+**So the honest form of O1's control number is:** *no delegation to the installed `implementer`
+agent was recorded on any of the 10 control runs, and the counter used cannot rule out a call to
+a built-in agent on those runs.* Arm C's controls were never re-read from their streams. **That
+re-read is cheap and it is not done here** — this file's stop is closed and §6 forbids rewriting
+a closed result; it is listed in `HANDOFF.md` as a check somebody should run, and E-009's driver
+reads delegation from **both** sources so the successor does not inherit the gap.
+
+**What would change if a control delegation were found in those streams:** O1's magnitude, not
+its direction — the split still delegates on 10 of 10 and the plain arm does not delegate *to
+the treatment's worker*, which is what the independent variable is about. **The verdict does not
+move**; `NOT DETECTABLE` was decided by O2–O7, none of which reads O1's control cell.
+
+
+## Amendment 2026-09-07, second — the one effect this file detected IS the split, and the fourth cell is what says so
+
+*Filed by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-07, from
+[`E-009`](E-009-fourth-cell-second-registration.md), which ran the arm HANDOFF item 00c and
+validator passes 16-17 asked for. **No number, prediction or verdict in this file is edited.**
+E-007 remains `NOT DETECTABLE`, decision rule row 4.*
+
+**The question this answers.** Item 00c observed that arm O's registered treatment was the split
+*including* the worker's four lines of prose, and that the one detected effect - `test-quality`
+anchor 2 on 5 of 10 arm-O runs against 0 of 10 controls - might therefore be **E-003's result, a
+prose instruction, wearing E-007's treatment**. It named the deciding experiment: the same prose
+delivered as a plain `CLAUDE.md`, no orchestrator, no `.claude/agents/`, no split.
+
+**The result.** E-009, `n = 10` per arm on BE-003, same model, runtime, task, rubric and hash,
+delivery proved per run:
+
+| arm | `test-quality` anchor 2 |
+|---|---|
+| the prose alone, no split (E-009 arm F) | **0 of 10** |
+| its concurrent plain control | 1 of 10 |
+| **the split (this file's arm O)** | **5 of 10** |
+| this file's own concurrent control | 0 of 10 |
+
+Arm F against its control: `p = 1.0`. Arm F against arm O: `p = 0.0325`. Arm O against the two
+concurrent plain controls pooled (1 of 20): `p = 0.0088`; against the 48-run historical census of
+plain controls: `p = 0.0024`. **The prose alone lands inside the plain-baseline population on
+every comparison; the split lands outside all of them.**
+
+**So one sentence in this file is wrong, and it is not a number.** § Verdict says *"the split
+returned nothing the gate can see"*. The split returned something the **rubric** could see -
+a test that re-reads persisted state through a separate `get(...)` - and it is attributable to
+the decomposition, not to the words the decomposition carried. What the gate could not see it
+with was **this file's own decision rule**, which registered no row that reads `test-quality`:
+row 3 reads `maintainability`, and rows 1, 2, 4 and 5 read cost, duration and pass rate. The
+§ Revision section already recorded that `test-quality` moved; what was open was *why*, and it
+is now closed.
+
+**The verdict does not move, and here is why that is not a technicality.** `NOT DETECTABLE` was
+computed from O2-O7 against thresholds registered before the batch, and none of them reads
+`test-quality`. A verdict recomputed after the fact from an outcome nobody registered is exactly
+what §4 step 12 forbids. **The honest statement is: this experiment measured a real benefit of
+decomposition and had registered no way to say so** - which is a finding about the experiment's
+design, and it is the more useful half.
+
+**What is still not known.** Whether the return comes from the decomposition itself or from a
+worker reading the ticket in a fresh context; E-009 § Follow-up names the arm that would separate
+them, and it is the author's. And this is one task at one size: three files, about 65 added
+lines, one anchor clause. E-007's cost result - the split was 13 % *cheaper* against a registered
++60 % - is untouched by any of this.
+
 ## Observed telemetry
 
 *(after the run)*

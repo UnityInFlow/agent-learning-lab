@@ -21,7 +21,9 @@ closed 2026-09-05, stop 11 on 2026-09-06. **`backend-feature-implementer` v1.0 e
 promoted; stop 11 promoted nothing either — it is a Track A stop and builds no version.** Next is
 stop 12 (B5). **`benchmarks#29` was MERGED 2026-09-07T09:32:57Z at `eea144ef`, on the author's
 explicit instruction, so stop 12 is UNBLOCKED — and it is NOT YET OPENED.** No §4 step of it has
-run and no stop-12 artifact exists; opening it is the next session's first act. From stop 12 on,
+run and no stop-12 artifact exists. **Author decision 10.1's fourth cell HAS NOW RUN and is
+merged (E-008 void, E-009 closed, 2026-09-07)**, which was decision 10.1's precondition for
+stop 12 registering anything; opening stop 12 is the next session's first act. From stop 12 on,
 **author decision 9 governs: two tasks, BE-003 and BE-004, each its own experiment key, prediction
 commit, concurrent control, MDE table and §5 row, and no verdict computed across tasks.**
 
@@ -29,6 +31,62 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## The fourth cell has run, and E-007's one effect IS the split — 2026-09-07
+
+**Author decision 10.1 is discharged.** Item 00c below asked whether stop 11's only detected
+effect — `test-quality` anchor 2 on 5 of 10 split runs against 0 of 10 controls — was the
+decomposition or the four lines of prose the decomposition carried. It is **the decomposition**.
+
+| arm | `test-quality` anchor 2 |
+|---|---|
+| the implementer's prose as a plain `CLAUDE.md`, **no split** (E-009 arm F) | **0 of 10** |
+| its concurrent plain control | 1 of 10 — `p = 1.0`, no separation |
+| **the split (E-007 arm O)** | **5 of 10** — `p = 0.0325` against the prose arm |
+
+Arm O against the two concurrent plain controls pooled (1 of 20): `p = 0.0088`; against the
+48-run census of plain controls (3 of 48): `p = 0.0024`. Delivery proved per run —
+`instructionsHash` on 10 of 10 arm F, `null` on 10 of 10 controls — and 0 delegations in both
+sources on 20 of 20.
+
+**The registered prediction was mine and it is refuted.** I predicted the prose arm at 4–7 of 10
+and registered it as *most likely to be wrong in magnitude*. It was wrong in kind: 0 of 10.
+
+**E-007's verdict does not move and was not recomputed.** `NOT DETECTABLE` came from O2–O7, none
+of which reads `test-quality`. Two dated amendments are filed there instead. The sentence that
+is now wrong is *"the split returned nothing the gate can see"* — **the split returned something
+the rubric could see and E-007's own decision rule had no row for.** That is the first measured
+benefit of a customization in this track, and it arrived inside an experiment with no way to
+report it.
+
+**It took two registrations, and the first one is a void I caused.** E-008 registered a void
+condition reading *"any run with ≥ 1 delegation event"*; a plain **control** run then called the
+built-in `Explore` agent and the driver aborted the batch. The batch is VOID and stays void: the
+tool enforced the strict reading before any outcome was visible, and no score of it has been
+read. E-009 repeats the arm with the reading repaired **in a new registration** — arm-aware void,
+delegation read from two sources, and a `PAIRS` default that matches the registered `n`.
+
+**Two instrument findings, both larger than the cell:**
+
+1. **The observatory's delegation counter is blind to built-in, backgrounded sub-agents.** For
+   `9043f824` the telemetry reads 0 while the stream shows the `Agent` call plainly. That counter
+   produced E-007's *"arm C 0 of 10"*.
+2. **A plain baseline delegates rarely, not never** — 1 control run in 18, at 37 tool calls
+   against a median of 20 and 60 % more cost, still passing the evaluator.
+
+### What is BLOCKED ON YOU
+
+1. **E-007's ten control streams have never been re-read for built-in delegations.** Minutes of
+   work, but it touches a closed stop's recorded number, so it is yours. If one is found, O1's
+   magnitude moves and its direction does not, and E-007's verdict does not depend on that cell.
+2. **Budget.** Decision 10.1 estimated about 20 runs and about $3 for this cell. It cost **38
+   runs and about $6.3**, roughly double, because of my instrument faults — not because the
+   design grew.
+3. **The next cell, if you want it.** E-009 § Follow-up names the arm that would separate *the
+   decomposition* from *a worker reading the ticket in a fresh context*: the split with the
+   worker's prose stripped to a bare "implement the ticket". It is a new arm, so it is yours.
+4. Standing: **Decision H** is unamended (see the 2026-09-07 section below), and **stop 12 is now
+   free to open** — decision 10.1 required this cell merged first.
 
 ## benchmarks#29 is MERGED — stop 12 is unblocked and not yet opened, 2026-09-07
 
@@ -1334,8 +1392,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 72bf4d1 prose: 50d661942f46 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 72bf4d1 prose: 50d661942f46 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 950717a prose: 122ecbc07b36 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 950717a prose: 122ecbc07b36 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The

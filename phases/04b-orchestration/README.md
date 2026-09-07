@@ -852,3 +852,66 @@ findings/opencode/review-E-007-orchestration-overhead-20260906T184803Z.md   the 
 **NOT committed, and named here rather than left to be discovered:** the kept worktrees live under
 `$TMPDIR/observatory-run-<runId>` and macOS reaps them; the run records live only in the
 observatory database, which **has no backup** (HANDOFF item 00b).
+
+---
+
+## The fourth cell, run 2026-09-07 — and it changes what this stop's one effect means
+
+*Added by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-07. **This stop stays closed and
+its verdict stays `NOT DETECTABLE`.** What follows is a follow-up experiment ordered by author
+decision 10.1, registered and run after the stop closed, and it answers HANDOFF item 00c.*
+
+**The question.** Lab 4B.4 detected exactly one effect: `test-quality` anchor 2 on **5 of 10**
+arm-O runs against **0 of 10** controls. Arm O's treatment was the split **plus** the
+`implementer` agent's four lines of prose. So the effect might have been the prose — E-003's
+result wearing this stop's treatment.
+
+**Two experiments, because the first one voided itself.**
+
+| | E-008 | E-009 |
+|---|---|---|
+| arm | the implementer's prose as a plain `CLAUDE.md`, no split | identical |
+| outcome | **VOID**, decision rule row 0a | **closed**, row 2 |
+| why | a plain *control* run called the built-in `Explore` agent, and row 0a as registered voided on a delegation by *any* run | — |
+| runs | 16 + 2 read-back, all delivery-clean, evaluator 16 of 16 | 20, evaluator 20 of 20 |
+
+**The answer: the split, not the prose.**
+
+| arm | `test-quality` anchor 2 |
+|---|---|
+| the prose alone, no split | **0 of 10** |
+| its concurrent plain control | 1 of 10 (`p = 1.0` — no separation) |
+| **arm O, the split (this lab)** | **5 of 10** (`p = 0.0325` against the prose arm) |
+| this lab's own concurrent control | 0 of 10 |
+
+Arm O against the two concurrent plain controls pooled, 1 of 20: `p = 0.0088`. Against the
+48-run historical census of plain controls, 3 of 48: `p = 0.0024`. **The prose alone sits inside
+the plain-baseline population on every comparison; the split sits outside all of them.**
+
+**What this corrects in this workbook, and what it does not.** The Exit gate's *"the split
+returned nothing the gate can see"* is wrong as written: the split returned something the
+**rubric** could see — a test that re-reads persisted state through a separate `get(...)` — and
+**E-007's decision rule had no row that reads `test-quality`**. The registered verdict is
+unchanged and is not recomputed: `NOT DETECTABLE` came from O2–O7, none of which reads that
+category, and recomputing a verdict from an outcome nobody registered is what §4 step 12 forbids.
+**The honest form: this lab measured a real benefit of decomposition and had registered no way to
+say so.**
+
+**Two instrument findings came out of it, both bigger than the cell.**
+
+1. **The observatory's delegation counter is blind to built-in, backgrounded sub-agents.** For
+   E-008's control run `9043f824` the telemetry reads **0** delegation events while the runner's
+   own stream carries the `Agent` call plainly. That counter produced this lab's *"arm C 0 of
+   10"*. Its honest form is *no delegation to the installed `implementer` was recorded, and a
+   built-in call cannot be ruled out on those runs* — the arm-O half is a positive detection and
+   is unaffected. **The ten control streams here have never been re-read**; that is in
+   `blocked_on_author`.
+2. **A plain baseline delegates rarely, not never.** 1 control run in 18 across both
+   registrations reached for the built-in `Explore` agent, at 37 tool calls against a median of
+   about 20 and 60 % more cost, and still passed the evaluator. E-008's P6 predicted 0 of 20 on
+   the reasoning that *a session with nothing to delegate to does not delegate*; both arms'
+   `init` records list **five built-in agents**.
+
+**Where it lives:** [`experiments/E-008-fourth-cell-prose-without-split.md`](../../experiments/E-008-fourth-cell-prose-without-split.md)
+(void, kept) and [`experiments/E-009-fourth-cell-second-registration.md`](../../experiments/E-009-fourth-cell-second-registration.md)
+(the result and its §5 table), evidence under `evidence/p04b/lab-4b4/fourth-cell/`.

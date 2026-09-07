@@ -16,3 +16,6 @@ evidence/**/wt-*/
 
 # The E-007 batch driver's PID lockfile: runtime state, never evidence.
 evidence/p04b/lab-4b4/.batch.lock
+
+# The E-008 fourth-cell batch driver's PID lockfile: runtime state, never evidence.
+evidence/p04b/lab-4b4/fourth-cell/.batch.lock

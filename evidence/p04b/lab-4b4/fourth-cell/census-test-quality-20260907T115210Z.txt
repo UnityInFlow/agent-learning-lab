@@ -1,0 +1,26 @@
+Error parsing /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/findings/codex/score-good-nested-ifs-20260905T192000Z.yaml: 'NoneType' object has no attribute 'get'
+Error parsing /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/findings/codex/score-good-nested-ifs-20260905T192528Z.yaml: 'NoneType' object has no attribute 'get'
+Fetching run data from API...
+
+(a) 120 total sheets; 25 fixtures; 0 duplicates
+(b) experimentKey, variant, benchmarkId, model (from runtime.model or top-level model)
+(c) /private/tmp/claude-501/-Users-jirihermann-Documents-workspace-1-ideas-ai-agents-ai-learning/27119827-25dd-4a71-831c-4ba43267f578/scratchpad/tq.py
+experimentKey | variant | benchmarkId | model | n runs | tq=0 | tq=1 | tq=2 | tq=null | run ids with tq=2
+------------------------------------------------------------------------------------------------------------------------------------------------------
+EXP-4B-ORCH-OVERHEAD | baseline-e007-window | BE-003 | claude-haiku-4-5-20251001 | 10 | 0 | 10 | 0 | 0 | 
+EXP-4B-ORCH-OVERHEAD | orchestration-4b4-P1 | BE-003 | claude-haiku-4-5-20251001 | 10 | 0 | 5 | 5 | 0 | 1f806f3d,207ff23d,2744a92c,beae5092,da442dd9
+EXP-B2-BASELINE-CLAUDE | baseline | BE-003 | claude-haiku-4-5-20251001 | 5 | 0 | 5 | 0 | 0 | 
+EXP-B2-CONTAM-ISOLATED | baseline | BE-003 | claude-haiku-4-5-20251001 | 1 | 0 | 1 | 0 | 0 | 
+EXP-B2-REHEARSAL-CLAUDE | baseline | BE-003 | claude-haiku-4-5-20251001 | 1 | 0 | 1 | 0 | 0 | 
+EXP-B2-REHEARSAL-CODEX | baseline | BE-003 | gpt-5.6-sol | 1 | 0 | 0 | 1 | 0 | 514b094e
+EXP-B3-CONTROL-CLAUDE | baseline | BE-003 | claude-haiku-4-5-20251001 | 10 | 0 | 8 | 2 | 0 | 7695d0d1,ea2fcaa8
+EXP-B3-INSTRUCTIONS-CLAUDE | instructions | BE-003 | claude-haiku-4-5-20251001 | 10 | 0 | 5 | 1 | 4 | e994ede0
+EXP-B4-AGENT-BOUNDARY | agent-v1.0 | BE-003 | claude-haiku-4-5-20251001 | 10 | 0 | 10 | 0 | 0 | 
+EXP-B4-AGENT-BOUNDARY | baseline | BE-003 | claude-haiku-4-5-20251001 | 10 | 0 | 8 | 1 | 1 | 502bf6f1
+EXP-B4-DELIBERATE-NOTOOLS | agent-v1.0-notools | BE-003 | claude-haiku-4-5-20251001 | 5 | 0 | 4 | 1 | 0 | e8d881b9
+EXP-B4-DELIBERATE-NOTOOLS | baseline-armG-window | BE-003 | claude-haiku-4-5-20251001 | 5 | 0 | 5 | 0 | 0 | 
+EXP-CODEX-TOKENS | baseline | BE-003 | gpt-5.6-sol | 1 | 0 | 0 | 1 | 0 | 38e6a3df
+EXP-P3-SKILL-DESC | baseline | BE-003 | claude-haiku-4-5-20251001 | 5 | 0 | 5 | 0 | 0 | 
+EXP-P3-SKILL-DESC | skill-matched | BE-003 | claude-haiku-4-5-20251001 | 5 | 0 | 5 | 0 | 0 | 
+EXP-P3-SKILL-DESC | skill-misdescribed | BE-003 | claude-haiku-4-5-20251001 | 5 | 0 | 5 | 0 | 0 | 
+EXP-SHIM-CONTROL | baseline | BE-003 | claude-haiku-4-5-20251001 | 1 | 0 | 1 | 0 | 0 | 

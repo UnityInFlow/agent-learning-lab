@@ -1,0 +1,14 @@
+# E-008 fourth cell 20260907T122828Z  key=EXP-4B-FOURTH-CELL pairs=5 start=6
+# overlay CLAUDE.md 51f16eeb1618cd21 (runner form sha256:51f16eeb1618cd212405818c5165dcba) = implementer.md lines 7-, verbatim
+# BE-003 tree eeb15a753adc94e92bc3f74c50e1b02fc3b53030 at benchmarks eea144e · claude 2.1.263 · model claude-haiku-4-5-20251001
+# prediction commit b952e8c at 2026-09-07T13:56:51+02:00
+# common:       RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-4B-FOURTH-CELL MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1 API_PORT=18081 OTLP_HTTP_PORT=14318 OTLP_GRPC_PORT=14317 TEMPO_PORT=13200
+# arm F adds:   CUSTOMIZATION=../agent-learning-lab/build/customizations/implementer-prose-4b4 VARIANT=implementer-prose-4b4
+# control adds: VARIANT=baseline-e008-window
+seq	arm	run_id	exit	worktree	instructions_hash	delegations
+06	F	1b824221-2751-40b7-b0a4-3b9c76719019	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1b824221-2751-40b7-b0a4-3b9c76719019	sha256:51f16eeb1618cd212405818c5165dcba	0
+06	control	58e44b57-d9ad-416f-92a8-d1d20b5e75b1	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-58e44b57-d9ad-416f-92a8-d1d20b5e75b1	null	0
+07	F	5b3aeace-eb34-449f-8018-f4ef9b230a54	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5b3aeace-eb34-449f-8018-f4ef9b230a54	sha256:51f16eeb1618cd212405818c5165dcba	0
+07	control	137fa43b-6e4b-4be1-9ead-b3e9c34c698c	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-137fa43b-6e4b-4be1-9ead-b3e9c34c698c	null	0
+08	F	e38838f8-ca48-42ca-8b34-f4360849f0f8	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e38838f8-ca48-42ca-8b34-f4360849f0f8	sha256:51f16eeb1618cd212405818c5165dcba	0
+08	control	9043f824-370d-4de7-a213-8680c67c50ed	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9043f824-370d-4de7-a213-8680c67c50ed	null	1

@@ -1,0 +1,48 @@
+# 16 rows from 2 manifest(s) — registered n is 10 per arm; this is n = 8 per arm
+E-008 (EXP-4B-FOURTH-CELL, VOID) per-arm, n = 8 per arm, from http://127.0.0.1:18081
+
+seq arm      run       model                       ver     instrHash                             eval estimatedCost    durationS   modelCalls    toolCalls  inOutTokens cachedTokens   addedLines changedFiles
+01  F        582c0b39  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1707          103           24           19         9001    7.751e+05           66            3
+01  control  8b550ebe  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1421           87           17           17         8727    5.313e+05           64            3
+02  F        ec338c89  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1638           98           25           21         8007    7.717e+05           73            3
+02  control  8ffecb65  claude-haiku-4-5-20251001   2.1.263 null                                  0            0.141           86           21           17         8663    5.993e+05           65            3
+03  F        2b9ff36c  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1686          106           25           20         8574    7.708e+05           76            3
+03  control  bcdd01f8  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1863          127           25           23         9318    8.414e+05           68            3
+04  F        e87e272b  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1492           77           21           17         7937     6.32e+05           68            3
+04  control  7525fad5  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1332           84           17           16         8081    4.998e+05           84            3
+05  F        178eec3f  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1493           85           21           17         8575     6.38e+05           65            3
+05  control  5c76c344  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1713          103           25           21         8188    7.949e+05           66            3
+06  F        1b824221  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1782          110           26           22         8833    8.571e+05           83            3
+06  control  58e44b57  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1719          133           23           19         9004     7.39e+05           66            3
+07  F        5b3aeace  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1953          108           28           24         9545    9.215e+05           68            3
+07  control  137fa43b  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1601           92           24           21         8272    7.456e+05           67            3
+08  F        e38838f8  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1552           98           22           17         9283      6.5e+05           63            3
+08  control  9043f824  claude-haiku-4-5-20251001   2.1.263 null                                  0            0.227          125           31           37    1.292e+04    8.866e+05           69            3
+
+PER ARM, n = 8 each: median (q1–q3, range)
+  estimatedCost    F           0.1662 (0.1522–0.1745, 0.1492–0.1953)   control     0.1657 (0.1415–0.1791, 0.1332–0.227)   delta +0.3 %
+  durationS        F            100.5 (91.5–107, 77–110)   control       97.5 (86.5–126, 84–133)   delta +3.1 %
+  modelCalls       F             24.5 (21.5–25.5, 21–28)   control       23.5 (19–25, 17–31)   delta +4.3 %
+  toolCalls        F             19.5 (17–21.5, 17–24)   control         20 (17–22, 16–37)   delta -2.5 %
+  inOutTokens      F             8704 (8290–9142, 7937–9545)   control       8695 (8230–9161, 8081–1.292e+04)   delta +0.1 %
+  cachedTokens     F        7.713e+05 (6.44e+05–8.161e+05, 6.32e+05–9.215e+05)   control  7.423e+05 (5.653e+05–8.182e+05, 4.998e+05–8.866e+05)   delta +3.9 %
+  addedLines       F               68 (65.5–74.5, 63–83)   control       66.5 (65.5–68.5, 64–84)   delta +2.3 %
+  changedFiles     F                3 (3–3, 3–3)   control          3 (3–3, 3–3)   delta +0.0 %
+
+delegation events per run from ../agent-observatory/infra/telemetry-out/events.jsonl (lines carrying the run id; tool_name/name in {Task, Agent})
+  01 F        582c0b39  events    19  delegation 0
+  01 control  8b550ebe  events    15  delegation 0
+  02 F        ec338c89  events    18  delegation 0
+  02 control  8ffecb65  events    14  delegation 0
+  03 F        2b9ff36c  events    19  delegation 0
+  03 control  bcdd01f8  events    21  delegation 0
+  04 F        e87e272b  events    15  delegation 0
+  04 control  7525fad5  events    14  delegation 0
+  05 F        178eec3f  events    14  delegation 0
+  05 control  5c76c344  events    19  delegation 0
+  06 F        1b824221  events    20  delegation 0
+  06 control  58e44b57  events    23  delegation 0
+  07 F        5b3aeace  events    21  delegation 0
+  07 control  137fa43b  events    18  delegation 0
+  08 F        e38838f8  events    16  delegation 0
+  08 control  9043f824  events    24  delegation 0

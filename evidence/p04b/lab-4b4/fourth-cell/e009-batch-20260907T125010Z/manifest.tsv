@@ -1,0 +1,28 @@
+# E-009 fourth cell 20260907T125010Z  key=EXP-4B-FOURTH-CELL-2 pairs=10 start=1
+# overlay CLAUDE.md 51f16eeb1618cd21 (runner form sha256:51f16eeb1618cd212405818c5165dcba) = implementer.md lines 7-, verbatim
+# BE-003 tree eeb15a753adc94e92bc3f74c50e1b02fc3b53030 at benchmarks eea144e · claude 2.1.263 · model claude-haiku-4-5-20251001
+# prediction commit 1e189fc at 2026-09-07T14:49:35+02:00
+# common:       RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-4B-FOURTH-CELL-2 MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1 API_PORT=18081 OTLP_HTTP_PORT=14318 OTLP_GRPC_PORT=14317 TEMPO_PORT=13200
+# arm F adds:   CUSTOMIZATION=../agent-learning-lab/build/customizations/implementer-prose-4b4 VARIANT=implementer-prose-4b4
+# control adds: VARIANT=baseline-e008-window
+seq	arm	run_id	exit	worktree	instructions_hash	deleg_stream	deleg_telemetry
+01	F	efe48ffc-8e18-4cab-8bc9-c01ad5a4175b	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-efe48ffc-8e18-4cab-8bc9-c01ad5a4175b	sha256:51f16eeb1618cd212405818c5165dcba	0	0
+01	control	ce630aed-c68a-41b7-8182-7a2c0a2906dc	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-ce630aed-c68a-41b7-8182-7a2c0a2906dc	null	0	0
+02	F	474fb3ea-3fec-4b7e-9458-e6d2a9873fb6	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-474fb3ea-3fec-4b7e-9458-e6d2a9873fb6	sha256:51f16eeb1618cd212405818c5165dcba	0	0
+02	control	21c21018-1494-453c-89c4-03346c6f229b	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-21c21018-1494-453c-89c4-03346c6f229b	null	0	0
+03	F	867d5b2c-3caa-4e57-9824-4d6995ad935c	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-867d5b2c-3caa-4e57-9824-4d6995ad935c	sha256:51f16eeb1618cd212405818c5165dcba	0	0
+03	control	99a43552-0348-476e-b107-1a63afc5d715	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-99a43552-0348-476e-b107-1a63afc5d715	null	0	0
+04	F	19b48d40-d59d-4e4e-aeb7-f2b5eb6b136c	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-19b48d40-d59d-4e4e-aeb7-f2b5eb6b136c	sha256:51f16eeb1618cd212405818c5165dcba	0	0
+04	control	9f88527f-d51a-4cfd-9a97-b1b9a23f7d36	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9f88527f-d51a-4cfd-9a97-b1b9a23f7d36	null	0	0
+05	F	52ba65fa-5f86-4315-a3ac-47ad8a48bec5	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-52ba65fa-5f86-4315-a3ac-47ad8a48bec5	sha256:51f16eeb1618cd212405818c5165dcba	0	0
+05	control	3e721954-80c7-4388-8702-c986ad22e1be	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3e721954-80c7-4388-8702-c986ad22e1be	null	0	0
+06	F	7175cc44-e322-44d2-8a2a-9a5dd1cce71f	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-7175cc44-e322-44d2-8a2a-9a5dd1cce71f	sha256:51f16eeb1618cd212405818c5165dcba	0	0
+06	control	66ddf446-b705-465a-a6f2-c0ba2e78ebe2	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-66ddf446-b705-465a-a6f2-c0ba2e78ebe2	null	0	0
+07	F	e368c3e1-7733-42e5-b9bf-ab7a755247de	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e368c3e1-7733-42e5-b9bf-ab7a755247de	sha256:51f16eeb1618cd212405818c5165dcba	0	0
+07	control	dacb9838-695e-4161-a598-eced84d0715e	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-dacb9838-695e-4161-a598-eced84d0715e	null	0	0
+08	F	fc12cdc6-1497-4388-8201-f8b38ef28bca	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-fc12cdc6-1497-4388-8201-f8b38ef28bca	sha256:51f16eeb1618cd212405818c5165dcba	0	0
+08	control	5c93586e-d257-4cc1-b2e3-32617199984a	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5c93586e-d257-4cc1-b2e3-32617199984a	null	0	0
+09	F	f80e4db3-9824-45af-b1cc-b9f1ffd3d873	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f80e4db3-9824-45af-b1cc-b9f1ffd3d873	sha256:51f16eeb1618cd212405818c5165dcba	0	0
+09	control	088451a1-dbf2-4b90-8d5b-bc5bce3c79b3	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-088451a1-dbf2-4b90-8d5b-bc5bce3c79b3	null	0	0
+10	F	3f978191-a1f7-4d33-bc1c-bee4164ebd04	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3f978191-a1f7-4d33-bc1c-bee4164ebd04	sha256:51f16eeb1618cd212405818c5165dcba	0	0
+10	control	182df867-676d-4c95-85d1-81d45b8608c8	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-182df867-676d-4c95-85d1-81d45b8608c8	null	0	0

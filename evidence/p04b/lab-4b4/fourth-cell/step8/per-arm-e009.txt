@@ -1,0 +1,56 @@
+# 20 rows from 1 manifest(s) — registered n is 10 per arm; this is n = 10 per arm
+E-009 (EXP-4B-FOURTH-CELL-2) per-arm, n = 10 per arm, from http://127.0.0.1:18081
+
+seq arm      run       model                       ver     instrHash                             eval estimatedCost    durationS   modelCalls    toolCalls  inOutTokens cachedTokens   addedLines changedFiles
+01  F        efe48ffc  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1691           93           23           19         9716     7.25e+05           83            3
+01  control  ce630aed  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1656          124           25           23         8197    7.977e+05           72            3
+02  F        474fb3ea  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1475           81           22           18         7494    6.663e+05           78            3
+02  control  21c21018  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1613           88           23           19         8769     7.17e+05           81            3
+03  F        867d5b2c  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1542           97           24           20         8055    7.329e+05           58            3
+03  control  99a43552  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1629           94           22           18         9806    6.841e+05           62            3
+04  F        19b48d40  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0            0.135           83           17           17         7046     5.38e+05           73            3
+04  control  9f88527f  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1522           97           21           19         7701    6.464e+05           61            3
+05  F        52ba65fa  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1524           82           23           19         8135    6.822e+05           63            3
+05  control  3e721954  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1547           90           24           22         7572    7.421e+05           64            3
+06  F        7175cc44  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1333           79           20           16         7554    5.836e+05           68            3
+06  control  66ddf446  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1271           70           19           16         7040     5.46e+05           64            3
+07  F        e368c3e1  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1547           94           23           19         8082    7.064e+05           58            3
+07  control  dacb9838  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1101           75           11           14         8288    2.929e+05           84            3
+08  F        fc12cdc6  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1837          114           26           23         9359     8.61e+05           64            3
+08  control  5c93586e  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1281           72           19           15         7074    5.539e+05           68            3
+09  F        f80e4db3  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1524           85           21           17         8330    6.438e+05           63            3
+09  control  088451a1  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1333           78           20           18         7079    5.856e+05           67            3
+10  F        3f978191  claude-haiku-4-5-20251001   2.1.263 sha256:51f16eeb1618cd212405818c5165dcba0           0.1809          115           27           23         8350    8.669e+05           64            3
+10  control  182df867  claude-haiku-4-5-20251001   2.1.263 null                                  0           0.1757          110           24           20         9503    7.639e+05           82            3
+
+PER ARM, n = 10 each: median (q1–q3, range)
+  estimatedCost    F           0.1533 (0.1475–0.1691, 0.1333–0.1837)   control     0.1535 (0.1281–0.1629, 0.1101–0.1757)   delta -0.1 %
+  durationS        F               89 (82–97, 79–115)   control         89 (75–97, 70–124)   delta +0.0 %
+  modelCalls       F               23 (21–24, 17–27)   control       21.5 (19–24, 11–25)   delta +7.0 %
+  toolCalls        F               19 (17–20, 16–23)   control       18.5 (16–20, 14–23)   delta +2.7 %
+  inOutTokens      F             8108 (7554–8350, 7046–9716)   control       7949 (7079–8769, 7040–9806)   delta +2.0 %
+  cachedTokens     F        6.943e+05 (6.438e+05–7.329e+05, 5.38e+05–8.669e+05)   control  6.652e+05 (5.539e+05–7.421e+05, 2.929e+05–7.977e+05)   delta +4.4 %
+  addedLines       F               64 (63–73, 58–83)   control       67.5 (64–81, 61–84)   delta -5.2 %
+  changedFiles     F                3 (3–3, 3–3)   control          3 (3–3, 3–3)   delta +0.0 %
+
+delegation events per run from ../agent-observatory/infra/telemetry-out/events.jsonl (lines carrying the run id; tool_name/name in {Task, Agent})
+  01 F        efe48ffc  events    16  delegation 0
+  01 control  ce630aed  events    21  delegation 0
+  02 F        474fb3ea  events    17  delegation 0
+  02 control  21c21018  events    16  delegation 0
+  03 F        867d5b2c  events    18  delegation 0
+  03 control  99a43552  events    16  delegation 0
+  04 F        19b48d40  events    16  delegation 0
+  04 control  9f88527f  events    17  delegation 0
+  05 F        52ba65fa  events    16  delegation 0
+  05 control  3e721954  events    17  delegation 0
+  06 F        7175cc44  events    14  delegation 0
+  06 control  66ddf446  events    14  delegation 0
+  07 F        e368c3e1  events    18  delegation 0
+  07 control  dacb9838  events    11  delegation 0
+  08 F        fc12cdc6  events    21  delegation 0
+  08 control  5c93586e  events    15  delegation 0
+  09 F        f80e4db3  events    15  delegation 0
+  09 control  088451a1  events    16  delegation 0
+  10 F        3f978191  events    23  delegation 0
+  10 control  182df867  events    20  delegation 0
