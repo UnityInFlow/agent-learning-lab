@@ -811,6 +811,57 @@ its direction — the split still delegates on 10 of 10 and the plain arm does n
 the treatment's worker*, which is what the independent variable is about. **The verdict does not
 move**; `NOT DETECTABLE` was decided by O2–O7, none of which reads O1's control cell.
 
+
+## Amendment 2026-09-07, second — the one effect this file detected IS the split, and the fourth cell is what says so
+
+*Filed by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-07, from
+[`E-009`](E-009-fourth-cell-second-registration.md), which ran the arm HANDOFF item 00c and
+validator passes 16-17 asked for. **No number, prediction or verdict in this file is edited.**
+E-007 remains `NOT DETECTABLE`, decision rule row 4.*
+
+**The question this answers.** Item 00c observed that arm O's registered treatment was the split
+*including* the worker's four lines of prose, and that the one detected effect - `test-quality`
+anchor 2 on 5 of 10 arm-O runs against 0 of 10 controls - might therefore be **E-003's result, a
+prose instruction, wearing E-007's treatment**. It named the deciding experiment: the same prose
+delivered as a plain `CLAUDE.md`, no orchestrator, no `.claude/agents/`, no split.
+
+**The result.** E-009, `n = 10` per arm on BE-003, same model, runtime, task, rubric and hash,
+delivery proved per run:
+
+| arm | `test-quality` anchor 2 |
+|---|---|
+| the prose alone, no split (E-009 arm F) | **0 of 10** |
+| its concurrent plain control | 1 of 10 |
+| **the split (this file's arm O)** | **5 of 10** |
+| this file's own concurrent control | 0 of 10 |
+
+Arm F against its control: `p = 1.0`. Arm F against arm O: `p = 0.0325`. Arm O against the two
+concurrent plain controls pooled (1 of 20): `p = 0.0088`; against the 48-run historical census of
+plain controls: `p = 0.0024`. **The prose alone lands inside the plain-baseline population on
+every comparison; the split lands outside all of them.**
+
+**So one sentence in this file is wrong, and it is not a number.** § Verdict says *"the split
+returned nothing the gate can see"*. The split returned something the **rubric** could see -
+a test that re-reads persisted state through a separate `get(...)` - and it is attributable to
+the decomposition, not to the words the decomposition carried. What the gate could not see it
+with was **this file's own decision rule**, which registered no row that reads `test-quality`:
+row 3 reads `maintainability`, and rows 1, 2, 4 and 5 read cost, duration and pass rate. The
+§ Revision section already recorded that `test-quality` moved; what was open was *why*, and it
+is now closed.
+
+**The verdict does not move, and here is why that is not a technicality.** `NOT DETECTABLE` was
+computed from O2-O7 against thresholds registered before the batch, and none of them reads
+`test-quality`. A verdict recomputed after the fact from an outcome nobody registered is exactly
+what §4 step 12 forbids. **The honest statement is: this experiment measured a real benefit of
+decomposition and had registered no way to say so** - which is a finding about the experiment's
+design, and it is the more useful half.
+
+**What is still not known.** Whether the return comes from the decomposition itself or from a
+worker reading the ticket in a fresh context; E-009 § Follow-up names the arm that would separate
+them, and it is the author's. And this is one task at one size: three files, about 65 added
+lines, one anchor clause. E-007's cost result - the split was 13 % *cheaper* against a registered
++60 % - is untouched by any of this.
+
 ## Observed telemetry
 
 *(after the run)*

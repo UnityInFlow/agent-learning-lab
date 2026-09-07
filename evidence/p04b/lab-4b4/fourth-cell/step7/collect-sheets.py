@@ -50,7 +50,7 @@ h = f"{'run':9} {'arm':4} " + " ".join(f"{c[:13]:>13}" for c in CATS)
 print(h); print('-' * len(h))
 for rid, a, sc, _ in sorted(rows, key=lambda r: r[1], reverse=True):
     print(f"{rid[:8]:9} {a:4} " + " ".join(f"{sc[c]:>13}" for c in CATS))
-print('\nPER-ARM, n = 10 each (median; nulls counted separately, never as 0). E-008 P1 is the COUNT of test-quality == 2 per arm, printed below the raw rows.')
+print('\nPER-ARM, n = 10 each (median; nulls counted separately, never as 0). the registered outcome is the COUNT of test-quality == 2 per arm, printed below the raw rows.')
 for c in CATS:
     out = f"  {c:26}"
     for a in ('F', 'C'):
@@ -63,7 +63,7 @@ for c in CATS:
     for a in ('F', 'C'):
         print(f"  {c:26} {a}: " + ' '.join(sc[c] for _, aa, sc, _ in rows if aa == a))
 
-print('\nE-008 P1 — test-quality anchor 2 COUNT per arm (null counted as not-2, reported)')
+print('\ntest-quality anchor 2 COUNT per arm (null counted as not-2, reported)')
 for a in ('F', 'C'):
     two = sum(1 for _, aa, sc, _ in rows if aa == a and sc['test-quality'] == '2')
     nul = sum(1 for _, aa, sc, _ in rows if aa == a and sc['test-quality'] == 'null')

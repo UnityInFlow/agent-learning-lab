@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality.yaml
+  rubric_sha:     396e1799eb2b
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-7175cc44-e322-44d2-8a2a-9a5dd1cce71f
+  mode:           run
+  run_id:         7175cc44-e322-44d2-8a2a-9a5dd1cce71f
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:18081/api/runs/7175cc44-e322-44d2-8a2a-9a5dd1cce71f
+  attachments:    3 changed file(s), 3 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260907T133920Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "Both refusals throw existing ApiException subclasses; no error body is constructed"
+    evidence: "ShipmentController.kt:52, ShipmentController.kt:59"
+  - name: "maintainability"
+    score: 2
+    anchor_level: 2
+    reason: "A returned when expression handles status without an else branch"
+    evidence: "ShipmentController.kt:57"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Repeat body and refusal envelope are asserted, but persisted state is not re-read"
+    evidence: "ShipmentControllerTest.kt:98, ShipmentControllerTest.kt:114"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "The baseline controller documentation outside confirm was removed"
+    evidence: "baseline/ShipmentController.kt:14, ShipmentController.kt:13"
+ambiguous_categories: []
