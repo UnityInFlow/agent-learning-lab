@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""E-008 per-arm report from the API (the registered report tool baseline-report.py is
+"""E-008 / E-009 per-arm report from the API (the registered report tool baseline-report.py is
 single-arm and pools both arms under one key — E-007 §4 step 8 recorded that), plus P6's
 delegation count from the observatory telemetry file.
 
@@ -7,7 +7,7 @@ delegation count from the observatory telemetry file.
 
 Two manifests (pairs 01-05 and 06-10) are given comma-separated; see E-008's instrument-fault note.
 """
-import sys, json, re, statistics as st, urllib.request
+import sys, os, json, re, statistics as st, urllib.request
 API = 'http://127.0.0.1:18081'
 manifests = sys.argv[1].split(','); events = sys.argv[2] if len(sys.argv) > 2 else None
 runs = []
@@ -38,7 +38,8 @@ metrics = {
   'addedLines': lambda d: d['result']['addedLines'],
   'changedFiles': lambda d: len(d['result']['changedFiles']),
 }
-print(f'E-008 per-arm, n = {N} per arm, from {API}\n')
+LABEL = os.environ.get('LAB_EXP_LABEL', 'fourth cell')
+print(f'{LABEL} per-arm, n = {N} per arm, from {API}\n')
 print(f"{'seq':4}{'arm':9}{'run':10}{'model':28}{'ver':8}{'instrHash':38}{'eval':5}" + ''.join(f'{m:>13}' for m in metrics))
 for seq, arm, rid in runs:
     d = recs[rid]
@@ -56,7 +57,7 @@ for m, f in metrics.items():
     out += f'   delta {(fv-cv)/cv*100:+.1f} %' if cv else ''
     print(out)
 if events:
-    print(f'\nP6 — delegation events per run from {events} (lines carrying the run id; tool_name/name in {{Task, Agent}})')
+    print(f'\ndelegation events per run from {events} (lines carrying the run id; tool_name/name in {{Task, Agent}})')
     pat = re.compile(r'"(tool_name|name)"\s*:\s*"(Task|Agent)"')
     tot = {rid: 0 for _, _, rid in runs}; deleg = {rid: 0 for _, _, rid in runs}
     with open(events, errors='replace') as fh:
