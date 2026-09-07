@@ -3,7 +3,7 @@
 > **Fill in everything down to and including Predictions BEFORE the first run.**
 > Commit it, and check the commit timestamp precedes the first run's `startedAt`.
 
-**Status: registered, no run on the key.** Follow-up experiment of
+**Status: batch complete 2026-09-07T12:25Z, 20 of 20 admitted; scoring in progress.** Follow-up experiment of
 [`E-007`](E-007-orchestration-overhead.md), ordered by **author decision 10.1** (§3 of the
 Track B prompt, prompt sha `92d4f1e3332d`), which names the arm, the `n`, the delivery route,
 the registered outcome and the two readings; this file registers the numbers. Spine stop 11
@@ -289,6 +289,32 @@ other way.
 
 **The batch may start.** Nothing of this lab's was running (`LC_ALL=C pgrep`: empty) and the
 tunnels were up.
+
+## §4 step 6 — the batch, recorded 2026-09-07T12:03:34–12:25:15Z
+
+Key `EXP-4B-FOURTH-CELL`, 5 pairs, interleaved F then control, driver
+`evidence/p04b/lab-4b4/fourth-cell/run-e008.sh` (pid 92533 under `caffeinate -i`), manifest
+`evidence/p04b/lab-4b4/fourth-cell/batch-20260907T120334Z/manifest.tsv`, driver exit 0,
+21 min 41 s wall clock. No machine sleep; nothing else of this lab's ran (the only lab process
+during the window was the one `git commit`/`git push` of the hand re-read at 12:09Z, which runs
+no model and is disclosed here rather than left to be found). `events.jsonl` grew
+8 362 794 → 9 544 094 bytes (+1.18 MB), so telemetry flowed for the whole batch.
+
+| pair | arm F run | exit | `instructionsHash` | deleg. | control run | exit | `instructionsHash` | deleg. |
+|---|---|---|---|---|---|---|---|---|
+| 01 | `582c0b39` | 0 | `sha256:51f16eeb…` | 0 | `8b550ebe` | 0 | `null` | 0 |
+| 02 | `ec338c89` | 0 | `sha256:51f16eeb…` | 0 | `8ffecb65` | 0 | `null` | 0 |
+| 03 | `2b9ff36c` | 0 | `sha256:51f16eeb…` | 0 | `bcdd01f8` | 0 | `null` | 0 |
+| 04 | `e87e272b` | 0 | `sha256:51f16eeb…` | 0 | `7525fad5` | 0 | `null` | 0 |
+| 05 | `178eec3f` | 0 | `sha256:51f16eeb…` | 0 | `5c76c344` | 0 | `null` | 0 |
+
+**Row 0a did not fire**: 10 of 10 arm-F records carry the registered hash
+(`sha256:51f16eeb1618cd212405818c5165dcba`, read back from the API by the driver and re-read
+at step 7), 10 of 10 controls carry `null`, 20 of 20 runs show 0 delegation events in their
+streams, and the evaluator passed **20 of 20**. Every run is admitted to scoring. **P5 and P6
+held on all 20 runs.**
+
+Worktrees kept under `$TMPDIR/observatory-run-<runId>` for all 20 (paths in the manifest).
 
 ---
 *Everything below is filled in AFTER the runs.*
