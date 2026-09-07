@@ -139,6 +139,21 @@ jobs:
       - name: The freshness check still rejects
         run: ./tools/verify-board-freshness-checker.sh
 
+  phase-contract:
+    name: a narrated phase is not a phase
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      # B5's gate is "phase markers observable in the transcript, no code written before
+      # DESIGN". The first half is greppable and the second half is not: an agent can edit
+      # the repository in turn two and print all six markers in its closing message, and a
+      # checker that reads the final text reports six of six and passes it. That run is the
+      # plain baseline wearing phase markers, and it is the arm this job exists to make
+      # impossible to score as a treatment. Case C is that exact transcript.
+      - name: The phase-contract check still rejects a narrated run
+        run: ./tools/verify-phase-contract-checker.sh
+
   run-gate:
     name: a gate-failing run is not scored
     runs-on: ubuntu-latest
