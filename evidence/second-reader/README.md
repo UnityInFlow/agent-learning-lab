@@ -188,15 +188,34 @@ another task or another rubric — and the one rubric it will next meet, BE-004'
   every number they report is unmoved. Stop 10 stays `INCONCLUSIVE`, stop 11 stays `NOT DETECTABLE`.
   Nor does it change any *other* category: three of four agree 34/34, which is also the reason to
   believe the batch ran correctly at all.
+- **This is not a new finding. It is a recorded one, confirmed at seven times the `n` and
+  adjudicated.** `agent-learning-lab/CLAUDE.md` has said since 2026-09-01, at `n = 5`: *"Where they
+  disagreed, opencode's fact was wrong"* — naming **a deleted class KDoc on one run and a new
+  `ErrorCode` constant in a second attached file on two others**, which are the same two causes this
+  batch finds at `n = 34`. It also already names the harness behaviour: opencode *"named methods and
+  cited one tree"* where the anchor says *"cite the line in both trees"*, called a property of the
+  harness at four occurrences and an argument **for** Decision C. **Any claim here to have exposed
+  something new would be false**, and an earlier draft of this file made exactly that claim — that
+  the previous concordance was *"taken on a set too small to expose this"*. The set was small; it
+  exposed it anyway. What this batch adds is scale (3 of 5 → 18 of 34), a direction that is
+  **uniform** across all 18, and an adjudication against both anchors on all 34 that turns
+  *"opencode's fact was wrong"* from a reading of three diffs into a rule-based verdict on every run
+  in the set.
+- **What that record left open is now closed.** CLAUDE.md called the score itself a live question —
+  *"whether that deserves 1 or 2 is a live rubric question — a required enum constant is arguably
+  part of the change — and it belongs in a rubric round"*. It does not need a rubric round. Anchor 2
+  requires that **only** `confirm` and its by-symbol imports differ; `ApiError.kt` is neither, so
+  anchor 2 fails whatever one concludes about enum constants, and with anchor 0 also failing the
+  residual `1` is the rubric's own answer as written. The rubric was not ambiguous here — it had
+  simply never been evaluated end to end on these runs.
 - **It puts a measured condition on §4c's Decision H.** Decision H would promote
   `deepseek-v4-pro` to registered scorer on a codex outage longer than twelve hours. On this
   evidence that swap would change the `change-focus` cell on **18 of 34** runs of this shape — 15
   scored `2` where the registered scorer scores `1`, and 3 more returned as `null`, which is a
   measurement and not a moved score, so the count of *wrong numbers* is 15 and the count of *cells
-  that would not match* is 18 — in one direction, and silently — the second reader's stated reasons read as correct in isolation.
-  Decision H remains the author's and is **not amended here**; this file is the measurement it now
-  has, and the earlier concordance it rests on — *"18 of 20 exact, zero nulls on ten sheets"* — was
-  taken on a set too small to expose this.
+  that would not match* is 18 — in one direction, and silently, since the second reader's stated
+  reasons read as correct in isolation. Decision H remains the author's and is **not amended
+  here**; what it now has is a number attached to a mechanism that was already on record.
 - **It is a live condition on stop 12.** Author decision 9 already requires the BE-004 rubric to be
   proved on its five fixtures before any BE-004 run is scored. This adds that the `change-focus`
   separation must be demonstrated **on codex**: a separation shown by the second reader would not

@@ -1185,6 +1185,14 @@ the controller and never looks at the second file. That is the mechanism: the se
 `change-focus` as a question about the controller's methods and imports, codex as a question about
 the whole change.
 
+**Provenance, because this is a confirmation and not a discovery.** `agent-learning-lab/CLAUDE.md`
+has recorded since 2026-09-01, at `n = 5`, that *"where they disagreed, opencode's fact was wrong"*,
+naming the same two causes — a deleted class KDoc, and a new `ErrorCode` constant in a second
+attached file. What this batch adds is scale (3 of 5 → 18 of 34), a uniform direction, and the
+anchor-by-anchor adjudication on all 34 that settles the score the earlier record left open as *"a
+live rubric question"*. It is not open: anchor 2 requires that only `confirm` and its by-symbol
+imports differ, and `ApiError.kt` is neither.
+
 Full write-up, batch logs, the concordance script and both hand re-derivations:
 [`evidence/second-reader/README.md`](../evidence/second-reader/README.md).
 
