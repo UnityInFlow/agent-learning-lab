@@ -255,6 +255,41 @@ None registered. Decision 10.1 does not ask for one; this cell is itself the cou
 E-007's P2 arm (P2 removed the structural line and kept the prose; this removes the structure and
 keeps the prose).
 
+## §4 step 5 — the read-back pair, observed 2026-09-07T11:57–12:02Z
+
+Key `EXP-4B-FOURTH-CELL-PREFLIGHT`, one pair, enters no comparison. Driver
+`evidence/p04b/lab-4b4/fourth-cell/run-e008.sh`, manifest
+`evidence/p04b/lab-4b4/fourth-cell/batch-20260907T115735Z/manifest.tsv`. Every value below was
+read from the run record through the API (`/api/runs/<id>`) or from the runner's own stream in
+the batch log, not from the driver's summary line.
+
+| | arm F `0ab18564` | control `5b2d38df` |
+|---|---|---|
+| `customization.instructionsHash` | **`sha256:51f16eeb1618cd212405818c5165dcba`** — the registered value | **`null`** |
+| `skillsHash`, `agentHash`, `hooksHash`, `mcpHash` | all `null` | all `null` |
+| runner log | *"instruction file CLAUDE.md present — claude reads this"*; setup commit `14dc6cd` installs the overlay | no customization line |
+| `init` record (from the stream): tool pool | **29 tools, `Task` present**, 5 built-in agents, 0 skills, version 2.1.263 | identical: 29, `Task` present, 5, 0, 2.1.263 |
+| delegation events in the stream | 0 | 0 |
+| `runtime.model` / version | `claude-haiku-4-5-20251001` / `2.1.263 (Claude Code)` | same |
+| evaluator exit | **0** | **0** |
+| `startedAt` vs prediction commit `b952e8c` (2026-09-07T11:56:51Z) | `11:57:36Z` — **45 s after** | `12:00:11Z` |
+| `estimatedCost` / `durationMs` / `modelCalls` / `toolCalls` | $0.170 / 102 s / 24 / 19 (1 tool failure) | $0.134 / 79 s / 19 / 15 |
+| `addedLines` / `changedFiles` | **61** / 3 | **69** / 3 |
+| `events.jsonl` | grew 8 144 642 → 8 362 794 bytes across the pair (+218 KB) — telemetry is flowing through the 14317/14318 tunnels | same |
+
+**What this proves:** the treatment reached the worktree as the registered bytes and the control
+did not (P5's mechanism works on one pair each way); both arms have the same delivered pool, so
+nothing narrows either; nothing delegated. **What it does not prove:** that the runtime *read* the
+file — the runner's line says claude reads `CLAUDE.md`, which is the filename half (L2); the
+content half is P1's job.
+
+**One story, not a hint:** on this single pair arm F added *fewer* lines than the control (61 vs
+69), against P2's direction. `n = 1`; recorded so it cannot be forgotten if the batch goes the
+other way.
+
+**The batch may start.** Nothing of this lab's was running (`LC_ALL=C pgrep`: empty) and the
+tunnels were up.
+
 ---
 *Everything below is filled in AFTER the runs.*
 ---
