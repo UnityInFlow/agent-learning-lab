@@ -3,7 +3,7 @@
 > **Fill in everything down to and including Predictions BEFORE the first run.**
 > Commit it, and check the commit timestamp precedes the first run's `startedAt`.
 
-**Status: first half of the batch complete 2026-09-07T12:25Z (5 pairs); second half (pairs 06–10) running — see the instrument-fault note under § 4 step 6.** Follow-up experiment of
+**Status: CLOSED VOID 2026-09-07 (decision rule row 0a — a control run delegated to a built-in agent). The registered question is unanswered; successor `E-009` carries it.** `Closed by Claude Opus 5 (claude-opus-5), autonomous, 2026-09-07` — the predictions above were registered by Claude Fable 5.1 earlier in the same session, before the orchestrator model was changed by the author mid-batch; neither is the agent under test. Follow-up experiment of
 [`E-007`](E-007-orchestration-overhead.md), ordered by **author decision 10.1** (§3 of the
 Track B prompt, prompt sha `92d4f1e3332d`), which names the arm, the `n`, the delivery route,
 the registered outcome and the two readings; this file registers the numbers. Spine stop 11
@@ -349,29 +349,123 @@ registered 20 runs. The independence check in § Results reports both windows.
 *Everything below is filled in AFTER the runs.*
 ---
 
-## Observed telemetry
+## §4 step 6, second half — the batch ABORTED itself at pair 08, and the abort is correct
 
-## Results
+`START=6 PAIRS=5`, key `EXP-4B-FOURTH-CELL`, driver pid 43927, manifest
+`evidence/p04b/lab-4b4/fourth-cell/batch-20260907T122828Z/manifest.tsv`, started 12:28:28Z,
+**aborted 12:42:23Z at exit 8** after three pairs. `events.jsonl` grew +831 KB across them.
 
-## Which predictions held
+| pair | arm F run | exit | hash | deleg. (log) | control run | exit | hash | deleg. (log) |
+|---|---|---|---|---|---|---|---|---|
+| 06 | `1b824221` | 0 | registered | 0 | `58e44b57` | 0 | `null` | 0 |
+| 07 | `5b3aeace` | 0 | registered | 0 | `137fa43b` | 0 | `null` | 0 |
+| 08 | `e38838f8` | 0 | registered | 0 | **`9043f824`** | 0 | `null` | **1** |
 
-| # | Prediction | Held? | Actual |
+**The control delegated.** Run `9043f824` — a plain baseline, no customization, no
+`.claude/agents/` — issued:
+
+```
+{"type":"tool_use","id":"toolu_01DpQjd3E2DPeegshTK1uDgr","name":"Agent",
+ "input":{"description":"Explore shipment feature structure and find key files",
+          "subagent_type":"Explore","prompt":"Find the main files in the shipment feature…"}}
+```
+
+and the runtime started it: `{"type":"system","subtype":"task_started",…,"subagent_type":"Explore",
+"is_backgrounded":true,"spawn_depth":1,"task_type":"local_agent"}`. It is the **built-in**
+`Explore` agent. The run then finished normally — evaluator exit 0, 3 files, 69 added lines —
+at `toolCalls` **37** against 16–23 for every other control, `modelCalls` **31** against 17–25,
+and `estimatedCost` **$0.227** against $0.133–0.186. The delegation is real and it did real work.
+
+### P6 is REFUTED, and its mechanism was wrong
+
+P6 predicted **0 delegation events on 20 of 20**, by the mechanism *"no `.claude/agents/` is
+installed; a session with nothing to delegate to does not delegate."* **There was always
+something to delegate to.** The `init` record of *both* arms lists **five built-in agents**
+(the read-back pair's own §4 step 5 table records `5` and I did not read what it implied), and
+one run in sixteen used one. The prediction stays exactly as written; this is its refutation.
+
+**A registered prediction of mine was wrong in the direction that costs the experiment**, which
+is the only kind worth registering.
+
+### The registered counter did not see it — an instrument defect, recorded and NOT repaired
+
+P6's registered source is *"`tool_result` events with `tool_name ∈ {Task, Agent}`"* from the
+observatory telemetry. For `9043f824` that counter reads **0**, over 24 events on file for that
+run id. The delegation is plainly in the runner's own stream. So:
+
+> **The telemetry delegation counter can read zero for a run that delegated.**
+
+What differs about this delegation: it is a **built-in** agent, `is_backgrounded: true`,
+`task_type: local_agent`, and its result comes back as a `system`/`task_started` record rather
+than as a `tool_result` naming `Agent`. E-007's arm-O delegations — to a custom
+`.claude/agents/implementer` — were seen by the same counter on 10 of 10, so it is not blind in
+general; it is blind to *this shape*. **Not repaired here**: changing what the counter counts is
+a harness move, and E-007's O1 was measured with it (see the amendment filed to E-007 today).
+
+### Verdict: **VOID**, decision rule row 0a
+
+Row 0a as registered voids on *"any run with ≥ 1 delegation event"*. It happened, so the batch
+is void. Two things make that call safe to trust rather than merely stated:
+
+1. **It was enforced before any outcome was visible.** The driver — written and its 12 guards
+   fixture-proven before the first run — aborted the batch itself at 12:42:23Z. I did not
+   choose this after seeing a result; the tool chose it, and the tool was the pre-registered
+   reading.
+2. **No score of this batch has been read.** Exactly one codex sheet exists for any of these
+   runs (`582c0b39`, written 12:27:12Z by the scoring subagent before it was stopped); **it is
+   on disk, it is unread, and it stays** (§6). The hand re-read of that same run (`test-quality`
+   = 1, commit `56d8cfb`, 12:09:32Z) precedes it by 18 minutes. So the void was decided blind
+   to `test-quality` in both arms.
+
+**The argument for the other reading, which I considered and rejected.** Row 0a states its own
+rationale — *"the cell was not delivered as designed, or is under-powered past its
+registration"* — and a **control** using a built-in agent does not touch whether the *treatment*
+was delivered. On that reading only an arm-F delegation should void, and this batch would stand
+at `n = 8` per arm. I reject it **because I am holding the data**: E-007 settled an identical
+question about its own row 0a *in writing before its batch*, noting that a reading discovered in
+the results is not a reading. The strict letter also happens to be what my own tool enforced.
+When the two readings differ and one of them saves my experiment, the other one is the one to
+take.
+
+**The first half is void as well, from a second, independent clause**: on its own it is `n = 5`
+per arm, and row 0a voids below 8. The 16 runs and 2 read-back runs stay on disk as evidence and
+as a reference population for the successor, labelled as coming from a void batch.
+
+### What the void does NOT touch
+
+- **P5 held on 16 of 16**: every arm-F record carries `sha256:51f16eeb1618cd212405818c5165dcba`,
+  every control `null`. The delivery route works.
+- The evaluator passed **16 of 16**.
+- The run-record metrics below are reported **for the record only**. They are not a verdict, no
+  decision-rule row is read from them, and they are the reason the successor cannot re-register
+  over these runs: I have now seen P2–P4's quantities, so a new prediction about them fitted to
+  these runs would measure nothing.
+
+| metric, `n = 8` per arm | arm F median (range) | control median (range) | control excluding `9043f824` |
 |---|---|---|---|
-| P1 | | | |
-| P2 | | | |
-| P3 | | | |
-| P4 | | | |
-| P5 | | | |
-| P6 | | | |
-
-## Failure analysis
-
-## Sanity checks
-
-- [ ] Did any dramatic number appear? Has it been explained *and* the explanation tested?
-- [ ] Did any **flattering** number appear? Has it been disbelieved twice?
-- [ ] If a fix motivated this run, did the original symptom actually disappear?
+| `estimatedCost` | $0.1662 ($0.1492–0.1953) | $0.1657 ($0.1332–0.2270) | $0.1601 |
+| `durationMs` | 100.5 s (77–110) | 97.5 s (84–133) | 92 s |
+| `modelCalls` | 24.5 (21–28) | 23.5 (17–31) | 23 |
+| `toolCalls` | 19.5 (17–24) | 20 (16–37) | 19 |
+| `addedLines` | 68 (63–83) | 66.5 (64–84) | 66 |
 
 ## Decision
 
+**VOID** (row 0a). The registered question — is E-007's `test-quality` effect the prose or the
+split? — is **unanswered**, and author decision 10.1's order is not yet discharged.
+
+Successor: **`E-009`**, same arm, same overlay hash, same model and runtime, `n = 10` per arm,
+its own prediction commit before its first run, with three repairs named there and not applied
+retroactively here: an arm-aware void condition, a delegation column read from **both** the
+stream and the telemetry, and a `PAIRS` default that matches the registered `n`.
+
 ## Follow-up
+
+1. **The telemetry delegation counter is blind to built-in, backgrounded sub-agents.** Filed as
+   an amendment to E-007 today. It is a harness question and it is the author's.
+2. **`Explore` costs about 60 % more on the runs that use it** (`$0.227` vs a $0.16 median, 37
+   tool calls vs 20) and changed nothing the evaluator could see. `n = 1`; a story, not a hint.
+3. **Three of my own instrument faults in one experiment** — `PAIRS=5` against a registered
+   `n = 10`, a void clause whose letter and stated purpose disagree, and a delegation counter I
+   trusted without asking what it could not see. All three were caught by something that
+   executes (the report script, the driver, the cross-check), and none by reading the file again.

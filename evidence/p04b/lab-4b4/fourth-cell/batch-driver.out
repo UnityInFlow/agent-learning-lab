@@ -1,0 +1,57 @@
+run-e008: re-executing under caffeinate -i so the batch cannot span an idle sleep
+run-e008: prediction b952e8c committed 2026-09-07T13:56:51+02:00; first run starts after it
+batch start (UTC): 2026-09-07T12:03:34Z
+events.jsonl bytes at start: 8362794
+
+======== 01 F ========
+  -> 582c0b39-aab7-4f94-9d8b-22a2f5857a07 exit=0 instructionsHash=sha256:51f16eeb1618cd212405818c5165dcba deleg~0
+
+======== 01 control ========
+  -> 8b550ebe-dd8e-40b8-b425-6f2463f4cd78 exit=0 instructionsHash=null deleg~0
+
+======== 02 F ========
+  -> ec338c89-df54-4915-9c32-00f370c94ae8 exit=0 instructionsHash=sha256:51f16eeb1618cd212405818c5165dcba deleg~0
+
+======== 02 control ========
+  -> 8ffecb65-a97d-4a88-a40e-4f03c1b3aaf4 exit=0 instructionsHash=null deleg~0
+
+======== 03 F ========
+  -> 2b9ff36c-eb8a-472c-866d-2d43e2736742 exit=0 instructionsHash=sha256:51f16eeb1618cd212405818c5165dcba deleg~0
+
+======== 03 control ========
+  -> bcdd01f8-bab9-4cea-a9c2-ec9eae329dd7 exit=0 instructionsHash=null deleg~0
+
+======== 04 F ========
+  -> e87e272b-8370-4375-98ed-2e3497fc9fc7 exit=0 instructionsHash=sha256:51f16eeb1618cd212405818c5165dcba deleg~0
+
+======== 04 control ========
+  -> 7525fad5-6c04-4a10-9ebb-fe3a73083468 exit=0 instructionsHash=null deleg~0
+
+======== 05 F ========
+  -> 178eec3f-598a-46b4-92ec-9ba675554a29 exit=0 instructionsHash=sha256:51f16eeb1618cd212405818c5165dcba deleg~0
+
+======== 05 control ========
+  -> 5c76c344-8d2b-413c-ae62-f16e5d8cca7b exit=0 instructionsHash=null deleg~0
+batch end   (UTC): 2026-09-07T12:25:15Z
+events.jsonl bytes at end: 9544094
+
+manifest: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/p04b/lab-4b4/fourth-cell/batch-20260907T120334Z/manifest.tsv
+# E-008 fourth cell 20260907T120334Z  key=EXP-4B-FOURTH-CELL pairs=5
+# overlay CLAUDE.md 51f16eeb1618cd21 (runner form sha256:51f16eeb1618cd212405818c5165dcba) = implementer.md lines 7-, verbatim
+# BE-003 tree eeb15a753adc94e92bc3f74c50e1b02fc3b53030 at benchmarks eea144e · claude 2.1.263 · model claude-haiku-4-5-20251001
+# prediction commit b952e8c at 2026-09-07T13:56:51+02:00
+# common:       RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-4B-FOURTH-CELL MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1 API_PORT=18081 OTLP_HTTP_PORT=14318 OTLP_GRPC_PORT=14317 TEMPO_PORT=13200
+# arm F adds:   CUSTOMIZATION=../agent-learning-lab/build/customizations/implementer-prose-4b4 VARIANT=implementer-prose-4b4
+# control adds: VARIANT=baseline-e008-window
+seq                                                                                                                                                                                                                     arm      run_id                                exit  worktree                                                                                                instructions_hash                        delegations
+01                                                                                                                                                                                                                      F        582c0b39-aab7-4f94-9d8b-22a2f5857a07  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-582c0b39-aab7-4f94-9d8b-22a2f5857a07  sha256:51f16eeb1618cd212405818c5165dcba  0
+01                                                                                                                                                                                                                      control  8b550ebe-dd8e-40b8-b425-6f2463f4cd78  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-8b550ebe-dd8e-40b8-b425-6f2463f4cd78  null                                     0
+02                                                                                                                                                                                                                      F        ec338c89-df54-4915-9c32-00f370c94ae8  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-ec338c89-df54-4915-9c32-00f370c94ae8  sha256:51f16eeb1618cd212405818c5165dcba  0
+02                                                                                                                                                                                                                      control  8ffecb65-a97d-4a88-a40e-4f03c1b3aaf4  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-8ffecb65-a97d-4a88-a40e-4f03c1b3aaf4  null                                     0
+03                                                                                                                                                                                                                      F        2b9ff36c-eb8a-472c-866d-2d43e2736742  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2b9ff36c-eb8a-472c-866d-2d43e2736742  sha256:51f16eeb1618cd212405818c5165dcba  0
+03                                                                                                                                                                                                                      control  bcdd01f8-bab9-4cea-a9c2-ec9eae329dd7  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-bcdd01f8-bab9-4cea-a9c2-ec9eae329dd7  null                                     0
+04                                                                                                                                                                                                                      F        e87e272b-8370-4375-98ed-2e3497fc9fc7  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e87e272b-8370-4375-98ed-2e3497fc9fc7  sha256:51f16eeb1618cd212405818c5165dcba  0
+04                                                                                                                                                                                                                      control  7525fad5-6c04-4a10-9ebb-fe3a73083468  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-7525fad5-6c04-4a10-9ebb-fe3a73083468  null                                     0
+05                                                                                                                                                                                                                      F        178eec3f-598a-46b4-92ec-9ba675554a29  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-178eec3f-598a-46b4-92ec-9ba675554a29  sha256:51f16eeb1618cd212405818c5165dcba  0
+05                                                                                                                                                                                                                      control  5c76c344-8d2b-413c-ae62-f16e5d8cca7b  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5c76c344-8d2b-413c-ae62-f16e5d8cca7b  null                                     0
+driver exit 0

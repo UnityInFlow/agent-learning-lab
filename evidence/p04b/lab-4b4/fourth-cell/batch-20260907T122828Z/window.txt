@@ -1,0 +1,4 @@
+batch start (UTC): 2026-09-07T12:28:28Z
+events.jsonl bytes at start: 9544094
+batch aborted (UTC): 2026-09-07T12:42:23Z
+events.jsonl bytes at abort: 10375694
