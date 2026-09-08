@@ -23,25 +23,47 @@ score *"nothing was implemented"* and the arm would read as a treatment that did
 
 ## The reading
 
-**Six runs, six matches, two environments. `Edit` and `Write` reach the model.**
+**Nine runs, nine matches, three environments. `Edit` and `Write` reach the model.**
 
-| run | environment | `init.tools` delivered | verdict | eval |
-|---|---|---|---|---|
-| `6bc9fa5d` | user settings **live** | `["Read","Edit","Write","Bash"]` | match | exit 0 |
-| `e9bfde84` | user settings **live** | `["Read","Edit","Write","Bash"]` | match | exit 0 |
-| `cb3d4bd9` | user settings **live** | `["Read","Edit","Write","Bash"]` | match | exit 0 |
-| `a997bd30` | `--isolate-user-settings` | `["Read","Edit","Write","Bash"]` | match | exit 0, 7/7 |
-| `bb0d731d` | `--isolate-user-settings` | `["Read","Edit","Write","Bash"]` | match | exit 0, 7/7 |
-| `aa548920` | `--isolate-user-settings` | `["Read","Edit","Write","Bash"]` | match | exit 0, 7/7 |
+| run | set | environment | `init.tools` delivered | verdict | record |
+|---|---|---|---|---|---|
+| `6bc9fa5d` | 1 | tunnel + `--variant`, **no isolation** | `["Read","Edit","Write","Bash"]` | match | exit 0 |
+| `e9bfde84` | 1 | same | `["Read","Edit","Write","Bash"]` | match | exit 0 |
+| `cb3d4bd9` | 1 | same | `["Read","Edit","Write","Bash"]` | match | exit 0 |
+| `a997bd30` | 2 | isolation, **default OTLP, no `--variant`** | `["Read","Edit","Write","Bash"]` | match | exit 0, 7/7 |
+| `bb0d731d` | 2 | same | `["Read","Edit","Write","Bash"]` | match | exit 0, 7/7 |
+| `aa548920` | 2 | same | `["Read","Edit","Write","Bash"]` | match | exit 0, 7/7 |
+| `c6d44da9` | **3** | **the batch environment on every flag** | `["Read","Edit","Write","Bash"]` | match | exit 0, 7/7, `agentHash` recorded |
+| `db318da7` | **3** | same | `["Read","Edit","Write","Bash"]` | match | exit 0, 7/7, `agentHash` recorded |
+| `b8e31a61` | **3** | same | `["Read","Edit","Write","Bash"]` | match | exit 0, 7/7, `agentHash` recorded |
+
+**Set 3 is the reading that stands on its own.** Sets 1 and 2 each missed the batch environment
+on a different flag — pass 19 found the first, and the re-run that fixed it introduced the
+second (passes 20 and 21). Set 3 carries `--isolate-user-settings`, `--variant phases-v1.0` and
+the tunnel endpoints `14317`/`14318` together, on the corrected runner, so it is the batch
+environment on every flag this project has since found itself getting wrong. Sets 1 and 2 are
+kept: agreeing across three environments is stronger than set 3 alone, and deleting the two that
+exposed the defects would delete the evidence for them.
+
+**Set 3 also carries the overhead the other six do not** — `modelCalls` 27/30/32, `toolCalls`
+25/27/30, cost $0.227/$0.197/$0.200 — because it is the only set whose OTLP endpoints were the
+live ones. `events.jsonl` grew 21, 22 and 24 lines across the three runs, read inside the window
+rather than trusted from an exit code.
+
+**And set 3 is the first evidence in this project of a run recording the hash of its own
+treatment**: all three carry `agentHash: sha256:b3450564b6f32d6193e8580db766210e`, the overlay's
+agent file, against `null` on the six before them. See defect 2.
 
 Declared and delivered are the **same set in the same order** — not `order-differs` as E-007 saw,
 and not E-005's stripping, which is about a `Bash`-bearing list that *also* declares `Grep`/`Glob`.
 This list declares neither, so there is nothing to strip.
 
-All six on `BE-004`, `phases-v1.0`, `claude-haiku-4-5-20251001`, Claude Code `2.1.263`, benchmarks
-at `eea144ef`.
+All nine on `BE-004`, the `phases-v1.0` overlay, `claude-haiku-4-5-20251001`, Claude Code
+`2.1.263`, benchmarks at `eea144ef`. Sets 1 and 2 under `EXP-P12-PREFLIGHT-INITTOOLS` and
+`-ISO`; set 3 under `EXP-P12-PREFLIGHT-INITTOOLS-BATCHENV`, all three preflight keys, none
+joinable to an `n`.
 
-## Why there are two environments and not one
+## Why there are three environments and not one
 
 The first three runs (2026-09-07) were **not** isolated. Validator pass 19 caught it from the
 `init` record itself: **41 agents and two user-level plugins**, against **6 agents and none** on an
@@ -53,8 +75,16 @@ repository's own lesson is the reason: **"a flag is a promise; a field is a fact
 (`phases/b02-plain-baseline/README.md`). The environment difference is now a measured field in
 six `init` records, not an argument.
 
-Both sets are kept. The non-isolated three are not junk — they are the same reading in a
-*noisier* environment, and agreeing across both is stronger than either alone.
+~~The environment difference is now a measured field in six `init` records, not an argument.~~
+**True of user settings only** — corrected 2026-09-08 per pass 21. The re-run that fixed
+isolation dropped the OTLP endpoints and `--variant`, so set 2 was two flags short of the batch,
+not zero. **Set 3 is the one that is short of nothing**, and the telemetry path is now a field
+too: it is the only set with `modelCalls` and cost in its record.
+
+All three sets are kept. Sets 1 and 2 are not junk — they are the same reading in environments
+that each differ from the batch on a *different* axis, and agreeing across all three is stronger
+than set 3 alone. They are also the evidence for the three defects below, two of which they are
+the only demonstration of.
 
 ## What is in here
 
@@ -77,8 +107,14 @@ here directly. The first three were copied out of `TMPDIR` before it swept them.
 
 ## Three defects found while filing this, none of which changes the reading above
 
-All three are recorded rather than fixed. The reading stands on the `init` records, which none of
-them touch.
+**Status after set 3, added 2026-09-08:** defect 1 and defect 3 are **retired** — set 3 is the
+same reading with the flags they were about, so what was going to be disclosed is now measured.
+Defect 2 is **fixed** in `agent-observatory` (obs#76), and set 3 ran on the corrected runner,
+which is why its three records carry a real `agentHash`.
+
+The original text of all three is kept below, unstruck, because each is the record of a defect
+that was real when written and because the runs that exposed them are still in the table. What
+changed is stated in each. The reading stands on the `init` records, which none of them touch.
 
 ### 1. Three of these runs are recorded in the observatory as `variant=baseline`
 
@@ -93,6 +129,13 @@ the preflight experiment key `EXP-P12-PREFLIGHT-INITTOOLS-ISO` — never joinabl
 **Not silently rewritten.** A corrected row with no trace is a worse record than a wrong row with
 a disclosure, and revising evidence is the one thing this project does not do. Whether to re-run
 the three with `--variant phases-v1.0` is the author's call.
+
+> **RETIRED 2026-09-08 by set 3, not by editing these rows.** `c6d44da9`, `db318da7` and
+> `b8e31a61` carry `variant: phases-v1.0`. The three mislabelled rows stay exactly as they are,
+> under their own preflight key, as the record of the defect. The author's call was to re-run,
+> and mine was that a disclosure saying no probe ever matched the batch environment is a worse
+> artifact than three runs that do.
+> *Claude Opus 5 (`claude-opus-5`), 2026-09-08.*
 
 ### 2. `agentHash` and `skillsHash` hash files that do not exist for these treatments
 
@@ -120,6 +163,25 @@ operator types, and which defect 1 is a live demonstration of getting wrong.
 
 For the record, since the runner did not: the overlay's agent file is
 `sha256:b3450564b6f32d6193e8580db766210e`.
+
+> **FIXED 2026-09-08, `agent-observatory` obs#76.** `agentHash` now hashes
+> `.claude/agents/<--agent>.md` on claude and is `null` elsewhere *meaningfully* — only claude
+> has a named-agent flag and a native agent directory, so on codex and copilot there is nothing
+> an agent file could be read by. `skillsHash` hashes every `SKILL.md` in the worktree as one
+> digest over sorted `(path, content)` pairs.
+>
+> **The larger half of that fix is that the hash block moved above the `--check-customization`
+> exit.** It used to be computed below it, so reading a hash cost a real benchmark run and a
+> real model call — which is how two of three could name files that do not exist for as long as
+> they did. A provenance field that costs a run to read is not a field anyone checks. Three
+> fixtures now hold it (`verify-agent-delivery.sh` 13 → 16), and against a copy of the runner
+> with only the two hash targets reverted, **N and P go red and the other fourteen pass**.
+>
+> **Set 3 ran on the corrected runner**, which is why `c6d44da9`, `db318da7` and `b8e31a61`
+> carry `agentHash: sha256:b3450564b6f32d6193e8580db766210e` — the line above, which I had to
+> compute by hand *because the runner would not*, is now the run record's own answer.
+> The six earlier runs still read `null` and are left that way.
+> *Claude Opus 5 (`claude-opus-5`), 2026-09-08.*
 
 ### 3. The isolated three carry null behaviour and efficiency metrics — and it is not isolation
 
@@ -158,6 +220,13 @@ For the record, since the runner did not: the overlay's agent file is
 > `events.jsonl` growth inside the batch window. Pass 21's word for the struck instruction is the
 > right one — *dangerous rather than merely wrong*: a preflight that confirms the host can reach
 > `4317` would pass or fail on a port no batch uses.
+>
+> **RETIRED 2026-09-08 by set 3**, which exported `OTLP_GRPC_ENDPOINT=http://localhost:14317`
+> and `OTLP_HTTP_ENDPOINT=http://localhost:14318` and carries the overhead the six before it do
+> not: `modelCalls` 27/30/32, `toolCalls` 25/27/30, cost $0.227/$0.197/$0.200, with
+> `events.jsonl` growing 21, 22 and 24 lines — read inside the window, as the corrected
+> instruction says, rather than inferred from an exit code. The struck text stays as the record
+> of the diagnosis error.
 >
 > **What this costs the reading above:** nothing for `init.tools`, which is read from the
 > transcript and not from telemetry, so 6 of 6 stands. But the isolated three are **two** flags
@@ -205,4 +274,12 @@ after it.**~~
 
 *Filed 2026-09-08 by Claude Opus 5 (`claude-opus-5`) at the author's direction, following validator
 pass 19 (`claude-fable-5-1`), `findings/track-b-validation-2026-09-08.md`, which found this
-evidence existing only in `TMPDIR` and the observatory database.*
+evidence existing only in `TMPDIR` and the observatory database. Extended the same day with set 3
+and the defect resolutions, following passes 20 and 21 (`-2.md`, `-3.md`).*
+
+*Three sets, three environments, and the honest summary is that it took three attempts to run a
+preflight in the environment the batch will use — `--isolate-user-settings` missed on the first,
+`--variant` and the OTLP endpoints missed on the second. Each was caught by a validator reading
+a field rather than by the run that made it. That is an argument about the runner, not about
+care: pass 21 leaves open whether it should refuse to start without an explicit endpoint the way
+it already refuses to guess a version, and on three-for-three that is the better question.*
