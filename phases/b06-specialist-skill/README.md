@@ -164,11 +164,85 @@ A skill answers eight questions: when it activates · when it must not · requir
 workflow · which references may load · which scripts run · required output · how success is
 verified.
 
+### What was built — `testing-and-verification`
+
+One skill, 675 words, `.claude/skills/testing-and-verification/SKILL.md`. The eight questions are
+its eight top-level headings, in the order the gate lists them: *When this applies · When this
+does NOT apply · Required inputs · The workflow · Which references may load · Which scripts run ·
+Required output · How success is verified.* Layer: **L3** — a skill is prose a model reads and
+may choose to follow. The only thing about it that executes is whether it was *selected*, and
+that is the activation record, not the skill.
+
+**The failure it is for was measured, and §4 step 2 records why the other candidate was not
+chosen.** Both of stop 12's hand re-reads found the same clause missing on both tasks: after a
+mutating call, the agent asserts on the mutating call's own response body rather than re-reading
+persisted state through a separate `get`. BE-004 run `fdb51fbd` does it at
+`OrderControllerTest.kt:168,172`, using `repository.findById()` where an HTTP `get` was the
+thing under test.
+
+### The description is a registered variable, and it moved once, before any batch
+
+| | v1.0 | v1.1 (registered) |
+|---|---|---|
+| `SKILL.md` sha256 | `0876025fa451af5f1f2970da67a02f0d` | **`7bea904863fb79a544ee2068cb2f0f43`** |
+| Line 3 names | a **cross-cutting technique** | **the task's domain**, in `skill-v0.2`'s shape |
+| Body | 675 words | **byte-identical** |
+| Recorded activations, `Skill` in pool | **0** (`2e972b72`) | **1** (`ba8b4b98`) |
+
+E-004 measured the description as the selector at `p = 0.0079`. The revision is disclosed in
+[E-012](../../experiments/E-012-specialist-skill-BE003.md) and
+[E-013](../../experiments/E-013-specialist-skill-BE004.md), carries a new hash, and happened
+**before any registered run**.
+
+### The carrier, and the fact that forced it — L2, and it is the stop's first real result
+
+`phases-v1.0` declares `tools: Read, Edit, Write, Bash`. Its `init` read-back **executes** and
+returns `delivered n=4` with **no `Skill`** (`evidence/b06/preflight/init-schema/`,
+`evidence/b06/probe-v1.1/init-schema/`). **A skill cannot be selected by an agent that has no
+`Skill` tool**, so on the v1.0 product the treatment is *undeliverable* — and no description
+fixes that, which the 2×2 in E-012 shows directly.
+
+§6 forbids editing a measured version, so `phases-v1.0` **is not edited**. The batch runs on a
+**carrier**: a new overlay whose agent differs from it by one line and which is installed on
+**both arms**, so the skill directory stays the only variable.
+
+| | Treated | Control |
+|---|---|---|
+| Overlay | `build/customizations/phases-v1.0-skillcarrier/` | `build/customizations/phases-v1.0-skillcarrier-control/` |
+| Agent sha256 (first 32) | `51ffaedf9a3edbfe5fd85009f70f84c5` | **the same** — `diff -q` clean |
+| Skill | `7bea904863fb79a544ee2068cb2f0f43` | **absent** |
+| Read back per run | `skillsHash` **non-null** | `skillsHash` **`null`** |
+
+The carrier is an **experiment fixture, not a version** — the same standing
+`agent-v0.1-toollist-bash` had at stop 9. The `v1.0 → v1.1` boundary stays at B8 where the spine
+puts it.
+
+*Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+### The driver and the fixture set that proves it refuses
+
+`evidence/b06/run-b6-batch.sh`, ShellCheck clean, guards driven by
+`evidence/b06/verify-b6-batch-guards.sh` — **13 cases, 13 pass**
+(`evidence/b06/verify-b6-batch-guards-*.txt`). Its first run failed **7 of 13**, and every failure
+was a real defect rather than a fixture bug: a registered hash invented from a 16-character
+prefix; the *control carries a skill* guard shadowed by a file-count guard that named only the
+symptom; and case D's fixture tripping an earlier guard before reaching the one it targets. Case
+D — the guard that stops a batch whose carrier cannot select a skill, which is exactly the
+failure the hand preflight caught — was re-verified by hand outside the harness.
+
 ## Predict before you run
 
-<!-- TODO: name the measured failure this skill is for, and predict how
-     much of it the skill removes. If you cannot point at a failure in
-     B2–B5, you are not ready for this step. -->
+Registered, per author decision 9, as **two experiments that share an artifact and share no
+verdict**:
+
+| Task | Experiment | Prediction commit | Registered before |
+|---|---|---|---|
+| BE-003 | [`E-012`](../../experiments/E-012-specialist-skill-BE003.md) | `133de65` | the skill existed |
+| BE-004 | [`E-013`](../../experiments/E-013-specialist-skill-BE004.md) | `133de65` | the skill existed |
+
+Both were committed **before `b0ca034` built the artifact they predict about**, which is the
+order a validator should check and the reason no prediction here can have been shaped by reading
+it.
 
 ## Lab B6.1 — measure against B5, with and without
 
