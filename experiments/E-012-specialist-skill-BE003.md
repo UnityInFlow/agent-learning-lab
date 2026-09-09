@@ -704,3 +704,53 @@ Decision H fallback for exactly this reason; this batch is further evidence for 
 nor separated (codex 1 of 10 vs 0 of 10, `p = 1`).
 
 *Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+### §4 step 8 — the report, and what it cannot answer
+
+`make baseline-report` was run for both keys and its output is recorded here, but **it is not the
+source of any number above, and a reader should know why.**
+
+```
+=== EXP-B6-SKILL-BE003 ===   23 measuring run(s)   pass rate 23/23
+  duration (s)   median 116   cost median 0.1282   model calls median 21
+=== EXP-B6-SKILL-BE004 ===   20 measuring run(s)   pass rate 20/20
+  duration (s)   median 190   cost median 0.2214   model calls median 29
+```
+
+**It aggregates by experiment key and has no notion of an arm.** A two-arm design's pooled
+distribution answers no registered question: the BE-003 line above mixes 10 treated and 10 control
+runs into one median, so the +8.0 % that P4 is judged on is invisible in it. **And it cannot see a
+registered exclusion** — BE-003 reads 23 rather than 20 because the four runs excluded by name at
+§4 step 5 still carry the key. Per-arm medians in this file come from the manifests and the run
+records, which do distinguish both.
+
+**Recorded as an instrument gap rather than fixed here.** Splitting the report by arm means the
+runner must record an arm label, which is a change to a shared instrument in the middle of a stop;
+it goes to `author_notes`. The pass rates it does report — **23 of 23** and **20 of 20** — are
+real and are consistent with P6 on both tasks.
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+## Decision — §4 step 10
+
+**KEEP.** `testing-and-verification`, `SKILL.md` sha `7bea904863fb79a544ee2068cb2f0f43`.
+
+**The measured effect, not an assumed one.** `test-quality` anchor 2: **10 of 10 against 0 of 10**
+on BE-003 (`p = 1.08 × 10⁻⁵`) and **10 of 10 against 3 of 10** on BE-004 (`p = 0.0031`), two tasks
+registered separately with no verdict computed across them, both clearing their own MDE, and the
+behaviour underneath the verdict moving with it. Selection was **recorded** on 20 of 20 treated
+runs and absent on 20 of 20 controls, by an instrument that refuses rather than returning 0 when it
+cannot see a run. Cost, turns and the evaluator floor all stayed inside their registered bounds.
+
+**What is kept is the skill, not the carrier.** The carrier — `phases-v1.0`'s agent with `Skill`
+added to `tools:` — is an experiment fixture. **`phases-v1.0` as it stands cannot receive a
+specialist skill at all**, and that is the second result of this stop: any promotion of the skill
+into the product needs the agent's `tools:` line to change, which is a **B8 decision at the v1.1
+boundary**, not a B6 one. Nothing is promoted here; the spine promotes nothing before B13.
+
+**What is not kept:** nothing is removed, because nothing built at this stop failed to move a
+measured outcome. The one cell that moved the other way — BE-003 `maintainability`, treated 2 of 10
+against control 5 of 10, `p = 0.35` — is **not** separated at this `n` and is recorded as the
+follow-up most likely to matter, not as a cost that has been shown.
+
+*Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
