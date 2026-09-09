@@ -344,3 +344,30 @@ fixture, exactly as `agent-v0.1-toollist-bash` was at stop 9; it is **not** a ve
 `v1.0 → v1.1` version boundary stays where the spine puts it, at B8.
 
 *Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+### §4 step 9 — the deliberate failure, registered before it is run
+
+**What must not happen:** the skill must not be selected when its description names a domain the
+task is not. That is the *"When this does NOT apply"* half of the eight questions, and it is the
+only half a selection instrument can test.
+
+**Why it is run in the skill-alone configuration and nowhere else.** A deliberate failure needs a
+control that has been shown to say *yes*. The only configuration in which this skill has ever been
+recorded activating is skill-alone with the v1.1 description: `ba8b4b98`, 1 of 1. Running the
+failure anywhere else would be a 0 against a 0, which proves nothing about the skill and
+everything about the configuration.
+
+**The break:** `build/customizations/skill-v1.1-misdescribed/` — the **same 675-word body**, and
+`skill-v0.2-misdescribed`'s description verbatim (*"Guidance for authoring CSS keyframe animations
+and easing curves in a static marketing website. Use when tuning front-end visual transitions."*),
+which is the description E-004 measured at **0 of 5**. One run, BE-003, key
+`EXP-B6-DELIBERATE-FAILURE`, own key so it joins no `n`.
+
+**Prediction, committed before the run:** `skill-activation.sh` reports `status: measured` and
+**0 activations**, against `ba8b4b98`'s 1 in the identical configuration. *Mechanism:* E-004's
+selector, `p = 0.0079`. **If it activates instead**, the description is not the selector in this
+configuration and the whole reading of this stop's 2×2 is wrong — which is why it is worth one
+run.
+
+*Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-09; the author did not review before
+the run.*

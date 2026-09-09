@@ -254,7 +254,12 @@ it.
 
 ## Deliberate failure
 
-<!-- TODO: trigger it when it must not activate. -->
+Registered in [E-012](../../experiments/E-012-specialist-skill-BE003.md) §4 step 9 **before the
+run**: the same 675-word body under `skill-v0.2-misdescribed`'s CSS-animation description, one run
+in the **skill-alone** configuration — the only one in which this skill has ever been recorded
+activating (`ba8b4b98`, 1 of 1). Predicted: `status: measured`, **0 activations**. A deliberate
+failure needs a control that has been shown to say *yes*; a 0 against a 0 proves nothing about the
+skill.
 
 ## Exit gate
 
