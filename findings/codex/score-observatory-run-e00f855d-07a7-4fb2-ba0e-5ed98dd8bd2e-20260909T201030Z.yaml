@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e00f855d-07a7-4fb2-ba0e-5ed98dd8bd2e
+  mode:           run
+  run_id:         e00f855d-07a7-4fb2-ba0e-5ed98dd8bd2e
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:18081/api/runs/e00f855d-07a7-4fb2-ba0e-5ed98dd8bd2e
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260909T201030Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals use baseline ApiException subclasses; controllers construct no error bodies"
+    evidence: "order/OrderController.kt:27,42,54,67; shipment/ShipmentController.kt:35,45,66"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "Order status is decided by an if chain"
+    evidence: "order/OrderController.kt:60"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Bodies are asserted, but clauses b and d lack separate GET state verification"
+    evidence: "order/OrderControllerTest.kt:127,129,148,154"
+  - name: "change-focus"
+    score: 2
+    anchor_level: 2
+    reason: "Existing controller methods match baseline; other changes stay within the permitted list"
+    evidence: "baseline/order/OrderController.kt:22,37,46; order/OrderController.kt:25,40,49; baseline/shipment/ShipmentController.kt:30,51,60; shipment/ShipmentController.kt:33,63,72"
+ambiguous_categories: []

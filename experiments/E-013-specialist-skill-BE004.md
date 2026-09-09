@@ -555,3 +555,60 @@ words: `repository.findById()` where an HTTP `get` was the thing under test. Two
 clauses absent, both of them the ones the skill's workflow spells out. `n = 1` pair, stated as such.
 
 *Hand-read by Opus 5 (claude-opus-5), autonomous, 2026-09-09, before any BE-004 sheet existed.*
+
+### §4 step 7 — the registered scores, BE-004
+
+`check-run-gate.sh`: 20 admitted. `codex-score.sh` on
+`benchmark/rubrics/backend-quality-be004.yaml`, **`rubric_sha: 6252778b8472` in every sheet's
+provenance block** — the sha proved on the five fixtures at stop 12 under author decision 10.2.
+
+| Category | Treated, anchor 2 count | Control, anchor 2 count | two-sided Fisher |
+|---|---|---|---|
+| `architecture-consistency` | 10 of 10 | 10 of 10 | constant — no information |
+| `maintainability` | **0 of 10** | **0 of 10** | floored at 0 on 20 of 20, exactly as stop 12 recorded for this task |
+| **`test-quality`** (the registered outcome) | **10 of 10** | **3 of 10** | **`p = 0.0031`** |
+| `change-focus` | 3 of 10 | 3 of 10 | `p = 1` |
+
+**The control's 3 of 10 is the number stop 12 measured for `phases-v1.0` alone on BE-004**, which
+is what E-013's MDE was built on — the reference population held, so the MDE was not computed
+against a moving target.
+
+**One sheet came back empty and was re-scored.** `e00f855d` (control 10) first produced a
+header-only sheet; `classify-model-output.sh score` returns **exit 3, `empty`** on it, which the
+contract calls a result rather than infrastructure. Both sheets are kept — the empty one at
+`…-20260909T201030Z.yaml`, the scored one at `…-20260909T201120Z.yaml`. Re-running a *scorer* is
+not re-running a *run*; nothing was measured twice.
+
+### Which predictions held — BE-004
+
+| | Prediction | Result | Verdict |
+|---|---|---|---|
+| **P1** | 10 of 10 treated activations, 0 control | **10 of 10 / 0 of 10**, all `status: measured` | **HELD** |
+| **P2** | `test-quality` anchor 2 **≤ 6 of 10** treated | **10 of 10** against control 3 of 10, `p = 0.0031` | **REFUTED** |
+| **P3** | **≤ 5 of 10** treated re-read persisted state through a separate `get(...)` | **10 of 10** | **REFUTED** |
+| **P4** | cost within ±15 % | median `$0.2183` vs `$0.2304`, **−5.3 %** | **HELD** |
+| **P5** | `modelCalls` within ±3 | median 29.0 vs 29.0, **0** | **HELD** |
+| **P6** | evaluator ≥ 9 of 10 both arms | **10 of 10 both** | **HELD** |
+
+### P3's measure behaves differently here, and that is reported rather than swapped out
+
+`tools/count-state-reread.py` (6 of 6 fixtures) counts *a separate `get(...)` following the
+mutating call*. On BE-004 it returns **treated 10 of 10** and **control 8 of 10** — so on this task
+the measure **barely separates the arms**, while on BE-003 it separated them completely (10 of 10
+against 0 of 10).
+
+**P3 is refuted on its registered wording** — 10 of 10 against a predicted ≤ 5 — and the control's
+8 of 10 is reported beside it, because the number without its control would overstate what was
+shown. **The measure is not swapped for one that separates better.** What it misses is visible in
+the rubric's own clause list: BE-004's anchor 2 asks for a re-read of **the order *and* a
+shipment** after a refused cancel, and a plain "a `get` follows a cancel" cannot see the second
+half. Descriptively, a `get("/shipments/…")` exists in **10 of 10 treated** files and **7 of 10**
+control files; that is a necessary condition for clause (b), not a measure of it, and it is
+labelled as such.
+
+**The registered outcome does not depend on any of this.** It is the sheet's `test-quality`, and
+there the arms are 10 of 10 against 3 of 10 at `p = 0.0031`, with the control sheets naming the
+missing clauses themselves — run 10's reads *"Bodies are asserted, but clauses b and d lack
+separate GET requests"*, which is word for word what the hand re-read of control pair 01 found.
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
