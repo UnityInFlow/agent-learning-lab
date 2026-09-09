@@ -676,3 +676,31 @@ sheet was right.** The counter now matches helper call sites and has a fixture s
 it and a `get` placed *before* the mutation, which must not count.
 
 *Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+### The second reader — 60 of 60 on three categories, and the known `change-focus` tic at `n = 20`
+
+`opencode-score.sh` with `ollama-cloud/deepseek-v4-pro` on the same 20 run ids and the same rubric
+sha. **20 of 20 returned a result; 0 stalls; no stray processes left running.** Sheets in
+`findings/opencode/score-observatory-run-<id>-2026090919*.yaml`. This is the second reading, **not
+a vote** — codex remains the registered scorer (Decision C).
+
+| Category | codex vs opencode, cell by cell |
+|---|---|
+| `architecture-consistency` | **20 of 20 identical** (2 everywhere) |
+| `maintainability` | **20 of 20 identical**, including all five control 2s and both treated 2s |
+| **`test-quality`** | **20 of 20 identical** — treated 2 on all ten, control 1 on all ten |
+| `change-focus` | **disagrees on 16 of 20**, always the same way: codex 1, opencode 2 |
+
+**The registered outcome is unanimous across two harnesses on every run.** `test-quality` treated
+10 of 10 at anchor 2 and control 0 of 10 is not a property of codex.
+
+**And `change-focus` reproduces its recorded defect at a larger `n`.** The lab's own note records
+opencode citing one tree where anchor 0 says *"cite the line in both trees"*, and prior work put
+the two harnesses at 18 of 34 agreement on this category alone while agreeing 34 of 34 on the other
+three. Here it is **4 of 20**, in the same direction, while the other three are **60 of 60**. That
+is the same property, sharper. Author decision 10.3 already carves `change-focus` out of the
+Decision H fallback for exactly this reason; this batch is further evidence for that carve-out and
+**nothing in this stop's verdict depends on `change-focus`**, which is neither a registered outcome
+nor separated (codex 1 of 10 vs 0 of 10, `p = 1`).
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*

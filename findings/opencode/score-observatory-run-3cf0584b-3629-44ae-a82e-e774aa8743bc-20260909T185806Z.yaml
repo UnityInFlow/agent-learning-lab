@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3cf0584b-3629-44ae-a82e-e774aa8743bc
+  mode:          run
+  run_id:        3cf0584b-3629-44ae-a82e-e774aa8743bc
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/3cf0584b-3629-44ae-a82e-e774aa8743bc
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.gT4tY6vpLX/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260909T185806Z
+  attachments:   3 file(s) under test, 3 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: every refusal throws an existing ApiException subclass, no ApiError constructed
+    evidence: ShipmentController.kt:60, ShipmentController.kt:66
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: status decision is an if/else chain, not an exhaustive when
+    evidence: ShipmentController.kt:65, ShipmentController.kt:72
+  - name: test-quality
+    score: 2
+    anchor_level: 2
+    reason: second confirm body asserted, state re-read via get, refusal asserts error code
+    evidence: ShipmentControllerTest.kt:106, ShipmentControllerTest.kt:110, ShipmentControllerTest.kt:128
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: unnamed methods identical; only confirm plus its required error code differ
+    evidence: ShipmentController.kt:26, ApiError.kt:36
+ambiguous_categories: []
+```
