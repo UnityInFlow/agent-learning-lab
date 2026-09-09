@@ -259,6 +259,43 @@ BE-003 `1.0.0` unchanged since B2. All 20 admitted by `check-run-gate.sh`.
 | quality | `test-quality` anchor 2 **1 of 10** treated, 1 of 10 control, `p = 1.0` | codex, rubric `396e1799eb2b`, 20 sheets |
 | correctness | **10 of 10** both arms at 7/7 acceptance | `evaluation.json` per run |
 
+### BE-004 — [E-011](../../experiments/E-011-workflow-phases-BE004.md), key `EXP-B5-PHASES-BE004`
+
+`n = 10` per arm, interleaved, one launch, all 20 admitted. Rubric
+`backend-quality-be004.yaml` sha `6252778b8472`, proved on five fixtures before any run was scored.
+
+| What the stop asked | Number | Where it came from |
+|---|---|---|
+| markers observable | **10 of 10** treated, **0 of 10** control | `check-phase-contract.py` check 1 |
+| no code before DESIGN | **10 of 10** treated | check 2 |
+| token overhead | **−9.9 %** ($0.2171 vs $0.2409), quartiles **separating** | run records |
+| turn overhead | **−5.1 %** (28 vs 29.5), quartiles overlapping, permutation `p = 0.83` | same |
+| quality | `test-quality` anchor 2 **3 of 10 treated vs 0 of 10 control** (`p = 0.21`) | codex, 20 sheets |
+| correctness | **10 of 10** both arms at 7/7 | `evaluation.json` |
+
+**Verdict: row 7, `INCONCLUSIVE`** — the same verdict as BE-003 and by the same route: both cost
+predictions written in the wrong direction, and no row for being wrong that way.
+
+### What running two tasks actually bought, stated against what decision 9 hoped for
+
+Author decision 9 added BE-004 because *"on BE-003 there is nothing to prevent"* — 50 of 100 rubric
+points at zero variance. **Half of that hope was met.**
+
+| | BE-003 | BE-004 | Did the harder task help? |
+|---|---|---|---|
+| `architecture-consistency` | 2 on 20 of 20 | **2 on 20 of 20** | **no** |
+| `maintainability` | identical `0×7 / 2×3` both arms | **0 on 20 of 20** | **no — worse; it pinned to the floor** |
+| `change-focus` | 1 on 19 of 20 | spread, but 7/20 harness agreement | **no — unusable, and now measurably so** |
+| `test-quality` | 1 of 10 vs 1 of 10, `p = 1.0` | **3 of 10 vs 0 of 10** | **yes** |
+| markers / code order | 10/10, 10/10 | 10/10, 10/10 | replicated |
+| cost direction | **−20.4 %** | **−9.9 %** | replicated, smaller |
+
+**One of four dimensions came alive, and it is the one B5 and B7 are about.** The other three are
+now measured as uninformative on *both* tasks with this model, which is a constraint to hand
+forward rather than a disappointment to absorb: **stop 13 should not choose a specialist skill from
+a failure that only `architecture-consistency` or `maintainability` reports**, because on 40 runs
+neither has reported anything.
+
 **Against B4.** B4 ([E-006](../../experiments/E-006-agent-boundary.md)) closed `INCONCLUSIVE`; B5
 closes `INCONCLUSIVE` on BE-003 too, and for a **different reason worth keeping separate**. B4
 could not resolve an effect. B5 resolved one and it was **backwards**: the decision rule has no row
@@ -389,10 +426,38 @@ and that is all it proves.
 **From the build track:** phase markers observable in the transcript · no code written before
 DESIGN · overhead measured, not assumed.
 
-**Plus, for this to count as a learned phase:**
+| Clause | BE-003 | BE-004 | Answer |
+|---|---|---|---|
+| markers observable in the transcript | 10 of 10 treated, 0 of 10 control | 10 of 10, 0 of 10 | **yes**, by an executing checker on both tasks |
+| no code written before DESIGN | 10 of 10 | 10 of 10 | **yes** |
+| overhead measured, not assumed | −20.4 % cost, −6.8 % turns, `n = 10`/arm | −9.9 % cost, −5.1 % turns, `n = 10`/arm | **yes** — measured, and negative |
 
-<!-- TODO -->
+**All three clauses answered yes on both tasks.** Note what the third clause does and does not say:
+it asks that the overhead be *measured*, not that it be positive. It was measured, twice, and it
+came out below zero both times.
+
+**Plus, for this to count as a learned phase** — the four criteria the scaffold left open, written
+now and answered from the evidence above:
+
+| Criterion | Answer |
+|---|---|
+| **1. Can I say what changed in the agent?** | Yes, and narrowly. Six declared phases with a machine-readable marker per phase, delivered as an agent definition (`agentHash sha256:b3450564b6f32d61`), four declared tools delivered as four. The behaviour that changed is *the order of the first write relative to a declared design step*, and nothing else the instruments can see. |
+| **2. Can I prove it happened?** | Yes, **L2**. `check-phase-contract.py` on every run's transcript, 10 of 10 on both clauses on both tasks, with a 15-case fixture set that includes the retroactive-narration shape a text checker passes. The **deliberate failure closes the attribution**: remove the marker instruction and the markers go to **0 of 3**, on both checkers. |
+| **3. Can I measure its effect?** | Yes, and the effect is not the one predicted. Cost **−20.4 %** / **−9.9 %**, turns **−6.8 %** / **−5.1 %**, output tokens **+37 %** / **+34 %**, cached reads **−60 %** / **−53 %**. Quality: nothing on three of four dimensions on either task; `test-quality` 3 of 10 vs 0 of 10 on BE-004, a direction at `p = 0.21`. |
+| **4. Can I name its failure mode?** | Yes, and it was measured rather than imagined: **the completion contract.** 4 of 20 treated runs across both tasks emit `DONE` with all six markers present and without its four required fields. B5 claims to prevent premature coding *and* false completion; it prevents the first at 20 of 20 and leaks the second at 4 of 20. |
+
+**Answered yes on all four. The stop is closed as a learned phase**, with the verdict on both
+experiments recorded as `INCONCLUSIVE` — because *learned* and *confirmed* are different questions,
+and this stop answers the first while its own decision rules cannot answer the second.
 
 ## Commit
 
-<!-- TODO -->
+| | |
+|---|---|
+| **Version** | `phases-v1.0` — `build/customizations/phases-v1.0/`, overlay sha256 `b3450564b6f32d6193e8580db766210e`. **Kept. Not promoted.** |
+| **Deliberate-failure variant** | `phases-v1.0-nomarkers-DELIBERATE-FAILURE`, sha256 `2e2f708cbc05b54d8f359e4de67fc644`. Kept as evidence; never a candidate. |
+| **Instrument built** | `tools/check-phase-contract.py` + `tools/verify-phase-contract-checker.sh` (15 of 15) + `tools/naive-phase-checker.py`, the committed negative control. |
+| **Experiments** | [E-010](../../experiments/E-010-workflow-phases-BE003.md) `INCONCLUSIVE` (row 5) · [E-011](../../experiments/E-011-workflow-phases-BE004.md) `INCONCLUSIVE` (row 7) |
+| **Runs** | 20 BE-003 + 20 BE-004 + 3 deliberate failure = **43 admitted runs**, plus 4 aborted by a DNS outage, kept and disclosed |
+| **What v1.1 must fix** | the `DONE` completion contract, 4 of 20 treated runs |
+| **What must not be re-registered** | the compounding-context mechanism for cost. Refuted here on two tasks and by E-007 before that. |
