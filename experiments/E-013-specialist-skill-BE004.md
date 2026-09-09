@@ -505,3 +505,53 @@ killed immediately and no run after it exists. Recorded here because a process v
 the violator can see is not a control.
 
 *Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+### §4 step 6 — the BE-004 batch
+
+`evidence/b06/batch-BE-004-20260909T182606Z/`, key `EXP-B6-SKILL-BE004`, `n = 10` per arm,
+interleaved, `--keep`.
+
+| | Treated | Control |
+|---|---|---|
+| `agentHash` | `sha256:51ffaedf9a3edbfe…` on 10 of 10 | **the same** on 10 of 10 |
+| `skillsHash` | `sha256:61445ead8504…` on 10 of 10 | **`null`** on 10 of 10 |
+| **Recorded activations** (all `status: measured`) | **10 of 10**, `projectSettings=1` | **0 of 10** |
+| Delegations | 0 of 10 | 0 of 10 |
+| Evaluator exit | 0 on 10 of 10 | 0 on 10 of 10 |
+
+**P1 HOLDS at 10 of 10 / 0 of 10.** **P6 holds**: 10 of 10 in both arms, so BE-004's traps did not
+trap here either — the same weakness stop 12 recorded, unchanged by the skill.
+
+### §5 hand re-read — BE-004 pair 01, written before any BE-004 sheet existed
+
+Rubric `benchmark/rubrics/backend-quality-be004.yaml` at sha **`6252778b8472`**, `test-quality`,
+whose anchor 2 needs **all four** clauses. File
+`sample-service/src/test/kotlin/…/OrderControllerTest.kt` in each kept worktree.
+
+**Treated, run `6d7a004d`:**
+
+| Clause | Held? | `path:line` |
+|---|---|---|
+| (a) cancel twice, second **body** asserted | yes | `:128`, `:131–133` — `$.status` = `CANCELLED` on the second call |
+| (b) after a **refused** cancel, order **and** a shipment re-read by separate `get(...)`, unchanged | yes | `:158` (409), `:161–163` `get("/orders/O-9")` → `ACTIVE`, `:166–168` `get("/shipments/S-9")` → `CONFIRMED` |
+| (c) a refusal asserts the envelope body | yes | `:147` — `error.code` = `ORDER_CANNOT_BE_CANCELLED` |
+| (d) state after a **successful** cancel re-read by separate `get(...)` | yes | `:102–106` `get("/orders/O-5")` → `CANCELLED`; also `:118–122` on the shipment |
+
+**My hand value: `test-quality` = 2.**
+
+**Control, run `b5dab364`:**
+
+| Clause | Held? | `path:line` |
+|---|---|---|
+| (a) | yes | `:128`, `:132–134` |
+| (b) | **no** | `:162–164` re-reads the **order** only. There is no `get("/shipments/…")` anywhere in the file — the three `get(` calls are `:66`, `:73`, `:162`. |
+| (c) | yes | `:147` |
+| (d) | **no** | after the successful cancel at `:115` the file asserts through **`shipmentRepository.findByOrderId("O-6")`** at `:119–120`, reading the repository directly instead of the endpoint under test |
+
+**My hand value: `test-quality` = 1.**
+
+**The control's failure is the one stop 12's hand re-read named**, at the same place and in the same
+words: `repository.findById()` where an HTTP `get` was the thing under test. Two of the four
+clauses absent, both of them the ones the skill's workflow spells out. `n = 1` pair, stated as such.
+
+*Hand-read by Opus 5 (claude-opus-5), autonomous, 2026-09-09, before any BE-004 sheet existed.*

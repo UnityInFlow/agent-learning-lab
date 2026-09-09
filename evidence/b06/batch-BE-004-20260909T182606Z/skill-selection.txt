@@ -2,3 +2,9 @@ treated 01 skill invocations in stream: 1
 treated 02 skill invocations in stream: 1
 treated 03 skill invocations in stream: 1
 treated 04 skill invocations in stream: 1
+treated 05 skill invocations in stream: 1
+treated 06 skill invocations in stream: 1
+treated 07 skill invocations in stream: 1
+treated 08 skill invocations in stream: 1
+treated 09 skill invocations in stream: 1
+treated 10 skill invocations in stream: 1
