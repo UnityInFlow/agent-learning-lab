@@ -213,6 +213,21 @@ process_violations_stop8:  # KEPT, not deleted. Disclosed rather than tidied awa
 board_state: "GREEN, and it was RED in between - both states are mine and both are recorded rather than only the final one. `./tools/check-board-freshness.sh` exits 0: `2 board(s) current at 12716f4646e1`, both markers `built-from: d14d1ec`. IT WENT RED BECAUSE I EDITED HANDOFF.md (item 000, the pass-16 section), which is exactly what §4 step 14 says editing HANDOFF.md does. BOTH BOARDS WERE REPUBLISHED WITH REAL CONTENT, NOT RELABELLED: runs on record 325 -> 335 re-derived from the API, position 12 marked HALTED on benchmarks#29, and a new pass-16 section on each. Relabelling alone would ALSO have gone green and would have left both boards lying, which is the failure this check exists to prevent rather than to perform. ALL HANDOFF EDITS WERE FINISHED BEFORE PUBLISHING so the digest was final and one republish sufficed; publishing first would have needed a second pass. RE-DERIVED BY HAND after the republish, not taken from the preflight subagent`s table - its board row said `current at 0bc526aa09d3` and was stale by the time I read it."
 blocked_on_author: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:   # what the author should read; NEVER gates anything (prompt §0). Newest first.
+  - "2026-09-09, AN INSTRUMENT TRAP THAT HAS ALREADY PRODUCED ONE WRONG PREFLIGHT ROW, AND IT IS THE
+    HOUSE FAILURE MODE IN A NEW COSTUME. `ls` IS ALIASED TO `eza` IN THIS SHELL. `eza -t` does not
+    mean `sort by time` - `-t` takes a sort-key argument (modified|changed|accessed|created) - so
+    `ls -t <file> <file>` SILENTLY CONSUMES THE FIRST FILENAME AS THAT ARGUMENT and falls back to
+    NAME order, ascending. It does not error. `command ls -t ... | head -1` therefore returns the
+    OLDEST match, and a subagent asked for `the newest sheet` gets the oldest one and reports it in
+    good faith. THIS IS EXACTLY WHAT HAPPENED to the §0a review-harness row this session: the
+    subagent named review-run-record-20260909T071516Z.md, the PREVIOUS session`s file, as evidence
+    of its own call. The row passes on my re-derivation (a new file DID land, 072932Z, 15 886 bytes,
+    12 finding sections, verdict REJECT) - but it would have passed on a file this session did not
+    write, which is precisely `a control reporting success over a scope smaller than it claims`.
+    The scoring subagent hit the same thing, caught it itself, and said so. MITIGATION NOW IN EVERY
+    SUBAGENT BRIEF: use `command ls -t` or `/bin/ls -lt`, never bare `ls -t`. A durable fix would be
+    a tools/newest.sh, or an alias-proof helper the briefs can name; that is an instrument the
+    author may want and it gates nothing."
   - "2026-09-09, STOP 12 STEP 4. THREE DISAGREEMENTS BETWEEN THIS PROMPT AND THE FILES, and §1 says the
     files win and the disagreement is noted. They go to HANDOFF.md at §4 step 14 together with the board
     republish, NOT now - editing HANDOFF.md turns check-board-freshness red until the republish, and
