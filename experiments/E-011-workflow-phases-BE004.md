@@ -734,13 +734,141 @@ closing rule lands on the residual, **1**.
 **The two absent clauses are the same failure BE-003's hand re-read found**, in a task built to be
 harder: the agent verifies through the repository it just wrote to, rather than re-reading state
 through a second request. That is the one behaviour both rubrics' anchor 2 is built around, and on
-these two runs the model does not do it on either task. The sheet's value for this cell is recorded
-beside it in the score table below; where they differ, the diff decides.
+these two runs the model does not do it on either task. **The registered sheet for this run gives `test-quality: 1` — the same value**
+(`findings/codex/score-observatory-run-fdb51fbd-4018-404a-afee-203871d54e97-20260909T105329Z.yaml`,
+rubric `6252778b8472`). Two hand re-reads at this stop, one per task, and both agree with the
+registered scorer on the value; on BE-003 they agreed on the stated reason as well.
+
+### Quality — all four categories, both arms, `n = 10` each
+
+Registered scorer codex, rubric `benchmark/rubrics/backend-quality-be004.yaml` sha **`6252778b8472`**
+on all 20 sheets, proved on five fixtures at §4 step 4 before any run was scored.
+
+| Category | Treated | Control | Fisher (anchor 2) |
+|---|---|---|---|
+| `architecture-consistency` | **2 × 10** | **2 × 10** | — no variance in either arm |
+| `maintainability` | **0 × 10** | **0 × 10** | — no variance in either arm, and at the floor |
+| `change-focus` | 0×5, 1×3, 2×2 | 0×1, 1×5, 2×4 | treated **worse**; see the caveat below |
+| `test-quality` | 1×7, **2×3** | 1×7, **null×3** | **3 of 10 vs 0 of 10, `p = 0.2105`** |
+
+**P7 held, exactly at its boundary: `test-quality` anchor 2 in the treated arm is 3 of 10**, against
+a registered ceiling of *"≤ 3 of 10, and specifically not ≥ 5"*. **Row 4b does not fire** (it needs
+≥ 7), so declared phases did not return what E-007's structural split returned, and E-007 needs no
+amendment from this task either. **Row 6 does not fire**: anchor 2 is not 0 of 10 in both arms.
+
+**This is the dimension author decision 9 built BE-004 to recover, and it recovered — partly.**
+On BE-003 both arms tie at 1 of 10, `p = 1.0`, and the dimension says nothing. Here the treated arm
+reaches anchor 2 **three times and the control never does**. `p = 0.2105` does not clear 0.05, so
+**this is a direction and not an effect**, and it is reported as one. But it is the first BE-004
+number where the two arms are distinguishable at all, and the four-clause anchor that E-011 warned
+*"is plausibly unreachable by this model on either arm"* turned out to be reachable — three times,
+in the arm with the procedure.
+
+**`architecture-consistency` and `maintainability` are flat here too, and `maintainability` is worse
+than flat.** It is **0 in twenty runs out of twenty** — the harder task pinned it to the floor
+rather than opening it up. So **50 of this rubric's 100 points carry no information on this task
+either**, which is the same finding BE-003 produced and is not the outcome decision 9 hoped for
+when it added the task. What BE-004 bought was `test-quality`, not the other two.
+
+**The `change-focus` row is the least trustworthy number in this file and is not used for
+anything.** The treated arm scores worse (five 0s against one). No registered outcome reads it —
+and `change-focus` is precisely the dimension where this project has now twice measured the two
+scoring harnesses disagreeing: 18 of 34 in lab#70, and **7 of 20 on this stop's BE-003 batch**,
+against 60 of 60 on the other three categories. Author decision 10.3 already makes a
+fallback-scored `change-focus` report-only for that reason. **A dimension that two competent
+scorers cannot agree on is not evidence that an arm wrote a noisier diff.**
+
+### The nulls again, and the one shape that repeats across both tasks
+
+| | wrote scorable test code | wrote none (`null`) | Fisher |
+|---|---|---|---|
+| BE-004 treated | **10 of 10** | 0 | `p = 0.2105` |
+| BE-004 control | 7 of 10 | **3** | |
+| *(BE-003, for reference only)* treated | 10 of 10 | 0 | `p = 0.0867` |
+| *(BE-003)* control | 6 of 10 | 4 | |
+
+**The same direction on both tasks, and neither clears 0.05 on its own.** The treated arm has now
+written scorable test code on **twenty runs out of twenty** across two tasks; the plain control
+skipped it seven times in twenty.
+
+**I computed the pooled figure and am disclosing rather than using it: 20/20 against 13/20 gives
+`p = 0.0083`. It is not a result and it does not enter any row of any decision rule.** Author
+decision 9 is explicit — *"No verdict is computed across tasks"* — and pooling two batches to cross
+a threshold neither reached alone is exactly the move that rule exists to forbid. It is written here
+because computing a number and then not mentioning it is worse than fencing it, and because it
+names precisely what a later stop should **register in advance**: *does the procedure make the model
+write a test at all?* That question is cheap, it is answerable on either task, and on this evidence
+it is where the effect is — not in how good the test is once written.
 
 ## Which predictions held
 
-<!-- filled at step 8. Wrong predictions stay wrong. -->
+Wrong predictions stay wrong. Nothing below was edited after the run.
+
+| # | Prediction | Registered | Observed | Verdict |
+|---|---|---|---|---|
+| P1 | delivery | 10/10 hash, 0/10 null, `init.tools` ⊇ {Edit, Write} | 10/10, 0/10, four tools delivered as four | **held** |
+| P2 | six markers in order | ≥ 9 of 10 | **10 of 10** (control 0 of 10) | **held** |
+| P3 | first write after `DESIGN` | ≥ 9 of 10 | **10 of 10** | **held** |
+| P4 | pre-`DESIGN` `Bash` writes = 0 | 0 in ≥ 9 of 10 | 0 in **9 of 10** | **held, exactly at threshold** |
+| P5 | `modelCalls` ≥ +4, quartiles apart | treated higher | treated **−1.5 (−5.1 %)**, quartiles overlap, permutation `p = 0.83` | **REFUTED** |
+| P6 | `estimatedCost` ≥ +25 %, quartiles apart | treated dearer | treated **−9.9 %**, quartiles **do** separate, permutation `p = 0.075` | **REFUTED, opposite direction** |
+| P7 | `test-quality` anchor 2 ≤ 3 of 10 | ≤ 3, not ≥ 5 | **3 of 10** | **held, at the boundary** |
+| P8 | evaluator pass ≥ 8 of 10 both arms, differing < 3 | floor | **10 of 10 and 10 of 10** | **held** |
+
+Six held, two refuted — **the same two, in the same direction, as on BE-003.**
+
+**P8 is the one I said would be most informative if wrong, and it was not wrong.** E-011 predicted
+the treated arm would *not* produce a correctness effect, and it did not: both arms passed 10 of 10
+at 7/7 acceptance. BE-004 was built with an all-or-nothing cascade trap and an unnamed guard, and
+**this model walked through both on twenty consecutive runs with and without a procedure.** The
+traps are not trapping it, which is itself the most useful thing to hand to stop 13.
 
 ## Decision
 
-<!-- filled at step 10 -->
+**Decision rule, walked in order:**
+
+- **Row 0** — P1 fails? No: 10 of 10 / 0 of 10, every sheet at rubric `6252778b8472`. Does not fire.
+- **Row 1** — P2 ≤ 5? No, P2 is 10 of 10. Does not fire.
+- **Row 2** — P2 ≥ 9 and P3 ≤ 5? No, P3 is 10 of 10. Does not fire.
+- **Row 3** — P2 ≥ 9 and P3 ≥ 9 and (P5 or P6 clears)? Neither clears; both were registered as
+  increases and both came out as decreases. Does not fire.
+- **Row 4** — the same, **and nothing improved**? Cost fell 9.9 %, with **quartiles that separate**
+  (treated q3 `$0.2218` below control q1 `$0.2342`) and 9 of 10 treated runs below the control
+  median. Something improved. Does not fire. *(The same ambiguity the §4a review raised against
+  E-010's row 4 applies here and is resolved the same way, from the row's own gloss — "costing
+  nothing this `n` resolves" — which names cost.)*
+- **Row 5** — evaluator pass differs between arms by ≥ 3? **No: 10 and 10, difference 0.** Does not
+  fire, and P8 stands.
+- **Row 6** — `test-quality` anchor 2 is 0 of 10 in **both** arms? **No: treated is 3 of 10.** Does
+  not fire — and that it does not fire is decision 9's return on this task.
+- **Row 7** — anything else. **Fires.**
+
+### Verdict: INCONCLUSIVE — reported as its combination, not rounded
+
+> The phases are observable (10 of 10) and followed in position (10 of 10) on a task three times
+> the size of BE-003. The overhead they were built to cost is **negative** on this task too. The
+> decision rule cannot name that, because every row assumed the treatment would cost more.
+
+**The same verdict as BE-003 by the same route — and that is the finding, not a coincidence.** Two
+tasks, two independently registered decision rules, two batches of `n = 10` per arm, and both land
+on the catch-all row for the identical reason: **the cost predictions were written in the wrong
+direction, twice, and neither rule has a row for being wrong that way.**
+
+### Keep, modify, or remove
+
+**Keep `phases-v1.0`, unpromoted — the same decision as on BE-003 and reached from this task's own
+evidence, not carried across from it.**
+
+- Observable and followed: 10 of 10 on both clauses, by a checker with a fixture set shown to reject
+  the narration shape.
+- **The same defect at the same rate:** 2 of 10 treated runs emit `DONE` without its four contract
+  fields, exactly as on BE-003. Twenty treated runs across two tasks, four failures, all of them the
+  completion contract. **That is the v1.1 item and this task confirms it is the overlay's, not
+  BE-003's.**
+- Not promoted. §6 forbids promotion on one batch, and half this rubric's points carry no
+  information on this task.
+- **What this task adds that BE-003 could not:** `test-quality` distinguishes the arms here (3 of 10
+  against 0 of 10) where on BE-003 it could not. The dimension is worth carrying to stop 13; the
+  other three are not.
+
+*Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
