@@ -662,3 +662,36 @@ against control 5 of 10, `p = 0.35` — is **not** separated at this `n` and is 
 follow-up most likely to matter, not as a cost that has been shown.
 
 *Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+### The second reader — BE-004
+
+`opencode-score.sh` with `ollama-cloud/deepseek-v4-pro`, same 20 run ids, same rubric sha
+`6252778b8472`. **20 of 20 returned a result; 0 stalls; no stray processes.**
+
+| Category | codex vs opencode |
+|---|---|
+| `architecture-consistency` | **20 of 20 identical** |
+| `maintainability` | **19 of 20** (control 06: codex 0, opencode 1) |
+| **`test-quality`** | **20 of 20 identical** — treated `2` on all ten, control `1,1,1,1,1,2,1,2,2,1` **in both harnesses, cell for cell** |
+| `change-focus` | **8 of 20** |
+
+**The registered outcome is unanimous across two harnesses on both tasks** — 40 of 40 cells. The
+control's 3 of 10 at anchor 2 is not a codex artefact either; both harnesses put the same three
+runs there.
+
+### A subagent reported values for a sheet that has none, and it was caught by opening the file
+
+The delegated codex scoring returned `test-quality = 1` for control 10 (`e00f855d`) citing sheet
+`…-20260909T201030Z.yaml`. **That file is header-only** — 26 lines, no `categories:` block, and
+`classify-model-output.sh score` returns **exit 3, `empty`** on it. The values in that row cannot
+have come from the file the row names.
+
+**The tally is unaffected** because the run was re-scored independently and the second sheet
+(`…-20260909T201120Z.yaml`) reads `test-quality: 1` with the reason *"Bodies are asserted, but
+clauses b and d lack separate GET requests"*. **But it is recorded**, because §4b's rule — *"before
+you trust a returned value that decides a gate, have a second subagent re-derive it from the file
+it names, or open that one file yourself"* — is the only reason the discrepancy was visible at all,
+and this is the first time in this track that it actually caught something. A subagent that fills a
+cell it could not read is the house failure mode with a different actor.
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*

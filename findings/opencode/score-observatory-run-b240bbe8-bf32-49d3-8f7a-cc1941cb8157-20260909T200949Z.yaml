@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:    6252778b8472
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b240bbe8-bf32-49d3-8f7a-cc1941cb8157
+  mode:          run
+  run_id:        b240bbe8-bf32-49d3-8f7a-cc1941cb8157
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/b240bbe8-bf32-49d3-8f7a-cc1941cb8157
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.XMcVVgZPri/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260909T200949Z
+  attachments:   6 file(s) under test, 6 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: every refusal throws an existing ApiException subclass, no ApiError literal anywhere
+    evidence: OrderController.kt:66, ShipmentController.kt:41
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: order-status decision in cancel is an if, not a when
+    evidence: OrderController.kt:59
+  - name: test-quality
+    score: 2
+    anchor_level: 2
+    reason: all four clauses citable — double-cancel body, 409 re-read, envelope code, persisted re-read
+    evidence: OrderControllerTest.kt:136, OrderControllerTest.kt:161, OrderControllerTest.kt:158, OrderControllerTest.kt:103
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: unnamed methods identical; only named additions plus required DI wiring
+    evidence: OrderController.kt:47, ShipmentController.kt:66
+ambiguous_categories: []
+```
