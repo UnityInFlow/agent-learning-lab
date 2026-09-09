@@ -93,7 +93,8 @@ the *same four tools*. The skill is added to a customization that already exists
 | | Treated | Control |
 |---|---|---|
 | Mechanism | `--customization <overlay>` where the overlay carries **both** `.claude/agents/backend-feature-phases.md` and `.claude/skills/testing-and-verification/SKILL.md` | the same overlay **minus the skill directory** |
-| Content hash | **filled at §4 step 4**, when the skill is built — it does not exist at the time of this commit, and the batch does not start until §4 step 5 reads it back | n/a |
+| Content hash | `SKILL.md` sha256 **`0876025fa451af5f1f2970da67a02f0d`**, 675 words, added at §4 step 4 in commit `b0ca034` — **after** this file's prediction commit `133de65`, which is the order a validator should check | n/a |
+| Overlay | `build/customizations/skill-v1.0-testing/` — the phases agent file **byte-identical** to `phases-v1.0` (`diff -q` clean, sha `b3450564b6f32d61`) **plus** `.claude/skills/testing-and-verification/SKILL.md` | `build/customizations/phases-v1.0/`, unchanged |
 | Per-run proof | a recorded activation in the run record | **no** activation record on any control run |
 | Preflight assertion (§4 step 5, own key, enters no comparison) | one run per arm, asserting the activation on the treated run and its absence on the control, and `agentHash` unchanged on both | as stated |
 
