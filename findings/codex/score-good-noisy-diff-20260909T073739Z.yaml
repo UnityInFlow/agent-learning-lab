@@ -1,0 +1,45 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         ../agent-observatory-benchmarks/tasks/BE-004-cancel-order/fixtures/good-noisy-diff
+  mode:           fixture
+  baseline:       ../agent-observatory-benchmarks/tasks/BE-004-cancel-order/fixtures/known-good
+  baseline_state: attached
+  scored_utc:     20260909T073739Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals use baseline ApiException subclasses; neither package constructs error bodies"
+    evidence: "good-noisy-diff/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:26,34,49,66; good-noisy-diff/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:29,39,55"
+  - name: "maintainability"
+    score: 2
+    anchor_level: 2
+    reason: "cancel returns one exhaustive when expression without else"
+    evidence: "good-noisy-diff/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:45"
+  - name: "test-quality"
+    score: null
+    anchor_level: null
+    reason: "nothing to grade"
+    evidence: "No file under src/test/ among the attachments"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Three unnamed order-controller methods differ beyond invisible whitespace"
+    evidence: "good-noisy-diff/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:25,31,40; known-good/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:25,42,51"
+ambiguous_categories: ["test-quality"]

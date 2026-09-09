@@ -175,7 +175,7 @@ BE-004 rubric exists yet to have scored them.
 | Benchmark task | `BE-004-cancel-order`, selected by `BENCHMARK=BE-004` | `benchmarkId` |
 | Benchmark commit | `agent-observatory-benchmarks` at `eea144ef940fda4cb6090561fdd901aed0013c8e` (the merge of benchmarks#29) unless §4 step 6 records a later sha | run record + `git rev-parse` at launch |
 | Evaluator | BE-004's own, `evaluator_version: 1.0.0`, exit-code contract read against BE-003's and found identical | `evaluation.exitCode`, `evaluation.evaluatorVersion` |
-| Rubric | **`benchmark/rubrics/backend-quality-be004.yaml`, sha registered at §4 step 4 and not before** — it does not exist at this commit. **No BE-004 run is scored until the fixture proof passes** (author decision 9 + 10.2). | asserted on every sheet, not eyeballed |
+| Rubric | **`benchmark/rubrics/backend-quality-be004.yaml`, sha `6252778b8472`** — ported at `c42120b`, **proved at §4 step 4 before any run was scored** (author decision 9 + 10.2): six codex sheets, all four dimensions separating, table in the §4 step 4 section. The sha was written into this row **after** the proof passed, never before. | `rubric_sha` on every sheet, read back from the header, not eyeballed |
 | Registered scorer | `codex` (Decision C), and **for the rubric proof codex and nothing else** (author decision 10.2) | sheet provenance header |
 | Second reader | `opencode-score.sh` with `ollama-cloud/deepseek-v4-pro`, report-only on `change-focus` if Decision H ever fires (decision 10.3) | sheet provenance header |
 | Isolation | `ISOLATE_USER_SETTINGS=1` on both arms | `customization.*Hash` null on control, 0 hook executions |
@@ -410,7 +410,104 @@ sheet is the secondary comparison and not the reference.
 
 ### Result
 
-<!-- filled after the six sheets exist, from the sheets, with each sheet's path -->
+**Six sheets, codex only (`gpt-5.6-sol`), every one asserting `rubric_sha: 6252778b8472` and its own
+target path in its provenance header — read back by me from the headers, not taken from the
+scorer's summary.** Run 2026-09-09T07:36:31Z–07:38:57Z, all six exit 0.
+
+| Fixture | Sheet | `architecture-consistency` | `maintainability` | `test-quality` | `change-focus` |
+|---|---|---|---|---|---|
+| `good-inline-envelope` | `findings/codex/score-good-inline-envelope-20260909T073631Z.yaml` | **0** ↓ | 2 | `null` | 2 |
+| `good-nested-ifs` | `findings/codex/score-good-nested-ifs-20260909T073707Z.yaml` | 2 | **0** ↓ | `null` | 2 |
+| `good-noisy-diff` | `findings/codex/score-good-noisy-diff-20260909T073739Z.yaml` | 2 | 2 | `null` | **0** ↓ |
+| `good-strong-tests` | `findings/codex/score-good-strong-tests-20260909T073804Z.yaml` | 2 | 2 | 2 | 2 |
+| `good-weak-tests` | `findings/codex/score-good-weak-tests-20260909T073833Z.yaml` | 2 | 2 | **1** ↓ | 2 |
+| *(secondary)* `known-good` | `findings/codex/score-known-good-20260909T073857Z.yaml` | `null` | 2 | `null` | `null` |
+
+Every sheet carried exactly four category entries.
+
+#### The primary test — PASSES on all four dimensions
+
+| Dimension | ↓ cell | Its value | Every other cell in the column | Strictly below? | Predicted? |
+|---|---|---|---|---|---|
+| `architecture-consistency` | `good-inline-envelope` | 0 | 2, 2, 2, 2 | **yes** | predicted 0 — **held** |
+| `maintainability` | `good-nested-ifs` | 0 | 2, 2, 2, 2 | **yes** | predicted 0 — **held** |
+| `change-focus` | `good-noisy-diff` | 0 | 2, 2, 2, 2 | **yes** | predicted 0 — **held** |
+| `test-quality` | `good-weak-tests` | 1 | `good-strong-tests` 2; the other three structural `null` | **yes**, on the pair | predicted 0 **or** 1 — **held** |
+
+**No dimension failed to separate, so §7's rubric-proof halt does not fire.** Each ↓ cell is not
+merely the minimum of its column — it is strictly below **every** other cell in it, which is the
+stronger of the two readings and the one registered.
+
+**The off-dimension cells held too, and that was registered as expected rather than claimed
+afterwards.** Every variant scored 2 on all three dimensions it does not vary. The fixture notes'
+held-constant claims are L3 prose — nothing executes to check that `good-nested-ifs` did not also
+drift on architecture — and this grid is the first evidence that they are true of BE-004's set. It
+is evidence, not proof: a variant that drifted in a way this rubric cannot see would look identical.
+
+**The three `test-quality` nulls are the count registered in advance.** `good-inline-envelope`,
+`good-nested-ifs` and `good-noisy-diff` carry no test file, so the precondition fires before an
+anchor is read. A `null` is a measurement (§6), not a missing cell, and none of them enters a
+separation row.
+
+#### The secondary sheet — one prediction REFUTED, in the direction that strengthens the amendment
+
+I predicted `architecture-consistency` 2 and `maintainability` 2 on the `known-good` sheet, with
+`change-focus` and `test-quality` `null`. **`maintainability` came back 2. `architecture-consistency`
+came back `null`**, and the sheet says why: *"ambiguous: anchors 1 and 2 require baseline exception
+provenance."*
+
+**That prediction is refuted and stays refuted.** It is also the more interesting outcome. This
+rubric's `architecture-consistency` anchor 2 requires an `ApiException` subclass *"that ALREADY
+EXISTS IN THE ATTACHED BASELINE"* — so with no baseline attached, the anchor is undecidable, not
+false. E-001 found **2 of 4** `known-good` cells structurally null on BE-003 and called that *"not
+an asymmetry to adjust for, a missing number."* On BE-004 it is **3 of 4**. The amendment written
+before the run said the `known-good` sheet cannot carry a separation claim; the sheet then produced
+a third null on its own, which is a sharper argument for that than the one I made.
+
+**What it does not touch:** nothing. The primary test never reads this sheet, and the `known-good`
+column of the primary grid is the baseline *attached to* the other five, which is a different object
+from the sheet scored *on* `known-good`.
+
+#### The hand re-read, §5's requirement, done on the one cell that is not at an extreme
+
+Three of the four ↓ cells are `0` and their columns are otherwise `2`; those are the easy readings.
+**The cell worth re-deriving by hand is `test-quality` on `good-weak-tests`, which came back `1`** —
+the residual, the only value in the grid that is neither floor nor ceiling, and the one a wrong
+reading would hide inside.
+
+It was re-read from `CancelOrderTest.kt` and the rubric at sha `6252778b8472` alone, by a scorer
+that was told not to open anything under `findings/` — so the sheet's value could not anchor it.
+
+| Clause of anchor 2 | Hand reading | `path:line` |
+|---|---|---|
+| (a) cancel called twice, second response **body** asserted | **not met** — `cancel("O-4")` appears once | `CancelOrderTest.kt:79` |
+| (b) after the 409, order status **and** a shipment status re-read through separate `get(...)` | **not met** — `.andExpect(status().isConflict)` is the test's last line | `CancelOrderTest.kt:79` |
+| (c) a refusal asserts the error **envelope body** | **not met** — no `jsonPath("$.error…")` in the file | `CancelOrderTest.kt:79` |
+| (d) persisted state after a success re-read through a separate `get(...)` | **not met** — `jsonPath("$.status").value("CANCELLED")` is asserted off the mutating call's own response | `CancelOrderTest.kt:63` |
+| anchor 0's condition (*every* assertion is a bare status code) | **not met** — line 63 reads a body | `CancelOrderTest.kt:63` |
+
+**Hand value: 1. Sheet value: 1. They agree, and they agree for the same stated reason** — line 63
+reads a body, which rules out anchor 0, while none of anchor 2's four clauses is present anywhere,
+which lands it on the residual.
+
+**What this checks and what it does not.** It checks that the sheet's `1` is re-derivable from the
+files by a reader who never saw it. It does **not** check the other five sheets, and it is `n = 1`.
+It is stated as true of this cell.
+
+#### Verdict on the instrument
+
+**`benchmark/rubrics/backend-quality-be004.yaml`, sha `6252778b8472`, is proved and is registered
+in `Controlled variables` above as of this section — and not one line earlier.** It discriminates on
+all four of BE-004's constructs, on the fixture set built to vary one dimension at a time, scored by
+the registered scorer and by no other (author decision 10.2).
+
+**Two things it does not establish, said here so they are not read into it later.** It has never
+scored a *run* — every cell above is a fixture, hand-built to be separable, and an agent's output is
+not. And `maintainability`'s construct is two-valued on this task, which the rubric's own header
+flags: *"the variance it can show is smaller than on a three-valued enum … a null result on this
+dimension is read against the instrument first."* That warning survives the proof; separating a
+hand-built if-chain from a hand-built `when` is a weaker claim than separating two runs.
+
 
 ## §4 step 5 — the preflight pair
 
