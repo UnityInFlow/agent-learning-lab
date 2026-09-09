@@ -246,11 +246,40 @@ it.
 
 ## Lab B6.1 — measure against B5, with and without
 
-<!-- TODO: the gate demands activation be *recorded*, not inferred.
-     Note the harness precedent: EXP-BE002-CLAUDEMD was voided because a
-     skill activated in 5 of 23 runs and the field that should have caught
-     it (skillsHash) was structurally incapable of reporting it. Decide
-     how you will know this skill ran, before you run it. -->
+**Two tasks, two experiments, no verdict computed across them** (author decision 9). `n = 10` per
+arm per task, interleaved, `--keep`, `claude-haiku-4-5-20251001`, benchmarks `eea144ef`.
+
+### How this lab knows the skill ran
+
+The precedent named above is the reason this is checked rather than assumed: `EXP-BE002-CLAUDEMD`
+was voided because a skill activated in 5 of 23 runs and `skillsHash` was structurally incapable of
+reporting it. Here **delivery and selection are two different measurements**, and the difference is
+the whole design:
+
+| | Instrument | What it can and cannot say | Layer |
+|---|---|---|---|
+| **Delivery** | `customization.skillsHash` in the run record | the file arrived. Says nothing about whether it was chosen | **L2** — the runner computes it per run |
+| **Selection** | `tools/skill-activation.sh` over `agent-observatory/infra/telemetry-out/events.jsonl` | the model chose it. **Exits 3 when a run is absent from telemetry**, so a `0` is a measurement and never missing data | **L2** — it executes and it refuses |
+| Tool availability | the runner's `init` read-back, `INIT_SCHEMA_DIR` | whether `Skill` was even in the pool | **L2** — declared-vs-delivered compared per run |
+
+### The result
+
+| | BE-003 | BE-004 |
+|---|---|---|
+| Batch | `evidence/b06/batch-BE-003-20260909T173701Z/` | `evidence/b06/batch-BE-004-20260909T182606Z/` |
+| Experiment | [`E-012`](../../experiments/E-012-specialist-skill-BE003.md) | [`E-013`](../../experiments/E-013-specialist-skill-BE004.md) |
+| Rubric sha | `396e1799eb2b` | `6252778b8472` |
+| **Recorded activations** | **10 of 10 treated, 0 of 10 control** | **10 of 10 treated, 0 of 10 control** |
+| **`test-quality` anchor 2** | **10 of 10 vs 0 of 10**, `p = 1.08 × 10⁻⁵` | **10 of 10 vs 3 of 10**, `p = 0.0031` |
+| Cost | **+8.0 %** | **−5.3 %** |
+| `modelCalls` | **+2** (22.5 vs 20.5) | **0** (29.0 vs 29.0) |
+| Corrections / evaluator | **10 of 10 pass, both arms** | **10 of 10 pass, both arms** |
+| Second reader | `test-quality` **20 of 20 identical to codex** | see E-013 |
+
+**The gate's four axes, answered:** quality **moved**, on both tasks, on the registered outcome and
+on the behaviour underneath it; **tokens/cost** did not move beyond the registered ±15 %; **context
+— turns** did not move beyond ±3; **corrections** did not move at all, the evaluator floor holding
+at 10 of 10 in all four arms.
 
 ## Deliberate failure
 
@@ -266,10 +295,66 @@ skill.
 **From the build track:** activation is *recorded*, not inferred from the answer text · runs with
 and without compared on quality, tokens, context and corrections · keep, modify, or **remove**.
 
-**Plus, for this to count as a learned phase:**
+### §5 validation table
 
-<!-- TODO -->
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| *"Build: exactly one."* | `build/customizations/phases-v1.0-skillcarrier/.claude/skills/testing-and-verification/SKILL.md`, sha `7bea904863fb79a544ee2068cb2f0f43`; the treated overlay holds exactly 2 files and the driver refuses otherwise | **L2** — `run-b6-batch.sh` guard, fixture E2 in `verify-b6-batch-guards.sh` | `find build/customizations/phases-v1.0-skillcarrier -type f` → 2; `./evidence/b06/verify-b6-batch-guards.sh` |
+| *"Chosen from a measured failure in B2–B5"* | workbook §4 step 2; the clause is the one stop 12's hand re-reads found missing on both tasks — BE-004 run `fdb51fbd` at `OrderControllerTest.kt:168,172` | **L3** — a reading of stop 12's evidence, written down | open `phases/b05-workflow-phases/README.md` §5 and the two stop-12 hand re-reads |
+| *"A skill answers eight questions"* | the eight top-level headings of `SKILL.md`, in the gate's order | **L3** — headings, nothing executes | `grep '^## ' …/SKILL.md` → 8 lines |
+| **"activation is *recorded*, not inferred from the answer text"** | `tools/skill-activation.sh` over `events.jsonl`: **40 of 40 runs `status: measured`**; treated `projectSettings=1` on 10 of 10 per task, control 0 of 10 per task | **L2** — the tool executes and **exits 3** rather than reporting 0 for a run it cannot see | `./tools/skill-activation.sh ../agent-observatory/infra/telemetry-out/events.jsonl <run id>` for any id in either manifest |
+| *"…not inferred from the answer text"* — negative control | deliberate failure `81899960`: same 675-word body, E-004's CSS description, **0 activations** against 4 of 5 for the domain description in the identical configuration | **L2** — same instrument, same `status: measured` | `evidence/b06/deliberate-failure/manifest.txt`, then the tool on that id |
+| **"runs with and without compared on quality"** | codex sheets, `396e1799eb2b` / `6252778b8472`: `test-quality` anchor 2 **10/10 vs 0/10** (`p = 1.08e-5`) and **10/10 vs 3/10** (`p = 0.0031`) | **L2** for the sheets and the gate that admitted the runs; **L3** for reading them as "quality" | `./tools/check-run-gate.sh` then `./tools/codex-score.sh <rubric> --run-id <id>`; sheet paths are in E-012/E-013 |
+| — the same, hand-checked | pair 01 of each task hand-read **before any sheet existed**: BE-003 treated `3070d353` = 2 / control `3f30195f` = 1; BE-004 treated `6d7a004d` = 2 / control `b5dab364` = 1 — all four agree with the sheets | **L3** — a human reading, and that is exactly why it is written beside the sheet | the `path:line` citations in E-012 and E-013 against the kept worktrees |
+| **"…on tokens, context and corrections"** | cost **+8.0 %** / **−5.3 %**; `modelCalls` **+2** / **0**; evaluator **10 of 10 in all four arms** | **L2** — read from the run records, not from a flag | `curl 127.0.0.1:18081/api/runs/<id>` → `efficiency.estimatedCost`, `behavior.modelCalls`, `evaluation` |
+| **"keep, modify, or remove"** | **KEEP**, decided below from the measured effect | **L3** — a decision | the Decision section below |
+| Independence — one variable | `agentHash sha256:51ffaedf9a3edbfe…` **identical on all 40 runs**; `skillsHash` non-null on 20 treated and `null` on 20 control; `instructionsHash` `null` on all 40; 0 delegations on all 40; `claude 2.1.266` asserted constant per run | **L2** — read back per run and the batch aborts on a mismatch; proved to abort by fixtures C, C2, E | the manifests' `agent_hash` / `skill_hash` / `instr_hash` columns |
+| Prediction before run | prediction commit `133de65` (2026-09-09T17:00:47+02:00); first run of the BE-003 batch is in `batch-BE-003-20260909T173701Z` (17:37Z) | **L2** — the driver refuses if the clock says otherwise | `git log --format=%cI -1 133de65` against the batch directory's stamp |
+
+### Plus, for this to count as a learned phase
+
+**What changed in the agent, and it is not "it read more words".** A skill is **selected at the
+moment it is needed and named in the transcript when it is**. That is the difference from
+[E-003](../../experiments/E-003-instructions-v0.1.md), where a 57-word instruction file proved
+delivered by hash on 10 of 10 runs moved nothing measurable, and from
+[E-007](../../experiments/E-007-orchestration.md), where a split returned nothing the gate could
+see. **This is the first treatment in Track B that moved its registered outcome on both tasks.**
+
+**What it cost to find out, and this is the part worth carrying.** The stop spent **three
+instrument defects and four excluded runs** before a single valid batch row existed, and all three
+defects have the same shape — *a check that believed more than it measured*:
+
+1. a guard registered against `SKILL.md`'s sha when the runner reads the **skills subtree** hash;
+2. `read -r a s i` not declared `local`, so every control log **overwrote the last one**;
+3. `tools/count-state-reread.py` missing extracted `confirmShipment()` helpers, disagreeing with a
+   sheet that was right.
+
+**None of the three could have been caught by the fixture set**, because `B6_GUARDS_ONLY=1` can
+only exercise guards that fire **before the first run**. That is a real limit of this project's
+favourite control and it is the thing this stop learned about its own instruments.
+
+**Was this the agent, or the harness?** The **agent**, and the separation is measured rather than
+argued. Three configurations, each isolating the others:
+
+| Configuration | `Skill` in the pool | Description | Activations |
+|---|---|---|---|
+| skill alone | yes | technique | **0** (`2e972b72`) |
+| skill alone | yes | **domain** | **4 of 5** (`ba8b4b98` + selection-rate probe) |
+| agent, no `Skill` in `tools:` | **no** | domain | **0** (`e711fd4a`) |
+| **carrier** — agent **with** `Skill` | yes | domain | **4 of 5** probe, **20 of 20** in the batches |
+
+The harness can silence a skill two independent ways — an absent `Skill` tool, and a description
+that names a technique rather than the task — and **both were ruled out before the effect was
+claimed**. What is left is the model reading the skill and writing a different test.
 
 ## Commit
 
-<!-- TODO -->
+- **`b0ca034`** — the skill, 675 words, built after both prediction commits
+- **`133de65`** — E-012 and E-013 registered **before** the artifact existed
+- **`4d3d166`** — the deliberate failure registered **before** it was run
+- **`c3b3621`, `d85cb6e`** — the v1.1 description, the 2×2 that separates the two blockers
+- **`0a01fbf`, `420ce1f`, `ebbd5c7`** — the selection rate, and the three instrument defects
+  recorded rather than tidied away
+- **`61d8738`, `bd51255`, `abf7366`, `c928f62`** — the two batches, both harnesses, the hand
+  re-reads
+
