@@ -213,6 +213,30 @@ process_violations_stop8:  # KEPT, not deleted. Disclosed rather than tidied awa
 board_state: "GREEN, and it was RED in between - both states are mine and both are recorded rather than only the final one. `./tools/check-board-freshness.sh` exits 0: `2 board(s) current at 12716f4646e1`, both markers `built-from: d14d1ec`. IT WENT RED BECAUSE I EDITED HANDOFF.md (item 000, the pass-16 section), which is exactly what §4 step 14 says editing HANDOFF.md does. BOTH BOARDS WERE REPUBLISHED WITH REAL CONTENT, NOT RELABELLED: runs on record 325 -> 335 re-derived from the API, position 12 marked HALTED on benchmarks#29, and a new pass-16 section on each. Relabelling alone would ALSO have gone green and would have left both boards lying, which is the failure this check exists to prevent rather than to perform. ALL HANDOFF EDITS WERE FINISHED BEFORE PUBLISHING so the digest was final and one republish sufficed; publishing first would have needed a second pass. RE-DERIVED BY HAND after the republish, not taken from the preflight subagent`s table - its board row said `current at 0bc526aa09d3` and was stale by the time I read it."
 blocked_on_author: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:   # what the author should read; NEVER gates anything (prompt §0). Newest first.
+  - "2026-09-09, STOP 12 STEP 4. THREE DISAGREEMENTS BETWEEN THIS PROMPT AND THE FILES, and §1 says the
+    files win and the disagreement is noted. They go to HANDOFF.md at §4 step 14 together with the board
+    republish, NOT now - editing HANDOFF.md turns check-board-freshness red until the republish, and
+    doing both at the end is what the 2026-09-07 session learned to do.
+    (1) §0a`s review-hook row says `16 of 16 cases pass`. The fixture set is now 19 and passes 19 of 19.
+    (2) AUTHOR DECISION 9 SAYS THE BE-004 RUBRIC PROOF IS `every dimension separates its variant from
+    known-good in the predicted direction`. E-001 SAYS THE OPPOSITE AND GIVES THE MEASUREMENT REASON:
+    `Discrimination is a comparison among these five, not against known-good`, because codex-score.sh
+    attaches no baseline when known-good is the target, so its change-focus cell is a STRUCTURAL null
+    and its test-quality cell is one too - `not an asymmetry to adjust for, a missing number`. I
+    registered the prompt`s wording first and CORRECTED IT BEFORE THE FIRST SCORING CALL (27b54ab), left
+    the original standing unedited, and now run a PRIMARY test among the five variants (which the §7
+    halt is judged on) and a SECONDARY known-good sheet that is reported and decides nothing.
+    (3) §0a`s codex row does not say the dry run exits 3. It does, by construction
+    (tools/codex-score.sh:286-291), so a reader who treats a non-zero exit as a failing row would fail a
+    passing one."
+  - "2026-09-09, INSTRUMENT GAP, NOT A HALT. `make smoke` in agent-observatory has no tunnel-aware mode
+    on this machine and its `-include infra/.env` OVERRIDES env vars passed on the command line, so
+    `API_PORT=18081 make smoke` still reports 18 of 18 failed while the stack is entirely up. Calling
+    ./runner/smoke-test.sh directly with API= and OTLP= gives the true picture: 9 of 18, and all nine
+    failures are ports the SSH tunnel does not forward (Grafana, Tempo, Prometheus, the web app and the
+    two Prometheus scrape-target checks). Two consecutive preflights have now had to route around this
+    by hand. A tunnel-aware target, or a smoke-test that distinguishes `unreachable from this host` from
+    `down`, would stop the §0a stack row costing a re-derivation every time."
   - "NEW 2026-09-09: §0a ROW 5 IS RECORDED `partial` AND THE INSTRUMENT, NOT THE STACK, IS WHAT FAILED.
     `make smoke` says 18 of 18 FAILED; ALL SEVEN observatory containers are UP in colima (api 8081,
     web 5174, otel-collector 4317-4318, grafana 3001, postgres 5432, tempo 3200, prometheus 9090).
@@ -270,7 +294,61 @@ blocked_on_author_history:
   - "SQUASH MERGES HAVE ORPHANED EVERY PREDICTION COMMIT IN THIS TRACK - all eleven. On main, `git log -- experiments/E-002-isolation-contamination.md` shows only the squash 27d67e5 at 19:07Z, SIX HOURS AFTER the runs it was supposed to precede. B3's nine commits are the same. So the prediction-precedes-run guarantee - the track's most-cited - CANNOT BE RE-DERIVED BY A STRANGER cloning the repo, and by the §9 validator's layer correction it is L3 as well. The fix is a repo-convention change and §7 reserves those for the author: merge commits for stop branches instead of squashes, or a pre-push check that refuses a workbook citing a sha main cannot reach. Raised by findings/track-b-validation-2026-09-04.md"
 codex_quota: "exhausted 2026-09-05T19:19:42Z (first refusal seen this session, on the review route; scoring route refused at 19:20:00Z and 19:25:28Z), reset `try again at 11:05 PM` local = 2026-09-05T21:05Z. §4c step 1 recorded. §4c step 2 (score waiting runs with opencode-score) CANNOT run either - ollama-cloud is at its WEEKLY limit (line below), so the fallback scorer is also out. Nothing at stop 11 needs a score before boundary 1. If codex is still refused after 21:05Z plus one retry, the 12-hour clock for Decision H starts from 19:19:42Z, i.e. 2026-09-06T07:19Z - and Decision H would need ollama-cloud back too, which no one has a reset time for."
 opencode_quota: "LIFTED, and the discovery is this session`s only real finding. RECORD OF THE OUTAGE KEPT VERBATIM BELOW because it is what the sheets were owed against. NEW STATE 2026-09-07: the WEEKLY limit that refused ollama-cloud from 2026-09-05T18:06Z through the 2026-09-06T20:5xZ preflight is GONE. FOUND BY THE PREFLIGHT, NOT BY GUESSING: §0a row 2 ran the DEFAULT review panel (ollama-cloud/glm-5.2 + minimax-m3) and got findings/opencode/review-run-record-20260907T072723Z.md at 14 534 BYTES WITH 12 FINDING SECTIONS, where the same command the day before produced a 903-byte header-only STALL with 0 sections. THE SCORING ROUTE WAS THEN PROVED SEPARATELY rather than inferred from the review route - they are different opencode entry points and one working does not imply the other: one sheet on e8d881b9 at 07:38:50Z, FOUR CATEGORIES, ZERO NULLS, rubric_sha 396e1799eb2b. ALL 34 OWED SHEETS WERE THEN PRODUCED (13 + 20 + the e8d881b9 probe; one, abd08a80, exited 2 on an opencode external_directory permission auto-reject and was retried once, both files kept). SUPERSEDED TEXT, KEPT: EXHAUSTED 2026-09-05T18:06-18:08Z, `Error: you (hermannjirka15) have reached your weekly usage limit` from ollama-cloud; two header-only sheets kept and labelled as stall artefacts; Decision C makes codex the REGISTERED scorer and opencode the SECOND READER, so this never blocked an exit gate and was never a §7 halt."
-preflight:  # §0a RE-RUN IN FULL 2026-09-09T07:15-08:0xZ, at the AUTHOR`S EXPLICIT INSTRUCTION for this
+preflight:  # §0a RE-RUN IN FULL 2026-09-09T07:24-07:36Z, at the AUTHOR`S EXPLICIT INSTRUCTION for this
+            # session ("starting with the section 0a preflight"), not because §0a`s own trigger fired -
+            # status was `running`, not `blocked`, and there had been no halt since the previous run of
+            # it. Eight rows delegated to a haiku subagent with exact commands, this machine`s tunnel
+            # ports and an instruction to CAPTURE every exit code rather than infer it (the previous
+            # block records inferring one as its "one honest gap"; that gap is closed here). TWO ROWS
+            # RE-DERIVED BY ME AFTERWARDS AND ONE OF THEM WAS WRONG IN THE SUBAGENT`S HANDS.
+  hook_script: "ok - 19 of 19 cases pass, exit 0 CAPTURED. The prompt says `16 of 16` and the prompt is
+    STALE; the fixture set has grown to 19. §1 says the files win and the disagreement is noted - it is
+    in author_notes and in HANDOFF. NOT a failing row."
+  review_harness: "ok, AND THE SUBAGENT NAMED THE WRONG FILE. It reported
+    findings/opencode/review-run-record-20260909T071516Z.md at 13 338 bytes - that is the PREVIOUS
+    session`s file, not one its own call produced. I RE-DERIVED IT: `/bin/ls -lt findings/opencode/`
+    shows a NEW file, review-run-record-20260909T072932Z.md, 15 886 bytes, 182 lines, 12 `###` finding
+    sections, acceptance verdict REJECT - a RESULT, not a stall. Exit code 0 CAPTURED this time, not
+    inferred. `LC_ALL=C pgrep -fl opencode` afterwards: nothing, rc 1. THE ROW PASSES ON MY READING AND
+    WOULD HAVE PASSED ON A FILE THIS SESSION DID NOT WRITE - which is the §4b failure mode named in the
+    prompt, caught here rather than trusted."
+  codex_harness: "ok, and codex is UP - no Decision H clock starts. codex-cli 0.147.0. Dry run wrote
+    /tmp/preflight-dryrun-1788939098.txt, 28 kB, and EXITED 3 - which is CORRECT and is not an error:
+    tools/codex-score.sh:286-291 exits 3 on the dry-run path by construction. I checked the source
+    rather than reading 3 as a failure. LAB_SCORE_DRY_RUN IS A PATH, NOT A BOOLEAN, and the documented
+    `=1` writes a file named `1` into the repo root (still tracked from 5f1b83d, still owed a fix).
+    REAL RUN exit 0 -> findings/codex/score-good-nested-ifs-20260909T073144Z.yaml, ALL FOUR CATEGORIES
+    present, test-quality null (structural, BE-003 good-nested-ifs carries no test file)."
+  validators: "ok - all four run individually, never chained: run-gate 13 of 13 exit 0, sheet-category
+    11 of 11 exit 0, run-record 12 of 12 exit 0, model-output-classifier 16 of 16 exit 0."
+  observatory_stack: "PARTIAL, SAME CAUSE AND SAME NINE CHECKS AS THE 07:15Z BLOCK - reproduced, not
+    copied. `API=http://127.0.0.1:18081 OTLP=http://localhost:14318 ./runner/smoke-test.sh` -> 9 of 18
+    passing, exit 1. THE NINE FAILURES ARE HOST-UNREACHABILITY, NOT DOWN SERVICES: Tempo ready,
+    Prometheus is ours, Grafana healthy, Web app is ours, the two datasource-provisioned checks, the
+    Overview dashboard, and the two Prometheus scrape-target checks (collector target up, API target
+    up) - every one of which needs a port the SSH tunnel does not forward. `docker --context colima ps`
+    lists 20 containers up, including all seven observatory ones (api 9 days, web 9 days, otel-collector,
+    grafana, postgres, tempo, prometheus 2 weeks). NOT A HALT: the §4 loop reads the API and
+    events.jsonl and reads none of those four. The API contract half passes 7 of 7. The instrument gap -
+    `make smoke` has no tunnel-aware mode on this machine, and its `-include infra/.env` overrides env
+    vars passed on the command line - is in author_notes."
+  isolation: "ok on the codex half, RE-DERIVED on the claude half rather than re-run, unchanged from the
+    07:15Z block and stated as derived. codex: ./runner/verify-codex-isolation.sh exit 0, all three
+    checks hold for codex-cli 0.147.0. claude: NO live ISOLATE_USER_SETTINGS=1 benchmark run was made
+    this session - that is a paid run - so it is taken from E-009`s 20-run batch (2026-09-07, key
+    EXP-4B-FOURTH-CELL-2): arm F carried instructionsHash sha256:51f16eeb1618cd212405818c5165dcba on 10
+    of 10 and its concurrent control null on 10 of 10. STATED AS DERIVED, NOT AS OBSERVED THIS SESSION.
+    STEP 5 OF THIS STOP WILL OBSERVE IT DIRECTLY on both tasks, which is what the preflight pair is."
+  board_check: "ok - ./tools/check-board-freshness.sh exit 0, `2 board(s) current at 122ecbc07b36`.
+    Not the UNVERIFIABLE squash-orphan branch. NOTE: HANDOFF.md is edited later in this session, which
+    will turn this red again; the republish is §4 step 14`s job and is not owed before it."
+  processes_after: "CLEAN at the end of the preflight. `LC_ALL=C pgrep -fl \'opencode|codex|run-agent\'`
+    returned nothing, rc 1."
+  hook_wiring: "STILL unproven in print mode, unchanged, and now unproven for a SECOND recorded reason:
+    every push this run has gone out with a synchronous §4a review as the control, and this session
+    pushed nothing before the state write. §4a`s synchronous review remains the only review control."
+
+preflight_20260909_0715_SUPERSEDED_KEPT:  # §0a RE-RUN IN FULL 2026-09-09T07:15-08:0xZ, at the AUTHOR`S EXPLICIT INSTRUCTION for this
             # session ("starting with the section 0a preflight"), not because §0a`s own trigger fired -
             # status was `running`, not `blocked`, and there had been no halt. Seven rows delegated to a
             # haiku subagent with exact commands and this machine`s tunnel ports; ROW 5 FAILED IN ITS
