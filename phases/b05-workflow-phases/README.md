@@ -279,9 +279,29 @@ customization predicted to cost more has cost less.
 
 ## Deliberate failure
 
-<!-- TODO: instruct it to skip DESIGN and see whether the phase markers
-     still appear. If prose alone holds the workflow, you have measured
-     Layer 3 compliance, not enforcement. -->
+**Run 2026-09-09, `n = 3`, against a prediction committed at `5777b07` before any run of this stop.**
+The scaffold's TODO asked whether *"prose alone holds the workflow"*. It does not.
+
+The overlay `build/customizations/phases-v1.0-nomarkers-DELIBERATE-FAILURE` (sha256
+`2e2f708cbc05b54d8f359e4de67fc644`) is v1.0 with **one variable removed** — the machine-readable
+marker instruction, nine occurrences of `<<PHASE:X>>` reduced to zero — and the six phases left in
+place as prose headings, every other word unchanged.
+
+| | markers, real checker | markers, naive text checker | evaluator |
+|---|---|---|---|
+| v1.0, `n = 10` | **10 of 10** | — | 10 of 10 |
+| no-markers, `n = 3` | **0 of 3** | **0 of 3** | 3 of 3 pass, 66–73 added lines |
+
+**The answer to the scaffold's question is the second column.** Prose alone does not hold the
+workflow, and it does not even hold the *narration*: the naive checker greps the assistant text for
+the six phase words and found none. Removing the instruction to announce a phase removed the phases
+from the transcript entirely, so what was measured at 10 of 10 in Lab B5.1 is **L3 compliance with
+one specific instruction**, not with the six-phase prose that surrounds it.
+
+**And the prediction was half wrong, which is recorded and not revised.** It expected the phase
+words to survive as closing-summary narration, so that a text-only checker would still pass where
+the real one failed. Both checkers failed. Detail in
+[E-010](../../experiments/E-010-workflow-phases-BE003.md) §4 step 9.
 
 ## Learning block — BE-003
 

@@ -2,8 +2,8 @@
 
 **Spine stop 12 (B5) · task `BE-003-confirm-shipment` · experiment key `EXP-B5-PHASES-BE003`**
 **Status:** CLOSED — `n = 10` per arm run 2026-09-09, decision rule **row 5, INCONCLUSIVE**, build
-gate's three clauses each answered yes. §4 step 9's deliberate failure is the one registered piece
-still outstanding; see "Deliberate failure" below. *(Header corrected after the §4a review found it
+gate's three clauses each answered yes. §4 step 9's deliberate failure has been run: **0 of 3 markers**,
+half its prediction held and half refuted; see "§4 step 9" below. *(Header corrected after the §4a review found it
 still reading "REGISTERED, no runs yet" beneath a full Results section — finding 1.)*
 
 `Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-09T05:5xZ; the author did not review
@@ -927,6 +927,7 @@ Wrong predictions stay wrong. Nothing below was edited after the run.
 | P6 | `estimatedCost` ≥ +25 %, q1 > 0.175 | treated dearer | treated **−20.4 %** | **REFUTED, opposite direction** |
 | P7 | `test-quality` anchor 2 ≤ 3 of 10 | ≤ 3, not ≥ 5 | **1 of 10** | **held** |
 | P8 | evaluator pass ≥ 9 of 10 | floor | 10 of 10 both arms | **held** |
+| DF | deliberate failure: markers vanish `0 of 3` **and** the naive checker still passes | registered at `5777b07` | markers **0 of 3** ✔; naive checker **also 0 of 6**, so it did not still pass ✘ | **split — first clause held, second refuted** |
 
 Six held, two refuted, and **the two that were refuted were refuted together and in the same
 direction**. P6 said so itself before the run: *"If this prediction is wrong in the E-007
