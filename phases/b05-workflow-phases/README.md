@@ -283,6 +283,55 @@ customization predicted to cost more has cost less.
      still appear. If prose alone holds the workflow, you have measured
      Layer 3 compliance, not enforcement. -->
 
+## Learning block — BE-003
+
+*The six questions from `build/README.md#after-every-step`, answered from this stop's evidence.
+BE-004's block is added when its batch closes; nothing below is computed across the two tasks.*
+
+```yaml
+learning:
+  what_was_added: >
+    build/customizations/phases-v1.0 — one agent overlay file,
+    .claude/agents/backend-feature-phases.md, sha256:b3450564b6f32d6193e8580db766210e,
+    declaring six phases with a machine-readable marker per phase and an output contract per
+    phase. Plus tools/check-phase-contract.py, the instrument that reads a run's transcript and
+    decides whether the phases were followed or narrated, with a 15-of-15 fixture set.
+  why_it_exists: >
+    The build track's stated purpose is to prevent premature coding and false completion. Both
+    halves needed a measurement that a text search cannot fake, because the failure mode the
+    trap names is a model that writes first and announces the phases afterwards in its summary.
+  observed_effect: >
+    Premature coding: prevented, 10 of 10, and tightly — the first mutating tool call is the very
+    next event after the DESIGN marker in every treated run. Markers: 10 of 10 treated, 0 of 10
+    control. False completion: leaked, 2 of 10 emit DONE without its four contract fields.
+    Quality: nothing. test-quality anchor 2 is 1 of 10 in both arms, p = 1.0, and every other
+    category is p = 1.0 as well.
+  unexpected_effect: >
+    THE COST WENT DOWN. estimatedCost median $0.1178 treated against $0.1480 control, -20.4%,
+    against a registered +25%; modelCalls 20.5 against 22. The mechanism registered for P6 —
+    one agent carrying one growing context through six phases, compounding input cost — is
+    refuted, and refuted in the same direction E-007 was. What the treatment actually did to
+    cost is narrow the spread: control modelCalls range 14-31, treated 16-24. A structure that
+    stops the model wandering is cheaper than one that lets it, and the cheapest single run in
+    the batch is still a control.
+    Second unexpected effect, unregistered: addedLines median 79 treated against 41.5 control,
+    with the control visibly bimodal (19,20,24,24 against 59,62,63,65). Twice the lines, fewer
+    turns, less money.
+  keep_or_remove: >
+    KEEP phases-v1.0, unpromoted, on the gate and not on the decision rule. Removed instead is a
+    belief: the compounding-context mechanism, now refuted twice. REMOVE nothing from the
+    overlay — the DONE contract leak at 2 of 10 is a v1.1 item, and a version that has been
+    measured is never edited.
+  next_question: >
+    Is the cost reduction the phases, or is it any structure that stops the model wandering?
+    This stop cannot tell them apart: it has one treated arm and no arm with a different
+    structure at the same price point. The registered comparison that would separate them is a
+    prose-only arm with the six phases and no markers — which is exactly the deliberate-failure
+    overlay this stop builds for a different purpose, and reading it that way would be reusing a
+    control for a question it was not registered against. That is the next stop's prediction,
+    not this one's finding.
+```
+
 ## §5 validation table — BE-003
 
 Every row is filled from a path, a sha or a run id. **The layer column is about the proof, not the
