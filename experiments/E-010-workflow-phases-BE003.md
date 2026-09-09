@@ -816,6 +816,46 @@ and a 20.4 % cost reduction is not nothing. It is not "CONFIRM" either: row 3 re
 cleared, and an MDE registered in one direction is not cleared by a result in the other. **The
 honest verdict is row 5, and the reason row 5 exists is exactly this.**
 
+### Stress-testing the verdict — is "nothing improved" really false?
+
+Row 4 (`NOT DETECTABLE`) turns on the clause *"and nothing improved"*, and row 5 was chosen over it
+because the cost fell. That is the single judgement in this write-up most worth attacking, so it
+was attacked, and **the attack is recorded whichever way it came out**.
+
+**The case for row 4.** Apply the registered MDE symmetrically — it asked for *"≥ 25 % on the
+median **and** treated q1 > 0.175"*, so its mirror asks for a ≥ 25 % fall with treated q3 below
+control q1. Observed: a **20.4 %** fall, short of 25; and treated q3 `$0.1217` sits `$0.0001`
+**above** control q1 `$0.1216`, so the quartiles overlap, by one ten-thousandth of a dollar. **By
+the registered instrument, read symmetrically, the reverse effect does not clear either.** On that
+reading nothing cleared anything and row 4 fires.
+
+**The case against it, from the same twenty numbers:**
+
+```
+treated  0.0986 0.0997 0.1012 0.1042 0.1174 0.1182 0.1183 0.1217 0.1224 0.1283
+control  0.0935 0.1044 0.1216 0.1454 0.1474 0.1485 0.1612 0.1724 0.1975 0.1997
+```
+
+- **All 10 treated runs are cheaper than the control's median** ($0.1480). The treated *maximum*,
+  $0.1283, is below it.
+- The treated **median** ($0.1178) sits below the control's **first quartile** ($0.1216).
+- Treated is cheaper in **81 of 100** pairwise run comparisons, no ties.
+- Permutation test on the median difference, 200 000 relabelings: **two-sided `p = 0.026`**.
+
+**Verdict on the verdict: row 5 stands.** Row 4 requires that nothing improved, and that is a
+statement about the world, not about a threshold. Something improved: every treated run came in
+under the control's median. A threshold registered in the opposite direction failing to be
+cleared by 4.6 percentage points does not make a consistent, one-directional shift across the whole
+distribution into "nothing".
+
+**And the permutation test decides nothing here, deliberately.** It was not registered, it was run
+after the data was seen, and this project's own rule is that a test chosen after the fact measures
+the chooser. It is reported because it is the strongest available check on a judgement call, and it
+is fenced off from the decision rule for exactly the reason it is persuasive. **What the registered
+instruments say is what stands: P6 refuted, no MDE cleared in either direction, row 5.**
+
+*Added by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
 ### The build-track gate is a different question, and it is answered yes
 
 `build/README.md#b5` asks three things, and none of them is the experiment's decision rule:
