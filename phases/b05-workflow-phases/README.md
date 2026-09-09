@@ -311,7 +311,10 @@ learning:
     against a registered +25%; modelCalls 20.5 against 22. The mechanism registered for P6 —
     one agent carrying one growing context through six phases, compounding input cost — is
     refuted, and refuted in the same direction E-007 was. What the treatment actually did to
-    cost is narrow the spread: control modelCalls range 14-31, treated 16-24. A structure that
+    cost is narrow the spread: control modelCalls range 14-31, treated 16-24. THAT LAST SENTENCE IS A
+    POST-HOC READING OF AN UNREGISTERED QUANTITY and is hedged here to match E-010's own hedge on it
+    (§4a review finding 8, which caught this block stating as established what the experiment file
+    two sections away calls a hypothesis for the next stop to register). A structure that
     stops the model wandering is cheaper than one that lets it, and the cheapest single run in
     the batch is still a control.
     Second unexpected effect, unregistered: addedLines median 79 treated against 41.5 control,

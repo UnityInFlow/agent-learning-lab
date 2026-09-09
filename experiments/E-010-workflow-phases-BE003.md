@@ -1,7 +1,10 @@
 # Experiment E-010 — workflow phases v1.0 on BE-003
 
 **Spine stop 12 (B5) · task `BE-003-confirm-shipment` · experiment key `EXP-B5-PHASES-BE003`**
-**Status:** REGISTERED, no runs yet.
+**Status:** CLOSED — `n = 10` per arm run 2026-09-09, decision rule **row 5, INCONCLUSIVE**, build
+gate's three clauses each answered yes. §4 step 9's deliberate failure is the one registered piece
+still outstanding; see "Deliberate failure" below. *(Header corrected after the §4a review found it
+still reading "REGISTERED, no runs yet" beneath a full Results section — finding 1.)*
 
 `Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-09T05:5xZ; the author did not review
 before the run.`
@@ -556,6 +559,13 @@ independently (see "Independence check").
 | `addedLines` median | 79 | 41.5 | report-only, no threshold | — |
 | evaluator pass | 10 of 10 | 10 of 10 | ≥ 9 of 10 treated, and not ≥ 3 below control | **P8 held** |
 
+**Threat 7, named here and not only in the independence check** *(added after the §4a review's finding
+3, which was right that a reader of this table alone could not see it)*: **pair 04's control run made
+one delegating call**; no treated run made any, and none could — `Task` was not among the four tools
+the runtime delivered to the treated arm. Dropping that one control run moves the control's
+`estimatedCost` median from $0.1480 to $0.1474 and its `modelCalls` median from 22 to 22. **The
+comparison does not depend on it**, which is why it is reported rather than excluded.
+
 **P5 and P6 are refuted in the same direction, and it is the opposite of the one registered.**
 The treated arm took **fewer** model calls (−1.5 median, −6.8 %) and cost **20.4 % less**
 ($0.1178 against $0.1480). The registered mechanism was compounding: one agent carrying one
@@ -658,6 +668,21 @@ sha **`396e1799eb2b`** on all 20 sheets, no sheet disagreeing.
 | `maintainability` | 0 × 7, 2 × 3 | 0 × 7, 2 × 3 | `p = 1.0` — **the identical distribution** |
 | `change-focus` | 1 × 9, 2 × 1 | 1 × 10 | `p = 1.0` |
 | `test-quality` | 1 × 9, **2 × 1** | 1 × 5, 2 × 1, **null × 4** | `p = 1.0` |
+
+**The §4a review's finding 5, disputed with the arithmetic** *(added 2026-09-09)*. The review
+objected that the `p = 1.0` above counts the control's four `null` cells as "not anchor 2", a
+denominator the registration never chose, and that excluding them — 1 of 10 against 1 of 6 — would
+give a different `p` and undermine P7. **It does not.** Two-sided Fisher exact, both ways:
+
+| denominator | table | `p` |
+|---|---|---|
+| nulls counted as not-anchor-2 | 1/10 vs 1/10 | **1.0000** |
+| nulls excluded | 1/10 vs 1/6 | **1.0000** |
+
+The conclusion is invariant to the choice. **And P7 does not rest on the comparison at all**: it is
+registered as an absolute count in the treated arm — *"≤ 3 of 10, and specifically not ≥ 5"* — which
+the control's denominator cannot touch. The Fisher figure is supplementary and was always so. The
+finding was worth raising and the objection is answered by computing it rather than by asserting it.
 
 **P7 held: `test-quality` anchor 2 in the treated arm is 1 of 10**, against a registered ceiling of
 ≤ 3 and specifically not ≥ 5. **Decision-rule row 4b does not fire** — the treated arm is nowhere
@@ -875,7 +900,15 @@ control).
   P5 nor P6 clears**, because both were registered as increases and both were observed as
   decreases. Does not fire.
 - **Row 4** — the same, **and nothing improved**? The treated arm cost **20.4 % less**. Something
-  improved. Does not fire.
+  improved. Does not fire. ***The §4a review's finding 2 is that "nothing improved" is undefined,
+  and it is right.*** Read as *no outcome of any kind moved*, row 4 cannot fire and row 5 does.
+  Read as *no **quality** outcome moved*, row 4 fires and the verdict becomes `NOT DETECTABLE`.
+  **The first reading is applied, and the reason is registration order, not preference:** row 4's own
+  gloss is *"the phases are followed and **cost** nothing this `n` can resolve"* — the clause names
+  cost, and cost is exactly what moved. A rule whose gloss names cost cannot be read to mean quality
+  when the cost moved the wrong way. The ambiguity is a defect in the rule as written, it is recorded
+  here rather than resolved silently, and **the rule is not edited** — a later step registering this
+  decision rule should say which outcomes count as "improved" before the run.
 - **Row 5** — anything else. **Fires.**
 
 ### Verdict: INCONCLUSIVE — and the combination that produced it, not rounded to a neighbour
