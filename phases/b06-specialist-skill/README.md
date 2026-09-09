@@ -347,6 +347,71 @@ The harness can silence a skill two independent ways — an absent `Skill` tool,
 that names a technique rather than the task — and **both were ruled out before the effect was
 claimed**. What is left is the model reading the skill and writing a different test.
 
+## Learning block
+
+```yaml
+learning:
+  what_was_added: >
+    One skill, `testing-and-verification`, 675 words, sha 7bea904863fb79a544ee2068cb2f0f43,
+    answering the gate's eight questions as its eight headings. Plus a carrier overlay --
+    phases-v1.0's agent with `Skill` added to `tools:`, one line, installed on BOTH arms --
+    because phases-v1.0 as it stands is delivered n=4 tools and cannot invoke a skill at all.
+    The carrier is an experiment fixture; it is not a version and nothing is promoted.
+  why_it_exists: >
+    Both of stop 12's hand re-reads, on both tasks, found the same clause missing: after a
+    mutating call the agent asserted on that call's own response body instead of re-reading
+    persisted state through a separate get(...). BE-004 run fdb51fbd does it at
+    OrderControllerTest.kt:168,172 with repository.findById() where an HTTP get was the thing
+    under test. The skill names that one habit and nothing else.
+  observed_effect: >
+    test-quality anchor 2, codex, registered rubric shas: BE-003 treated 10 of 10 against
+    control 0 of 10, two-sided Fisher p = 1.08e-5; BE-004 treated 10 of 10 against control
+    3 of 10, p = 0.0031. Two tasks, registered separately, no verdict computed across them.
+    The behaviour underneath the verdict moves with it (a separate get(...) after the
+    mutation: BE-003 10 of 10 vs 0 of 10). Selection was RECORDED on 20 of 20 treated runs
+    and absent on 20 of 20 controls, status `measured` on all 40. The second reader agrees
+    with codex on test-quality 40 of 40 cells. Cost +8.0% / -5.3%, modelCalls +2 / 0,
+    evaluator 10 of 10 in all four arms -- every one inside its registered bound.
+    THIS IS THE FIRST TREATMENT IN TRACK B THAT MOVED ITS REGISTERED OUTCOME.
+  unexpected_effect: >
+    Three, and the first is the one to carry. (1) BE-003 maintainability went the OTHER way,
+    treated 2 of 10 against control 5 of 10, p = 0.35 -- not separated at this n, recorded
+    rather than left out, and named as the follow-up most likely to matter. (2) The
+    description is a harder selector than E-004 showed: a description naming a TECHNIQUE the
+    task needs is not selected (0), while the same 675-word body under a description naming
+    the task's DOMAIN is (4 of 5, then 20 of 20). E-004 separated right domain from wrong
+    domain; this separates the task's domain from a technique it needs, which is a much
+    tighter constraint on what a specialist skill can be. (3) P1's void condition conflates
+    DELIVERY with SELECTION -- it counts activations and calls a shortfall "the skill was not
+    delivered". It did not bite here (10 of 10) but the defect is real and is recorded.
+  keep_or_remove: >
+    KEEP the skill, on the measured effect on both tasks. Nothing is removed: nothing built
+    here failed to move a measured outcome. What is NOT kept is the carrier -- promoting the
+    skill into the product needs phases-v1.0's `tools:` line to change, and that is a B8
+    decision at the v1.1 boundary, not a B6 one.
+  next_question: >
+    Does a skill cost production-code structure to buy test structure? BE-003's
+    maintainability cell is the only signal and p = 0.35 cannot answer it. It needs its own
+    registered outcome and a larger n, not a re-read of these forty runs.
+```
+
+### What this stop learned about its own instruments
+
+Three defects, one shape -- *a check that believed more than it measured* -- and **the fixture set
+could not have caught any of them**, because `B6_GUARDS_ONLY=1` only exercises guards that fire
+**before the first run**:
+
+1. a guard registered against `SKILL.md`'s sha where the runner reads the **skills subtree** hash;
+2. `read -r a s i` not declared `local`, so every control log **overwrote the last one** — evidence
+   being destroyed while the batch ran, which is why it was stopped by hand rather than finished;
+3. `count-state-reread.py` missing extracted `confirmShipment()` helpers and disagreeing with a
+   sheet that was right.
+
+Four runs were excluded by name for it, all folders kept, all reasons independent of their
+outcomes. **And one hard rule was broken:** `run-b6-batch.sh` was patched while an instance was
+still executing it, which §6 forbids outright. Recorded rather than tidied away, because a process
+violation only the violator can see is not a control.
+
 ## Commit
 
 - **`b0ca034`** — the skill, 675 words, built after both prediction commits
