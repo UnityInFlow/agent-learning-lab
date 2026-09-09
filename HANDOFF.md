@@ -2104,3 +2104,168 @@ files. `git status` showed one clean `A` line. Caught by counting the staged fil
 files on disk, not by reading the exit code.
 
 `Written by Opus 5 (claude-opus-5), autonomous, 2026-09-04.`
+
+## What stop 12 changed — B5, workflow phases, on two tasks, 2026-09-09
+
+**Position: spine stop 12 of 28.** Opened after benchmarks#29 merged (`eea144ef`) and after
+author decision 10.1's fourth cell landed (lab#74 → `e342d1e`). First stop run under author
+decision 9, so it is the first stop with **two tasks and two experiments and no verdict computed
+across them**: [E-010](experiments/E-010-workflow-phases-BE003.md) on BE-003 and
+[E-011](experiments/E-011-workflow-phases-BE004.md) on BE-004.
+
+### BE-003's result, and the two sentences worth carrying
+
+**The phases are real and they are followed.** `n = 10` per arm, interleaved, all 20 admitted by
+`check-run-gate.sh`. Markers **10 of 10** treated and **0 of 10** control; first mutating tool call
+after `DESIGN` **10 of 10**, and it is the *very next event* after the marker in every run. Both by
+`tools/check-phase-contract.py`, whose 15-case fixture set includes the retroactive-narration shape
+a text-level checker passes. **This is the first customization in this track whose claimed
+behaviour is checked by a script on every run rather than inferred from an answer.**
+
+**The overhead was measured and it is negative — and the mechanism was pointed at the wrong arm.**
+`estimatedCost` median **$0.1178 treated against $0.1480 control, −20.4 %**, against a registered
+**+25 %**; `modelCalls` 20.5 against 22 against a registered **+4**. P6 had written, before the run,
+that being wrong in E-007's direction would mean its compounding mechanism was wrong. It is wrong.
+The token composition says why: the treated arm produced **37 % more output while re-reading 60 %
+less context** (cache reads 267 882 against 674 614, input identical to within 1 %). **Context
+compounding is real and it happened in the control**, which had no procedure and took between 14
+and 31 model calls re-deriving what to do next. **Second time in this project** that a
+customization predicted to cost more has cost less.
+
+### The verdict is INCONCLUSIVE and the gate passes, and both are true
+
+The registered decision rule walks to **row 5**: row 3 needs an MDE cleared and neither was, row 4
+needs *nothing to have improved* and the cost fell. **No row anticipated a cost reduction.** That
+call was attacked before it was accepted — read symmetrically the registered MDE does not clear in
+reverse either (20.4 % against 25 %; treated q3 overlaps control q1 by $0.0001) — and it survived
+on the facts: **all ten treated runs are cheaper than the control's median**, treated median sits
+below control q1, treated is cheaper in 81 of 100 pairwise comparisons, permutation `p = 0.026`.
+That permutation test is **fenced off from the decision rule** because it was chosen after the data
+was seen.
+
+Meanwhile `build/README.md#b5`'s three gate clauses — markers observable, no code before DESIGN,
+overhead measured not assumed — are **each answered yes**. The gate asks whether the overhead was
+measured; the decision rule asks whether it was what we said. It was measured; it was not what we
+said.
+
+### Four things this stop found that nobody predicted
+
+1. **B5's purpose splits in half and only one half held.** The build track says phases *"prevent
+   premature coding and false completion"*. Premature coding: prevented, **10 of 10**. False
+   completion: **leaked, 2 of 10** — two treated runs emit `DONE` with all six markers present and
+   without its four contract fields. A run can announce completion correctly and still not say what
+   it changed. That is the v1.1 item.
+2. **The one quality-adjacent difference is invisible to the registered outcome.** P7 counts
+   `test-quality` anchor 2 and the arms tie at 1 of 10, `p = 1.0`. But reaching an anchor needs test
+   code to exist, and **the plain control wrote no test for the feature in 4 of 10 runs while the
+   phases arm never did** (10 of 10 scorable vs 6 of 10, `p = 0.0867`). Found by aiming a hand
+   re-read at a `null` rather than by any rule written before the run — so it is recorded with its
+   `n` as the outcome the next stop should register, not as a result of this one.
+3. **Stop 9's tool-list rewrite did not recur.** E-005 measured the runtime delivering
+   `Read, Grep, Glob, Bash` as `["Read","Bash"]` on 10 of 10 runs. Here **four declared, four
+   delivered, on 10 of 10**. Author decision 8's mandatory `init.tools` probe is why that can be
+   stated rather than assumed, and this is the first batch in the run where it came back clean. It
+   also closes threat 7 mechanically: no treated run *could* delegate, because `Task` was not among
+   its four.
+4. **BE-003 is now demonstrably exhausted, which is decision 9's premise confirmed after the fact.**
+   `architecture-consistency` scored 2 on **20 of 20** runs; `maintainability` came out `0×7 / 2×3`
+   in **both** arms — not similar, identical. **50 of the rubric's 100 points at zero variance
+   across both arms**, `p = 1.0` on every category. Decision 9 added BE-004 for exactly this reason
+   and made the call before this batch existed.
+
+### What broke, and what it cost
+
+**Four runs were lost mid-batch to a DNS outage** — `API Error: Can't reach the API server
+(ENOTFOUND)` in all four logs, 12 KB logs against 150–250 KB, `taskAttempted: false`,
+`addedLines: 0`. It struck both arms symmetrically. They were **re-run rather than excluded**,
+because E-010's decision rule is written end to end in *of 10* terms and `n = 8` would have forced
+a post-hoc threshold. **The decision was committed (`ea12b8d`) before the re-run command was
+issued**, and all four aborted runs keep their rows, logs, worktrees and verdicts. Only afterwards
+did `baseline-report.py` turn out to say, on its own and unprompted, *"4 discarded as harness
+failure (F13) — not agent behaviour"*. The instrument already had the category.
+
+**The registered exclusion list did not contain "the model was never reached".** It should have.
+Disclosed in E-010 rather than back-filled into the list.
+
+**Two builders were live at once and the pid lock could not see it.** The author started an
+interactive session while `run-track-b.sh` was driving print-mode ones on the same branch; the lock
+guards driver-against-driver only. Caught from `pgrep` before the first edit and resolved by the
+author. **The BE-003 batch survived the kill because it runs detached under its own `caffeinate`**,
+and was not restarted — seven complete pairs were already on disk and §0 forbids re-running what
+cannot be shown to have failed to start.
+
+**Two harness defects worth carrying.** `check-run-gate.sh` takes a *path*, not a bare run id — a
+bare id exits 1 with `cannot read`, which at batch scale looks exactly like 20 legitimate refusals.
+And the second-reader loop had to be written by hand with its own 240-second kill, because
+`opencode` hangs and `LAB_REVIEW_TIMEOUT` is on record as not firing — and because a subagent
+running the same job **silently drained its own stdin** and stopped after one run while reporting
+nothing.
+
+### BE-004's result — the replication, and what the second task actually bought
+
+**Everything structural replicated on a task three times the size.** `n = 10` per arm, one launch,
+20 of 20 admitted. Markers **10 of 10** treated and **0 of 10** control; first write after `DESIGN`
+**10 of 10**; P4 at **9 of 10** against a threshold one run stricter than BE-003's. Cost
+**−9.9 %** ($0.2171 against $0.2409) with **quartiles that separate** (treated q3 below control q1);
+turns flat at −5.1 %, `p = 0.83`. Output tokens **+34 %**, cached reads **−53 %** — BE-003's +37 %
+and −60 %. Correctness **10 of 10 both arms**. **Verdict: row 7, `INCONCLUSIVE`, for the identical
+reason as BE-003** — both cost predictions written in the wrong direction and no row for being wrong
+that way.
+
+**The same defect at the same rate, which is what makes it the overlay's.** 2 of 10 treated runs
+emit `DONE` without its four contract fields here too. **Twenty treated runs across two tasks, four
+failures, every one of them the completion contract.** B5 claims to prevent premature coding and
+false completion; it prevents the first at 20 of 20 and leaks the second at 4 of 20. That is v1.1's
+brief and it was measured, not guessed.
+
+**Author decision 9 bought one dimension of four, and the other three are now measured as dead.**
+
+| | BE-003 | BE-004 | Did the harder task help? |
+|---|---|---|---|
+| `architecture-consistency` | 2 on 20 of 20 | 2 on 20 of 20 | **no** |
+| `maintainability` | `0×7 / 2×3`, identical in both arms | **0 on 20 of 20** | **no — it floored** |
+| `change-focus` | 1 on 19 of 20 | spread, but 7/20 harness agreement | **no, and now measurably unusable** |
+| `test-quality` | 1 of 10 vs 1 of 10, `p = 1.0` | **3 of 10 vs 0 of 10**, `p = 0.21` | **yes** |
+
+**Hand this to stop 13:** B6 must choose its specialist skill from a **measured** failure, and on
+40 runs across two tasks `architecture-consistency` and `maintainability` have reported nothing at
+all. The only dimension that distinguishes anything is `test-quality`, and the only shape that
+distinguishes the arms consistently is **whether a test was written at all** — treated 20 of 20,
+control 13 of 20, each task short of significance on its own. **Author decision 9 forbids pooling
+those for a verdict and they are not pooled**; the pooled figure is disclosed in E-011 and used for
+nothing. It is named as the outcome stop 13 should register *before* its run.
+
+**BE-004's traps did not trap.** It was built around an all-or-nothing cascade and a guard the
+ticket does not name, and twenty consecutive runs passed 7/7 acceptance with and without the
+procedure. P8 predicted exactly that and P8 was the prediction E-011 called most informative if
+wrong. It was not wrong, so BE-004 is a weaker correctness discriminator than it was designed to be
+— worth knowing before B7 registers a correctness comparison against it.
+
+### The deliberate failure closed the attribution, and refuted half its own prediction
+
+Remove the marker instruction — nine occurrences of `<<PHASE:X>>` reduced to zero, the six phases
+left as prose, everything else identical — and the markers go to **0 of 3** against **10 of 10**.
+**P2's result is caused by that instruction and not by the prose around it.**
+
+The prediction's second clause said the phase *words* would survive as closing narration so that
+`naive-phase-checker.py`, the committed negative control, would still pass. **It did not: 0 of 6
+there too.** Without an instruction to announce a phase the model does not name the phases at all.
+That is a stronger attribution than the run was designed to produce and it is recorded as a
+refutation, not smoothed into a success.
+
+### For the author
+
+- **Nothing is blocked.** `blocked_on_author` is empty and no §7 bullet was hit at this stop.
+- **`phases-v1.0` is kept and not promoted**, on both tasks, from each task's own evidence.
+- **Two instrument facts worth carrying:** `check-run-gate.sh` takes a *path*, not a bare run id —
+  a bare id exits 1 with `cannot read`, and at batch scale that looks exactly like twenty
+  legitimate refusals. And the `opencode` second reader had to be driven by a hand-written loop with
+  its own 240-second kill, because the harness's `LAB_REVIEW_TIMEOUT` is on record as not firing and
+  a subagent given the same job silently drained its own stdin and stopped after one run.
+- **The registered exclusion lists in E-010 and E-011 do not contain "the model was never
+  reached".** They should. Four BE-003 runs were lost to a DNS outage and re-run rather than
+  excluded, with the decision committed before the command; `baseline-report.py` independently calls
+  such runs *"harness failure — not agent behaviour"*, so the category exists in the instrument and
+  not in the registrations.
+
+`Written by Opus 5 (claude-opus-5), autonomous, 2026-09-09.`
