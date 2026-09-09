@@ -1,0 +1,14 @@
+verify-b5-batch-guards: driving evidence/b05/run-b5-batch.sh with B5_GUARDS_ONLY=1
+  ok   — A: the registered configuration passes all guards and runs nothing (exit 0)
+  ok   — A2: the same on BE-004 (exit 0)
+  ok   — B: an unknown BENCHMARK is refused, not defaulted (exit 1)
+  ok   — C: a changed overlay sha stops the batch and names both shas (exit 1)
+  ok   — D: a second file in the overlay is refused and counted (exit 1)
+  ok   — E: the one file having the wrong path is refused (exit 1)
+  ok   — F: a moved task tree stops the batch and names the task (exit 1)
+  ok   — G: an unknown prediction commit is refused (exit 1)
+  ok   — H: a dead API port is refused before any run is spent (exit 1)
+  ok   — I: a lock held by a LIVE pid refuses with exit 4 (exit 4)
+  ok   — J: a stale lock from a dead pid is cleared and the guards proceed (exit 0)
+
+verify-b5-batch-guards: 11 passed, 0 failed, of 11 registered cases
