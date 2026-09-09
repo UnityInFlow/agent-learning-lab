@@ -1,0 +1,10 @@
+treated: 01:YES 02:no 03:YES 04:no  -> 2 of 4
+control: 01:NOFILE  -> 0 of 1
+  ok   — A: get after a literal /confirm is a re-read
+  ok   — B: a second confirm with no get is NOT a re-read
+  ok   — C: get after a HELPER call site is a re-read
+  ok   — D: a get BEFORE the confirm is not a re-read
+  ok   — E: a missing worktree is NOFILE, not a silent no
+  ok   — treated tally is 2 of 4
+
+verify-count-state-reread: 6 passed, 0 failed

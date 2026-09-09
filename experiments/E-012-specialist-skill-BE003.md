@@ -613,3 +613,66 @@ distinction is still real. It simply did not bite here, and saying so is not the
 was never a defect.
 
 *Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+### §4 step 7 — the registered scores, BE-003
+
+`check-run-gate.sh`: **20 admitted, 0 refused.** `codex-score.sh` on
+`benchmark/rubrics/backend-quality.yaml` at sha **`396e1799eb2b`**, one sheet per run, all 20
+written, codex quota clear. Sheets in `findings/codex/score-observatory-run-<id>-2026090918*.yaml`.
+
+| Category | Treated, anchor 2 count | Control, anchor 2 count | two-sided Fisher |
+|---|---|---|---|
+| `architecture-consistency` | 10 of 10 | 10 of 10 | constant — no information, as at stops 12 and 11 |
+| `maintainability` | **2 of 10** | **5 of 10** | `p = 0.35` |
+| **`test-quality`** (the registered outcome) | **10 of 10** | **0 of 10** | **`p = 1.08 × 10⁻⁵`** |
+| `change-focus` | 1 of 10 | 0 of 10 | `p = 1` |
+
+**The hand re-read agrees with the sheets on both arms of pair 01, independently and before they
+existed.** My values were 2 and 1; the sheets are 2 and 1, and the control sheet's own reason is
+*"Repeat body and refusal envelope are asserted, but persisted state is never re-read"* — the exact
+clause the hand read found absent.
+
+### Which predictions held
+
+| | Prediction | Result | Verdict |
+|---|---|---|---|
+| **P1** | 10 of 10 treated activations, 0 control | **10 of 10 / 0 of 10**, all `status: measured` | **HELD** |
+| **P2** | `test-quality` anchor 2 **≤ 4 of 10** treated | **10 of 10** | **REFUTED**, and in the direction of a large effect |
+| **P3** | **≤ 3 of 10** treated re-read persisted state through a separate `get(...)` | **10 of 10** (control 0 of 10) | **REFUTED** |
+| **P4** | cost within ±15 % of control | median `$0.1309` vs `$0.1211`, **+8.0 %** | **HELD** |
+| **P5** | `modelCalls` within ±3 | median 22.5 vs 20.5, **+2** | **HELD** |
+| **P6** | evaluator 10 of 10 in both arms | **10 of 10 both** | **HELD** |
+
+**P2 and P3 are refuted together and they agree with each other**, which is the case the
+prediction registered as *"they can disagree, and if they do the diff decides"*. They did not
+disagree: the rubric's verdict and the behaviour underneath it move as one, treated 10 of 10
+against control 0 of 10 on both.
+
+**The magnitude is the surprise, not the direction.** P2 was written as *"a prediction that the
+effect will not be detectable, stated as a count rather than as a hedge"*, on the mechanism *"a
+third delivery of words"* after [E-003](E-003-instructions-v0.1.md) rejected an instruction file
+and [E-007](E-007-orchestration.md) found nothing the gate could see. **That mechanism is wrong
+for a skill, and this is the first treatment in Track B that moved its registered outcome.** The
+difference from E-003 is not the words: it is that a skill is **selected at the moment it is
+needed and named in the transcript when it is**, and an instruction file is neither.
+
+### The one thing that moved the other way
+
+`maintainability` is **2 of 10 treated against 5 of 10 control** (`p = 0.35`, not separated at this
+`n`). It is recorded because it is the only cell pointing the other way and because §5 forbids
+quoting a headline without the cells that disagree with it. On the sheets' own reasons the axis is
+`when`-expression exhaustiveness, which the skill says nothing about; whether a skill that adds
+test structure costs production-code structure is **not answerable at `n = 10, p = 0.35`** and is
+named here as the follow-up most likely to matter.
+
+### The P3 counter was wrong once, and the sheet caught it
+
+`tools/count-state-reread.py`'s first version matched only a literal `/confirm` on the call line
+and scored treated run `a1af25c1` as **no** while its sheet scored `test-quality` **2**. The file
+settled it: that run extracts `private fun confirmShipment(id: String)`, so its call sites read
+`confirmShipment("S-4")` and the re-read is at `:101` after `:95`. **The counter was wrong and the
+sheet was right.** The counter now matches helper call sites and has a fixture set,
+`tools/verify-count-state-reread.sh` — **6 cases, 6 pass**, including the helper shape that broke
+it and a `get` placed *before* the mutation, which must not count.
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*

@@ -1,0 +1,132 @@
+=== waiting for the selection-rate probe to finish ===
+=== §4 step 6, BE-003 batch, n=10 per arm ===
+run-b6-batch: re-executing under caffeinate -i so the batch cannot span an idle sleep
+run-b6-batch: prediction 133de65 committed 2026-09-09T17:00:47+02:00; first run starts after it
+run-b6-batch: API 127.0.0.1:18081 holds 456 run(s) before this batch
+batch start (UTC): 2026-09-09T17:37:01Z
+events.jsonl bytes at start: 23694709
+
+======== BE-003 01 treated ========
+  -> 3070d353-d1b0-479e-944c-294f4a655c93 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 01 control ========
+  -> 3f30195f-a20d-4544-b962-d523890e35f6 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-003 02 treated ========
+  -> 94e78b2f-d380-4797-9e78-afbcdd7d2117 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 02 control ========
+  -> 2e6699be-a248-4e33-9c6d-a8fd424d056e exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-003 03 treated ========
+  -> cacfa9b3-b90d-4bd8-b523-94d361d346b4 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 03 control ========
+  -> 9de99c1e-4456-4887-96c3-7fc7a949ebef exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-003 04 treated ========
+  -> 3cf0584b-3629-44ae-a82e-e774aa8743bc exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 04 control ========
+  -> 6a2f4c61-e8b8-4fda-9ce1-627ff7a3fea3 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-003 05 treated ========
+  -> a1af25c1-106d-41a1-9fb5-260a79b33531 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 05 control ========
+  -> 622f9af7-16f7-4910-8041-b7c5b319c36e exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-003 06 treated ========
+  -> 0b63d74a-8f42-4ccb-8402-bb6cc6b41c53 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 06 control ========
+  -> b3fd013f-9f0e-4cca-b2e5-47f0f956f35d exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-003 07 treated ========
+  -> 1555af30-b0ae-4a9d-a6f7-577e8dbb5437 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 07 control ========
+  -> 5b9469b5-36d1-408e-b145-5fd73d846df9 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-003 08 treated ========
+  -> a16f096c-93b1-4a1d-ba71-53fb10b3823b exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 08 control ========
+  -> 95aab116-c304-472e-a103-79ed6479bbc9 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-003 09 treated ========
+  -> c253656e-47d3-4bfb-8410-d478b8978f08 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 09 control ========
+  -> 54e39169-5851-4bc3-b75b-0563c943ab99 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-003 10 treated ========
+  -> d2cc5f87-955d-4d05-8957-46faff1b4edc exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 10 control ========
+  -> 2c24a0c8-f1be-4e29-9e9e-49e9e0473b4a exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+batch end   (UTC): 2026-09-09T18:26:06Z
+events.jsonl bytes at end: 26180932
+
+manifest: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b06/batch-BE-003-20260909T173701Z/manifest.tsv
+# B6 BE-003 20260909T173701Z  key=EXP-B6-SKILL-BE003 pairs=10 start=1
+# carrier agent 51ffaedf9a3edbfe5fd85009f70f84c5 ON BOTH ARMS · skill file 7bea904863fb79a544ee2068cb2f0f43 on TREATED ONLY
+# treated runs must read back skillsHash sha256:61445ead85042e340435613314920ef8 (the skills SUBTREE hash, not the file's)
+# carrier = phases-v1.0's agent + Skill in tools:, one line; phases-v1.0 itself untouched
+# BE-003 tree eeb15a753adc94e92bc3f74c50e1b02fc3b53030 at benchmarks eea144ef940fda4cb6090561fdd901aed0013c8e
+# claude 2.1.266 at launch, asserted constant per run · model claude-haiku-4-5-20251001
+# prediction commit 133de65 at 2026-09-09T17:00:47+02:00
+# common:      RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-B6-SKILL-BE003 MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1 ENABLE_SKILLS=1 AGENT=backend-feature-phases API_PORT=18081 OTLP_HTTP_PORT=14318 OTLP_GRPC_PORT=14317 TEMPO_PORT=13200 INIT_SCHEMA_DIR=/Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b06/batch-BE-003-20260909T173701Z/init-schema
+# treated adds:CUSTOMIZATION=/Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/phases-v1.0-skillcarrier VARIANT=skill-v1.1-carrier
+# control adds:CUSTOMIZATION=/Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/phases-v1.0-skillcarrier-control VARIANT=carrier-control
+seq                                                                                                                                                                                                                                                                                                                                                                                                                                arm      run_id                                exit  worktree                                                                                                agent_hash                               skill_hash                               instr_hash  skill_stream  deleg_stream  claude
+01                                                                                                                                                                                                                                                                                                                                                                                                                                 treated  3070d353-d1b0-479e-944c-294f4a655c93  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3070d353-d1b0-479e-944c-294f4a655c93  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  null        1             0             2.1.266
+01                                                                                                                                                                                                                                                                                                                                                                                                                                 control  3f30195f-a20d-4544-b962-d523890e35f6  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3f30195f-a20d-4544-b962-d523890e35f6  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  null                                     null        0             0             2.1.266
+02                                                                                                                                                                                                                                                                                                                                                                                                                                 treated  94e78b2f-d380-4797-9e78-afbcdd7d2117  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-94e78b2f-d380-4797-9e78-afbcdd7d2117  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  null        1             0             2.1.266
+02                                                                                                                                                                                                                                                                                                                                                                                                                                 control  2e6699be-a248-4e33-9c6d-a8fd424d056e  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2e6699be-a248-4e33-9c6d-a8fd424d056e  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  null                                     null        0             0             2.1.266
+03                                                                                                                                                                                                                                                                                                                                                                                                                                 treated  cacfa9b3-b90d-4bd8-b523-94d361d346b4  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-cacfa9b3-b90d-4bd8-b523-94d361d346b4  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  null        1             0             2.1.266
+03                                                                                                                                                                                                                                                                                                                                                                                                                                 control  9de99c1e-4456-4887-96c3-7fc7a949ebef  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9de99c1e-4456-4887-96c3-7fc7a949ebef  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  null                                     null        0             0             2.1.266
+04                                                                                                                                                                                                                                                                                                                                                                                                                                 treated  3cf0584b-3629-44ae-a82e-e774aa8743bc  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3cf0584b-3629-44ae-a82e-e774aa8743bc  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  null        1             0             2.1.266
+04                                                                                                                                                                                                                                                                                                                                                                                                                                 control  6a2f4c61-e8b8-4fda-9ce1-627ff7a3fea3  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6a2f4c61-e8b8-4fda-9ce1-627ff7a3fea3  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  null                                     null        0             0             2.1.266
+05                                                                                                                                                                                                                                                                                                                                                                                                                                 treated  a1af25c1-106d-41a1-9fb5-260a79b33531  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-a1af25c1-106d-41a1-9fb5-260a79b33531  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  null        1             0             2.1.266
+05                                                                                                                                                                                                                                                                                                                                                                                                                                 control  622f9af7-16f7-4910-8041-b7c5b319c36e  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-622f9af7-16f7-4910-8041-b7c5b319c36e  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  null                                     null        0             0             2.1.266
+06                                                                                                                                                                                                                                                                                                                                                                                                                                 treated  0b63d74a-8f42-4ccb-8402-bb6cc6b41c53  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0b63d74a-8f42-4ccb-8402-bb6cc6b41c53  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  null        1             0             2.1.266
+06                                                                                                                                                                                                                                                                                                                                                                                                                                 control  b3fd013f-9f0e-4cca-b2e5-47f0f956f35d  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b3fd013f-9f0e-4cca-b2e5-47f0f956f35d  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  null                                     null        0             0             2.1.266
+07                                                                                                                                                                                                                                                                                                                                                                                                                                 treated  1555af30-b0ae-4a9d-a6f7-577e8dbb5437  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1555af30-b0ae-4a9d-a6f7-577e8dbb5437  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  null        1             0             2.1.266
+07                                                                                                                                                                                                                                                                                                                                                                                                                                 control  5b9469b5-36d1-408e-b145-5fd73d846df9  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5b9469b5-36d1-408e-b145-5fd73d846df9  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  null                                     null        0             0             2.1.266
+08                                                                                                                                                                                                                                                                                                                                                                                                                                 treated  a16f096c-93b1-4a1d-ba71-53fb10b3823b  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-a16f096c-93b1-4a1d-ba71-53fb10b3823b  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  null        1             0             2.1.266
+08                                                                                                                                                                                                                                                                                                                                                                                                                                 control  95aab116-c304-472e-a103-79ed6479bbc9  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-95aab116-c304-472e-a103-79ed6479bbc9  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  null                                     null        0             0             2.1.266
+09                                                                                                                                                                                                                                                                                                                                                                                                                                 treated  c253656e-47d3-4bfb-8410-d478b8978f08  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c253656e-47d3-4bfb-8410-d478b8978f08  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  null        1             0             2.1.266
+09                                                                                                                                                                                                                                                                                                                                                                                                                                 control  54e39169-5851-4bc3-b75b-0563c943ab99  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-54e39169-5851-4bc3-b75b-0563c943ab99  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  null                                     null        0             0             2.1.266
+10                                                                                                                                                                                                                                                                                                                                                                                                                                 treated  d2cc5f87-955d-4d05-8957-46faff1b4edc  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-d2cc5f87-955d-4d05-8957-46faff1b4edc  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  null        1             0             2.1.266
+10                                                                                                                                                                                                                                                                                                                                                                                                                                 control  2c24a0c8-f1be-4e29-9e9e-49e9e0473b4a  0     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2c24a0c8-f1be-4e29-9e9e-49e9e0473b4a  sha256:51ffaedf9a3edbfe5fd85009f70f84c5  null                                     null        0             0             2.1.266
+BE-003 batch exit 0
+=== §4 step 6, BE-004 batch, n=10 per arm ===
+run-b6-batch: re-executing under caffeinate -i so the batch cannot span an idle sleep
+run-b6-batch: prediction 133de65 committed 2026-09-09T17:00:47+02:00; first run starts after it
+run-b6-batch: API 127.0.0.1:18081 holds 476 run(s) before this batch
+batch start (UTC): 2026-09-09T18:26:07Z
+events.jsonl bytes at start: 26180932
+
+======== BE-004 01 treated ========
+  -> 6d7a004d-b37d-4719-a1a4-877bdcdcf935 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-004 01 control ========
+  -> b5dab364-554d-442c-82a1-7c56f6c4a5f1 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-004 02 treated ========
+  -> c73a738c-b7e2-467c-9325-e2293bff7caa exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-004 02 control ========
+  -> 8a6f49e3-c363-4c7c-961f-9a32c6a0905f exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-004 03 treated ========
+  -> 326fcfc4-72e6-424b-8e45-aaeb539af8f9 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-004 03 control ========
+  -> d9909afa-14b5-4971-81ab-84833d8ac02e exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-004 04 treated ========
+  -> 8f7a8b03-dfe2-4cce-ad7e-453e330a0107 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-004 04 control ========
