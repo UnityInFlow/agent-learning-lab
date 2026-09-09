@@ -208,9 +208,63 @@ would be a more useful finding than anything else this stop could return.
 
 <!-- filled at step 4, including the skill's content hash -->
 
-## §4 step 5 — the preflight pair
+## §4 step 5 — the preflight pair, and it stopped the stop
 
-<!-- filled at step 5 -->
+**The batch was not started.** The preflight did the job it exists for: it found that **the
+treatment is not delivered**, before `n = 20` was spent recording a clean, confident null.
+
+| Run | Arm | `agentHash` | `skillsHash` | recorded activations | `modelCalls` |
+|---|---|---|---|---|---|
+| `fbe8c643` | treated | `sha256:b3450564b6f32d61` | **`sha256:71ec726a5193…`** | **0** | 19 |
+| `20478210` | control | `sha256:b3450564b6f32d61` | `null` | 0 | 22 |
+
+**Everything about delivery-as-a-file is correct.** The overlay installed one `SKILL.md`, the run
+record hashes it on the treated arm and `null` on the control, `agentHash` is identical on both
+arms as designed, `--enable-skills` was passed (the runner's guard dies otherwise), and
+`skill-activation.sh` reports `status: measured` — so **0 is a measurement, not an absence of
+data.**
+
+**The skill was installed and never selected.** That is P1's void condition, and decision-rule
+row 0 would fire on this batch.
+
+### The cause, established by probe rather than assumed
+
+The obvious suspect was the agent's tool list. The treated arm's `init` read-back is
+`delivered n=4 ["Read","Edit","Write","Bash"]` — **no `Skill` tool** — and stop 9 measured that
+`tools:` filters tool *names*. That is a complete and plausible explanation, and **it is wrong.**
+
+A probe was run with the **skill alone and no agent overlay at all** (`EXP-B6-SKILL-DELIVERY-PROBE`,
+run `2e972b72`, overlay `evidence/b06/probe-skill-only/`): a plain baseline with the full 29-tool
+pool including `Skill`, `--enable-skills` passed, telemetry `status: measured`.
+
+> **0 activations there too.**
+
+**So the agent's tool list is not the cause.** The skill is not selected on this task even when
+nothing could stop it being selected.
+
+*(A first attempt at that probe was refused by the runner — an agent file present in the overlay
+without `--agent` would "constrain a subagent that is never invoked". That refusal is a guard
+working, and it is recorded rather than hidden; the probe was rebuilt with a skill-only overlay.)*
+
+### What that leaves, and it is E-004's own mechanism
+
+[E-004](E-004-skill-description.md) measured the **description** as the selector at `p = 0.0079`.
+This skill's description names a **cross-cutting technique** — *"How to write and verify tests for a
+backend change…"* — while the ticket the model is given is *"confirm a shipment"*. E-004's matched
+arm named the **task's domain**; its misdescribed arm named an unrelated one and scored 0 of 5.
+
+**This skill's description is neither.** It is *relevant* to the task and does not *name* it, and on
+these runs that reads as not-selected. **If that is right, it is a sharper result than the one this
+stop set out to get**: E-004 showed a description that names the wrong domain is not selected; this
+would show that a description naming a *technique the task needs* is also not selected, which is a
+much tighter constraint on what a specialist skill can be.
+
+**It is not established at this `n`.** Two treated-condition runs, both 0. The next step is stated
+in `TRACK-B-STATE.md` and is deliberately **not** taken here: it changes the skill's description,
+which is a registered variable of this experiment, and no run of the registered batch has happened
+yet — so revising it before the batch is legitimate, must be disclosed, and must carry a new hash.
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
 
 ## §4 step 6 — the batch
 
