@@ -680,6 +680,52 @@ four control runs gave it nothing to separate. The treated arm produced no nulls
 enough test code to be scorable, consistent with its median 79 added lines against the control's
 41.5.
 
+### A second hand re-read, on a `null` — and what the anchor-2 count was hiding
+
+§5 asks for one hand-read cell; this is a second, taken deliberately on the **control** arm and on
+a **`null`**, because a null is the cell a reader is most likely to mistake for a gap and because
+the first hand reading was on a treated run and could not test the scorer for arm bias.
+
+- **Run:** `836269db-e038-480d-ab29-b2ebbfd3fa51` — pair 02, **control** arm. Sheet value: `null`.
+- **Hand value: `null`. The sheet is right.**
+
+The rubric's rule, quoted from the file at sha `396e1799eb2b`: *"`null` keeps exactly two jobs: a
+precondition failed (no test file, no baseline), or the evidence does not let you decide whether
+the 0 condition holds. Never as a shrug."* And the precondition: *"No file under `src/test/` among
+the attachments, OR a test file that makes no assertion at all → `score: null`, reason: nothing to
+grade. Never 0."*
+
+The run changed `ApiError.kt` (+1) and `ShipmentController.kt` (+18) and **touched nothing under
+`src/test/`**. `ShipmentControllerTest.kt` exists but is the pre-BE-003 baseline — its own docstring
+says so — and contains no mention of `confirm`. **The run implemented the endpoint and wrote no
+test for it.** `null` is the correct cell and it is a measurement.
+
+**Now count the nulls, which is a thing the anchor-2 comparison cannot see.**
+
+| | wrote scorable test code for `confirm` | wrote none (`null`) |
+|---|---|---|
+| treated | **10 of 10** | 0 |
+| control | 6 of 10 | **4** |
+
+Two-sided Fisher exact, `p = 0.0867`.
+
+**This is the only quality-adjacent difference between the arms in the whole batch, and P7 is
+blind to it by construction.** P7 counts anchor 2 and the two arms tie there at 1 of 10, `p = 1.0`.
+But *reaching* an anchor requires test code to exist, and the plain baseline skipped writing tests
+for the feature in **four of ten runs** while the phases arm never did — which is what
+`<<PHASE:VERIFICATION>>` with an output contract is for.
+
+**It is not a result of this experiment and is not claimed as one.** `p = 0.0867` does not clear
+0.05; the null *rate* was registered as an outcome nowhere in E-010; and it was noticed because a
+hand re-read was aimed at a null rather than by any rule written before the run. It is recorded
+here, with its `n`, as **the outcome the next stop on this task should register in advance** —
+"did the arm write a test at all" is a cheaper and more discriminating question on BE-003 than
+"how good was the test", and BE-003's anchor distribution has been flat across every arm since
+E-006.
+
+*Added by Opus 5 (claude-opus-5), autonomous, 2026-09-09. No registered prediction or result above
+is altered by it.*
+
 ### Independence check — what else moved between the arms
 
 Read from the run records, not from the flags that were passed:
