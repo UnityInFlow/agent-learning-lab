@@ -1,0 +1,17 @@
+iteration 1, caller label s=01
+  broken: label seen by printf = 01
+   -> caller s is now 'y'
+  broken: label seen by printf = y
+iteration 2, caller label s=02
+  broken: label seen by printf = 02
+   -> caller s is now 'y'
+  broken: label seen by printf = y
+---
+iteration 1, caller label s=01
+  fixed:  label seen by printf = 01
+   -> caller s is now '01'
+  fixed:  label seen by printf = 01
+iteration 2, caller label s=02
+  fixed:  label seen by printf = 02
+   -> caller s is now '02'
+  fixed:  label seen by printf = 02

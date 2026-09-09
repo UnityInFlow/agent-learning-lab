@@ -225,12 +225,16 @@ one_run() {
   local log="$EVID/${seq}-${arm}.log"
   echo ""; echo "======== $BENCHMARK $seq $arm ========"
   ( cd "$OBS" && make run-benchmark "${ARM_COMMON[@]}" "$@" ) > "$log" 2>&1
-  local rc=$? rid wt deleg skact cv trip
+  local rc=$? rid wt deleg skact cv trip a s i
   rid="$(grep -aoE 'run +[0-9a-f-]{36}' "$log" | head -1 | awk '{print $2}')"
   wt="$(grep -aoE '/[^ ]*observatory-run-[0-9a-f-]{36}' "$log" | head -1)"
   deleg="$(grep -acE '"(name|tool_name)":"(Task|Agent)"' "$log" 2>/dev/null)"; deleg="${deleg:-0}"
   skact="$(grep -acE '"(name|tool_name)":"Skill"' "$log" 2>/dev/null)"; skact="${skact:-0}"
   trip="UNREAD UNREAD UNREAD"; [[ -n "$rid" ]] && trip="$(read_back "$rid")"
+  # `a s i` MUST be local (declared above). They were not on the first attempt, and `s` is the
+  # caller`s loop label: the read clobbered it, so every control run was passed the skills hash
+  # as its seq, every control log was written to the SAME filename, and each control log
+  # overwrote the last. Two runs and two batch directories were spent finding that.
   read -r a s i <<<"$trip"
   cv="$(claude --version 2>/dev/null | awk '{print $1}')"
   printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
