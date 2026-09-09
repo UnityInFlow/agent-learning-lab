@@ -120,6 +120,40 @@ narrowest target this stop can state.
 subject and not B6's. If this stop's skill fails, the completion contract is the obvious second
 attempt, and it needs no new measurement to justify it.
 
+## §4 step 2 — layers, and the trap this step converts
+
+**The layer rule, applied in order, stopping at the first yes** (workspace `CLAUDE.md`): can the
+bad value still be written down after the fix? → L1. Does something *execute* and reject it? → L2.
+Otherwise → L3.
+
+| Artifact | Layer | Why, applied in order |
+|---|---|---|
+| `skills/testing-and-verification/SKILL.md` — the skill body | **L3** | Nothing stops the model writing a test that trusts the mutating call's own body. The skill is words the model may read. **This is the version being measured and it is L3, exactly as the spine says** |
+| The skill's **`description`** | **L3 for behaviour, and a registered variable** | It decides *selection*, not conduct. E-004 measured that at `p = 0.0079`. It is registered because changing it changes whether the treatment is delivered at all — not because it enforces anything |
+| **Activation recording** — `skill.source`, `invocation_trigger` in the run record | **L2** | The observatory writes it per run and a run without it is visibly untreated. **This is the delivery proof, and it is the one thing at this stop that executes** |
+| `check-phase-contract.py` (carried from B5, unchanged) | **L2** | Still executes on every treated run; the phases overlay is present in both arms here, so it measures a controlled variable rather than the treatment |
+| The **`test-quality` anchor 2 clause** the skill targets | **L3 as a control, L2 as a measurement** | Nothing rejects a test that omits the separate `get(...)`. But the rubric at sha `396e1799eb2b` / `6252778b8472` **is** applied by a scorer, so whether the clause was met is decided by an instrument rather than by opinion |
+
+**The trap, named from the step and from what this project has already paid for.**
+`build/README.md#b6`'s gate says *"activation is **recorded**, not inferred from the answer text"*.
+The trap is that **a skill that is never selected produces exactly the same numbers as a skill that
+is selected and useless** — and both look like "the skill did not work". Stop 8 paid for this
+lesson twice: once when `--disable-slash-commands` silenced every skill in the project's history
+(6 of 6 vs 0 of 6, `p = 0.0022`), and once when the runner's own contamination guard marked the
+first *matched* run `EXCLUDE` for loading the skill it had been given — a guard that would have
+ended the batch with the treatment arm at `n = 0` and a report saying the treatment produced no
+usable runs.
+
+**Which layer converts it:** the **L2** activation record. A run whose record carries no activation
+is not a treated run, and this stop's decision rule voids on it rather than reading it as a null.
+**That conversion is the reason this stop is worth running at all** — without it, B6's honest prior
+(that a third delivery of words will not move `test-quality`) is unfalsifiable, because every
+failure mode looks identical.
+
+**What stays L3 and is not dressed up.** The skill body is words. If the skill activates and the
+number does not move, the finding is *"a specialist skill, selected and read, did not move this
+failure"* — which is a real result and is what §4 step 10's **remove** clause exists for.
+
 ## Build
 
 **Build:** exactly one. Chosen from a **measured** failure in B2–B5, not from a wish list.
