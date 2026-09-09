@@ -709,6 +709,47 @@ removing turns.
 <!-- filled at step 8. Median AND range, never a mean alone.
      Includes BE-004's reference population for B6/B7 — see the MDE section's closing obligation. -->
 
+### The second reader on BE-004 — and it could not finish the task
+
+Decision C is unchanged: **codex produced every number above; opencode is a second reader and is
+not a vote.** All 20 runs were sent to `./tools/opencode-score.sh` with
+`ollama-cloud/deepseek-v4-pro` against the same rubric sha `6252778b8472`.
+
+**Only 11 of 20 came back with scores.** Nine produced a **header-only sheet** — the provenance
+block written, no `categories:` beneath it — which §4a and §6 both define as a **stall, not a
+finding**. Each of the nine was attempted **twice**, the second time under a 300-second kill, and
+stalled both times. The stall files are kept on disk and are named here; they are not counted, and
+no cell is inferred from one.
+
+| Category | codex vs deepseek, on the 11 complete sheets |
+|---|---|
+| `architecture-consistency` | **11 / 11** |
+| `maintainability` | **11 / 11** |
+| `test-quality` | **11 / 11** |
+| `change-focus` | **3 / 11** |
+
+**Thirty-three of thirty-three on the three categories that carry every registered outcome, and
+3 of 11 on the one that carries none.** That is now the **third independent replication** of the
+same split — lab#70's 34/34 against 18/34, this stop's BE-003 batch at 60/60 against 7/20, and
+BE-004 at 33/33 against 3/11 — on three different run populations, two different tasks and two
+different rubrics.
+
+**And the stalls are themselves a finding about author decision 10.3 and Decision H.** Decision H
+promotes this fallback to *registered scorer* if codex is out for more than twelve hours.
+**On BE-004 the fallback could not score 9 of 20 runs at all**, twice each. BE-004's diffs are
+190–290 added lines across six files against BE-003's 40–85 across three, and the failures are
+concentrated in a contiguous block of pairs — so the most likely reading is that the fallback does
+not scale to this task's diff size, not that it failed at random.
+
+**If that is right, Decision H is not executable on BE-004**, and a codex outage at stop 13 or
+later would leave the harder task with no registered scorer rather than with a substituted one.
+That is offered as an observation with its `n`, not as a decision: **the decision is the
+author's**, decision 10.3 already carves `change-focus` out of the fallback for a different
+measured reason, and this adds a second and larger constraint beside it.
+
+*Added by Opus 5 (claude-opus-5), autonomous, 2026-09-09. No number above changes: every registered
+outcome of this experiment comes from the 20 complete codex sheets.*
+
 ### §5 hand re-read — one cell, read off the worktree before any sheet was opened
 
 Taken while the registered scorer was still running and by a reader instructed not to open
