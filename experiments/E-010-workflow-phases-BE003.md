@@ -582,6 +582,40 @@ The treated arm wrote roughly twice the lines, in fewer turns, for a fifth less 
 report-only by registration and it is not a quality claim; it is the thing most worth a prediction
 at the next stop.
 
+### Where the money actually went — token composition, report-only and unregistered
+
+Registered nowhere; computed after the fact from the same 20 run records, and reported because it
+names the mechanism P6 got wrong. Medians, `n = 10` per arm:
+
+| Token class | Treated | Control | Treated ÷ control |
+|---|---|---|---|
+| input (the task prompt) | 1 404 | 1 416 | **1.0** |
+| output | **8 578** | 6 268 | **1.37** |
+| cache **read** | **267 882** | **674 614** | **0.40** |
+| cache creation | 19 812 | 24 346 | 0.81 |
+
+**The treated arm produced 37 % more output while re-reading 60 % less context.** Input is
+identical to within 1 %, as it must be — both arms get the same `task.md`. Cache reads run to
+hundreds of thousands of tokens and are what the bill is made of at this scale, and the control
+read back **2.5 times** as many of them (its worst run, 937 987, against the treated arm's worst,
+339 657).
+
+**P6's mechanism was not merely backwards; it was pointed at the wrong arm.** The registered
+sentence was *"one agent carries one growing context through six phases, so every extra turn
+re-reads everything before it and the input cost compounds."* Context re-reading did compound —
+**in the control**, which had no procedure, took between 14 and 31 model calls, and re-read
+everything it had gathered each time it decided what to do next. The treated arm's six declared
+phases are a plan that already exists, so it re-derives less and writes more.
+
+That reading is consistent with every other number in this batch and it is **still a
+post-hoc explanation of an unregistered quantity**. It is written here as the hypothesis the next
+stop should register in advance, not as a result of this one. The experiment that would test it
+compares two arms that differ only in whether the procedure is stated up front, and this stop does
+not contain one.
+
+*Added by Opus 5 (claude-opus-5), autonomous, 2026-09-09, after the registered results above and
+without altering any of them.*
+
 ### The phase contract, machine-checked on every run
 
 `tools/check-phase-contract.py` over each run's stream-json transcript
