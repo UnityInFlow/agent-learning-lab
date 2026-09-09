@@ -371,3 +371,60 @@ run.
 
 *Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-09; the author did not review before
 the run.*
+
+### The selection rate, measured before the batch rather than assumed from `n = 1`
+
+The first carrier run recorded **0** activations and the first skill-alone run recorded **1**. On
+that pair the obvious reading is *the agent's six-phase prose displaces skill selection.* **That
+reading is wrong, and ten runs say so.** `evidence/b06/run-selection-rate.sh`, `N = 5`, BE-003,
+both configurations interleaved, two probe keys that join no `n`:
+
+| Configuration | Recorded activations (`skill-activation.sh`, all `status: measured`) | Rate |
+|---|---|---|
+| **carrier** — agent + `Skill` + the skill | `a8c62bbd` 1 · `a3d3116e` 1 · `b13e53ed` **0** · `29c55d79` 1 · `6d9cbf42` 1 | **4 of 5** |
+| **alone** — the skill, no agent | `41344fd6` 1 · `9d10fadd` 1 · `66f63cef` **0** · `4341fb1f` 1 · `5c1b5499` 1 | **4 of 5** |
+
+**The same rate in both.** The agent does not suppress selection; the single zero at `n = 1` was
+variance, and the carrier probe on BE-004 (`76726889`) activated as well. *(The two zeros fall on
+the same sequence number, `03`, in back-to-back runs. Recorded, not investigated — with `n = 5`
+per configuration it is one coincidence, and chasing it is not this stop's question.)*
+
+**This is registered here because of what it does to P1.** P1 says *"below 9 of 10 activations →
+VOID"* and defines that void as **"the skill was not delivered"**. At a selection rate near 4 in 5,
+a treated arm of 10 lands **below** 9, so **P1 fires by its letter while its stated meaning is
+false**: delivery is proven per run by `skillsHash` and by the *executing* init read-back
+`delivered n=5 [...,"Skill"] verdict=match`. **P1 is not edited.** It is reported as refuted in its
+premise, and the mis-specification — it conflates **delivery** with **selection** — is a finding of
+this stop rather than an inconvenience of it.
+
+**Two readings will be reported at §4 step 8, both labelled:** *intention-to-treat* (all 10 treated
+against all 10 control, which is the registered comparison) and *per-protocol* (only the treated
+runs that actually activated). **The ITT number is the registered one**; per-protocol is a
+co-variate that cannot carry a verdict, because activation is decided after the arm is assigned.
+
+### §4 step 9 result — the deliberate failure held
+
+Run `81899960`, skill-alone configuration, the same 675-word body under E-004's CSS description
+(`fabfc481c4929524786e5a6332c8647a`): **`status: measured`, 0 activations**, against 4 of 5 for the
+identical body with the domain description in the identical configuration. **The prediction
+committed at `4d3d166` held.** The description is the selector; the body is not.
+
+### One run was spent on a guard registered against the wrong quantity, and it is excluded by name
+
+The first BE-003 batch (`evidence/b06/batch-BE-003-20260909T164314Z/`) aborted at pair 01 with
+exit 8: the driver asserted the **file's** sha (`7bea9048…`) against `customization.skillsHash`,
+which is the **skills subtree** hash (`61445ead…`) — a different quantity. The run itself was
+correct in every respect and even activated the skill.
+
+**`4452e08a-4401-468c-b1b7-57c48d9c2f7b` is excluded from `EXP-B6-SKILL-BE003`**, registered here
+**before any sheet was opened** and for a reason that has nothing to do with its outcome. Its run
+folder, log and manifest are **kept, not deleted** (§4 step 12).
+
+**The lesson, and it is the house one in a new place:** `verify-b6-batch-guards.sh` drives the
+driver with `B6_GUARDS_ONLY=1`, so it can only ever exercise guards that fire **before the first
+run**. A per-run read-back guard is **structurally invisible** to that fixture set — 13 of 13
+green said nothing about it. The registered read-back value is now grounded in **14 independent
+observations** of `sha256:61445ead…` across `evidence/b06/probe-v1.1/`, `probe-carrier/` and
+`selection-rate/`, not in a value read off one file.
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*

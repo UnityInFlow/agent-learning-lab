@@ -1,0 +1,11 @@
+# B6 BE-003 20260909T164314Z  key=EXP-B6-SKILL-BE003 pairs=10 start=1
+# carrier agent 51ffaedf9a3edbfe5fd85009f70f84c5 ON BOTH ARMS · skill 7bea904863fb79a544ee2068cb2f0f43 on TREATED ONLY
+# carrier = phases-v1.0's agent + Skill in tools:, one line; phases-v1.0 itself untouched
+# BE-003 tree eeb15a753adc94e92bc3f74c50e1b02fc3b53030 at benchmarks eea144ef940fda4cb6090561fdd901aed0013c8e
+# claude 2.1.266 at launch, asserted constant per run · model claude-haiku-4-5-20251001
+# prediction commit 133de65 at 2026-09-09T17:00:47+02:00
+# common:      RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-B6-SKILL-BE003 MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1 ENABLE_SKILLS=1 AGENT=backend-feature-phases API_PORT=18081 OTLP_HTTP_PORT=14318 OTLP_GRPC_PORT=14317 TEMPO_PORT=13200 INIT_SCHEMA_DIR=/Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b06/batch-BE-003-20260909T164314Z/init-schema
+# treated adds:CUSTOMIZATION=/Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/phases-v1.0-skillcarrier VARIANT=skill-v1.1-carrier
+# control adds:CUSTOMIZATION=/Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/phases-v1.0-skillcarrier-control VARIANT=carrier-control
+seq	arm	run_id	exit	worktree	agent_hash	skill_hash	instr_hash	skill_stream	deleg_stream	claude
+01	treated	4452e08a-4401-468c-b1b7-57c48d9c2f7b	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4452e08a-4401-468c-b1b7-57c48d9c2f7b	sha256:51ffaedf9a3edbfe5fd85009f70f84c5	sha256:61445ead85042e340435613314920ef8	null	1	0	2.1.266

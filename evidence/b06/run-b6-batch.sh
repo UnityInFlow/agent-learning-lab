@@ -67,7 +67,20 @@ CONTROL_DIR="${B6_CONTROL_DIR:-$LAB/build/customizations/phases-v1.0-skillcarrie
 AGENT_REL=".claude/agents/backend-feature-phases.md"
 SKILL_REL=".claude/skills/testing-and-verification/SKILL.md"
 EXPECT_AGENT_SHA="${B6_EXPECT_AGENT_SHA:-51ffaedf9a3edbfe5fd85009f70f84c5}"     # first 32 hex
-EXPECT_SKILL_SHA="${B6_EXPECT_SKILL_SHA:-7bea904863fb79a544ee2068cb2f0f43}"     # first 32 hex
+EXPECT_SKILL_SHA="${B6_EXPECT_SKILL_SHA:-7bea904863fb79a544ee2068cb2f0f43}"     # the FILE on disk
+# The runner's `customization.skillsHash` is NOT the sha of SKILL.md. It hashes the skills
+# SUBTREE, and it is a different number: 61445ead… against the file's 7bea9048…. The first
+# batch was aborted at pair 01 by a guard that asserted the file sha against the read-back —
+# a guard registered against the wrong quantity, which is the same class of defect as a
+# control reporting success over a scope smaller than it claims, and it cost one run
+# (4452e08a, excluded by name in E-012 before any scoring).
+#
+# THE LESSON, RECORDED WHERE IT HAPPENED: verify-b6-batch-guards.sh drives the driver with
+# B6_GUARDS_ONLY=1, so it can only ever exercise guards that fire BEFORE the first run. A
+# per-run read-back guard is structurally invisible to that fixture set. The proof for this
+# one is therefore the probe manifests, where the same value appears on six independent runs
+# (evidence/b06/probe-v1.1, probe-carrier, selection-rate).
+EXPECT_SKILLS_HASH="${B6_EXPECT_SKILLS_HASH:-61445ead85042e340435613314920ef8}"  # the READ-BACK
 EXPECT_MODEL="${B6_EXPECT_MODEL:-claude-haiku-4-5-20251001}"
 
 case "$BENCHMARK" in
@@ -180,7 +193,8 @@ events_bytes() { [[ -f "$EVENTS" ]] && wc -c < "$EVENTS" | tr -d ' ' || echo 0; 
 mkdir -p "$EVID/init-schema" || fail "cannot create $EVID"
 {
   echo "# B6 $BENCHMARK $STAMP  key=$EXPERIMENT_KEY pairs=$PAIRS start=$START"
-  echo "# carrier agent $ta ON BOTH ARMS · skill $ts on TREATED ONLY"
+  echo "# carrier agent $ta ON BOTH ARMS · skill file $ts on TREATED ONLY"
+  echo "# treated runs must read back skillsHash sha256:$EXPECT_SKILLS_HASH (the skills SUBTREE hash, not the file's)"
   echo "# carrier = phases-v1.0's agent + Skill in tools:, one line; phases-v1.0 itself untouched"
   echo "# $BENCHMARK tree $EXPECT_TREE at benchmarks $got_bench"
   echo "# claude $LAUNCH_CLAUDE at launch, asserted constant per run · model $EXPECT_MODEL"
@@ -253,8 +267,8 @@ for i in $(seq "$START" $((START + PAIRS - 1))); do
   one_run treated "$s" "${ARM_T[@]}"
   [[ $LAST_RC -eq 9 ]] && { echo "!! treated $s returned 9 — delivered tool schema is not the declared one." >&2; exit 9; }
   check_common treated "$s"
-  [[ "$LAST_SKILL" == "sha256:$EXPECT_SKILL_SHA" || "$LAST_SKILL" == "UNREAD" ]] \
-    || abort_batch "treated $s read back skillsHash=$LAST_SKILL, registered sha256:$EXPECT_SKILL_SHA: the skill did not arrive."
+  [[ "$LAST_SKILL" == "sha256:$EXPECT_SKILLS_HASH" || "$LAST_SKILL" == "UNREAD" ]] \
+    || abort_batch "treated $s read back skillsHash=$LAST_SKILL, registered sha256:$EXPECT_SKILLS_HASH: the skill did not arrive."
   # RECORDED, NOT FATAL, AND WRITTEN EVEN WHEN ZERO. Selection is an outcome; see note (c).
   echo "treated $s skill invocations in stream: $LAST_SKACT" >> "$EVID/skill-selection.txt"
 

@@ -15,3 +15,20 @@
 ======== alone 04 ========
   -> 4341fb1f-63c7-4102-971f-882f6ce7918b exit=0 skillCalls=1 agent=None skill=sha256:61445ead85042e340435613314920ef8
 ======== carrier 05 ========
+  -> 6d9cbf42-db73-432c-92ee-c484b93b2f46 exit=0 skillCalls=1 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8
+======== alone 05 ========
+  -> 5c1b5499-d923-426a-849f-6044b27d2c09 exit=0 skillCalls=1 agent=None skill=sha256:61445ead85042e340435613314920ef8
+SELECTION RATE DONE
+# B6 selection rate  skill sha 7bea904863fb79a544ee2068cb2f0f43 (v1.1, domain description)
+# carrier agent 51ffaedf9a3edbfe5fd85009f70f84c5 = phases-v1.0 + Skill in tools:
+config                                                                                      seq  run_id                                exit  agent_hash                               skill_hash                               skill_stream  model_calls
+carrier                                                                                     01   a8c62bbd-a096-4bd7-86b2-5700745755fa  0     sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  1             25
+alone                                                                                       01   41344fd6-e7ef-4434-88b2-5d09a3bb858c  0     None                                     sha256:61445ead85042e340435613314920ef8  1             18
+carrier                                                                                     02   a3d3116e-abab-4446-9985-0f175cc3ec6b  0     sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  1             24
+alone                                                                                       02   9d10fadd-04d2-488c-84b7-95d0207cc123  0     None                                     sha256:61445ead85042e340435613314920ef8  1             15
+carrier                                                                                     03   b13e53ed-fd78-4a31-99e2-116cabc1664d  0     sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  0             19
+alone                                                                                       03   66f63cef-64d9-4e1e-9d9f-e8071cde21ab  0     None                                     sha256:61445ead85042e340435613314920ef8  0             24
+carrier                                                                                     04   29c55d79-d123-4bf2-86a6-01f81e57b154  0     sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  1             20
+alone                                                                                       04   4341fb1f-63c7-4102-971f-882f6ce7918b  0     None                                     sha256:61445ead85042e340435613314920ef8  1             25
+carrier                                                                                     05   6d9cbf42-db73-432c-92ee-c484b93b2f46  0     sha256:51ffaedf9a3edbfe5fd85009f70f84c5  sha256:61445ead85042e340435613314920ef8  1             19
+alone                                                                                       05   5c1b5499-d923-426a-849f-6044b27d2c09  0     None                                     sha256:61445ead85042e340435613314920ef8  1             21
