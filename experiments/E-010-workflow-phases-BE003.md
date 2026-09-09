@@ -754,6 +754,36 @@ resource attribute `observatory.run.id` in
 `cost_usd` sum **0.0996592**; run `42f3f80b` (control) = **24** model calls, `cost_usd` sum
 **0.172395**. The API reports 20 / 0.099659 and 24 / 0.172395. **They agree exactly.**
 
+### P1's second half — the `init.tools` read-back on all 20 runs, and what it says about stop 9
+
+P1 asks not only for the agent hash but for each treated run's `init` record to deliver a tool set
+containing `Edit` **and** `Write`. Read from
+`evidence/b05/batch-BE-003-*/init-schema/init-schema-<run-id>.txt`, one file per run, written by
+the runner at `init` and not by this analysis:
+
+| Arm | Tools delivered | `Edit` | `Write` | `Task` | Runs |
+|---|---|---|---|---|---|
+| treated | **4** | yes | yes | **no** | 10 of 10 |
+| control | 29 | yes | yes | yes | 10 of 10 |
+
+The overlay declares `tools: Read, Edit, Write, Bash` — **four names, and four were delivered, on
+every one of ten runs.**
+
+**That is a change from stop 9 and it should be said plainly.** [E-005](E-005-agent-tool-boundary.md)
+measured the runtime *rewriting* a declared list before the model saw it: `Read, Grep, Glob, Bash`
+arrived as `["Read","Bash"]` on 10 of 10 runs, which is why author decision 8 made the `init.tools`
+read-back mandatory before any B step registers an allowlist. **Here the rewrite did not happen.**
+Ten of ten treated runs received exactly the declared four. The probe that decision 8 requires is
+the reason this can be stated rather than assumed, and this is the first batch in the run where it
+came back clean.
+
+**It also closes threat 7 mechanically rather than statistically.** No treated run could delegate:
+`Task` was not in its four. The control was handed 29 tools including `Task` and used it once, in
+pair 04. So "no treated delegation" is not a lucky observation about ten runs — it is a property of
+what the runtime delivered, readable in a file written before the model's first turn.
+
+*Added by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
 ### The §5 hand re-read against the sheet it was taken before
 
 | | `test-quality`, run `5395964c` | Reason given |
