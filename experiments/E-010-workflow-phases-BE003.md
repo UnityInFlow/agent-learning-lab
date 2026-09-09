@@ -680,6 +680,49 @@ four control runs gave it nothing to separate. The treated arm produced no nulls
 enough test code to be scorable, consistent with its median 79 added lines against the control's
 41.5.
 
+### The second reader — 20 of 20 sheets, and a replication of lab#70 on fresh runs
+
+Decision C stands: **codex produces the numbers, opencode is the second reader and is not a vote.**
+Every run above was scored a second time with `./tools/opencode-score.sh`, model
+`ollama-cloud/deepseek-v4-pro`, opencode `1.18.27`, against the same rubric sha `396e1799eb2b`.
+**20 of 20 sheets, no stalls.**
+
+| Category | codex vs deepseek, exact agreement |
+|---|---|
+| `architecture-consistency` | **20 / 20** |
+| `maintainability` | **20 / 20** |
+| `test-quality` | **20 / 20** |
+| `change-focus` | **7 / 20** |
+
+**Sixty of sixty on the three categories that carry every registered outcome of this experiment,
+and 7 of 20 on the one that carries none.** That is [lab#70](../evidence/second-reader/README.md)'s
+measurement — 34/34 on the other three, 18 of 34 on `change-focus` — **reproduced on twenty runs
+it had never seen**, and reproduced worse: 35 % agreement here against 53 % there.
+
+**This is direct, independent support for author decision 10.3**, which carves `change-focus` out
+of the Decision H fallback and makes a fallback-scored `change-focus` cell report-only. The
+decision was taken on 34 runs; it now has 20 more, from a different task batch, saying the same
+thing more strongly. **Nothing in E-010 depends on it** — no registered prediction reads
+`change-focus` — so this changes no number above; it is evidence about the instrument.
+
+**One correction to lab#70's phrasing, offered with its `n`.** That file records the
+`change-focus` disagreements as *"always in the same direction"*. On these twenty they are not:
+deepseek scored **higher** in 8 cases (`1 → 2` seven times, and `null → …` aside), **lower** in 1
+(`2 → 1`, pair 06 treated), and returned **`null` where codex returned 1** in 4. A mixed
+disagreement is a different defect from a biased one — a bias can be corrected for, and this
+cannot. The distinction matters for anyone tempted to rescue `change-focus` with an offset rather
+than a re-score, and it argues that 10.3's "report-only" is the right treatment rather than a
+conservative one.
+
+*Added by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+**And a note on how nearly this table read `0 / 20` in every row.** The first extraction of these
+sheets returned `MISSING` for all eighty cells and would have been reported as total disagreement,
+because the codex sheets quote their category names (`- name: "architecture-consistency"`) and the
+opencode sheets do not (`- name: architecture-consistency`), and the regex required the quotes. It
+was caught because a clean `0/20` across four independent categories is not a result, it is a
+broken instrument — the house failure mode, met once more, in a five-line script.
+
 ### A second hand re-read, on a `null` — and what the anchor-2 count was hiding
 
 §5 asks for one hand-read cell; this is a second, taken deliberately on the **control** arm and on
