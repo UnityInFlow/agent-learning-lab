@@ -66,7 +66,7 @@ TREATED_DIR="${B6_TREATED_DIR:-$LAB/build/customizations/phases-v1.0-skillcarrie
 CONTROL_DIR="${B6_CONTROL_DIR:-$LAB/build/customizations/phases-v1.0-skillcarrier-control}"
 AGENT_REL=".claude/agents/backend-feature-phases.md"
 SKILL_REL=".claude/skills/testing-and-verification/SKILL.md"
-EXPECT_AGENT_SHA="${B6_EXPECT_AGENT_SHA:-51ffaedf9a3edbfe6ff9c0c30dcf3b0b}"     # first 32 hex
+EXPECT_AGENT_SHA="${B6_EXPECT_AGENT_SHA:-51ffaedf9a3edbfe5fd85009f70f84c5}"     # first 32 hex
 EXPECT_SKILL_SHA="${B6_EXPECT_SKILL_SHA:-7bea904863fb79a544ee2068cb2f0f43}"     # first 32 hex
 EXPECT_MODEL="${B6_EXPECT_MODEL:-claude-haiku-4-5-20251001}"
 
@@ -108,12 +108,14 @@ for d in "$TREATED_DIR" "$CONTROL_DIR"; do
   [[ -d "$d" ]] || fail "overlay directory missing: $d"
   [[ -f "$d/$AGENT_REL" ]] || fail "$d does not carry $AGENT_REL"
 done
+# The control-carries-a-skill case is checked FIRST, above the file counts, so its refusal names
+# the actual defect rather than a file count that is only its symptom.
+[[ -f "$CONTROL_DIR/$SKILL_REL" ]] && fail "the control overlay carries a skill; it is not a control."
 tn="$(find "$TREATED_DIR" -type f | wc -l | tr -d ' ')"
 cn="$(find "$CONTROL_DIR" -type f | wc -l | tr -d ' ')"
 [[ "$tn" == "2" ]] || fail "treated overlay holds $tn files; it is exactly the agent and the skill."
 [[ "$cn" == "1" ]] || fail "control overlay holds $cn files; it is exactly the agent."
 [[ -f "$TREATED_DIR/$SKILL_REL" ]] || fail "treated overlay's second file is not $SKILL_REL"
-[[ -f "$CONTROL_DIR/$SKILL_REL" ]] && fail "the control overlay carries a skill; it is not a control."
 
 ta="$(shasum -a 256 "$TREATED_DIR/$AGENT_REL" | cut -c1-32)"
 ca="$(shasum -a 256 "$CONTROL_DIR/$AGENT_REL" | cut -c1-32)"
