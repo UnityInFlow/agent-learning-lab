@@ -337,3 +337,58 @@ Script: `evidence/b06/run-probe-v1.1.sh` (ShellCheck clean). Manifest and logs:
 `evidence/b06/probe-v1.1/`. Both keys are probe keys and **enter no `n`**.
 
 <!-- results filled below, after the probes -->
+
+### The probes' results — a 2×2 that separates the two blockers
+
+Both factors are crossed, each isolated by the other's control. Every activation count comes from
+`tools/skill-activation.sh` over `agent-observatory/infra/telemetry-out/events.jsonl`, which
+**exits 3 when a run is absent from telemetry** — so every `0` below is `status: measured`, a
+measurement and not missing data.
+
+| Run | Description | `Skill` delivered? | `skillsHash` | Recorded activations |
+|---|---|---|---|---|
+| `2e972b72` | v1.0, **technique** | **yes**, n=30 pool | `sha256:71ec726a5193…` | **0** |
+| `ba8b4b98` | **v1.1, domain** | **yes**, n=30 pool | `sha256:61445ead8504…` | **1** — `activations_by_source: projectSettings=1` |
+| `fbe8c643` | v1.0, technique | **no**, n=4 `["Read","Edit","Write","Bash"]` | `sha256:71ec726a5193…` | **0** |
+| `e711fd4a` | **v1.1, domain** | **no**, n=4 `["Read","Edit","Write","Bash"]` | `sha256:61445ead8504…` | **0** |
+
+Read down the two columns:
+
+- **With `Skill` in the pool, the description decides.** Same 675-word body, same file, one line
+  different: **0 → 1**. That is [E-004](E-004-skill-description.md)'s mechanism reproducing on a
+  new distinction — E-004 separated *right domain* from *wrong domain*; this separates *the task's
+  domain* from *a technique the task needs*. A description can be **relevant and still not be
+  selected**.
+- **With no `Skill` in the pool, the description cannot matter, and does not.** Both rows are 0.
+  The init read-back is the proof and it executes: `verdict=match`, `delivered n=4`.
+
+**These are `n = 1` per cell.** Nothing here is stated as a property; it is true of these four
+runs, and the 0-cells are floors that four runs cannot lift. What the 2×2 does establish is the
+**design fact this stop turns on**: `phases-v1.0` cannot receive a specialist skill at all, and no
+description fixes that.
+
+*Measured by Opus 5 (claude-opus-5), autonomous, 2026-09-09. Manifest
+`evidence/b06/probe-v1.1/manifest.tsv`, init read-backs `evidence/b06/probe-v1.1/init-schema/`.*
+
+### What B6 does about it — the carrier, and what it costs
+
+`phases-v1.0` **is not edited**; §6 forbids it and it stays exactly what B5 measured and what B7
+will close against. The batch runs on a **carrier**: a new overlay whose agent file differs from
+`phases-v1.0`'s by **one line** — `tools:` gains `Skill` — installed on **both arms**, so the
+single variable of this experiment is still the skill directory and nothing else.
+
+| | Treated | Control |
+|---|---|---|
+| Overlay | `build/customizations/phases-v1.0-skillcarrier/` | `build/customizations/phases-v1.0-skillcarrier-control/` |
+| Agent file sha256 | `51ffaedf9a3edbfe…` | **`51ffaedf9a3edbfe…`** — `diff -q` clean between the arms |
+| `SKILL.md` | `7bea904863fb79a5…` | **absent** |
+| Read back per run as | `agentHash` equal on both arms; `skillsHash` **non-null** | `agentHash` equal; `skillsHash` **`null`** |
+
+**The honest cost, registered here before the batch:** the carrier is **not the v1.0 product**, so
+this stop measures *"what one specialist skill adds to an agent that can invoke skills"*, not
+*"what it adds to v1.0"*. The answer to the second question is already measured and it is **nothing
+is deliverable** — the four runs above. Both go in the exit gate. The carrier is an experiment
+fixture, exactly as `agent-v0.1-toollist-bash` was at stop 9; it is **not** a version, and the
+`v1.0 → v1.1` version boundary stays where the spine puts it, at B8.
+
+*Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
