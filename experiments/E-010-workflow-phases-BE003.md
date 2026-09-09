@@ -422,7 +422,92 @@ in the place threats live, which is what a preflight is for.
 
 ## §4 step 6 — the batch
 
-<!-- filled at step 6 -->
+Two launches, one experiment key `EXP-B5-PHASES-BE003`, `n = 10` per arm, interleaved
+treated/control pair by pair so that any drift in the machine or the API is shared by both arms.
+
+| Launch | Evidence directory | Pairs | Outcome |
+|---|---|---|---|
+| 1 | `evidence/b05/batch-BE-003-20260909T075939Z/` | 01–10 | pairs 01–08 completed; **pairs 09 and 10 aborted before the model was reached** |
+| 2 | `evidence/b05/batch-BE-003-20260909T093440Z/` | 09–10 (`START=9 PAIRS=2`) | re-run of the two aborted pairs |
+
+### The four aborted runs, kept and disclosed rather than quietly dropped
+
+`09-treated 81b1d617-f5ba-40f1-84ec-d89a993ea966`, `09-control 79b9b300-f616-4825-8396-2fb5ac6a9e26`,
+`10-treated f34a2eb4-f397-4157-887b-b34747839cd8`, `10-control fe6c2d96-f857-4caf-9b92-e200864ea436`.
+
+An external DNS outage hit this machine at about `2026-09-09T08:39Z`. **The model was never
+contacted on any of the four.** Three independent proofs, none a restatement of the others:
+
+1. Every one of the four runner logs carries
+   `API Error: Can't reach the API server — check your internet or DNS (ENOTFOUND)`.
+2. The four logs are **12 KB**; the sixteen runs that reached the model are **150–250 KB**.
+3. `evaluation.json` on all four: `taskAttempted: false`, `productionFilesChanged: 0`,
+   `addedLines: 0`, `changedFiles: []`, `exitCode 12`, `failureClass F03`.
+
+The outage was external and independently witnessed: a subagent of the orchestrating session died
+on the same `ENOTFOUND` in the same minute. It struck **both arms symmetrically** — two treated,
+two control — so it shortens the batch rather than biasing it.
+
+### Why this is a re-run and not a registered exclusion
+
+**This decision was written into `TRACK-B-STATE.md` and committed (`ea12b8d`) before the re-run
+command was issued**, so it cannot have been chosen after seeing what the replacement runs said.
+
+E-010's decision rule and MDE are written end to end in *of 10* terms — `≥ 9 of 10`, `≥ 7 of 10`,
+two-sided Fisher at `n = 10` per arm. Carrying four runs in which the model was never contacted
+would have forced one of two things this project refuses: counting a network outage as an agent
+failure under P8, or inventing a post-hoc threshold at `n = 8` that no prediction registered.
+A run in which the model was never reached is not a measurement of the agent; it is an aborted
+run. §0's bar for re-running — *never re-run a benchmark run you cannot prove failed to start* —
+is met three ways above.
+
+**Nothing was deleted.** The four aborted runs keep their manifest rows, their 12 KB logs, their
+worktrees, their run records and their evaluator verdicts, and they are named here by run id. The
+replacement runs live in their own stamped directory, so the two attempts can never be confused
+for one another. They are excluded from every comparison in the Results below, and that exclusion
+is this paragraph, not a silent gap in an `n`.
+
+*Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+### The one thing this cost
+
+The registered exclusion list (four items, written before the data) does **not** contain
+"the model was never reached". It should have; every previous batch in this project ran on a
+network that happened not to fail. That is a gap in the registration, disclosed here rather than
+back-filled into the list above, and it is the shape a later step should register in advance.
+
+## §5 hand re-read — one scored cell, read off the worktree before any sheet was opened
+
+§5 requires at least one scored cell per step to be re-read by hand from the kept worktree, with
+the hand reading written down next to the sheet's value. **This reading was taken before any
+codex or opencode sheet for this batch existed**, so it cannot have been anchored by one.
+
+- **Run:** `5395964c-c3c0-4117-9d79-3ff7b379b6e1` — pair 01, **treated** arm.
+- **Worktree:** `$TMPDIR/observatory-run-5395964c-c3c0-4117-9d79-3ff7b379b6e1`
+- **Rubric:** `benchmark/rubrics/backend-quality.yaml`, sha prefix **`396e1799eb2b`**, verified by
+  the reader before scoring.
+- **Cell:** `test-quality`.
+- **Hand value: 1.**
+
+Anchor 2 asks for three clauses, each citable. Applying the rubric's closing rule — *0 if the 0
+anchor's condition holds; 2 else if EVERY clause of the 2 anchor holds; 1 otherwise*:
+
+| Anchor 2 clause | Holds | Evidence |
+|---|---|---|
+| `confirm` called twice and the **second response's body** asserted, not its status alone | yes | `sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt:100,105-107` |
+| persisted state re-read through a **separate `get(...)`** rather than trusted from the mutating call's own body | **no** | same file `:85-131` — no `get(...)` appears in any confirm test; `get()` occurs only in the pre-existing tests at `:62,69,79` |
+| at least one refusal asserts `$.error.code` rather than the status alone | yes | same file `:123` |
+
+Anchor 0 does not hold — assertions do read response bodies — so the cell is not 0; one clause of
+anchor 2 is absent, so it is not 2. **The residual, 1.**
+
+The value the registered sheet gives for this same cell is recorded beside it in the Results
+section below. Where the two disagree, the disagreement is the finding and the diff decides it,
+per §4 step 7.
+
+*Hand reading delegated to a `sonnet` subagent with the rubric path, the worktree path and the
+required answer shape, per §4b; the clause-by-clause citations above are what it returned, and the
+`path:line` references are checkable against the worktree by any reader.*
 
 ## Results
 
