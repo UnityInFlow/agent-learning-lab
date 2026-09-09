@@ -344,12 +344,69 @@ rest of each tree is identical. Where it does not, that is a finding about the r
 and is recorded rather than smoothed — but it is **not** a §7 halt, because the halt condition is
 about a dimension failing to separate, not about one being noisier than hoped.
 
+
+### Amendment, written before the first scoring call and not after it
+
+*Amended by Opus 5 (claude-opus-5), autonomously, 2026-09-09, at commit `c42120b`+1, **before any
+codex call of this proof was made**. The table above is left standing, unedited, because a
+prediction is not tidied here even when its author finds the fault himself. What follows corrects
+its **reference cell**, not its directions — every ↓ cell above is still predicted to be the low
+cell of its column.*
+
+**The fault: three of the four rows above name `known-good` as the reference, and two of its four
+cells cannot exist.** `tools/codex-score.sh:161-170` attaches `known-good` as the baseline for
+every target and attaches **no baseline when `known-good` is itself the target** — the tool's own
+words, *"the target IS the baseline; its cells see one tree, the others see two."* So on a
+`known-good` sheet:
+
+- `change-focus`'s precondition fires — *"No baseline tree among the attachments → score: `null`"*.
+  I predicted 2. **That prediction is refuted by the instrument's construction, before it ran.**
+- `test-quality`'s precondition fires — `known-good` carries no test file, deliberately. I had
+  already registered that one as a structural null, and it stands.
+
+**E-001 settled this on BE-003 and §1 says the files win over the prompt's wording.** Author
+decision 9 says *"every dimension separates its variant from `known-good`"*; E-001's
+"Superseded: the six-cell population" section says the opposite and gives the measurement reason:
+
+> **Discrimination is a comparison among these five, not against `known-good`.** Each variant
+> depresses exactly one dimension, and all five are scored under identical conditions — same
+> rubric, same baseline attached. The test is whether the **↓** cell in a column scores below
+> the other cells in that column. For `test-quality` that is the pair: weak below strong.
+
+and, on the `known-good` sheet Decision B dropped: *"the earlier KEEP condition, 'scores below
+`known-good` on its own dimension', had **no reference value for 2 of the 4 categories** — not an
+asymmetry to adjust for, a missing number."* **The disagreement between this prompt and E-001 goes
+into HANDOFF.md**, as §1 requires.
+
+**So the proof runs two comparisons, and only the first one decides anything.**
+
+| | What it is | Status |
+|---|---|---|
+| **Primary — the registered test** | Among the **five variants**, all scored under identical conditions (same rubric, `known-good` attached as baseline to each): in each dimension's column, the variant that varies it scores **strictly below every other cell** in that column. `test-quality`'s column has two non-null cells and the test is weak < strong. | **This is what a §7 halt is judged on.** |
+| **Secondary — reported, decides nothing** | The `known-good` sheet itself, scored as a sixth target. `architecture-consistency` and `maintainability` are computable there; `change-focus` and `test-quality` are structural nulls. Its evidence set is **one tree where every other sheet sees two**, so it is a different condition and cannot carry a separation claim. | Reported because author decision 9 asks for it, labelled because E-001 measured why it cannot be the reference. |
+
+**Predicted, before the run, for the secondary sheet:** `architecture-consistency` 2,
+`maintainability` 2, `change-focus` `null`, `test-quality` `null`. If either of the first two comes
+back below 2, that is a finding about the one-tree condition and is reported as such — it does not
+touch the primary test, which never reads this sheet.
+
+**Predicted for the primary test, restated with the corrected reference:**
+
+| Dimension | The ↓ cell | Predicted for it | The other cells in that column | Separation required |
+|---|---|---|---|---|
+| `architecture-consistency` | `good-inline-envelope` | 0 | `good-nested-ifs`, `good-noisy-diff`, `good-strong-tests`, `good-weak-tests` at 2 | ↓ cell strictly below all four |
+| `maintainability` | `good-nested-ifs` | 0 | the other four at 2 | ↓ cell strictly below all four |
+| `change-focus` | `good-noisy-diff` | 0 | the other four at 2 | ↓ cell strictly below all four |
+| `test-quality` | `good-weak-tests` | 0 or 1 | `good-strong-tests` at 2; the other three **structural `null`** | weak strictly below strong |
+
+
 ### How it is run
 
 `./tools/codex-score.sh benchmark/rubrics/backend-quality-be004.yaml <fixture>` on six targets —
 `known-good` and the five `QUALITY_VARIANTS` — Path A, which proves each target is gate-passing
 from BE-004's **own** `verify-evaluator.sh` registry rather than from a flag. `known-good` is
-scored with no baseline attached, by the tool's own boundary rule.
+scored with no baseline attached, by the tool's own boundary rule — which is exactly why its
+sheet is the secondary comparison and not the reference.
 
 ### Result
 
