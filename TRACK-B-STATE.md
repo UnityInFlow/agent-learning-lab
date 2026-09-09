@@ -1,6 +1,6 @@
 # Track B — state
 
-Owned by the autonomous run. `run-track-b.sh` reads `status:`. Everything the next session
+Owned by the autonomous run. `run-track-b.sh` reads `status: running   # STOP 12 IS CLOSED AND MERGED (PR lab#79 -> 2e32f214, nine checks green, lab#30 commented and closed, card Done, both boards republished). STOP 13 IS OPEN on stop13/b6-specialist-skill at §4 step 5: steps 1-4 are committed and the PREFLIGHT FOUND THE TREATMENT IS NOT DELIVERED, so NO BATCH WAS STARTED. NOTHING IS RUNNING. NOT A §7 HALT and blocked_on_author is EMPTY. SUPERSEDED, kept not deleted: `. Everything the next session
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
