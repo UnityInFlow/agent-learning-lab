@@ -151,8 +151,12 @@ mitigates rather than closes this — it counts `Bash` calls carrying a write sh
 (`tools/check-phase-contract.py:155, :187-195, :267-269`), which is validator pass 18's
 recommendation adopted rather than widening `MUTATING`.
 
-**I am registering that NOTE count as an outcome**, not leaving it as commentary — see P5 in
-[E-010](../../experiments/E-010-workflow-phases-BE003.md). A treated run with zero
+**I am registering that NOTE count as an outcome**, not leaving it as commentary — see **P4** in
+[E-010](../../experiments/E-010-workflow-phases-BE003.md) and **P4** in
+[E-011](../../experiments/E-011-workflow-phases-BE004.md). *(This sentence read "P5" when it was
+written at `1031a99`; P5 is the turn-count prediction. Corrected by Opus 5 (claude-opus-5),
+autonomously, 2026-09-09, before any run of this stop — no prediction is altered, only a
+cross-reference that pointed at the wrong one.)* A treated run with zero
 `Edit`/`Write` before `DESIGN` and three pre-`DESIGN` `Bash` writes has complied with the
 letter of the check and not with the clause the gate asks about, and the only way that fact
 survives into the exit gate is if it was registered before the run.
@@ -206,8 +210,34 @@ HIGH_RISK  + APPROVAL after DESIGN, + SECURITY_REVIEW and HUMAN_APPROVAL before 
 
 ## Predict before you run
 
-<!-- TODO: predict the token overhead as a percentage before measuring it.
-     The build track says "measure both" — a prediction makes that honest. -->
+*Registered by Opus 5 (claude-opus-5), autonomously, 2026-09-09, before any run of this stop.*
+
+The build track's instruction is *"Cost: tokens. Measure both"*, and the scaffold's TODO asked for
+the token overhead **as a percentage, before measuring it**. It is registered here and, in its full
+form with mechanisms and decision rules, in the two experiment files this stop runs under author
+decision 9 — **one per task, no verdict computed across them**:
+
+| | `BE-003-confirm-shipment` | `BE-004-cancel-order` |
+|---|---|---|
+| Experiment | [E-010](../../experiments/E-010-workflow-phases-BE003.md), key `EXP-B5-PHASES-BE003` | [E-011](../../experiments/E-011-workflow-phases-BE004.md), key `EXP-B5-PHASES-BE004` |
+| **Token overhead, the number the scaffold asked for** | **≥ +25 %** on `estimatedCost` median vs its concurrent control, quartiles non-overlapping (E-010 P6) | **≥ +25 %** (E-011 P6) — **the same threshold, transferred not calibrated**, and E-011 says so in its MDE table |
+| Turns | **≥ +4** on `modelCalls` median (P5) | **≥ +4** (P5); +4 is 13 % of BE-004's observed 30 where it is 18 % of BE-003's 22 |
+| Markers observable | ≥ 9 of 10 treated (P2) | ≥ 9 of 10 treated (P2) |
+| No code before DESIGN | ≥ 9 of 10 treated (P3) | ≥ 9 of 10 treated (P3) |
+| Quality | `test-quality` anchor 2 **≤ 3 of 10** treated (P7) | **≤ 3 of 10** (P7), with a registered chance the anchor floors at 0 in both arms |
+| Correctness | ≥ 9 of 10, a floor (P8) | ≥ 8 of 10 both arms, differing by < 3 (P8) |
+
+**The mechanism behind the cost prediction, stated because it contradicts the nearest measured
+prior.** [E-007](../../experiments/E-007-orchestration-overhead.md)'s structural split came out
+**13.4 % cheaper** than its control, against a registered +60 %. There is **no subagent** at this
+stop: one agent carries one growing context through six phases, so every announced phase re-reads
+everything before it and input cost compounds instead of resetting. **If the treated arm comes out
+cheaper here too, the compounding mechanism is wrong**, and that is worth more than the prediction.
+
+**What this stop expects to find, in one line, so the exit gate cannot be written to fit the data:**
+the markers appear, the code order follows them, the price is real and the rubric sees nothing —
+because [E-009](../../experiments/E-009-fourth-cell-second-registration.md) already measured the
+same procedure as prose to one agent at **0 of 10** against its control's 1 of 10, `p = 1.0`.
 
 ## Lab B5.1 — measure against B4
 
