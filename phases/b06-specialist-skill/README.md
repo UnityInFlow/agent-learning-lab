@@ -3,7 +3,7 @@
 **Track A first:** [Phase 3](../03-skills/) · **Layer 3**
 **Version:** **v1.0**
 **Spine position:** 13 of 28 · after [B5](../b05-workflow-phases/) · before [Phase 5A](../05a-guardrails/)
-**Status:** ⬜ not started
+**Status:** 🟨 open — §4 step 1 done, branch `stop13/b6-specialist-skill`
 
 > Scaffold. **Build** and **Exit gate** moved from [`build/README.md`](../../build/README.md#b6).
 > Everything else is yours to fill.
@@ -12,24 +12,113 @@
 
 ## Goal
 
-<!-- TODO -->
+Build **exactly one** specialist skill, chosen from a failure **measured** in B2–B5, and find out
+whether a skill removes a failure that an agent definition did not.
+
+**The measurement is against B5, not against a plain baseline.** `Lab B6.1` compares
+`phases-v1.0` with and without the skill, so the only failures worth targeting are ones
+**`phases-v1.0` still has**. That rules out more than it sounds like it does — see the choice
+below.
 
 ## Required reading
 
 ### Internal — the requirement
 
-<!-- TODO: candidates:
-     BUSINESS-REQUIREMENTS §10.8 skills/<skill>/SKILL.md
-     BUSINESS-REQUIREMENTS P4    evidence before complexity
-     BUSINESS-REQUIREMENTS §1130 never install unreviewed skills into bank repositories -->
+- [`BUSINESS-REQUIREMENTS`](../../../BUSINESS-REQUIREMENTS.md) §10.8 — `skills/<skill>/SKILL.md`,
+  the eight questions a skill answers.
+- `BUSINESS-REQUIREMENTS` **P4** — evidence before complexity. B6 is where that principle is most
+  easily broken, because a skill is cheap to write and expensive to justify.
+- `BUSINESS-REQUIREMENTS` §1130 — never install unreviewed skills into bank repositories. The
+  reason B6 builds **one** and measures it rather than shipping a library.
+
+### Internal — the measurements this stop must not re-derive
+
+- [`experiments/E-004-skill-description.md`](../../experiments/E-004-skill-description.md) —
+  **the description is the selector**: matched 5 of 5, misdescribed 0 of 5, control 0 of 5,
+  `p = 0.0079`, bodies byte-identical. **A skill that is not selected is not a treatment**, so the
+  description is a registered variable here and not a matter of taste.
+- The same file's instrument constraint: **`skill.name` is redacted to `custom_skill`** for a
+  project-scope skill, so this observatory **cannot tell two installed skills apart**. B6 installs
+  one. That is not a stylistic choice; with two, the outcome is not measurable at all.
+- [`evidence/p03/skill-flag-probe-20260904T102230Z.md`](../../evidence/p03/skill-flag-probe-20260904T102230Z.md)
+  — `--disable-slash-commands` means *"disable all skills"*, and it was on every claude run this
+  project made before stop 8. **6 of 6 activated without it, 0 of 6 with it**, `p = 0.0022`.
+  **Check the flag before believing a null.**
+- [`experiments/E-010-workflow-phases-BE003.md`](../../experiments/E-010-workflow-phases-BE003.md)
+  and [`E-011`](../../experiments/E-011-workflow-phases-BE004.md) — this stop's baseline, and the
+  source of the failure chosen below.
 
 ### External — the technique
 
-<!-- TODO -->
+- Anthropic, *Agent Skills* — the `SKILL.md` contract, progressive disclosure, and the claim that
+  a skill's body loads only when selected. **The last of those is measurable here** and is not
+  measured by this stop.
 
 ## Extract
 
-<!-- TODO -->
+**1. A skill is selected; an agent definition is present.** E-004 settled the mechanism: the
+description decides whether the body ever enters the context. An agent definition is delivered as
+the system prompt and is there every turn. **So a skill can fail in a way `phases-v1.0` cannot —
+by not being chosen** — and B6's first job is to prove selection happened rather than to infer it
+from the answer.
+
+**2. The gate wants activation *recorded*.** `build/README.md#b6` says *"activation is recorded,
+not inferred from the answer text"*. Stop 8 established that the observatory records it
+(`skill.source = projectSettings`, an `invocation_trigger`), so this is an **L2** proof available
+on day one — and it is the only part of this stop that is L2 for free.
+
+**3. Prose alone does not improve test quality, and that is already measured twice.**
+[E-009](../../experiments/E-009-fourth-cell-second-registration.md) delivered a procedure as prose
+to a single agent and reached `test-quality` anchor 2 on **0 of 10** against its control's 1 of 10,
+`p = 1.0`. B5 then delivered a *declared, marker-checked* procedure and reached **1 of 10**
+(BE-003) and **3 of 10** (BE-004). **Two different deliveries of "write good tests" as words have
+now moved that dimension very little.** A skill is a third delivery of words. **The honest prior
+for this stop is that it will not work**, and that prior is registered rather than discovered.
+
+## §4 step 2 — the choice of failure, and the two it rules out
+
+*Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-09. The spine requires the failure be
+measured in B2–B5 and explicitly permits recording "no measured specialist failure, B6 not built"
+as the result. It is not being recorded, because two failures are measured — and the reasoning for
+picking between them is written here before any prediction.*
+
+**Ruled out first, on the instrument.** `architecture-consistency` scored **2 on 40 of 40** runs
+across both tasks at stop 12, and `maintainability` was identical in both arms on BE-003 and
+**floored at 0 on 20 of 20** on BE-004. A skill aimed at either would be measured by a dimension
+that has not moved in forty runs. **Not a candidate, and the reason is the instrument rather than
+the skill.**
+
+**Ruled out second, and this is the one that looks right until you check the baseline.**
+Stop 12's most consistent finding was that the treated arm wrote scorable test code on **20 of 20**
+runs while the plain control skipped it **7 times in 20**. It is tempting to build
+`testing-and-verification` against *that*. **It has no headroom here.** B6 measures against **B5**,
+and `phases-v1.0` already writes a test on 20 of 20. **A skill cannot improve a ceiling.** The
+comparison that would show this effect is against a plain baseline, and that is not the comparison
+this stop registers.
+
+**Chosen: `test-quality` anchor 2, and specifically the one clause both hand re-reads found
+missing.** Against `phases-v1.0` the headroom is real and large — anchor 2 is reached in **1 of 10**
+runs on BE-003 and **3 of 10** on BE-004. And the failure is not diffuse: **two independent hand
+re-reads, on two different tasks, found the same clause absent** —
+
+> the persisted state is re-read through a **separate `get(...)` request** rather than trusted from
+> the mutating call's own body.
+
+On BE-003 (`5395964c`) that was the single missing clause of three; on BE-004 (`fdb51fbd`) it was
+two of four, both of them the same idea — the agent verified through the repository it had just
+written to, at `OrderControllerTest.kt:168,172`, instead of through a second request. The codex
+sheets say the same thing in their own words: *"persisted state is not re-read"*.
+
+**That is what a specialist skill is for**: one named, recurring, mechanically-checkable habit, not
+a disposition. It maps onto the scaffold's `testing-and-verification` candidate, and it is the
+narrowest target this stop can state.
+
+**The runner-up is kept on record rather than discarded.** The `DONE` completion contract leaks in
+**4 of 20** treated runs and is measured by an *executing* checker, which would make its outcome
+**L2** on day one — a rare thing here. It was not chosen because its headroom is 20 % against
+`test-quality`'s 70–90 %, and because a completion contract is a **guardrail**, which is B7's
+subject and not B6's. If this stop's skill fails, the completion contract is the obvious second
+attempt, and it needs no new measurement to justify it.
 
 ## Build
 
