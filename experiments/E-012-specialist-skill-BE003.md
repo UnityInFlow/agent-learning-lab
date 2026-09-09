@@ -553,3 +553,63 @@ killed immediately and no run after it exists. Recorded here because a process v
 the violator can see is not a control.
 
 *Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+### §5 hand re-read — written before any sheet was opened, on both arms of pair 01
+
+Rubric `benchmark/rubrics/backend-quality.yaml` at its registered sha **`396e1799eb2b`**, category
+**`test-quality`**, read off the kept worktrees. Anchor 2 requires **all three** clauses, each
+citable.
+
+**Treated, run `3070d353`** — worktree
+`…/observatory-run-3070d353-d1b0-479e-944c-294f4a655c93`,
+`sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt`:
+
+| Anchor 2 clause | Held? | `path:line` |
+|---|---|---|
+| confirm called twice and the **second response's body** asserted | yes | `ShipmentControllerTest.kt:101,103–105` — second `post(/shipments/S-5/confirm)` asserts `jsonPath("$.status").value("CONFIRMED")` |
+| persisted state re-read through a **separate `get(...)`** | yes | `:107–109` — `get("/shipments/S-5")` after the confirm; also `:93–95` and `:121–123` |
+| a refusal asserts **`$.error.code`** | yes | `:119` — `SHIPMENT_CANNOT_CONFIRM` |
+
+**My hand value: `test-quality` = 2.**
+
+**Control, run `3f30195f`** — same file in
+`…/observatory-run-3f30195f-a20d-4544-b962-d523890e35f6`:
+
+| Anchor 2 clause | Held? | `path:line` |
+|---|---|---|
+| confirm called twice, second body asserted | yes | `:105`, `:113`, body at `:117` |
+| persisted state re-read through a separate `get(...)` | **no** | the only `get`s in the file are `:63` (get-by-id test), `:70` (not-found) and `:80` (list). **No `get` follows any confirm.** |
+| a refusal asserts `$.error.code` | yes | `:137` |
+
+One clause of three absent, and body assertions present → the **residual**, anchor 1.
+**My hand value: `test-quality` = 1.**
+
+**The absent clause is the exact one the skill names**, and it is absent in the control and present
+in the treated run of the same pair. That is `n = 1` pair and is stated as such; the arm-level
+counts are §4 step 8's, from the registered scorer.
+
+*Hand-read by Opus 5 (claude-opus-5), autonomous, 2026-09-09, before any sheet for either run
+existed.*
+
+### §4 step 6 — the BE-003 batch, and P1
+
+`evidence/b06/batch-BE-003-20260909T173701Z/`, key `EXP-B6-SKILL-BE003`, `n = 10` per arm,
+interleaved, `--keep`.
+
+| | Treated | Control |
+|---|---|---|
+| `agentHash` | `sha256:51ffaedf9a3edbfe…` on 10 of 10 | **the same** on 10 of 10 |
+| `skillsHash` | `sha256:61445ead8504…` on 10 of 10 | **`null`** on 10 of 10 |
+| `instructionsHash` | `null` on 10 of 10 | `null` on 10 of 10 |
+| **Recorded activations** (`skill-activation.sh`, all `status: measured`) | **10 of 10**, `projectSettings=1` | **0 of 10** |
+| Delegations | 0 of 10 | 0 of 10 |
+| Evaluator exit | 0 on 10 of 10 | 0 on 10 of 10 |
+
+**P1 HOLDS at 10 of 10, and the void condition does not fire.** The probe rate of 4 in 5 did not
+carry into the batch; the two zeros in the probe are, on this evidence, variance rather than a
+rate. **Nothing that was written above about P1's mis-specification is withdrawn** — P1 still
+defines its void as *"the skill was not delivered"* when what it counts is *selection*, and the
+distinction is still real. It simply did not bite here, and saying so is not the same as saying it
+was never a defect.
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
