@@ -511,12 +511,260 @@ required answer shape, per §4b; the clause-by-clause citations above are what i
 
 ## Results
 
-<!-- filled at step 8. Median and range, never a mean alone. -->
+`n = 10` per arm, all 20 admitted by `./tools/check-run-gate.sh` (20 admitted, 0 refused), and the
+same checker **shown to refuse** on the four aborted runs at `rc = 2` — so the admission is a
+measurement and not an assumption. Medians and quartiles below; no mean is quoted alone.
+
+### The registered scorer's own report, pasted from this session
+
+```
+$ cd ../agent-observatory && make API_PORT=18081 baseline-report EXPERIMENT=EXP-B5-PHASES-BE003
+=== EXP-B5-PHASES-BE003 ===
+  20 measuring run(s)
+  4 discarded as harness failure (F13) — not agent behaviour, excluded from every number below
+
+  pass rate   20/20
+
+  outcome            n         min        p25     median        p75        max
+  ---------------- ---  ---------- ---------- ---------- ---------- ----------
+  duration (s)      20          56         86        100        110        300
+  estimated cost    20      0.0935     0.1044     0.1216     0.1477     0.1997
+  total tokens      20        5248       7807       9332      10320      11991
+  tool calls        20          12         16         18         21         32
+  model calls       20          14         18         22         24         31
+  cache tokens      20      212907     298862     371094     697957     972406
+```
+
+**Read the second line.** The observatory's own reporter, which no one edited for this batch,
+independently classifies the four aborted runs as *harness failure, not agent behaviour, excluded
+from every number*. The decision recorded at `ea12b8d` — that a run in which the model was never
+reached is not a measurement of the agent — was therefore not an invention of this stop; the
+instrument already carried the category. That is the strongest available check on it, because it
+was not consulted when the decision was made.
+
+This report pools both arms, as a single-arm reporter must. The arm-level numbers below are
+computed per arm from the same run records, and two of them were re-derived from raw telemetry
+independently (see "Independence check").
+
+### Per-arm, `n = 10` each
+
+| Outcome | Treated (phases-v1.0) | Control (plain) | Registered threshold | Held? |
+|---|---|---|---|---|
+| `modelCalls` median (q1, q3) | **20.5** (18, 23) | **22** (17, 24) | treated ≥ +4 **and** treated q1 > 26 | **P5 refuted** |
+| `estimatedCost` median (q1, q3) | **$0.1178** (0.1012, 0.1217) | **$0.1480** (0.1216, 0.1724) | treated ≥ +25 % **and** treated q1 > 0.175 | **P6 refuted** |
+| `durationMs` median (q1, q3) | 105.5 s (97, 110) | 90.5 s (76, 111) | +40 % on the median | not cleared |
+| `addedLines` median | 79 | 41.5 | report-only, no threshold | — |
+| evaluator pass | 10 of 10 | 10 of 10 | ≥ 9 of 10 treated, and not ≥ 3 below control | **P8 held** |
+
+**P5 and P6 are refuted in the same direction, and it is the opposite of the one registered.**
+The treated arm took **fewer** model calls (−1.5 median, −6.8 %) and cost **20.4 % less**
+($0.1178 against $0.1480). The registered mechanism was compounding: one agent carrying one
+growing context through six phases, re-reading everything before it on every extra turn. **There
+were no extra turns.** The direction is E-007's — its structural split came in 13.4 % cheaper
+against a registered increase — and this is now the second time in this project that a
+customization predicted to cost more has cost less.
+
+On `modelCalls` the quartiles overlap heavily (treated 18–23, control 17–24), so the reverse
+effect is **not resolvable at this `n`** and is reported as a direction, not a size. On
+`estimatedCost` the quartiles all but separate — treated q3 `$0.1217` against control q1
+`$0.1216`, a gap of `$0.0001` in the wrong direction for a clean claim — so the cost reduction is
+stated as **20.4 % on the median with quartiles that touch at one ten-thousandth of a dollar**,
+and not as "non-overlapping". A reader who wants that distinction to carry weight should run more
+runs; this one will not round it.
+
+`durationMs` runs the other way (treated slower by 16.6 %) and is the least trustworthy row here:
+the control's spread is 56–300 s and its maximum, run `29f5d357` (pair 08, control), is a 300-second
+outlier at only 14 model calls. Duration is reported and is **not** used in any verdict.
+
+`addedLines` is the loudest unregistered difference: the treated arm's median is **79** against the
+control's **41.5**, and the control is visibly bimodal — 19, 20, 24, 24 against 59, 62, 63, 65.
+The treated arm wrote roughly twice the lines, in fewer turns, for a fifth less money. That is
+report-only by registration and it is not a quality claim; it is the thing most worth a prediction
+at the next stop.
+
+### The phase contract, machine-checked on every run
+
+`tools/check-phase-contract.py` over each run's stream-json transcript
+(`$TMPDIR/observatory-agent-<run-id>.log`). This is the registered instrument for P2, P3 and P4,
+and its 15-of-15 fixture set was re-run at `1031a99`.
+
+| Clause | Treated | Control | Registered threshold | Held? |
+|---|---|---|---|---|
+| P2 — six markers, once each, in order (check 1) | **10 of 10** | **0 of 10** | ≥ 9 of 10 treated; control a floor, not a finding | **held** |
+| P3 — first mutating `tool_use` **after** `DESIGN` (check 2) | **10 of 10** | n/a — no `DESIGN` to measure against | ≥ 9 of 10 treated | **held** |
+| P4 — pre-`DESIGN` `Bash` write shapes = 0 | **9 of 10** (pair 04 had 1) | n/a | 0 in ≥ 8 of 10 | **held** |
+
+`DESIGN` position against first mutation, per treated run: 16/17, 18/19, 16/17, 12/13, 12/13,
+18/19, 14/15, 20/21, 15/16, 16/17. **The first mutating call is the very next event after the
+`DESIGN` marker in all ten runs** — the agent announces the phase and then writes, with nothing
+between. That is the code-order clause met as tightly as it can be met, and it is also why P4
+matters: a model that wanted to write earlier had `Bash` available and did not use it (nine of ten
+runs at zero pre-`DESIGN` `Bash` writes).
+
+**The two treated runs that fail the checker overall fail neither P2 nor P3.** Runs `5a785fe7`
+(pair 05) and `0e51ffdd` (pair 10) carry all six markers in order and both write after `DESIGN`;
+they fail the **third** check, `completion` — *"DONE is missing contract field(s): Requirement,
+Changed, Tests, Verification"*, identically in both. **8 of 10 treated runs produce a complete DONE
+contract.**
+
+That is the sharpest thing this batch says about the build's own stated purpose. B5 exists to
+*"prevent premature coding and false completion"*. **Premature coding: prevented, 10 of 10.
+False completion: leaked, 2 of 10.** The half of the purpose that needs the model to fill in a
+structured report at the end is the half that slips, and it slips while every marker is still
+present — a run can announce `DONE` correctly and still not say what it changed.
+
+### Quality, all four categories, both arms, `n = 10` each
+
+Registered scorer codex (`codex-cli 0.147.0`), rubric `benchmark/rubrics/backend-quality.yaml`
+sha **`396e1799eb2b`** on all 20 sheets, no sheet disagreeing.
+
+| Category | Treated distribution | Control distribution | Fisher (anchor 2) |
+|---|---|---|---|
+| `architecture-consistency` | **2 × 10** | **2 × 10** | — no variance in either arm |
+| `maintainability` | 0 × 7, 2 × 3 | 0 × 7, 2 × 3 | `p = 1.0` — **the identical distribution** |
+| `change-focus` | 1 × 9, 2 × 1 | 1 × 10 | `p = 1.0` |
+| `test-quality` | 1 × 9, **2 × 1** | 1 × 5, 2 × 1, **null × 4** | `p = 1.0` |
+
+**P7 held: `test-quality` anchor 2 in the treated arm is 1 of 10**, against a registered ceiling of
+≤ 3 and specifically not ≥ 5. **Decision-rule row 4b does not fire** — the treated arm is nowhere
+near 7 of 10, so declared phases did **not** return what E-007's structural split returned, and
+[E-007](E-007-orchestration-overhead.md) needs no amendment from this batch. The mechanism
+registered for P7 is the one that survives: markers change what is narrated, not what is in the
+context window at the moment the tests are written.
+
+**And the batch says something louder than any of its own predictions.** `architecture-consistency`
+is 2 on twenty runs out of twenty. `maintainability` is 0×7/2×3 in *both* arms — not similar,
+identical. That is **50 of the rubric's 100 points at zero variance across both arms**, which is
+precisely the measurement [E-006](E-006-agent-boundary.md)'s batch 2 produced and precisely the
+reason author decision 9 added BE-004 from this stop on. **The decision was made before this batch
+and this batch is its confirmation, not its motivation.** On BE-003, with this model, there is
+almost nothing left for a customization to move.
+
+The four `null` cells are all in the control arm and all in `test-quality`. A null is a
+measurement, not a gap: the rubric emits `null` when its anchors cannot separate two scores, and
+four control runs gave it nothing to separate. The treated arm produced no nulls — it always wrote
+enough test code to be scorable, consistent with its median 79 added lines against the control's
+41.5.
+
+### Independence check — what else moved between the arms
+
+Read from the run records, not from the flags that were passed:
+
+| Variable | Treated | Control |
+|---|---|---|
+| `runtime.model` | `claude-haiku-4-5-20251001` × 10 | `claude-haiku-4-5-20251001` × 10 |
+| `customization.agentHash` | `sha256:b3450564b6f32d6193e8580db766210e` × 10 | `null` × 10 |
+| `customization.instructionsHash` | `null` × 10 | `null` × 10 |
+| rubric sha in every sheet | `396e1799eb2b` | `396e1799eb2b` |
+| benchmark tree / baseline | `eeb15a753adc94e92bc3f74c50e1b02fc3b53030` at benchmarks `eea144ef` | same |
+| evaluator | BE-003 `1.0.0`, exit-code contract untouched | same |
+
+**One thing did differ and it is not the treatment.** Pair 04's **control** made one delegating
+call (`delegating_calls = 1`); no treated run made any. That is threat 7, registered before the
+run and written into the batch driver as an executable asymmetry: the control is handed 29 tools
+including `Task` and may legitimately delegate, while a *treated* delegation would have been
+decision-rule row 0a and would have stopped the batch. The count is written to the manifest on
+every run **including when it is zero**, so this is one control run in ten, observed, not a
+confound discovered afterwards.
+
+**Two telemetry values were re-derived from the raw stream** rather than trusted from the API,
+because P5 and P6 decide the gate. Counting `claude_code.api_request` log records keyed on the
+resource attribute `observatory.run.id` in
+`agent-observatory/infra/telemetry-out/events.jsonl`: run `5395964c` (treated) = **20** model calls,
+`cost_usd` sum **0.0996592**; run `42f3f80b` (control) = **24** model calls, `cost_usd` sum
+**0.172395**. The API reports 20 / 0.099659 and 24 / 0.172395. **They agree exactly.**
+
+### The §5 hand re-read against the sheet it was taken before
+
+| | `test-quality`, run `5395964c` | Reason given |
+|---|---|---|
+| Hand reading (taken first) | **1** | persisted state never re-read through a separate `get(...)` |
+| Registered codex sheet | **1** | *"Repeat body and refusal envelope are asserted, but persisted state is not re-read"* |
+
+Same value, **and the same clause**, reached independently. That is one cell of twenty and it is
+not a validation of the harness in general; it is the one check §5 asks for, and it passed on both
+the number and the reason.
 
 ## Which predictions held
 
-<!-- filled at step 8. Wrong predictions stay wrong. -->
+Wrong predictions stay wrong. Nothing below was edited after the run.
+
+| # | Prediction | Registered | Observed | Verdict |
+|---|---|---|---|---|
+| P1 | delivery | 10/10 hash, 0/10 null | 10/10, 0/10 | **held** |
+| P2 | six markers in order | ≥ 9 of 10 | **10 of 10** (control 0 of 10) | **held** |
+| P3 | first write after `DESIGN` | ≥ 9 of 10 | **10 of 10** | **held** |
+| P4 | pre-`DESIGN` `Bash` writes = 0 | 0 in ≥ 8 of 10 | 0 in 9 of 10 | **held** |
+| P5 | `modelCalls` ≥ +4, q1 > 26 | treated higher | treated **−1.5 (−6.8 %)**, quartiles overlap | **REFUTED, opposite direction** |
+| P6 | `estimatedCost` ≥ +25 %, q1 > 0.175 | treated dearer | treated **−20.4 %** | **REFUTED, opposite direction** |
+| P7 | `test-quality` anchor 2 ≤ 3 of 10 | ≤ 3, not ≥ 5 | **1 of 10** | **held** |
+| P8 | evaluator pass ≥ 9 of 10 | floor | 10 of 10 both arms | **held** |
+
+Six held, two refuted, and **the two that were refuted were refuted together and in the same
+direction**. P6 said so itself before the run: *"If this prediction is wrong in the E-007
+direction, the compounding mechanism is wrong and that is worth more than the prediction."* It is
+wrong in the E-007 direction. **The compounding mechanism is wrong.** Six phase announcements plus
+six output contracts did not add turns, so they could not compound context; the agent instead
+reached its first write at event 13–21 and finished in fewer calls than a plain baseline that
+wandered (control `modelCalls` range 14–31 against treated 16–24 — the treatment's visible effect
+on cost is that it **narrowed the spread**, and the cheapest single run in the batch is still a
+control).
 
 ## Decision
 
-<!-- filled at step 10 -->
+**Decision rule, walked in order, stopping at the first row that fires:**
+
+- **Row 0** — P1 fails? No: 10 of 10 treated carry the agent hash, 0 of 10 controls do, and every
+  sheet is at rubric `396e1799eb2b`. Does not fire.
+- **Row 1** — P2 ≤ 5 of 10? No: P2 is 10 of 10. Does not fire.
+- **Row 2** — P2 ≥ 9 **and** P3 ≤ 5? No: P3 is 10 of 10. Does not fire.
+- **Row 3** — P2 ≥ 9 **and** P3 ≥ 9 **and** (P5 or P6 clears its MDE)? P2 and P3 hold; **neither
+  P5 nor P6 clears**, because both were registered as increases and both were observed as
+  decreases. Does not fire.
+- **Row 4** — the same, **and nothing improved**? The treated arm cost **20.4 % less**. Something
+  improved. Does not fire.
+- **Row 5** — anything else. **Fires.**
+
+### Verdict: INCONCLUSIVE — and the combination that produced it, not rounded to a neighbour
+
+> The phases are observable (10 of 10), they are followed in position (10 of 10), and the overhead
+> they were built to cost was measured and came out **negative**. The decision rule cannot name
+> this outcome because every row in it assumed the treatment would cost more.
+
+This is not "NOT DETECTABLE" and must not be recorded as it: row 4 requires that nothing improved,
+and a 20.4 % cost reduction is not nothing. It is not "CONFIRM" either: row 3 requires an MDE to be
+cleared, and an MDE registered in one direction is not cleared by a result in the other. **The
+honest verdict is row 5, and the reason row 5 exists is exactly this.**
+
+### The build-track gate is a different question, and it is answered yes
+
+`build/README.md#b5` asks three things, and none of them is the experiment's decision rule:
+
+| Gate clause | Answer | Evidence |
+|---|---|---|
+| phase markers observable in the transcript | **yes** | `check-phase-contract.py` check 1, 10 of 10 treated, 0 of 10 control |
+| no code written before DESIGN | **yes** | check 2, 10 of 10; first mutation is the next event after `DESIGN` in every run |
+| overhead measured, not assumed | **yes** | measured at `n = 10` per arm from telemetry re-derived against the API; it is **−20.4 %** cost and **−6.8 %** turns |
+
+**The gate passes and the experiment is inconclusive, and both statements are true at once.** The
+gate asks whether the overhead was measured; the decision rule asks whether it was what we said it
+would be. It was measured. It was not what we said.
+
+### Keep, modify, or remove
+
+**Keep `phases-v1.0`, unpromoted, and this is a keep on the gate, not on the decision rule.**
+
+- It does what it claims at the level the gate can see: 10 of 10 on both observable clauses, by a
+  checker whose fixture set is shown to reject the retroactive-narration shape.
+- It is not free of defects: **2 of 10 runs emit `DONE` without its four contract fields**, which
+  is the false-completion half of the build's purpose leaking. That is a v1.1 item, not a reason to
+  remove a v1.0.
+- It is **not promoted**, and nothing here promotes it. §6 forbids promotion on one batch, and the
+  quality evidence is a flat 50-of-100 points with no variance in either arm — there is no measured
+  quality benefit to promote on.
+- **What is removed is a belief, not a file:** the compounding-context mechanism written into P6.
+  It is refuted here and was refuted in the same direction by E-007, and no later step should
+  register it again without new grounds.
+
+*Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
