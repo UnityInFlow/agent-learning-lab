@@ -1,0 +1,6 @@
+# B6 deliberate failure on the CARRIER  misdescribed skill fabfc481c4929524786e5a6332c8647a
+# carrier agent 51ffaedf9a3edbfe5fd85009f70f84c5, identical to the batch`s treated arm
+seq	run_id	exit	agent_hash	skill_hash	skill_stream	worktree
+01	2042b460-500f-4011-83d8-f9cdc9dc9dc2	0	sha256:51ffaedf9a3edbfe5fd85009f70f84c5	sha256:ae4bacf4ded76a3263b7d5b9f5825b89	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2042b460-500f-4011-83d8-f9cdc9dc9dc2
+02	6ebe2616-1a6f-4c09-9663-ce7b14029639	0	sha256:51ffaedf9a3edbfe5fd85009f70f84c5	sha256:ae4bacf4ded76a3263b7d5b9f5825b89	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6ebe2616-1a6f-4c09-9663-ce7b14029639
+03	e08a3932-6955-433d-8f1d-9ebee731a887	0	sha256:51ffaedf9a3edbfe5fd85009f70f84c5	sha256:ae4bacf4ded76a3263b7d5b9f5825b89	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e08a3932-6955-433d-8f1d-9ebee731a887

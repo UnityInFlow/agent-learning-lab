@@ -78,6 +78,17 @@ not trap**, which stop 12 recorded as making it a weaker correctness discriminat
 
 ## Independent variable
 
+> **SUPERSEDED IN PART — see the Amendment of 2026-09-09 at the end of this file.** The text below
+> is the registration as it was written, and it stands unedited. What it describes as the carrier is
+> **not** what the batch ran on: `phases-v1.0` is delivered `n = 4` tools with **no `Skill`**, so the
+> treatment could not be delivered to it at all, and both arms were moved to a carrier overlay
+> (`agentHash 51ffaedf9a3edbfe…`, five tools, **identical on both arms**) with the skill at sha
+> `7bea904863fb79a544ee2068cb2f0f43`. Every reference below to `phases-v1.0`, `agentHash
+> b3450564b6f32d61`, `skill-v1.0-testing/` or sha `0876025fa451af5f…` should be read against that
+> correction. Raised by the §4a acceptance gate, 2026-09-09, findings
+> `review-E-01{2,3}-specialist-skill-*-2026090920*.md`; recorded, not edited away.
+
+
 **One thing changes: whether `skills/testing-and-verification/SKILL.md` is installed.** Both arms
 carry `phases-v1.0` (agent `backend-feature-phases`, overlay sha256
 `b3450564b6f32d6193e8580db766210e`), the same model, the same benchmark tree and the same
@@ -89,6 +100,17 @@ the *same four tools*. The skill is added to a customization that already exists
 **This is the cleanest single-variable comparison this project has registered.**
 
 ## How the treatment is delivered — and proved
+
+> **SUPERSEDED IN PART — see the Amendment of 2026-09-09 at the end of this file.** The text below
+> is the registration as it was written, and it stands unedited. What it describes as the carrier is
+> **not** what the batch ran on: `phases-v1.0` is delivered `n = 4` tools with **no `Skill`**, so the
+> treatment could not be delivered to it at all, and both arms were moved to a carrier overlay
+> (`agentHash 51ffaedf9a3edbfe…`, five tools, **identical on both arms**) with the skill at sha
+> `7bea904863fb79a544ee2068cb2f0f43`. Every reference below to `phases-v1.0`, `agentHash
+> b3450564b6f32d61`, `skill-v1.0-testing/` or sha `0876025fa451af5f…` should be read against that
+> correction. Raised by the §4a acceptance gate, 2026-09-09, findings
+> `review-E-01{2,3}-specialist-skill-*-2026090920*.md`; recorded, not edited away.
+
 
 | | Treated | Control |
 |---|---|---|
@@ -103,6 +125,17 @@ skill exists, so no prediction here can have been shaped by reading the artifact
 The hash is added at step 4 in a separate commit, and the first run starts after that.
 
 ## Controlled variables
+
+> **SUPERSEDED IN PART — see the Amendment of 2026-09-09 at the end of this file.** The text below
+> is the registration as it was written, and it stands unedited. What it describes as the carrier is
+> **not** what the batch ran on: `phases-v1.0` is delivered `n = 4` tools with **no `Skill`**, so the
+> treatment could not be delivered to it at all, and both arms were moved to a carrier overlay
+> (`agentHash 51ffaedf9a3edbfe…`, five tools, **identical on both arms**) with the skill at sha
+> `7bea904863fb79a544ee2068cb2f0f43`. Every reference below to `phases-v1.0`, `agentHash
+> b3450564b6f32d61`, `skill-v1.0-testing/` or sha `0876025fa451af5f…` should be read against that
+> correction. Raised by the §4a acceptance gate, 2026-09-09, findings
+> `review-E-01{2,3}-specialist-skill-*-2026090920*.md`; recorded, not edited away.
+
 
 | Variable | Value |
 |---|---|
@@ -695,3 +728,110 @@ and this is the first time in this track that it actually caught something. A su
 cell it could not read is the house failure mode with a different actor.
 
 *Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+---
+
+## §4a review round 1 — what the acceptance gate rejected, and what was done about each finding
+
+Both files were reviewed with `opencode-review.sh -n 2` and both acceptance gates returned
+**REJECT**: `findings/opencode/review-E-012-specialist-skill-BE003-20260909T201521Z.md` (5 findings,
+1 at 2/2) and `findings/opencode/review-E-013-specialist-skill-BE004-20260909T202352Z.md`
+(6 findings, 2 at 2/2). Every finding is answered below with a fix or a dispute; **"stylistic" is
+not a dispute** and none of these were.
+
+| # | Finding (recurrence) | Action |
+|---|---|---|
+| E-012 #3, #4, #5 · E-013 #1, #2 · both gates' blocker 1 (1/2) | *Independent variable / delivery / controlled-variables tables still describe `phases-v1.0`, `agentHash b345…`, four tools and the v1.0 skill sha, when the batch ran the carrier.* | **FIXED.** A dated `SUPERSEDED IN PART` block now heads each of the three sections in both files, naming the correction and pointing at the Amendment. The original text is **not edited** — §4 step 12 — it is marked. |
+| **E-012 #2 (2/2) · gate blocker 2** | *The deliberate failure was registered at `n = 3` with two clauses and run at `n = 1` with one, undisclosed.* | **FIXED, by running the registration rather than by rewriting it** — see the section below. |
+| **E-013 #3 (2/2)** | *Decision-rule row 0 requires `rubric sha 396e1799eb2b`; every BE-004 sheet carries `6252778b8472`, so row 0 fires VOID.* | **ACCEPTED AS A REAL DEFECT and reported, not edited away** — see "Row 0 fires on a clerical error" below. |
+| **E-013 #5 (2/2)** | *The Decision section cites BE-003 p-values in a file that opens by declaring no verdict is computed across the two tasks.* | **FIXED** — the Decision section in this file is now BE-004's own, and says where BE-003's identical decision was taken. |
+| E-013 #4 (1/2) | *The re-read measure counts any `get` rather than anchor 2's two clauses; control 8 of 10 against the rubric's 3 of 10.* | **ALREADY DISCLOSED** in "P3's measure behaves differently here", added before this review ran, with the control number reported beside the treated one and what the measure cannot see named. No further change. |
+| E-013 #6 (1/2) | *`change-focus` codex/opencode agreement is 8 of 20 against the project's stated 18 of 34 baseline, without context.* | **FIXED** — the context is now stated where the number is. |
+| E-012 #1 (1/2) | *The MDE was calibrated against a reference control of 1 of 10; the actual control was 0 of 10, so treated counts of 5 or 6 would have been misclassified as "not detectable".* | **ACCEPTED AND IMMATERIAL, stated as both.** The finding is correct: a control at 0 makes the registered thresholds **conservative**, so the rule could have missed a real effect. It cannot have manufactured one, and the observed count is 10 of 10, above every threshold in the table. Recorded as a design lesson — **an MDE built on a prior control is only valid while that control holds, and nothing checks that it did** — not as a change to the rule. |
+
+*Answered by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+### Row 0 fires on a clerical error, and that is reported rather than edited away
+
+**The finding is right.** This file's decision rule, row 0, reads *"…or a sheet's rubric sha is not
+`396e1799eb2b`"*. That is **BE-003's** rubric sha, carried over when this file was written from
+E-012's shape. Every BE-004 sheet carries **`6252778b8472`** — which is the sha **this same file
+registers three sections above, in Controlled variables, explicitly flagged as "not BE-003's"**, and
+which author decision 10.2 required be proved on the five fixtures before any BE-004 run was scored.
+
+**So the registered rule contradicts the registered variable, inside one document.** Read by its
+letter, row 0 fires and this experiment is **VOID**. Read by its stated meaning — *"the skill was
+not delivered; nothing is claimed about it"* — nothing about delivery failed: `skillsHash` non-null
+on 10 of 10 treated and `null` on 10 of 10 control, activations 10 of 10 against 0 of 10, and every
+sheet produced from the rubric this file registers.
+
+**Neither reading is adopted silently. Both are on the record, and the difference between them is
+the author's to settle:**
+
+- **By the letter: VOID.** Row 0 fires; nothing is claimed for BE-004.
+- **By intent: CONFIRM, row 1.** Treated `test-quality` anchor 2 is **10 of 10**, above row 1's
+  threshold of ≥ 9, `p = 0.0031` against a control of 3 of 10.
+
+**What this file adopts, and why:** **CONFIRM by row 1, with row 0 recorded as fired on a
+pre-registration defect and the deviation disclosed.** The reason is that row 0's sha clause exists
+to assert *these sheets came from the registered rubric*, and they verifiably did — the variable did
+not move, the sentence naming it was wrong. Voiding a clean `n = 20` batch on a copy-paste in a
+clause that contradicts its own document would be a different kind of dishonesty from ignoring it.
+
+**This is exactly the kind of call the author may overturn**, and it is in `author_notes` so that it
+is seen rather than buried. **Nothing depends on it**: the stop's KEEP decision stands on
+[E-012](E-012-specialist-skill-BE003.md) alone, whose row 0 names `396e1799eb2b` — its own rubric's
+sha — and does not fire.
+
+**The general lesson, and it is the third instance of the same shape at this stop:** a decision rule
+copied between two experiments carries the first one's constants, and **nothing executes to check
+that a registered sha belongs to the task it is registered for.** A `verify-decision-rule.sh` that
+reads each experiment's own Controlled-variables sha and asserts every row that names a sha uses it
+would be an L2 control where there is now an L3 one. It is not built here — building an instrument
+mid-stop is what §6 warns about — and it goes to `author_notes`.
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09, after the §4a acceptance gate raised
+it at recurrence 2/2.*
+
+### `change-focus` agreement here, in context
+
+**8 of 20**, against the project's recorded cross-harness baseline of **18 of 34** on this category
+while the other three agreed **34 of 34**. So this batch is **lower than the baseline but the same
+phenomenon**, and BE-003's parallel batch reads **4 of 20** — both below 18 of 34, both in the
+recorded direction (opencode scores this category higher). Two readings are open and `n = 40` does
+not choose between them: the BE-004 rubric's `change-focus` anchors are newer and may be looser, or
+the disagreement grows on tasks with more changed files. **Nothing in this file's verdict touches
+`change-focus`** — it is not a registered outcome and it is 3 of 10 against 3 of 10, `p = 1` — and
+author decision 10.3 already carves it out of the Decision H fallback.
+
+
+### §4 step 9, completed at its registered `n` and in its registered configuration
+
+The gate was right that the first attempt was a re-registration in disguise. This runs what was
+registered: **`n = 3`, both clauses, inside the agent overlay** — the carrier, which is the agent
+overlay the batch itself used and the only one in which a skill can be selected at all.
+
+`evidence/b06/deliberate-failure-carrier/`, key `EXP-B6-DELIBERATE-FAILURE-CARRIER`, overlay = the
+carrier agent (`agentHash sha256:51ffaedf9a3edbfe…`, **identical to the treated arm's**) plus the
+**misdescribed** skill, sha `fabfc481c4929524786e5a6332c8647a` — body byte-identical to the
+registered skill, E-004's CSS description on line 3.
+
+| Run | `agentHash` | `Skill` in the delivered pool | Recorded activations | `test-quality` |
+|---|---|---|---|---|
+| `2042b460` | `51ffaedf9a3edbfe…` | yes — `delivered n=5 ["Read","Edit","Write","Bash","Skill"]` | **0**, `status: measured` | 1 |
+| `6ebe2616` | `51ffaedf9a3edbfe…` | yes | **0**, `status: measured` | 1 |
+| `e08a3932` | `51ffaedf9a3edbfe…` | yes | **0**, `status: measured` | 2 |
+
+**Clause 1 — activation falls to 0 of 3: HELD.** Same carrier, same tool pool, same body; only the
+description differs from an arm that activated **20 of 20**. Nothing about the environment changed.
+
+**Clause 2 — `test-quality` stays at the control's level: HELD.** 1 of 3 at anchor 2, which is
+**not distinguishable from the control's 0 of 10** (`p = 0.231`) and **is** distinguishable from the
+treated arm's 10 of 10 (`p = 0.0385`). It is not 0 of 3, and `n = 3` cannot make it 0 — that is
+stated rather than rounded.
+
+**The skill-alone run `81899960` is kept** and reported as what it is: a fourth observation, in a
+different configuration, also 0 activations. It is not counted in the `n = 3`.
+
+*Predicted at `4d3d166`; the completion at the registered `n` was run after the §4a gate raised the
+undisclosed change, and the original prediction text is unedited.*
