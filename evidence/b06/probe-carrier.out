@@ -3,3 +3,7 @@
 ======== BE-003 control ========
   -> 44013639-e9fc-42cc-be6e-648dcf0dc568 exit=0 agentHash=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skillsHash=None modelCalls=12
 ======== BE-004 treated ========
+  -> 76726889-dabd-4cdb-9516-4e97a72707ed exit=0 agentHash=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skillsHash=sha256:61445ead85042e340435613314920ef8 modelCalls=26
+======== BE-004 control ========
+  -> f3c7faef-edfd-4a87-adf3-c69f1bd053f3 exit=0 agentHash=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skillsHash=None modelCalls=24
+CARRIER PROBE DONE
