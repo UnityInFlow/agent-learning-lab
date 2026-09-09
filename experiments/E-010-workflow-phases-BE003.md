@@ -234,6 +234,18 @@ reading.
 6. **The overlay was authored before this stop opened.** Disclosed above. It was not tuned on any
    BE-003 run because none exists with it.
 
+7. **The treated arm is delivered four tool names and the control twenty-nine, and the difference
+   was found by this stop's own §4 step 5 preflight rather than registered before it.** *Added
+   2026-09-09, before the first batch run, by Opus 5 (claude-opus-5), autonomously.* The treatment
+   is the six-phase procedure **bundled with** the agent definition's `tools:` line, because that is
+   what a Claude Code agent is. E-005 makes most of the gap inert — `tools:` filters names, not
+   capabilities, and this list carries `Bash` — and the benchmark is offline, so the `Web*`,
+   `Notebook*`, `Monitor`, `Workflow` and `Cron*` names have no path to it. **`Task` is the
+   exception**: the control can delegate and the treated arm cannot. Mitigation, executable:
+   `check-phase-contract.py` detects delegation (fixture **J**), so **every control run is counted
+   for `Task` use and the count is reported beside the batch numbers whether it is zero or not.**
+   See the §4 step 5 section for the full statement.
+
 ## Deliberate failure — registered here, run at §4 step 9
 
 Prediction first, committed, then broken. The deliberate failure is a **fifth pair** run with
@@ -317,7 +329,96 @@ and its prediction is already registered above.
 
 ## §4 step 5 — the preflight pair
 
-<!-- filled at step 5, before the batch -->
+*Run and read back by Opus 5 (claude-opus-5), autonomously, 2026-09-09, before any
+batch run of this experiment existed.*
+
+| Arm | `runId` | `variant` | Started | Finished | Sheet of assertions below |
+|---|---|---|---|---|---|
+| Treated | `64aaefcd-7e54-479f-87a1-1aa87f0f1b80` | `phases-v1.0` | 2026-09-09T07:42:46Z | 07:44:27Z | `evidence/b05-preflight/step5-init-schema/init-schema-64aaefcd-….txt` |
+| Control | `7b61ad93-9900-4291-af62-27e10e967503` | `baseline` | 2026-09-09T07:45:09Z | 07:46:16Z | `evidence/b05-preflight/step5-init-schema/init-schema-7b61ad93-….txt` |
+
+### The reading
+
+| Assertion | Treated arm | Control arm | Verdict |
+|---|---|---|---|
+| `customization.agentHash` | `sha256:b3450564b6f32d6193e8580db766210e` | `null` | **as registered** |
+| `customization.instructionsHash` | `null` | `null` | **as registered** — this overlay is an agent file, not a `CLAUDE.md`; the field is expected null on both arms and its being null on the treated arm is not a delivery failure |
+| `customization.skillsHash` | `null` | `null` | no skill is installed on either arm |
+| `init.tools` delivered | `["Read","Edit","Write","Bash"]`, declared `n=4`, delivered `n=4`, **`verdict=match`** | 29 tools, `verdict=recorded-only` (no overlay to assert against) | **`Edit` and `Write` reach the model** — author decision 8's requirement, met |
+| `evaluation.exitCode` | `0` | `0` | both arms cleared the evaluator |
+| `behavior.modelCalls` | non-null | non-null | **telemetry is live**; no turn or cost number in this stop rests on a null |
+| `repository.commitSha` | `eea144ef940fda4cb6090561fdd901aed0013c8e` | same | the registered benchmark commit, on both |
+| `runtime.model` | `claude-haiku-4-5-20251001` | same | the controlled variable, read back not assumed |
+
+**`events.jsonl` grew from 1 913 lines at 07:43:28Z to 1 974 after the fourth run — +61 lines
+across four runs, read inside the window rather than inferred from an exit code.** That is stop 11's
+telemetry rule discharged for this batch environment: the OTLP endpoints passed were the tunnel's
+`14317`/`14318`, and they are carrying.
+
+**The ports had to be passed as `make` command-line variables, and this is not a detail.**
+`agent-observatory/Makefile` does `-include infra/.env`, whose `API_PORT=8081`,
+`OTLP_GRPC_PORT=4317` and `OTLP_HTTP_PORT=4318` **beat environment variables**. All three of those
+host ports are leaked `limactl` forwards with nothing behind them — verified this session: `8081`
+accepts a connection and returns bytes no JSON parser will take, while `18081` returns 382 records.
+A run launched with those defaults would post to a dead endpoint. `make API_PORT=18081
+OTLP_HTTP_PORT=14318 OTLP_GRPC_PORT=14317 …` overrides them, confirmed with `make -n` before the
+first run and by the four records afterwards.
+
+### Kept worktrees
+
+All four exist and each holds `evaluation.json` and `sample-service`:
+
+```
+${TMPDIR}/observatory-run-<runId>
+```
+
+**They are under `TMPDIR`, which macOS reaps.** The hand re-read at §4 step 7 depends on them, so
+it is done in the same session as the batch rather than deferred — the evidence README already
+records `TMPDIR` sweeping a previous set of init records.
+
+### What these four runs are NOT
+
+They are **preflight probes under their own keys**, `EXP-B5-PHASES-BE003-PREFLIGHT` and
+`EXP-B5-PHASES-BE004-PREFLIGHT`, deliberately separate from the batch keys. **They join no `n`, and
+no number below is a result.** `modelCalls` was 11 treated against 18 control on BE-003 and 26
+against 31 on BE-004 — a direction opposite to "phases add turns" — and **that is `n = 1` per cell
+and is stated here only so that nobody later finds it and thinks it was hidden.** The batch decides
+this, not these.
+
+### The confound this preflight found, registered before the batch
+
+**The two arms differ in a second way, and the preflight is what made it visible.** The treated arm
+is delivered `["Read","Edit","Write","Bash"]`. The control is delivered **29 tools** — the full
+default set, which additionally contains `Task`, `WebSearch`, `WebFetch`, `NotebookEdit`, `Monitor`,
+`Workflow`, the `Cron*` family and the rest. So the treatment is not only the six-phase procedure;
+it is the procedure **bundled with a four-name tool list**, because that is what a Claude Code agent
+definition is. Nothing in this experiment's registered `Threats to validity` said so before now.
+
+**Most of that difference is inert here, and one part of it is not.**
+
+- E-005 measured that `tools:` **filters names, not capabilities**, and that a list containing
+  `Bash` does not stop writes — 10/10 write attempts, `p = 1.0` against no list at all. This list
+  contains `Bash`. So the narrower list is not a capability boundary and the treated arm is not
+  restricted in what it can do to the repository.
+- `WebSearch`, `WebFetch`, `NotebookEdit`, `Monitor`, `Workflow` and the `Cron*` family have no
+  path to this benchmark: it is an offline Kotlin service with no network step.
+- **`Task` is the exception and it is the one to watch.** The control can delegate to a subagent;
+  the treated arm cannot. A control run that delegates is doing something the treated arm is
+  structurally unable to do, and any difference that follows has two candidate causes.
+
+**Registered mitigation, executable rather than promised:** `tools/check-phase-contract.py` already
+detects delegation — it is case **J** of the fixture set, *"a phased run that delegated passes, and
+the confound is reported"*. So **every control run's transcript is counted for `Task` use, and the
+count is reported beside the batch's numbers**. If it is zero across the control arm, the confound
+is inert on this data and is reported as inert. If it is not zero, the affected runs are named and
+the comparison is read with them called out. **The count is reported either way**, including when it
+is zero — a confound that is only mentioned when it fires is a confound nobody checked.
+
+**This is added to `Threats to validity` as item 7, dated, before the first batch run.** It is not
+an edit to a prediction and it changes no threshold; it is a threat the preflight exposed, recorded
+in the place threats live, which is what a preflight is for.
+
+
 
 ## §4 step 6 — the batch
 
