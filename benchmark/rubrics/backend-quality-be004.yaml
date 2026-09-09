@@ -1,0 +1,100 @@
+# BE-004 backend quality rubric — DRAFT, UNPROVEN. Four categories, same weights as v2.
+#
+# STATUS. Ported into benchmark/rubrics/ at spine stop 12 (B5) by Opus 5, autonomously,
+# 2026-09-09, from ../backend-quality-be004.DRAFT.yaml (sha ec6390ad6757 — see the PORT
+# NOTE below). It is a port of agent-learning-lab/benchmark/rubrics/backend-quality.yaml
+# (v2, sha 396e1799eb2b) from BE-003's constructs to BE-004's.
+#
+# It may NOT be used to score a run until it has been proved on BE-004's five gate-passing
+# fixtures the way E-001 Decision B proved v2: codex scores each variant, every dimension
+# separates its variant from known-good in the predicted direction (test-quality on its own
+# pair — known-good carries no test file and structurally nulls, as on BE-003). The proof,
+# its predicted directions written before the first scoring call, and the six sheet paths
+# live in experiments/E-011-workflow-phases-BE004.md, section "§4 step 4 — the rubric
+# proof". They are NOT recorded here, because this file's sha is what the sheets assert and
+# a file that records its own proof cannot have been the file that was proved. That is the
+# same separation v2 keeps: v2's proof is in E-001, not in v2.
+#
+# PORT NOTE. The draft's own STATUS paragraph and its `version:` line are the only things
+# this port changed; every anchor, precondition, weight, comment and the provenance block
+# below are byte-identical to the draft. Diff it against the draft to check that claim.
+#
+# PROVENANCE. Drafted by Claude Fable 5.1 (claude-fable-5-1) on 2026-09-05 at the author's
+# request, from BE-004's fixture sources and notes. Read any result from this file with
+# that in view — the v2 rubric carries the same warning about its own drafting for the same
+# reason.
+#
+# WHAT CHANGED FROM v2, AND WHY EACH CHANGE IS THERE
+#
+# 1. change-focus anchor 2 is REACHABLE by the reference solution. On BE-003 the haiku
+#    population never reached it because every run added an ErrorCode constant, which
+#    anchor 2's "only confirm and its imports" excludes (validator pass 12, C2). Here the
+#    ticket names two methods (`cancel`, and `create` in the shipment controller) and
+#    explicitly permits three structural additions (the order status, a repository query,
+#    error codes). Anchor 2 lists them. A submission that stays inside that list scores 2;
+#    one that restyles `getById` does not. The dimension measures focus, not whether the
+#    task forced an addition.
+# 2. maintainability's construct is `when (order.status)`, two-valued. Exhaustiveness
+#    still bites — a third status would fall through an if-chain silently — so the anchor
+#    stands, but the variance it can show is smaller than on a three-valued enum. Recorded
+#    here so a null result on this dimension is read against the instrument first.
+# 3. test-quality anchor 2 has FOUR clauses, not three: the all-or-nothing rule after a
+#    refused cancel is the behaviour the ticket states in bold, and a test file that never
+#    reads state after the 409 has not tested it. good-strong-tests reads it; good-weak-tests
+#    does not; known-bad-partial-cascade would pass the weak file unchanged.
+# 4. architecture-consistency spans TWO packages. Both controllers refuse something under
+#    this ticket, and the convention is the same in both. The anchor says "either package".
+#
+# The scorer receives the changed files in full plus their pre-agent versions (Decision D),
+# and nothing else. Every anchor below is decidable from those files alone.
+
+version: 2-be004
+task: BE-004-cancel-order
+scale: [0, 1, 2]
+
+categories:
+
+  - name: architecture-consistency
+    weight: 35
+    # The convention is declared in api/ApiError.kt: "Responses are produced centrally by
+    # [GlobalExceptionHandler]; controllers throw an [ApiException] rather than assembling
+    # bodies themselves." A refusal is any path that ends the request without the success
+    # response, including `check(...)`, `require(...)`, `!!` or a bare `throw`.
+    precondition: none
+    anchors:
+      0: "The order or shipment package constructs an ERROR body itself — an `ApiError(...)` or `ApiErrorBody(...)` literal, or a map assembled ON A REFUSAL PATH, appears inside a controller method. A map or any other shape on the SUCCESS path is not this anchor; the category is about who renders refusals. Cite the literal and the method."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: refusals throw rather than assemble, but not through the declared hierarchy — a bare `ResponseStatusException`, an `IllegalStateException` from `check(...)`, or a new exception type outside `ApiException`. Cite the throw site and the import list."
+      2: "Every refusal in EITHER package throws an `ApiException` subclass that ALREADY EXISTS IN THE ATTACHED BASELINE — `ResourceNotFoundException` for a missing order, `ConflictException` for the blocked cancel and for a shipment on a cancelled order — and no `ApiError` or `ApiErrorBody` is constructed anywhere in the order or shipment package. Cite each throw site and its class."
+
+  - name: maintainability
+    weight: 25
+    # `OrderStatus` is an enum, so an exhaustive `when` with no `else` makes adding a status
+    # a compile error at every decision that did not account for it. An if-chain, or a
+    # `when` with an `else`, makes it fall through silently.
+    precondition: none
+    anchors:
+      0: "The order-status decision in `cancel` is an `if` / `else if` / `else` chain, or a `when` carrying an `else` branch, or a `when` in STATEMENT position — its value discarded, used by nothing. In all three a new status constant compiles without touching this method and takes the fallback path unannounced. Cite the chain, the `else`, or the discarded `when`."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: an exhaustive `when` whose decision is split across more than one construct, or a branch repeating logic another branch performs; also a `when` that is neither exhaustive nor carries an `else`. Cite the construct."
+      2: "One `when (order.status)` in EXPRESSION position, carrying no `else`. Expression position means its value is USED — returned, assigned, passed as an argument, or the last expression of a lambda; anything but discarded. Kotlin requires such a `when` to be exhaustive, so the case list is compiler-enforced. Cite the `when` and the line that uses its value."
+
+  - name: test-quality
+    weight: 25
+    # DECISION A, E-001: no test file means `null`, never `0`.
+    precondition: "No file under src/test/ among the attachments, OR a test file that makes no assertion at all → score: null, reason: nothing to grade. Never 0. A file testing nothing is not worse than a file testing status codes; it is absent from this category."
+    anchors:
+      0: "Every assertion is a status code: none reads a response body, none re-reads state through a second request. The precondition guarantees at least one assertion exists before this anchor is reached, so it is never vacuously true. Cite the assertion list."
+      1: "THE RESIDUAL — neither the 0 condition nor all four clauses of 2. Any assertion reads a response body, and at least one clause of 2 is absent. Cite what is asserted and name every clause that is absent."
+      2: "All four hold, each citable: (a) cancel is called twice on the same order and the second response's BODY is asserted, not its status alone; (b) after a cancel refused with 409, the order's status AND at least one of its shipments' statuses are re-read through separate `get(...)` requests and asserted unchanged — this is the all-or-nothing rule the ticket states in bold; (c) at least one refusal asserts the error envelope body (`error.code` or `error.message`), not only the status; (d) persisted state after a successful cancel is re-read through a separate `get(...)` rather than trusted from the mutating call's own body. A status-only assertion in any of (a)–(d) leaves that clause unmet."
+
+  - name: change-focus
+    weight: 15
+    # The ticket names `cancel` (new) and, by stating its consequence, the shipment
+    # controller's `create`. It permits: `Order` gaining a status with a default, a query on
+    # the shipment repository, and new `ErrorCode` constants. Everything else is unnamed.
+    # Invisible whitespace — trailing spaces, line endings, EOF newline — is never a
+    # difference under this category, at any anchor.
+    precondition: "No baseline tree among the attachments → score: null, reason: no baseline to read a change against. Never 2."
+    anchors:
+      0: "Two or more methods the ticket did not name differ from the baseline in anything beyond INVISIBLE WHITESPACE — reformatted, restructured, an expression body turned into a block, a null-check rewritten, a KDoc changed. Name each method and cite both trees."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically exactly one unnamed method differs; also the case where every named method is character-identical but something outside them — a reordered import neither named method requires, a moved blank line, a class KDoc — differs. Name what differs and cite both trees."
+      2: "Every method the ticket did not name is identical to the baseline once invisible whitespace is normalised. The ONLY differences are: the new `cancel` method and the imports it requires BY SYMBOL; the cancelled-order guard inside the shipment controller's `create` and the imports it requires; `Order` gaining a status field and its enum; one added query method on the shipment repository; added `ErrorCode` constants. Anything beyond that list is a difference. Cite `create`, `getById` and `list` in both trees for both controllers."

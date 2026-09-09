@@ -307,9 +307,53 @@ about a task-independent mechanism.
 
 ## §4 step 4 — the rubric proof
 
-<!-- filled at step 4, BEFORE any run of this experiment is scored.
-     Five gate-passing variants against known-good, every dimension separating in the predicted
-     direction, codex only (author decision 10.2). The registered sha goes in Controlled variables. -->
+**Written before the first scoring call of the proof, and nothing below the "Result" heading
+existed when the predictions above it were committed.** Author decision 9 requires the port to
+be proved as E-001 Decision B proved v2; author decision 10.2 requires codex and only codex.
+
+### What is being proved, and what would refute it
+
+The rubric is an instrument. The claim is *this file discriminates on BE-004's constructs*, and
+the fixture set is built so that each variant differs from `known-good` in **one** dimension and
+in one method — the fixture notes say so and say why they are kept outside `fixtures/`. So the
+proof is a per-dimension separation, each with one candidate cause.
+
+**A dimension that does not separate is a §7 halt** (prompt §3, author decision 9), not an edit.
+If `good-inline-envelope` scores 2 on `architecture-consistency`, the anchor does not see a
+hand-assembled `ApiError` on a refusal path and the file is not an instrument for that construct;
+the same for each row below. I am recording that in advance so that a null result cannot be
+re-read afterwards as a tolerable one.
+
+### The predicted directions, per dimension
+
+| Dimension | Reference cell | Variant cell | Predicted values | Separation required | Mechanism — the construct the anchor must see |
+|---|---|---|---|---|---|
+| `architecture-consistency` (35) | `known-good` | `good-inline-envelope` | 2 → 0 | variant **strictly below** `known-good` | the variant's `cancel` builds an `ApiError` by hand and returns `ResponseEntity<Any>`; anchor 0 names exactly that literal on a refusal path. The other three methods still throw, so one method is the candidate cause. |
+| `maintainability` (25) | `known-good` | `good-nested-ifs` | 2 → 0 | variant **strictly below** `known-good` | `known-good` decides on an exhaustive `when (order.status)` in expression position; the variant is an `if`/`else if`/`else` chain on the same values. Anchor 0's first clause names the chain; anchor 2 requires the expression-position `when` with no `else`. |
+| `change-focus` (15) | `known-good` | `good-noisy-diff` | 2 → 0 | variant **strictly below** `known-good` | the variant's `cancel` is character-identical to `known-good`, and `create`, `getById` and `list` are restyled — three unnamed methods, so anchor 0's "two or more" fires. `known-good` reaching 2 is the deliberate repair of validator pass 12 C2 and is itself part of what is being proved. |
+| `test-quality` (25) | **`good-strong-tests`**, not `known-good` | `good-weak-tests` | 2 → 0 or 1 | **weak strictly below strong** | `known-good` carries no test file, so its cell is a **structural `null`** under Decision A and cannot be a reference. This is E-001's own construction on BE-003, in its words: *"For `test-quality` that is the pair: weak below strong."* The four clauses of anchor 2 are the four gaps the `good-weak-tests` note names. |
+
+**Registered as expected and not as a failure:** `test-quality` is `null` on `known-good`,
+`good-inline-envelope`, `good-nested-ifs` and `good-noisy-diff` — four structural nulls, the same
+count-by-construction E-001 predicted at 3 of 20 on BE-003's smaller set. A `null` there is a
+measurement (§6), not a missing cell, and it does not enter any separation row.
+
+**Registered as expected on the off-dimension cells:** each variant should hold its
+`known-good` value on the three dimensions it does not vary, because the fixture notes assert the
+rest of each tree is identical. Where it does not, that is a finding about the rubric's specificity
+and is recorded rather than smoothed — but it is **not** a §7 halt, because the halt condition is
+about a dimension failing to separate, not about one being noisier than hoped.
+
+### How it is run
+
+`./tools/codex-score.sh benchmark/rubrics/backend-quality-be004.yaml <fixture>` on six targets —
+`known-good` and the five `QUALITY_VARIANTS` — Path A, which proves each target is gate-passing
+from BE-004's **own** `verify-evaluator.sh` registry rather than from a flag. `known-good` is
+scored with no baseline attached, by the tool's own boundary rule.
+
+### Result
+
+<!-- filled after the six sheets exist, from the sheets, with each sheet's path -->
 
 ## §4 step 5 — the preflight pair
 
