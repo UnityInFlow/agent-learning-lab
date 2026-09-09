@@ -1,0 +1,29 @@
+# B5 BE-003 20260909T075939Z  key=EXP-B5-PHASES-BE003 pairs=10 start=1
+# overlay b3450564b6f32d6193e8580db766210e35c1bfaa90589a705b3e9236fdb18a41 (runner form sha256:b3450564b6f32d6193e8580db766210e), one file, declares tools:
+# BE-003 tree eeb15a753adc94e92bc3f74c50e1b02fc3b53030 at benchmarks eea144ef940fda4cb6090561fdd901aed0013c8e
+# claude 2.1.266 at launch, asserted constant per run · model claude-haiku-4-5-20251001
+# prediction commit 5777b07 at 2026-09-09T09:23:12+02:00
+# common:      RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-B5-PHASES-BE003 MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1 API_PORT=18081 OTLP_HTTP_PORT=14318 OTLP_GRPC_PORT=14317 TEMPO_PORT=13200 INIT_SCHEMA_DIR=/Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b05/batch-BE-003-20260909T075939Z/init-schema
+# treated adds:CUSTOMIZATION=/Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/phases-v1.0 AGENT=backend-feature-phases VARIANT=phases-v1.0
+# control adds:VARIANT=baseline
+seq	arm	run_id	exit	worktree	agent_hash	instr_hash	deleg_stream	deleg_telemetry	claude
+01	treated	5395964c-c3c0-4117-9d79-3ff7b379b6e1	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5395964c-c3c0-4117-9d79-3ff7b379b6e1	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+01	control	785e0f3f-c172-4e93-ba07-2094bbdbd8c6	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-785e0f3f-c172-4e93-ba07-2094bbdbd8c6	null	null	0	0	2.1.266
+02	treated	c6730abe-0748-4785-9689-9dad310ed76f	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c6730abe-0748-4785-9689-9dad310ed76f	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+02	control	836269db-e038-480d-ab29-b2ebbfd3fa51	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-836269db-e038-480d-ab29-b2ebbfd3fa51	null	null	0	0	2.1.266
+03	treated	820987a6-acfe-487e-8ca4-a349a019d907	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-820987a6-acfe-487e-8ca4-a349a019d907	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+03	control	9bc93267-3960-49fd-820a-e8eb30b3b329	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9bc93267-3960-49fd-820a-e8eb30b3b329	null	null	0	0	2.1.266
+04	treated	59ab32d4-12e5-4924-9e79-280e238054f2	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-59ab32d4-12e5-4924-9e79-280e238054f2	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+04	control	0d87df5c-ecab-4ba0-be76-7175b8535ade	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0d87df5c-ecab-4ba0-be76-7175b8535ade	null	null	1	0	2.1.266
+05	treated	5a785fe7-918e-4f64-a5aa-2bab527a91f2	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5a785fe7-918e-4f64-a5aa-2bab527a91f2	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+05	control	1db15029-3a8d-48b5-9a61-595306faa6b8	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1db15029-3a8d-48b5-9a61-595306faa6b8	null	null	0	0	2.1.266
+06	treated	9b5dbfcc-3d07-4cf4-b1d7-beb368c43d9a	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9b5dbfcc-3d07-4cf4-b1d7-beb368c43d9a	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+06	control	79f53532-fe44-4b66-a2f6-ddf92f4162b2	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-79f53532-fe44-4b66-a2f6-ddf92f4162b2	null	null	0	0	2.1.266
+07	treated	2dc40c5d-9798-4879-8b32-08ad79d56d7f	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2dc40c5d-9798-4879-8b32-08ad79d56d7f	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+07	control	42f3f80b-0443-4c5a-bb80-10ff8bc4c223	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-42f3f80b-0443-4c5a-bb80-10ff8bc4c223	null	null	0	0	2.1.266
+08	treated	df2f3799-770d-4143-808f-e98aa44debb5	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-df2f3799-770d-4143-808f-e98aa44debb5	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+08	control	29f5d357-a478-46e0-978e-d9cd122ac78d	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-29f5d357-a478-46e0-978e-d9cd122ac78d	null	null	0	0	2.1.266
+09	treated	81b1d617-f5ba-40f1-84ec-d89a993ea966	2	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-81b1d617-f5ba-40f1-84ec-d89a993ea966	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+09	control	79b9b300-f616-4825-8396-2fb5ac6a9e26	2	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-79b9b300-f616-4825-8396-2fb5ac6a9e26	null	null	0	0	2.1.266
+10	treated	f34a2eb4-f397-4157-887b-b34747839cd8	2	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f34a2eb4-f397-4157-887b-b34747839cd8	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+10	control	fe6c2d96-f857-4caf-9b92-e200864ea436	2	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-fe6c2d96-f857-4caf-9b92-e200864ea436	null	null	0	0	2.1.266

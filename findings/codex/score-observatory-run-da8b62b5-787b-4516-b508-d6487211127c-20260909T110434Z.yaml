@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-da8b62b5-787b-4516-b508-d6487211127c
+  mode:           run
+  run_id:         da8b62b5-787b-4516-b508-d6487211127c
+  evaluator_exit: 0
+  observatory:    http://localhost:18081/api/runs/da8b62b5-787b-4516-b508-d6487211127c
+  attachments:    6 changed file(s), 6 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260909T110434Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals use existing ApiException subclasses"
+    evidence: "work/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:43; work/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:55; work/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:33; work/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:42; work/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:63"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel uses if statements for status decisions"
+    evidence: "work/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:48"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Clause b lacks shipment reread through get"
+    evidence: "work/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:144; work/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:165"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Unnamed order create method differs from baseline"
+    evidence: "baseline/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:29; work/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:32"
+ambiguous_categories: []

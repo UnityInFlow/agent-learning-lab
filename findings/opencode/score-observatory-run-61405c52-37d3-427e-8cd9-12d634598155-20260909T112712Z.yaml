@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:    6252778b8472
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-61405c52-37d3-427e-8cd9-12d634598155
+  mode:          run
+  run_id:        61405c52-37d3-427e-8cd9-12d634598155
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/61405c52-37d3-427e-8cd9-12d634598155
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.SlCbp1d54A/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260909T112712Z
+  attachments:   7 file(s) under test, 7 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: every refusal throws ResourceNotFoundException or ConflictException, both in baseline; no ApiError/ApiErrorBody literal anywhere
+    evidence: OrderController.kt:53,66; ShipmentController.kt:32,41
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: order-status decision in cancel is an if statement, not an exhaustive when
+    evidence: OrderController.kt:59
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: bodies asserted but clauses (b) and (d) unmet — state re-read via repository, not separate get(...)
+    evidence: OrderControllerTest.kt:154,158
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: all unnamed methods identical; only differences are cancel, guard, status field, query method, ErrorCode constant
+    evidence: OrderController.kt:24-48; ShipmentController.kt:29-67
+ambiguous_categories: []
+```

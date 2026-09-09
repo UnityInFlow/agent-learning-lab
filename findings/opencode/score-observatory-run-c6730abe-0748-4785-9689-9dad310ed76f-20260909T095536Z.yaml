@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c6730abe-0748-4785-9689-9dad310ed76f
+  mode:          run
+  run_id:        c6730abe-0748-4785-9689-9dad310ed76f
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/c6730abe-0748-4785-9689-9dad310ed76f
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.lXigcV4sqt/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260909T095536Z
+  attachments:   3 file(s) under test, 3 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: refusals throw existing baseline ApiException subclasses, no ApiError constructed
+    evidence: ShipmentController.kt:58, ShipmentController.kt:64
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: status decision is an if/else chain, not an exhaustive when
+    evidence: ShipmentController.kt:63, ShipmentController.kt:70
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: body asserted and error.code asserted, but state never re-read via separate get
+    evidence: ShipmentControllerTest.kt:96, ShipmentControllerTest.kt:126
+  - name: change-focus
+    score: null
+    anchor_level: null
+    reason: ambiguous — SHIPMENT_CANNOT_CONFIRM enum constant is required by confirm but is neither a method nor an import
+    evidence: ApiError.kt:36
+ambiguous_categories: [change-focus]
+```
