@@ -241,13 +241,76 @@ same procedure as prose to one agent at **0 of 10** against its control's 1 of 1
 
 ## Lab B5.1 — measure against B4
 
-<!-- TODO -->
+Two tasks, two experiments, **no verdict computed across them** (author decision 9). This section
+carries BE-003; BE-004's row is filled when its batch closes.
+
+### BE-003 — [E-010](../../experiments/E-010-workflow-phases-BE003.md), key `EXP-B5-PHASES-BE003`
+
+`n = 10` per arm, interleaved treated/control, `KEEP=1 ISOLATE_USER_SETTINGS=1
+MODEL=claude-haiku-4-5-20251001`, benchmark tree `eeb15a75` at benchmarks `eea144ef`, evaluator
+BE-003 `1.0.0` unchanged since B2. All 20 admitted by `check-run-gate.sh`.
+
+| What the stop asked | Number | Where it came from |
+|---|---|---|
+| markers observable | **10 of 10** treated, **0 of 10** control | `check-phase-contract.py` check 1 |
+| no code before DESIGN | **10 of 10** treated | check 2; first mutation is the *next event* after `DESIGN` in every run |
+| token overhead | **−20.4 %** on `estimatedCost` median ($0.1178 vs $0.1480) | run records, two re-derived from raw telemetry |
+| turn overhead | **−6.8 %** on `modelCalls` median (20.5 vs 22), quartiles overlapping | same |
+| quality | `test-quality` anchor 2 **1 of 10** treated, 1 of 10 control, `p = 1.0` | codex, rubric `396e1799eb2b`, 20 sheets |
+| correctness | **10 of 10** both arms at 7/7 acceptance | `evaluation.json` per run |
+
+**Against B4.** B4 ([E-006](../../experiments/E-006-agent-boundary.md)) closed `INCONCLUSIVE`; B5
+closes `INCONCLUSIVE` on BE-003 too, and for a **different reason worth keeping separate**. B4
+could not resolve an effect. B5 resolved one and it was **backwards**: the decision rule has no row
+for a treatment that was predicted to cost 25 % more and cost 20 % less, so it lands on row 5 by
+construction rather than by weakness of evidence.
+
+**What B5 has that B4 did not** is an executable observation of the behaviour it claims. B4's
+boundary was a `tools:` list whose delivery the runtime rewrote (E-005). B5's phases are checked
+by a script over the transcript, on every run, with a fixture set that is shown to fail the
+retroactive-narration shape. That is the difference between a claim and a measurement, and it is
+the only part of this stop that improved on its predecessor.
+
+**The one thing the workbook's own expectation got wrong.** It said, in one line, so that the exit
+gate could not be written to fit the data: *"the markers appear, the code order follows them, the
+price is real and the rubric sees nothing."* Three of the four are right. **The price is not
+real.** It is negative, and it is the second time in this project (after E-007) that a
+customization predicted to cost more has cost less.
 
 ## Deliberate failure
 
 <!-- TODO: instruct it to skip DESIGN and see whether the phase markers
      still appear. If prose alone holds the workflow, you have measured
      Layer 3 compliance, not enforcement. -->
+
+## §5 validation table — BE-003
+
+Every row is filled from a path, a sha or a run id. **The layer column is about the proof, not the
+artifact**: it asks what would have to run for the row to be false. BE-004's table is added when
+its batch closes; no row below is computed across the two tasks.
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| *"phase markers observable in the transcript"* | `tools/check-phase-contract.py` check 1 over the 10 treated stream-json transcripts `$TMPDIR/observatory-agent-<id>.log`; run ids in `evidence/b05/batch-BE-003-20260909T075939Z/manifest.tsv` (pairs 01–08) and `…-20260909T093440Z/manifest.tsv` (pairs 09–10). 10 of 10 `markers_found: 6`; 0 of 10 controls | **L2** — a script executes and reports `FAIL` on a transcript without them; its fixture set `tools/verify-phase-contract-checker.sh` is 15 of 15 and includes fixture C, the retroactive-narration shape that a text-level checker passes | `python3 tools/check-phase-contract.py --json $TMPDIR/observatory-agent-<run-id>.log` for each treated id and read `facts.markers_found` |
+| *"no code written before DESIGN"* | same tool, check 2, same 10 transcripts. `design_marker_position` < `first_mutating_position` in 10 of 10: 16/17, 18/19, 16/17, 12/13, 12/13, 18/19, 14/15, 20/21, 15/16, 16/17 | **L2** — same executing checker; `MUTATING` is defined at `tools/check-phase-contract.py:63-68` and deliberately excludes `Bash`, so the blind spot is counted separately and printed as a NOTE rather than hidden | same command; compare the two positions. The pre-`DESIGN` `Bash` write-shape count is `facts.bash_write_shape_before_design` — 0 in 9 of 10 |
+| *"overhead measured, not assumed"* | `estimatedCost` and `modelCalls` per run from the observatory API `http://127.0.0.1:18081/api/runs/<id>`; medians treated $0.1178 / 20.5 against control $0.1480 / 22. Two runs re-derived from raw telemetry: `agent-observatory/infra/telemetry-out/events.jsonl`, counting `claude_code.api_request` records keyed on `observatory.run.id` — `5395964c` 20 calls / $0.0996592, `42f3f80b` 24 calls / $0.172395 | **L2 for the number, L3 for its interpretation** — the telemetry and the API are two independent sources that agree exactly, so the *value* does not rest on anyone's word; what it *means* is prose in E-010 and executes nowhere | `curl -s http://127.0.0.1:18081/api/runs/<id>` per id, or `grep` the run id in `events.jsonl` and sum `cost_usd` over `claude_code.api_request` records |
+| **Void condition** — the treatment reached the model and not the control (E-010 P1) | `customization.agentHash = sha256:b3450564b6f32d6193e8580db766210e` on 10 of 10 treated, `null` on 10 of 10 control; `instructionsHash` `null` on all 20; column 6 of both manifests | **L2** — the batch driver `evidence/b05/run-b5-batch.sh` asserts it per run and exits 8 (row 0a) if it fails, and `evidence/b05/verify-b5-batch-guards.sh` drives that refusal on fixtures | read column 6 of the two manifests, or `curl` each run record and read `customization.agentHash` |
+| **Admission** — only gate-admitted runs enter any comparison | `./tools/check-run-gate.sh $TMPDIR/observatory-run-<id>/evaluation.json` — 20 admitted, 0 refused; the same checker returns `rc = 2` on all four aborted runs (`81b1d617`, `79b9b300`, `f34a2eb4`, `fe6c2d96`) | **L2** — it executes, and it was **shown to refuse** in the same session rather than only shown to accept | run the same command over both sets and compare exit codes |
+| **Registered scorer** — one rubric, unmoved | 20 sheets under `findings/codex/score-observatory-run-<id>-*.yaml`, every one carrying `rubric_sha: 396e1799eb2b`; `shasum -a 256 benchmark/rubrics/backend-quality.yaml \| cut -c1-12` = `396e1799eb2b` | **L1 for the identity** — the sha is the file; a changed rubric cannot present the same one. **L3 for "the right rubric was chosen"** | `grep rubric_sha findings/codex/score-observatory-run-*<id>*.yaml` for each of the 20 ids |
+| **Hand re-read** (§5 requires at least one) | run `5395964c`, `test-quality`: hand value **1**, sheet value **1**, both citing that persisted state is not re-read through a separate `get(...)`; hand reading recorded in E-010 §5 at commit `618a969`, **before** the sheets were opened | **L3** — a human-equivalent reading of source; nothing executes. It is recorded as L3 precisely because it is the row a reader is most tempted to call proof | open the worktree's `ShipmentControllerTest.kt`, apply the `test-quality` anchors at rubric sha `396e1799eb2b`, and check the three clauses of anchor 2 at lines 100, 105-107, 123 and the absence of `get(...)` in `:85-131` |
+
+**Independence check, as §5 requires it — what else changed between the arms.** `runtime.model` is
+`claude-haiku-4-5-20251001` on all 20 run records; `instructionsHash` is `null` on all 20; the
+benchmark tree and evaluator are one commit for both arms. **One difference is not the treatment
+and is recorded rather than discovered:** pair 04's *control* made one delegating call, which the
+batch driver writes to the manifest on every run including when it is zero, and which is threat 7
+registered before the batch. A *treated* delegation would have been decision-rule row 0a and would
+have stopped the run.
+
+**What is not proved here.** Nothing in this table shows the phases produced better code — the
+rubric found no difference the anchors can see (`p = 1.0` on every category), and 50 of its 100
+points had zero variance across both arms. The table proves the procedure was followed and priced,
+and that is all it proves.
 
 ## Exit gate
 
