@@ -421,6 +421,68 @@ rubric found no difference the anchors can see (`p = 1.0` on every category), an
 points had zero variance across both arms. The table proves the procedure was followed and priced,
 and that is all it proves.
 
+## §5 validation table — BE-004
+
+Same rules: evidence is a path, a sha or a run id, and the layer column is about the proof. **No row
+below is computed across the two tasks** (author decision 9).
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| *"phase markers observable in the transcript"* | `check-phase-contract.py` check 1 over the 10 treated transcripts `$TMPDIR/observatory-agent-<id>.log`; ids in `evidence/b05/batch-BE-004-20260909T094351Z/manifest.tsv`. 10 of 10 at `markers_found: 6`; 0 of 10 controls | **L2** — an executing checker; `tools/verify-phase-contract-checker.sh` is 15 of 15 and its fixture C is the narration shape a text checker passes | `python3 tools/check-phase-contract.py --json $TMPDIR/observatory-agent-<id>.log` per treated id |
+| *"no code written before DESIGN"* | same tool, check 2. `design` < `first_mutating` in 10 of 10: 18/19, 15/16, 13/14, 18/20, 17/20, 17/18, 19/20, 19/20, 21/22, 20/21 | **L2** — same checker | same command; compare the two positions |
+| *"overhead measured, not assumed"* | run records at `http://127.0.0.1:18081/api/runs/<id>`: `estimatedCost` median $0.2171 (q1 0.1906, q3 0.2218) treated against $0.2409 (0.2342, 0.2546) control; `modelCalls` 28 against 29.5 | **L2 for the number, L3 for its interpretation** | `curl` each of the 20 ids and take medians per arm |
+| **Void condition** — treatment delivered, control clean | `agentHash sha256:b3450564b6f32d6193e8580db766210e` on 10 treated, `null` on 10 controls; `instructionsHash` null on all 20; `init.tools` **4 delivered** (Edit, Write, **no Task**) on treated, 29 on control, from `evidence/b05/batch-BE-004-*/init-schema/init-schema-<id>.txt` | **L2** — the batch driver asserts per run and exits 8 on failure; `evidence/b05/verify-b5-batch-guards.sh` drives that refusal | read column 6 of the manifest and the per-run `init-schema` files |
+| **Admission** | `./tools/check-run-gate.sh $TMPDIR/observatory-run-<id>/evaluation.json` — **20 admitted, 0 refused** | **L2**, and the same checker was shown in this session to refuse four aborted runs at `rc = 2` | run it over the 20 ids |
+| **Registered scorer, and the right one** | 20 sheets at `rubric_sha: 6252778b8472`; `shasum -a 256 benchmark/rubrics/backend-quality-be004.yaml \| cut -c1-12` = `6252778b8472`. **Not** BE-003's `396e1799eb2b` | **L1 for the identity** — a changed rubric cannot present the same sha | `grep rubric_sha` across the 20 sheets |
+| **Rubric proof** (decision 9: a dimension that does not separate is a §7 halt) | six sheets `findings/codex/score-{known-good,good-inline-envelope,good-nested-ifs,good-noisy-diff,good-strong-tests,good-weak-tests}-20260909T073*.yaml`; each variant separates from the other four in the predicted direction; **re-derived by name, not by column position, this session** | **L2 for the separation, L3 for the choice of fixtures** | extract the four categories by name from each of the six sheets and compare the five variants |
+| **Hand re-read** | run `fdb51fbd`, `test-quality`: hand **1**, sheet **1**; four clauses of anchor 2 checked with `path:line`, two absent | **L3** — a reading of source; nothing executes | open `OrderControllerTest.kt` in that worktree and check clauses (a)–(d) at `:134-136`, `:168,172`, `:164`, `:107-110` |
+
+**Independence check.** `runtime.model` `claude-haiku-4-5-20251001` on all 20; `instructionsHash`
+null on all 20; one benchmark tree and one evaluator for both arms; **zero delegating calls in
+either arm** on this task — unlike BE-003, where one control delegated once.
+
+**What is not proved here.** That the phases improved the code. Three of four rubric dimensions are
+flat or floored across both arms, and the fourth is a direction at `p = 0.21`. The table proves the
+procedure was delivered, followed, and priced.
+
+## Learning block — BE-004
+
+```yaml
+learning:
+  what_was_added: >
+    Nothing new. The SAME overlay measured on BE-003 (agentHash sha256:b3450564b6f32d61), run
+    against a second, harder task under its own experiment key, its own concurrent control, its
+    own registered rubric (6252778b8472) and its own decision rule.
+  why_it_exists: >
+    Author decision 9. On BE-003 half the rubric's points had zero variance across every arm ever
+    run, so a customization could not be shown to move quality even in principle. BE-004 is a
+    cross-module cancel with an all-or-nothing cascade and an unnamed guard, built so a capable
+    model can fail it.
+  observed_effect: >
+    Everything structural replicated: markers 10 of 10, code order 10 of 10, completion contract
+    leaking 2 of 10, cost negative, output up, cached reads halved. test-quality separated the arms
+    for the first time on either task - 3 of 10 against 0 of 10 - at p = 0.21, a direction and not
+    an effect.
+  unexpected_effect: >
+    THE TRAPS DID NOT TRAP. Twenty consecutive runs passed 7/7 acceptance, with and without the
+    procedure, on a task deliberately built around an atomicity cascade and a guard the ticket
+    does not name. P8 predicted no correctness effect and was right, which makes BE-004 a weaker
+    discriminator on correctness than it was designed to be.
+    And maintainability got WORSE as an instrument: 0 in 20 of 20 runs, floored, where on BE-003 it
+    at least varied 0x7/2x3. A harder task did not open the dimension up; it closed it.
+  keep_or_remove: >
+    KEEP phases-v1.0 unpromoted, decided from this task's own evidence. KEEP BE-004 in the rotation
+    for test-quality only. What should be REMOVED from future registrations on this pairing is any
+    outcome that reads architecture-consistency or maintainability: 40 runs, two tasks, no variance
+    worth the sentence.
+  next_question: >
+    Does the procedure make the model write a test AT ALL, rather than write a better one? Treated
+    wrote scorable test code on 20 of 20 runs across both tasks; the plain control skipped it 7
+    times in 20. Each task's own figure is short of significance and author decision 9 forbids
+    pooling them for a verdict, so this is registered here as the question stop 13 should predict
+    in advance rather than as a result of stop 12.
+```
+
 ## Exit gate
 
 **From the build track:** phase markers observable in the transcript · no code written before
