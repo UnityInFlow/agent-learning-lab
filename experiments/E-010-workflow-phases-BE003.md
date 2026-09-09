@@ -244,6 +244,77 @@ Prediction first, committed, then broken. The deliberate failure is a **fifth pa
 is the only machine-readable part; the prose is not. **If the markers survive without the
 instruction, the treatment was never the marker text and P2 measured something else.**
 
+## §4 step 4 — the build, re-verified rather than rebuilt
+
+*Run and recorded by Opus 5 (claude-opus-5), autonomously, 2026-09-09, before the preflight pair
+and before any run of this experiment.*
+
+**Step 4 is "build the smallest thing", and on BE-003 the smallest thing was already on disk when
+this stop opened.** Two of the three pieces were merged as instrument PRs while stop 12 was
+unopened — the workbook's §4 step 2 section discloses that as the §6 violation it is and adopts
+them as pre-existing drafts rather than deleting them. So step 4 here is a **re-verification with
+its output pasted**, not a build, and the distinction is recorded so that "the build passed" is
+not read as "the build was made here".
+
+| Piece | Path | Layer of the piece | What step 4 did to it |
+|---|---|---|---|
+| The treatment | `build/customizations/phases-v1.0/.claude/agents/backend-feature-phases.md` | L3 | hash re-derived, not edited |
+| The instrument | `tools/check-phase-contract.py` | L2 | fixture set re-run, ShellCheck and `py_compile` re-run |
+| The instrument's fixture set | `tools/verify-phase-contract-checker.sh` | L2 (it executes and refuses) | re-run in full |
+
+### The output, pasted, from this session
+
+```
+$ ./tools/verify-phase-contract-checker.sh
+  ok   — A: a clean phased run passes (exit 0)
+  ok   — B: a missing phase marker is refused and named (exit 2)
+  ok   — C: markers printed after the first edit are refused — the narrated phase (exit 2)
+  ok   — D: phases out of registered order are refused (exit 2)
+  ok   — E: a surviving template token is refused (exit 2)
+  ok   — F: DONE without its completion fields is refused (exit 2)
+  ok   — G: a duplicated phase marker is refused (exit 2)
+  ok   — H: an empty transcript is UNUSABLE (exit 3), not a failed run
+  ok   — I: a non-JSON file is UNUSABLE (exit 3), not a failed run
+  ok   — J: a phased run that delegated passes, and the confound is reported (exit 0)
+  ok   — K: six markers with no implementation is refused (exit 2)
+  ok   — L: a Bash-only run is refused, and the refusal does not claim nothing was written
+  ok   — M: the residual hole passes, and the pre-DESIGN write shapes are reported (exit 0)
+  ok   — NEG: the text-only checker scores 2 passed, 11 failed against these fixtures
+  ok   — NEG: fixture C — edits in turn two, six markers after — passes the text-only checker
+verify-phase-contract-checker: 15 passed, 0 failed, of 15 registered cases
+EXIT=0
+
+$ shellcheck -S warning tools/verify-phase-contract-checker.sh
+SHELLCHECK_EXIT=0
+
+$ python3 -m py_compile tools/check-phase-contract.py
+PY_COMPILE=ok
+
+$ find build/customizations/phases-v1.0 -type f -name '*.md' -exec shasum -a 256 {} \;
+b3450564b6f32d6193e8580db766210e35c1bfaa90589a705b3e9236fdb18a41  build/customizations/phases-v1.0/.claude/agents/backend-feature-phases.md
+```
+
+**The hash is the one registered in "How the treatment is delivered"** — `b34505…b18a41`, whose
+32-character run-record prefix is `sha256:b3450564b6f32d6193e8580db766210e`. Re-derived here from
+the file rather than copied from that table, because a treatment hash that only ever agrees with
+itself proves nothing.
+
+**The two negative-control cases are why the count matters.** Thirteen of the fifteen cases assert
+that `check-phase-contract.py` refuses what it should refuse. The last two assert that a checker
+built the obvious way — `naive-phase-checker.py`, matching the marker text in the output — passes
+things this one fails: 2 passed / 11 failed against the same fixtures, and fixture C (edits in turn
+two, all six markers printed afterwards) passes it. A fixture set that only proves a tool accepts
+good input is a control reporting over a smaller scope than it claims, which is the house failure
+mode; these two cases are the guard against it.
+
+**Nothing was edited at this step.** §4 step 4's rule — *never edit a tool while a run of it is in
+flight* — is satisfied trivially: no run of either task existed under `EXP-B5-PHASES-BE003` or
+`EXP-B5-PHASES-BE004` when this ran.
+
+**The deliberate-failure overlay `phases-v1.0-nomarkers-DELIBERATE-FAILURE` does not exist yet and
+that is deliberate.** It belongs to §4 step 9; §6 forbids creating a future step's artifacts early,
+and its prediction is already registered above.
+
 ## §4 step 5 — the preflight pair
 
 <!-- filled at step 5, before the batch -->
