@@ -863,6 +863,56 @@ Same value, **and the same clause**, reached independently. That is one cell of 
 not a validation of the harness in general; it is the one check §5 asks for, and it passed on both
 the number and the reason.
 
+### §4 step 9 — the deliberate failure, run 2026-09-09 after the batch
+
+**The prediction was registered at `5777b07`, before any run of this stop, and is not edited.** It
+said: *"the markers vanish (check 1 fails, `0 of 3`) while the narrative phase headings survive in
+the closing summary, so `naive-phase-checker.py` still passes runs the real checker fails… If the
+markers survive without the instruction, the treatment was never the marker text and P2 measured
+something else."*
+
+**The treatment.** `build/customizations/phases-v1.0-nomarkers-DELIBERATE-FAILURE`, overlay sha256
+`2e2f708cbc05b54d8f359e4de67fc644` against v1.0's `b3450564b6f32d6193e8580db766210e`, delivered and
+read back on all three runs. The single variable removed is the **machine-readable marker
+instruction**: the whole `## The phase marker` section, the *"announcing each one as you enter it"*
+clause, the `<<PHASE:X>>` syntax in the six headings, and three in-prose references to a marker —
+**nine occurrences of the syntax in v1.0, zero in the variant.** The six phases survive as prose
+headings and every other word is unchanged. Key `EXP-B5-PHASES-BE003-NOMARKERS`, `n = 3`, evidence
+in `evidence/b05/deliberate-failure/`.
+
+| Run | `check-phase-contract.py` | `naive-phase-checker.py` | evaluator |
+|---|---|---|---|
+| `9694310f` | **FAIL, 0 of 6 markers** | **FAIL, 0 of 6** | pass 7/7, 66 added lines |
+| `b5ef0edc` | **FAIL, 0 of 6 markers** | **FAIL, 0 of 6** | pass 7/7, 73 added lines |
+| `a1cb9588` | **FAIL, 0 of 6 markers** | **FAIL, 0 of 6** | pass 7/7, 71 added lines |
+
+**First clause: held, exactly. `0 of 3`.** Remove the instruction and the markers are gone — against
+**10 of 10** with it, on the same task, the same model and the same everything else. **P2's 10 of 10
+is caused by the marker instruction specifically**, not by the six-phase prose that surrounds it,
+and that is what this run was built to establish.
+
+**Second clause: refuted.** The prediction expected the *words* `ANALYSIS`, `DESIGN` and the rest to
+survive as narrative in the closing summary, so that a text-only checker would still pass. They did
+not survive at all: `naive-phase-checker.py` — the committed negative control, which concatenates
+the assistant text and greps for the six words — found **zero of six on all three runs**. Both
+checkers agree, and the divergence between them that the prediction relied on **did not occur
+here**.
+
+**That refutation is worth more than the clause it refuted.** The mechanism it assumed was that the
+six-phase prose would keep producing phase-shaped narration on its own, with only the machine-
+readable syntax lost. It does not. **Without the instruction to announce a phase, the model does not
+name the phases either** — so the prose headings in the agent definition are not, on this evidence,
+doing the work that the marker instruction is doing. This is a stronger attribution than the run
+was designed to produce, and it is the reverse of the usual direction: the deliberate failure
+removed *less* than it appeared to and the effect vanished anyway.
+
+**What did not change.** All three runs still passed the evaluator at 7/7, with 66–73 added lines.
+Removing the markers cost nothing measurable in correctness at `n = 3` — which is a statement
+about these three runs and is not offered as a property.
+
+*Run by Opus 5 (claude-opus-5), autonomous, 2026-09-09, after the main batch and against a
+prediction committed before it.*
+
 ## Which predictions held
 
 Wrong predictions stay wrong. Nothing below was edited after the run.
