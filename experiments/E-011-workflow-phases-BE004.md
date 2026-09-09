@@ -623,12 +623,119 @@ in the place threats live, which is what a preflight is for.
 
 ## §4 step 6 — the batch
 
-<!-- filled at step 6 -->
+One launch, `evidence/b05/batch-BE-004-20260909T094351Z/`, key `EXP-B5-PHASES-BE004`, `n = 10` per
+arm interleaved treated/control, started `2026-09-09T09:43:51Z`. **All 20 runs completed and all 20
+were admitted** by `./tools/check-run-gate.sh` (20 admitted, 0 refused). No run was lost and none
+was re-run — the DNS outage that cost BE-003 four runs had cleared before this batch started.
 
 ## Results
 
+`n = 10` per arm. Medians and quartiles; no mean quoted alone.
+
+### Delivery — P1, the void condition
+
+| | Treated | Control |
+|---|---|---|
+| `customization.agentHash` | `sha256:b3450564b6f32d6193e8580db766210e` × 10 | `null` × 10 |
+| `customization.instructionsHash` | `null` × 10 | `null` × 10 |
+| `init.tools` delivered | **4** — `Edit` yes, `Write` yes, `Task` **no** — × 10 | 29, including `Task`, × 10 |
+| `runtime.model` | `claude-haiku-4-5-20251001` × 10 | same × 10 |
+
+**P1 held, 10 of 10 against 0 of 10.** The declared four tools were delivered as four on every run,
+so E-005's runtime rewrite did not recur here either — and no treated run *could* delegate, because
+`Task` was not among them. Threat 7 is closed mechanically on this task as it was on BE-003.
+
+### The phase contract — P2, P3, P4
+
+`tools/check-phase-contract.py` over each run's stream-json transcript.
+
+| Clause | Treated | Control | Registered | Held? |
+|---|---|---|---|---|
+| P2 — six markers, once each, in order | **10 of 10** | **0 of 10** | ≥ 9 of 10 treated; control a floor, never a finding | **held** |
+| P3 — first mutating `tool_use` after `DESIGN` | **10 of 10** | n/a | ≥ 9 of 10 treated | **held** |
+| P4 — pre-`DESIGN` `Bash` write shapes = 0 | **9 of 10** (pair 10 had 1) | n/a | 0 in ≥ 9 of 10 — **one run stricter than E-010** | **held, exactly at its threshold** |
+
+`DESIGN` position against first mutation, per treated run: 18/19, 15/16, 13/14, 18/20, 17/20,
+17/18, 19/20, 19/20, 21/22, 20/21. **P3's registered confound behaved as registered:** BE-004 is a
+six-file change, and the first write lands later here than on BE-003 (median position 18.5 against
+16) **in the control too** (control first-mutation median 14 here against 12 on BE-003), which is
+why P3 was registered as an absolute rate in the treated arm and never compared to the control.
+
+**The same two-of-ten leak, on a different task.** Pairs 04 and 05 carry all six markers in order
+and write after `DESIGN`, and fail the third check — `completion`, *"DONE is missing contract
+field(s)"*. **8 of 10 complete DONE contracts here, exactly as on BE-003.** Two tasks, twenty
+treated runs, the same failure at the same rate: **the completion contract is where this overlay
+leaks, and it is a property of the overlay rather than of either task.**
+
+### Cost and turns — P5 and P6
+
+| Outcome | Treated | Control | Registered | Held? |
+|---|---|---|---|---|
+| `modelCalls` median (q1, q3) | **28** (25, 30) | **29.5** (27, 32) | ≥ +4, quartiles non-overlapping | **P5 refuted** |
+| `estimatedCost` median (q1, q3) | **$0.2171** (0.1906, 0.2218) | **$0.2409** (0.2342, 0.2546) | ≥ +25 %, quartiles non-overlapping | **P6 refuted** |
+| `durationMs` median | 184 s | 155 s | +40 % | not cleared (+18.7 %) |
+| `outputTokens` median | **18 191** | 13 574 | report-only | +34.0 % |
+| `cachedTokens` median | **494 558** | **1 043 686** | report-only | **−52.6 %** |
+| `addedLines` median | 214 | 176 | report-only | — |
+| evaluator pass | **10 of 10** | **10 of 10** | ≥ 8 of 10 both arms, differing < 3 | **P8 held** |
+
+**Both cost predictions are refuted in the same direction as on BE-003, and the replication is the
+result.** Two independent tasks, two independent batches, `n = 10` per arm each: the treated arm
+took fewer model calls and cost less, both times, against a registered **+25 %** and **+4** both
+times.
+
+**The token composition replicates too, and it is the mechanism.** Treated produced **34 % more
+output while re-reading 53 % less context** — on BE-003 it was **37 % more output and 60 % less
+context**. The registered mechanism for P6 was that one agent carrying one growing context through
+six phases would compound its input cost. **Context compounding is real and it is the control's**:
+the plain baseline re-read a **million** cached tokens per run here against the treated arm's half
+million.
+
+**But the effect is smaller here, and E-011 registered a prediction about exactly that.** P6 said:
+*"BE-004 makes this mechanism more testable, not less: the context being re-read is six files
+instead of three, so if compounding is the mechanism the effect should be larger here than on
+BE-003."* The cost gap is **−9.9 % here against −20.4 % on BE-003** — **smaller on the bigger
+task**, in the direction opposite to the registration on both. The distributions tell a subtler
+story than the medians: on BE-004 the **quartiles separate cleanly** (treated q3 `$0.2218` below
+control q1 `$0.2342`) where on BE-003 they touched, and 9 of 10 treated runs sit below the control
+median (79 of 100 pairwise). A permutation test on the median difference gives **`p = 0.075`**
+here against `p = 0.026` on BE-003 — **unregistered, chosen after the data, and fenced off from the
+decision rule** for the same reason as there.
+
+`modelCalls` on this task is **flat, not reversed**: −1.5 on a median of 29.5 is −5.1 %, quartiles
+overlap fully, permutation `p = 0.83`. Whatever the treatment does to cost here, it is not done by
+removing turns.
+
 <!-- filled at step 8. Median AND range, never a mean alone.
      Includes BE-004's reference population for B6/B7 — see the MDE section's closing obligation. -->
+
+### §5 hand re-read — one cell, read off the worktree before any sheet was opened
+
+Taken while the registered scorer was still running and by a reader instructed not to open
+`findings/` at all, so it cannot have been anchored by a sheet.
+
+- **Run:** `fdb51fbd-4018-404a-afee-203871d54e97` — pair 01, **treated**.
+- **Rubric:** `benchmark/rubrics/backend-quality-be004.yaml`, sha **`6252778b8472`**, verified by the
+  reader before scoring. **Not** BE-003's `396e1799eb2b`.
+- **Cell:** `test-quality`. **Hand value: 1.**
+
+BE-004's anchor 2 has **four** citable clauses where BE-003's has three:
+
+| Anchor 2 clause | Holds | Evidence |
+|---|---|---|
+| (a) `cancel` called twice on one order, the second response's **body** asserted | yes | `OrderControllerTest.kt:134-136` |
+| (b) after a 409 refusal, order status **and** a shipment status re-read through separate `get(...)` and asserted unchanged | **no** | `:168,172` — direct `repository.findById()` calls, not HTTP `get(...)` requests |
+| (c) at least one refusal asserts the error envelope body | yes | `:164` |
+| (d) persisted state after a successful cancel re-read through a separate `get(...)` | **no** | `:107-110,132-136` — only the cancel response itself is asserted; no `get(...)` follows a successful cancel anywhere in the new tests |
+
+Anchor 0 does not hold (body assertions exist), two of four clauses of anchor 2 are absent, so the
+closing rule lands on the residual, **1**.
+
+**The two absent clauses are the same failure BE-003's hand re-read found**, in a task built to be
+harder: the agent verifies through the repository it just wrote to, rather than re-reading state
+through a second request. That is the one behaviour both rubrics' anchor 2 is built around, and on
+these two runs the model does not do it on either task. The sheet's value for this cell is recorded
+beside it in the score table below; where they differ, the diff decides.
 
 ## Which predictions held
 
