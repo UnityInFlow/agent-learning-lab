@@ -476,3 +476,36 @@ observations** of `sha256:61445ead…` across `evidence/b06/probe-v1.1/`, `probe
 `selection-rate/`, not in a value read off one file.
 
 *Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+### A second thing I broke, recorded because §6 says evidence is never quietly rewritten
+
+Restarting the batch chain re-entered §4 step 9, which had already run. Two consequences, both
+mine:
+
+1. **`evidence/b06/deliberate-failure/run.log` was truncated.** The script opens its log with `>`
+   before the run starts, so the original log for `81899960` was destroyed by the first bytes of
+   the duplicate. **The measurement survived**: `manifest.txt` still names `81899960` with its
+   exit code and stream count, and the registered instrument reads
+   `agent-observatory/infra/telemetry-out/events.jsonl`, which is **append-only** —
+   `skill-activation.sh` still returns `status: measured`, 0 activations for that run id. The log
+   is gone; the number is not.
+2. **A duplicate run `a1957950-c4c4-4348-862d-fc55dc7c56d3` was started under
+   `EXP-B6-DELIBERATE-FAILURE` and killed mid-flight.** It is **excluded by name**. Recorded
+   rather than hidden: its telemetry also reads `status: measured`, 0 activations, so it happens
+   to agree — which is not why it is excluded. It is excluded because it is an incomplete run
+   created by an operator error, and that reason is independent of its outcome.
+
+**The fix is L2 and it executes.** `run-deliberate-failure.sh` now refuses with exit 4 when its
+manifest already exists, and the refusal was **observed**, not asserted:
+
+```
+run-deliberate-failure: REFUSING. …/deliberate-failure/manifest.txt already exists:
+  run_id: 81899960-386e-40eb-abf7-00c1cfa8f2ca
+  …
+run-deliberate-failure: a duplicate benchmark run is evidence you cannot delete.
+exit=4
+```
+
+The call was also removed from `run-all.sh`, so the chain does not depend on that guard firing.
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*

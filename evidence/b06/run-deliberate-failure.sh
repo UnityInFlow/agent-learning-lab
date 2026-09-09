@@ -13,6 +13,17 @@ OVL="$EVID/overlay"
 rm -rf "$OVL"; mkdir -p "$OVL/.claude/skills/testing-and-verification"
 cp "$LAB/build/customizations/skill-v1.1-misdescribed/.claude/skills/testing-and-verification/SKILL.md" \
    "$OVL/.claude/skills/testing-and-verification/SKILL.md"
+# REFUSE TO RE-RUN. This script writes its log with `>` and its manifest at the end, so a second
+# invocation TRUNCATES the first run's log before the first byte of the second run exists. That
+# happened on 2026-09-09: run-all.sh was relaunched to restart the batches and re-entered this
+# step, overwriting 81899960's log with a1957950's and spending a duplicate run. Both facts are
+# recorded in E-012; this guard is so the next caller cannot repeat it.
+if [[ -f "$EVID/manifest.txt" && "${B6_DF_FORCE:-0}" != "1" ]]; then
+  echo "run-deliberate-failure: REFUSING. $EVID/manifest.txt already exists:" >&2
+  sed 's/^/  /' "$EVID/manifest.txt" >&2
+  echo "run-deliberate-failure: a duplicate benchmark run is evidence you cannot delete." >&2
+  exit 4
+fi
 log="$EVID/run.log"
 ( cd "$OBS" && make run-benchmark RUNTIME=claude BENCHMARK=BE-003 \
     EXPERIMENT=EXP-B6-DELIBERATE-FAILURE MODEL=claude-haiku-4-5-20251001 \

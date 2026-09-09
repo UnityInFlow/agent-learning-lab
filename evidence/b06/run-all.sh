@@ -8,8 +8,10 @@ cd "/Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-l
 echo "=== waiting for the selection-rate probe to finish ==="
 until grep -q "SELECTION RATE DONE" evidence/b06/selection-rate.out 2>/dev/null; do sleep 20; done
 
-echo "=== §4 step 9, the deliberate failure (1 run) ==="
-./evidence/b06/run-deliberate-failure.sh || echo "deliberate failure runner exited $?"
+# §4 step 9 IS DONE (run 81899960, 0 activations) and is NOT re-entered here. Re-running it from
+# this chain on 2026-09-09 truncated the original run's log and spent a duplicate; the guard now
+# lives in run-deliberate-failure.sh itself, and this call is removed as well so the chain cannot
+# depend on that guard firing.
 
 echo "=== §4 step 6, BE-003 batch, n=10 per arm ==="
 BENCHMARK=BE-003 EXPERIMENT_KEY=EXP-B6-SKILL-BE003 ./evidence/b06/run-b6-batch.sh
