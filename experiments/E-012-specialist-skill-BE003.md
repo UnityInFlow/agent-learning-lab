@@ -281,3 +281,59 @@ yet — so revising it before the batch is legitimate, must be disclosed, and mu
 ## Decision
 
 <!-- filled at step 10 -->
+
+---
+
+## Amendment — 2026-09-09, §4 step 5 second attempt
+
+*Additive. Nothing above is rewritten; the reasoning recorded at the first attempt stays as it
+was recorded, including the part this amendment corrects.*
+
+### The correction: two blockers, not one
+
+The section above concludes **"the agent's tool list is not the cause."** That is too strong, and
+the evidence that makes it too strong was already on disk when it was written:
+
+| Fact | Where | What it means |
+|---|---|---|
+| treated arm `init` read-back is `delivered n=4 ["Read","Edit","Write","Bash"]` | `evidence/b06/preflight/init-schema/init-schema-fbe8c643-470f-4792-820e-d73f210f92af.txt` | the agent has **no `Skill` tool**, so it cannot invoke a skill at all |
+| skill-alone probe `2e972b72`, full 29-tool pool, `Skill` present | `evidence/b06/probe-skill-only/` | the skill is **also** not selected where nothing could stop it being selected |
+
+Those are **two independent blockers**, and both are present in the registered treated arm. The
+probe refutes *"the tool list is the only cause"*; it does not refute *"the tool list is a cause"*,
+and for the registered arms the tool list is **sufficient on its own**. The practical consequence
+decides this stop: **revising the description alone cannot make the registered treatment activate**,
+because the agent that carries it has no `Skill` tool. Stop 9 measured exactly this — `tools:`
+filters names — and `phases-v1.0` is a measured version that §6 forbids editing.
+
+*Correction found and recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09, on re-entry.*
+
+### The revision, disclosed before any registered run
+
+No run of the registered batch has happened, so the description may still move; it must be
+disclosed and must carry a new hash.
+
+| | v1.0 | v1.1 |
+|---|---|---|
+| Overlay | `build/customizations/skill-v1.0-testing/` | `build/customizations/skill-v1.1-testing/` |
+| `SKILL.md` sha256 | `0876025fa451af5f1f2970da67a02f0d` | **`7bea904863fb79a544ee2068cb2f0f43`** |
+| Body | 675 words | **byte-identical** — `diff` over the file minus line 3 is clean |
+| Agent file | `b3450564b6f32d61` | **unchanged**, `diff -q` clean |
+| Description | *"How to write and verify tests for a backend change in this Kotlin Spring service…  Use when adding or changing tests for a controller or service endpoint."* | *"Conventions for confirming a shipment and cancelling an order in this Kotlin Spring backend — controller and service structure, state transitions, and how the resulting state is verified. Use when changing shipment confirmation or order cancellation logic."* |
+
+**Only line 3 moved**, from a *cross-cutting technique* to *the task's domain*, in the exact shape
+of `skill-v0.2`, whose description activated **5 of 5** in [E-004](E-004-skill-description.md). One
+description serves both tasks because one skill serves both experiments (author decision 9 keeps
+the experiments separate, not the artifact).
+
+### The two probes, and what each one can decide
+
+| Probe | Configuration | `Skill` in the pool? | What it tests |
+|---|---|---|---|
+| **A** `EXP-B6-SKILL-DELIVERY-PROBE-V11` | skill alone, **no agent**, full 29-tool pool | yes | **the description** — E-004's mechanism, in the only configuration where activation is possible |
+| **B** `EXP-B6-SKILL-BE003-PREFLIGHT-V11` | agent + skill, the registered treated arm | **no** | whether the tool list is decisive even with a description that names the domain |
+
+Script: `evidence/b06/run-probe-v1.1.sh` (ShellCheck clean). Manifest and logs:
+`evidence/b06/probe-v1.1/`. Both keys are probe keys and **enter no `n`**.
+
+<!-- results filled below, after the probes -->
