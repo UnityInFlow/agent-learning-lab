@@ -289,7 +289,7 @@ reading.
    discrimination decision 9 bought it for, and that is reported at stop 12 rather than deferred to
    B7 — see P8.
 
-7. **The treated arm is delivered four tool names and the control twenty-nine, and the difference
+9. **The treated arm is delivered four tool names and the control twenty-nine, and the difference
    was found by this stop's own §4 step 5 preflight rather than registered before it.** *Added
    2026-09-09, before the first batch run, by Opus 5 (claude-opus-5), autonomously.* The treatment
    is the six-phase procedure **bundled with** the agent definition's `tools:` line, because that is
@@ -643,7 +643,12 @@ was re-run — the DNS outage that cost BE-003 four runs had cleared before this
 
 **P1 held, 10 of 10 against 0 of 10.** The declared four tools were delivered as four on every run,
 so E-005's runtime rewrite did not recur here either — and no treated run *could* delegate, because
-`Task` was not among them. Threat 7 is closed mechanically on this task as it was on BE-003.
+`Task` was not among them. Threat 7 is closed on this task two ways, not one. **Mechanically:** no treated run *could*
+delegate. **And by measurement, which the §4a review was right to ask for separately:**
+`check-phase-contract.py` counts `delegating_calls` on every run, and it is **0 on all 10
+controls as well as all 10 treated runs** — the control was handed `Task` and never used it. On
+BE-003 the same count was 1 control run in 10. **Across both tasks the control delegated once in
+forty runs**, so the confound is bounded by observation rather than by argument.
 
 ### The phase contract — P2, P3, P4
 
@@ -913,3 +918,94 @@ evidence, not carried across from it.**
   other three are not.
 
 *Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
+
+## §4a review — 15 findings, and the two that land hardest are conceded
+
+Reviewed with `./tools/opencode-review.sh -P codex,deepseek-v4-pro` on this file **and** on
+`benchmark/rubrics/backend-quality-be004.yaml`, because §4a asks two families for anything that is
+a registered variable. Findings file:
+`findings/opencode/review-E-011-workflow-phases-BE004-20260909T135452Z.md`.
+
+**The acceptance gate did not run** — `opencode exit 1` on the acceptance pass, which §4a classes
+as **infrastructure to discard**, not as a verdict. The codex family's 15 line-level findings
+completed and are answered below; the deepseek family failed with `rc = 1` on the same pass.
+**There is therefore no `ACCEPT` on this artifact, and this section does not claim one.**
+
+### Conceded — finding 2, and it is the sharpest thing in the review
+
+> *"one thing changes" is false as delivered — the treated arm gets 4 tools, the control 29,
+> including `Task`.*
+
+**True, and it is a confound this file did not name plainly enough.** The treatment is an agent
+definition, and an agent definition carries a `tools:` line; delivering it therefore changes **two**
+things at once — the six-phase procedure *and* the size of the tool pool. Threat 9 (renumbered
+below) names the delegation half of this; it does not name the general form.
+
+**What bounds it, measured rather than argued:** `delegating_calls` is **0 on all 20 BE-004 runs**
+and was 1 in 10 controls on BE-003 — **one delegation in forty control runs across both tasks**. So
+the largest capability the extra 25 tools confer was exercised once in forty opportunities, and the
+cost and turn differences cannot be attributed to it on this evidence. **That bounds the confound;
+it does not remove it**, and the clean design that would remove it is a treated arm whose `tools:`
+line matches the control's pool. **That is a new arm, so it is the author's under §7, and it is
+recorded here rather than run.**
+
+### Conceded and deliberately not fixed — finding 3, because fixing it would break the sheets
+
+> *the rubric file's own header still says `DRAFT, UNPROVEN` while this file calls the rubric proved.*
+
+**The contradiction is real and the finding is correct.** `benchmark/rubrics/backend-quality-be004.yaml`
+line 1 reads *"BE-004 backend quality rubric — DRAFT, UNPROVEN"*, and §4 step 4 above records the
+proof that retired that status.
+
+**It is not edited, and the reason is §6.** The rubric sha is a **registered variable**: `6252778b8472`
+is written into this experiment's Controlled variables and stamped in the provenance header of all
+**20** codex sheets. Editing a single comment character changes the sha, and every sheet would then
+cite a rubric that no longer exists — which is the one failure this project cannot recover from,
+because a sheet is not re-derivable without the exact file that produced it.
+
+**So the header line is stale rather than authoritative, and it is recorded as stale here.** The
+proof of record is §4 step 4 of this file and the six codex sheets it cites. **Re-heading the rubric
+means minting a new sha, which is a registered-variable change — the author's call, not a
+tidy-up**, and it should happen between stops rather than inside one.
+
+### Answered — findings 6, 10 and 15, the row-4-vs-row-7 ambiguity
+
+The review is right that *"nothing improved"* is undefined and that the same data can be read into
+row 4 (`NOT DETECTABLE`) or row 7 (`INCONCLUSIVE`). **The identical objection was raised against
+[E-010](E-010-workflow-phases-BE003.md) and is resolved the same way, from the row's own gloss:**
+row 4 reads *"followed, and costing nothing this `n` resolves"* — the clause names **cost**, and
+cost is what moved (−9.9 %, with quartiles that separate and 9 of 10 treated runs below the control
+median). A row whose gloss names cost cannot be read to mean quality when the cost moved.
+
+**The rule is not edited.** The ambiguity is a defect in the rule as written, it is recorded, and
+the repair belongs in the *next* experiment's registration — which should state, before its run,
+which outcomes count as "improved".
+
+### Answered — findings 1 and 4, P7's two numbers
+
+They are two different clauses on two different axes, and the review is right that the file lets
+them read as one. **P7 is the registered ceiling: `test-quality` anchor 2 ≤ 3 of 10 in the treated
+arm, an absolute count that does not reference the control.** Observed: 3 of 10 — it holds, at its
+boundary. **Row 4b's ≥ 7 of 10 is a separate trigger on a separate axis**, and it fires an amendment
+to E-007 rather than deciding this experiment. Nothing between 4 and 6 makes P7 "refuted"; P7 is
+refuted only by 4 or more, and the `not ≥ 5` clause is a stricter statement about what would count
+as the split's number. Both are quoted verbatim above and neither is edited.
+
+### Fixed
+
+| # | Fix |
+|---|---|
+| 7 — two threats both numbered 7 | renumbered; the tool-list confound is now threat **9** |
+| 9 — "threat 7 closed mechanically" only proves `Task` was *available* | the section now cites the measured `delegating_calls`: **0 on all 20 BE-004 runs**, 1 in 10 BE-003 controls |
+
+### Recorded, not fixed
+
+Findings **5** (the scope of "excluded" for a telemetry failure), **8** (the fixture proof is
+verifiable from the grid only together with the diffs), and **11–14** (four places where the
+rubric's anchor language is decidable by a careful reader but not *uniquely* decidable) are all
+about wording in files whose shas are registered — the rubric for 11–14, the pre-run registration
+sections for 5 and 8. **Every one of them is a real ambiguity and none can be repaired without
+either changing a registered sha or editing a prediction after its run.** They are carried to the
+next registration, which is where §4 step 12 says such repairs belong.
+
+*Reviewed and answered by Opus 5 (claude-opus-5), autonomous, 2026-09-09.*
