@@ -13,6 +13,39 @@ loop_step: 6   # STEP 5 IS COMPLETE ON BOTH TASKS AND THE BE-003 BATCH IS RUNNIN
 # SUPERSEDED, kept not deleted: loop_step: 7   # §4 STEP 7 HALTED PART-WAY 2026-09-06T13:2xZ. THE GATE HALF IS COMPLETE AND API-INDEPENDENT: check-run-gate.sh on each run's on-disk evaluation.json gives 20 ADMITTED, 0 REFUSED. THE SCORING HALF IS BLOCKED: no run records, so no codex sheets, so no O7. The hand re-read REQUIRED BEFORE ANY SHEET IS OPENED IS DONE AND COMMITTED (5f1b83d, run 207ff23d, maintainability = 0 with path:line reasoning), so whenever scoring becomes possible the ordering discipline is already satisfied and must not be redone.
 branch: stop12/b5-workflow-phases (agent-learning-lab) - PUSHED THROUGH 42bc6ca, UNMERGED, no PR yet (§4 step 14 opens it when the stop closes). Eight commits: 1031a99 (steps 1-2), 5777b07 (step 3 BE-003), ccd5c0c (step 3 BE-004), 4ac421e (state), f99e92f (§0a preflight artifacts), 42bc6ca (state), c42120b (step 4 BE-004: rubric port + predicted directions), bebe06d (step 4 BE-003: build re-verified). PREVIOUS: stop11/disclose-direct-push.
 in_flight:   # NOTHING RUNNING, NOTHING SCORING, NO BATCH STARTED. What is `in flight` is the UNMERGED BRANCH stop12/b5-workflow-phases and nothing else. Newest first.
+  - "SESSION HANDOVER BY KILL, 2026-09-09T08:28Z, AT THE AUTHOR`S EXPLICIT DIRECTION, AND IT IS
+    RECORDED HERE BECAUSE IT IS THE KIND OF EVENT A LATER READER WOULD OTHERWISE RECONSTRUCT WRONG.
+    TWO BUILDERS WERE LIVE AT ONCE. The author started an INTERACTIVE Opus 5 session at
+    2026-09-09T07:2xZ with the §0-§8 prompt plus `continue in this same session instead of ending
+    your turn`, WHILE `./run-track-b.sh` (pid 75012, STOP_AFTER=19, started 07:12:52Z, holding
+    .track-b.lock) was already driving PRINT-MODE builder sessions on the same branch. The lock
+    guards driver-against-driver and DOES NOT SEE an interactive session, so nothing refused. The
+    interactive session detected the collision from `pgrep` BEFORE its first edit - the driver`s
+    session 2 (claude pid 28752, started 07:27:50Z) was live at §0a preflight row 2 with its
+    opencode children - and asked the author rather than proceeding, because both assumptions were
+    unsafe: a duplicate benchmark run is evidence that cannot be deleted (§0). THE AUTHOR CHOSE
+    `this session - kill the driver`. Killed at 08:28Z: 75012, 75014 (its caffeinate), 28752 (the
+    print-mode builder) and four orphaned opencode processes; .track-b.lock released by the
+    script`s own EXIT trap and verified gone.
+    WHAT SURVIVED, AND THIS IS THE PART THAT MATTERS: the BE-003 batch. `run-b5-batch.sh` (pid
+    44140) runs DETACHED under its own caffeinate (44143), so it did not die with the session that
+    launched it. At the kill it was mid-pair-08 of 10 and it kept running. IT WAS NOT RESTARTED AND
+    MUST NOT BE: seven complete pairs plus 08-treated were already on disk in
+    evidence/b05/batch-BE-003-20260909T075939Z/, evidence/b05/.batch.lock still held pid 44140, and
+    §0 forbids re-running a benchmark run that cannot be proved to have failed to start.
+    WHAT THE KILL COST: the print-mode builder`s own §0a preflight (row 2, an opencode review of
+    templates/run-record.yaml, ~1 min in) was aborted mid-flight. That row is already `ok` from the
+    07:15:16Z block below and its findings file
+    findings/opencode/review-run-record-20260909T071516Z.md is on disk; the aborted second review
+    left findings/opencode/review-run-record-20260909T072932Z.md, WHICH IS A KILLED RUN AND NOT A
+    RESULT - do not read it as a review, and do not count it as a preflight row. Nothing else was
+    in flight: the tree was clean apart from the batch directory and its lock.
+    ONE HONEST GAP: between 07:29Z and 08:28Z the interactive session was BLOCKED on the author`s
+    answer while the print-mode builder kept working, so commits ef75112 through 0d15ec6 (the
+    BE-004 rubric proof, step 5`s preflight pair, the batch driver and its eleven fixture cases,
+    and the batch launch) were made by THE SESSION I THEN KILLED, not by the session writing this
+    line. They are on the branch, they are its work, and I have re-read this state file rather than
+    my own memory of it. From 08:28Z there is ONE builder."
   - "SESSION OF 2026-09-09T07:0x-08:0xZ, CLAUDE OPUS 5, autonomous, started by the author with an explicit
     instruction to run §0 through §8 and IGNORE §9. It found the state file saying `stop 12 NOT OPENED,
     loop_step 0` and the DISK saying otherwise: branch stop12/b5-workflow-phases already carried 1031a99
