@@ -237,7 +237,7 @@ the one place this project has been wrong most often.
 |---|---|---|
 | `.claude/settings.json` + `.ai/hooks/policy-gate.sh` — `PreToolUse` on `Edit`/`Write`, denying paths listed in the policy | **L2** | Can the bad value still be written down after the fix? **Yes** — the path exists and the model may still attempt it. So not L1. Does something *execute* and reject it? **Yes, and it is named and proved**: the hook process, exit `2`, measured in probe 2 with the file unchanged afterwards |
 | `.ai/policies/protected-paths.yaml` | **L3 on its own, L2 only through the hook that reads it** | A YAML file executes nothing. It is data. Its layer is borrowed from the thing that runs it, and if the hook stops reading it the file silently becomes a document — which is exactly the "schema note is L3" rule in the workspace `CLAUDE.md` |
-| `.ai/scripts/verify.sh` — one entry point, one exit code, stage-structured JSON | **L2 as an instrument; L3 as a claim about the agent** | It executes and returns a machine-readable verdict, so as a check it is L2. But it changes nothing the agent does at this step (see below), so any sentence of the form *"the agent now verifies deterministically"* is L3 until B8 makes the verdict blocking |
+| `tools/verify-sh.sh` — one entry point, one exit code, stage-structured JSON, run by the harness over each kept worktree | **L2 as an instrument; L3 as a claim about the agent** | It executes and returns a machine-readable verdict, so as a check it is L2. But it changes nothing the agent does at this step (see below), so any sentence of the form *"the agent now verifies deterministically"* is L3 until B8 makes the verdict blocking. **It is deliberately not in the overlay** |
 | `tools/verify-policy-gate.sh`, `tools/verify-verify-sh.sh` — fixture sets | **L2** | They execute and they fail the build when a case regresses. Without them the two artifacts above are "ShellCheck clean with nine green fixtures", which this project has already shipped a blocking defect behind |
 | `allowed-dependencies.yaml`, `command-policy.yaml`, `database-policy.yaml` | **not built** | 0 of 499, 0 of 499 (and Bash is already an allowlist), and the service has no migrations. §10.10's *"only after a concrete enforcement requirement appears"* |
 
@@ -247,11 +247,12 @@ something counts. The census is the counting, and it converts the trap at **L2**
 `0 of 325` is produced by a script over the store, not by a judgement, and it is what refuses three
 of the four policy files.
 
-### The one design decision that is mine, and it is reversible
+### The one design decision that is mine, and it changed once before any prediction was written
 
-**`verify.sh` is invoked by a `Stop` hook that RECORDS its verdict and does not block.**
+**`verify.sh` is invoked by the batch harness over the kept worktree, on every run of both arms.
+It is not in the overlay, not a `Stop` hook, and not something the agent runs.**
 
-Three things forced it and one bounded it:
+Three things forced it away from the obvious route:
 
 1. **The agent cannot invoke it.** `run-agent.sh:761` pre-approves `Bash(./mvnw:*)` and
    `Bash(mvn:*)` and nothing else, so `./verify.sh` would be refused by Claude Code's own approval
@@ -260,19 +261,28 @@ Three things forced it and one bounded it:
    mode, one stop after the lab that named it.
 2. **Moving `--allowedTools` is not available.** It is constant from B2 on, the B2 baseline cannot
    be re-run, and §6 forbids moving a registered variable mid-experiment.
-3. **A `Stop` hook needs no permission** — the runtime executes it — so it is the only route by
-   which a deterministic verification command actually runs on every run.
-4. **It does not block, and that boundary is deliberate.** A `Stop` hook exiting `2` would refuse
+3. **A blocking `Stop` hook is B8's deliverable, not this step's.** A `Stop` hook exiting `2` refuses
    completion until verification passes, which is a **completion contract with an unbounded repair
-   loop**. The contract and the *limit* on that loop are B8's deliverable (`build/README.md#b8`), and
-   §6 forbids creating a future step's artifacts early. Blocking it here would also confound B7's
-   measurement with a repair loop, so the two questions would arrive fused.
+   loop**; the contract and the *limit* on that loop are `build/README.md#b8`, and §6 forbids
+   creating a future step's artifacts early.
+
+**And then I changed my own answer, which is recorded rather than tidied.** The first version of this
+section put `verify.sh` in the overlay behind a **non-blocking** `Stop` hook, so that it would at
+least run inside every treated run. That is wrong for a reason that only shows up when you cost it:
+`verify.sh` runs `./mvnw test`, which on this service is **60–90 s**, so a `Stop` hook would have
+added that to every treated run and to no control run — **inflating the treated arm's duration by
+roughly the size of the effect being looked for**, for a check that by construction changes nothing
+the model does. It would have confounded a registered outcome to no purpose. Running it outside the
+run, over the kept worktree, on **both** arms, gives the same verdict with none of that.
 
 **Consequence, stated plainly rather than buried:** at B7 `verify.sh` changes nothing the model sees.
-The only artifact in this step that can move a number is the policy gate. Whether the recorded
-verdict *should* become blocking is B8's first question, and this step is what hands it the data.
+It is an instrument. **The only artifact in this step that can move a number is the policy gate.**
+Whether `verify.sh`'s verdict *should* become blocking is B8's first question, and this step is what
+hands it the data to answer it.
 
-*Designed by Opus 5 (claude-opus-5), autonomous, 2026-09-10, from the census and the probe above.*
+*Designed by Opus 5 (claude-opus-5), autonomous, 2026-09-10, from the census and the probe above.
+The `Stop`-hook route was written, costed and rejected in the same sitting, before any prediction
+existed; the paragraph above is the record of that rather than a tidy final answer.*
 
 ## Build
 
