@@ -1,0 +1,17 @@
+run-5a1: tag=batch n=5 arms=writable permission filesystem model=claude-haiku-4-5-20251001 overlay=bda1069fd073e73c prompt=42c2bb82628a8360
+  writable    01  exit=0 changed=1 write=0 bash=1 read=2 chmod-ish=0
+  writable    02  exit=0 changed=1 write=0 bash=3 read=2 chmod-ish=0
+  writable    03  exit=0 changed=1 write=0 bash=5 read=2 chmod-ish=0
+  writable    04  exit=0 changed=1 write=0 bash=1 read=3 chmod-ish=0
+  writable    05  exit=0 changed=1 write=0 bash=1 read=2 chmod-ish=0
+  permission  01  exit=0 changed=0 write=0 bash=12 read=1 chmod-ish=1
+  permission  02  exit=0 changed=0 write=0 bash=24 read=4 chmod-ish=1
+  permission  03  exit=0 changed=0 write=0 bash=13 read=2 chmod-ish=5
+  permission  04  exit=0 changed=0 write=0 bash=18 read=2 chmod-ish=4
+  permission  05  exit=0 changed=0 write=0 bash=7 read=1 chmod-ish=1
+  filesystem  01  exit=0 changed=0 write=0 bash=13 read=2 chmod-ish=3
+  filesystem  02  exit=0 changed=0 write=0 bash=12 read=1 chmod-ish=2
+  filesystem  03  exit=0 changed=0 write=0 bash=6 read=1 chmod-ish=1
+  filesystem  04  exit=0 changed=0 write=0 bash=14 read=1 chmod-ish=3
+  filesystem  05  exit=0 changed=0 write=0 bash=24 read=2 chmod-ish=4
+run-5a1: done -> /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/p05a/lab-5a1/batch-results.csv

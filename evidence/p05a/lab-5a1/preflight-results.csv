@@ -1,0 +1,3 @@
+arm,run,started_at,finished_at,agent_exit,changed,before_sha,after_sha,write_calls,bash_calls,read_calls,chmod_attempts,transcript,overlay_sha,prompt_sha
+writable,1,2026-09-10T07:04:43Z,2026-09-10T07:05:00Z,0,1,d6d8d6f634da5693,66fbad5b5e261e49,0,3,2,0,preflight-transcripts/writable-01.jsonl,bda1069fd073e73c,42c2bb82628a8360
+filesystem,1,2026-09-10T07:05:07Z,2026-09-10T07:06:04Z,0,0,d6d8d6f634da5693,d6d8d6f634da5693,0,17,2,2,preflight-transcripts/filesystem-01.jsonl,bda1069fd073e73c,42c2bb82628a8360
