@@ -225,6 +225,10 @@ validation_processed:
     each was re-derived by grep at its cited line. 8.4 WAS STILL OWED AND IS NOW APPLIED, additively and
     dated, in BOTH files it names: findings/track-b-2026-09-04.md (amendment after line 21) and the
     workspace ../CLAUDE.md (parenthetical after the `at both the root and the nested path` sentence).
+    NOTE FOR A VALIDATOR, so nobody hunts for a commit that cannot exist: the WORKSPACE ROOT IS NOT A
+    GIT REPOSITORY (`git -C .. rev-parse --is-inside-work-tree` -> `fatal: not a git repository`), so the
+    ../CLAUDE.md half of 8.4 is ON DISK AND UNVERSIONED BY CONSTRUCTION. Only the
+    findings/track-b-2026-09-04.md half is in a commit (c781c23).
     The correction: `6 of 6 / 0 of 6` is POOLED; the both-paths half is `n = 3` PER CELL, and §5 forbids
     stating an `n < 5` result as a property. The flag headline itself is pooled and is untouched.
     Also disclosed by 8.4 and now carried into both amendments: author decision 1 asked for that probe at
