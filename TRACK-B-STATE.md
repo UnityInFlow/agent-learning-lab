@@ -558,6 +558,57 @@ blocked_on_author_history:
   - "SQUASH MERGES HAVE ORPHANED EVERY PREDICTION COMMIT IN THIS TRACK - all eleven. On main, `git log -- experiments/E-002-isolation-contamination.md` shows only the squash 27d67e5 at 19:07Z, SIX HOURS AFTER the runs it was supposed to precede. B3's nine commits are the same. So the prediction-precedes-run guarantee - the track's most-cited - CANNOT BE RE-DERIVED BY A STRANGER cloning the repo, and by the §9 validator's layer correction it is L3 as well. The fix is a repo-convention change and §7 reserves those for the author: merge commits for stop branches instead of squashes, or a pre-push check that refuses a workbook citing a sha main cannot reach. Raised by findings/track-b-validation-2026-09-04.md"
 codex_quota: "exhausted 2026-09-05T19:19:42Z (first refusal seen this session, on the review route; scoring route refused at 19:20:00Z and 19:25:28Z), reset `try again at 11:05 PM` local = 2026-09-05T21:05Z. §4c step 1 recorded. §4c step 2 (score waiting runs with opencode-score) CANNOT run either - ollama-cloud is at its WEEKLY limit (line below), so the fallback scorer is also out. Nothing at stop 11 needs a score before boundary 1. If codex is still refused after 21:05Z plus one retry, the 12-hour clock for Decision H starts from 19:19:42Z, i.e. 2026-09-06T07:19Z - and Decision H would need ollama-cloud back too, which no one has a reset time for."
 opencode_quota: "LIFTED, and the discovery is this session`s only real finding. RECORD OF THE OUTAGE KEPT VERBATIM BELOW because it is what the sheets were owed against. NEW STATE 2026-09-07: the WEEKLY limit that refused ollama-cloud from 2026-09-05T18:06Z through the 2026-09-06T20:5xZ preflight is GONE. FOUND BY THE PREFLIGHT, NOT BY GUESSING: §0a row 2 ran the DEFAULT review panel (ollama-cloud/glm-5.2 + minimax-m3) and got findings/opencode/review-run-record-20260907T072723Z.md at 14 534 BYTES WITH 12 FINDING SECTIONS, where the same command the day before produced a 903-byte header-only STALL with 0 sections. THE SCORING ROUTE WAS THEN PROVED SEPARATELY rather than inferred from the review route - they are different opencode entry points and one working does not imply the other: one sheet on e8d881b9 at 07:38:50Z, FOUR CATEGORIES, ZERO NULLS, rubric_sha 396e1799eb2b. ALL 34 OWED SHEETS WERE THEN PRODUCED (13 + 20 + the e8d881b9 probe; one, abd08a80, exited 2 on an opencode external_directory permission auto-reject and was retried once, both files kept). SUPERSEDED TEXT, KEPT: EXHAUSTED 2026-09-05T18:06-18:08Z, `Error: you (hermannjirka15) have reached your weekly usage limit` from ollama-cloud; two header-only sheets kept and labelled as stall artefacts; Decision C makes codex the REGISTERED scorer and opencode the SECOND READER, so this never blocked an exit gate and was never a §7 halt."
+preflight_20260910_1941:  # §0a RUN AGAIN 2026-09-10T19:38-19:41Z, on the author`s RE-ISSUED instruction
+            # ("starting with the section 0a preflight"), while THE REGISTERED BATCH IS STILL LIVE (pid
+            # 72988, BE-004 half). THE TABLE IS SPLIT RATHER THAN SKIPPED OR BLANKET-RUN, and the split
+            # is the decision: three rows cost the batch nothing and were RUN NOW; three rows spawn a
+            # COMPETING AGENT PROCESS or touch the OBSERVATORY STACK THE BATCH IS WRITING TO, and are
+            # DEFERRED UNTIL pid 72988 EXITS. §0a says a row you did not run is `unproven`, not `ok`, so
+            # the deferred three are recorded as unproven BY NAME and are not claimed. The full table
+            # DID pass in full at 18:36-18:41Z, ninety seconds before this batch launched; that block is
+            # below and is not superseded by this one. Decided by Opus 5 (claude-opus-5), autonomous,
+            # 2026-09-10.
+  hook_script: "ok - 19 of 19 cases, rc 0 CAPTURED. `opencode-review.test: all 19 cases behaved as
+    specified.` The prompt`s table still says `16 of 16`; the fixture set has grown to 19 and §1 says the
+    files win. NOT a failing row."
+  validators: "ok - all four run SEPARATELY, never chained, each rc CAPTURED: verify-run-gate-checker
+    13 of 13 rc 0, verify-sheet-category-checker 11 of 11 rc 0, verify-run-record-validator 12 of 12 rc 0,
+    verify-model-output-classifier 16 of 16 rc 0. RE-DERIVED BY HAND, not taken from the subagent: I
+    re-ran verify-sheet-category-checker.sh MYSELF at 19:4xZ - rc 0, `all 11 cases behaved as specified`,
+    11 case lines - because the house rule is that a check going green is re-verified in one of its cases
+    before it is trusted."
+  board_check: "FAIL AS REPORTED, rc 1, AND I RE-DERIVED IT MYSELF rather than quoting the subagent. Both
+    boards STALE for ONE reason, printed by the checker: `marker says prose 32590f81db10, but HANDOFF.md
+    hashes to 5674bb967e6c - the prose actually changed`. This is the EXPECTED consequence of the stop-15
+    HANDOFF edit, and the 09:28Z driver block predicted it in those words (`ok ... before this commit`s
+    HANDOFF edit, which turns it red`). THE REPUBLISH IS §4 STEP 14`s JOB, which is after the batch, the
+    scoring and the PR - republishing now would publish a HANDOFF that does not yet describe this stop`s
+    result. NOT A HALT and NOT in blocked_on_author: no §7 bullet matches a board that is honestly
+    reporting itself out of date."
+  review_harness: "unproven - DEFERRED UNTIL THE BATCH EXITS, deliberately. This row launches a live
+    `opencode run`, and the EXCLUDED 13:23Z batch`s own EXCLUSIONS.md names a concurrent `opencode run`
+    from another project among its contaminants. The 18:36Z block already discloses that its opencode call
+    overlapped THIS batch`s first run by under a minute. Spending that contaminant a second time, on
+    purpose, to re-confirm a row that returned rc 0 and a 188-line findings file an hour ago, would trade a
+    live $6 measurement for a duplicate. It is owed again before the PR anyway, as §4a rounds."
+  isolation: "unproven - DEFERRED UNTIL THE BATCH EXITS. Both halves spawn a competing process: the claude
+    half IS a `claude` run, and verify-codex-isolation.sh took 2m38s of CPU when the driver ran it at
+    09:2xZ. The codex half was ok at 18:3xZ, rc 0, all three checks holding, codex-cli 0.147.0."
+  codex_harness: "unproven - DEFERRED UNTIL THE BATCH EXITS, and this one is the WEAKEST of the three
+    deferrals and is labelled as such: a codex scoring call is API-bound and costs this machine little.
+    It is deferred only to keep the rule simple and checkable - NOTHING THAT SPAWNS A COMPETING AGENT
+    PROCESS OR TOUCHES THE OBSERVATORY STACK RUNS WHILE THE BATCH IS LIVE. It was ok at 18:38Z: rc 0,
+    findings/codex/score-good-nested-ifs-20260910T183856Z.yaml, all four categories present, no usage-limit
+    message, so CODEX IS UP and no Decision H clock is running."
+  observatory_stack: "unproven - DEFERRED UNTIL THE BATCH EXITS, and this is the row the split exists for.
+    `make smoke` exercises the SAME API the batch is writing every run record to. Running it beside a live
+    batch risks contaminating the thing being measured to test the instrument measuring it. THE ONLY CLAIM
+    MADE HERE IS THE ONE THE BATCH ITSELF PROVES: 24 runs so far have each recorded successfully against
+    the API at 127.0.0.1:18081, which is stronger evidence that the API is up than a smoke row would be."
+  hook_wiring: "unchanged - unproven in print mode; nothing was pushed at this row`s time."
+  processes_after: "checked 19:41Z - no opencode, no codex, no stray run-agent outside the batch`s own
+    tree; the only live agent processes are pid 72988 and the run it currently owns."
+
 preflight:  # §0a RUN IN FULL AGAIN 2026-09-10T18:36-18:41Z, at the AUTHOR`S EXPLICIT INSTRUCTION for this
             # session ("starting with the section 0a preflight"), not because §0a`s own trigger fired.
             # Seven rows delegated to a haiku subagent with exact commands, this machine`s tunnel ports,
