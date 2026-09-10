@@ -4,3 +4,5 @@
 # claude 2.1.267 at launch, model claude-haiku-4-5-20251001
 # prediction commit ea7b1d2 at 2026-09-10T09:51:08Z, BEFORE any run here
 task	seq	arm	run_id	make_rc	evaluator_exit	f13	edits	worktree	agent_hash	settings_tracked	policy_log	policy_lines	model_calls	init_tools
+BE-003	01	treated	f82835ea-5860-4e74-9729-91f0e4118795	0	0	no	3	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f82835ea-5860-4e74-9729-91f0e4118795	sha256:b3450564b6f32d6193e8580db766210e	yes	PRESENT	3	28	n=4 ["Read","Edit","Write","Bash"]/match
+BE-003	01	control	b86fdbd4-1ef8-44e4-9d15-8e1acfbc55d4	0	0	no	5	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b86fdbd4-1ef8-44e4-9d15-8e1acfbc55d4	sha256:b3450564b6f32d6193e8580db766210e	no	ABSENT	0	20	n=4 ["Read","Edit","Write","Bash"]/match
