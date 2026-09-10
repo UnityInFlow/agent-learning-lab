@@ -55,7 +55,7 @@ LAUNCH_CLAUDE="$(claude --version 2>/dev/null | awk '{print $1}')"
   printf '# expected agentHash on BOTH arms: %s\n' "$EXPECT_AGENT_HASH"
   printf '# claude %s at launch, model %s\n' "$LAUNCH_CLAUDE" "$MODEL"
   printf '# prediction commit ea7b1d2 at 2026-09-10T09:51:08Z, BEFORE any run here\n'
-  printf 'task\tarm\trun_id\trc\tworktree\tagent_hash\tpolicy_log\tpolicy_lines\tmodel_calls\tinit_tools\n'
+  printf 'task\tarm\trun_id\tmake_rc\tevaluator_exit\tf13\tedits\tworktree\tagent_hash\tsettings_tracked\tpolicy_log\tpolicy_lines\tmodel_calls\tinit_tools\n'
 } > "$MANIFEST"
 
 api() { curl -s -m 10 "http://127.0.0.1:18081/api/runs/$1" 2>/dev/null; }
@@ -65,24 +65,62 @@ one() {  # one <task> <arm>
   key="EXP-B7-POLICY-$(echo "$task" | tr -d '-')-PREFLIGHT"   # BE-003 -> EXP-B7-POLICY-BE003-PREFLIGHT
   log="$EVID/${task}-${arm}.log"
   echo ""; echo "======== $task $arm  key=$key ========"
-  local -a env=(RUNTIME=claude "BENCHMARK=$task" "EXPERIMENT=$key" "MODEL=$MODEL"
-                ISOLATE_USER_SETTINGS=1 KEEP=1 API_PORT=18081
-                OTLP_HTTP_PORT=14318 OTLP_GRPC_PORT=14317 TEMPO_PORT=13200
-                "INIT_SCHEMA_DIR=$EVID/init-schema")
+  # THESE ARE MAKE COMMAND-LINE VARIABLES, NOT ENVIRONMENT VARIABLES, and the difference is
+  # not cosmetic. The observatory Makefile does `-include infra/.env`, so a variable exported
+  # into the environment loses to the Makefile's own assignment -- while a command-line
+  # variable always wins. Passed as env, API_PORT=18081 was ignored and all four runs died
+  # with "Observatory API not reachable at http://localhost:8081" before any agent started.
+  # No run was consumed and the four refusals stay in the first manifest.
+  local -a mk=(RUNTIME=claude "BENCHMARK=$task" "EXPERIMENT=$key" "MODEL=$MODEL"
+               ISOLATE_USER_SETTINGS=1 KEEP=1 API_PORT=18081
+               OTLP_HTTP_PORT=14318 OTLP_GRPC_PORT=14317 TEMPO_PORT=13200
+               "INIT_SCHEMA_DIR=$EVID/init-schema")
   if [[ "$arm" == treated ]]; then
-    env+=("CUSTOMIZATION=$OVERLAY_T" "AGENT=$AGENT_NAME" VARIANT=verify-v1.0)
+    mk+=("CUSTOMIZATION=$OVERLAY_T" "AGENT=$AGENT_NAME" VARIANT=verify-v1.0)
   else
-    env+=("CUSTOMIZATION=$OVERLAY_C" "AGENT=$AGENT_NAME" VARIANT=phases-v1.0)
+    mk+=("CUSTOMIZATION=$OVERLAY_C" "AGENT=$AGENT_NAME" VARIANT=phases-v1.0)
   fi
-  ( cd "$OBS" && env "${env[@]}" make run-benchmark ) > "$log" 2>&1
+  ( cd "$OBS" && make run-benchmark "${mk[@]}" ) > "$log" 2>&1
   rc=$?
   rid="$(grep -aoE 'run +[0-9a-f-]{36}' "$log" | head -1 | awk '{print $2}')"
   wt="$(grep -aoE '/[^ ]*observatory-run-[0-9a-f-]{36}' "$log" | head -1)"
-  ah="$(api "${rid:-x}" | jq -r '.customization.agentHash // "null"')"
-  mc="$(api "${rid:-x}" | jq -r '.behavior.modelCalls // "null"')"
+  # ONE API READ, not four. Four separate curls can straddle a write and disagree with
+  # each other, which is a race in the instrument rather than a fact about the run.
+  local rec; rec="$(api "${rid:-x}")"
+  ah="$(printf '%s' "$rec" | jq -r '.customization.agentHash // "null"')"
+  mc="$(printf '%s' "$rec" | jq -r '.behavior.modelCalls // "null"')"
+  # THE EVALUATOR'S EXIT CODE, NOT MAKE'S. `rc` above is GNU make's status, which is 2 for
+  # ANY failed recipe -- so a manifest column called `exit` that holds it says "2" whether
+  # the evaluator returned 10, 12 or 21. Every batch manifest in this repo has that shape,
+  # which is why a census over them shows only 0 and 2 and says nothing about violations.
+  # The evaluator's own verdict is in the run record and it is what belongs here.
+  local ev; ev="$(printf '%s' "$rec" | jq -r '.evaluation.exitCode // "null"')"
+  # F13: an api_error run measured the network, not the variant. The runner already says so
+  # in its own output; recording it here means the manifest can be read without the logs.
+  local f13=no; grep -aq '"terminal_reason":"api_error"' "$log" && f13=yes
+  # HOW MANY EDITS WERE EVEN ATTEMPTED. Without this the delivery assertion has a hole: a run
+  # that dies before its first Edit produces NO policy-events.jsonl for a reason that has
+  # nothing to do with whether the hook was installed, and "ABSENT" would read as a failed
+  # treatment. It is INCONCLUSIVE, and only a number can tell the two apart.
+  # -oE piped to wc -l, NOT -c. `grep -c` counts LINES CONTAINING a match, so two Edit calls
+  # on one line count once. They are on separate lines in stream-json today and the two agree
+  # today; a counter that is only right because of the current line-wrapping is a counter that
+  # will be wrong quietly. Verified against a real B5 log with the REAL /usr/bin/grep -- the
+  # `grep` in an interactive shell here is a ugrep wrapper function that a #!/bin/bash script
+  # does not inherit, so testing the wrapper would have proved nothing about this line.
+  local edits; edits="$(/usr/bin/grep -aoE '"name":"(Edit|Write|NotebookEdit)"' "$log" 2>/dev/null | /usr/bin/wc -l | tr -d ' ')"
+  edits="${edits:-0}"
+  # DELIVERY vs EXECUTION, separated. The settings file being TRACKED IN THE SETUP COMMIT is
+  # delivery; the event log is execution. A run with zero edits can prove the first and
+  # cannot prove the second, and conflating them is how an arm gets called void for the
+  # wrong reason.
+  local tracked=no
+  [[ -n "$wt" ]] && git -C "$wt" ls-files --error-unmatch .claude/settings.json >/dev/null 2>&1 && tracked=yes
   pl="ABSENT"; pn=0
   if [[ -n "$wt" && -f "$wt/.ai/policy-events.jsonl" ]]; then
     pl="PRESENT"; pn="$(grep -c . "$wt/.ai/policy-events.jsonl" 2>/dev/null || echo 0)"
+  elif [[ "$edits" -eq 0 ]]; then
+    pl="INCONCLUSIVE-0-edits"
   fi
   # check-init-schema.sh writes a THREE-LINE TEXT report, not JSON:
   #   init-schema: delivered n=4 ["Read","Edit","Write","Bash"]
@@ -97,9 +135,9 @@ one() {  # one <task> <arm>
     it="$(sed -n 's/^init-schema: delivered //p' "$it" | head -1)/$(sed -n 's/^init-schema: verdict=//p' "$it" | head -1)"
     [[ "$it" == "/" ]] && it="UNPARSED"
   else it="NOFILE"; fi
-  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
-    "$task" "$arm" "${rid:-NONE}" "$rc" "${wt:-NONE}" "$ah" "$pl" "$pn" "$mc" "$it" >> "$MANIFEST"
-  echo "  -> ${rid:-NO RUN ID} rc=$rc agentHash=$ah policy_log=$pl($pn lines) modelCalls=$mc"
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$task" "$arm" "${rid:-NONE}" "$rc" "$ev" "$f13" "$edits" "${wt:-NONE}" "$ah" "$tracked" "$pl" "$pn" "$mc" "$it" >> "$MANIFEST"
+  echo "  -> ${rid:-NO RUN ID} make_rc=$rc evaluator=$ev f13=$f13 edits=$edits settings_tracked=$tracked policy_log=$pl($pn) modelCalls=$mc"
   local cv; cv="$(claude --version 2>/dev/null | awk '{print $1}')"
   [[ "$cv" == "$LAUNCH_CLAUDE" ]] || { echo "ABORT: claude moved mid-preflight: $LAUNCH_CLAUDE -> $cv" >&2; exit 9; }
 }

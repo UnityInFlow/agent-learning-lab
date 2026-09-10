@@ -1,0 +1,3 @@
+  stripped terminal CLI shims from PATH — the agent runs the real binary
+run-agent: Observatory API not reachable at http://localhost:8081; run 'make up' first
+make: *** [run-benchmark] Error 1
