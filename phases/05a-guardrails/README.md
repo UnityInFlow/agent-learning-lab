@@ -1,7 +1,7 @@
 # Phase 5A — Guardrails: hooks, policies, and enforcement
 
 **Guardrail layer: L2 — runtime control.** This is where you build them.
-**Status:** ⬜ Not started · **Depends on:** Phase 4A · **Reference:** [`GUARDRAILS.md`](../../GUARDRAILS.md)
+**Status:** 🟨 open — spine stop 14, opened 2026-09-10 · **Depends on:** Phase 4A · **Reference:** [`GUARDRAILS.md`](../../GUARDRAILS.md)
 
 ## Goal
 
