@@ -74,7 +74,9 @@ happens anyway"**.
 
 ### What is BLOCKED ON YOU
 
-**Nothing.** `lab#7` **stays open** by design: Labs 5A.2–5A.7 are deferred, and the spine's stop 14
+**HALT, 2026-09-10 (§7) — two builders on one working tree.** The `run-track-b.sh` session and an interactive Claude Code session (local pid 55645, session `d3122b15-…`, commit trailer `session_01GAnRRhLnQgJnr65WmndHtR`) both re-entered at stop 15; the interactive one committed §4 step 1 as `32d99cc` and kept working. The driver session stopped before touching any stop-15 artifact or starting any run, and set `status: blocked` so the driver does not launch a third. **Yours: choose one builder** — `TRACK-B-STATE.md` `blocked_on_author` says what each choice needs.
+
+*(Superseded by the halt above, kept:)* **Nothing.** `lab#7` **stays open** by design: Labs 5A.2–5A.7 are deferred, and the spine's stop 14
 is 5A.1 alone. The exit-gate items still unanswered are named in the workbook — `preToolUse` vs
 `postToolUse`, fail-open vs fail-closed by choice, repository hooks vs admin policy, **the
 false-positive rate as a number**, and **what the evaluator records when a guardrail blocks a run**
