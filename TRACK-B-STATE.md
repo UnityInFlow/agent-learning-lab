@@ -208,6 +208,51 @@ preflight_20260910_driver:  # §0a RUN 2026-09-10T09:20:48-09:35Z by the DRIVER 
   hook_wiring: "unchanged - unproven in print mode; the driver session pushed nothing."
 
 validation_processed:
+  - "GAP FOUND AND CLOSED 2026-09-10T19:1xZ, and it was a BOOKKEEPING gap, not a work gap - but it was
+    real and nobody had noticed it. 22 findings/track-b-validation-*.md are on disk; only 17 were listed
+    here, and the record jumped from -4 straight to -10. The DRIVER session`s line `all 22 ... none new
+    this session` was WRONG. The five missing files are passes 5, 6, 7, 8 and 9 of 2026-09-04, and NONE
+    of their names appeared anywhere in this file. They are processed below. I did NOT take the summary
+    on trust: correction 8.4 is the one that turned out still to be owed, and I opened
+    findings/track-b-validation-2026-09-04-6.md:465-475 and both target files MYSELF before editing."
+  - "findings/track-b-validation-2026-09-04-5.md (PASS 5, claude-fable-5-1, 17:50Z). Read IN FULL and
+    PROCESSED 2026-09-10T19:1xZ. Stops 4-8 CONFIRMED unchanged; stop 9 `NOT CLOSED` in the sense of NOT
+    YET CLOSED AND NOT CLAIMED CLOSED - it was open when the pass ran and closed later the same day, so
+    this is NOT a §0 reopen trigger. No corrections issued."
+  - "findings/track-b-validation-2026-09-04-6.md (PASS 6, claude-opus-5). Read IN FULL and PROCESSED
+    2026-09-10T19:1xZ. Stop 4 CONFIRMED WITH CORRECTIONS (4.1, 4.2), stop 5 CONFIRMED, stop 6 CWC (6.1),
+    stop 7 CONFIRMED, stop 8 CWC (8.1-8.4). 4.1, 4.2, 6.1, 8.1 and 8.3 were ALREADY APPLIED on disk and
+    each was re-derived by grep at its cited line. 8.4 WAS STILL OWED AND IS NOW APPLIED, additively and
+    dated, in BOTH files it names: findings/track-b-2026-09-04.md (amendment after line 21) and the
+    workspace ../CLAUDE.md (parenthetical after the `at both the root and the nested path` sentence).
+    The correction: `6 of 6 / 0 of 6` is POOLED; the both-paths half is `n = 3` PER CELL, and §5 forbids
+    stating an `n < 5` result as a property. The flag headline itself is pooled and is untouched.
+    Also disclosed by 8.4 and now carried into both amendments: author decision 1 asked for that probe at
+    `n = 5` and it was run at `n = 3` per cell. 8.2 (the rubric anchor-0 gap - identical two-if-guard code
+    scored differently between a stop 6 and a stop 8 cell) is NOT applied and MUST NOT BE: it is a rubric
+    round, and moving a rubric sha mid-track is a §7 halt. It stays an author_notes item, as pass 7 itself
+    labelled it."
+  - "findings/track-b-validation-2026-09-04-7.md (PASS 7, claude-fable-5-1). Read IN FULL and PROCESSED
+    2026-09-10T19:1xZ. Stops 4-7 CONFIRMED unchanged, stop 8 CWC (re-derives three of pass 6`s four and
+    accepts the fourth), stop 9 NOT YET CLOSED as in pass 5. Its only new correction is to ANOTHER
+    VALIDATOR`S FILE - pass 6`s claim that §9`s different-model instruction `has not been honoured once`
+    - and §0 forbids editing a validator`s file, so it is recorded here and nothing was touched."
+  - "findings/track-b-validation-2026-09-04-8.md (PASS 8, claude-opus-5). Read IN FULL and PROCESSED
+    2026-09-10T19:1xZ. Stops 4, 5, 6, 8 CWC; stop 7 CONFIRMED; NO STOP NOT CLOSED - the file says so in
+    those words. Every MUST correction re-derived as ALREADY APPLIED at its cited line: 4.1/6.1 (name the
+    third archived path, `.gitignore`, in the independence check - b02:494-495, b03:363), 5.1 (the L2 row
+    split into an L2 hash claim and an L3 context claim, phases/01-instructions/README.md:269), 8.3 (the
+    `jq` re-derivation needs `.evaluation.exitCode==0` or it returns 16 not 15,
+    phases/03-skills/README.md:661)."
+  - "findings/track-b-validation-2026-09-04-9.md (PASS 9, claude-fable-5-1, 25 KB, read in full). PROCESSED
+    2026-09-10T19:1xZ. Stops 4, 5, 6, 8 CWC; stop 7 CONFIRMED; NO STOP NOT CLOSED, in those words. Its
+    new items 8.A and 8.D re-derived as ALREADY APPLIED (E-004:951 records EXP-P3-NESTED-PROBE as having
+    no runs on the instrument; phases/03-skills/README.md:725 carries the decision-1 deviation; both files
+    carry the `true of the run path, not of runner/` amendment). 8.B - `the builder`s call, not this
+    validator`s` - IS ALSO ALREADY SATISFIED and I checked the disk rather than the prose:
+    evidence/p03/flagprobe/ holds matrix.sh and THIRTEEN sj-*.jsonl transcripts, which is exactly the
+    artifact passes 6-8 called missing. 8.C (cite the sheet`s `scored_utc` rather than its mtime) is
+    wording on a closed stop and is carried to author_notes, not applied mid-batch."
   - "findings/track-b-validation-2026-09-08-4.md (PASS 22, claude-fable-5-1, same session as 21). Read IN FULL and PROCESSED 2026-09-09T05:2xZ, in ONE BATCH with passes 18-21 as prompt §0 (sha ba62c35dbbd2) now requires. NO STOP MARKED NOT CLOSED - I RE-DERIVED THAT MYSELF rather than taking the subagent`s word: `grep -n 'NOT CLOSED' ` over all five files returns NOTHING. Verdict `no stop closed; stop 12 still not opened; nothing of it created`. NO NEW CORRECTIONS. Its four resolution items are ALL DONE and I verified each: BATCHENV sets filed (d3c77a2, evidence/b05-preflight/README.md), obs#75 MERGED 7b107ee, obs#76 MERGED 27b3a7d, lab#77 MERGED ddb94a0, and the OTLP refuse-or-default question was DECIDED AS REFUSE and shipped (obs 4cdd803 `runner: refuse a run whose telemetry has nowhere to go`). Its item 5 - note before stop 21 that agentHash is null BY CONSTRUCTION on codex and copilot, so from B10 on arm membership cannot rest on it - is recorded in author_notes AND in the agentHash line below; it is a stop-21 concern and gates nothing here because stop 12 is claude-only."
   - "findings/track-b-validation-2026-09-08-3.md (PASS 21, claude-fable-5-1, FRESH session after /clear - it declares that as its independence). Read IN FULL and PROCESSED 2026-09-09T05:2xZ. No stop verdict; stop 12 not opened. Its correction C1 - that pass 20`s OWN defect-3 diagnosis was partly wrong (`it died some time after 2026-09-07T22:53Z` is unevidenced, and `localhost:4317 on both arms` is true of the DEFAULTS and false of every batch manifest) - is ALREADY APPLIED at a768691 with the original struck. Its C2 (a cosmetic NODE_OPTIONS wording slip in the brief) it decided itself needed no fix. Its most-likely-to-overturn was defect 2, agentHash null on every run record: FIXED and MERGED as obs#76 before stop 12`s first batch, which is exactly when it asked for it."
   - "findings/track-b-validation-2026-09-08-2.md (PASS 20, claude-fable-5-1). Read IN FULL and PROCESSED 2026-09-09T05:2xZ. No stop verdict. ITS ONE CORRECTION IS THE INTERESTING ONE AND IT IS THE HOUSE FAILURE MODE AGAIN, THIS TIME MINE-BY-INHERITANCE: my predecessor`s defect-3 claim (`the colima 4317 forward is dead, so a B5 batch today would silently fail to measure overhead`) was WRONG IN SCOPE - the dead thing is the UNUSED default port; the SSH tunnel 14317/14318 that every batch manifest actually names is alive. A control reporting over a scope smaller than it claims, inverted: a defect reported over a scope LARGER than it holds. Corrected additively at a768691. I RE-VERIFIED THE TUNNELS MYSELF THIS SESSION before writing this: 18081, 14318, 14317, 13200 and 15174 all accept a connection."
