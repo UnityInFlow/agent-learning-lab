@@ -195,6 +195,7 @@ mkdir -p "$EVID/init-schema" || fail "cannot create $EVID"
   echo "# B6 $BENCHMARK $STAMP  key=$EXPERIMENT_KEY pairs=$PAIRS start=$START"
   echo "# carrier agent $ta ON BOTH ARMS · skill file $ts on TREATED ONLY"
   echo "# treated runs must read back skillsHash sha256:$EXPECT_SKILLS_HASH (the skills SUBTREE hash, not the file's)"
+  echo "# an UNREAD read-back ABORTS the batch; it is never recorded as a row"
   echo "# carrier = phases-v1.0's agent + Skill in tools:, one line; phases-v1.0 itself untouched"
   echo "# $BENCHMARK tree $EXPECT_TREE at benchmarks $got_bench"
   echo "# claude $LAUNCH_CLAUDE at launch, asserted constant per run · model $EXPECT_MODEL"
@@ -229,6 +230,10 @@ one_run() {
   rid="$(grep -aoE 'run +[0-9a-f-]{36}' "$log" | head -1 | awk '{print $2}')"
   wt="$(grep -aoE '/[^ ]*observatory-run-[0-9a-f-]{36}' "$log" | head -1)"
   deleg="$(grep -acE '"(name|tool_name)":"(Task|Agent)"' "$log" 2>/dev/null)"; deleg="${deleg:-0}"
+  # NOTE, raised by the §4a panel: `grep -c` counts matching LINES, not occurrences, so this is
+  # a LOWER BOUND on Skill invocations and two calls on one JSON line count once. It is a
+  # progress signal in the manifest and NOT the registered instrument -- the registered count is
+  # tools/skill-activation.sh over the telemetry stream, which counts events.
   skact="$(grep -acE '"(name|tool_name)":"Skill"' "$log" 2>/dev/null)"; skact="${skact:-0}"
   trip="UNREAD UNREAD UNREAD"; [[ -n "$rid" ]] && trip="$(read_back "$rid")"
   # `a s i` MUST be local (declared above). They were not on the first attempt, and `s` is the
@@ -257,9 +262,17 @@ abort_batch() {
 
 check_common() {
   local arm="$1" seq="$2"
-  [[ "$LAST_AGENT" == "sha256:$EXPECT_AGENT_SHA" || "$LAST_AGENT" == "UNREAD" ]] \
+  # `UNREAD` IS NOT A PASS. The first version of this function admitted it on every hash, so a
+  # batch run against a dead API would have recorded twenty rows of `UNREAD` and called them
+  # valid data -- the house failure mode, in the one place that is supposed to catch it. Raised
+  # by the §4a panel on 2026-09-09 as a blocking finding against sha a6eed7a4b2d7, AFTER both
+  # batches had run. Neither batch contains a single UNREAD cell (`grep -c UNREAD` = 0 on both
+  # manifests), so this fix changes no recorded number; it changes what the next batch can do.
+  [[ "$LAST_AGENT" != "UNREAD" && "$LAST_SKILL" != "UNREAD" && "$LAST_INSTR" != "UNREAD" ]] \
+    || abort_batch "$arm $seq: the API did not return a customization block after three tries. UNREAD is not a measurement and this batch will not record one as if it were."
+  [[ "$LAST_AGENT" == "sha256:$EXPECT_AGENT_SHA" ]] \
     || abort_batch "$arm $seq read back agentHash=$LAST_AGENT, registered sha256:$EXPECT_AGENT_SHA: the carrier did not arrive."
-  [[ "$LAST_INSTR" == "null" || "$LAST_INSTR" == "UNREAD" ]] \
+  [[ "$LAST_INSTR" == "null" ]] \
     || abort_batch "$arm $seq read back instructionsHash=$LAST_INSTR: an unregistered instruction file arrived."
   [[ "$LAST_DELEG" == "0" ]] \
     || abort_batch "$arm $seq shows $LAST_DELEG delegation event(s); its tools: line declares no Task."
@@ -271,14 +284,17 @@ for i in $(seq "$START" $((START + PAIRS - 1))); do
   one_run treated "$s" "${ARM_T[@]}"
   [[ $LAST_RC -eq 9 ]] && { echo "!! treated $s returned 9 — delivered tool schema is not the declared one." >&2; exit 9; }
   check_common treated "$s"
-  [[ "$LAST_SKILL" == "sha256:$EXPECT_SKILLS_HASH" || "$LAST_SKILL" == "UNREAD" ]] \
+  [[ "$LAST_SKILL" == "sha256:$EXPECT_SKILLS_HASH" ]] \
     || abort_batch "treated $s read back skillsHash=$LAST_SKILL, registered sha256:$EXPECT_SKILLS_HASH: the skill did not arrive."
   # RECORDED, NOT FATAL, AND WRITTEN EVEN WHEN ZERO. Selection is an outcome; see note (c).
   echo "treated $s skill invocations in stream: $LAST_SKACT" >> "$EVID/skill-selection.txt"
 
   one_run control "$s" "${ARM_C[@]}"
+  # The exit-9 check was on the treated arm only; a control returning 9 means the runtime handed
+  # it a tool set its overlay does not declare, which invalidates the comparison just as badly.
+  [[ $LAST_RC -eq 9 ]] && { echo "!! control $s returned 9 — delivered tool schema is not the declared one." >&2; exit 9; }
   check_common control "$s"
-  [[ "$LAST_SKILL" == "null" || "$LAST_SKILL" == "UNREAD" ]] \
+  [[ "$LAST_SKILL" == "null" ]] \
     || abort_batch "control $s read back skillsHash=$LAST_SKILL: a control received the skill."
   [[ "$LAST_SKACT" == "0" ]] \
     || abort_batch "control $s invoked Skill $LAST_SKACT time(s) with no skill installed."

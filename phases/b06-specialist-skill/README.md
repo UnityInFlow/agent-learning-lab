@@ -423,3 +423,50 @@ violation only the violator can see is not a control.
 - **`61d8738`, `bd51255`, `abf7366`, `c928f62`** — the two batches, both harnesses, the hand
   re-reads
 
+
+## §4a review round 2 — both contracts ACCEPT, and the driver's gate found something real
+
+| Artifact | Round | Gate verdict | Findings file |
+|---|---|---|---|
+| `experiments/E-012-specialist-skill-BE003.md` | 2 | **ACCEPT**, `blocking: []` | `findings/opencode/review-E-012-specialist-skill-BE003-20260909T204144Z.md` |
+| `experiments/E-013-specialist-skill-BE004.md` | 2 | **ACCEPT**, `blocking: []` | `findings/opencode/review-E-013-specialist-skill-BE004-20260909T204857Z.md` |
+| `evidence/b06/run-b6-batch.sh` | 1, panel `-P codex,deepseek-v4-pro` | **NO VERDICT (off-contract)** — recorded as **not a pass**; the panel's own acceptance pass returned `REJECT` with two blocking findings, both acted on | `findings/opencode/review-run-b6-batch-20260909T205557Z.md` |
+| `phases/b06-specialist-skill/README.md`, `tools/count-state-reread.py`, `tools/verify-count-state-reread.sh` | — | **NOT REVIEWED — the harness stalled**, twice, and is named as unreviewed | see "What was not reviewed" below |
+
+E-013's gate accepted **while naming the row-0 sha contradiction in its `non_blocking` list**, with
+the note that the artifact *"explicitly discusses this contradiction… names it as a defect, and
+adopts CONFIRM by row 1"*. It accepted the disclosure, not the defect.
+
+### The driver's two blocking findings, and what they were right about
+
+> *"The treated-arm skill read-back guard admits `UNREAD` as a pass… a treated run whose skill
+> delivery was never confirmed is recorded and counted as a valid datum."*
+
+**Correct, and it is this project's own failure mode inside the check written to prevent it.**
+`read_back` returns `UNREAD UNREAD UNREAD` after three failed API tries, and every guard admitted
+it. A batch run against a dead endpoint would have produced twenty rows of `UNREAD` and called them
+data.
+
+**It did not touch this stop's numbers, and that is checked rather than assumed:**
+`grep -c UNREAD` is **0** on both batch manifests — no row in either batch was admitted on an
+unread hash. The finding was raised **after** both batches ran, against driver sha `a6eed7a4b2d7`.
+
+**Fixed, and the fix changes no recorded number:** `UNREAD` now **aborts** the batch on any of the
+three hashes, on either arm; the manifest header says so; the control arm gained the exit-9 check
+the treated arm already had; and the `skact` column is now documented as the **lower bound** it is
+(`grep -c` counts lines, not occurrences) with the registered count named as
+`tools/skill-activation.sh`. Guards re-verified: **13 of 13**.
+
+### What was not reviewed, named as §4a requires
+
+`phases/b06-specialist-skill/README.md` and the two new `count-state-reread` tools **were not
+reviewed**. The opencode panel sat at `review 1/2` for **49 minutes** against a 600 s
+`LAB_REVIEW_TIMEOUT` — the harness defect this project already has on record, *"`LAB_REVIEW_TIMEOUT`
+did not fire"* — and a retry on the codex family stalled the same way at ~20 minutes with no output.
+Both were killed by hand with `LC_ALL=C pkill`, no stray processes remain, and **this is recorded as
+a stall rather than as a clean review**, because a header-only or absent findings file is not a
+pass. The two tools do carry an executing control that the review harness cannot provide:
+`tools/verify-count-state-reread.sh`, **6 cases, 6 pass**, including the shape that broke the
+counter.
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-09/10.*
