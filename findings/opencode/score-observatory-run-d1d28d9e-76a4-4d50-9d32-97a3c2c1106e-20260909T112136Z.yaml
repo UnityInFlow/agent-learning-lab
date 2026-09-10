@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:    6252778b8472
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-d1d28d9e-76a4-4d50-9d32-97a3c2c1106e
+  mode:          run
+  run_id:        d1d28d9e-76a4-4d50-9d32-97a3c2c1106e
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/d1d28d9e-76a4-4d50-9d32-97a3c2c1106e
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.bQztUtmKFf/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260909T112136Z
+  attachments:   7 file(s) under test, 7 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: refusals throw existing ResourceNotFoundException/ConflictException, no body constructed
+    evidence: order/OrderController.kt:50
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: order-status decision is an if statement, not exhaustive when
+    evidence: order/OrderController.kt:56
+  - name: test-quality
+    score: 2
+    anchor_level: 2
+    reason: all four clauses citable
+    evidence: order/OrderControllerTest.kt:127
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: only named changes plus required constructor injections
+    evidence: order/OrderController.kt:19
+ambiguous_categories: []
+```

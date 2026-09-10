@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:    6252778b8472
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-05025c82-8c1e-463d-9d36-7c3d0f4ad090
+  mode:          run
+  run_id:        05025c82-8c1e-463d-9d36-7c3d0f4ad090
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/05025c82-8c1e-463d-9d36-7c3d0f4ad090
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.xp56osT0wc/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260909T132703Z
+  attachments:   7 file(s) under test, 7 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: every refusal throws an existing ApiException subclass, no ApiError/ApiErrorBody constructed
+    evidence: OrderController.kt:53, OrderController.kt:68, ShipmentController.kt:41
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: order-status decision is an if with early return, not an exhaustive when
+    evidence: OrderController.kt:59
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: bodies asserted but clauses (b) and (d) re-read via repository, not get()
+    evidence: OrderControllerTest.kt:149, OrderControllerTest.kt:180
+  - name: change-focus
+    score: 1
+    anchor_level: 1
+    reason: class KDoc and constructor params differ beyond the anchor-2 list
+    evidence: Order.kt:20, OrderController.kt:21
+ambiguous_categories: []
+```

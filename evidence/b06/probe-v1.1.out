@@ -1,0 +1,5 @@
+======== A-skill-only (BE-003) ========
+  -> ba8b4b98-fd60-43d1-9adc-d23c730f13cc exit=0 agentHash=None skillsHash=sha256:61445ead85042e340435613314920ef8 modelCalls=17
+======== B-agent-skill (BE-003) ========
+  -> e711fd4a-4261-4d6e-b0b1-693b0f6fcf18 exit=0 agentHash=sha256:b3450564b6f32d6193e8580db766210e skillsHash=sha256:61445ead85042e340435613314920ef8 modelCalls=26
+PROBE V1.1 DONE

@@ -1,0 +1,10 @@
+control 01 delegation: stream=0 telemetry-derived column in manifest
+control 02 delegation: stream=0 telemetry-derived column in manifest
+control 03 delegation: stream=0 telemetry-derived column in manifest
+control 04 delegation: stream=0 telemetry-derived column in manifest
+control 05 delegation: stream=0 telemetry-derived column in manifest
+control 06 delegation: stream=0 telemetry-derived column in manifest
+control 07 delegation: stream=0 telemetry-derived column in manifest
+control 08 delegation: stream=0 telemetry-derived column in manifest
+control 09 delegation: stream=0 telemetry-derived column in manifest
+control 10 delegation: stream=0 telemetry-derived column in manifest

@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-326fcfc4-72e6-424b-8e45-aaeb539af8f9
+  mode:           run
+  run_id:         326fcfc4-72e6-424b-8e45-aaeb539af8f9
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:18081/api/runs/326fcfc4-72e6-424b-8e45-aaeb539af8f9
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260909T195810Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals throw baseline ApiException subclasses; neither package constructs error bodies"
+    evidence: "OrderController.kt:27, OrderController.kt:44, OrderController.kt:62, OrderController.kt:76, ShipmentController.kt:31, ShipmentController.kt:41, ShipmentController.kt:62"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "The order-status decision is an if statement"
+    evidence: "OrderController.kt:69"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "Tests cover repeat bodies, refused-state atomicity, envelopes, and persisted successful cancellation"
+    evidence: "OrderControllerTest.kt:89, OrderControllerTest.kt:130, OrderControllerTest.kt:154, OrderControllerTest.kt:159, OrderControllerTest.kt:164"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Both controller constructors differ outside the anchor's exhaustive permitted list"
+    evidence: "OrderController.kt:18, ShipmentController.kt:25"
+ambiguous_categories: []

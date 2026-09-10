@@ -16,7 +16,11 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 11 of 28. Positions 4, 5, 6, 7, 8, 9, 10 and 11 CLOSED.** B1 closed 2026-08-30. Stop 10
+**Spine 13 of 28. Positions 4–13 CLOSED.** Stop 12 (B5) closed 2026-09-07 (PR lab#79 → `2e32f214`);
+**stop 13 (B6) closed 2026-09-10 CONFIRM on both tasks — see the section below.** Next is stop 14
+(Phase 5A guardrails).
+
+*(Superseded line, kept:)* **Spine 11 of 28. Positions 4, 5, 6, 7, 8, 9, 10 and 11 CLOSED.** B1 closed 2026-08-30. Stop 10
 closed 2026-09-05, stop 11 on 2026-09-06. **`backend-feature-implementer` v1.0 exists and is NOT
 promoted; stop 11 promoted nothing either — it is a Track A stop and builds no version.** Next is
 stop 12 (B5). **`benchmarks#29` was MERGED 2026-09-07T09:32:57Z at `eea144ef`, on the author's
@@ -31,6 +35,86 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## Stop 13 — B6 closed CONFIRM, and it is the first treatment in Track B that moved anything — 2026-09-10
+
+**One specialist skill, `testing-and-verification`, 675 words, sha `7bea904863fb79a544ee2068cb2f0f43`.
+KEEP.** Registered outcome `test-quality` anchor 2, codex, both tasks registered separately with no
+verdict computed across them (author decision 9):
+
+| Task | Rubric sha | Treated | Control | two-sided Fisher |
+|---|---|---|---|---|
+| BE-003 | `396e1799eb2b` | **10 of 10** | **0 of 10** | **`p = 1.08 × 10⁻⁵`** |
+| BE-004 | `6252778b8472` | **10 of 10** | **3 of 10** | **`p = 0.0031`** |
+
+Selection was **recorded**, not inferred: 20 of 20 treated runs carry `projectSettings=1` and 20 of
+20 controls carry none, every run `status: measured`. The second reader agrees with codex on
+`test-quality` **40 of 40 cells**. P4 (cost +8.0 % / −5.3 %), P5 (`modelCalls` +2 / 0) and P6
+(evaluator 10 of 10 in all four arms) all held. **P2 and P3 are refuted on both tasks**, in the
+direction of a large effect, and their registered mechanism — *"a third delivery of words"*, after
+E-003 REJECT and E-007 NOT DETECTABLE — is what was wrong. **A skill is selected at the moment it
+is needed and named in the transcript when it is; an instruction file is neither.**
+
+**`phases-v1.0` cannot receive a specialist skill at all, and that is the stop's second result.**
+Its `init` read-back is `delivered n=4 ["Read","Edit","Write","Bash"]` — no `Skill`. §6 forbids
+editing a measured version, so the batches ran on a **carrier**: the same agent with `Skill` added
+to `tools:`, one line, **installed on both arms**, so the skill directory stayed the only variable.
+**The carrier is an experiment fixture and is not kept.** Promoting the skill into the product means
+changing `phases-v1.0`'s `tools:` line, which is a **B8 decision at the v1.1 boundary**, not a B6
+one. Nothing is promoted.
+
+**The description is a harder selector than E-004 showed.** Same 675-word body, one line different:
+a description naming a **technique the task needs** is not selected (0 activations); one naming
+**the task's domain** is (4 of 5 in probes, 20 of 20 in the batches). E-004 separated right domain
+from wrong domain; this separates the task's domain from a technique it needs. The deliberate
+failure confirms the direction at its registered `n`: the misdescribed skill on the carrier, `Skill`
+in the delivered pool, **0 of 3 activations** and `test-quality` 1 of 3 — indistinguishable from the
+control (`p = 0.231`), distinguishable from the treated arm (`p = 0.0385`).
+
+### What is BLOCKED ON YOU
+
+**Nothing blocks the next stop.** Two calls are yours to overturn if you disagree, and both are
+recorded where they happened rather than only here:
+
+1. **E-013's decision-rule row 0 names BE-003's rubric sha** (`396e1799eb2b`) while every BE-004
+   sheet carries `6252778b8472` — the sha that same file registers in Controlled variables and that
+   author decision 10.2 required be proved on fixtures. Read literally, **row 0 fires VOID on
+   BE-004**. The rule is **not edited**. Both readings are on the record; the file adopts **CONFIRM
+   by row 1 with the deviation disclosed**, because the clause exists to assert *"these sheets came
+   from the registered rubric"* and they verifiably did. **Nothing depends on it** — KEEP stands on
+   E-012 alone, whose row 0 names its own rubric.
+2. **The carrier.** Both arms carry an agent that differs from the measured `phases-v1.0` by one
+   line. It is disclosed everywhere it matters and it is not a version, but it does mean this stop
+   measured *"what a skill adds to an agent that can invoke skills"*, not *"what it adds to v1.0"*.
+
+### Instruments, and this stop was expensive in them
+
+**Four instrument defects, all the same shape — a check that believed more than it measured — and
+the fixture set could not have caught three of them**, because `B6_GUARDS_ONLY=1` only exercises
+guards that fire *before the first run*:
+
+1. a guard registered against `SKILL.md`'s sha where the runner reads the **skills subtree** hash;
+2. `read -r a s i` not `local`, so every control log **overwrote the last** — evidence being
+   destroyed while the batch ran, which is why it was stopped by hand;
+3. `count-state-reread.py` missing extracted helpers and disagreeing with a sheet that was right;
+4. the driver admitting **`UNREAD` as a pass** on every read-back — found by the §4a panel *after*
+   both batches; `grep -c UNREAD` is **0** on both manifests, so no number moved, and `UNREAD` now
+   aborts.
+
+**Five runs excluded by name, all folders kept, all reasons independent of their outcomes:**
+`4452e08a`, `9402d9fe`, `8a7c7dbf`, `8f9326ee`, `a1957950`. **Two process violations recorded rather
+than tidied away:** the driver was patched while an instance was executing it (§6 forbids it
+outright), and re-entering the chain truncated the deliberate failure's original log — the
+measurement survived because telemetry is append-only, the log did not.
+
+**Not reviewed, and named as such:** `phases/b06-specialist-skill/README.md` and the two
+`count-state-reread` tools. The review harness stalled 49 minutes on opencode and ~20 on codex; that
+is a stall, not a pass.
+
+**`make baseline-report` cannot answer a two-arm question.** It aggregates by experiment key with
+no notion of an arm and no notion of a registered exclusion — BE-003 reads 23 runs where 20 are the
+batch. Per-arm numbers come from the manifests and the run records. Recorded as an instrument gap;
+splitting it needs the runner to record an arm label, which is a shared-instrument change.
 
 ## The fourth cell has run, and E-007's one effect IS the split — 2026-09-07
 
@@ -1392,8 +1476,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 57cc686 prose: 7c4f14dd20b4 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 57cc686 prose: 7c4f14dd20b4 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: bc08c28 prose: cd59aacd084f -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: bc08c28 prose: cd59aacd084f -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The

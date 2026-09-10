@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:    6252778b8472
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-89f84ffe-0e46-4f0a-8f17-7cfd7827ed2f
+  mode:          run
+  run_id:        89f84ffe-0e46-4f0a-8f17-7cfd7827ed2f
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/89f84ffe-0e46-4f0a-8f17-7cfd7827ed2f
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.X6eL7p7hOU/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260909T200306Z
+  attachments:   7 file(s) under test, 7 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: every refusal throws a baseline ApiException subclass, no ApiError constructed
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:63
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: order-status decision is a non-exhaustive if, not a when
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:56
+  - name: test-quality
+    score: 2
+    anchor_level: 2
+    reason: all four clauses citable — double cancel, 409 re-read, envelope, persisted re-read
+    evidence: sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:158
+  - name: change-focus
+    score: null
+    anchor_level: null
+    reason: ambiguous — constructor params necessary but not in anchor 2's list
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:21
+ambiguous_categories: [change-focus]
+```

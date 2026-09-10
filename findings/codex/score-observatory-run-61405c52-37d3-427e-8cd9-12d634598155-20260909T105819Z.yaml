@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-61405c52-37d3-427e-8cd9-12d634598155
+  mode:           run
+  run_id:         61405c52-37d3-427e-8cd9-12d634598155
+  evaluator_exit: 0
+  observatory:    http://localhost:18081/api/runs/61405c52-37d3-427e-8cd9-12d634598155
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260909T105819Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals use baseline ApiException subclasses; controllers construct no error bodies"
+    evidence: "OrderController.kt:25, OrderController.kt:44, OrderController.kt:58, ShipmentController.kt:31, ShipmentController.kt:41, ShipmentController.kt:62"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel decides order status with an if statement"
+    evidence: "OrderController.kt:51"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Error bodies are asserted, but state checks bypass GET and successful cancellation is not re-read"
+    evidence: "OrderControllerTest.kt:126, OrderControllerTest.kt:130, OrderControllerTest.kt:134"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Both test reset methods changed from expression bodies to blocks"
+    evidence: "baseline/OrderControllerTest.kt:37, OrderControllerTest.kt:42, baseline/ShipmentControllerTest.kt:33, ShipmentControllerTest.kt:40"
+ambiguous_categories: []

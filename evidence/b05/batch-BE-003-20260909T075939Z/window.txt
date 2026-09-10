@@ -1,0 +1,4 @@
+batch start (UTC): 2026-09-09T07:59:39Z
+events.jsonl bytes at start: 14552601
+batch end   (UTC): 2026-09-09T08:49:42Z
+events.jsonl bytes at end: 16570282

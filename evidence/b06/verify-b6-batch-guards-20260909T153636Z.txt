@@ -1,0 +1,23 @@
+verify-b6-batch-guards: driving evidence/b06/run-b6-batch.sh with B6_GUARDS_ONLY=1
+  FAIL — A: the registered configuration passes all guards and runs nothing: wanted exit 0 naming 'GUARDS ONLY', got exit 1
+         run-b6-batch: carrier agent is 51ffaedf9a3edbfe5fd85009f70f84c5, registered 51ffaedf9a3edbfe6ff9c0c30dcf3b0b - the carrier moved. 
+  FAIL — A2: the same on BE-004: wanted exit 0 naming 'GUARDS ONLY', got exit 1
+         run-b6-batch: carrier agent is 51ffaedf9a3edbfe5fd85009f70f84c5, registered 51ffaedf9a3edbfe6ff9c0c30dcf3b0b - the carrier moved. 
+  FAIL — B: a moved benchmark tree is refused: wanted exit 1 naming 'the task moved', got exit 1
+         run-b6-batch: carrier agent is 51ffaedf9a3edbfe5fd85009f70f84c5, registered 51ffaedf9a3edbfe6ff9c0c30dcf3b0b - the carrier moved. 
+  ok   — B2: an unknown benchmark is refused (exit 1)
+  ok   — C: a control whose agent differs from the treated arm's is refused (exit 1)
+  ok   — C2: a moved carrier agent is refused (exit 1)
+  FAIL — D: a carrier that does not declare Skill is refused: wanted exit 1 naming 'could never be selected', got exit 1
+         run-b6-batch: the two arms' agent files differ (b3450564b6f32d6193e8580db766210e vs 51ffaedf9a3edbfe5fd85009f70f84c5); the skill would not be the only variable. 
+  FAIL — D2: a moved skill file is refused: wanted exit 1 naming 'the treatment moved', got exit 1
+         run-b6-batch: carrier agent is 51ffaedf9a3edbfe5fd85009f70f84c5, registered 51ffaedf9a3edbfe6ff9c0c30dcf3b0b - the carrier moved. 
+  FAIL — E: a control that carries the skill is refused: wanted exit 1 naming 'it is not a control', got exit 1
+         run-b6-batch: control overlay holds 2 files; it is exactly the agent. 
+  ok   — E2: a treated overlay with no skill is refused (exit 1)
+  ok   — F: a missing overlay directory is refused (exit 1)
+  FAIL — F2: a dead API port is refused before anything is spent: wanted exit 1 naming 'refusing to spend a batch on a dead endpoint', got exit 1
+         run-b6-batch: carrier agent is 51ffaedf9a3edbfe5fd85009f70f84c5, registered 51ffaedf9a3edbfe6ff9c0c30dcf3b0b - the carrier moved. 
+  ok   — G: a lock held by a LIVE pid refuses a second batch (exit 4)
+
+verify-b6-batch-guards: 6 passed, 7 failed

@@ -1,0 +1,18 @@
+=== waiting for the selection-rate probe to finish ===
+=== §4 step 6, BE-003 batch, n=10 per arm ===
+run-b6-batch: re-executing under caffeinate -i so the batch cannot span an idle sleep
+run-b6-batch: prediction 133de65 committed 2026-09-09T17:00:47+02:00; first run starts after it
+run-b6-batch: API 127.0.0.1:18081 holds 454 run(s) before this batch
+batch start (UTC): 2026-09-09T16:49:10Z
+events.jsonl bytes at start: 23166114
+
+======== BE-003 01 treated ========
+  -> 9402d9fe-8ac6-4cf9-80c7-37e6a1f41a92 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 sha256:61445ead85042e340435613314920ef8 control ========
+  -> 8a7c7dbf-ab75-4297-9b11-9bccb53c1bd2 exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=null instr=null skillCalls=0 deleg=0 claude=2.1.266
+
+======== BE-003 02 treated ========
+  -> 8f9326ee-cbb7-441a-9a18-561b29a72893 exit=2 agent=UNREAD skill=UNREAD instr=UNREAD skillCalls=1 deleg=0 claude=2.1.266
+
+======== BE-003 UNREAD control ========

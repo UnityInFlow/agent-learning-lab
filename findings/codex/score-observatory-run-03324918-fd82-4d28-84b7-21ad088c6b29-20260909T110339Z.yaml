@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-03324918-fd82-4d28-84b7-21ad088c6b29
+  mode:           run
+  run_id:         03324918-fd82-4d28-84b7-21ad088c6b29
+  evaluator_exit: 0
+  observatory:    http://localhost:18081/api/runs/03324918-fd82-4d28-84b7-21ad088c6b29
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260909T110339Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals throw baseline ApiException subclasses"
+    evidence: "OrderController.kt:27, OrderController.kt:42, OrderController.kt:53, OrderController.kt:66, ShipmentController.kt:32, ShipmentController.kt:40, ShipmentController.kt:60"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel decides order status with an if"
+    evidence: "OrderController.kt:59"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "Tests cover idempotency bodies, atomic refusal state, envelopes, and persisted cancellation"
+    evidence: "OrderControllerTest.kt:147, OrderControllerTest.kt:172, OrderControllerTest.kt:177, OrderControllerTest.kt:182, OrderControllerTest.kt:126"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Two unnamed reset methods differ beyond invisible whitespace"
+    evidence: "baseline/OrderControllerTest.kt:35 and work/OrderControllerTest.kt:42; baseline/ShipmentControllerTest.kt:35 and work/ShipmentControllerTest.kt:41"
+ambiguous_categories: []

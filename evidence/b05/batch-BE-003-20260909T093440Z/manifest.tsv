@@ -1,0 +1,13 @@
+# B5 BE-003 20260909T093440Z  key=EXP-B5-PHASES-BE003 pairs=2 start=9
+# overlay b3450564b6f32d6193e8580db766210e35c1bfaa90589a705b3e9236fdb18a41 (runner form sha256:b3450564b6f32d6193e8580db766210e), one file, declares tools:
+# BE-003 tree eeb15a753adc94e92bc3f74c50e1b02fc3b53030 at benchmarks eea144ef940fda4cb6090561fdd901aed0013c8e
+# claude 2.1.266 at launch, asserted constant per run · model claude-haiku-4-5-20251001
+# prediction commit 5777b07 at 2026-09-09T09:23:12+02:00
+# common:      RUNTIME=claude BENCHMARK=BE-003 EXPERIMENT=EXP-B5-PHASES-BE003 MODEL=claude-haiku-4-5-20251001 ISOLATE_USER_SETTINGS=1 KEEP=1 API_PORT=18081 OTLP_HTTP_PORT=14318 OTLP_GRPC_PORT=14317 TEMPO_PORT=13200 INIT_SCHEMA_DIR=/Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b05/batch-BE-003-20260909T093440Z/init-schema
+# treated adds:CUSTOMIZATION=/Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/phases-v1.0 AGENT=backend-feature-phases VARIANT=phases-v1.0
+# control adds:VARIANT=baseline
+seq	arm	run_id	exit	worktree	agent_hash	instr_hash	deleg_stream	deleg_telemetry	claude
+09	treated	79308075-3f04-4f42-ba01-46c5ed5e9156	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-79308075-3f04-4f42-ba01-46c5ed5e9156	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+09	control	4e1f6c50-c128-4d37-b9cb-51ddad4e79fe	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4e1f6c50-c128-4d37-b9cb-51ddad4e79fe	null	null	0	0	2.1.266
+10	treated	0e51ffdd-afb3-486d-a25d-732ae06e9b82	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0e51ffdd-afb3-486d-a25d-732ae06e9b82	sha256:b3450564b6f32d6193e8580db766210e	null	0	0	2.1.266
+10	control	c549ec18-2fd2-46b2-b6b3-5971f92a5f3e	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c549ec18-2fd2-46b2-b6b3-5971f92a5f3e	null	null	0	0	2.1.266

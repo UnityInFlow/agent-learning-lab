@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-732fe70d-86e9-4553-b6de-0989e00ed666
+  mode:           run
+  run_id:         732fe70d-86e9-4553-b6de-0989e00ed666
+  evaluator_exit: 0
+  observatory:    http://localhost:18081/api/runs/732fe70d-86e9-4553-b6de-0989e00ed666
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260909T110509Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All controller refusals use baseline ApiException subclasses"
+    evidence: "OrderController.kt:29,45,59; ShipmentController.kt:35,45,63"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel uses an if decision for order status"
+    evidence: "OrderController.kt:52"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Bodies are asserted, but clauses b and d lack separate GET verification"
+    evidence: "OrderControllerTest.kt:107,137,142"
+  - name: "change-focus"
+    score: 2
+    anchor_level: 2
+    reason: "Unnamed controller methods remain baseline-identical"
+    evidence: "OrderController.kt:27,43,82; ShipmentController.kt:33,61,69"
+ambiguous_categories: []

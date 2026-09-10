@@ -1,0 +1,25 @@
+=== waiting for the selection-rate probe to finish ===
+=== §4 step 9, the deliberate failure (1 run) ===
+run_id: 81899960-386e-40eb-abf7-00c1cfa8f2ca
+exit: 0
+skill_stream: 0
+skill sha: fabfc481c4929524786e5a6332c8647a (misdescribed; body identical to 7bea9048…)
+DELIBERATE FAILURE DONE
+=== §4 step 6, BE-003 batch, n=10 per arm ===
+run-b6-batch: re-executing under caffeinate -i so the batch cannot span an idle sleep
+run-b6-batch: prediction 133de65 committed 2026-09-09T17:00:47+02:00; first run starts after it
+run-b6-batch: API 127.0.0.1:18081 holds 453 run(s) before this batch
+batch start (UTC): 2026-09-09T16:43:14Z
+events.jsonl bytes at start: 22944312
+
+======== BE-003 01 treated ========
+  -> 4452e08a-4401-468c-b1b7-57c48d9c2f7b exit=0 agent=sha256:51ffaedf9a3edbfe5fd85009f70f84c5 skill=sha256:61445ead85042e340435613314920ef8 instr=null skillCalls=1 deleg=0 claude=2.1.266
+!! treated sha256:61445ead85042e340435613314920ef8 read back skillsHash=sha256:61445ead85042e340435613314920ef8, registered sha256:7bea904863fb79a544ee2068cb2f0f43: the skill did not arrive.
+!! The batch STOPS here. It is redesigned, not resumed.
+batch aborted (UTC): 2026-09-09T16:45:50Z
+events.jsonl bytes at abort: 23073547
+manifest: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b06/batch-BE-003-20260909T164314Z/manifest.tsv
+BE-003 batch exit 8
+!! BE-003 aborted with 8 — BE-004 is NOT started. A batch that aborts is redesigned,
+!! not resumed, and starting the second task would spend 20 runs on the same defect.
+RUN-ALL DONE

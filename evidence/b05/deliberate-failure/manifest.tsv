@@ -1,0 +1,5 @@
+# B5 BE-003 deliberate failure  key=EXP-B5-PHASES-BE003-NOMARKERS  overlay 2e2f708cbc05b54d8f359e4de67fc644
+seq	arm	run_id	exit	worktree	agent_hash
+01	nomarkers	9694310f-4767-4587-b927-a7812cbad994	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9694310f-4767-4587-b927-a7812cbad994	sha256:2e2f708cbc05b54d8f359e4de67fc644
+02	nomarkers	b5ef0edc-01a4-4041-bf45-560c1c44fd61	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b5ef0edc-01a4-4041-bf45-560c1c44fd61	sha256:2e2f708cbc05b54d8f359e4de67fc644
+03	nomarkers	a1cb9588-df12-498c-961e-a8e37bc7a525	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-a1cb9588-df12-498c-961e-a8e37bc7a525	sha256:2e2f708cbc05b54d8f359e4de67fc644

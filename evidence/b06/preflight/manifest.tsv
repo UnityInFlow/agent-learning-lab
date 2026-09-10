@@ -1,0 +1,4 @@
+# B6 preflight  overlay skill sha 0876025fa451af5f1f2970da67a02f0d  agent b3450564b6f32d61
+task	arm	run_id	exit	agent_hash	skill_activations	model_calls
+BE-003	treated	fbe8c643-470f-4792-820e-d73f210f92af	0	sha256:b3450564b6f32d6193e8580db766210e	SEE_RECORD	19
+BE-003	control	20478210-e997-40a0-ac6f-e48cb3bfafc8	0	sha256:b3450564b6f32d6193e8580db766210e	SEE_RECORD	22

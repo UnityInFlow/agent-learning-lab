@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-05025c82-8c1e-463d-9d36-7c3d0f4ad090
+  mode:           run
+  run_id:         05025c82-8c1e-463d-9d36-7c3d0f4ad090
+  evaluator_exit: 0
+  observatory:    http://localhost:18081/api/runs/05025c82-8c1e-463d-9d36-7c3d0f4ad090
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260909T111434Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All controller refusals use baseline ApiException subclasses"
+    evidence: "OrderController.kt:56, OrderController.kt:69, ShipmentController.kt:29, ShipmentController.kt:40, ShipmentController.kt:61"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel decides order status with an if statement"
+    evidence: "OrderController.kt:63"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Body assertions exist; clauses (b) and (d) lack separate GET re-reads"
+    evidence: "OrderControllerTest.kt:113, OrderControllerTest.kt:139, OrderControllerTest.kt:145"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Multiple unnamed test helper methods differ from baseline"
+    evidence: "baseline/OrderControllerTest.kt:37, OrderControllerTest.kt:39, baseline/ShipmentControllerTest.kt:34, ShipmentControllerTest.kt:39, baseline/ShipmentControllerTest.kt:37, ShipmentControllerTest.kt:44"
+ambiguous_categories: []

@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6b8745e4-b359-4757-b515-78bde1f3c1ef
+  mode:           run
+  run_id:         6b8745e4-b359-4757-b515-78bde1f3c1ef
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:18081/api/runs/6b8745e4-b359-4757-b515-78bde1f3c1ef
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260909T200228Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusal paths throw baseline ApiException subclasses"
+    evidence: "OrderController.kt:29; OrderController.kt:42; OrderController.kt:55; ShipmentController.kt:31; ShipmentController.kt:42; ShipmentController.kt:62"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "The status decision uses an if statement"
+    evidence: "OrderController.kt:49"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "The refused cancel never re-reads shipment status"
+    evidence: "OrderControllerTest.kt:125"
+  - name: "change-focus"
+    score: 2
+    anchor_level: 2
+    reason: "Unnamed controller methods remain identical to baseline"
+    evidence: "OrderController.kt:38; OrderController.kt:82; ShipmentController.kt:58; ShipmentController.kt:68"
+ambiguous_categories: []

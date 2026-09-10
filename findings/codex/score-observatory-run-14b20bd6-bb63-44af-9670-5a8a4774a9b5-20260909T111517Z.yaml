@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-14b20bd6-bb63-44af-9670-5a8a4774a9b5
+  mode:           run
+  run_id:         14b20bd6-bb63-44af-9670-5a8a4774a9b5
+  evaluator_exit: 0
+  observatory:    http://localhost:18081/api/runs/14b20bd6-bb63-44af-9670-5a8a4774a9b5
+  attachments:    6 changed file(s), 6 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260909T111517Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All controller refusals use baseline ApiException subclasses; neither package constructs error bodies"
+    evidence: "OrderController.kt:28, OrderController.kt:43, OrderController.kt:58, ShipmentController.kt:31, ShipmentController.kt:40, ShipmentController.kt:62"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel decides order status with an if statement"
+    evidence: "OrderController.kt:49"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Bodies are asserted, but refused shipment state and successful persisted order state are not re-read"
+    evidence: "OrderControllerTest.kt:103, OrderControllerTest.kt:105, OrderControllerTest.kt:136, OrderControllerTest.kt:141"
+  - name: "change-focus"
+    score: 2
+    anchor_level: 2
+    reason: "Changes stay within the explicitly permitted methods and structural additions"
+    evidence: "OrderController.kt:23, OrderController.kt:37, OrderController.kt:42, OrderController.kt:74, ShipmentController.kt:29, ShipmentController.kt:57, ShipmentController.kt:66"
+ambiguous_categories: []

@@ -1,0 +1,16 @@
+verify-b6-batch-guards: driving evidence/b06/run-b6-batch.sh with B6_GUARDS_ONLY=1
+  ok   — A: the registered configuration passes all guards and runs nothing (exit 0)
+  ok   — A2: the same on BE-004 (exit 0)
+  ok   — B: a moved benchmark tree is refused (exit 1)
+  ok   — B2: an unknown benchmark is refused (exit 1)
+  ok   — C: a control whose agent differs from the treated arm's is refused (exit 1)
+  ok   — C2: a moved carrier agent is refused (exit 1)
+  ok   — D: a carrier that does not declare Skill is refused (exit 1)
+  ok   — D2: a moved skill file is refused (exit 1)
+  ok   — E: a control that carries the skill is refused (exit 1)
+  ok   — E2: a treated overlay with no skill is refused (exit 1)
+  ok   — F: a missing overlay directory is refused (exit 1)
+  ok   — F2: a dead API port is refused before anything is spent (exit 1)
+  ok   — G: a lock held by a LIVE pid refuses a second batch (exit 4)
+
+verify-b6-batch-guards: 13 passed, 0 failed
