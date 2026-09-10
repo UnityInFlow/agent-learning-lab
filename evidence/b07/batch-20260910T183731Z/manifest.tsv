@@ -1,0 +1,6 @@
+# B7 REGISTERED BATCH 20260910T183731Z  n=10 per arm per task, interleaved (author decision 9)
+# treated overlay f432abbcbf1f3b90ec4dd801a23c333a5f7e6c40fe0b54b11fd5689f9938cbca
+# expected agentHash on BOTH arms: sha256:b3450564b6f32d6193e8580db766210e
+# claude 2.1.267 at launch, model claude-haiku-4-5-20251001
+# prediction commit ea7b1d2 at 2026-09-10T09:51:08Z, BEFORE any run here
+task	seq	arm	run_id	make_rc	evaluator_exit	f13	edits	worktree	agent_hash	settings_tracked	policy_log	policy_lines	model_calls	init_tools
