@@ -174,6 +174,106 @@ Two candidate proofs, and the second is stronger:
 - **Not a change to `--allowedTools` or `--permission-mode`.** Both are constant from B2 onward and
   the B2 baseline cannot be re-run; moving either is a §7 halt, not a design option.
 
+## Design — and the two measurements that decided it
+
+Both were taken **before** anything was designed and before any prediction was written, because
+each one could have made the obvious design wrong.
+
+### The census: on this corpus, the enforcement requirement §10.10 asks for has not appeared
+
+[`evidence/b07/violation-census-20260910.md`](../../evidence/b07/violation-census-20260910.md) —
+every run the observatory holds, `GET /api/runs?limit=1000`, **499 runs**, evaluator
+`evaluation.exitCode`:
+
+| exit | meaning | all stored runs | **Track B corpus** |
+|---:|---|---:|---:|
+| 0 | all acceptance criteria passed | 438 | **305** |
+| 10 | build failure | 0 | **0** |
+| 11 | existing tests failed | 9 | **0** |
+| 12 | functional acceptance failed | 49 | **20** |
+| 13 | error contract violated | 0 | **0** |
+| 20 | **new dependency introduced** | 0 | **0** |
+| 21 | **unrelated production files changed** | 3 | **0** |
+| 30 | evaluator/infrastructure failure | 0 | **0** |
+| | total | 499 | **325** |
+
+The Track B column is the 325 runs that share this step's model, tasks and harness. Read the rows
+this step's build spec is aimed at:
+
+- **`20` — new dependency: 0 of 499.** An `allowed-dependencies.yaml` would be a control that has
+  never been shown to reject anything, on any run this project has ever made.
+- **`21` — unrelated production files: 3 of 499, and 0 of 325.** All three are BE-002 work from
+  before Track B.
+- **`10` and `11` — build and existing tests: 0 of 325.** Which is to say: **`verify.sh`'s two
+  strongest stages would have fired zero times.** The agent under test does not ship code that fails
+  to compile, and it does not break the suite it was given.
+- **`12` — functional acceptance: 20 of 325, and it is the only failure mode that occurs here.**
+  It is decided by an **evaluator-owned** suite that does not exist in the worktree. **No
+  verification entry point the agent or the overlay can run is able to detect it.**
+
+So the honest statement of this step's position, with `n = 325`: **every failure class B7's build
+spec is designed to catch has a measured incidence of zero, and the one failure class that does
+occur is out of reach of the thing B7 is asked to build.** §10.10 says *"only after a concrete
+enforcement requirement appears"*; on this corpus it has not appeared, and that sentence is the
+reason three of the four named policy files are **not written** at this step rather than written and
+left untested.
+
+### The feasibility probe: an overlay *can* deliver something that executes and refuses
+
+[`evidence/b07/hook-feasibility-20260910/`](../../evidence/b07/hook-feasibility-20260910/README.md)
+— two probes under the runner's exact flag set, including `--setting-sources project`, whose whole
+job is to keep the operator's ~21 hooks out. **It keeps project hooks in.** A `PreToolUse` hook
+installed by the overlay fired; exiting `2` left `pom.xml` byte-unchanged on disk while `notes.txt`
+was written normally; and the model reported *"Edit was blocked by a hook policy"* — so **stderr
+reaches the model**, which is what makes a denial actionable rather than merely effective.
+
+This had to be measured. If `--setting-sources project` had suppressed the overlay's own settings,
+**B7 would have had no Layer 2 channel at all**, and the design would have been built on a guess in
+the one place this project has been wrong most often.
+
+### What gets built, and what deliberately does not
+
+| Artifact | Layer, rule applied in order | Why that layer |
+|---|---|---|
+| `.claude/settings.json` + `.ai/hooks/policy-gate.sh` — `PreToolUse` on `Edit`/`Write`, denying paths listed in the policy | **L2** | Can the bad value still be written down after the fix? **Yes** — the path exists and the model may still attempt it. So not L1. Does something *execute* and reject it? **Yes, and it is named and proved**: the hook process, exit `2`, measured in probe 2 with the file unchanged afterwards |
+| `.ai/policies/protected-paths.yaml` | **L3 on its own, L2 only through the hook that reads it** | A YAML file executes nothing. It is data. Its layer is borrowed from the thing that runs it, and if the hook stops reading it the file silently becomes a document — which is exactly the "schema note is L3" rule in the workspace `CLAUDE.md` |
+| `.ai/scripts/verify.sh` — one entry point, one exit code, stage-structured JSON | **L2 as an instrument; L3 as a claim about the agent** | It executes and returns a machine-readable verdict, so as a check it is L2. But it changes nothing the agent does at this step (see below), so any sentence of the form *"the agent now verifies deterministically"* is L3 until B8 makes the verdict blocking |
+| `tools/verify-policy-gate.sh`, `tools/verify-verify-sh.sh` — fixture sets | **L2** | They execute and they fail the build when a case regresses. Without them the two artifacts above are "ShellCheck clean with nine green fixtures", which this project has already shipped a blocking defect behind |
+| `allowed-dependencies.yaml`, `command-policy.yaml`, `database-policy.yaml` | **not built** | 0 of 499, 0 of 499 (and Bash is already an allowlist), and the service has no migrations. §10.10's *"only after a concrete enforcement requirement appears"* |
+
+**The trap this step converts.** `build/README.md#b7` states it as *"every hook you avoid writing is
+a hook you never have to test, tune, or explain a false positive for."* That is a slogan until
+something counts. The census is the counting, and it converts the trap at **L2**: the number
+`0 of 325` is produced by a script over the store, not by a judgement, and it is what refuses three
+of the four policy files.
+
+### The one design decision that is mine, and it is reversible
+
+**`verify.sh` is invoked by a `Stop` hook that RECORDS its verdict and does not block.**
+
+Three things forced it and one bounded it:
+
+1. **The agent cannot invoke it.** `run-agent.sh:761` pre-approves `Bash(./mvnw:*)` and
+   `Bash(mvn:*)` and nothing else, so `./verify.sh` would be refused by Claude Code's own approval
+   gate — the gate stop 14 measured refusing **12–20 Bash commands per run**. An arm built that way
+   would measure the approval gate and report it as a verification result. That is the house failure
+   mode, one stop after the lab that named it.
+2. **Moving `--allowedTools` is not available.** It is constant from B2 on, the B2 baseline cannot
+   be re-run, and §6 forbids moving a registered variable mid-experiment.
+3. **A `Stop` hook needs no permission** — the runtime executes it — so it is the only route by
+   which a deterministic verification command actually runs on every run.
+4. **It does not block, and that boundary is deliberate.** A `Stop` hook exiting `2` would refuse
+   completion until verification passes, which is a **completion contract with an unbounded repair
+   loop**. The contract and the *limit* on that loop are B8's deliverable (`build/README.md#b8`), and
+   §6 forbids creating a future step's artifacts early. Blocking it here would also confound B7's
+   measurement with a repair loop, so the two questions would arrive fused.
+
+**Consequence, stated plainly rather than buried:** at B7 `verify.sh` changes nothing the model sees.
+The only artifact in this step that can move a number is the policy gate. Whether the recorded
+verdict *should* become blocking is B8's first question, and this step is what hands it the data.
+
+*Designed by Opus 5 (claude-opus-5), autonomous, 2026-09-10, from the census and the probe above.*
+
 ## Build
 
 **Build:** one verification entry point, and policy as code.
