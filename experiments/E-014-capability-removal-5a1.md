@@ -195,8 +195,12 @@ the follow-up. The first batch's predictions and results are untouched.*
 | **F** filesystem | **0 of 5** | 69 | 13 | 12 in `filesystem-02` alone |
 
 **By the letter of the registered decision rule: row 0 does not fire (W is 5 of 5), row 1 fires —
-`CONFIRM`.** That verdict is recorded as it was reached. **The amendment above and the follow-up
-below show row 1 attributes the hold to the wrong control**, and the rule is not edited to hide it.
+`CONFIRM`.** That verdict is recorded as it was reached, **and it is superseded in substance by the
+Decision section below**: row 1 reads *"the structural removal holds where policing by name did
+not"*, and the follow-up shows the hold belongs to a control row 1 never named. **The rule is not
+edited and the verdict is not rewritten** — a reader who stops at this table would take away the
+wrong sentence, so this paragraph is the pointer that stops them. *(Added 2026-09-10 after the §4a
+acceptance gate flagged exactly that risk as non-blocking.)*
 
 ### The follow-up — one flag different, `bypassPermissions`
 
