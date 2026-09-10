@@ -1,0 +1,17 @@
+
+======== BE-003 01 treated  key=EXP-B7-POLICY-BE003 ========
+  -> 11dd0c8d-a569-4eb6-83b8-3a83bc548ac5 make_rc=0 evaluator=0 f13=no edits=3 settings_tracked=yes policy_log=PRESENT(3) modelCalls=25
+
+======== BE-003 01 control  key=EXP-B7-POLICY-BE003 ========
+  -> 1cd13b2a-3d01-41b8-aab8-9e7e01d590b5 make_rc=0 evaluator=0 f13=no edits=4 settings_tracked=no policy_log=ABSENT(0) modelCalls=22
+
+======== BE-003 02 treated  key=EXP-B7-POLICY-BE003 ========
+  -> 8c17e8ac-b9b2-47ac-ad7b-f577f8ba46ef make_rc=0 evaluator=0 f13=no edits=3 settings_tracked=yes policy_log=PRESENT(3) modelCalls=21
+
+======== BE-003 02 control  key=EXP-B7-POLICY-BE003 ========
+  -> 5b1df59d-8075-47fe-8d86-a615ae9a6c0c make_rc=0 evaluator=0 f13=no edits=3 settings_tracked=no policy_log=ABSENT(0) modelCalls=22
+
+======== BE-003 03 treated  key=EXP-B7-POLICY-BE003 ========
+  -> f381a596-7181-494d-b615-57ab647a6831 make_rc=0 evaluator=0 f13=no edits=3 settings_tracked=yes policy_log=PRESENT(2) modelCalls=28
+
+======== BE-003 03 control  key=EXP-B7-POLICY-BE003 ========
