@@ -302,6 +302,66 @@ policies/allowed-dependencies.yaml  policies/database-policy.yaml
 **Do 5A.1 first — remove a capability before policing it.** Every hook you avoid writing is a
 hook you never have to test, tune, or explain a false positive for.
 
+### What was built, and what each thing has been shown to do
+
+| Artifact | Proof it works | Result |
+|---|---|---|
+| `build/customizations/verify-v1.0/` — the treatment: byte-identical `phases-v1.0` agent file + `.claude/settings.json` + `.ai/policies/protected-paths.yaml` + `.ai/hooks/policy-gate.sh` | `tools/verify-policy-gate.sh`, run against **the registered hook, never a copy** | **34 of 34.** 20 denies at exit 2, 10 allows at exit 0, 2 fail-open cases, and 5 negative controls where a substring matcher would over-deny (`DockerfileParser.kt`, `pom.xml.md`, `GithubClient.kt`, `locked.kt`, `infrastructure.md`) |
+| `tools/verify-sh.sh` — one entry point, one exit code, stage-structured JSON, in **the evaluator's own units** | `tools/verify-verify-sh.sh` | **28 of 28.** Every exit code has a case that *produces* it, including six routes to `30` |
+| `tools/replay-policy-gate.py` — the large-*n* false-positive measurement | its own negative control, `evidence/b07/replay-negative-control/` | **915 `Edit`/`Write` calls across 215 stored run logs → 0 denials, 0.00 %** |
+
+**Why the exit codes are the evaluator's and not new ones.** §7 forbids changing what the
+evaluator measures; *adopting its mapping in a different script changes nothing about it*, and it
+buys the one number this step is actually curious about — **how often `verify.sh` and the evaluator
+disagree**. They are in the same units by construction, so the comparison needs no translation
+layer that could itself be wrong.
+
+**What the replay can and cannot say.** It decides each recorded call in isolation. Live, a denial
+changes what the agent does next. So `0 of 915` is a bound on the **false-positive rate of the
+rules**, not a simulation of the treated arm — and the treated arm's own denial count is still the
+registered number for P2 and P3.
+
+### Four defects found while building, none of them in the artifact under test
+
+All four are the same shape — **a check that answers over a smaller scope than it claims** — and all
+four were caught by hand-running the thing before trusting its verdict, which is what §5 asks for.
+
+1. **The replay's extractor read nothing and reported `0 denials`.** It was one regex pinned to an
+   exact byte spacing. Given a synthetic log of four calls, three of which *must* be denied, it
+   returned *"0 calls from 0 logs → 0 denials"* — in the same words a real result uses. The fix is
+   not a better regex: `calls_in` now parses structurally **and counts what it could not read**, and
+   those counters are printed in the report, so a format change surfaces as a number instead of as
+   silence. Re-run on the same fixture: 3 denies, 1 allow.
+2. **BSD `sed` does not support `\|` alternation in a BRE**, and the manifest stage's first parse
+   used it. It matched nothing and reported *"benchmark.yaml declares no allow-list"* for **both**
+   tasks while looking like it had run.
+3. **The batch manifest's `exit` column is `make`'s status, not the evaluator's.** GNU `make` exits
+   `2` for any failed recipe, so it reads `2` whether the evaluator returned `10`, `12` or `21`.
+   **Every batch manifest in this repository has that shape** — which is why a census over them,
+   run earlier at this same stop, showed only `0` and `2` and had to be redone against the run
+   records. The preflight manifest now carries `evaluator_exit` beside `make_rc`, not instead of it.
+4. **An edit counter that was only accidentally right.** `grep -c` counts *lines containing* a
+   match, not matches; it agrees with the true count today only because stream-json puts one
+   `tool_use` per line. Compounding it: `grep` in an interactive shell here is a **ugrep wrapper
+   function** that a `#!/usr/bin/env bash` script does not inherit, so testing it in the shell would
+   have proved nothing about the script. Verified against a real B5 log with `/usr/bin/grep`.
+
+### And one defect in the design of the assertion itself, found by a failed run rather than by review
+
+The first preflight attempt spent four runs and produced no read-back: all four died
+`terminal_reason: api_error` — *"Can't reach the API server … (ENOTFOUND)"* — a transient network
+failure, which the runner classified **F13** and excluded on its own. All four are recorded by id
+and none is re-used.
+
+The treated run among them made **4 model calls, attempted zero edits**, and therefore wrote **no**
+`policy-events.jsonl`. Under the assertion as originally registered that reads as *the treatment
+did not arrive*. **It is not.** The hook had nothing to fire on.
+
+**So delivery and execution are two claims and now have two columns:** `settings_tracked`
+(`git ls-files` against the setup commit) proves the file **arrived**; the event log proves the hook
+**ran**; and a run with zero edits is recorded `INCONCLUSIVE-0-edits`, never `ABSENT`. Conflating
+them is how an arm gets called void for the wrong reason.
+
 ## Predict before you run
 
 <!-- TODO: predict the false-positive rate on legitimate commands before
