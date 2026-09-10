@@ -13,6 +13,32 @@ loop_step: 6   # §4 STEP 6 RE-LAUNCHED 2026-09-10T18:37:31Z UNDER A NEW TAG, ba
 # SUPERSEDED, kept not deleted: loop_step: 7   # §4 STEP 7 HALTED PART-WAY 2026-09-06T13:2xZ. THE GATE HALF IS COMPLETE AND API-INDEPENDENT: check-run-gate.sh on each run's on-disk evaluation.json gives 20 ADMITTED, 0 REFUSED. THE SCORING HALF IS BLOCKED: no run records, so no codex sheets, so no O7. The hand re-read REQUIRED BEFORE ANY SHEET IS OPENED IS DONE AND COMMITTED (5f1b83d, run 207ff23d, maintainability = 0 with path:line reasoning), so whenever scoring becomes possible the ordering discipline is already satisfied and must not be redone.
 branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, PUSHED. FIVE COMMITS: 32d99cc step 1 (workbook Goal/Required reading/Extract; lab#32 commented; card In Progress), a921443 the OTHER session`s state hunks + its §7 halt, 674d8a9 step 2 (design + the census + the feasibility probe), 344bc97 the halt discharge, ea7b1d2 THE PREDICTION COMMIT at 2026-09-10T11:51:08+02:00 = 09:51:08Z. SUPERSEDED, kept not deleted: branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, THREE COMMITS: 32d99cc (step 1), a921443 (the driver session`s state hunks + its §7 halt), 674d8a9 (step 2). NOT PUSHED YET. SUPERSEDED, kept not deleted: branch: NONE - stop14/phase-5a-guardrails IS MERGED (
 in_flight:   # THE REGISTERED BATCH IS RUNNING. Newest first.
+  - "STALL ALARM AT 20:29:45Z, INVESTIGATED, AND THE BATCH IS NOT STOPPED - manifest.tsv unchanged for
+    1157s and 1-min load 95.87, rising to 147.70 before falling back to 76.95. This is the SHAPE that
+    killed the 13:23Z batch (load 202), so it was checked against the SIGNATURE rather than the number,
+    and THE SIGNATURE IS ABSENT. The 13:23Z batch died because an AGENT COULD NOT GET CPU FOR `./mvnw
+    test` AND BURNED 13 BASH CALLS FIGHTING IT. The run that was stalling here, BE-004-07-treated, has
+    THE SAME SHAPE AS A HEALTHY RUN OF THE SAME CELL: 9 mvnw invocations vs 9 in BE-004-03-treated, 26
+    tool_use entries vs 26, 276 624 bytes vs 267 979. Its ONE `killed`-ish string is present ONCE in
+    BE-004-03 and BE-004-05 too, so it is boilerplate, not a kill. AND IT IS MOVING: the log grew 62 222
+    bytes in a 30-SECOND WINDOW I timed. So the machine is SLOW, not starving the agent, and a slow run
+    is a duration to exclude, not a run to discard (§4 step 6). NOTHING IS EXCLUDED. 32 of 40 rows are
+    recorded, all make_rc=0 and evaluator_exit=0."
+  - "WHAT THE LOAD ACTUALLY IS, measured with `ps -eo pcpu -r` rather than guessed, because the previous
+    session`s recommendation named the wrong two processes for THIS episode: the dominant consumer is
+    `mds_stores` AT 227.8%% - SPOTLIGHT INDEXING, a system service - ahead of memcore-server at 164.9%%
+    and memtrace at 90.2%%. NOT KILLED, NONE OF THEM: mds_stores is a system service, and the other two
+    are the author`s own tooling that other Claude sessions depend on - the previous session already
+    recorded that killing them is outside what this task implies, and that has not changed."
+  - "INSTRUMENT FINDING, NEW, AND IT IS THE LIKELIEST CAUSE OF THE SLOWDOWN CURVE: the runner LEAKS TEST
+    JVMs. Three corretto-21.0.11 java processes are alive at 01:39-01:40 elapsed - started about 19:06Z,
+    during the BE-003 half - and TWO OF THEM HAVE BEEN RE-PARENTED TO launchd (ppid 1), which means the
+    run that spawned them exited and they did not. They are not in the top-12 by CPU, so they are holding
+    MEMORY rather than burning cycles, which fits a batch that got progressively slower rather than one
+    that seized. NOT KILLED: they are orphans of finished runs, but the live run`s own JVM is
+    indistinguishable from them by name alone, and killing the wrong one corrupts the measurement I am
+    protecting. It goes to author_notes and, if it reproduces, it is a runner defect worth an instrument
+    PR - a batch that degrades itself run by run is a co-variate no experiment here has registered."
   - "SESSION HANDOVER 2026-09-10T19:0xZ, and it is a handover, NOT a second builder. The previous session
     ended its turn after launching the batch; the author started this one with the same standing instruction.
     CHECKED, NOT ASSUMED, before touching anything: ../.track-b.lock ABSENT, ../track-b-driver.out ends
