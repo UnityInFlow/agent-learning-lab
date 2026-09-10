@@ -25,7 +25,26 @@
 #               distinguishable afterwards from a run whose gate allowed everything.
 set -uo pipefail
 
-LOG="${CLAUDE_PROJECT_DIR:-.}/.ai/policy-events.jsonl"
+# THE LOG IS WRITTEN OUTSIDE THE WORKTREE, AND THAT IS NOT A DETAIL.
+#
+# It was `$CLAUDE_PROJECT_DIR/.ai/policy-events.jsonl` -- inside the repository under test --
+# and the preflight pair of 2026-09-10 showed what that costs. Runs 2077432c (BE-003) and
+# 88b861f3 (BE-004) SOLVED THEIR TASKS: build, existing tests, functional suite, error
+# contract and dependency guard all PASS, 6 of 7 acceptance criteria. Both were then scored
+# **exit 21, unrelated production files changed**, and the single unrelated file was THIS
+# LOG. Both controls scored 0. A 10-run treated arm would have read as a 0% pass rate caused
+# entirely by the guardrail's own bookkeeping -- the harness measuring itself, again.
+#
+# The evaluator's ignore pattern is a REGISTERED VARIABLE (§7: "any proposed change to what
+# the benchmark or evaluator measures"), so teaching it to ignore `.ai/` is not available and
+# was not attempted. Neither is a `.gitignore` entry in the overlay, which would achieve the
+# same thing invisibly. The right fix is the one that does not touch the evaluator at all:
+# A GUARDRAIL MUST NOT LEAVE ARTIFACTS IN THE REPOSITORY IT GUARDS.
+#
+# The file is still exactly one per run -- the worktree basename is `observatory-run-<uuid>`,
+# so the run id is in the log's own name -- and it still exists if and only if the hook
+# executed, which is what makes it the delivery proof.
+LOG="${POLICY_EVENT_LOG:-${TMPDIR:-/tmp}/policy-events-$(basename "${CLAUDE_PROJECT_DIR:-unknown}").jsonl}"
 POLICY="${CLAUDE_PROJECT_DIR:-.}/.ai/policies/protected-paths.yaml"
 
 emit() {  # emit <decision> <tool> <path> <reason>

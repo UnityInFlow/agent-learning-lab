@@ -1,2 +1,15 @@
 
 ======== BE-003 treated  key=EXP-B7-POLICY-BE003-PREFLIGHT ========
+  -> 2077432c-2f21-4d4c-ae5c-a3b3f9c90b30 make_rc=2 evaluator=21 f13=no edits=3 settings_tracked=yes policy_log=PRESENT(3) modelCalls=22
+
+======== BE-003 control  key=EXP-B7-POLICY-BE003-PREFLIGHT ========
+  -> dde736e7-e2c1-4a8b-8152-d6804159c302 make_rc=0 evaluator=0 f13=no edits=3 settings_tracked=no policy_log=ABSENT(0) modelCalls=20
+
+======== BE-004 treated  key=EXP-B7-POLICY-BE004-PREFLIGHT ========
+  -> 88b861f3-2536-481a-8544-622606780d23 make_rc=2 evaluator=21 f13=no edits=7 settings_tracked=yes policy_log=PRESENT(7) modelCalls=28
+
+======== BE-004 control  key=EXP-B7-POLICY-BE004-PREFLIGHT ========
+  -> 9674b873-aa5b-4d8e-8923-854b1ed4eace make_rc=0 evaluator=0 f13=no edits=7 settings_tracked=no policy_log=ABSENT(0) modelCalls=28
+
+manifest: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b07/preflight-20260910T125506Z/manifest.tsv
+PREFLIGHT DONE

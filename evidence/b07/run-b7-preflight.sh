@@ -116,9 +116,18 @@ one() {  # one <task> <arm>
   # wrong reason.
   local tracked=no
   [[ -n "$wt" ]] && git -C "$wt" ls-files --error-unmatch .claude/settings.json >/dev/null 2>&1 && tracked=yes
+  # THE LOG LIVES BESIDE THE WORKTREE, NOT INSIDE IT, since 2026-09-10 -- inside, the
+  # evaluator's scope guard counted it as an unrelated production file and failed two
+  # otherwise-correct runs at exit 21 (2077432c, 88b861f3). Derived from the worktree path
+  # itself rather than from THIS process's $TMPDIR, so it is right even if the runner's
+  # environment differs from the harness's.
+  local plog=""; [[ -n "$wt" ]] && plog="$(dirname "$wt")/policy-events-$(basename "$wt").jsonl"
   pl="ABSENT"; pn=0
-  if [[ -n "$wt" && -f "$wt/.ai/policy-events.jsonl" ]]; then
-    pl="PRESENT"; pn="$(grep -c . "$wt/.ai/policy-events.jsonl" 2>/dev/null || echo 0)"
+  if [[ -n "$plog" && -f "$plog" ]]; then
+    pl="PRESENT"; pn="$(/usr/bin/grep -c . "$plog" 2>/dev/null | tr -d ' ')"
+    # The worktree is kept but the log is not in it, so copy the log into the evidence dir
+    # or the run's only delivery proof lives in a temp directory nobody archives.
+    cp "$plog" "$EVID/${task}-${arm}-policy-events.jsonl" 2>/dev/null || true
   elif [[ "$edits" -eq 0 ]]; then
     pl="INCONCLUSIVE-0-edits"
   fi

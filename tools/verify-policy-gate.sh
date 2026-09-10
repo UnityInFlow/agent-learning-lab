@@ -40,7 +40,13 @@ mkdir -p "$SANDBOX/.ai"
 cp -R "$OVERLAY/.ai/policies" "$SANDBOX/.ai/"
 cp -R "$OVERLAY/.ai/hooks"    "$SANDBOX/.ai/"
 export CLAUDE_PROJECT_DIR="$SANDBOX"
-LOG="$SANDBOX/.ai/policy-events.jsonl"
+# The gate writes OUTSIDE the worktree since 2026-09-10 (see the header of policy-gate.sh:
+# its log inside the repo was scored as an unrelated production file and failed two
+# otherwise-correct preflight runs at exit 21). POLICY_EVENT_LOG pins it for the fixtures,
+# and the DEFAULT path is asserted separately below so this override cannot hide a
+# regression in the default.
+LOG="$SANDBOX/policy-events.jsonl"
+export POLICY_EVENT_LOG="$LOG"
 
 call() {  # call <tool> <path> -> exit code, and appends to LOG
   printf '{"tool_name":"%s","tool_input":{"file_path":"%s"}}' "$1" "$SANDBOX/$2" | "$GATE" >/dev/null 2>&1
@@ -127,6 +133,21 @@ fi
 if jq -e 'select(.policy != "protected-paths")' "$LOG" >/dev/null 2>&1; then
   bad "every entry names its policy" "protected-paths on all" "an entry did not"
 else ok "every entry names its policy" "protected-paths"; fi
+
+echo
+echo "THE LOG'S DEFAULT LOCATION — outside the worktree, because inside it fails the evaluator:"
+DEFDIR="$(mktemp -d)"; mkdir -p "$DEFDIR/observatory-run-deadbeef/.ai"
+cp -R "$OVERLAY/.ai/policies" "$DEFDIR/observatory-run-deadbeef/.ai/"
+( unset POLICY_EVENT_LOG
+  TMPDIR="$DEFDIR" CLAUDE_PROJECT_DIR="$DEFDIR/observatory-run-deadbeef" \
+    bash -c 'printf "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"x.kt\"}}" | "$0"' "$GATE" >/dev/null 2>&1 )
+if [[ -f "$DEFDIR/policy-events-observatory-run-deadbeef.jsonl" ]]; then
+  ok "default log is \$TMPDIR/policy-events-<worktree>.jsonl" "outside the worktree"
+else bad "default log location" "\$TMPDIR/policy-events-observatory-run-deadbeef.jsonl" "not written there"; fi
+if [[ -e "$DEFDIR/observatory-run-deadbeef/.ai/policy-events.jsonl" ]]; then
+  bad "nothing is written INSIDE the worktree" "no such file" "the gate wrote into the repo under test"
+else ok "nothing is written INSIDE the worktree" "confirmed absent"; fi
+rm -rf "$DEFDIR"
 
 echo
 echo "  $PASS of $N cases pass"
