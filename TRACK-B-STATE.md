@@ -13,6 +13,27 @@ loop_step: 6   # §4 STEP 6 RE-LAUNCHED 2026-09-10T18:37:31Z UNDER A NEW TAG, ba
 # SUPERSEDED, kept not deleted: loop_step: 7   # §4 STEP 7 HALTED PART-WAY 2026-09-06T13:2xZ. THE GATE HALF IS COMPLETE AND API-INDEPENDENT: check-run-gate.sh on each run's on-disk evaluation.json gives 20 ADMITTED, 0 REFUSED. THE SCORING HALF IS BLOCKED: no run records, so no codex sheets, so no O7. The hand re-read REQUIRED BEFORE ANY SHEET IS OPENED IS DONE AND COMMITTED (5f1b83d, run 207ff23d, maintainability = 0 with path:line reasoning), so whenever scoring becomes possible the ordering discipline is already satisfied and must not be redone.
 branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, PUSHED. FIVE COMMITS: 32d99cc step 1 (workbook Goal/Required reading/Extract; lab#32 commented; card In Progress), a921443 the OTHER session`s state hunks + its §7 halt, 674d8a9 step 2 (design + the census + the feasibility probe), 344bc97 the halt discharge, ea7b1d2 THE PREDICTION COMMIT at 2026-09-10T11:51:08+02:00 = 09:51:08Z. SUPERSEDED, kept not deleted: branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, THREE COMMITS: 32d99cc (step 1), a921443 (the driver session`s state hunks + its §7 halt), 674d8a9 (step 2). NOT PUSHED YET. SUPERSEDED, kept not deleted: branch: NONE - stop14/phase-5a-guardrails IS MERGED (
 in_flight:   # THE REGISTERED BATCH IS RUNNING. Newest first.
+  - "SESSION HANDOVER 2026-09-10T19:0xZ, and it is a handover, NOT a second builder. The previous session
+    ended its turn after launching the batch; the author started this one with the same standing instruction.
+    CHECKED, NOT ASSUMED, before touching anything: ../.track-b.lock ABSENT, ../track-b-driver.out ends
+    `stopping after 1 session(s)` so THE DRIVER IS DOWN, and the only live Track B processes are the batch
+    itself (pid 72988, `bash ./evidence/b07/run-b7-batch.sh 10`) and the run it currently owns
+    (make/run-agent.sh/claude, EXP-B7-POLICY-BE003, variant verify-v1.0). No second builder session is
+    editing this tree, so the §7 two-builder bullet of 09:4xZ is NOT re-armed. This session edits nothing
+    of stop 15 except this file until the batch exits."
+  - "§0a WAS NOT RE-RUN THIS SESSION, AND THAT IS A DECISION, NOT AN OMISSION. The author`s instruction again
+    said `starting with the section 0a preflight`, and §0a`s own trigger (first session, or after a halt) does
+    not fire on this re-entry. The table WAS run IN FULL 2026-09-10T18:36-18:41Z - about thirty minutes before
+    this session started - and its result is on disk under `preflight:` above: six rows ok, observatory_stack
+    PARTIAL with the known tunnel cause, board_check FAIL re-derived by hand and narrower than it reads.
+    RE-RUNNING IT NOW WOULD CONTAMINATE THE REGISTERED BATCH THAT IS LIVE: two of its rows launch exactly the
+    processes this batch is being protected from - a live `opencode run` (review_harness) and a `claude` run
+    (isolation) - and the excluded 13:23Z batch`s own EXCLUSIONS.md names a concurrent opencode process among
+    its contaminants. The 18:36Z block already discloses that its opencode call overlapped this batch`s first
+    run by under a minute. Spending that contaminant again, deliberately, to re-confirm a table that passed
+    half an hour ago, would trade a $6 batch for a duplicate row. Decided by Opus 5 (claude-opus-5),
+    autonomous, 2026-09-10. If the author wants the table re-run per session regardless, it belongs BEFORE a
+    batch launch, never beside one."
   - "RUNNING: evidence/b07/run-b7-batch.sh 10 (both tasks, 40 runs, interleaved), tag 20260910T183731Z, pid 72988,
     launched 2026-09-10T18:37:31Z under `nohup caffeinate -i`. Manifest evidence/b07/batch-20260910T183731Z/manifest.tsv
     appends BEFORE each next run starts, so it is the progress record - READ IT before deciding anything is dead, and
