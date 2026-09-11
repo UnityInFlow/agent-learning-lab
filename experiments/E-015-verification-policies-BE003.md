@@ -491,5 +491,15 @@ log whose line count equals the independently counted `Edit`/`Write` calls. But 
 would catch a broken gate is **the count agreeing**, not the file existing, and that second half
 was added because it was cheap rather than because it had been shown necessary. It is necessary.
 
+### One more thing the review round found, and it is about the artefact rather than the experiment
+
+§4a round 1 found, and `evidence/b07/review-20260911/path-traversal-probe.sh` reproduces against
+the **registered** gate, that `policy-gate.sh` strips the project prefix without canonicalising:
+`.github/workflows/ci.yml` exits **2**, `sub/../.github/workflows/ci.yml` exits **0**. The twelve
+`**/name` patterns match on `basename` and are unaffected; the five prefix-anchored ones are
+bypassable by a `..` segment. **It changes nothing measured here** — all edit-family calls in this
+arm were `Edit` to source and test paths and none carries a `..` segment — and it is **not fixed**,
+because a measured version is never edited (§6). It is v1.1's first concrete requirement.
+
 *Run and written by Opus 5 (claude-opus-5), autonomous, 2026-09-11. The registered predictions are
 unedited; DF2 stays on record as predicted and refuted.*
