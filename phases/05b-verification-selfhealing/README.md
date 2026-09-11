@@ -255,6 +255,176 @@ Fix it: classify permission blocks, quota exhaustion, and infrastructure faults 
 **infrastructure** (F13/F15), never as incorrect code. Then confirm the fix by re-running
 the reproduction, not by reading the patch.
 
+---
+
+## Lab 5B.5 — DESIGN, spine stop 16, 2026-09-11
+
+*§4 step 2. Every artifact labelled with the workspace rule applied **in order**, stopping at
+the first yes. Nothing below is built yet and no run has been started.*
+
+### Is this a benchmark-running lab? Yes, and that decides the loop
+
+The prompt's §4 says a Track A stop runs the loop minus steps 3–10 *"unless the lab runs the
+benchmark, in which case it is the whole loop."* Lab 5B.5 says *"run a build-requiring task
+under `--permission-mode acceptEdits`, headless"* and *"confirm the fix by re-running the
+reproduction, not by reading the patch."* Both halves are benchmark runs. **Stop 16 runs the
+whole loop and has four session boundaries, not two.**
+
+### What is already true of obs#47, read in the code rather than taken from the issue
+
+| obs#47 acceptance criterion | State on 2026-09-11 | Evidence |
+|---|---|---|
+| the agent can run the build non-interactively *(requirement 1)* | **already met** | `runner/run-agent.sh:757-760` passes `--allowedTools "Bash(./mvnw:*)" "Bash(mvn:*)"` |
+| a permission-blocked run recorded as infrastructure, not as incorrect code | **not met** | see the one condition below |
+| `FAILED`, `BLOCKED` and `DONE` distinguishable in the data model | **not met** | `grep -rl 'measurementStatus\|BLOCKED'` across the observatory returns **only the review hook's own test fixtures** — no runner, API, schema or web hit |
+| a test proves a blocked run never enters a registered analysis | **not met** | no such fixture exists |
+| the model-tier void written up and the experiment marked invalid | **partly** — written up in `docs/preregistration-exp-be002-model-tier.md`; the 20 runs are still in the store with no invalid marker | API, `EXP-BE002-MODEL-TIER` |
+
+### The gap is one condition, and its narrowness is deliberate
+
+`run-agent.sh:1203` is the only guard that can rescue a blocked run before the evaluator's
+verdict is posted:
+
+```
+if [[ "$PRODUCED_NOTHING" == true && "${TOOL_CALLS_SEEN:-0}" -eq 0 && ... ]]; then
+  ABORT_CLASS="F13"   # "the agent changed no file and called no tool — it never acted"
+```
+
+Its own comment says why it is narrow:
+
+> *"It stays narrow on purpose. A run that explored and then stalled has tool calls, so it is
+> untouched and keeps counting against its arm — which is what must happen when the thing under
+> test is what made the agent hesitate."*
+
+**That reasoning is right and it is exactly what makes it miss obs#47.** The sonnet runs had
+**11–12 tool calls** and changed `OrderControllerTest.kt`, so `PRODUCED_NOTHING` was false *and*
+`toolCalls` was non-zero. Both conjuncts fail, the run falls through to the evaluator's ladder at
+`tasks/BE-003-confirm-shipment/evaluator.sh:377-383`, and is recorded `F05`.
+
+The distinction the guard cannot draw is **who made the agent hesitate** — the treatment, or the
+harness. It never looks at why, because it was built to need no vocabulary.
+
+### The fix may not live in the evaluator
+
+The evaluator's ladder is a pure worktree function: `F04` if the build fails, else `F05` if tests
+fail, else `F03`, `F02`, `F07`. It has no access to the transcript, the telemetry or the
+permission state, so it **cannot** distinguish a block from a wrong answer however it is written.
+And moving it is a **§7 halt** under *"any proposed change to what the benchmark or evaluator
+measures (an exit-code mapping …)"*.
+
+The sanctioned home is the runner's existing `ABORT_CLASS` override at `run-agent.sh:1363`, which
+already rewrites `failureClass` without touching the evaluator. **The fix is an addition to a
+mechanism that exists, not a new mechanism.**
+
+### Two facts measured from the store before anything was designed
+
+1. **`F10 permission failure` already exists and is not infrastructure.**
+   `docs/metric-catalog.md:110` defines it; `runner/reclassify-run.py:33` sets
+   `INFRASTRUCTURE = {"F13", "F15"}`. An `F10` run is therefore still counted against the agent
+   and still enters every registered analysis. Across **all 550 runs** in the store there are
+   **zero F10 runs** (`F13`=51, `F05`=9, `F07`=5, `F15`=2, `F12`=1, `F03`=1, unclassified=481),
+   so admitting `F10` to the infrastructure set would retroactively reclassify **nothing**.
+2. **A permission denial is not by itself evidence of a block, and this is the fact that keeps
+   the fix honest.** Six of 550 runs have `permissionDenials > 0`. **All six passed**
+   (`passed: true`, `failureClass: null`), all six from `EXP-4B-ORCH-OVERHEAD`, with 14–25 tool
+   calls each. A classifier keying on `permissionDenials > 0` alone would have converted six
+   passing runs into discards.
+
+Fact 2 is the trap this step has to convert, and obs#47 names it itself:
+
+> *"(2) is the safety net for (1) — a permission block silently converted into a passing-looking
+> dataset is how this class of bug survives."*
+
+**A reclassifier that over-fires is worse than the bug it fixes**, because the bug shows up as a
+suspicious failure rate and the over-fire shows up as nothing at all. The layer that converts it
+is **L2**: a `verify-*.sh` fixture set that proves the classifier *refuses* each non-block case,
+with those six runs' shape as one of the fixtures.
+
+### And the vocabulary rule the runner already paid for
+
+`run-agent.sh:1186-1192` records what happens when this class of bug is fixed per-phrase:
+
+> *"it was extended for `API Error` and the very next batch died on `You've hit your session
+> limit`, a phrase it did not contain. **Sixteen runs recorded F03 'incorrect code' for a billing
+> state.** That is the fourth costume of the same bug, and the fourth time it was fixed
+> per-phrase instead of per-class."*
+
+So **no transcript text matching.** The classifier keys on counted telemetry events and the
+changed-file set, both of which are structural. This is a constraint inherited from the
+repository, not invented here.
+
+### What the fix covers, and what it provably does not
+
+This is the part to write down **now**, before building, because it is the part that a
+confirmation run will otherwise appear to have settled.
+
+| Case | Signal available today | Covered by this design? |
+|---|---|---|
+| **denial** — the agent called the tool and the harness refused it | `tool_decision` with `decision != "accept"` → `permissionDenials > 0` (`runner/lib/claude-telemetry.sh:68-70,109`) | **yes** — and only when combined with a changed-file set of zero |
+| **abstention** — the agent asked a human and stopped without calling the tool | **none.** No tool call means no `tool_decision`, so `permissionDenials` is 0 — which is exactly what obs#47 observed: *"permissionDenials was 0 throughout: nothing was refused"* | **no** |
+
+**obs#47's own observed failure is the abstention case, and this design does not close it.**
+Stating that at design time rather than discovering it after a green confirmation run is the
+whole point of writing this section before step 3.
+
+Nor would subscribing to the two hook events the Extract found close it: `PermissionDenied` fires
+on a refusal, and `PermissionRequest` fires *"when a tool call needs a permission decision"* — an
+agent that never calls the tool triggers neither. The only vocabulary-free signal an abstention
+leaves is **that the turn ended with the task unattempted**, which is a completion-contract
+question (**Lab 5B.4**), not a permission question. That is registered here as the named
+remainder and is **not** built at this stop — §6 forbids a future step's artifacts, and §4 step 4
+says build the smallest thing.
+
+### The reproduction, and the risk in it
+
+The agent under test is pinned to `claude-haiku-4-5-20251001` (§2, a controlled variable).
+**obs#47's bug needs a cautious agent, and haiku asked for build permission in 0 of 10 runs.**
+Reproducing by waiting for haiku to hesitate would likely produce zero blocked runs.
+
+So the reproduction is made **deterministic** instead: the treatment withholds the edit
+permission, so the block does not depend on the model's disposition at all.
+
+**Delivery is the channel this repository has already proved**, not a new runner flag: a
+`--customization` overlay carrying `.claude/settings.json` with deny rules, read because the
+runner passes `--setting-sources project` under `ISOLATE_USER_SETTINGS=1`, and proved per run by
+`customization.*Hash` — the same mechanism B7 used to land a `PreToolUse` policy hook on 17 of 17
+treated runs with zero leakage into the control. **No runner code changes to reproduce.**
+
+Predicted shape of a reproduction run: `toolCalls > 0` (the agent reads before it is stopped),
+`PRODUCED_NOTHING == true`, `permissionDenials > 0` — which escapes the narrow guard on the first
+conjunct and lands in the uncovered region.
+
+**The one thing that could invalidate the reproduction, named before it runs:** a deny rule in
+`settings.json` may block the tool *without emitting a `tool_decision` event*, in which case
+`permissionDenials` stays 0 and the reproduction produces no signal. That is what §4 step 5's
+preflight is for, and it is a one-run question. If deny rules emit nothing, the fallback is a
+`PreToolUse` hook exiting 2 — B7 proved that channel fires once per `Write|Edit` — and the
+difference between the two is recorded rather than papered over, because they are not the same
+event and the classifier must say which it keys on.
+
+### Artifacts and their layers
+
+Applying the workspace rule in order — *can the bad value still be written down after the fix?
+does something execute and reject it? otherwise L3*:
+
+| Artifact | Layer | Why that layer, by the rule |
+|---|---|---|
+| `runner/lib/classify-permission-block.sh` — exit-code contract over telemetry + changed files | **L2** | The bad value *can* still be written down (the abstention case is untouched), so not L1. Something executes and rejects it for the denial case: the script's exit code sets `ABORT_CLASS`. |
+| `runner/verify-permission-block-classifier.sh` — fixtures proving every exit code, including the six passing denial runs | **L2** | It executes in CI and fails the build. This is the control that converts the over-fire trap. |
+| Admitting `F10` to `INFRASTRUCTURE`, or reusing `F13`/`F15` — **decision deferred to step 4** | **L2 if built** | `INFRASTRUCTURE` is read at `analyze-experiment.py:160`, `baseline-report.py:134` and `derive-mde.py:77` — three things that execute. |
+| A `BLOCKED` value in the run record | **L3 on its own** | Adding an enum value that nothing validates is the schema-note case the workspace CLAUDE.md names explicitly. It becomes L2 only where the API rejects an invalid value, and that is a separate claim to prove, not to assume. |
+| The reproduction overlay (`.claude/settings.json` deny rules) | **L2 as delivered** | It executes — the runtime enforces the deny — and delivery is proved per run by `customization.*Hash`, not by the flag being passed. |
+| This design section, the Extract, and every gate clause written in prose | **L3** | Words a reader chooses to follow. |
+
+### The independence check this step owes
+
+Between the reproduction arm and its control exactly one thing moves: the overlay. Confirmed per
+run from the run records, not from the flags — `customization.*Hash` set on the treated arm and
+`null` on the control, `runtime.model` identical, `runtime.version` identical (the mid-batch CLI
+move that ended B7's batch is a live risk and the guard that caught it is still in place), and
+`repository.commitSha` identical across both arms.
+
+
 ## Metrics
 
 ```
