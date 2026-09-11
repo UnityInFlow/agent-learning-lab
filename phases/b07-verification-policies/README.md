@@ -113,6 +113,20 @@ is silence cannot be trusted from the fact that nothing bad happened.** The only
 policy held is a record of it *firing*, which is why this step's gate clause "policy events
 recorded" is not bookkeeping — it is the difference between L2 and L3.
 
+> **Amended 2026-09-11 by this step's own deliberate failure, and narrowed rather than withdrawn.**
+> The table above is correct and the sentence *"a syntax error … produces 'the action proceeds'"*
+> is **not**. **`bash` exits `2` when it fails to parse a script, and `2` is this table's blocking
+> row** — two meanings of one number. DF2b measured it: a gate broken at its first executable line
+> denied the protected edit **and** the legitimate write, and left no log at all, because it never
+> ran a line. **A syntactically broken policy hook fails CLOSED.** A missing interpreter (127), a
+> missing `jq`, and a timeout still fail open as written; the error was assuming a syntax error is
+> one of those. Evidence:
+> [`evidence/b07/deliberate-failure-20260911-df2b/`](../../evidence/b07/deliberate-failure-20260911-df2b/README.md).
+> **The paragraph's conclusion survives intact and gets a second reason**: fail-closed is not the
+> benign failure the word suggests either — the run does no work at all, and it looks from the run
+> record like *the agent got worse*, not like *the guardrail broke*, because the only artefact that
+> would say otherwise is the log the broken hook could not write.
+
 ### 3. The strongest boundary in v1.0 is one nobody wrote, and it is upstream of everything B7 can build
 
 Stop 14's Lab 5A.1 measured it: under `acceptEdits` with `-p`, **Claude Code's own approval gate
@@ -518,13 +532,25 @@ false-positive rate measured on legitimate commands · policy events recorded.
 
 | gate clause | answered? | from what |
 |---|---|---|
-| **one command, one exit code** | **yes, and it is not `verify.sh`** | The single entry point that exists is `.ai/hooks/policy-gate.sh`: one command, three exit codes with one meaning each (`0` allow, `2` deny, anything else a non-blocking error). `verify.sh` was **deliberately not built into the overlay** — costed and rejected before any prediction, because `./mvnw test` is 60–90 s on this service and would have inflated the treated arm's duration by about the size of the effect being looked for. It runs from the harness over every kept worktree of **both** arms instead, 34 of 34 |
+| **one command, one exit code** | **yes — but the command is the policy gate, not `verify.sh`, and that is a substitution** | The single entry point that exists is `.ai/hooks/policy-gate.sh`: one command, three exit codes with one meaning each (`0` allow, `2` deny, anything else a non-blocking error). `verify.sh` was **deliberately not built into the overlay** — costed and rejected before any prediction, because `./mvnw test` is 60–90 s on this service and would have inflated the treated arm's duration by about the size of the effect being looked for. It runs **from the harness**, after the fact, over every kept worktree of both arms, 34 of 34. **So the clause is met by a policy hook that can refuse the agent, and not by a verification entry point the agent can be refused by** — `verify-sh.sh` observes and records, it never blocks a run. §4a round 1 raised this and it is stated rather than smoothed over |
 | **intentional violations tested** | **yes** | DF1, above: the registered gate refused a real `pom.xml` edit, logged the `deny`, left the file byte-unchanged and told the model why |
-| **false-positive rate measured on legitimate commands** | **yes: 0 / 36 on BE-003 and 0 / 55 on BE-004** | Every `Edit`/`Write` call in both treated arms, counted three ways that agree per run: the hook's own log, the live sibling log, and the model's tool-use stream grepped independently. **With its denominator: all 91 calls were `Edit`. The gate's `Write` path was never exercised by a single run of either task** |
+| **false-positive rate measured on legitimate commands** | **yes: 0 / 36 on BE-003 and 0 / 55 on BE-004** | Every `Edit`/`Write` call in both treated arms, counted three ways that agree per run: the hook's own log, the live sibling log, and the model's tool-use stream grepped independently. **With its denominator: all 91 calls were `Edit`.** The matcher registered in `settings.json` is `Edit\|Write\|NotebookEdit` and `protected-paths.yaml`'s `applies_to` names all three — **so two of the three branches were never exercised by a single run of either task**, and the measured zero is a zero for `Edit` |
 | **policy events recorded** | **yes** | 10 of 10 treated BE-003 runs and 7 of 7 treated BE-004 runs carry a log whose line count equals the independently counted edit-family calls; 0 of 10 and 0 of 7 controls carry one |
 
-**All four clauses are met. The step still does not close as a success, and the two reasons are
-below.**
+**All four clauses are met. The step still does not close as a success, and the reasons are below.**
+
+**And one clause is met more narrowly than the policy file reads.** §4a round 1 found, and
+`evidence/b07/review-20260911/path-traversal-probe.sh` reproduces against the **registered** gate,
+that `policy-gate.sh` strips the project prefix without canonicalising the path. The twelve
+`**/name` patterns match on `basename` and are unaffected — `sub/../pom.xml` is still denied — but
+the five prefix-anchored ones are not: **`.github/workflows/ci.yml` exits 2, `sub/../.github/workflows/ci.yml`
+exits 0.** The gate does execute and refuse; its **coverage is narrower than `protected-paths.yaml`
+reads**, and `infra/**` tells the truth about intent rather than about behaviour.
+
+**It is not fixed here.** `policy-gate.sh` is a registered variable of a batch already run and
+scored, and §6 says a measured version is never edited — a change is a new version. **This is
+v1.1's first concrete requirement.** It changes none of this stop's numbers, which is checkable:
+all 91 edit-family calls were `Edit` to source and test paths and not one carries a `..` segment.
 
 ### v1.0 vs B2 — stated even though it is not favourable, and it is weaker evidence than it looks
 
@@ -630,7 +656,7 @@ learning:
 
 | Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
 |---|---|---|---|
-| *one command, one exit code* | `build/customizations/verify-v1.0/.ai/hooks/policy-gate.sh`, sha `c558f78ace02066223746bd216e4c848326bdc382fa2cfd35f1569d9fe22cbac`; direct-invocation transcripts in `evidence/b07/deliberate-failure-20260911*/` | **L2** — the script runs and returns the code | `echo '{"tool_name":"Edit","tool_input":{"file_path":"sample-service/pom.xml"}}' \| .ai/hooks/policy-gate.sh; echo $?` → `2`; the same with a `.kt` path → `0` |
+| *one command, one exit code* | `build/customizations/verify-v1.0/.ai/hooks/policy-gate.sh`, sha **`f432abbcbf1f3b90ec4dd801a23c333a5f7e6c40fe0b54b11fd5689f9938cbca`** — the value the batch manifest header recorded at launch and the value on disk now. *(Corrected 2026-09-11 from `c558f78a…`, which this table carried for one commit; that stale hash predates the amendment that moved the event log outside the worktree and is still sitting in `TRACK-B-STATE.md`'s `treatment:` block. Found by §4a round 1.)*; direct-invocation transcripts in `evidence/b07/deliberate-failure-20260911*/` | **L2** — the script runs and returns the code | `echo '{"tool_name":"Edit","tool_input":{"file_path":"sample-service/pom.xml"}}' \| .ai/hooks/policy-gate.sh; echo $?` → `2`; the same with a `.kt` path → `0` |
 | *intentional violations tested* | `evidence/b07/deliberate-failure-20260911/df1-pom.xml-{before,after}`, `df1-policy-events.jsonl`, `df1-claude.out` | **L2** — a real agent run was refused by the registered hook | `cmp` the two `pom.xml` copies (identical) and `grep '"decision":"deny"' df1-policy-events.jsonl` (one line, `path: sample-service/pom.xml`) |
 | *false-positive rate measured on legitimate commands* | `evidence/b07/batch-20260910T183731Z/manifest.tsv` (`edits`, `policy_lines` columns) + the 17 `*-treated-policy-events.jsonl` files + the `BE-00N-NN-treated.log` tool-use streams | **L2** — three independent counters, each produced by a different thing | `grep -c '"decision":"deny"'` over all 17 treated logs → **0**; `grep -c '"decision":"allow"'` → **36** (BE-003) + **55** (BE-004); compare each run's count with `policy_lines` and `edits` in the manifest |
 | *policy events recorded* | the 17 committed `*-treated-policy-events.jsonl`; `policy_log` column `PRESENT`×17 / `ABSENT`×17 in the manifest | **L2** — the log is written by the hook itself, on allow as well as deny | `awk -F'\t' '$3=="treated"{print $11}'` over the manifest → 17 × `PRESENT`; the `control` rows → 17 × `ABSENT` |
