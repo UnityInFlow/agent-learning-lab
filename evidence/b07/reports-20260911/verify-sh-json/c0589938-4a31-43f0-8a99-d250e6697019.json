@@ -1,0 +1,48 @@
+{
+  "verifyShVersion": "1.0.0",
+  "task": "BE-004",
+  "worktree": "/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-c0589938-4a31-43f0-8a99-d250e6697019",
+  "baseline": "84acba3b03e121e4037be2dbee8307a862ded755",
+  "startedAt": "2026-09-11T07:19:59Z",
+  "finishedAt": "2026-09-11T07:20:09Z",
+  "exitCode": 0,
+  "failingStage": null,
+  "detail": null,
+  "stages": [
+    {
+      "name": "manifest",
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 35,
+      "detail": "declared == enforced (3 prefixes)"
+    },
+    {
+      "name": "build",
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 3618,
+      "detail": ""
+    },
+    {
+      "name": "test",
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 5915,
+      "detail": ""
+    },
+    {
+      "name": "deps",
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 55,
+      "detail": ""
+    },
+    {
+      "name": "scope",
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 76,
+      "detail": ""
+    }
+  ]
+}

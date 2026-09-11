@@ -7,14 +7,14 @@ provenance:
   agent_sha:     b181a9bc5df0
   rubric_path:   benchmark/rubrics/backend-quality.yaml
   rubric_sha:    396e1799eb2b
-  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e2b5c62c-18d0-433b-8b03-155169c1a6a6
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f953241b-6abd-44ca-bbf3-028164faeaf6
   mode:          run
-  run_id:        e2b5c62c-18d0-433b-8b03-155169c1a6a6
+  run_id:        f953241b-6abd-44ca-bbf3-028164faeaf6
   evaluator_exit: 0
-  observatory:   http://127.0.0.1:18081/api/runs/e2b5c62c-18d0-433b-8b03-155169c1a6a6
-  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.7UOlsxtT8P/baseline
+  observatory:   http://127.0.0.1:18081/api/runs/f953241b-6abd-44ca-bbf3-028164faeaf6
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.CzQJmmhRNG/baseline
   baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
-  scored_utc:    20260911T071912Z
+  scored_utc:    20260911T072152Z
   attachments:   3 file(s) under test, 3 with a baseline side
   session:       fresh    # never --continue; independence requires no memory
 ---
@@ -27,22 +27,22 @@ categories:
   - name: architecture-consistency
     score: 2
     anchor_level: 2
-    reason: both refusals throw baseline ApiException subclasses, no ApiError constructed
-    evidence: ShipmentController.kt:60, ShipmentController.kt:66
+    reason: every refusal throws an existing baseline ApiException subclass, no error body constructed
+    evidence: ShipmentController.kt:29,49,60,75
   - name: maintainability
-    score: 0
-    anchor_level: 0
-    reason: status decision is a bare if statement, not an exhaustive when
+    score: 2
+    anchor_level: 2
+    reason: single `when (shipment.status)` in expression position, no else, value returned
     evidence: ShipmentController.kt:65
   - name: test-quality
-    score: 1
-    anchor_level: 1
-    reason: body asserted and refusal envelope asserted, but no separate get re-reads state
-    evidence: ShipmentControllerTest.kt:103-105, ShipmentControllerTest.kt:124
+    score: 2
+    anchor_level: 2
+    reason: second confirm body asserted, state re-read via get, refusal asserts $.error.code
+    evidence: ShipmentControllerTest.kt:106,95,122
   - name: change-focus
     score: 1
     anchor_level: 1
-    reason: unnamed methods identical, but a new ErrorCode constant differs outside confirm/imports
+    reason: ErrorCode.SHIPMENT_CANCELLED added, a difference neither confirm nor an import
     evidence: ApiError.kt:36
 ambiguous_categories: []
 ```

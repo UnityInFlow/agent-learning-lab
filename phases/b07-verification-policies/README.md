@@ -364,14 +364,77 @@ them is how an arm gets called void for the wrong reason.
 
 ## Predict before you run
 
-<!-- TODO: predict the false-positive rate on legitimate commands before
-     you measure it. The gate requires the number either way. -->
+**The gate clause is *"false-positive rate measured on legitimate commands"*, and the number was
+registered before any run of it existed.** It is prediction **P3** in both experiment files, and the
+prediction commit is **`ea7b1d2`, 2026-09-10T09:51:08Z**, which precedes the batch's first
+`startedAt` of **2026-09-10T18:37:32Z** by about nine hours.
+
+| | registered value | mechanism registered with it |
+|---|---|---|
+| false-positive rate, BE-003 | **0**, over an expected **N ≈ 6–10 `Edit`/`Write` calls per run** | the policy is a **deny list, not an allow list**, so every source and test path the ticket requires falls through untouched |
+| false-positive rate, BE-004 | **0**, over an expected **N ≈ 8–14 per run** | same |
+| true-positive count (P2) | **0 denials**, on the census finding that 0 of 325 Track B runs ever touched a protected path | if the gate fires at all, the census was wrong |
+
+Registering **0** for both is not a way of predicting success. It is the honest consequence of the
+census in *Design* above: on this corpus the gate has nothing to catch, so a non-zero false-positive
+rate is the only way it can show up in the data at all — which is why decision-rule **row 1** makes
+a single false positive a **REJECT** rather than a blemish.
 
 ## Lab B7.1 — measure against B6, and close v1.0 against B2
 
-<!-- TODO: two comparisons here. The step comparison (vs B6) and the
-     version comparison (v1.0 vs the B2 baseline) — the first thing in
-     this project that answers the business question end to end. -->
+Two comparisons are owed here. **One is measured and one is not**, and they are kept apart.
+
+### Measured: the step comparison, treated vs its own concurrent control
+
+Batch `20260910T183731Z`, manifest at
+`evidence/b07/batch-20260910T183731Z/manifest.tsv`. Author decision 9 makes each task its own
+experiment, so there is no pooled row and no cross-task verdict.
+
+| | BE-003 (E-015, n = 10/arm) | BE-004 (E-016, n = 7/arm) |
+|---|---|---|
+| policy log present | **10 of 10** treated · **0 of 10** control | **7 of 7** treated · **0 of 7** control |
+| policy events, all `allow` | **36**, zero `deny` | **55**, zero `deny` |
+| **false-positive rate** | **0 / 36** | **0 / 55** |
+| `estimatedCost` Δ median | +12.83 % (MDE 30 %) → not detectable | +5.02 % (MDE 13 %; n=7 limit 15.2 %) → not detectable |
+| `modelCalls` Δ median | +2.5 (MDE 6) → not detectable | −1 (MDE 4.09; n=7 limit 4.89) → not detectable |
+| evaluator exit 0 | 10 of 10 vs 10 of 10 | 7 of 7 vs 7 of 7 |
+| rubric quality (P7) | **deferred** — codex down on auth | **deferred** — same, and decision 10.2 forbids a substitute on this rubric |
+
+**The false-positive rate is 0, and three things about it must be said in the same breath, because
+each one narrows the claim:**
+
+1. **All 91 events across both tasks are `tool: Edit`.** Zero `Write`, zero `NotebookEdit`. The
+   gate's `Write` path was **never exercised**, so "false-positive rate 0" is measured on `Edit`
+   only and the gate clause is answered for `Edit` only.
+2. **The denominator came in below the registered expectation on both tasks** — BE-003 3–5 per run
+   against a predicted 6–10, BE-004 7–10 against a predicted 8–14. The zero is real; it is a
+   *weaker* zero than the design asked for, and the shortfall is recorded rather than absorbed.
+3. **The population is what the deny list makes reachable, not what a repository contains.** The
+   census already said 0 of 325 runs touched a protected path. A 0/91 false-positive rate on a deny
+   list nothing approaches is a statement about the corpus as much as about the gate.
+
+### NOT measured: the v1.0-vs-B2 version comparison
+
+This is the comparison the spine puts at this stop — *"v1.0 closes here, measured against B2 on
+BE-003"* and against BE-004's own B5 control on BE-004 — and it is **not answered in this session**,
+for one reason: it is a **quality** comparison, its registered instrument is
+`codex-score.sh` (Decision C), and codex refused on an auth error throughout. §4c step 3 is explicit
+that the parts needing no registered number proceed and the exit gate waits. Second-reader
+`deepseek-v4-pro` sheets exist for the batch and are labelled *"second-reader sheet, produced before
+the registered sheet"*; they are not this comparison's number.
+
+### `verify-sh.sh` beside the evaluator — and why its headline is weaker than it looks
+
+E-015 and E-016 both registered `verify-sh.sh` run over **every kept worktree of both arms**, with
+*"the interesting number is how often they disagree."* Per-run results:
+`evidence/b07/reports-20260911/verify-sh-vs-evaluator.tsv`.
+
+The measured disagreement rate is reported there. **It is reported with its denominator, because the
+denominator is the problem:** the evaluator returned exit 0 on **34 of 34** runs, so there was no
+failing run for `verify-sh` to disagree *about*. A 0 % disagreement rate over a population with no
+failures in it does not show that the two agree on failures — it shows that the batch never produced
+one. Whether "the agent could have known" matches "the evaluator found out" is therefore **still
+untested on this benchmark**, and the deliberate-failure step is where it first can be.
 
 ## Deliberate failure
 

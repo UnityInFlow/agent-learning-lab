@@ -18,3 +18,31 @@ provenance:
   attachments:   7 file(s) under test, 7 with a baseline side
   session:       fresh    # never --continue; independence requires no memory
 ---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: every refusal throws ConflictException/ResourceNotFoundException, both present in baseline; no ApiError constructed
+    evidence: OrderController.kt:72, ShipmentController.kt:41
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: order-status decision is a single if, not a when; new status falls through silently
+    evidence: OrderController.kt:65
+  - name: test-quality
+    score: 2
+    anchor_level: 2
+    reason: all four clauses hold — double cancel asserts body, 409 re-reads order and shipment state, envelope asserted, shipments re-read post-cancel
+    evidence: OrderControllerTest.kt:135-155
+  - name: change-focus
+    score: 1
+    anchor_level: 1
+    reason: OrderController.create passes OrderStatus.ACTIVE, an unnamed method differing from baseline
+    evidence: OrderController.kt:34-40
+ambiguous_categories: []
+```
