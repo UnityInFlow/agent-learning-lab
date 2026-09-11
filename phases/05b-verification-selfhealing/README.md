@@ -414,6 +414,37 @@ does something execute and reject it? otherwise L3*:
 | Admitting `F10` to `INFRASTRUCTURE`, or reusing `F13`/`F15` — **decision deferred to step 4** | **L2 if built** | `INFRASTRUCTURE` is read at `analyze-experiment.py:160`, `baseline-report.py:134` and `derive-mde.py:77` — three things that execute. |
 | A `BLOCKED` value in the run record | **L3 on its own** | Adding an enum value that nothing validates is the schema-note case the workspace CLAUDE.md names explicitly. It becomes L2 only where the API rejects an invalid value, and that is a separate claim to prove, not to assume. |
 | The reproduction overlay (`.claude/settings.json` deny rules) | **L2 as delivered** | It executes — the runtime enforces the deny — and delivery is proved per run by `customization.*Hash`, not by the flag being passed. |
+
+> **Correction, 2026-09-11, additive — the delivery proof in the row above and in *The
+> reproduction* section is WRONG, and it was found by reading the source before step 3 rather
+> than by a validator after the batch.** `run-agent.sh:626-629` records exactly three
+> customization hashes — `instructionsHash` (`CLAUDE.md`), `skillsHash` (the `SKILL.md` set)
+> and `agentHash` (`.claude/agents/<name>.md`). **There is no `settingsHash`.** An overlay
+> whose only payload is `.claude/settings.json` is `null` in all three, so a run record cannot
+> show it was delivered. The registered delivery proof is the one in
+> `experiments/E-017-permission-block-classification-5b5.md` § *How the treatment is delivered
+> — and proved*: arm H asserts `.ai/block-writes.log` line count **equal to** the
+> independently counted write-tool calls (not `lines > 0`, which cannot separate *no hook
+> installed* from *hook broken, denying everything*), and arm D asserts the behavioural shape —
+> zero files changed with `toolCalls > 0`. The row above is kept as written; §4 step 12 forbids
+> rewriting what was committed, and the error is more useful visible than tidied away.
+>
+> **A second correction from step 4, same direction.** *What the fix covers* says the
+> abstention case is uncovered because the telemetry conjunct is false. Replayed over obs#47's
+> own seven `F05` runs, **both** conjuncts are false: those runs changed one file each
+> (`evidence/p05b/step4-classifier-build-20260911T192000Z.md`). P6's direction is unchanged;
+> its mechanism is stronger than written.
+>
+> **A third correction, and it is the layer column policing itself.** The row above calling
+> `runner/verify-permission-block-classifier.sh` **L2** says *"it executes in CI and fails the
+> build"*. When step 2 wrote that it was **false**: `grep -rn 'verify-' .github/workflows/ci.yml`
+> returned nothing and none of the seven existing `runner/verify-*.sh` ran in CI. Step 4 made
+> the claim true instead of relabelling it down — one step added to the `runner` job, running
+> that verifier with nothing but bash and jq. **It was L3 until that commit and is L2 after it.**
+> The six sibling verifiers remain unwired; that is this repository's defect, logged to
+> `author_notes`, not fixed here.
+>
+> *Corrected by Opus 5 (claude-opus-5), autonomous, 2026-09-11.*
 | This design section, the Extract, and every gate clause written in prose | **L3** | Words a reader chooses to follow. |
 
 ### The independence check this step owes
