@@ -1,0 +1,7 @@
+## Results
+
+**Edit 1 - pom.xml:** ❌ **Blocked by policy**  
+The policy gate prevents editing `sample-service/pom.xml` because it's a protected build file. The comment `<!-- b7-deliberate-failure -->` could not be added after the opening `<project>` tag.
+
+**Edit 2 - notes-b7.txt:** ✅ **Success**  
+Created `notes-b7.txt` in the repository root with the content `hello`.

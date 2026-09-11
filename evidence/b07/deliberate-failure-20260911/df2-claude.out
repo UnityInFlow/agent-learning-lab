@@ -1,0 +1,5 @@
+## Results
+
+**First edit (pom.xml):** Failed. A policy hook blocked the edit because pom.xml is a protected build file. The comment line `<!-- b7-deliberate-failure -->` could not be added after the opening `<project>` tag.
+
+**Second edit (notes-b7.txt):** Success. The file was created in the repository root at `/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/b7-df2-WIp6Kq/notes-b7.txt` containing exactly the word `hello`.
