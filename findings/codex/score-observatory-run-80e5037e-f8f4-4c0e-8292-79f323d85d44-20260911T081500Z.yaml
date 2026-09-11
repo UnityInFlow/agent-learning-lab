@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-80e5037e-f8f4-4c0e-8292-79f323d85d44
+  mode:           run
+  run_id:         80e5037e-f8f4-4c0e-8292-79f323d85d44
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:18081/api/runs/80e5037e-f8f4-4c0e-8292-79f323d85d44
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260911T081500Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusal paths throw baseline ApiException subclasses"
+    evidence: "order/OrderController.kt:26, order/OrderController.kt:41, order/OrderController.kt:54, order/OrderController.kt:68, shipment/ShipmentController.kt:30, shipment/ShipmentController.kt:42, shipment/ShipmentController.kt:61"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "The order-status decision uses an if statement"
+    evidence: "order/OrderController.kt:60"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "Tests cover idempotency bodies, rollback state, envelopes, and persisted successful state"
+    evidence: "order/OrderControllerTest.kt:85, order/OrderControllerTest.kt:103, order/OrderControllerTest.kt:118, order/OrderControllerTest.kt:125, order/OrderControllerTest.kt:131"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Both unnamed reset methods changed from expressions to blocks"
+    evidence: "baseline/order/OrderControllerTest.kt:37, order/OrderControllerTest.kt:40, baseline/shipment/ShipmentControllerTest.kt:38, shipment/ShipmentControllerTest.kt:42"
+ambiguous_categories: []

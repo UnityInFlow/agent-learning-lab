@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3d1e77c2-ceb0-4ad5-a6ed-7b37833bf247
+  mode:           run
+  run_id:         3d1e77c2-ceb0-4ad5-a6ed-7b37833bf247
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:18081/api/runs/3d1e77c2-ceb0-4ad5-a6ed-7b37833bf247
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260911T080931Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals use baseline ApiException subclasses; controllers construct no error bodies"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:27,41,50,66; sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:29,42,61"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "The cancel status decision uses discarded if statements"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:58"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "Tests cover repeat cancellation bodies, refusal state, envelopes, and successful persisted state"
+    evidence: "sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:101,107,112,127,143,149,155"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Both controllers’ unnamed reset test methods differ from baseline"
+    evidence: "baseline/sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:37; sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:37; baseline/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt:38; sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt:39"
+ambiguous_categories: []

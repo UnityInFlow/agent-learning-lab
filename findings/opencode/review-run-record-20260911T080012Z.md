@@ -22,3 +22,10 @@ lab_head:        dc86a26
 lab_dirty:       true   # the TREE, not the artifact - see each artifact's own dirty:
 ```
 
+## Panel
+
+Every family failed. No review was produced.
+
+| Family | Outcome | |
+|---|---|---|
+| ollama-cloud/glm-5.2 | FAILED | rc=1 155s |

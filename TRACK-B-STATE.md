@@ -899,6 +899,58 @@ preflight_20260910_1941:  # §0a RUN AGAIN 2026-09-10T19:38-19:41Z, on the autho
   processes_after: "checked 19:41Z - no opencode, no codex, no stray run-agent outside the batch`s own
     tree; the only live agent processes are pid 72988 and the run it currently owns."
 
+preflight_20260911_0800:  # §0a RUN IN FULL AGAIN 2026-09-11T08:00-08:10Z, at the author's explicit
+            # instruction ("starting with the section 0a preflight"). FOUR ROWS CAME BACK FAIL FROM THE
+            # SUBAGENT AND I RE-DERIVED EVERY ONE OF THEM MYSELF BEFORE RECORDING IT, because a FAIL from a
+            # mis-aimed probe is the house failure mode running backwards - a control reporting failure over
+            # a scope it never touched. Two of the four survived re-derivation, two did not.
+  row1_review_hook_script: "ok - 19 of 19 cases pass. The §0a table says 16; the script has grown to 19
+    since the table was written. More cases, all passing, so the row passes and the TABLE is the stale thing."
+  row2_review_harness: "FAIL ON THE DEFAULT PANEL, AND THE CAUSE IS THE OLLAMA WEEKLY LIMIT AGAIN, NOT A
+    STALL. findings/opencode/review-run-record-20260911T080012Z.md is 904 bytes, 0 finding sections, exit 1,
+    panel table reads `ollama-cloud/glm-5.2 FAILED rc=1 155s`, no opencode process left. I PROVED THE CAUSE
+    RATHER THAN INFERRING IT: a direct `opencode run --agent lab-critic -m ollama-cloud/deepseek-v4-pro`
+    returns `you (hermannjirka15) have reached your weekly usage limit` (ref 435c591d). SAME OUTAGE CLASS AS
+    2026-09-05/06. IT IS NOT A §7 HALT AND IT DOES NOT STOP §4a: §4a itself offers `-P codex,deepseek-v4-pro`,
+    and opencode-review.sh:107,264 dispatch `codex` to tools/codex-critic.sh - A DIFFERENT HARNESS, not an
+    opencode model - which works, proved by row 3 and by the 14 sheets below. THE REVIEW ROUNDS OWED AT THIS
+    STOP WILL RUN ON `-P codex` AND THE PR WILL SAY SO. Second-reader breadth is reduced to one family and
+    that is recorded as a limitation of this stop's review, not hidden."
+  row3_codex_harness: "ok, AND THIS IS THE ROW THE WHOLE SESSION TURNED ON. codex-cli 0.147.0; dry run
+    printed the prompt; the real run wrote findings/codex/score-good-nested-ifs-20260911T080459Z.yaml with
+    all four categories: architecture-consistency 2, maintainability 0, test-quality null, change-focus 2.
+    THE NULL IS A MEASUREMENT, NOT A MISSING CELL (§6), and it is on a FIXTURE, not on a registered run -
+    every one of the 34 registered sheets came back with ZERO nulls. CODEX IS BACK: the auth outage recorded
+    in codex_auth (first refusal 2026-09-11T07:0xZ) cleared by 07:59Z, about one hour in, so DECISION H's
+    12-hour condition NEVER AROSE and Decision H IS NOT FIRED."
+  row4_verifiers: "ok - all four verifier fixture sets pass: verify-run-gate-checker 13/13,
+    verify-sheet-category-checker 11/11, verify-run-record-validator 12/12, verify-model-output-classifier
+    16/16."
+  row5_observatory_stack: "PARTIAL, AND THE SUBAGENT'S `FAIL` IS WRONG IN THE INFORMATIVE DIRECTION. It
+    reported `18 of 18 checks failed` plus `/health returned 404` and concluded the stack was down. THE
+    STACK IS UP. I re-derived it: `curl http://127.0.0.1:18081/api/runs?limit=1` returns 200; /health 404s
+    because THERE IS NO /health ENDPOINT, so the subagent's probe tested a path that does not exist and read
+    its absence as an outage. `make smoke` fails because it aims at 8081 and NOTHING listens on 8081
+    (curl 000 on both localhost and 127.0.0.1) - the stack runs under the colima context behind the tunnel
+    on 18081, which is the long-standing local arrangement. THE STRONGEST PROOF IS NOT A SMOKE TEST ANYWAY:
+    all 14 BE-004 sheets carry `observatory: http://127.0.0.1:18081/api/runs/<id>` in their provenance
+    header, so the run-record read path this stop actually depends on is proved by the artefacts it produced."
+  row6_isolation: "unproven - verify-codex-isolation.sh exited 1 mid-check-B with incomplete output and the
+    subagent did not re-run it. NOT re-derived by me this session and therefore NOT recorded as ok. It does
+    not gate this stop: isolation for THIS batch is proved per-run from the manifest, which carries
+    settings_tracked yes/no and agentHash on all 34 rows, and from the init.tools read-back n=4 on 34 of 34.
+    The live-claude half of the row is deferred, as briefed."
+  row7_board_check: "STALE, exit 1, 2 of 2 boards describe an older HANDOFF.md - AND THIS IS ON PURPOSE AND
+    WAS PREDICTED. §4 step 14 says editing HANDOFF.md makes the board check demand a republish; HANDOFF was
+    edited for this stop and the republish is step 14, not now. The previous session's next_action says in
+    terms: `DO NOT REPUBLISH THE BOARDS YET`. A green board here would mean the boards had been relabelled
+    without their content moving, which is the failure this check exists to prevent."
+  verdict: "NO ROW BLOCKS STOP 15. §0a's halt clause names an unproven REVIEW HARNESS or a FAILING VERIFIER:
+    the verifiers are 4 of 4 green (row 4) and the review harness has a working family (row 2, `-P codex`).
+    Rows 5 and 7 were subagent probe errors or predicted states. Row 6 is recorded unproven rather than
+    passed. blocked_on_author stays EMPTY."
+  ran_at: "2026-09-11T08:00:00Z to 08:10:30Z (subagent), re-derivations by me 08:12-08:40Z"
+
 preflight:  # §0a RUN IN FULL AGAIN 2026-09-11T06:5x-07:0xZ, at the AUTHOR`S EXPLICIT INSTRUCTION for
             # this session ("starting with the section 0a preflight"), not because §0a`s own trigger fired -
             # status was `running`, not `blocked`. Seven rows delegated to a haiku subagent with exact
