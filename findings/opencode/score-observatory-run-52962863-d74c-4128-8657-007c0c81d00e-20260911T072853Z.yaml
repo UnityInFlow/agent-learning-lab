@@ -18,3 +18,15 @@ provenance:
   attachments:   3 file(s) under test, 3 with a baseline side
   session:       fresh    # never --continue; independence requires no memory
 ---
+
+> lab-scorer · deepseek-v4-pro
+
+! permission requested: external_directory (/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-52962863-d74c-4128-8657-007c0c81d00e/sample-service/src/main/kotlin/com/unityinflow/sample/api/*); auto-rejecting
+! permission requested: external_directory (/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-52962863-d74c-4128-8657-007c0c81d00e/sample-service/src/main/kotlin/com/unityinflow/sample/api/*); auto-rejecting
+! permission requested: external_directory (/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-52962863-d74c-4128-8657-007c0c81d00e/sample-service/src/main/kotlin/com/unityinflow/sample/api/*); auto-rejecting
+✗ Read /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-52962863-d74c-4128-8657-007c0c81d00e/sample-service/src/main/kotlin/com/unityinflow/sample/api/ConflictException.kt failed
+Error: The user rejected permission to use this specific tool call.
+✗ Read /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-52962863-d74c-4128-8657-007c0c81d00e/sample-service/src/main/kotlin/com/unityinflow/sample/api/ResourceNotFoundException.kt failed
+Error: The user rejected permission to use this specific tool call.
+✗ Read /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-52962863-d74c-4128-8657-007c0c81d00e/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiException.kt failed
+Error: The user rejected permission to use this specific tool call.

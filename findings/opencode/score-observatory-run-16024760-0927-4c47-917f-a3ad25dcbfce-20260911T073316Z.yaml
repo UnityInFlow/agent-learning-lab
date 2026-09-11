@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:    6252778b8472
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-16024760-0927-4c47-917f-a3ad25dcbfce
+  mode:          run
+  run_id:        16024760-0927-4c47-917f-a3ad25dcbfce
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/16024760-0927-4c47-917f-a3ad25dcbfce
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.MptxZsn09U/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260911T073316Z
+  attachments:   7 file(s) under test, 7 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: Every refusal throws pre-existing ConflictException or ResourceNotFoundException; no ApiError built.
+    evidence: OrderController.kt:53,66; ShipmentController.kt:41
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: Status decision in cancel is a bare `if`, not an exhaustive `when`.
+    evidence: OrderController.kt:59
+  - name: test-quality
+    score: 2
+    anchor_level: 2
+    reason: Double-cancel asserts body; 409 re-reads order and shipment; envelope asserted; persisted state re-read.
+    evidence: OrderControllerTest.kt:101-143,154-173
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: Only cancel, create guard, status enum, findByOrderId query, and ErrorCode constants differ.
+    evidence: OrderController.kt:50-83; ShipmentController.kt:38-45; ShipmentRepository.kt:26
+ambiguous_categories: []
+```

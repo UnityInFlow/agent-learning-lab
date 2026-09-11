@@ -26,7 +26,7 @@ done rather than deferred.
 | rubric | `benchmark/rubrics/backend-quality.yaml` at sha256 prefix **`396e1799eb2b`** — the value registered in E-015, verified by `shasum` at read time |
 | **hand value** | **`test-quality = 1`** |
 | registered sheet value | *(empty — codex unavailable, §4c)* |
-| second-reader value | *(filled below when the opencode sheet lands)* |
+| second-reader value | **`test-quality = 1`** — `findings/opencode/score-observatory-run-f82835ea-...-20260911T070955Z.yaml`, deepseek-v4-pro, rubric_sha `396e1799eb2b`. **AGREES with the hand value.** One cell, so this is true of this cell and is not a concordance claim |
 
 **Reasoning, with `path:line` inside the worktree.** Precondition (no test file, or a test file with
 no assertion → `null`) is **not** met: a test file exists and asserts, so the anchors are reached.
@@ -51,7 +51,7 @@ tests. Then clause 2 holds and the value is 2.
 | rubric | `benchmark/rubrics/backend-quality-be004.yaml` at sha256 prefix **`6252778b8472`** — the value registered in E-016, verified by `shasum` at read time |
 | **hand value** | **`change-focus = 0`** |
 | registered sheet value | *(empty — codex unavailable, §4c)* |
-| second-reader value | *(filled below when the opencode sheet lands)* |
+| second-reader value | **`change-focus = 2`** — `findings/opencode/score-observatory-run-e0075ad9-...-20260911T075012Z.yaml`, deepseek-v4-pro, rubric_sha `6252778b8472`. **DISAGREES with the hand value by two points**, which is exactly the swing the ambiguity below predicts. See the closing note |
 
 **Reasoning, with `path:line`.** Precondition (no baseline tree → `null`) is met: a baseline exists
 at `HEAD`, and `HEAD`'s parent touched only `.ai/` and `.claude/` harness files, not
@@ -97,3 +97,31 @@ note for a future step, never as an edit to this one.
 
 *Both cells read by a `sonnet` subagent under §4b and recorded by Opus 5 (claude-opus-5),
 autonomous, 2026-09-11, before any sheet for this batch existed.*
+
+
+## The BE-004 disagreement arrived, and it is the predicted one
+
+Written into this file *before* any sheet existed was the sentence: *"Under that reading the test
+fixtures are out of scope and this cell is **2**, not 0 — a two-point swing on the same tree and the
+same rubric text."* The second reader then scored it **2**.
+
+So the two-point swing is **measured, not hypothetical**, and nobody edited the rubric to find that
+out. The hand read applied the **broad** reading (anchor 0 governs, because it is the anchor being
+applied and it names no directory); the second reader applied the **narrow** one (anchor 2's closing
+citation instruction scopes the category to the two controllers).
+
+**What this does and does not establish.** It does not establish that either value is wrong — both
+are defensible readings of the text as written, which is the defect. It does establish that
+`change-focus` on `backend-quality-be004.yaml` is **not decidable from its own text** on a
+submission that restructures a test fixture, and that the indeterminacy is worth two of the
+category's two available points.
+
+**It is still not repaired here.** The rubric is a registered variable at sha `6252778b8472` and §7
+makes a change to a rubric's categories a halt. The registered reading is codex's, under author
+decision 10.2, and codex has not scored this cell yet. When it does, §4 step 7 applies — *go to the
+diff and say which fact was wrong* — and the answer will be that **no fact was wrong**: both readers
+found the same three restructured fixtures and disagreed about whether the category covers them.
+That is a rubric finding, and it belongs to the author.
+
+*Second-reader values and this note added by Opus 5 (claude-opus-5), autonomous, 2026-09-11, after
+the sheets landed and without altering any hand value above.*

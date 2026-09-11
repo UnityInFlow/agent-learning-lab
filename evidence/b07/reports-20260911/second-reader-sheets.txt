@@ -1,0 +1,56 @@
+run       task    arm       arch  maint  testq  chgf  sha
+f82835ea  BE-003  treated      2      0      1     1  396e1799eb2b
+b86fdbd4  BE-003  control      2      0      1     2  396e1799eb2b
+cb95c8c2  BE-003  treated      2      0      1     1  396e1799eb2b
+6c115acf  BE-003  control      2      0      2     2  396e1799eb2b
+66aede74  BE-003  treated      2      2      2  null  396e1799eb2b
+65d570a9  BE-003  control      2      2      1     1  396e1799eb2b
+e2b5c62c  BE-003  treated      2      0      1     1  396e1799eb2b
+b3bdcc43  BE-003  control      2      2      1     2  396e1799eb2b
+f953241b  BE-003  treated      2      2      2     1  396e1799eb2b
+cbc1deed  BE-003  control      2      2      1     2  396e1799eb2b
+b2f29bf3  BE-003  treated      2      2      1     1  396e1799eb2b
+a795ca84  BE-003  control      2      0      1     2  396e1799eb2b
+d71b683b  BE-003  treated      2      2      2  null  396e1799eb2b
+52962863  BE-003  control      2      0      1     1  396e1799eb2b
+2f450b33  BE-003  treated      2      2      1     2  396e1799eb2b
+8142283c  BE-003  control      2      2      1  null  396e1799eb2b
+a9c17b01  BE-003  treated      2      2      2     1  396e1799eb2b
+710f3924  BE-003  control      2      0      1     1  396e1799eb2b
+e8021759  BE-003  treated      2      0      1     2  396e1799eb2b
+05b90978  BE-003  control      2      0      1  null  396e1799eb2b
+e0075ad9  BE-004  treated      2      0      1     2  6252778b8472
+13a9ee1a  BE-004  control      2      0      1     2  6252778b8472
+c0589938  BE-004  treated      2      0      1     2  6252778b8472
+0b70425d  BE-004  control      2      0      2     1  6252778b8472
+3d1e77c2  BE-004  treated      2      0      2     2  6252778b8472
+c0327a61  BE-004  control      2      0      1     2  6252778b8472
+b8e322e3  BE-004  treated      2      0      1     1  6252778b8472
+3d6ef618  BE-004  control      2      0      1     1  6252778b8472
+82b31390  BE-004  treated      2      0      2     2  6252778b8472
+16024760  BE-004  control      2      0      2     2  6252778b8472
+502097f9  BE-004  treated      2      0      2     2  6252778b8472
+80e5037e  BE-004  control      2      0      2     2  6252778b8472
+0ee35b0e  BE-004  treated      2      0      1     1  6252778b8472
+2635dc3b  BE-004  control      2      0      2     1  6252778b8472
+
+complete sheets: 34 of 34
+rubric_sha counts: {'396e1799eb2b': 20, '6252778b8472': 14}
+model counts: {'ollama-cloud/deepseek-v4-pro': 34}
+STALL / incomplete artefacts kept on disk: 2
+    52962863 score-observatory-run-52962863-d74c-4128-8657-007c0c81d00e-20260911T072853Z.yaml 2535 bytes
+    e0075ad9 score-observatory-run-e0075ad9-80e1-44a0-be83-d25f28c9eca1-20260911T074559Z.yaml 1074 bytes
+
+=== SECOND-READER medians — NOT the registered number, P7 is NOT answered from these ===
+
+BE-003
+  architecture-consistency   treated median 2.0 (scored 10, null 0) | control median 2.0 (scored 10, null 0)  Δ=+0
+  maintainability            treated median 2.0 (scored 10, null 0) | control median 0.0 (scored 10, null 0)  Δ=+2   <<< EXCEEDS the 1-point P7 threshold (second reader only)
+  test-quality               treated median 1.0 (scored 10, null 0) | control median 1.0 (scored 10, null 0)  Δ=+0
+  change-focus               treated median 1.0 (scored 8, null 2) | control median 2.0 (scored 8, null 2)  Δ=-1
+
+BE-004
+  architecture-consistency   treated median 2 (scored 7, null 0) | control median 2 (scored 7, null 0)  Δ=+0
+  maintainability            treated median 0 (scored 7, null 0) | control median 0 (scored 7, null 0)  Δ=+0
+  test-quality               treated median 1 (scored 7, null 0) | control median 2 (scored 7, null 0)  Δ=-1
+  change-focus               treated median 2 (scored 7, null 0) | control median 2 (scored 7, null 0)  Δ=+0
