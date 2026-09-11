@@ -460,3 +460,69 @@ which is row 3's *"inside their MDEs"*, not row 5's *"outside its MDE in the wor
 *Filled from evidence by Opus 5 (claude-opus-5), autonomous, 2026-09-11. P7 and the decision-rule
 verdict remain open; nothing above is edited when they close, a dated section carries them.*
 
+---
+
+## Amendment, 2026-09-11 (second) — P7 is measured and it **holds** on all four categories; the verdict is row 3
+
+Nothing above this line is edited. codex returned at **2026-09-11T07:59:4xZ**, about one hour after
+the 07:0xZ first refusal. **Decision H did not fire**, so author decision 10.3's report-only carve-out
+for `change-focus` **does not apply to any number below**: every value here comes from the registered
+scorer on the registered rubric, which is exactly what decision 10.2 requires for this task.
+
+All fourteen BE-004 runs were scored with `./tools/codex-score.sh
+benchmark/rubrics/backend-quality-be004.yaml --run-id <id>`, **rubric sha `6252778b8472` on 14 of 14
+sheets, zero nulls on 14 of 14**.
+
+### P7, as registered
+
+| category | treated median (n = 7) | control median (n = 7) | Δ | P7 |
+|---|---|---|---|---|
+| architecture-consistency | 2 | 2 | **0** | holds |
+| maintainability | 0 | 0 | **0** | holds |
+| test-quality | 1 | 1 | **0** | holds |
+| change-focus | 0 | 0 | **0** | holds |
+
+**All four deltas are zero.** P1–P7 all hold, and the decision rule's **row 3** fires:
+
+> **KEEP AS L2, WITH NO MEASURED EFFECT** — *"The control demonstrably executes and demonstrably had
+> nothing to do."*
+
+Row 5 does not fire: it requires cost **outside** its MDE in the worse direction, and cost moved
++5.02 %, inside both the registered $0.030 limit and the $0.0364 limit at the population that
+occurred.
+
+**Every number in this section is from n = 7 per arm, and nothing here is stated as a property of the
+treatment** (§5). Four medians that do not move across 14 runs is *true of these fourteen runs*.
+
+### The hand re-read's predicted disagreement: the registered scorer took the hand's side
+
+The 2026-09-11 hand re-read registered, **before any sheet existed**, that `change-focus` on run
+`e0075ad9` reads **0** under the broad interpretation and **2** under the narrow one, because the
+rubric does not say whether a test fixture is *"a method the ticket did not name"*. The hand value
+recorded was **0**. The second reader said **2**. **codex says 0** — and its cited evidence is the
+unnamed test methods themselves (`OrderControllerTest.kt:39`, `ShipmentControllerTest.kt:39, :44`
+against their baselines), which is the broad reading, the same one the hand took.
+
+That is a three-way reading of one ambiguous cell with the registered scorer and the hand agreeing
+against the fallback. **The rubric is still not edited** — it is a registered variable at
+`6252778b8472` and §7 makes a change to its categories a halt. The ambiguity is now measured rather
+than merely noticed, and it is `change-focus`, the one category author decision 10.3 already carved
+out of the fallback.
+
+### Cross-harness agreement on this task, measured on all 14 runs
+
+| category | codex vs `deepseek-v4-pro`, BE-004 (n = 14 cells each) |
+|---|---|
+| architecture-consistency | **14 of 14 identical** |
+| maintainability | **14 of 14 identical** |
+| test-quality | 13 of 14 identical |
+| change-focus | 3 of 14 identical; 11 differ, **deepseek higher every time** |
+
+Pooled over both tasks (136 cells): **agreement 113 of 136 (83.1 %)**, and **22 of the 23
+disagreements are `change-focus`**, always in the same direction. This replicates lab#70's finding on
+a new batch and a new rubric, and it is *worse* than lab#70's 18-of-34: on this batch the two
+harnesses agree on `change-focus` in **12 of 34** runs. **Author decision 10.3's carve-out is the
+right call and is now supported by a second, independent batch.**
+
+*Measured and written by Opus 5 (claude-opus-5), autonomous, 2026-09-11. The registered predictions
+and the decision rule are unedited.*

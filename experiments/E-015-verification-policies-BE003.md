@@ -365,3 +365,79 @@ MDEs"* and not row 5's *"outside its MDE in the worse direction"*.
 *Filled from evidence by Opus 5 (claude-opus-5), autonomous, 2026-09-11. P7 and the decision-rule
 verdict remain open; nothing above is edited when they close, a dated section carries them.*
 
+---
+
+## Amendment, 2026-09-11 (second) — P7 is measured, and it is **refuted**; the verdict is row 4, INCONCLUSIVE
+
+Nothing above this line is edited. codex returned at **2026-09-11T07:59:4xZ**, about one hour after
+the 07:0xZ first refusal, proved by a real call rather than by `codex login status` (which printed
+`Logged in using ChatGPT` throughout the outage while every call 401d). **Decision H did not fire and
+must not be cited**: its condition is a 12-hour outage and the boundary was 19:0xZ.
+
+All twenty BE-003 runs were scored with `./tools/codex-score.sh benchmark/rubrics/backend-quality.yaml
+--run-id <id>`, **rubric sha `396e1799eb2b` on 20 of 20 sheets, zero nulls on 20 of 20**. Sheets are
+in `findings/codex/score-observatory-run-<id>-20260911T08*.yaml`.
+
+### P7, as registered
+
+> *No rubric category's treated median differs from the control's by more than 1 point.*
+
+| category | treated median (n = 10) | control median (n = 10) | Δ | P7 |
+|---|---|---|---|---|
+| architecture-consistency | 2 | 2 | **0** | holds |
+| maintainability | **2** | **0** | **2** | **REFUTED** |
+| test-quality | 1 | 1 | **0** | holds |
+| change-focus | 1 | 1 | **0** | holds |
+
+**P7 is refuted on `maintainability` and the decision rule's row 4 fires: INCONCLUSIVE** —
+*"P1–P3 hold but any of P4–P7 lands outside its MDE … Something moved that the design says cannot
+move."* This is the verdict the workbook wrote down **before codex ran**, from the second reader's
+identical 2 / 0 gap, and it is recorded here unchanged now that the registered scorer has reproduced
+it. It is **not** recorded as a benefit: nothing in a deny-list hook that never denied anything can
+raise the quality of code inside a path it allowed.
+
+### And the investigation row 4 demands, which changes what the number means
+
+Row 4 says the outlying outcome *"is investigated before any promotion claim"*. The investigation is
+one line of arithmetic and it is the most useful thing this stop produced:
+
+| | treated | control |
+|---|---|---|
+| `maintainability` values | `0 0 0 0 2 2 2 2 2 2` | `0 0 0 0 0 0 2 2 2 2` |
+| runs reaching anchor 2 | **6 of 10** | **4 of 10** |
+| median | 2 | 0 |
+
+**`maintainability` on this rubric is a two-level outcome — every one of the 20 runs scored exactly
+0 or exactly 2, never 1.** A median over a two-level population is a *threshold test on the rate*,
+not a measure of distance: the medians are two points apart because 6/10 is above the midpoint and
+4/10 is below it. The underlying difference is **two runs**, and two-sided Fisher on 6/10 vs 4/10 is
+**p = 0.6563** — indistinguishable from no difference.
+
+So the registered statistic reports a 2-point effect where the data holds a 2-run difference at
+p = 0.66. **The registered rule is applied anyway and the verdict stands at INCONCLUSIVE** — §4 step
+12, a prediction is not rewritten after its run, and a decision rule is not re-specified once the
+values are known. What is recorded beside it is that **the instrument, not the treatment, produced
+the headline**: *a median is the wrong summary for a rubric category whose anchors admit only two
+values, and three of this rubric's four categories behave that way on this task.* That belongs in
+B8's instrument list, and it is the one thing here most likely to overturn a later result if left
+alone.
+
+### The second reader agrees on the cells that decide it — so this is not a codex artifact
+
+Per-cell comparison of all 20 BE-003 sheets against the `ollama-cloud/deepseek-v4-pro` second-reader
+sheets produced before them (§4c step 2):
+
+| category | codex vs second reader, BE-003 (n = 20 cells each) |
+|---|---|
+| architecture-consistency | **20 of 20 identical** |
+| maintainability | **20 of 20 identical** |
+| test-quality | **20 of 20 identical** |
+| change-focus | 9 of 20 identical; 11 differ, deepseek higher or `null` every time |
+
+**`maintainability` is 20 of 20 across two harnesses**, including every cell that moves the median.
+The 6-vs-4 split is a property of the scored population, not of the scorer. §4 step 7's *"go to the
+diff and say which fact was wrong"* therefore has no diff to visit on this category — the harnesses
+never disagreed.
+
+*Measured and written by Opus 5 (claude-opus-5), autonomous, 2026-09-11. The registered predictions,
+the decision rule and the pre-codex verdict note in the workbook are unedited.*
