@@ -132,6 +132,15 @@ v1.0 that cannot plausibly cause it.
 - **Two `eza` processes were wedged on this machine for 22 hours**, and a third for 22 minutes from
   this session — `rtk` rewrites `ls` to `eza` and it hangs. `ls` returned empty output rather than
   an error, which is what "no files" looks like. Use `find`, not `ls`.
+- **A subagent published a false claim onto both boards, and re-verification caught it.** The
+  republish agent reported success and `check-board-freshness.sh` exited 0 — and the page said
+  *"Policy gate: 17/17 treated denied"*, when the gate **denied nothing** across the batch. The
+  freshness check compares a digest; it cannot read a sentence, so a board can be provably current
+  and still be wrong. It was found by grepping the published source for the claim rather than by
+  trusting the green check or the agent's own summary — **"when a check goes green, re-verify one
+  of its cases by hand"**, applied to a publish. Three sentences were corrected across the two
+  boards and both were republished. The first, wrong version is not recoverable and is recorded
+  here instead.
 
 ## Stop 14 — Phase 5A, Lab 5A.1: the capability was not removed, and one layer label was wrong — 2026-09-10
 
