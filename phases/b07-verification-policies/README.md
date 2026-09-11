@@ -423,6 +423,35 @@ that the parts needing no registered number proceed and the exit gate waits. Sec
 `deepseek-v4-pro` sheets exist for the batch and are labelled *"second-reader sheet, produced before
 the registered sheet"*; they are not this comparison's number.
 
+#### The §4c step 2 marking, with the numbers, so nothing is quoted later without its label
+
+**All 34 runs carry a second-reader sheet: `second-reader sheet, produced before the registered
+sheet`.** Model `ollama-cloud/deepseek-v4-pro` on 34 of 34, the only fallback §4c permits.
+`rubric_sha` `396e1799eb2b` on all 20 BE-003 sheets and `6252778b8472` on all 14 BE-004 sheets — the
+registered value for each task. Per-sheet values and the full write-up:
+`evidence/b07/reports-20260911/second-reader-README.md`.
+
+| second-reader medians | BE-003 T / C (n = 10) | BE-004 T / C (n = 7) |
+|---|---|---|
+| architecture-consistency | 2 / 2 | 2 / 2 |
+| maintainability | **2 / 0** | 0 / 0 |
+| test-quality | 1 / 1 | 1 / 2 |
+| change-focus | 1 / 2 *(2 nulls per arm)* | 2 / 2 *(0 nulls)* |
+
+**One row would refute P7 if codex reproduced it**, and it is written down here *before* codex runs
+so that the prediction cannot later be described as checked against a number already known:
+BE-003 `maintainability` is **two points apart**, against a registered threshold of one. The
+direction is **treated-higher**, and nothing in the gate's design can raise the quality of code
+inside a path it allowed — so if codex reproduces it the honest verdict is decision-rule **row 4,
+INCONCLUSIVE** (*"something moved that the design says cannot move"*), not a benefit.
+
+**And the hand re-read's predicted disagreement arrived.** On BE-004 `change-focus`, run
+`e0075ad9`: hand value **0**, second reader **2** — exactly the two-point swing the hand re-read
+named in writing before any sheet existed, from the rubric's unresolved question about whether a
+test fixture is *"a method the ticket did not name"*. Both readings are defensible on the text as
+written, which is the defect. The rubric is **not edited** (registered variable at
+`6252778b8472`, §7).
+
 ### `verify-sh.sh` beside the evaluator — and why its headline is weaker than it looks
 
 E-015 and E-016 both registered `verify-sh.sh` run over **every kept worktree of both arms**, with
