@@ -18,17 +18,131 @@ Two claims an agent makes that must never be taken at face value:
 
 ## Verified reading
 
-- [ ] ✅ [Anthropic — Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
+- [x] ✅ [Anthropic — Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
   > *What is the **evaluator-optimizer** pattern, and where does it stop?*
 
   One LLM generates, another critiques, iterate. The article does not say when to stop
   iterating — that is what this phase is about.
-- [ ] ✅ [Claude Code — How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works)
+- [x] ✅ [Claude Code — How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works)
   > *Where does verify sit, and what triggers a retry?*
-- [ ] ✅ [Claude Code — Hooks](https://code.claude.com/docs/en/hooks)
+- [x] ✅ [Claude Code — Hooks](https://code.claude.com/docs/en/hooks)
   > *Which event can carry a persistent counter across tool calls?*
-- [ ] Your own `BACKEND-AGENT-EFFICIENCY-SELF-LEARNING-DESIGN.md` §5
+- [x] Your own `BACKEND-AGENT-EFFICIENCY-SELF-LEARNING-DESIGN.md` §5
   > *Read your own design. It is better than most published material on this.*
+
+## Extract
+
+*Written at spine stop 16, 2026-09-11, from the four sources above, each opened for this stop.
+Four questions were asked; three of the four answers are **an absence**, and the absences are
+the useful part.*
+
+### The evaluator-optimizer loop has no published stopping condition
+
+*Building effective agents* describes the pattern as *"one LLM call generates a response while
+another provides evaluation and feedback in a loop"*, and says it fits where *"clear evaluation
+criteria exist"* and *"iterative improvements demonstrably add value"*.
+
+**It states no stopping condition for the pattern.** The only thing it says about stopping is
+generic to agents — include *"stopping conditions (such as a maximum number of iterations)"* to
+*"maintain control"* — and it is not attached to the evaluator-optimizer section.
+
+So the workbook's premise above survives contact with its source: the bound is not in the
+literature, it is yours to invent, and *"iterate until the evaluator is satisfied"* is a loop
+with no exit written by someone who has not paid for one.
+
+### "Verify" is a named phase, and nothing published says what makes the loop go round again
+
+*How Claude Code works* names three phases — *"gather context, take action, and verify
+results"* — and immediately weakens them: *"these phases blend together."* Verification is
+described only as tool use, *"running tests to check its work."*
+
+**No retry trigger is stated.** The nearest sentence is *"Claude decides what each step requires
+based on what it learned from the previous step, chaining dozens of actions together and
+course-correcting along the way."* That is a description of a model's discretion, not of a
+mechanism.
+
+This matters more than it looks. A repair limit bounds a loop; if nothing documented says what
+starts the next iteration, then **the loop being bounded is not observable from the outside** —
+you cannot count iterations of a thing whose boundary nobody defined. Our own instrument has to
+define the iteration before it can limit it, and that definition is ours, not the vendor's.
+
+### No hook event carries a counter. The counter is a file, and `session_id` is its key
+
+The workbook asks *"which event can carry a persistent counter across tool calls?"*. The honest
+answer from the reference is **none of them**:
+
+> *"No built-in persistence mechanism is described for hooks across invocations. Each hook
+> invocation receives independent JSON input. To maintain state: write to files in the
+> scratchpad directory or project."*
+
+What the hooks reference does give is the **correlation key** and the **place to put it**: every
+hook receives `session_id`, which *"remains constant throughout a session"*; most receive
+`transcript_path`; all receive `cwd`.
+
+So Lab 5B.3's instruction — *"limits that live in a prompt are suggestions; persist them"* — is
+understated. **A limit that lives in a hook is also a suggestion unless that hook writes it
+down**, because the hook is reinvoked with no memory of itself. Applying the workspace layer
+rule in order: a counter held in a hook's own process is L3 wearing L2's clothes; a counter on
+disk, read and incremented by a hook that exits 2, is L2.
+
+And the exit-code semantics are the enforcement:
+
+> *"Exit 2 **always blocks** regardless of JSON output"* — blocking tool calls on `PreToolUse`
+> and **preventing stopping on `Stop`**.
+
+`Stop` + exit 2 is the completion contract's teeth (Lab 5B.4): the agent does not get to end the
+turn while a check says it is not done. Everything else is advice.
+
+### The two events this stop actually needed, and obs#47 does not know they exist
+
+The hooks reference defines **`PermissionRequest`** — fires *"when a tool call needs a permission
+decision"*, and a hook *"can return a `permissionDecision` of `allow` or `deny`"* — and
+**`PermissionDenied`**, which fires *"when auto mode denies a tool call."*
+
+`agent-observatory` **#47** is open on exactly the gap these two would close: *"the block span
+reports that a tool was blocked, not why — `decision` and `source` both come back `unknown`."*
+Two named lifecycle events carry the decision and the source, and the runner subscribes to
+neither. That is this stop's design input and it is recorded here as a reading result, before
+any of it is built.
+
+**It is not a fix on its own, and the distinction is the whole lab.** `PermissionDenied` fires
+when a tool call is *refused*. obs#47's original failure was an agent that was never refused
+anything — it *asked* and stopped, and *"`permissionDenials` was 0 throughout: nothing was
+refused, so no telemetry showed it."* An event that fires on refusal cannot see an abstention.
+Any classifier built on these two events is therefore **complete for the denial case and blind
+to the abstention case**, and saying so before building it is cheaper than discovering it after.
+
+### Our own design specifies the limits and leaves out the hard part
+
+`businesscase/BACKEND-AGENT-EFFICIENCY-SELF-LEARNING-DESIGN.md` §5 (lines 354–488) is more
+concrete than anything published above. It fixes the constants — *"attempts for same failure
+<= 3"* (`:370`), *"total attempts <= 7"* (`:371`) — defines the fingerprint as *"failure class +
+command + normalized primary error + affected module"* (`:374-376`), specifies BLOCKED as
+*"stop, emit BLOCKED result, require human decision"* (`:378-381`), and names a fourteen-field
+run-state schema (`:365-378`): `schemaVersion`, `runId`, `taskId`, `agentVersion`, `phase`,
+`goal`, `affectedModule`, `affectedFiles`, `completedSteps`, `openQuestions`, `lastFailure`,
+`repairAttemptsForCurrentFailure`, `totalRepairAttempts`, `verification`.
+
+**And it never says what normalization strips.** It names the component — *"normalized primary
+error"* — and stops. The workbook one screen above says *"normalization is the whole
+difficulty"*, and the design it is quoting leaves precisely that undefined. A fingerprint whose
+normalization is unspecified is not a specification; it is a variable name.
+
+This is the layer rule again, applied to a document rather than a control: fourteen field names
+and two integer constants are **L3** until something reads them. Nothing in these repositories
+reads this schema today.
+
+### What this stop takes forward
+
+| Read | What it gave | Layer of the thing it describes |
+|---|---|---|
+| Building effective agents | the pattern, and **no** stopping condition for it | L3 — prose |
+| How Claude Code works | `verify` is a named phase; **no** retry trigger defined | L3 — prose |
+| Claude Code hooks | `PermissionRequest` / `PermissionDenied` exist; state is a file keyed by `session_id`; `exit 2` blocks and prevents stopping | **L2 when built** — these execute |
+| Our §5 design | limits 3 and 7, the fingerprint formula, BLOCKED, a 14-field schema, **normalization undefined** | L3 — nothing reads it |
+
+Only one row of that table can enforce anything, and it is the one this stop's lab is built on.
+
 
 ## The problem
 
