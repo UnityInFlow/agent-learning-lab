@@ -309,7 +309,15 @@ reproduced **exactly, 3 of 3**, by the standard two-sample limit
 `MDE = (z₀.₉₇₅ + z₀.₈₀) · sd · √(2/n) = 2.80 · sd · √(2/n)` (two-sided α = 0.05, 80 % power):
 cost `2.80 × 0.02431 × √0.2 = 0.03044` → the registered **$0.030 (13 %)**; calls
 `2.80 × 3.266 × √0.2 = 4.090` → the registered **4 calls (14 %)**; duration
-`2.80 × 31 210 × √0.2 = 39 081 ms` → the registered **26 %**. The spreads below are the *same
+`2.80 × 31 210 × √0.2 = 39 081 ms` → the registered **26 %**.
+
+**And it reproduces E-015's three rows as well, so the back-fit rests on six independent fits and
+not three.** `2.80 × 0.03567 × √0.2 = 0.04467` → E-015's registered **$0.045 (30 %)**;
+`2.80 × 5.152 × √0.2 = 6.451` → its registered **6 calls (29 %)**;
+`2.80 × 68 550 × √0.2 = 85 838 ms` = 70.6 % → its registered **71 %**. Six registered values across
+two independently written files, each recovered to the precision it was stated at, from one formula
+with no free parameters. **The formula was never written down in either file**, so this is a
+reconstruction and is labelled one; six of six is the reason it is safe to use to widen a limit. The spreads below are the *same
 measured spreads* registered before the batch, from `EXP-B5-PHASES-BE004`'s control arm; only
 `√(2/n)` moves.
 

@@ -18,3 +18,31 @@ provenance:
   attachments:   3 file(s) under test, 3 with a baseline side
   session:       fresh    # never --continue; independence requires no memory
 ---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: every refusal throws an existing baseline ApiException subclass, no ApiError literal
+    evidence: ShipmentController.kt:61,73
+  - name: maintainability
+    score: 2
+    anchor_level: 2
+    reason: when(shipment.status) in expression position, no else, exhaustive
+    evidence: ShipmentController.kt:66
+  - name: test-quality
+    score: 2
+    anchor_level: 2
+    reason: confirm twice with body assert, state re-read via get, refusal asserts $.error.code
+    evidence: ShipmentControllerTest.kt:104,95,124
+  - name: change-focus
+    score: null
+    anchor_level: null
+    reason: ambiguous
+    evidence: ShipmentController.kt:15, ApiError.kt:36
+ambiguous_categories: [change-focus]
+```
