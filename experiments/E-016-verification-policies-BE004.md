@@ -331,18 +331,99 @@ scored against a 13 % threshold registered at a population that never happened.
 
 ## Observed telemetry
 
-<!-- filled at §4 step 7 -->
+Source: `GET /api/runs/{id}` through the tunnel `127.0.0.1:18081`, for the **14 run ids of batch
+`20260910T183731Z`** listed in `evidence/b07/batch-20260910T183731Z/manifest.tsv`, and for no others.
+**The population is n = 7 per arm, not the registered 10** — see the 2026-09-11 amendment above for
+the cause (the runner's guard aborted before seq 08 on `claude` moving 2.1.267 → 2.1.268), the route
+taken, and the detection limits recomputed at n = 7 before any sheet was opened.
+
+**Controlled variables, read back from the records rather than from the flags** — 14 of 14 on every
+row: `runtime.version` = `2.1.267 (Claude Code)` (**the same version on both arms**, which is what
+makes n = 7 internally valid), `runtime.model` = `claude-haiku-4-5-20251001`,
+`repository.commitSha` = `eea144ef940fda4cb6090561fdd901aed0013c8e`,
+`evaluation.evaluatorVersion` = `1.0.0`, `customization.agentHash` =
+`sha256:b3450564b6f32d6193e8580db766210e` **on both arms**.
+
+**Gate (Decision D).** `./tools/check-run-gate.sh` was run on all 14 twice, from two independent
+documents: the kept worktree's own `evaluation.json`, and the API's run document. **14 admitted,
+0 refused, from each source, and the two sources agree 14 of 14.**
 
 ## Results
 
-<!-- filled at §4 step 8 -->
+| outcome | treated (n = 7) | control (n = 7) | Δ median | MDE at n = 10 (registered) | limit at n = 7 | reading |
+|---|---|---|---|---|---|---|
+| `estimatedCost` | median **0.210563**, range 0.195457–0.242610 | median **0.200503**, range 0.192287–0.243269 | **+0.010060 (+5.02 %)** | $0.030 (12.7 %) | $0.0364 (15.2 %) | **inside both** → NOT DETECTABLE at n = 7 |
+| `modelCalls` | median **28**, range 26–34 | median **29**, range 19–38 | **−1 (−3.45 %)** | 4.09 calls (14.1 %) | 4.89 calls (16.9 %) | **inside both** → NOT DETECTABLE at n = 7 |
+| `durationMs` | median **192 000**, range 138 000–**2 177 000** | median **190 000**, range 180 000–**1 084 000** | +2 000 (+1.05 %) | 25.7 % — no verdict | 30.7 % — no verdict | descriptive only. **Both arms carry a machine-load outlier** (36 min and 18 min against medians near 3 min); duration was registered as carrying no verdict *before* these appeared |
+| `addedLines` | median **188**, range 168–252 | median **201**, range 174–219 | −13 (−6.47 %) | not registered | — | descriptive |
+| evaluator exit 0 | **7 of 7** | **7 of 7** | 0 | — | a 5-run difference clears Fisher at n = 7 | no difference to detect |
+
+**Policy-gate delivery and firing, the one-arm outcomes.** From the 7 committed
+`*-treated-policy-events.jsonl` files, the 7 live sibling logs at
+`$TMPDIR/policy-events-observatory-run-<id>.jsonl`, and — independently of both — the count of
+`"name":"(Edit|Write|NotebookEdit)"` in each run's own tool-use stream in
+`evidence/b07/batch-20260910T183731Z/BE-004-NN-<arm>.log`:
+
+| | treated | control |
+|---|---|---|
+| runs with a policy event log | **7 of 7** | **0 of 7** |
+| log line count == independently counted edit-family tool calls | **7 of 7** (7, 10, 7, 10, 7, 7, 7) | n/a |
+| total events | **55** | 0 |
+| events with `decision: allow` | **55** | — |
+| events with `decision: deny` | **0** | — |
+| distinct `tool` values across all events | **`Edit` only** | — |
+
+The log path is the one the **2026-09-10 amendment** registered — outside the worktree — not P1's
+original `.ai/policy-events.jsonl`; the amendment predates the batch and gives the reason.
+
+### `verify-sh.sh` beside the evaluator
+
+Registered at this step as *"run over every kept worktree of both arms … the interesting number is
+how often they disagree."* Results: `evidence/b07/reports-20260911/verify-sh-vs-evaluator.tsv`.
 
 ## Which predictions held
 
 | # | Prediction | Held? | Actual |
 |---|---|---|---|
-| 1 | | | |
+| **P1** | delivery: every treated run logs, no control run does | **HELD** | 7 of 7 vs 0 of 7, confirmed from three independent sources. Registered magnitude was 10 of 10 vs 0 of 10; the *rate* is unchanged and the population is smaller |
+| **P2** | the gate denies nothing across the treated arm | **HELD** | 0 denials in 55 events across 7 runs. Refutation of P2 never depended on `n` |
+| **P3** | false-positive fraction on legitimate `Edit`/`Write` calls is 0 | **HELD** | **0 / 55.** The mechanism note predicted *"N ≈ 8–14 per run"*; the actual range is **7–10 per run**, at or below the low end. **All 55 calls were `Edit` — the gate's `Write` path was never exercised at all**, on this task either |
+| **P4** | cost Δ inside ±13 % | **HELD** | +5.02 %, inside the registered $0.030 **and** inside the $0.0364 limit at the population that occurred. Case 1 of the three-way rule; no un-decidable row |
+| **P5** | `modelCalls` Δ ≤ 4 | **HELD** | −1 call, inside both limits. Case 1 |
+| **P6** | treated pass rate ≥ control − 1 | **HELD** | 7 of 7 vs 7 of 7 |
+| **P7** | no rubric category's treated median differs from control's by > 1 point, rubric `6252778b8472` | **NOT YET MEASURED — DEFERRED under §4c** | codex, the registered scorer under Decision C **and under author decision 10.2 specifically for this task**, refused on **auth** (not quota) from 2026-09-11T07:0xZ. Second-reader `deepseek-v4-pro` sheets were produced per §4c step 2 and are marked as such. Decision 10.2 forbids a deepseek proof substituting for codex on this rubric, and 10.3 makes a fallback-scored `change-focus` report-only even after Decision H fires — so P7 waits |
+
+**The prediction registered as most likely to be wrong was P1's control half.** **It did not fail.**
+0 of 7 controls carry the file, at both the evidence copy and the live sibling path, and
+`settings_tracked` is `no` on every control. The arm is not void.
+
+**The three-way rule registered on 2026-09-11 did not have to bite.** It was written because a
+14 % cost difference would otherwise have been scored against a threshold registered at a population
+that never happened. Both secondary outcomes landed in case 1 — inside the n = 10 threshold as well
+as the n = 7 one — so no row is recorded un-decidable. The rule is kept on record because it was
+registered before the values were known and would have been applied had they fallen otherwise.
+
+**One finding about the rubric, surfaced by the hand re-read and not repairable here.**
+`change-focus` on this rubric does not say whether a **test fixture** counts as *"a method the ticket
+did not name"*. Anchor 0 enumerates method-shaped changes and names no directory; anchor 2's citation
+instruction names the two controllers only. On run `e0075ad9` the two readings differ by **two
+points** (0 under the broad reading, 2 under the narrow). The rubric is a registered variable at sha
+`6252778b8472` and §7 makes a change to its categories a halt, so it is **not edited**: the
+ambiguity is recorded in `evidence/b07/hand-rereads-20260911T0710Z/README.md`, the reading used by
+the hand value is stated there, and if the registered codex sheet disagrees, that disagreement is
+itself the measurement.
 
 ## Decision
 
-<!-- filled at §4 step 10 -->
+**NOT ANSWERED — deferred, and deliberately so.** §4c step 3: *"Do not answer the exit gate."*
+Every row of the decision rule requires P7, and P7 requires codex.
+
+What is already settled, and will not change when codex returns, because none of it comes from a
+sheet: **row 0 cannot fire** (P1 held on both halves); **row 1 cannot fire** (P3 held); **row 2
+cannot fire** (P2 held). The live rows are **3, 4 and 5 only**, and P4, P5 and P6 have all landed
+inside their registered limits. Cost moved **+5.02 %, the worse direction but well inside the MDE**,
+which is row 3's *"inside their MDEs"*, not row 5's *"outside its MDE in the worse direction"*.
+
+*Filled from evidence by Opus 5 (claude-opus-5), autonomous, 2026-09-11. P7 and the decision-rule
+verdict remain open; nothing above is edited when they close, a dated section carries them.*
+

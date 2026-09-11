@@ -253,18 +253,90 @@ four were refused with *"API not reachable at :8081"* before any run id was mint
 
 ## Observed telemetry
 
-<!-- filled at §4 step 7 -->
+Source: `GET /api/runs/{id}` through the tunnel `127.0.0.1:18081`, for the **20 run ids of batch
+`20260910T183731Z`** listed in `evidence/b07/batch-20260910T183731Z/manifest.tsv`, and for no others.
+
+**Controlled variables, read back from the records rather than from the flags** — 20 of 20 on every
+row: `runtime.version` = `2.1.267 (Claude Code)`, `runtime.model` = `claude-haiku-4-5-20251001`,
+`repository.commitSha` = `eea144ef940fda4cb6090561fdd901aed0013c8e`,
+`evaluation.evaluatorVersion` = `1.0.0`, `customization.agentHash` =
+`sha256:b3450564b6f32d6193e8580db766210e` **on both arms**.
+
+**Gate (Decision D).** `./tools/check-run-gate.sh` was run on all 20 twice, from two independent
+documents: the kept worktree's own `evaluation.json`, and the API's run document. **20 admitted,
+0 refused, from each source, and the two sources agree 20 of 20.** The gate takes a file and
+deliberately does not fetch, so these are two separate readings of the same verdict, not one.
 
 ## Results
 
-<!-- filled at §4 step 8 -->
+| outcome | treated (n = 10) | control (n = 10) | Δ median | registered MDE at n = 10 | reading |
+|---|---|---|---|---|---|
+| `estimatedCost` | median **0.127329**, range 0.091474–0.155815 | median **0.112852**, range 0.103592–0.129647 | **+0.014476 (+12.83 %)** | $0.045 (30 %) | **inside** → NOT DETECTABLE at n = 10 |
+| `modelCalls` | median **22**, range 19–28 | median **19.5**, range 13–21 | **+2.5 (+12.82 %)** | 6 calls (29 %) | **inside** → NOT DETECTABLE at n = 10 |
+| `durationMs` | median **116 500**, range 92 000–147 000 | median **105 000**, range 75 000–123 000 | +11 500 (+10.95 %) | 71 % — **carries no verdict** | descriptive only, as registered |
+| `addedLines` | median **73.5**, range 64–83 | median **74**, range 67–79 | −0.5 (−0.68 %) | not registered | descriptive |
+| evaluator exit 0 | **10 of 10** | **10 of 10** | 0 | a 5-run difference clears Fisher at this n | no difference to detect |
+
+**Policy-gate delivery and firing, the one-arm outcomes.** From the 10 committed
+`*-treated-policy-events.jsonl` files, the 10 live sibling logs at
+`$TMPDIR/policy-events-observatory-run-<id>.jsonl`, and — independently of both — the count of
+`"name":"(Edit|Write|NotebookEdit)"` in each run's own tool-use stream in
+`evidence/b07/batch-20260910T183731Z/BE-003-NN-<arm>.log`:
+
+| | treated | control |
+|---|---|---|
+| runs with a policy event log | **10 of 10** | **0 of 10** |
+| log line count == independently counted edit-family tool calls | **10 of 10** (3, 4, 4, 5, 5, 3, 3, 3, 3, 3) | n/a |
+| total events | **36** | 0 |
+| events with `decision: allow` | **36** | — |
+| events with `decision: deny` | **0** | — |
+| distinct `tool` values across all events | **`Edit` only** | — |
+
+The third source is what makes this more than bookkeeping: `edits` is grepped out of the model's own
+tool-use stream and the event count is produced by the hook, so their equality on every run says the
+hook saw **every** edit-family call and missed none. The log path is the one the
+**2026-09-10 amendment** registered — outside the worktree — not P1's original
+`.ai/policy-events.jsonl`; the amendment predates the batch and gives the reason (the log was itself
+being scored as an unrelated production file, evaluator exit 21).
+
+### `verify-sh.sh` beside the evaluator
+
+Registered at this step as *"run over every kept worktree of both arms, its per-stage verdict
+recorded beside the evaluator's … the interesting number is how often they disagree."*
+Results: `evidence/b07/reports-20260911/verify-sh-vs-evaluator.tsv`.
 
 ## Which predictions held
 
 | # | Prediction | Held? | Actual |
 |---|---|---|---|
-| 1 | | | |
+| **P1** | delivery: every treated run logs, no control run does | **HELD** | 10 of 10 vs 0 of 10, confirmed from three independent sources. Registered magnitude was exactly 10 of 10 vs 0 of 10 |
+| **P2** | the gate denies nothing across the treated arm | **HELD** | 0 denials in 36 events across 10 runs. Registered magnitude 0 of 10 runs, 0 denials total |
+| **P3** | false-positive fraction on legitimate `Edit`/`Write` calls is 0 | **HELD, with its denominator corrected downward** | **0 / 36.** The mechanism note predicted *"N ≈ 6–10 per run"*; the actual range is **3–5 per run**, so the arm delivered roughly **half** the legitimate-call volume the prediction expected. The direction and the zero are unaffected; the *power* of the zero is lower than registered, and **all 36 calls were `Edit` — the gate's `Write` path was never exercised at all** |
+| **P4** | cost Δ inside ±30 % | **HELD** | +12.83 %, inside the registered $0.045 MDE |
+| **P5** | `modelCalls` Δ ≤ 6 | **HELD** | +2.5 calls |
+| **P6** | treated pass rate ≥ control − 1 | **HELD** | 10 of 10 vs 10 of 10. The control came in at the **top** of its registered 8–10 expectation, so the tolerance was never tested downward |
+| **P7** | no rubric category's treated median differs from control's by > 1 point | **NOT YET MEASURED — DEFERRED under §4c** | codex, the registered scorer under Decision C, refused on **auth** (not quota) from 2026-09-11T07:0xZ: *"your refresh token was already used. Please log out and sign in again."* No registered sheet exists for any run of this batch. Second-reader `opencode`/`deepseek-v4-pro` sheets were produced instead, per §4c step 2, and are marked *"second-reader sheet, produced before the registered sheet"*. They are **not** the registered number and P7 is not answered from them |
+
+**The prediction registered as most likely to be wrong was P1's control half** — that
+`.ai/policy-events.jsonl` might arrive on a control run by an unregistered channel, as the overlay
+force-add did at B4 and `tools:` did at stop 9. **It did not.** 0 of 10 controls carry the file, at
+both the evidence copy and the live sibling path, and `settings_tracked` is `no` on every control.
+The arm is not void.
 
 ## Decision
 
-<!-- filled at §4 step 10 -->
+**NOT ANSWERED — deferred, and deliberately so.** §4c step 3: *"Continue the parts of the stop that
+do not need the registered number … Do not answer the exit gate."* The decision rule's rows all
+require P7 (row 3 needs *"P4–P7 all land inside their MDEs"*), and P7 needs codex.
+
+What is already settled, and will not change when codex returns, because none of it comes from a
+sheet: **row 0 cannot fire** (P1 held on both halves, so the arm is not void); **row 1 cannot fire**
+(P3 held, so the false-positive rate is 0); **row 2 cannot fire** (P2 held, so no real violation was
+denied). The live rows are therefore **3, 4 and 5 only**, and P4, P5 and P6 have all landed inside
+their registered limits. The verdict turns entirely on P7 and on cost's direction under row 5 —
+cost moved **+12.83 %, the worse direction, but inside the MDE**, which is row 3's *"inside their
+MDEs"* and not row 5's *"outside its MDE in the worse direction"*.
+
+*Filled from evidence by Opus 5 (claude-opus-5), autonomous, 2026-09-11. P7 and the decision-rule
+verdict remain open; nothing above is edited when they close, a dated section carries them.*
+
