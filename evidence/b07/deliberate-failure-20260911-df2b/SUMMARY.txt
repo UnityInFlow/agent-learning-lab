@@ -1,0 +1,10 @@
+## df2b — the gate is broken WHERE THE DECISION PATH CROSSES IT
+worktree:     /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//b7-df2b-2y82gn
+pom.xml:      UNCHANGED -> the edit did NOT happen (prediction refuted)
+notes-b7.txt: ABSENT
+policy log:   ABSENT -> a run whose gate died leaves NO trace, which is the point
+model said:
+  I've encountered a blocker: the `.
+  ai/hooks/policy-gate.
+   The hook is registered to run on all Edit/Write operations, so I cannot create or modify files until this is fixed.
+  **The issue**: The policy-gate.
