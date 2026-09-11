@@ -247,6 +247,84 @@ four were refused with *"API not reachable at :8081"* before any run id was mint
 
 *Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-10, from the preflight pair above.*
 
+## Amendment, 2026-09-11 — the population that occurred is n = 7 per arm, and what that does to each registered threshold
+
+**Registered before any sheet of this batch was opened, and before the gate ran.** No prediction
+row, no decision-rule row and no MDE row above is edited. This section adds the detection limit at
+the `n` that actually occurred, beside the registered one, so a reader can see which side of the gap
+an observation falls on.
+
+**What happened.** The registered batch (tag `20260910T183731Z`) recorded **7 treated + 7 control on
+BE-004**, not 10 + 10: the runner's own guard aborted before seq 08 with `ABORT: claude moved
+mid-preflight: 2.1.267 -> 2.1.268`. Seq 08, 09 and 10 were never started and have no id, log or
+folder. Runtime version is a controlled variable in the table above and the guard refused to mix two
+of them inside one comparison — the instrument working, not failing. 2.1.267 no longer exists on
+this machine, so the three missing cells cannot be run at the batch's version.
+
+**The decision, and the two routes not taken.**
+
+| route | what it buys | verdict |
+|---|---|---|
+| **(a) accept n = 7 per arm** | nothing; costs power only | **TAKEN** |
+| (b) re-run all 20 BE-004 cells under a new tag at 2.1.268 | power on four outcomes that were *predicted null*, at ~2 h and ~$3, and puts a second runtime version into the stop | not taken |
+| (c) top up the three missing cells at 2.1.268 | — | **refused.** It mixes two runtimes *inside one arm*, which is the exact move the guard aborted to prevent |
+
+Route (a) is taken because **runtime is constant across both BE-004 arms** (2.1.267 on 7 of 7 and
+7 of 7, read from the API run records), author decision 9 makes BE-004 its own experiment with its
+own concurrent control, and the outcomes that decide decision-rule rows 0, 1 and 2 — P1, P2, P3 —
+are **one-arm claims whose refutation does not depend on `n` at all**: one control run carrying a
+policy log voids the arm, and one denial refutes P2 or P3, at any population. P3's denominator is
+per `Edit`/`Write` call, not per run, so it loses ~30 % of its calls and none of its structure.
+Route (b) would spend two hours buying power for four predicted nulls.
+
+*Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-11.*
+
+**The MDE formula, stated because it was not written down.** The three registered `n = 10` rows are
+reproduced **exactly, 3 of 3**, by the standard two-sample limit
+`MDE = (z₀.₉₇₅ + z₀.₈₀) · sd · √(2/n) = 2.80 · sd · √(2/n)` (two-sided α = 0.05, 80 % power):
+cost `2.80 × 0.02431 × √0.2 = 0.03044` → the registered **$0.030 (13 %)**; calls
+`2.80 × 3.266 × √0.2 = 4.090` → the registered **4 calls (14 %)**; duration
+`2.80 × 31 210 × √0.2 = 39 081 ms` → the registered **26 %**. The spreads below are the *same
+measured spreads* registered before the batch, from `EXP-B5-PHASES-BE004`'s control arm; only
+`√(2/n)` moves.
+
+| Outcome | registered MDE at n = 10 | **detection limit at the n = 7 that occurred** | ratio |
+|---|---|---|---|
+| `estimatedCost` | $0.030 (12.7 %) | **$0.0364 (15.2 %)** | ×1.195 |
+| `modelCalls` | 4.09 calls (14.1 %) | **4.89 calls (16.9 %)** | ×1.195 |
+| `durationMs` | 39 081 ms (25.7 %) — carries no verdict | **46 711 ms (30.7 %)** — still carries no verdict | ×1.195 |
+| evaluator pass rate (Fisher, two-sided) | a difference of **5 runs** clears α = 0.05 (10/10 vs 5/10, p = 0.0325); 4 does not (vs 6/10, p = 0.0867) | a difference of **5 runs** still clears (7/7 vs 2/7, p = 0.0210); 4 does not (7/7 vs 3/7, p = 0.0699) | same 5 runs, but **50 → 71 points of rate** |
+
+**How each prediction is answered at n = 7 — registered now, not after seeing the values.**
+
+| # | decidable at n = 7? | how it is answered |
+|---|---|---|
+| P1 | **yes, unaffected** | per-run presence/absence. 7 of 7 vs 0 of 7 |
+| P2 | **yes, unaffected in the refuting direction** | one denial refutes it at any `n`. A confirming 0 is reported as *0 denials across 7 runs*, never as a rate |
+| P3 | **yes** | denominator is per `Edit`/`Write` call (N ≈ 8–14 per run), so ≈ 56–98 calls |
+| P4 | **three-way** | see the rule below |
+| P5 | **three-way** | see the rule below |
+| P6 | **yes** | P6 claims a tolerance (*"treated ≥ control − 1"*), not a detected difference, so it is answered by counting. The Fisher row above bounds only what a *difference* could have shown |
+| P7 | **yes, with the median's basis stated** | a median of 7 is the 4th-ranked value; the ≤ 1-point threshold is read off it directly. No power calculation was registered against a measured rubric spread, so `n` changes the median's stability and not a threshold |
+
+**The three-way rule for P4 and P5, registered before the values are known.** Each is answered
+against **its own registered text, unedited** — P4 *"inside ±13 %"*, P5 *"≤ 4 calls"* — with the
+n = 7 limit reported beside it:
+
+1. observed |Δ| **below the registered n = 10 threshold** → the prediction **holds**, and it is
+   inside the n = 7 limit as well. Recorded *NOT DETECTABLE at n = 7*.
+2. observed |Δ| **between the registered threshold and the n = 7 limit** ($0.030–$0.0364, or
+   4.09–4.89 calls) → **un-decidable at the population that occurred.** Reported as such, with both
+   limits and the observed value. It is **not** NOT DETECTABLE, **not** refuted, and it enters **no**
+   decision-rule row, no MDE claim and no exit-gate answer.
+3. observed |Δ| **above the n = 7 limit** → outside both. Decision-rule row 4 fires (or row 5, if it
+   is cost in the worse direction).
+
+Row 2 is the row this amendment exists to make sayable. Without it, a 14 % cost difference would be
+scored against a 13 % threshold registered at a population that never happened.
+
+*Amended by Opus 5 (claude-opus-5), autonomous, 2026-09-11, before §4 step 7 opened a sheet.*
+
 ---
 *Everything below is filled in AFTER the runs.*
 ---
