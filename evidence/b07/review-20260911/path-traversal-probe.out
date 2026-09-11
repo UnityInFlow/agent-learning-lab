@@ -1,0 +1,7 @@
+PATH                                       EXIT     MEANING
+.github/workflows/ci.yml                   2        DENIED
+sub/../.github/workflows/ci.yml            0        ALLOWED
+infra/main.tf                              2        DENIED
+src/x/../../infra/main.tf                  0        ALLOWED
+pom.xml                                    2        DENIED
+sub/../pom.xml                             2        DENIED
