@@ -535,7 +535,27 @@ last_verified: "EVERY NUMBER IN THIS SESSION WAS RE-DERIVED BY ME FROM THE API O
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "STOP 16 CONTINUES AT §4 STEP 4 - `build the smallest thing`. Steps 1, 2 and 3 are
+next_action: "STOP 16 IS AT §4 STEP 6 AND THE REGISTERED BATCH IS ABOUT TO BE LAUNCHED.
+  STEPS 4 AND 5 ARE DONE, COMMITTED AND PUSHED. Do not redo them.
+  THE BATCH: evidence/p05b/batch-20260911T195225Z/run-batch.sh, launched under `nohup caffeinate -i`.
+  20 runs, SERIAL, interleaved C D C H five times = 10 control + 5 arm D + 5 arm H, experiment
+  key EXP-5B5-PERMISSION-BLOCK-BE003, BENCHMARK=BE-003, MODEL=claude-haiku-4-5-20251001,
+  --isolate-user-settings --keep, endpoints on the COLIMA TUNNELS (api 18081, otlp 14318/14317).
+  ***IF THIS SESSION ENDED MID-BATCH, DO NOT RELAUNCH IT.*** Read
+  evidence/p05b/batch-20260911T195225Z/manifest.tsv - one row per run, written BEFORE the run`s exit code is
+  known, so a PENDING row names exactly what was in flight. Cross-check against the API:
+  curl -s http://127.0.0.1:18081/api/runs | jq \'[.[]|select(.experimentKey==\"EXP-5B5-PERMISSION-BLOCK-BE003\")]|length\'
+  A duplicate run is evidence that cannot be deleted (§0).
+  EXPECT IT TO BE SLOW: the arm D preflight took ~25 MINUTES and 210 model calls because the
+  agent, denied Edit/Write, retried through Bash 117 times. Five of those plus 15 shorter runs
+  is roughly 3-4 hours. It is not stuck; check manifest.tsv grew.
+  THE BATCH HAS ITS OWN VERSION GUARD: it reads `claude --version` before every run and exits 9
+  if it moved. Base version at launch is in evidence/p05b/batch-20260911T195225Z/batch.log.
+  THEN §4 STEP 7 - check-run-gate.sh on each run, then a HAND re-read of one cell BEFORE any
+  sheet is opened, then codex-score.sh (registered) and opencode-score.sh (second reader).
+  NOTE FOR STEP 7/8: the deny channel means arm D runs produce 15+ UNRELATED files; the rubric`s
+  change-focus dimension will see them. That is a measurement, not a defect to tidy.
+  SUPERSEDED, kept not deleted: STOP 16 CONTINUES AT §4 STEP 4 - `build the smallest thing`. Steps 1, 2 and 3 are
   DONE, COMMITTED AND PUSHED on stop16/phase-5b-verification-selfhealing. DO NOT RE-OPEN THE STOP, do
   not re-write the Extract, and DO NOT EDIT E-017`s predictions - §4 step 12, a prediction is never
   edited after its commit and this one is committed at 02690e2.
