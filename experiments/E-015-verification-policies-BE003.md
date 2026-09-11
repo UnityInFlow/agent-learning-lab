@@ -10,6 +10,31 @@
 
 `Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-10T09:51:07Z; the author did not review before the run.`
 
+### §4 step 3's timestamp check — the two timestamps, read from git and the run records
+
+*Registered requirement: "The commit timestamp must precede the first run's `startedAt`; check this
+after the runs and write the two timestamps into the file." Done 2026-09-11, after the batch.*
+
+| | value | source |
+|---|---|---|
+| prediction commit | **`ea7b1d2`**, `2026-09-10T11:51:08+02:00` = **`2026-09-10T09:51:08Z`** | `git log --diff-filter=A --format=%cI` on this file — the commit that **added** it |
+| first run of the batch | **`2026-09-10T18:37:32Z`** (``f82835ea-5860-4e74-9729-91f0e4118795``, treated) | `startedAt` in `GET /api/runs/{{id}}`, minimum over all this task's run ids in the manifest |
+| margin | ****8 h 46 min 24 s**** | |
+
+**Verdict: the prediction precedes the first run.**
+
+**One intermediate commit sits between them and it is accounted for, not waved past.** `cb10e2e`
+(`2026-09-10T15:09:50+02:00` = `13:09:50Z`, still **before** the batch) added the *Amendment,
+2026-09-10* section above. `git diff --numstat ea7b1d2 cb10e2e` on this file reports **+70 / −0**:
+**zero deleted lines**, so no prediction, magnitude, mechanism, MDE row or decision-rule row could
+have been altered by it. That is checkable rather than asserted, which is the point of quoting the
+numstat instead of the claim.
+
+Commits *after* the batch (`82685e1`, `8cf8942` and later) write only the sections this template
+marks *"filled in AFTER the runs"*, plus dated amendments. No registered text above is edited by
+any of them.
+
+
 ---
 
 ## Question

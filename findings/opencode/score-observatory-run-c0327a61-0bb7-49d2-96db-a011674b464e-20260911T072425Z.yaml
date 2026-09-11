@@ -18,3 +18,31 @@ provenance:
   attachments:   7 file(s) under test, 7 with a baseline side
   session:       fresh    # never --continue; independence requires no memory
 ---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: every refusal throws ConflictException or ResourceNotFoundException, no ApiError constructed
+    evidence: OrderController.kt:27,42,53,66; ShipmentController.kt:32,41,61
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: order-status decision is an if, not an exhaustive when
+    evidence: OrderController.kt:59
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: clauses (b) and (d) re-read via repository.findById, not get() requests
+    evidence: OrderControllerTest.kt:114,117,147,150,153
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: all differences within permitted list; create/getById/list identical in both trees
+    evidence: OrderController.kt:24-48; ShipmentController.kt:29-67
+ambiguous_categories: []
+```
