@@ -1,0 +1,10 @@
+# B7 PREFLIGHT PAIR 20260910T131008Z  (author decisions 8 and 9)
+# treated overlay f432abbcbf1f3b90ec4dd801a23c333a5f7e6c40fe0b54b11fd5689f9938cbca
+# expected agentHash on BOTH arms: sha256:b3450564b6f32d6193e8580db766210e
+# claude 2.1.267 at launch, model claude-haiku-4-5-20251001
+# prediction commit ea7b1d2 at 2026-09-10T09:51:08Z, BEFORE any run here
+task	arm	run_id	make_rc	evaluator_exit	f13	edits	worktree	agent_hash	settings_tracked	policy_log	policy_lines	model_calls	init_tools
+BE-003	treated	f40a2fe3-124c-40c3-9600-70b6e117ae1c	0	0	no	3	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f40a2fe3-124c-40c3-9600-70b6e117ae1c	sha256:b3450564b6f32d6193e8580db766210e	yes	PRESENT	3	19	n=4 ["Read","Edit","Write","Bash"]/match
+BE-003	control	4f9e07c7-282c-4c31-9c2d-ce8728158577	0	0	no	3	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4f9e07c7-282c-4c31-9c2d-ce8728158577	sha256:b3450564b6f32d6193e8580db766210e	no	ABSENT	0	17	n=4 ["Read","Edit","Write","Bash"]/match
+BE-004	treated	3446db3e-3978-4273-b127-0f1f001b137d	0	0	no	7	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3446db3e-3978-4273-b127-0f1f001b137d	sha256:b3450564b6f32d6193e8580db766210e	yes	PRESENT	7	26	n=4 ["Read","Edit","Write","Bash"]/match
+BE-004	control	2d75f3b1-17f8-4002-98c2-fcb82e4e0c58	0	0	no	7	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2d75f3b1-17f8-4002-98c2-fcb82e4e0c58	sha256:b3450564b6f32d6193e8580db766210e	no	ABSENT	0	26	n=4 ["Read","Edit","Write","Bash"]/match

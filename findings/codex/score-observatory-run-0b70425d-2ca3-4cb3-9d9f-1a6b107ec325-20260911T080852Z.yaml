@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0b70425d-2ca3-4cb3-9d9f-1a6b107ec325
+  mode:           run
+  run_id:         0b70425d-2ca3-4cb3-9d9f-1a6b107ec325
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:18081/api/runs/0b70425d-2ca3-4cb3-9d9f-1a6b107ec325
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260911T080852Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals throw baseline ApiException subclasses; controllers construct no error bodies"
+    evidence: "OrderController.kt:45, OrderController.kt:61, ShipmentController.kt:30, ShipmentController.kt:40, ShipmentController.kt:62"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "Order status is decided through independent if statements"
+    evidence: "OrderController.kt:53"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Clauses a–c hold; successful cancellation is never re-read through an order GET"
+    evidence: "OrderControllerTest.kt:76"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Unnamed create changed because the new status field lacks a default"
+    evidence: "OrderController.kt:24, baseline/OrderController.kt:21"
+ambiguous_categories: []

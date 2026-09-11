@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.147.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0ee35b0e-a36e-4d00-854e-f78c2f6b560c
+  mode:           run
+  run_id:         0ee35b0e-a36e-4d00-854e-f78c2f6b560c
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:18081/api/runs/0ee35b0e-a36e-4d00-854e-f78c2f6b560c
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260911T081701Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "all refusals use baseline ApiException subclasses"
+    evidence: "OrderController.kt:28,44,52,65; ShipmentController.kt:31,42,65"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel uses an if-based order-status decision"
+    evidence: "OrderController.kt:58"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "clause (b) lacks shipment reread after 409"
+    evidence: "OrderControllerTest.kt:140-148"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "unnamed OrderController.create explicitly adds status"
+    evidence: "baseline/OrderController.kt:30; work/OrderController.kt:36"
+ambiguous_categories: []

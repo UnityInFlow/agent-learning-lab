@@ -1,0 +1,1 @@
+direct invocation on a DENY input exited 2 (2 would be a deny; anything else is fail-open)

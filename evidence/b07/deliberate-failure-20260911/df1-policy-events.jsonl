@@ -1,0 +1,2 @@
+{"ts":"2026-09-11T08:44:27Z","decision":"deny","tool":"Edit","path":"sample-service/pom.xml","reason":"matched:**/pom.xml","policy":"protected-paths","pid":75462}
+{"ts":"2026-09-11T08:44:31Z","decision":"allow","tool":"Write","path":"notes-b7.txt","reason":"no-deny-pattern-matched","policy":"protected-paths","pid":75743}

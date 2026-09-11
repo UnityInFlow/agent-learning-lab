@@ -16,7 +16,12 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 14 of 28. Positions 4–14 CLOSED.** Stop 14 (Phase 5A, Lab 5A.1) closed 2026-09-10; `lab#7`
+**Spine 15 of 28. Positions 4–15 CLOSED.** Stop 15 (B7, deterministic verification and policies)
+closed 2026-09-11: **BE-004 `KEEP AS L2, WITH NO MEASURED EFFECT` (decision-rule row 3); BE-003
+`INCONCLUSIVE` (row 4)**, per task, never across (author decision 9). **v1.0 closes here and is
+NOT promoted** — §17 requires a measured benefit and there is none. Next is stop 16 (Phase 5B).
+
+*(Superseded line, kept:)* **Spine 14 of 28. Positions 4–14 CLOSED.** Stop 14 (Phase 5A, Lab 5A.1) closed 2026-09-10; `lab#7`
 stays OPEN because Labs 5A.2–5A.7 are deferred. Next is stop 15 (B7).
 
 *(Superseded line, kept:)* **Spine 13 of 28. Positions 4–13 CLOSED.** Stop 12 (B5) closed 2026-09-07 (PR lab#79 → `2e32f214`);
@@ -38,6 +43,104 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## Stop 15 — B7 closed: the first Layer 2 control in Track B, and the median that invented its own headline — 2026-09-11
+
+**PR lab#TBD. Two tasks, two verdicts, no verdict across them (author decision 9).**
+
+| task | n per arm | verdict | why |
+|---|---|---|---|
+| **BE-004-cancel-order** | 7 | **row 3 — KEEP AS L2, WITH NO MEASURED EFFECT** | P1–P7 all held. All four rubric deltas **0**, cost +5.02 %, `modelCalls` −1, pass rate 7/7 vs 7/7 |
+| **BE-003-confirm-shipment** | 10 | **row 4 — INCONCLUSIVE** | P1–P6 held; **P7 refuted on `maintainability`**, treated median 2 vs control 0 |
+
+**What was built.** One executing `PreToolUse` policy gate delivered by the customization overlay —
+`.claude/settings.json`, `.ai/policies/protected-paths.yaml`, `.ai/hooks/policy-gate.sh` — plus
+`verify-sh.sh` run **from the harness** over every kept worktree of both arms. `verify.sh` was
+deliberately **not** put in the overlay: `./mvnw test` is 60–90 s on this service and would have
+inflated the treated arm's duration by about the size of the effect being looked for.
+`allowed-dependencies.yaml`, `command-policy.yaml` and `database-policy.yaml` were **not written**,
+because the census of 325 Track B runs found **zero** incidence of every failure class they target.
+
+**It is the first thing in Track B that executes and refuses.** Everything in v1.0 before it —
+B3's instruction file (removed as having no measured effect), B4's agent file, B5's phases, B6's
+skill — is prose the model may read and decline, and the only other executing line, `tools:`, was
+measured at stop 9 as a **name** filter. DF1 is the proof: given a real `pom.xml` edit the
+registered gate denied it, left the file byte-unchanged, logged the `deny`, and the model reported
+*"The policy gate prevents editing `sample-service/pom.xml` because it's a protected build file."*
+
+### The headline number is the instrument's, not the treatment's — and this is the stop's result
+
+BE-003's `maintainability` gap refutes P7 and fires row 4. Then the investigation row 4 requires
+takes one line: **every one of the 20 BE-003 runs scored exactly 0 or exactly 2 on that category,
+never 1.** A median over a two-level population is a threshold test on a rate, so a **two-run**
+difference — **6 of 10 vs 4 of 10, two-sided Fisher p = 0.6563** — is reported as a **two-point
+effect** against a one-point threshold.
+
+The verdict stands as registered; §4 step 12 forbids re-specifying a rule once the values are
+known. What is recorded beside it: **do not summarise a two-level rubric category with a median.**
+That is B8's inheritance and it is the single finding here most likely to overturn a later result
+if left alone.
+
+**It is not a scorer artefact.** The second reader produced **identical values on 20 of 20**
+BE-003 `maintainability` cells and 14 of 14 BE-004 ones. Pooled over 136 cells the two harnesses
+agree **113 times (83.1 %)**, and **22 of the 23 disagreements are `change-focus`**, always in the
+same direction — a second independent batch supporting author decision 10.3's carve-out, and
+*worse* than lab#70's 18 of 34: on this batch they agree on `change-focus` in **12 of 34** runs.
+
+### DF2 was refuted in the opposite direction, and that is the more useful half
+
+Predicted: a gate given a syntax error **fails open**, the edit succeeds, and nothing in the run
+record distinguishes it. Observed: the edit was **denied**, the **legitimate** write was also
+denied, the policy log was **absent because the hook never ran a line**, and the model named the
+broken file. **`bash` exits `2` on a syntax error and `2` is the hook protocol's DENY** — two
+meanings of one number. A syntactically broken policy hook **fails CLOSED**. Phase 5A's extract is
+narrowed, not overturned: *"every exit code other than 2 is a non-blocking error"* still describes
+a gate that dies at exit 1, 127 or a timeout.
+
+**Attempt 1 of DF2 is kept and recorded INCONCLUSIVE** — it appended the error to the *end* of the
+file, bash parses incrementally, and the deny path `exit 2`s before reaching it, so the broken
+line was never read. A deliberate-failure probe that broke a byte nothing executes is the house
+failure mode wearing a probe.
+
+**And it found a defect in this stop's own delivery proof.** `.ai/policy-events.jsonl` is absent
+both when no hook was installed (the control arm) and when the hook is broken and denying
+everything. P1's registered wording — *"the file exists iff the hook executed"* — cannot separate
+them. The proof that can is **the log's line count agreeing with the independently counted edit
+calls**, which was added because it was cheap rather than because it had been shown necessary.
+
+### v1.0 vs B2, stated even though it is not favourable
+
+Rubric sha `396e1799eb2b` both sides, `runtime.model` `claude-haiku-4-5-20251001` both sides, B2's
+`customization` object all-`null`. **Three of four categories have not moved across the whole of
+v1.0.** The fourth is `maintainability` again: **1 of 5 on B2, 6 of 10 on v1.0, Fisher p = 0.2821**.
+The B2 arm is **stored, not concurrent**, and this is a **version** comparison with five steps'
+worth of changes in it — nothing here attributes that column to the gate, which is the one part of
+v1.0 that cannot plausibly cause it.
+
+### Instrument notes from this session
+
+- **codex went down on AUTH, not quota, at 07:0xZ and was back by 07:59Z.** Decision H's 12-hour
+  condition never arose and **Decision H is NOT fired**. `codex login status` printed
+  *"Logged in using ChatGPT"* with exit 0 throughout the outage while every call 401'd — a check
+  reporting that credentials are **stored**, read as a claim that they **work**. §0a's row 3
+  survived only because it makes a real scoring call instead of a status probe.
+- **`ollama-cloud` is at its weekly limit again**, so §4a's review ran on the **codex panel**
+  (`-P codex`). Second-reader breadth at this stop is one family, and the PR says so.
+- **`make smoke` fails and the stack is fine.** `limactl` holds leaked listeners on 8081, 4317 and
+  4318 with nothing behind them; the live API is the colima tunnel at `127.0.0.1:18081`. A
+  preflight subagent probed `/health`, which does not exist, got 404 and reported the stack down.
+- **Two `eza` processes were wedged on this machine for 22 hours**, and a third for 22 minutes from
+  this session — `rtk` rewrites `ls` to `eza` and it hangs. `ls` returned empty output rather than
+  an error, which is what "no files" looks like. Use `find`, not `ls`.
+- **A subagent published a false claim onto both boards, and re-verification caught it.** The
+  republish agent reported success and `check-board-freshness.sh` exited 0 — and the page said
+  *"Policy gate: 17/17 treated denied"*, when the gate **denied nothing** across the batch. The
+  freshness check compares a digest; it cannot read a sentence, so a board can be provably current
+  and still be wrong. It was found by grepping the published source for the claim rather than by
+  trusting the green check or the agent's own summary — **"when a check goes green, re-verify one
+  of its cases by hand"**, applied to a publish. Three sentences were corrected across the two
+  boards and both were republished. The first, wrong version is not recoverable and is recorded
+  here instead.
 
 ## Stop 14 — Phase 5A, Lab 5A.1: the capability was not removed, and one layer label was wrong — 2026-09-10
 
@@ -74,7 +177,9 @@ happens anyway"**.
 
 ### What is BLOCKED ON YOU
 
-**Nothing.** `lab#7` **stays open** by design: Labs 5A.2–5A.7 are deferred, and the spine's stop 14
+**HALT, 2026-09-10 (§7) — two builders on one working tree.** The `run-track-b.sh` session and an interactive Claude Code session (local pid 55645, session `d3122b15-…`, commit trailer `session_01GAnRRhLnQgJnr65WmndHtR`) both re-entered at stop 15; the interactive one committed §4 step 1 as `32d99cc` and kept working. The driver session stopped before touching any stop-15 artifact or starting any run, and set `status: blocked` so the driver does not launch a third. **Yours: choose one builder** — `TRACK-B-STATE.md` `blocked_on_author` says what each choice needs.
+
+*(Superseded by the halt above, kept:)* **Nothing.** `lab#7` **stays open** by design: Labs 5A.2–5A.7 are deferred, and the spine's stop 14
 is 5A.1 alone. The exit-gate items still unanswered are named in the workbook — `preToolUse` vs
 `postToolUse`, fail-open vs fail-closed by choice, repository hooks vs admin policy, **the
 false-positive rate as a number**, and **what the evaluator records when a guardrail blocks a run**
@@ -1520,8 +1625,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 43d6239 prose: 32590f81db10 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 43d6239 prose: 32590f81db10 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: ec7e31b prose: 865f553b9c12 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: ec7e31b prose: 865f553b9c12 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The

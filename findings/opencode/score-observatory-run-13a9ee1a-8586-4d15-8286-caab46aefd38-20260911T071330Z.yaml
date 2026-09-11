@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:    6252778b8472
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-13a9ee1a-8586-4d15-8286-caab46aefd38
+  mode:          run
+  run_id:        13a9ee1a-8586-4d15-8286-caab46aefd38
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/13a9ee1a-8586-4d15-8286-caab46aefd38
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.QhM3TmD0rg/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260911T071330Z
+  attachments:   7 file(s) under test, 7 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: "All refusals throw ConflictException/ResourceNotFoundException; no ApiError constructed."
+    evidence: "OrderController.kt:66, ShipmentController.kt:41"
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: "cancel decides via if (order.status == CANCELLED), not an exhaustive when."
+    evidence: "OrderController.kt:59"
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: "409 test re-reads order but not shipment status; clause (b) absent."
+    evidence: "OrderControllerTest.kt:139-142"
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: "create/getById/list identical; only cancel, guard, status field, query, ErrorCode added."
+    evidence: "OrderController.kt:25-37, ShipmentController.kt:30-56"
+ambiguous_categories: []
+```

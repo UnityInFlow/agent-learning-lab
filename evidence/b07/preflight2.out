@@ -1,0 +1,15 @@
+
+======== BE-003 treated  key=EXP-B7-POLICY-BE003-PREFLIGHT ========
+  -> bc8e2743-c17e-4fcd-9127-cf33474510ea rc=2 agentHash=sha256:b3450564b6f32d6193e8580db766210e policy_log=ABSENT(0 lines) modelCalls=4
+
+======== BE-003 control  key=EXP-B7-POLICY-BE003-PREFLIGHT ========
+  -> 45104e62-ccc2-493c-aa98-d343abc66ba0 rc=2 agentHash=sha256:b3450564b6f32d6193e8580db766210e policy_log=ABSENT(0 lines) modelCalls=0
+
+======== BE-004 treated  key=EXP-B7-POLICY-BE004-PREFLIGHT ========
+  -> 0c666c1a-2c12-4f74-ad08-4fa679ee273c rc=2 agentHash=sha256:b3450564b6f32d6193e8580db766210e policy_log=ABSENT(0 lines) modelCalls=0
+
+======== BE-004 control  key=EXP-B7-POLICY-BE004-PREFLIGHT ========
+  -> 24454f76-b8ab-42dc-b556-8ab09defeae5 rc=2 agentHash=sha256:b3450564b6f32d6193e8580db766210e policy_log=ABSENT(0 lines) modelCalls=0
+
+manifest: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b07/preflight-20260910T120353Z/manifest.tsv
+PREFLIGHT DONE

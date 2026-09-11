@@ -1,0 +1,11 @@
+# B7 REGISTERED BATCH 20260910T132311Z  n=10 per arm per task, interleaved (author decision 9)
+# treated overlay f432abbcbf1f3b90ec4dd801a23c333a5f7e6c40fe0b54b11fd5689f9938cbca
+# expected agentHash on BOTH arms: sha256:b3450564b6f32d6193e8580db766210e
+# claude 2.1.267 at launch, model claude-haiku-4-5-20251001
+# prediction commit ea7b1d2 at 2026-09-10T09:51:08Z, BEFORE any run here
+task	seq	arm	run_id	make_rc	evaluator_exit	f13	edits	worktree	agent_hash	settings_tracked	policy_log	policy_lines	model_calls	init_tools
+BE-003	01	treated	11dd0c8d-a569-4eb6-83b8-3a83bc548ac5	0	0	no	3	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-11dd0c8d-a569-4eb6-83b8-3a83bc548ac5	sha256:b3450564b6f32d6193e8580db766210e	yes	PRESENT	3	25	n=4 ["Read","Edit","Write","Bash"]/match
+BE-003	01	control	1cd13b2a-3d01-41b8-aab8-9e7e01d590b5	0	0	no	4	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1cd13b2a-3d01-41b8-aab8-9e7e01d590b5	sha256:b3450564b6f32d6193e8580db766210e	no	ABSENT	0	22	n=4 ["Read","Edit","Write","Bash"]/match
+BE-003	02	treated	8c17e8ac-b9b2-47ac-ad7b-f577f8ba46ef	0	0	no	3	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-8c17e8ac-b9b2-47ac-ad7b-f577f8ba46ef	sha256:b3450564b6f32d6193e8580db766210e	yes	PRESENT	3	21	n=4 ["Read","Edit","Write","Bash"]/match
+BE-003	02	control	5b1df59d-8075-47fe-8d86-a615ae9a6c0c	0	0	no	3	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5b1df59d-8075-47fe-8d86-a615ae9a6c0c	sha256:b3450564b6f32d6193e8580db766210e	no	ABSENT	0	22	n=4 ["Read","Edit","Write","Bash"]/match
+BE-003	03	treated	f381a596-7181-494d-b615-57ab647a6831	0	0	no	3	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f381a596-7181-494d-b615-57ab647a6831	sha256:b3450564b6f32d6193e8580db766210e	yes	PRESENT	2	28	n=4 ["Read","Edit","Write","Bash"]/match

@@ -1,0 +1,1 @@
+/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//b7-df2-WIp6Kq/.ai/hooks/policy-gate.sh: line 98: syntax error: unexpected end of file from `if' command on line 97

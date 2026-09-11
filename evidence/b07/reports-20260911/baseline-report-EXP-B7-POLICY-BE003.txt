@@ -1,0 +1,15 @@
+
+=== EXP-B7-POLICY-BE003 ===
+  25 measuring run(s)
+
+  pass rate   25/25
+
+  outcome            n         min        p25     median        p75        max
+  ---------------- ---  ---------- ---------- ---------- ---------- ----------
+  duration (s)      25          75        100        115        128       5192
+  estimated cost    25      0.0915     0.1076     0.1216     0.1335     0.1701
+  total tokens      25        8606       9777      11045      12149      13310
+  tool calls        25          16         18         19         21         30
+  model calls       25          13         20         21         23         28
+  cache tokens      25      211514     272784     302531     350237     604655
+

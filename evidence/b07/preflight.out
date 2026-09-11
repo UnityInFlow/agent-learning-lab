@@ -1,0 +1,15 @@
+
+======== BE-003 treated  key=EXP-B7-POLICY-BE003-PREFLIGHT ========
+  -> NO RUN ID rc=2 agentHash=null policy_log=ABSENT(0 lines) modelCalls=null
+
+======== BE-003 control  key=EXP-B7-POLICY-BE003-PREFLIGHT ========
+  -> NO RUN ID rc=2 agentHash=null policy_log=ABSENT(0 lines) modelCalls=null
+
+======== BE-004 treated  key=EXP-B7-POLICY-BE004-PREFLIGHT ========
+  -> NO RUN ID rc=2 agentHash=null policy_log=ABSENT(0 lines) modelCalls=null
+
+======== BE-004 control  key=EXP-B7-POLICY-BE004-PREFLIGHT ========
+  -> NO RUN ID rc=2 agentHash=null policy_log=ABSENT(0 lines) modelCalls=null
+
+manifest: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b07/preflight-20260910T120306Z/manifest.tsv
+PREFLIGHT DONE
