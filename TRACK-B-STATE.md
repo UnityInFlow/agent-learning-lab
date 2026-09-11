@@ -576,7 +576,14 @@ stop15:  # B7. Registration facts only - NO RUN EXISTS ON EITHER KEY at this sta
     and the phase treatment provably did not move. The ONE variable is the other three files:
     .claude/settings.json 1dc38808bee86df9b128435a90ef27cf983a540b35d02630067cafecb142f942,
     .ai/policies/protected-paths.yaml 76c4c34c0f4ca5ebeb12dbb3c25bd717533a6219b2ba9ab0a340c41dc90663e6,
-    .ai/hooks/policy-gate.sh c558f78ace02066223746bd216e4c848326bdc382fa2cfd35f1569d9fe22cbac.
+    .ai/hooks/policy-gate.sh c558f78ace02066223746bd216e4c848326bdc382fa2cfd35f1569d9fe22cbac
+    *** THIS GATE HASH IS STALE AND IS KEPT, NOT DELETED (2026-09-11). THE VALUE THAT WAS LIVE FOR THE
+    BATCH AND IS ON DISK NOW IS f432abbcbf1f3b90ec4dd801a23c333a5f7e6c40fe0b54b11fd5689f9938cbca ***
+    - the batch manifest header recorded f432abbc at launch, and the deliberate-failure probes re-derived
+    it on 2026-09-11. c558f78a predates the amendment that moved the event log OUTSIDE the worktree.
+    FOUND BY §4a ROUND 1, which caught the stale copy after it had been carried into the §5 validation
+    table for one commit; the table is corrected and says so. The other three hashes in this block are
+    NOT re-verified by that finding and are left as written.
     ShellCheck -S warning clean, bash -n clean, smoke-tested 6 of 6 by hand (pom.xml, ci.yml, yarn.lock,
     infra/main.tf DENIED at exit 2; a Kotlin source and a test file ALLOWED at exit 0; all six logged)."
   delivery_proof: "THE HOOK`S OWN EVENT LOG, .ai/policy-events.jsonl, AND NOT A HASH - because there is
