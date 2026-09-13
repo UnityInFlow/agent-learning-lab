@@ -13,6 +13,35 @@ loop_step: 6-BATCH-LIVE   # §4 STEP 6, the resume half (indices 21-30). NOT COM
 # SUPERSEDED, kept not deleted: loop_step: 7   # §4 STEP 7 HALTED PART-WAY 2026-09-06T13:2xZ. THE GATE HALF IS COMPLETE AND API-INDEPENDENT: check-run-gate.sh on each run's on-disk evaluation.json gives 20 ADMITTED, 0 REFUSED. THE SCORING HALF IS BLOCKED: no run records, so no codex sheets, so no O7. The hand re-read REQUIRED BEFORE ANY SHEET IS OPENED IS DONE AND COMMITTED (5f1b83d, run 207ff23d, maintainability = 0 with path:line reasoning), so whenever scoring becomes possible the ordering discipline is already satisfied and must not be redone.
 branch: stop16/phase-5b-verification-selfhealing (agent-learning-lab), created 2026-09-11T10:24:52Z off main at 2d201a5. The stop-15 branch is merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab), clean, at 2d201a5. THE STOP-15 BRANCH stop15/b7-verification-policies IS MERGED, not deleted. Fifteen commits on it this session. SUPERSEDED, kept not deleted: stop15/b7-verification-policies (agent-learning-lab). SIX NEW COMMITS THIS SESSION on top of 96be718: 82685e1 the n=7 decision and the n=7 detection limits registered before any sheet; 0c5651a the two hand re-reads, committed while zero sheets existed for the batch; 8cf8942 P1-P6 measured into E-015 and E-016, P7 deferred; 493e1ba step 8 artefacts (verify-sh over 34 worktrees, gate from two sources, the baseline-report defect); plus the probe-file rename and this state write. branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, PUSHED. FIVE COMMITS: 32d99cc step 1 (workbook Goal/Required reading/Extract; lab#32 commented; card In Progress), a921443 the OTHER session`s state hunks + its §7 halt, 674d8a9 step 2 (design + the census + the feasibility probe), 344bc97 the halt discharge, ea7b1d2 THE PREDICTION COMMIT at 2026-09-10T11:51:08+02:00 = 09:51:08Z. SUPERSEDED, kept not deleted: branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, THREE COMMITS: 32d99cc (step 1), a921443 (the driver session`s state hunks + its §7 halt), 674d8a9 (step 2). NOT PUSHED YET. SUPERSEDED, kept not deleted: branch: NONE - stop14/phase-5a-guardrails IS MERGED (
 in_flight:   # ONE RUN IS LIVE at this write: the arm D preflight, pid 61612, run id in the block below. Newest first.
+  - "THE §4 STEP 7 HAND RE-READ IS DONE AND COMMITTED WHILE ZERO SHEETS EXIST FOR THIS BATCH, which is the
+    whole point of it (§4 step 7: `read the sheets only after you have written your own expected score for at
+    least one run by hand`). Checked first, not assumed: `grep -rl` over findings/ for any of the new run ids
+    returns NOTHING. RUN 79c7d7c6 (control, idx 21), category test-quality, rubric backend-quality.yaml at sha
+    396e1799eb2b (re-shasummed this session, UNCHANGED). HAND VALUE = 1, the residual, NOT 2.
+    Justification, path:line: sample-service/src/test/kotlin/com/unityinflow/sample/shipment/
+    ShipmentControllerTest.kt:100-102 (second confirm call, BODY asserted, not status-only) and :118-119
+    (refusal asserts $.error.code). Two of anchor 2`s three clauses hold; the third does NOT - no test re-reads
+    persisted state through a separate get(...), every confirm-related test at lines 86-127 uses only post(...),
+    so the submission falls to the residual. THE FILE IS NOT WRITTEN YET AND THAT IS DELIBERATE: §6 forbids
+    creating a future step`s artifacts early and step 6 is still in flight, so the value is recorded HERE, in the
+    log, where the commit timestamp proves the ordering without pre-empting step 7."
+  - "MEASURED WHILE THE BATCH RAN, AND IT IS NOT YET A RESULT - 14 of the 20 runs exist and no verdict may be
+    computed from a partial batch. Recorded so the next session does not re-derive it. Per treated run, from the
+    API (behavior.permissionDenials / behavior.toolCalls / evaluation.exitCode / evaluation.failureClass):
+    arm D b2453820 1/67/21/F13 - 1a8cbbfb 15/95/12/F03 - cd563cee 4/61/10/F04 - 3bd8fcd8 0/78/0/null-PASSED;
+    arm H d3f7b3d4 3/11/12/F03 - 47332479 3/9/12/F03 - 020444f2 2/9/12/F03;
+    control (7 of 7) 0 denials, toolCalls 12-16, exit 0 on every one."
+  - "THREE THINGS THAT BEAR ON THE REGISTERED PREDICTIONS, WRITTEN DOWN BEFORE THE BATCH ENDS SO THEY CANNOT BE
+    CHOSEN AFTERWARDS. (1) P1 ALREADY HAS ONE REFUTING RUN: b2453820 is classed F13, and E-017`s Exclusions
+    section says in terms that a treated run classed F13 by the existing narrow guard is NOT excluded - it is a
+    refutation of P1 and must be counted as one. At 1 of 7 that is decision-rule ROW 2 territory, not row 1.
+    (2) P2 IS BEING REFUTED IN THE DIRECTION E-017 SAID IT EXPECTED TO BE WRONG: arm D was predicted at 0 of 5
+    with permissionDenials > 0 and is at 3 of 4. Arm H is 3 of 3, consistent with its >= 4 of 5. (3) P3 HAS AT
+    LEAST ONE REFUTING RUN AND I CHECKED IT AT THE WORKTREE RATHER THAN INFERRING IT FROM THE EXIT CODE:
+    3bd8fcd8 (arm D) has evaluator exit 0 and `git status --porcelain` in its worktree shows THREE modified
+    files - ApiError.kt, ShipmentController.kt and ShipmentControllerTest.kt. The deny channel did not block it.
+    If that holds up across the full ten, decision-rule row 4 (VOID for P1) is live and row 5 is in play.
+    NONE OF THIS IS A VERDICT AT THIS WRITE and none of it may be turned into one until idx 30 has an exit code."
   - "SESSION OPENED 2026-09-13T10:1xZ. THE RESUME BATCH WAS ALREADY RUNNING AND I LEFT IT RUNNING.
     Checked rather than assumed: `ps -eo pid,etime,command` shows resume-batch.sh pid 80529 at 08:20 elapsed,
     caffeinate -i pid 80531, and run-agent.sh pid 98217 --variant blocked-deny-5b5 at 04:17 elapsed.
