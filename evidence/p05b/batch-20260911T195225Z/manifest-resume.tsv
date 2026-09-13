@@ -1,0 +1,11 @@
+idx	arm	variant	started	run_id	exit	worktree
+21	control	plain	2026-09-13T10:06:32Z	79c7d7c6-bcaf-4538-b373-10244dc30b6c	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-79c7d7c6-bcaf-4538-b373-10244dc30b6c
+22	H	blocked-hook-5b5	2026-09-13T10:08:12Z	020444f2-00ba-42d9-b9c3-cf3ed0943f93	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-020444f2-00ba-42d9-b9c3-cf3ed0943f93
+23	control	plain	2026-09-13T10:09:08Z	3f696916-c023-4ef3-a2eb-d2679ebd7699	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3f696916-c023-4ef3-a2eb-d2679ebd7699
+24	D	blocked-deny-5b5	2026-09-13T10:10:35Z	3bd8fcd8-ac1b-4ab9-af1f-642794bca54c	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3bd8fcd8-ac1b-4ab9-af1f-642794bca54c
+25	control	plain	2026-09-13T10:18:00Z	c3fab185-61e0-4b52-8d20-bcd32c0f2bde	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c3fab185-61e0-4b52-8d20-bcd32c0f2bde
+26	H	blocked-hook-5b5	2026-09-13T10:20:06Z	cd53a065-94a2-43f3-bb98-fda72e3bf6be	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-cd53a065-94a2-43f3-bb98-fda72e3bf6be
+27	control	plain	2026-09-13T10:21:07Z	72e21b83-9bd0-4f5b-9b9e-b53948e4ae10	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-72e21b83-9bd0-4f5b-9b9e-b53948e4ae10
+28	D	blocked-deny-5b5	2026-09-13T10:23:05Z	8038176a-7ec2-441f-b46c-09ab88a1aec0	21	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-8038176a-7ec2-441f-b46c-09ab88a1aec0
+29	control	plain	2026-09-13T10:35:42Z	86a2e38d-3442-414a-a56a-1556b87407ad	0	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-86a2e38d-3442-414a-a56a-1556b87407ad
+30	H	blocked-hook-5b5	2026-09-13T10:37:34Z	b3b76c2f-42b7-4558-914e-e4d767ccbc43	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b3b76c2f-42b7-4558-914e-e4d767ccbc43
