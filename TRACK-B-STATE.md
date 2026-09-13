@@ -535,7 +535,31 @@ last_verified: "EVERY NUMBER IN THIS SESSION WAS RE-DERIVED BY ME FROM THE API O
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "STOP 16 IS AT §4 STEP 6 AND THE REGISTERED BATCH IS ABOUT TO BE LAUNCHED.
+next_action: "STOP 16 IS AT §4 STEP 6 AND THE BATCH IS BEING RESUMED AFTER AN API OOM.
+  ***DO NOT RE-RUN idx 1-11. DO NOT RELAUNCH run-batch.sh.*** The first pass recorded TEN runs
+  (5 control, 3 arm D, 2 arm H) and then the observatory API CONTAINER WAS OOM-KILLED - exit 137,
+  colima VM 3.826 GiB. NOTHING WAS LOST: postgres volume is the original (created 2026-08-08),
+  and after `docker start` of that ONE container the store holds 562 runs = 550 + 2 preflight +
+  10 batch, exact. Full write-up: evidence/p05b/batch-20260911T195225Z/INCIDENT-api-oom.md.
+  RUNS 12-20 NEVER STARTED - 163-byte logs, refused at the runner`s API check BEFORE the model
+  was called. RUN 11 RAN AND WAS NEVER REGISTERED (curl 56 mid-run); it is EXCLUDED BY NAME,
+  folder kept at observatory-run-47a1279c-4002-4613-bdba-857e2e54dd50, because no record means no
+  telemetry means P4 cannot be answered from it.
+  THE RESUMPTION: evidence/p05b/batch-20260911T195225Z/resume-batch.sh, manifest-resume.tsv, INDICES 21-30, ten
+  runs - 5 control, 2 arm D, 3 arm H - which is exactly what is owed against the registered
+  10/5/5. Interleaved, serial, same key EXP-5B5-PERMISSION-BLOCK-BE003, same model
+  claude-haiku-4-5-20251001, same tunnels. claude --version is 2.1.268, THE SAME BASE VERSION AS
+  THE FIRST PASS, so the two halves are one runtime and the version guard will not abort.
+  IF THIS SESSION ENDED MID-RESUME: read manifest-resume.tsv (rows written BEFORE the exit code
+  is known) and cross-check the API count on the key; expected total when complete is 20.
+  MACHINE WAS MEASURED BEFORE RELAUNCH, not declared quiet: ./mvnw -q -o test in a kept worktree
+  took 10.25s wall against B7`s healthy 10.2s; load 1-min 12.09 vs 15-min 93.23.
+  THEN §4 STEP 7: check-run-gate.sh per run, a HAND re-read of one cell BEFORE any sheet is
+  opened, then codex-score.sh (registered) and opencode-score.sh (second reader).
+  ALREADY VISIBLE IN THE FIRST TEN AND NOT YET A RESULT: arm D exit codes are NOT uniform -
+  idx 2 exit 21 (F07), idx 6 exit 12 (F03), idx 10 exit 10. The deny channel blocks totally on
+  some runs and is routed around via Bash on others. That variance is what P3`s n=10 is for.
+  SUPERSEDED, kept not deleted: STOP 16 IS AT §4 STEP 6 AND THE REGISTERED BATCH IS ABOUT TO BE LAUNCHED.
   STEPS 4 AND 5 ARE DONE, COMMITTED AND PUSHED. Do not redo them.
   THE BATCH: evidence/p05b/batch-20260911T195225Z/run-batch.sh, launched under `nohup caffeinate -i`.
   20 runs, SERIAL, interleaved C D C H five times = 10 control + 5 arm D + 5 arm H, experiment
