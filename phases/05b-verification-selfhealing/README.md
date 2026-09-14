@@ -455,6 +455,98 @@ run from the run records, not from the flags — `customization.*Hash` set on th
 move that ended B7's batch is a live risk and the guard that caught it is still in place), and
 `repository.commitSha` identical across both arms.
 
+> **Correction, 2026-09-14, after the batch: the middle clause of that paragraph is FALSE, and it
+> was false when it was written.** `customization.*Hash` is **`null` on all twenty runs** — on the
+> treated arm exactly as on the control. All five fields: `instructionsHash`, `skillsHash`,
+> `agentHash`, `hooksHash`, `mcpHash`. `run-agent.sh:626-629` records three hashes — `CLAUDE.md`,
+> the `SKILL.md` set, and `.claude/agents/<name>.md` — and there is **no `settingsHash`**. Both of
+> this stop's overlays are `.claude/settings.json`. They are invisible to every hash the runner
+> writes.
+>
+> So the independence check as written would have passed by reading `null` on the control and
+> *expecting* a value on the treated arm that could never appear — a check that confirms what it
+> cannot see, which is this project's house failure mode wearing a schema field. E-017 did not
+> rely on it: its delivery table says *"Preflight assertion — **Not a hash.**"* and names the
+> `git ls-files` proof instead. **This paragraph did rely on it**, and is corrected rather than
+> quietly rewritten.
+>
+> What actually holds, re-derived per run over all twenty and recorded at
+> `evidence/p05b/delivery/`: the control's setup commit **tracks no overlay file** on 10 of 10;
+> arm D tracks `.claude/settings.json` at the registered sha `5db13bc81cc1` on 5 of 5; arm H
+> tracks it at `c50f5628c4a7` plus `.ai/hooks/block-writes.sh` on 5 of 5. `runtime.model` is
+> `claude-haiku-4-5-20251001` on 20 of 20 and `runtime.version` is `2.1.268` on 20 of 20, so the
+> mid-batch CLI guard excluded nothing.
+>
+> *Corrected by Opus 5 (claude-opus-5), autonomous, 2026-09-14.*
+
+
+## Lab 5B.5 — RESULT, spine stop 16, 2026-09-14
+
+Full experiment: [`experiments/E-017-permission-block-classification-5b5.md`](../../experiments/E-017-permission-block-classification-5b5.md).
+Evidence: `evidence/p05b/` — `batch-20260911T195225Z/gate/`, `delivery/`, `replay/`,
+`deliberate-failure/`.
+
+### The headline, with its `n`
+
+**`n = 20`** (10 control, 5 arm D, 5 arm H), `claude-haiku-4-5-20251001` on 20 of 20,
+`2.1.268 (Claude Code)` on 20 of 20.
+
+**The primary prediction is VOID, by the decision rule's own row 4, and the reason it is void is
+the result.** P1 asked how a *blocked* run is classified. Only **5 of 10** treated runs were
+actually blocked, so fewer than the 8 row 4 requires, and P1 is unanswerable rather than null.
+The 5 that were blocked are **all five of arm H** and the 5 that were not are **all five of arm
+D**. The split is by channel and it is total.
+
+### What the two channels did
+
+Both were delivered — proved per run from the setup commit's tracked files at the registered
+shas, because **no hash can carry a `.claude/settings.json`** (see the correction above). Both
+were observably in force. They did opposite things.
+
+| | arm D — `permissions.deny` | arm H — `PreToolUse` hook |
+|---|---|---|
+| withheld the capability | **no**, 0 of 5 | **yes**, 5 of 5 |
+| files changed | 2–13 | 0 |
+| what the agent did | one `Edit`, refused, then **29–91 `Bash` calls** | 1–3 `Edit`s, refused, then **stopped** at 8–11 tool calls |
+| cost vs control | **7.7×** | 0.62× |
+
+**`permissions.deny` on `Edit`/`Write`/`NotebookEdit` is not a write boundary. It is a speed
+bump, and it triples-and-again the bill.** The runtime told the agent *"No such tool available:
+Edit"* and the agent wrote the same files with the shell. This is spine position 9's finding by a
+second road — *a tool list filters names, not capabilities* — and it says something this phase
+cares about: **a guardrail that removes a tool name is L3 wearing L2's clothes.** Something
+executes and something is refused, so it looks like enforcement; the capability is untouched.
+
+### The reproduction, stated at the size it actually is
+
+On arm H the defect obs#47 reports is reproduced: five runs where the **harness** prevented the
+work, and the record calls all five **`F03` — a capability failure of the agent**. That is true
+of those five runs. §5 forbids stating an `n = 5` result as a property, and E-017's own MDE
+section says so before the data: only the pooled `n = 10` claim could have been a property, and
+it is void. **The pooled claim stays void and the arm-H answer is not promoted into its place.**
+
+### What was built, and what it is
+
+`agent-observatory/runner/lib/classify-permission-block.sh` — conjunctive: a denial signal **and**
+nothing produced. Fixture set `verify-permission-block-classifier.sh`, **29 of 29**, wired into
+CI. Replayed over 33 runs it caught **5** — every one a run that produced nothing under a denial
+— and **0** of the 21 that produced work, including all 11 that passed the evaluator.
+
+**It is KEPT ON DISK and NOT PROMOTED to a registered control**, because its registered KEEP
+condition (P5 in both halves) is not met as written: P5's first half presupposes that a treated
+run is a blocked run, which P3 refutes. Restating the condition after seeing the data is the one
+move this project does not make.
+
+### The thing the deliberate failure taught, which was not the thing it was for
+
+Breaking the classifier to a **disjunction** — one character — converts **six runs that passed
+the evaluator** into discards, and is **invisible on arm H**. Four count predictions held exactly.
+**The fifth was refuted, and it is the one worth carrying:** I predicted the fixture set would not
+catch the break, on the strength of this project's own `review_lesson`. It caught it, 20 of 29
+passing, **because six of the nine failing cases are real runs from this store embedded as
+fixtures** — the very counter-examples that motivated the conjunction. A fixture set built from
+imagined cases tests its author's imagination; one built from the data that forced the design
+tests the design.
 
 ## Metrics
 
@@ -466,12 +558,53 @@ completion-contract failures after a DONE claim     ← the interesting one
 
 ## Exit gate
 
-- [ ] Why a repair *counter* is not enough without a fingerprint
-- [ ] What my normalization strips, and what breaks if it strips too much
-- [ ] Where my repair limit is enforced — and why a prompt is not enforcement
-- [ ] The difference between FAILED, BLOCKED and DONE, and where each is recorded
-- [ ] How often my agent claims DONE against a failing contract — **as a number**
-- [ ] Why an environmental block recorded as a capability failure corrupts every comparison
+*Answered 2026-09-14 at the close of spine stop 16. **Two of six are met from measurement; four
+are deferred with the labs that would answer them**, and a deferred clause is left unticked rather
+than answered from the design document. The spine's closing condition for stop 16 is evidence on
+disk for **Lab 5B.5**, which is met; Labs 5B.1–5B.4 did not run, so the Phase issue (lab#15) stays
+open and names them.*
+
+- [ ] **Why a repair *counter* is not enough without a fingerprint** — **DEFERRED with Lab 5B.1
+  and 5B.2.** Nothing at this stop ran a repair loop, so there is no measurement here and the
+  design document's argument is not evidence.
+- [ ] **What my normalization strips, and what breaks if it strips too much** — **DEFERRED with
+  Lab 5B.2.** No fingerprint normalizer was built.
+- [ ] **Where my repair limit is enforced — and why a prompt is not enforcement** — **DEFERRED
+  with Lab 5B.3.** Unbuilt. The general form of the answer is spine position 6's measured result
+  (B3: a 57-word instruction file moved nothing, `p = 1.0`), and that is a pointer, not this
+  clause's evidence.
+- [x] **The difference between FAILED, BLOCKED and DONE, and where each is recorded** — **MET, and
+  the answer is that one of the three has nowhere to be recorded.**
+  - **DONE** is recorded: `evaluation.passed = true`, `evaluation.exitCode = 0`. 11 of the 20 runs
+    at this stop.
+  - **FAILED** is recorded: `evaluation.exitCode` from the evaluator's contract plus
+    `evaluation.failureClass` — `F03`, `F04`, `F07`, `F13` across this batch.
+  - **BLOCKED has no representation at all.** It is recorded *as* FAILED. Five runs where the
+    harness withheld the write permission — proved per run, `.ai/block-writes.log` line count
+    equal to the Edit calls on 5 of 5 — are recorded `F03`, a capability failure **of the agent**.
+    There is no field, code or class that means *"the harness prevented this"*.
+  `classify-permission-block.sh` is the first thing in this project that can **name** the state:
+  29 of 29 fixtures, replayed over 33 runs it caught the 5 blocked and 0 of the 21 that produced
+  work. **It is not wired into the record**, so as of this stop BLOCKED is nameable and still not
+  recorded. That gap is the honest state of this clause and is why the next one matters.
+- [ ] **How often my agent claims DONE against a failing contract — as a number** — **DEFERRED
+  with Lab 5B.4, the completion contract.** No number exists and none is invented. Worth stating
+  where it will have to come from, because this stop found out the hard way: obs#47's own observed
+  failure is an **abstention** — the agent asks a human and stops without calling the tool — so no
+  `tool_decision` event exists, `permissionDenials` is 0, and **P6 held at 0 of 7**, meaning the
+  classifier built here provably cannot see it. The only vocabulary-free signal an abstention
+  leaves is that the turn ended with the task unattempted. **That is the completion contract, and
+  it is the thing 5B still owes.**
+- [x] **Why an environmental block recorded as a capability failure corrupts every comparison** —
+  **MET, from measurement rather than from argument.** A blocked run enters an analysis looking
+  like a model that could not do the work. Measured here: five runs recorded `F03` whose cause was
+  a hook in the harness. Any arm containing one is scored down for a defect of the environment,
+  and the direction of the corruption is **toward whichever arm carries the block** — which in a
+  guardrail experiment is the treated arm, so the corruption flatters the control. The mirror
+  failure is worse and this stop measured it too: the **disjunctive** classifier converts **six
+  runs that passed the evaluator** into discards — obs#47's *"a permission block silently
+  converted into a passing-looking dataset"* running in reverse. Both directions are now on disk
+  with run ids, which is why the guard is conjunctive.
 
 ## Commit
 
