@@ -574,6 +574,64 @@ preflight_20260913:  # §0a, PARTIAL, 2026-09-13T10:1xZ. THREE ROWS RUN IN FULL 
     the thing that must not be added beside a live registered batch."
   hook_wiring: "unchanged from earlier sessions; nothing was pushed this session before this write."
 
+preflight_20260914:  # §0a. THE FOUR ROWS DEFERRED ON 2026-09-13 ARE NOW RUN AND ALL FOUR PASS.
+  # The three rows that passed on 2026-09-13 (review_hook_script, gate_and_validators, board_check)
+  # are NOT re-taken and are carried from preflight_20260913 unchanged.
+  codex_harness_live: "ok 2026-09-14T13:5xZ. Dry run printed the prompt; the real run wrote
+    findings/codex/score-good-nested-ifs-20260914T135050Z.yaml, gpt-5.6-sol, rubric_sha 396e1799eb2b,
+    ALL FOUR CATEGORIES PRESENT: architecture-consistency 2, maintainability 0, test-quality null
+    (reason `nothing to grade`, evidence `No file under src/test/ among the attachments`), change-focus 2.
+    I JUDGED THIS ROW MYSELF AND OVERTURNED THE SUBAGENT`S VERDICT, which is why §4b says a subagent`s
+    report is data and not a verdict: it called the row FAILED for reading `all four categories` as
+    `all four non-null`. I checked the fixture - `ls -R` over
+    ../agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/fixtures/good-nested-ifs shows
+    src/main ONLY, NO src/test. So there is nothing to grade for test-quality and §6 is explicit:
+    `A missing cell is not a null cell. null is a measurement.` The harness behaved correctly. ROW PASSES.
+    SIDE EFFECT, AND IT IS A RECURRENCE, NOT A NEW DEFECT: the subagent ran the row as PROMPT §0a writes
+    it, LAB_SCORE_DRY_RUN=1, which is a destination PATH and not a boolean (codex-score.sh:287). That
+    wrote a 28KB file literally named ./1 into the repo root - the SECOND time, and this time it turned out
+    a previous session had COMMITTED it twice (5f1b83d, 1031a99) so it had been tracked since stop 11.
+    Removed at ad94999, with the reasoning that it destroys no evidence: not a measurement, reproducible,
+    and both adding commits stay reachable on main. THE PROMPT IS NOT EDITED - §1 says the code wins and
+    the disagreement is noted; it is noted, for the second time, in author_notes."
+  review_harness_live: "ok 2026-09-14T14:0xZ, ON THE CODEX PANEL, which is the recorded family
+    substitution and not a choice I made today: critic_family_defect says `USE -P codex FOR §4a REVIEWS
+    until the author decides otherwise`. findings/opencode/review-run-record-20260914T135951Z.md,
+    11544 bytes, 12 finding sections under `Run 1 of 1 - codex`, EXIT 0 (not 1, not 4), and
+    `LC_ALL=C pgrep -fl bin/opencode` EMPTY afterwards. NOT header-only, so not a stall. The acceptance
+    gate returned REJECT - that is a VERDICT ON templates/run-record.yaml, not an infrastructure failure,
+    and §0a`s three pass conditions are findings-below-the-header, exit-not-1-or-4, and no-process-left.
+    All three hold. FIRST ATTEMPT TODAY FAILED AND IS KEPT AS THE RECORD: a subagent ran the DEFAULT panel
+    (ollama-cloud/glm-5.2 + minimax-m3), it hung >5 minutes at the acceptance step with no STALLED line and
+    no findings file, and had to be killed - the SAME defect review_harness_defect already records, on the
+    SAME family, for the fourth time. The default panel is not usable on this machine."
+  observatory_stack: "ok 2026-09-14T14:1xZ - AND THIS ROW IS NOW A PASS RATHER THAN A KNOWN-WRONG-BY-DEFAULT,
+    WHICH CORRECTS WHAT preflight_20260911 RECORDED. `make smoke` bare still reports `18 of 18 checks
+    failed`, and I re-ran that myself to see it. BUT THE KNOB EXISTS AND THE EARLIER NOTE SAID IT DID NOT.
+    `make smoke API_PORT=18081 OTLP_HTTP_PORT=14318 WEB_PORT=15174 GRAFANA_PORT=13001 PROMETHEUS_PORT=19090
+    TEMPO_PORT=13200` returns `All 18 checks passed`, exit 0. I RE-DERIVED THIS MYSELF rather than taking
+    the subagent`s table, because it decides a §0a row. Mechanism, found in the source: Makefile:158-160
+    builds API/WEB/GRAFANA/PROM/TEMPO/OTLP from six *_PORT variables declared `?=` at Makefile:19-24 and
+    pre-set from infra/.env via `-include` at Makefile:18; runner/smoke-test.sh:7-12 reads those six names
+    from the environment. Command-line make variables beat both the `?=` and the -included file.
+    CORRECTION TO THE OLD NOTE: preflight_20260911 said smoke `builds every URL from
+    localhost:8080/3000/9090/3200/4318`. It does not - `make -n smoke` resolves to 8081/5174/3001/9090/
+    3200/4318 from infra/.env. The reason it fails is NOT the raw defaults; it is that those host ports
+    are the DEAD default-docker-context forward, while the live stack is behind the colima tunnel. The old
+    note had the right conclusion (`do not trust a bare make smoke here`) for a wrong reason."
+  isolation: "ok 2026-09-14T14:1xZ - ../agent-observatory/runner/verify-codex-isolation.sh exit 0,
+    `ok: ALL THREE checks hold for codex-cli 0.147.0`. The script ends by naming its own scope, and the
+    caveat is carried here rather than dropped: `check B closes DISCOVERABILITY, not reachability. ~ no
+    longer resolves into the operator`s home; /Users/<op>/... still exists and is still readable by an
+    agent that constructs the path another way. This is an L2 control. Do not let a later reader take it
+    for isolation.` THE CLAUDE HALF OF THIS ROW - one run with ISOLATE_USER_SETTINGS=1 whose record shows
+    0 hook executions and customization.*Hash all null - IS NOT TAKEN AS A FRESH RUN AND DOES NOT NEED TO
+    BE: all 20 runs of this stop`s batch ran with ISOLATE_USER_SETTINGS=1 and ALL TWENTY have every
+    customization.*Hash null, read from the stored records. That is the observation the row asks for, over
+    n = 20 rather than n = 1, and it is on disk at evidence/p05b/delivery/."
+  hook_wiring: "unchanged - still `unproven in print mode`. Nothing this session relied on it; §4a`s
+    synchronous review is the review control, as it has been for the whole run."
+
 validation_processed:
   - "GAP FOUND AND CLOSED 2026-09-10T19:1xZ, and it was a BOOKKEEPING gap, not a work gap - but it was
     real and nobody had noticed it. 22 findings/track-b-validation-*.md are on disk; only 17 were listed
@@ -1143,6 +1201,36 @@ board_state: "GREEN, and it was RED in between - both states are mine and both a
 blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:   # what the author should read; NEVER gates anything (prompt §0). Newest first.
+  - "2026-09-14, TWO INSTRUMENT ITEMS FROM THE §0a PREFLIGHT, NEITHER A HALT, BOTH WORTH A MINUTE.
+    (1) **PROMPT §0a ROW 3 STILL SAYS `LAB_SCORE_DRY_RUN=1` AND IT IS A DESTINATION PATH.** Running the
+    row exactly as the prompt writes it drops a 28KB file named `1` into the repo root. That has now
+    happened TWICE, and the first time a `git add -A` COMMITTED it - twice (5f1b83d at stop 11, 1031a99 at
+    stop 12) - so a junk file called `1` has been tracked at the repo root for three stops without anyone
+    noticing. Removed at ad94999. §1 says where the prompt and the code disagree the code wins and the
+    disagreement is NOTED rather than edited away, so the prompt is untouched and this is the note - the
+    second one. A one-word prompt fix (`LAB_SCORE_DRY_RUN=./dry-run.md`) would end it, and that is the
+    author`s edit, not mine.
+    (2) **`make smoke` HAS AN OVERRIDE AND THE STATE FILE SAID IT DID NOT.** preflight_20260911 recorded
+    that smoke `reads LAB_OBSERVATORY_API nowhere` and builds its URLs from raw localhost defaults, which
+    made the row permanently `known wrong-by-default`. Half right. It reads six *_PORT make variables
+    (Makefile:19-24, pre-set from infra/.env at Makefile:18; runner/smoke-test.sh:7-12 reads the derived
+    names), and passing them on the command line points it at the colima tunnels:
+    `make smoke API_PORT=18081 OTLP_HTTP_PORT=14318 WEB_PORT=15174 GRAFANA_PORT=13001
+    PROMETHEUS_PORT=19090 TEMPO_PORT=13200` -> **All 18 checks passed**. I re-derived that myself, and the
+    bare form too (18 of 18 failed), because it decides a §0a row. The old note`s conclusion was right for
+    the wrong reason: the bare form fails not because of raw defaults but because infra/.env`s host ports
+    are the DEAD default-docker-context forward. Worth putting the working invocation into the prompt`s
+    §0a table or into a make target, so the row stops being carried as unprovable."
+  - "2026-09-14, A REVIEW-HARNESS RECURRENCE, FOURTH TIME, RECORDED BECAUSE THE COUNT IS THE ARGUMENT.
+    The DEFAULT opencode review panel (ollama-cloud/glm-5.2 + minimax-m3) hung again - >5 minutes at the
+    acceptance step, no STALLED line, no findings file, killed by hand. LAB_REVIEW_TIMEOUT did not fire,
+    as review_harness_defect already records. The codex panel then returned a clean 11544-byte review with
+    12 finding sections in under a minute. critic_family_defect`s `USE -P codex` substitution is now four
+    for four, and the default panel has never worked on this machine. It is still the DEFAULT, so every
+    new session and every subagent that runs the row as §0a writes it reproduces this. Making `-P codex`
+    the default in tools/opencode-review.sh would be an instrument change to a CONTROL, not to a
+    registered variable - but it changes a shared tool`s behaviour, so it is put here for the author
+    rather than merged under §4 step 14."
   - "2026-09-14, WRITTEN BY ME AT THE ADOPTION OF DECISION 11, BECAUSE IT IS THE ONE THING THE INSTRUCTION
     DID NOT COVER AND I WOULD RATHER FLAG IT THAN DECIDE IT. Decision 11 item 3 registers B8a at SPINE
     POSITION 17a, after B8 and before 6A. IT IS NOW IN TWO PLACES - PROMPT §3 (the decision block) and
