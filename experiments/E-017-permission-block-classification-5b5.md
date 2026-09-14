@@ -368,6 +368,57 @@ deny rule whose refusal carries the hook's wording — and nobody has run one.
   sheet: the registered outcome is the recorded failure class, read from the run record. Sheets
   taken at this stop are a reported population and enter no decision row.
 
+## Rubric sheets — a reported population, entering no decision row
+
+**The rubric has no registered role at this stop.** E-017 names no rubric, no scorer and no sheet;
+the registered outcome is the recorded failure class. These eleven sheets exist because §4 step 7
+takes them and §5 requires one hand-scored cell beside a sheet's value. They are reported and they
+decide nothing.
+
+Population: the **11 gate-passing runs** (Decision D). Registered scorer codex `gpt-5.6-sol`,
+rubric `396e1799eb2b` on 11 of 11, re-shasummed unchanged. Values re-derived by me from the sheet
+files, not taken from the subagent's table.
+
+| category | control, `n = 10` | `3bd8fcd8` (arm D, `n = 1`) |
+|---|---|---|
+| `architecture-consistency` | **2** on 10 of 10 — zero variance | 2 |
+| `maintainability` | median **0**, range 0–2 (seven 0s, three 2s) | 0 |
+| `test-quality` | **1** on 9 of 9 scored — zero variance; one `null` (`5ece8350`) | 1 |
+| `change-focus` | **1** on 10 of 10 — zero variance | **0** |
+
+### Two things worth having, neither of them a verdict
+
+**1. Three of four categories have zero variance across ten runs, which independently replicates
+the finding that created BE-004.** Author decision 9 rests on E-006's *"50 of 100 rubric points at
+zero variance across both arms"* on BE-003 at this model. Here, on a fresh `n = 10` control batch,
+`architecture-consistency`, `test-quality` and `change-focus` are each **constant**, and only
+`maintainability` moves at all. The instrument discriminates on one of four categories on this
+task. That is decision 9's premise, re-measured, and it is the reason a second task exists.
+
+**2. The one run that routed around the write block is the only one of eleven below the control's
+`change-focus` floor — and the reason is the routing.** `3bd8fcd8` is the arm-D run that was told
+*"No such tool available: Edit"*, did the whole task with 91 `Bash` calls, and passed the
+evaluator. Its `change-focus` is **0** against a control that is **1 on 10 of 10**, and codex's
+stated reason is *"Unnamed `create` and `getById` methods both changed message interpolation"* —
+collateral edits outside the task's scope. It changed 3 files, the same as the control's median,
+so this is not a file-count effect; it is what the shell did inside them.
+
+**`n = 1`. This is true of that run and is not a property of anything** — not of the deny channel,
+not of `Bash`-driven editing. It is recorded because it was predicted in the state file **before
+the sheets were taken** — *"arm D runs changed 2–13 files including unrelated ones, so change-focus
+will see them: that is a measurement, not a defect to tidy"* — and a prediction that came true
+before its data is worth more than one found after. Whether writing through the shell costs
+change-focus is a question for a design that registers it, at an `n` that could answer it.
+
+### The §5 hand re-read, in the order §4 step 7 requires
+
+Run `79c7d7c6`, `test-quality`. **Hand value committed at `3854aad`, when `grep -rl` over
+`findings/` returned nothing for any run id in this batch: 1**, the residual, because *"no test
+re-reads persisted state through a separate `get(...)`"*. The codex sheet, written 2026-09-14:
+**1**, reason *"Repeat body and refusal envelope are asserted, but persisted state is never
+re-read"*. Same value, same clause identified as the missing one, derived independently and in the
+registered order.
+
 ## Decision
 
 **The reproduction is CONFIRMED on one channel and VOID pooled, and the fix is KEPT ON DISK BUT
