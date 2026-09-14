@@ -1101,6 +1101,33 @@ board_state: "GREEN, and it was RED in between - both states are mine and both a
 blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:   # what the author should read; NEVER gates anything (prompt §0). Newest first.
+  - "2026-09-14, RAISED BY THE AUTHOR AFTER SEEING THE DIRECTORY: THREE COMPLETE MULTI-AGENT SYSTEMS ARE
+    SITTING IN agent-learning-lab/workbench.local/ AND NONE OF THEM IS IN THE PLAN.
+    architecture-agent-system-v2 (mtime 2026-09-07 20:13), feature-agent-system-v2.1 (2026-09-07 20:55) and
+    feature-pipeline-phase0 (2026-09-01 21:24), the last of which also has a duplicate copy at the WORKSPACE
+    ROOT as `docs/feature-pipeline-phase0 2/`. CHECKED RATHER THAN ASSUMED: grep for their names across
+    LEARNING-PATH.md, build/README.md, HANDOFF.md, TODO.md, the workspace CLAUDE.md and this file returns
+    NOTHING, and `git check-ignore -v` says workbench.local matches .gitignore:2 `*.local`, so none of it is
+    tracked and none of it has been through a prediction, a run, a review or a PR.
+    THE REST OF workbench.local IS REGISTERED AND IS NOT THIS: the five good-*.md blind-sheet prompts are
+    B1/E-001 material built by the LAB_SCORE_DRY_RUN path, and its own README already states the rule -
+    `Nothing here is evidence; the sheet is`.
+    WHY THEY CANNOT BE ADOPTED AS A B STEP AS THEY STAND, each reason already decided in this project:
+      (1) they target COPILOT CLI (.github/agents/, ~/.copilot/agents/, a punch list about Copilot`s
+          delegation tool identifier) and DECISION G removed that arm - §6 forbids any claim about a
+          Copilot-run agent;
+      (2) they pin `claude-opus-4-6` as the agent model, and the agent under test is FIXED at
+          claude-haiku-4-5-20251001, a controlled variable whose change invalidates every comparison after B2;
+      (3) they carry their OWN benchmarks (BM-1/2/3), their own rubric.md and their own score.py - a parallel
+          measurement stack never proved the way backend-quality.yaml was (E-001 Decision B, five fixtures,
+          every dimension separating in the predicted direction);
+      (4) ten agents plus an orchestrator is far past what the spine has measured: stop 11 tested ONE
+          orchestrator and ONE implementer and closed NOT DETECTABLE at n = 20, with its one apparent effect
+          later reattributed to the implementer`s PROSE delivered with no split at all.
+    SO: NOT A §7 HALT AND NOT IN blocked_on_author - nothing is blocked and I am not proposing to adopt them.
+    But ADOPTING one WOULD be a §7 bullet (`a new arm`), which makes it the author`s decision and not mine.
+    Flagged because untracked scratch of this size reads as project work a year later when it was never
+    measured. Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-14."
   - "2026-09-11 — lab#7 WAS CLOSED AGAINST ITS OWN CLOSING COMMENT, and this is the FOURTH recurrence of
     one failure. The stop-14 close comment on lab#7 at 08:11:23Z says verbatim `lab#7 stays OPEN: Labs
     5A.2-5A.7 are deferred`. The issue was closed at 08:11:35Z - TWELVE SECONDS LATER, same session, same
