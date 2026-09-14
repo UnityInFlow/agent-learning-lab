@@ -548,6 +548,40 @@ fixtures** — the very counter-examples that motivated the conjunction. A fixtu
 imagined cases tests its author's imagination; one built from the data that forced the design
 tests the design.
 
+## §5 validation — stop 16
+
+*Every row is a path, a sha or a run id. "Runs passed" is not evidence. The **layer column is
+about the proof, not the artifact**: where the only proof that a clause holds is that I say so,
+it reads L3 and the clause is not closed on it. Written 2026-09-14.*
+
+| Gate clause (verbatim) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| Spine stop 16 closes on **"evidence on disk for Lab 5B.5 (obs#47, BLOCKED ≠ FAILED)"** | `experiments/E-017-permission-block-classification-5b5.md`; `evidence/p05b/{batch-20260911T195225Z,delivery,replay,deliberate-failure}/`; 20 run records under `evidence/p05b/batch-20260911T195225Z/gate/*.json` | **L1** — the files exist or they do not | `ls evidence/p05b/`; the 20 JSON documents are the API's own responses, saved |
+| E-017 §Runs: **"batch 1 — 5 arm D + 5 arm H + 10 control, interleaved"** | `evidence/p05b/batch-20260911T195225Z/runs-final.tsv`, 20 rows; API key `EXP-5B5-PERMISSION-BLOCK-BE003` returns 20 | **L2** — counted from the store, not from the manifest | `curl $API/api/runs?limit=2000`, filter `experimentKey`, count by `variant` |
+| §4 step 3: **the prediction commit precedes the first run's `startedAt`** | commit `02690e265e9071d6bace5d2e8f2587a1f2386694` at `2026-09-11T10:38:28Z`; first run `f50cc968` `startedAt 2026-09-11T19:53:04Z`; **0 runs on the key** at the commit | **L1** — git time and the API's own count, and the count is the stronger half | `git show -s --format=%cI 02690e2`; read `startedAt` from the run record. A commit made when the key held zero runs cannot follow a run on it |
+| §4 step 5 / decision 8: **the treatment reached the treated arm and not the control**, proved per run and **not by a flag** | `evidence/p05b/delivery/delivery-proof.tsv`, 20 rows. Control: **no** overlay file tracked, 10 of 10. Arm D: `.claude/settings.json` at `5db13bc81cc1`, 5 of 5. Arm H: that file at `c50f5628c4a7` **plus** `.ai/hooks/block-writes.sh`, 5 of 5 | **L2** — `git ls-files` in each kept worktree executes and the shas are recomputed | `git -C <worktree> ls-files`; `shasum -a 256 <worktree>/.claude/settings.json` |
+| **The treatment was in force**, not merely present — arm H | `.ai/block-writes.log` line count **equals** the independently counted `Edit` calls on **5 of 5**: 2=2, 3=3, 1=1, 1=1, 3=3. Counts in `delivery-proof.tsv`, Edit calls from `evidence/p05b/batch-20260911T195225Z/run-{4,8,22,26,30}-H.log` | **L2** — a hook executed and left a count a second independent count agrees with | `wc -l <worktree>/.ai/block-writes.log`; `grep -o '"name":"Edit"' <run log> \| wc -l` |
+| **The treatment was in force** — arm D | the runtime's own refusal, on 5 of 5: `Error: No such tool available: Edit. Edit is disabled for this session, in subagents as well as here.` (and `Write` on `cd563cee`) | **L2** — the runtime executed and refused; the text is its own | `grep -o '<tool_use_error>[^<]*' evidence/p05b/batch-20260911T195225Z/run-*-D.log` |
+| **P1 (primary) is VOID** by decision-rule row 4 | 8 of 10 treated carry a capability class · 1 carries `F13` (`b2453820`) · 1 carries none (`3bd8fcd8`) · **5 of 10 blocked**, below row 4's 8 | **L2** — every value read from the 20 stored records and the 20 worktrees | classify each `evaluation.failureClass`; count `git status --porcelain` per kept worktree |
+| **P3 refuted at 5 of 10 and splits by channel** | arm H `0,0,0,0,0` · arm D `2,3,3,4,13` · control `2,3,3,3,3,3,3,3,3,3`. **`behavior.changedFiles` is `null` on all 20**, so the count comes from the worktree | **L2** — `git status` executes in each worktree | `for w in observatory-run-<id>; do git -C $w status --porcelain \| wc -l; done` |
+| §4 step 7: **the gate admits only runs the evaluator passed** (Decision D) | `evidence/p05b/batch-20260911T195225Z/gate/gate-results.tsv` — 11 exit 0, 9 exit 2. The 20 input documents are saved beside it | **L2** — `check-run-gate.sh` executes and its own fixture set is 13 of 13 | `./tools/check-run-gate.sh evidence/p05b/batch-20260911T195225Z/gate/<id>.json` |
+| §5: **at least one scored cell re-read by hand off the kept worktree, written down next to the sheet's value** | **hand value committed at `3854aad` while ZERO sheets existed for the batch** (checked with `grep -rl` over `findings/`): run `79c7d7c6`, `test-quality` = **1**, justified at `ShipmentControllerTest.kt:100-102` and `:118-119`. Sheet `findings/codex/score-observatory-run-79c7d7c6-…-20260914T140831Z.yaml`: `test-quality` = **1**, reason *"Repeat body and refusal envelope are asserted, but persisted state is never re-read"* | **L2** — two independent derivations agreeing on the value **and on the missing clause**, in the order §4 step 7 requires | `git show 3854aad`; read the sheet; compare both against the worktree and rubric `396e1799eb2b` |
+| The fix **executes and refuses** | `agent-observatory/runner/verify-permission-block-classifier.sh` — **29 of 29**, re-run 2026-09-14; wired into CI in the `runner` job | **L2** — the fixture set runs, and six of its cases are **real runs from this store by run id** | `cd agent-observatory && ./runner/verify-permission-block-classifier.sh` |
+| P5 second half **0 of 6** and P6 **0 of 7** | `evidence/p05b/replay/stored-replay.tsv`; populations identified in `all-runs.json` | **L2** — the classifier executes over stored documents | replay `classify-permission-block.sh "$(cat <record>)" <changed-count>` |
+| §4 step 9: **deliberate failure, prediction committed first** | prediction `81ea8e6`, result `evidence/p05b/deliberate-failure/RESULT.md`, break is one line (`diff` shows `89c89`), registered file untouched (`git -C agent-observatory status` empty) | **L2** — the flip table is produced by running both versions over the same 26 records | run both scripts over the same inputs; compare exit codes |
+| **One variable**, checked against the records rather than a flag | `runtime.model` `claude-haiku-4-5-20251001` **20 of 20**; `runtime.version` `2.1.268` **20 of 20**; benchmark and evaluator sha unmoved; rubric `396e1799eb2b` re-shasummed unchanged | **L2** — read from the stored records | read `runtime.*` from each of the 20 documents |
+| Exit-gate clauses 1, 2, 3 and 5 | **no evidence, and none is claimed** — Labs 5B.1–5B.4 did not run | **not closed** | — |
+
+**Numbers with their `n`, and what may not be said.** Arm D and arm H are `n = 5` each; every
+statement about a single channel is *true of those five runs* and is **not** a property of the
+instrument. The only pooled claim at `n = 10` is P1, and P1 is **void**. The control is `n = 10`.
+The `3bd8fcd8` rubric cell is `n = 1` and is reported as one run.
+
+**Verification commands re-run immediately before this table was written**, not quoted from
+earlier in the session: `check-run-gate.sh` over all 20 (11/9, unchanged);
+`verify-permission-block-classifier.sh` (29 of 29); `make smoke` through the tunnels (All 18
+passed) and bare (18 of 18 failed); `git -C agent-observatory status --short` (empty).
+
 ## Metrics
 
 ```
