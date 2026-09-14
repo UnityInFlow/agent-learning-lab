@@ -237,28 +237,176 @@ passing-looking dataset is how this class of bug survives."*
 
 ## Observed telemetry
 
+Batch of **20 runs**, `EXP-5B5-PERMISSION-BLOCK-BE003`, 10 control + 5 arm D + 5 arm H, exactly
+the registered allocation, interleaved, across 2026-09-11 and 2026-09-13 (an API container OOM
+split the batch; the incident is at `evidence/p05b/batch-20260911T195225Z/INCIDENT-api-oom.md`
+and nothing was lost). `runtime.model` is `claude-haiku-4-5-20251001` on **all twenty** and
+`runtime.version` is `2.1.268 (Claude Code)` on **all twenty**, so the registered exclusion for a
+mid-batch CLI move excludes nothing.
+
+**`behavior.changedFiles` is `null` on all twenty records.** The field this design leaned on for
+P3 does not answer it. The changed-file count is taken instead from each kept worktree with
+`git status --porcelain`, which is the count the fix's own caller uses.
+
+**All five `customization.*Hash` fields are `null` on all twenty records**, control and both
+treated channels alike. There is no `settingsHash` and both overlays are `.claude/settings.json`.
+The delivery proof is therefore the setup commit's tracked file set at the registered sha plus the
+treatment observably firing, per run, all twenty: `evidence/p05b/delivery/`.
+
+| arm | n | median cost | cost range | median toolCalls | median duration |
+|---|---|---|---|---|---|
+| `plain` (control) | 10 | **$0.132** | 0.107–0.163 | 15.5 | 73 s |
+| `blocked-deny-5b5` (arm D) | 5 | **$1.022** | 0.605–1.207 | 78 | 507 s |
+| `blocked-hook-5b5` (arm H) | 5 | **$0.082** | 0.070–0.122 | 9 | 36 s |
+
 ## Results
+
+**The gate.** `check-run-gate.sh` over all twenty: 11 pass, 9 refused (Decision D). Control 10 of
+10; arm D 1 of 5; arm H 0 of 5. `evidence/p05b/batch-20260911T195225Z/gate/`. No run is excluded
+for being blocked — that is the measurement.
+
+**The result of this experiment is that its two delivery channels are not one treatment, and the
+data says which is which.**
+
+| | arm D — `permissions.deny` | arm H — `PreToolUse` hook, exit 2 |
+|---|---|---|
+| delivered? | **yes, 5 of 5** — `.claude/settings.json` tracked at `5db13bc81cc1` | **yes, 5 of 5** — both files tracked, settings at `c50f5628c4a7` |
+| treatment observably in force? | **yes** — the runtime returned *"No such tool available: Edit. Edit is disabled for this session, in subagents as well as here"* on 5 of 5 | **yes** — `.ai/block-writes.log` line count **equals** the independently counted Edit calls on 5 of 5 (2=2, 3=3, 1=1, 1=1, 3=3) |
+| did it withhold the capability? | **no. 0 of 5 blocked.** 2–13 files changed | **yes. 5 of 5 blocked.** 0 files changed |
+| what the agent did next | attempted `Edit` exactly **once**, then completed the task with **29–91 `Bash` calls** | attempted `Edit` 1–3 times, then **stopped**: 8–11 tool calls total |
+| cost against the control | **7.7×** | 0.62× |
+
+**`permissions.deny` on `Edit`/`Write`/`NotebookEdit` is not a write boundary; it is a speed
+bump — and an expensive one.** It removes three tool *names* from the registry and leaves `Bash`,
+which writes files. This is position 9's finding arriving by a second road: *a tool list filters
+names, not capabilities.* There the list was `tools:` on an agent overlay; here it is
+`permissions.deny` in project settings; both leave the capability in the pool.
 
 ## Which predictions held
 
-| # | Prediction | Held? | Actual |
-|---|---|---|---|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-| 6 | | | |
+| | prediction | registered | observed | verdict |
+|---|---|---|---|---|
+| **P1** | *(primary)* 10 of 10 treated carry `F02`/`F03`/`F04`/`F05`/`F07`; 0 carry `F10`/`F13`/`F15` | 10 / 0 | 8 carry a capability class · **1 carries `F13`** (`b2453820`) · 1 carries none (`3bd8fcd8`, passed) | **VOID — see the decision rule below.** Not a null |
+| **P2** | arm H `permissionDenials > 0` on ≥ 4 of 5; **arm D on 0 of 5** | ≥4 / 0 | arm H **5 of 5** (1,1,2,3,3) · arm D **4 of 5** (0,1,4,8,15) | arm H **HELD** · arm D **REFUTED** |
+| **P3** | the block is total: 10 of 10 treated change zero files | 10 of 10 | **5 of 10**, and it splits **exactly by channel**: arm H 5 of 5 at zero, arm D 0 of 5 | **REFUTED** |
+| **P4** | control clean: 0 of 10 show a block trace and ≥ 8 of 10 pass | 0 / ≥8 | **0 of 10** denials · **10 of 10** passed | **HELD** |
+| **P5** | *(after the fix)* 10 of 10 confirmation runs reclassified **and** 0 of 6 stored denial runs reclassified | 10 / 0 | second half **0 of 6, HELD**. First half **not answerable as written** — see below | **half held, half unanswerable** |
+| **P6** | *(registered expecting the fix to be incomplete)* replay over the 7 `F05` sonnet runs reclassifies 0 of 7 | 0 of 7 | **0 of 7** | **HELD** |
+
+**P2 was registered as the one I expected to be wrong, and it was wrong in a way worth having.**
+Arm D carries denials of 0, 1, 4, 8 and 15 while making exactly **one** write attempt per run.
+`permissionDenials` is not counting the blocked writes. `3bd8fcd8` has **0 denials** and was still
+told *"No such tool available: Edit"* — a tool removed from the registry emits no `tool_decision`
+event to count. So the field is unusable as a block signal for this channel, which is the second
+independent reason on record after `permissionRequests == toolCalls`.
+
+**P5's first half is not answerable as written, and no number of extra runs fixes that.** It says
+*"10 of 10 confirmation runs are recorded as infrastructure"*, which presupposes that a treated
+run is a blocked run. P3 refutes that presupposition. Replayed over batch 1's treated arm the
+classifier reclassifies **5 of 10** — precisely the five that were blocked — and the other five
+are runs that produced two to thirteen files, which the conjunction is built to leave alone. This
+is reported as *unanswerable*, not as a failure of the fix and not as a pass.
 
 ## Failure analysis
 
+**The decision rule, applied as registered.** Two rows are live on this data and the precedence
+matters, so it is stated rather than chosen:
+
+- **Row 2** — *1–4 of 10 treated runs classed infrastructure → CONFIRM WITH A NAMED LEAK* — fires
+  on the single `F13` (`b2453820`).
+- **Row 4** — *fewer than 8 of 10 treated runs are actually blocked (P3 fails) → **VOID for P1***
+  — fires, because only 5 of 10 were blocked.
+
+**Row 4 governs, and it governs because it is a precondition and row 2 is an outcome.** Row 4
+says P1 *is unanswerable*; a row that reads an answer cannot outrank a row that says there is no
+answer to read. **P1 is VOID.** It is reported as void, not as a null — the treatment did not
+deliver on half the treated arm.
+
+**The temptation this stop has to refuse in writing.** On arm H alone — the five runs where the
+treatment did withhold the capability — P1's question has a clean answer: **5 of 5 carry `F03`, a
+capability class; 0 of 5 carry an infrastructure class.** That is exactly the result P1 predicted,
+and quoting it as the finding would be a rescue. §5 and this experiment's own MDE section forbid
+it: *"Arm D and arm H are `n = 5` each: their results are true of those five runs and are reported
+that way. Only P1, pooled over `n = 10` treated runs, is stated as a property of the instrument."*
+So: **true of those five runs, and not a property of the instrument.** The pooled claim is void
+and stays void.
+
+**Row 5 does not fire, and it is worth saying why not.** Row 5 is *"the treated arm blocks and
+passes anyway"*. `3bd8fcd8` passed the evaluator at exit 0 — but it did **not** block: it changed
+three files. A run that was never blocked cannot satisfy a row about blocking while blocked. BE-003
+is not shown to be satisfiable without writing; it is shown to be satisfiable without `Edit`.
+
+**The design limit this batch exposed, recorded before anyone reads the split as settled.** The
+two channels differ in more than their mechanism — they differ in **what the model is told**. The
+hook returns *"Permission to modify files has not been granted for this session"*, a session-scoped
+statement about the capability. The deny rule returns the runtime's own *"No such tool available …
+Edit is disabled for this session"*, which names one tool and invites trying another. So *"the hook
+blocked and the deny rule did not"* **cannot be attributed to mechanism rather than to wording by
+this design.** The IV section asserted the treatment was identical in both channels; on the
+evidence it is identical in intent and differs in message. Separating them needs a fourth arm — a
+deny rule whose refusal carries the hook's wording — and nobody has run one.
+
 ## Sanity checks
 
-- [ ] prediction commit sha and timestamp: ______ · first run `startedAt`: ______
-- [ ] Did any dramatic number appear? Has it been explained *and* the explanation tested?
-- [ ] Did any **flattering** number appear? Has it been disbelieved twice?
-- [ ] If a fix motivated this run, did the original symptom actually disappear?
+- **One variable, checked against the records and not against a flag.** `runtime.model`
+  `claude-haiku-4-5-20251001` on 20 of 20; `runtime.version` `2.1.268` on 20 of 20; benchmark
+  `BE-003` and the evaluator at its registered sha, unmoved. The control's setup commit tracks
+  **no** overlay file on 10 of 10; each treated arm tracks exactly its own registered files.
+- **The prediction commit precedes the first run by construction**, and it was checked against
+  the API rather than asserted: `02690e265e9071d6bace5d2e8f2587a1f2386694` at
+  `2026-09-11T10:38:28Z`, with **0 runs on the experiment key** at that moment. First run
+  `f50cc968` started `2026-09-11T19:53:04Z`.
+- **The hand re-read was written down while zero sheets existed for the batch**, and checked to be
+  so with `grep -rl` over `findings/` for every new run id: run `79c7d7c6`, category
+  `test-quality`, rubric `396e1799eb2b`, **hand value 1** (the residual, not 2), justified at
+  `ShipmentControllerTest.kt:100-102` and `:118-119` — two of anchor 2's three clauses hold and the
+  third does not, since no test re-reads persisted state through a separate `get(...)`. Committed
+  at `3854aad`.
+- **The fix's fixture set executes and refuses**: `verify-permission-block-classifier.sh`, **29 of
+  29**, re-run immediately before the replay.
+- **The rubric has no registered role at this stop.** E-017 names no rubric, no scorer and no
+  sheet: the registered outcome is the recorded failure class, read from the run record. Sheets
+  taken at this stop are a reported population and enter no decision row.
 
 ## Decision
 
+**The reproduction is CONFIRMED on one channel and VOID pooled, and the fix is KEPT ON DISK BUT
+NOT PROMOTED.**
+
+1. **P1: VOID** by decision-rule row 4, as registered. Reported as void.
+2. **The hook channel is the reproduction.** Five runs, treatment proved in force per run, all
+   five blocked, all five recorded `F03` — a capability failure — when the cause was the harness.
+   That is obs#47's defect, reproduced under the pinned model, and it is true of those five runs.
+3. **The deny channel is not a reproduction and is a finding in its own right.**
+   `permissions.deny` on three tool names does not withhold the capability, costs **7.7×** the
+   control, and leaves a `permissionDenials` count that bears no relation to the writes it
+   refused.
+4. **The classifier is KEPT on disk and NOT PROMOTED to a registered control.** Its registered
+   KEEP condition — P5 in *both* halves — is **not met as written**, and restating it after seeing
+   the data is the thing this project does not do. What is measured: over 33 runs it reclassified
+   **5**, every one of which produced nothing under a denial, and **0** of the 21 that produced
+   work, including all 11 that passed the evaluator; its fixture set is 29 of 29. That is an
+   instrument worth having on disk and it is not a control until a stop registers it as one.
+5. **Batch 2 is not run.** The reasoning is in `evidence/p05b/replay/README.md` and it is a
+   decision, not an omission: P5's first half is unreachable while arm D is in the treated arm,
+   E-017's own argument for preferring the replay covers the treated arm for the same reason (the
+   step under test runs *after* the agent), and a batch of arm H alone would be `n = 5` of a
+   channel whose result §5 already forbids stating as a property.
+
+*Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-14.*
+
 ## Follow-up
+
+- **The fourth arm this design needs and did not have:** a deny rule whose refusal carries the
+  hook's wording, to separate mechanism from message. Not run; it is a new arm and §7 reserves
+  those for the author.
+- **What would promote the classifier:** a stop that registers it, with a treated arm delivered by
+  a channel that actually blocks, and a KEEP condition written against *blocked* runs rather than
+  against *treated* ones.
+- **obs#47 is not closed and this experiment says so on purpose.** Its own observed failure is an
+  **abstention** — the agent asks a human and stops without calling the tool — so no
+  `tool_decision` event exists, `permissionDenials` is 0, and the first conjunct is false. P6 held
+  at 0 of 7 and that is the confirmation. The only vocabulary-free signal an abstention leaves is
+  that the turn ended with the task unattempted, which is the **completion contract** (Lab 5B.4)
+  and is not built here.
+
