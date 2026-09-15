@@ -196,6 +196,133 @@ and it currently voids every cross-model comparison you run.
 > tool did not attempt the task.* And `claude_code.tool.blocked_on_user` is a real span that
 > fires on a permission gate, so the runtime will tell you directly. See issue #47.
 
+## Design — spine stop 17, 2026-09-15
+
+Written before anything is built, as §4 step 2 requires, and every artifact below is labelled
+with the workspace `CLAUDE.md` rule **applied in order, stopping at the first yes**.
+
+### The trap, named from `build/README.md#b8`, and the layer that converts it
+
+The trap is not "the agent retries too often". It is spelled out in the build spec and again in
+this workbook's Build block:
+
+> **From the observatory, 2026-08-10:** the phrase-matching approach to this failed four times —
+> quota→F03, permission block→F05, dropped connection→F03, session limit→F03. The rule that
+> finally worked needs no vocabulary: *an agent that changed no file and called no tool did not
+> attempt the task.*
+
+So the trap is **classification by vocabulary** — deciding BLOCKED from the words in an error
+string — and the thing that converts it is a rule stated over *facts the record already holds*
+(files changed, tools called) rather than over text, **executed by a script**. That is L2.
+
+**And the conversion this stop owes is wiring, not vocabulary.** Stop 16 already wrote the
+vocabulary-free script: `classify-permission-block.sh` decides from `permissionDenials` and a
+changed-file count, and its 39 fixtures prove it refuses. What it does not have is a caller.
+Extract item 2 is the whole gap, and B8's version of *"a blocked run produces a clear
+machine-readable result"* is the clause that closes it.
+
+### Three decisions the design does not get to make freely
+
+**1. `.agent/run-state.json` must not live inside the repository under test — and this is
+measured, not cautious.** B7's preflight pair of 2026-09-10 wrote the policy hook's log to
+`.ai/policy-events.jsonl` inside the worktree. Runs `2077432c` (BE-003) and `88b861f3` (BE-004)
+**solved their tasks** — build, existing tests, functional suite, error contract and dependency
+guard all pass, 6 of 7 acceptance criteria — and were then scored **exit 21, unrelated
+production files changed**, where the single unrelated file was the guardrail's own bookkeeping.
+Both controls scored 0. **Checked against the experiment rather than taken from the code comment
+that reports it:** `experiments/E-016-verification-policies-BE004.md:227-237` carries both run ids
+with `21` in the exit-code column. The comment at `verify-v1.0/.ai/hooks/policy-gate.sh:28-46`
+records the rule that came out of it: **a guardrail must not leave artifacts in the repository it guards.**
+
+`run-state.json` is bookkeeping in exactly that sense, and the build spec's path puts it in the
+worktree. The evaluator's ignore pattern is a **registered variable** (§7: *"any proposed change
+to what the benchmark or evaluator measures"*), so teaching the evaluator to ignore `.agent/` is
+not available and is not attempted; nor is a `.gitignore` in the overlay, which achieves the
+same thing invisibly and which `run-agent.sh:371`'s `git add -f` would override anyway.
+
+So: **the file keeps its name and its schema and moves its directory**, the way B7's log did —
+`${AGENT_RUN_STATE_DIR:-${TMPDIR}}/run-state-$(basename "$CLAUDE_PROJECT_DIR").json`, one per
+run, with the run id in its own name because the worktree basename is `observatory-run-<uuid>`.
+`.agent/run-state.json` remains the documented production path and is what the schema is named
+for. **If this stop instead measured the file in-repo, it would measure the harness again**, and
+it would do so having been told in advance what the result would be.
+
+**2. The repair limit will not fire during the batch, and the design says so before the batch
+rather than after it.** BE-004 has never failed the evaluator on `claude-haiku-4-5-20251001` —
+*9 of 9 before stop 12, 10 of 10 in every arm at B5 and B6, 7 of 7 in both arms at B7*, which is
+**author decision 11's own count** (PROMPT §3, *Why (evidence, not preference)*), quoted here as
+its author wrote it and not recomputed at this step. BE-003
+passes nearly always. A counter that increments on failure will therefore read **0** on almost
+every run in both arms, and *"limits technically enforced"* cannot be answered from the batch.
+
+That splits the gate cleanly, and each half gets a different instrument:
+
+| Gate clause | Answered by | Layer of the proof |
+|---|---|---|
+| counters persist across interruption | the deliberate failure (§4 step 9): kill a run mid-repair, re-read the file | **L2** — a command runs and the value is read off disk |
+| limits technically enforced | `tools/verify-repair-limit.sh`, a fixture set that drives the hook to the 3rd and 4th identical failure and to the 7th total | **L2** — it executes and it must refuse |
+| a blocked run produces a clear machine-readable result | the classifier wired into a path that runs, plus a fixture proving the emitted value | **L2** |
+| **no regression against the v1.0 benchmark** | the batch, both tasks, against `verify-v1.0` as it closed at B7 | **L2** — evaluator exit codes and codex sheets |
+
+**The batch's registered question is therefore "does carrying the machinery cost anything",
+not "does the machinery work".** Those are different questions and the second one is not
+answerable by benchmark runs on a task the model does not fail.
+
+**3. No hash will prove the treatment arrived, so the delivery proof is an artifact the hook
+itself leaves.** `run-agent.sh:625-629` computes `instructionsHash`, `skillsHash` and
+`agentHash` and nothing else; `hooksHash` and `mcpHash` are declared in four places and computed
+in none (Extract item 3). B7 hit this first and answered it the only way available: its hook
+**logs on allow as well as on deny**, because *a hook that logs only denials is
+indistinguishable from a hook that never ran*. B8 inherits that answer exactly — the run-state
+file exists **if and only if** the hook executed, and it is written on the first tool call, not
+on the first failure, for the same reason.
+
+### The artifacts, and their layers
+
+| # | Artifact | What it is | Layer — rule applied in order |
+|---|---|---|---|
+| 1 | `build/customizations/agent-v1.1/` | the registered treatment: `verify-v1.0`'s overlay plus this stop's three things | — (a directory is not a control) |
+| 2 | `.ai/hooks/repair-limit.sh` | `PostToolUse` on `Bash`: computes the fingerprint, reads and increments the counter file, and **on exceed writes stderr and exits 2** | **L2** — can the bad value still be written down after the fix? An over-limit repair cannot proceed, because something executes and refuses |
+| 3 | the run-state **file** | JSON on disk carrying phase, goal, affected files, last failure, both counters, `handoff` | **L3.** Applying the rule in order: the bad value *can* still be written down — any process can put anything in a JSON file — so not L1; and the file itself executes nothing. It is data. **A schema is not a control** |
+| 4 | `tools/check-run-state.sh` | validates a run-state file against the registered schema and **refuses** a malformed one | **L2** — this is the thing that makes row 3 checkable |
+| 5 | `tools/verify-repair-limit.sh` | the fixture set for row 2: every exit code, including the refusals | **L2** — and without it row 2 is a claim |
+| 6 | the completion contract | `DONE` confirmed by a script | **L2 only if a `Stop`-class hook runs it and exits non-zero on a failing contract.** Shipped as a markdown checklist the agent is asked to follow, it is **L3** — and §10.6's seven clauses are L3 today precisely because nothing runs them |
+| 7 | the `handoff` field | from-agent, to-agent, what was delivered, what remains | **L3, and deliberately.** Nothing executes on it at this stop. Author decision 11 item 7 asks for it written **and marked reserved**, which is a field waiting for a consumer — and calling that L1 would be the exact substitution the workspace `CLAUDE.md` names, *"adding `required:` to a template … none of these run"* |
+
+### One variable, and the honest limit on what a null here can mean
+
+Every prior B step added one named thing. **B8 adds three at once** — state, limits, contract —
+because `build/README.md#b8` defines the step that way and the spine gives them one version
+between them. The registered treatment is therefore **the v1.1 overlay as a whole**, and this is
+registered as a limitation *before* the run rather than discovered in the write-up:
+
+> **A null at this step cannot be attributed to any one of the three.** If v1.1 shows no
+> regression and no effect, the finding is *"the v1.1 bundle changed nothing measurable on this
+> task"*, and it is not evidence about run state, or about repair limits, or about the
+> completion contract separately. Separating them needs three arms, which is a batch this step
+> does not have and an author decision this step does not own.
+
+### What this step does not build, and why
+
+- **It does not touch the evaluator's ignore pattern, exit-code mapping, fixtures, or the
+  rubric.** All four are registered variables; moving one is a §7 halt, not a design choice.
+- **It does not re-mean an existing `F0x` code.** `BLOCKED` is not in the `F01`–`F15` enum
+  (Extract item 5). A *new* additive field or enum value is an instrument PR this run merges
+  itself under §4 step 14; giving `F03` a new meaning would be a §7 halt, and that is the
+  distinction, not a preference.
+- **It does not raise `n` to make the repair limit fire.** The limit not firing is a property of
+  the task and the model, and the answer to it is a fixture set, not a bigger batch.
+
+### The assumption that gets proved at preflight rather than asserted here
+
+The design above puts the enforcement on a **`PostToolUse` hook on `Bash` exiting 2**. Phase 5B's
+extract established that `exit 2` blocks and feeds stderr back to the model, and stop 16's arm H
+demonstrated it live on `PreToolUse` — **5 of 5 arm-H runs changed zero files**, against arm D's
+`permissions.deny`, which changed 2, 3, 3, 4 and 13. But `PostToolUse` fires *after* the tool has
+run, and whether its exit 2 reaches the model the same way is **not something this workbook has
+measured**. §4 step 5 proves it on one run before any batch. If it does not hold, the enforcement
+point moves to `PreToolUse` on the repair command and the change is recorded there, not here.
+
 ## Predict before you run
 
 <!-- TODO -->
