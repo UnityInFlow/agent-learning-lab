@@ -1504,7 +1504,30 @@ process_violations_stop8:  # KEPT, not deleted. Disclosed rather than tidied awa
 board_state: "GREEN, and it was RED in between - both states are mine and both are recorded rather than only the final one. `./tools/check-board-freshness.sh` exits 0: `2 board(s) current at 12716f4646e1`, both markers `built-from: d14d1ec`. IT WENT RED BECAUSE I EDITED HANDOFF.md (item 000, the pass-16 section), which is exactly what §4 step 14 says editing HANDOFF.md does. BOTH BOARDS WERE REPUBLISHED WITH REAL CONTENT, NOT RELABELLED: runs on record 325 -> 335 re-derived from the API, position 12 marked HALTED on benchmarks#29, and a new pass-16 section on each. Relabelling alone would ALSO have gone green and would have left both boards lying, which is the failure this check exists to prevent rather than to perform. ALL HANDOFF EDITS WERE FINISHED BEFORE PUBLISHING so the digest was final and one republish sufficed; publishing first would have needed a second pass. RE-DERIVED BY HAND after the republish, not taken from the preflight subagent`s table - its board row said `current at 0bc526aa09d3` and was stale by the time I read it."
 blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
-author_notes:   # what the author should read; NEVER gates anything (prompt §0). Newest first.
+author_notes:
+  - "2026-09-15, THIS SESSION, AND IT IS MINE NOT THE MACHINE`S: I READ A RUN`S agent.log INTO MY OWN
+    CONTEXT with `head -20`, which §0 forbids in as many words - `never cat, Read or sed an evidence
+    file, a sheet, a run-record dump, the telemetry file, a findings file or a review file into your own
+    context; a subagent reads it and returns the values you name`. I was looking for the command the
+    stop-17 preflight had used, which is NOT recorded anywhere - and that is the real finding here. The
+    preflight`s invocation exists only in a dead session`s scrollback: evidence/b08/ holds its RESULTS
+    (run records, run-state files, init read-backs) and no script, so the next session cannot reproduce
+    the runs that proved the five delivery conditions. THE FIX IS IN THIS COMMIT, not in a resolution:
+    evidence/b08/run-b8-batch.sh now carries the whole invocation for the batch, so from here the
+    command is on disk with the evidence it produced. What a stop`s preflight ran should be a committed
+    script for the same reason a prediction is a committed file."
+  - "2026-09-15: A CLAUDE SESSION FROM 2026-09-10 IS STILL ALIVE ON THIS MACHINE AND IT IS NOT A
+    BUILDER. pid 8011, session-id 452ce7db-e757-41f2-9201-f6be788d63d2, started Thu Sep 10 15:23, under
+    cmux with --dangerously-skip-permissions. It is BLOCKED, not working: its three children (9638,
+    10358, 11285) are zsh `until grep -q BATCH DONE evidence/b07/batch.out; do sleep 60; done` poll
+    loops waiting on a stop-15 batch that finished five days ago, so it has been asleep inside a tool
+    call ever since. I did NOT treat it as the §7 `two live builders` condition and I did not kill it:
+    the working tree was clean at this session`s start, no run-agent.sh or batch process of its was
+    alive, ../.track-b.lock was absent, and a session parked inside a sleep loop cannot edit anything.
+    The reason it is recorded rather than ignored is that it COULD: one keystroke in that terminal
+    resumes a session whose state file is five days stale, on stop 15, and it would write over stop 17.
+    THE AUTHOR`S CALL: close that cmux pane, or leave it and know it is there. I left it running."
+   # what the author should read; NEVER gates anything (prompt §0). Newest first.
   - "2026-09-15, AT THE AUTHOR`S EXPLICIT INSTRUCTION AFTER THE CENSUS: STOP 16`S TEN SURVIVING WORKTREES ARE
     COPIED OFF $TMPDIR. The ten that ran 2026-09-13 - controls 79c7d7c6 3f696916 c3fab185 72e21b83 86a2e38d,
     arm D 3bd8fcd8 8038176a, arm H 020444f2 cd53a065 b3b76c2f - now also live at
