@@ -1284,6 +1284,45 @@ board_state: "GREEN, and it was RED in between - both states are mine and both a
 blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:   # what the author should read; NEVER gates anything (prompt §0). Newest first.
+  - "2026-09-15, ***THE `PHASE ISSUE CLOSED WHILE ITS LABS ARE UNRUN` FAILURE HAS A MECHANICAL CAUSE AND IT IS
+    NOT A PERSON FORGETTING. IT IS AN ENABLED BOARD AUTOMATION, AND §4 STEP 14 TRIGGERS IT.***
+    lab#15 WAS FOUND CLOSED during the end-of-session verification sweep. Times, from the issue timeline:
+    10:23:13Z my closing comment is posted, whose FIRST LINE says the issue stays open; 10:23:33Z I move the
+    stop-16 card to Status: Done because §4 step 14 says to; 10:23:33Z PROJECT #2`s `Auto-close issue`
+    WORKFLOW FIRES AND CLOSES IT. state_reason `completed`, actor is the token`s account, and NO CLOSING
+    KEYWORD EXISTS ANYWHERE - checked across lab#85, lab#86, lab#87 and every commit between them.
+    §4 STEP 14 GIVES TWO INSTRUCTIONS THAT THIS BOARD TURNS INTO A CONTRADICTION: `a Phase issue stays open
+    if any of its labs is deferred` and `in either case move the card to Done when the stop closes`. On
+    project #2 MOVING THE CARD TO DONE *IS* CLOSING THE ISSUE. Both cannot be followed and the one that
+    EXECUTES wins - an L2 automation silently overriding an L3 instruction, which is the layer model running
+    in the direction this project usually wants and here does not.
+    THIS IS THE THIRD RECURRENCE. Validator pass 16 recorded the second (lab#14, closed 17 seconds after its
+    closing comment while five documents said it stays open) and its lesson was `both are L3 controls, which
+    is to say both are a person remembering; the argument they make is for building the check`. THAT READING
+    WAS WRONG, TWICE, AND I ONLY FOUND OUT BECAUSE I READ THE ISSUE STATE BACK AT THE END OF THE SESSION
+    RATHER THAN TRUSTING THE COMMENT I HAD JUST POSTED. No amount of remembering prevents it: the action that
+    triggers it is one §4 step 14 explicitly requires.
+    WHAT I DID: reopened lab#15, verified it STAYS open 20 seconds later, left the card at Done (the stop IS
+    closed; it is the Phase issue that is not), and commented on the issue naming the automation and the
+    times. WHAT I DID NOT DO AND WHY: `Auto-close issue` IS NOT DISABLED. It is org-level project #2
+    configuration, it affects every issue on the board across all 28 stops, and turning it off changes how
+    this project tracks everything. THAT IS YOURS.
+    A CHECK THAT WOULD EXECUTE, IF YOU WANT ONE RATHER THAN A FOURTH CORRECTION: a CI job that reads every
+    Phase issue named in LEARNING-PATH.md and fails when one is CLOSED while its workbook still has an
+    unticked exit-gate clause. It is the same shape as check-board-freshness.sh - it cannot keep the issue
+    correct, it can stop it lying quietly. I did not build it: §6 forbids a future step`s artifacts and this
+    is not stop 16`s or stop 17`s work.
+    I THEN CHECKED THE OTHER TWO PHASE ISSUES RATHER THAN LEAVING IT AS A WORRY, AND THE RESULT SHARPENS THE
+    MECHANISM: lab#7 (Phase 5A) and lab#14 (Phase 4B) are BOTH OPEN AND BOTH HAVE CARDS AT `Done`. So the
+    workflow fires on the TRANSITION to Done, not on the state, and A MANUAL REOPEN STICKS - which is why
+    lab#14, reopened after validator pass 16 found it closed, is still open with a Done card today. All three
+    Phase issues are now open, all three cards are Done, and that combination is stable.
+    HOW STRONG THE CAUSAL CLAIM IS, STATED HONESTLY: I did not re-run the transition to prove it. What I have
+    is an enabled workflow named `Auto-close issue`, a close at the SAME SECOND as the card move with no
+    closing keyword anywhere, and ONE PRIOR INSTANCE WITH THE SAME SIGNATURE - lab#14, closed 17 seconds after
+    its closing comment, which pass 16 attributed to a person forgetting. Two instances, one signature, one
+    named mechanism. That is enough to act on and not enough to call measured; proving it would mean moving a
+    card deliberately to watch an issue close, which is a live board and not mine to experiment on."
   - "2026-09-15, THE DECISION-11 CENSUS RAN AND ITS RESULT IS THAT IT COULD NOT BE RUN. NO READING FIRED.
     ALL 54 KEPT BE-004 WORKTREES ARE PRESENT AND HOLD ZERO FILES - 6568 directories, 0 kilobytes, reaped by
     $TMPDIR at 2026-09-15T03:54:59Z, hours before the census opened. The denominator is ZERO. Reading A did
