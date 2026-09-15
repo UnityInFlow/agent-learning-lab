@@ -582,6 +582,20 @@ earlier in the session: `check-run-gate.sh` over all 20 (11/9, unchanged);
 `verify-permission-block-classifier.sh` (29 of 29); `make smoke` through the tunnels (All 18
 passed) and bare (18 of 18 failed); `git -C agent-observatory status --short` (empty).
 
+> **Amendment, 2026-09-15, at §4a step 2 — the fixture count above is now historical.** The
+> round-2 review of `classify-permission-block.sh` found a real defect in its numeric domain:
+> `^[0-9]+$` admits `"08"`, which bash arithmetic cannot evaluate, so **a run with eight
+> refusals and no output was reported as a run where nothing was refused, at exit 0**. Fixed;
+> the pattern is now a canonical decimal integer on both conjuncts, the fixture set is **40 of
+> 40**, and the classifier sha moved `84e860f76f23` → `817e6eef00ea`. **Every "29 of 29" above
+> is left exactly as written** — it is the count as it stood when the measurement was taken, and
+> the deliberate failure at §4 step 9 ran against that set. **No number in this workbook moves:**
+> the replay was re-run over all 35 rows against the fixed classifier and is identical on every
+> one — batch 1 stays 5 blocked / 15 not, stored stays 1 / 14, P5's stored half 0 of 6, P6 0 of
+> 7. Reproduction, the failing inputs and the invariance proof:
+> [`evidence/p05b/numeric-domain/README.md`](../../evidence/p05b/numeric-domain/README.md).
+> *Found by the review, fixed and re-proved by Opus 5 (claude-opus-5), autonomous, 2026-09-15.*
+
 ## Metrics
 
 ```

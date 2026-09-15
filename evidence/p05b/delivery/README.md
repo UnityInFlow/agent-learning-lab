@@ -68,6 +68,20 @@ total and nothing written. Under the **deny rule**, the agent attempts a write e
 is told the tool does not exist, and then **does the entire task with `Bash`** — twenty-nine to
 ninety-one shell calls, and two to thirteen files changed.
 
+> **Amendment, 2026-09-15, from the §4a round-1 review (finding 11 of 44,
+> `findings/opencode/review-E-017-permission-block-classification-5b5-20260914T141448Z.md`).
+> Nothing above is deleted; this corrects one word in it.** "Attempts a write exactly **once**"
+> is wrong on one of the five runs, and the table two paragraphs above it already said so:
+> `cd563cee` attempted `Edit` **and** `Write`, so it made **two** write-tool attempts, not one.
+> The correct statement is **one `Edit` on 5 of 5, plus one `Write` on 1 of 5 — four runs made
+> one write attempt and `cd563cee` made two.** Nothing downstream moves: the delivery proof is
+> that the runtime refused the call, and it refused both of `cd563cee`'s; the changed-file count,
+> the block classification and every decision-rule row read the refusal and the file count, not
+> the number of attempts. Recorded because a prose sentence contradicting its own table on the
+> same page is how a number that *does* matter gets through next time.
+> *Found by the review, verified against this file's own table, and amended by Opus 5
+> (claude-opus-5), autonomous, 2026-09-15.*
+
 **`permissions.deny` on `Edit`/`Write`/`NotebookEdit` is not a write boundary. It is a speed
 bump.** This is position 9's finding arriving by a second road: *a tool list filters names, not
 capabilities.* There it was `tools:` on an agent overlay; here it is `permissions.deny` in

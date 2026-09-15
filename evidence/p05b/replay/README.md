@@ -6,6 +6,13 @@ was made and no money was spent.** Every row below is `classify-permission-block
 `verify-permission-block-classifier.sh` **29 of 29 passing**, re-run immediately before this
 replay) called over evidence that was already on disk.
 
+> **Amendment, 2026-09-15.** The classifier has since been fixed for a numeric-domain defect
+> found by the §4a round-2 review (sha `84e860f76f23` → `817e6eef00ea`, fixture set 29 → 40).
+> **Every row below is unchanged** — the replay was re-run against the fixed classifier and all
+> 35 rows return the identical runId, changed-count and exit code. The sentence above stays as
+> written because it records the classifier as it stood *at this replay*. See
+> [`../numeric-domain/README.md`](../numeric-domain/README.md), which holds the re-run tables.
+
 The classifier takes the run record **as JSON content, not as a path**, plus a changed-file
 count the caller states. For batch 1 the count is taken from each kept worktree with
 `git status --porcelain`, because `behavior.changedFiles` is **null on all twenty records**; for

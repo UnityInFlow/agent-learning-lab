@@ -461,3 +461,67 @@ NOT PROMOTED.**
   that the turn ended with the task unattempted, which is the **completion contract** (Lab 5B.4)
   and is not built here.
 
+
+## §4a review — the four things it changed, and the three it did not
+
+*Added 2026-09-15 by Opus 5, autonomous, at §4a step 2. **Nothing above is edited.** Round 1
+(`findings/opencode/review-E-017-permission-block-classification-5b5-20260914T141448Z.md`,
+`-P codex -n 2`, acceptance gate **ACCEPT**) returned 44 substantive findings over this file,
+the workbook and the two evidence READMEs. Round 2, on the two tool files, is dispositioned in
+`agent-observatory` PR obs#77. This section records only what the review moved in **this** file;
+the full per-finding disposition is in the PR bodies, which §4a names as their home.*
+
+**1. The row-2/row-4 precedence was NOT registered before the run, and the Failure analysis
+section above does not say so.** It says the precedence "is stated rather than chosen", which
+argues for it; it does not disclose that the argument was made *after* the data was in. The
+review is right and this is the correction: **the decision rule as registered has no precedence
+clause, and the precondition-over-outcome reading was constructed post hoc.** The verdict is not
+changed — restating a result to escape a review finding is the thing this project does not do —
+and the reading is still the defensible one, because row 4 asserts that P1 is unanswerable and
+row 2 reads an answer. But it is now on record as **an unregistered reading applied to a live
+overlap**, not as the rule working. *What a successor registers before its run: an explicit
+precedence when two decision-rule rows can fire on one dataset.* (Review findings 1–5.)
+
+**2. `KEPT ON DISK BUT NOT PROMOTED` is a third outcome, and the registered rule has two.** The
+Decision section already says the registered KEEP is "not met as written" and refuses to restate
+it, which is the substance the review asks for; what it does not say is that the disposition it
+then records was not one of the registered options. Recorded now: **the registered rule offered
+KEEP or REJECT; neither was taken, and the third state was invented at decision time.** It is
+the conservative direction — it claims nothing KEEP would have claimed — but it is unregistered
+and it is named. (Review finding 6.)
+
+**3. One prose sentence contradicted its own table, and the table was right.**
+`evidence/p05b/delivery/README.md` said the agent "attempts a write exactly **once**" under the
+deny rule while its own tool-mix table two paragraphs above recorded `Write: 0 (1 on cd563cee)`.
+`cd563cee` made **two** write-tool attempts. Amended in place, dated, nothing deleted. Nothing
+downstream moves: every decision-bearing number reads the runtime's refusal and the changed-file
+count, not the attempt count. (Review finding 11.)
+
+**4. The classifier's fixture set is now 40 cases, not 29, and the classifier's sha has moved.**
+Round 2 found a real defect in the numeric domain — `^[0-9]+$` admits `"08"`, which bash
+arithmetic cannot evaluate, so a run with **eight refusals and no output was reported as a run
+where nothing was refused, at exit 0**. Fixed, and **the replay was re-run over all 35 rows and
+is identical on every one**: batch 1 stays 5 blocked / 15 not, stored stays 1 / 14, P5's stored
+half stays 0 of 6, P6 stays 0 of 7. Proof and reproduction:
+[`evidence/p05b/numeric-domain/README.md`](../evidence/p05b/numeric-domain/README.md). **Every
+number in this experiment stands unchanged**, and the reason it could not have moved is stated
+there rather than assumed: the defect needs a numeric-looking *string* with a leading zero, and
+both populations hold JSON numbers between 0 and 15.
+
+**What the review asked for and did not get, said plainly so a reader does not go looking:**
+
+- **The changed-file count's scope** (findings 13–15) — whether harness artefacts such as
+  `.ai/block-writes.log` count. **Checked rather than argued: the file is present in all five
+  arm-H worktrees and `git status --porcelain` returns 0 on all five**, so the count used is
+  unaffected and the finding's scenario does not occur here. The *general* point — that the
+  scope was never written down — stands, and is a successor's to register.
+- **The L2/L3 labels on the deny rule** (findings 18–22). The review's reading is coherent: the
+  runtime executes and rejects the `Edit` call, which is the workspace rule's own L2 test. The
+  artifact's reading is that the layer is about the *bad state* — retained write capability —
+  which the deny rule does not reject, and `Bash` writes files on 5 of 5. **Both readings are now
+  on record and the artifact's is not amended**, because the disagreement is about what the bad
+  state is, and that is a question the next stop should register before it runs, not one to
+  settle by editing a closed result.
+- **Specification gaps in Labs 5B.1–5B.4** (findings 16, 17, 36, 38–44). Those labs did not run;
+  their exit-gate clauses are **unticked**, and `lab#15` stays open naming them. A specification
+  defect in unrun design text is deferred with the lab, not fixed here.
