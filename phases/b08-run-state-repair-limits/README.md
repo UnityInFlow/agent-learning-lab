@@ -632,6 +632,71 @@ populations, and **the registered band stands unedited**. Two preflight pairs bo
 the band is a reason to read the cost column carefully at step 8 — not a reason to change what
 was predicted.
 
+## Batch — §4 step 6, the driver and what proves it, 2026-09-15
+
+**The driver is [`evidence/b08/run-b8-batch.sh`](../../evidence/b08/run-b8-batch.sh), committed at
+`119ffa0` before the first run started at `2026-09-15T18:24:37Z`.** `n = 10` per arm per task,
+interleaved treated/control, on the two registered keys `EXP-B8-RUNSTATE-BE003` and
+`EXP-B8-RUNSTATE-BE004`. Batch tag `20260915T182436Z`.
+
+**It exists as a committed file for a reason this stop found out the hard way.** The §4 step 5
+preflight's own invocation was never written down — `evidence/b08/` holds its *results* and no
+script — so the four runs that proved the five delivery conditions cannot be reproduced from
+anything on disk. A prediction is a committed file here; a command that spends money should be
+one too. From this step on it is.
+
+### Three things it does differently from `run-b7-batch.sh`, each with its reason
+
+| | what | why it is not a preference |
+|---|---|---|
+| 1 | calls `runner/run-agent.sh` **directly**, not `make run-benchmark` | `Makefile:24-25` defaults `OTLP_HTTP_PORT`/`OTLP_GRPC_PORT` to `4318`/`4317`, and on this machine those two are **leaked `limactl` listeners**: `POST localhost:4318/v1/traces` answers `000`. A run that reaches them records `null` `modelCalls` and `null` cost — which reads exactly like a run that made no model calls. The API is on `127.0.0.1:18081`; `:8081` answers `000` and belongs to a **second, empty stack**, which is how a previous session read an empty database as data loss. Direct invocation states all three endpoints in one place where an `-include` of an unreadable `infra/.env` cannot re-default them. |
+| 2 | the per-run delivery proof is the **run-state file**, not a policy log | both overlays carry `.ai/hooks/policy-gate.sh`, so a policy event proves nothing about *this* treatment. Only `agent-v1.1` carries the `PreToolUse`/`Bash` + `PostToolUse`/`Bash` pair, and `repair-limit.sh` writes `${TMPDIR}/run-state-observatory-run-<runId>.json` on the **first `Bash` call whatever its outcome**. P1 is a gate on the whole experiment — decision-rule **row 0 VOIDs the batch** if either half fails on 2 or more treated runs — so both halves are asserted per run rather than once at preflight. |
+| 3 | copies each run's evidence off `$TMPDIR` **the moment the run ends** | the reaper here empties a kept worktree's files in about three days and **leaves the directory standing**, so `ls -d` passes on a hollowed one. The author decision 11 census returned **no reading at all** because all 54 kept BE-004 worktrees still existed and held zero files. A copy made later is a copy of nothing. Small artefacts go to the committed `evidence/b08/worktrees/<run id>/`; the ~27 MB worktrees go to `evidence.local/b08-worktrees/<run id>/`, gitignored by `*.local`. |
+
+### The guards, and the fixture set that proves they refuse — L2
+
+`./evidence/b08/verify-b8-batch-guards.sh` → **12 passed, 0 failed**
+([`verify-b8-batch-guards-20260915T182335Z.txt`](../../evidence/b08/verify-b8-batch-guards-20260915T182335Z.txt)).
+`B8_GUARDS_ONLY=1` runs every guard and exits 0 without invoking a run, so each case perturbs
+exactly one registered value **in a copy** of an overlay and asserts both the exit code and that
+the refusal names the right thing.
+
+| case | perturbation | expected |
+|---|---|---|
+| A | the registered configuration, untouched | **exit 0**, "every guard passed and NOTHING was run" |
+| B | `B8_API` at a dead port | exit 7, names the code it answered |
+| C | `B8_OTLP` at `4318`, the leaked listener | exit 7 |
+| D | control's agent file drifted by one byte | exit 6, "the arms' agent files DIFFER" |
+| E | the **same** drift in both arms | exit 6, "agent file is not the registered one" |
+| F | treated `CLAUDE.md` drifted | exit 6, "treated CLAUDE.md is not the registered one" |
+| G | control given any `CLAUDE.md` | exit 6 — P1's second half is `instructionsHash` **null** on 10 of 10 controls |
+| H / H2 | treated hook deleted / present but not executable | exit 6 each |
+| I | control given `repair-limit.sh` | exit 6 — the treatment in both arms measures nothing |
+| J / K | a **live** pid lock refuses (exit 8); a **stale** one does not | exit 8 / exit 0 |
+
+**Case A is the load-bearing one.** Without it the eleven refusals would be consistent with a
+driver that refuses everything, including the registered configuration — a control that has never
+been shown to *accept* is as uninformative as one never shown to reject. And **case E exists
+because D alone cannot see it**: two arms can agree with each other and both be wrong.
+
+**§6's re-verification, done rather than asserted.** Case I was reproduced by hand outside the
+verifier, with its own `mktemp -d` copy and no fixture harness in the loop: `exit 6`,
+`ABORT: the CONTROL overlay carries .ai/hooks/repair-limit.sh — the treatment is in both arms`.
+The registered control's hook directory holds `policy-gate.sh` and nothing else.
+
+### A defect in the driver, found while it was running, and not fixed while it was running
+
+**`B8_GUARDS_ONLY=1` leaves a dated `batch-<TAG>/` directory behind.** `mkdir -p "$EVID/init-schema"`
+runs *before* the guards-only exit, so the twelve fixture cases and the first manual probe created
+**13 empty `evidence/b08/batch-*/` directories**, each of which reads to a stranger as a batch that
+produced nothing. The live batch is `batch-20260915T182436Z`, the only one of the fourteen with a
+`manifest.tsv`.
+
+It is recorded here **before** the fix and **not** fixed in place, because §4 step 4 says never edit
+a tool while a run of it is in flight — the driver was mid-batch when this was found. The `mkdir`
+moves below the guards-only exit, and the 13 empty directories are removed, after the batch ends
+and before the PR. *Found by Opus 5 (claude-opus-5), autonomous, 2026-09-15.*
+
 ## Predict before you run
 
 The predictions are registered **per task**, in their own files, with their own MDEs and their
