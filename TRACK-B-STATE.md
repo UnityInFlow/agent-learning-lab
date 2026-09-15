@@ -1284,6 +1284,25 @@ board_state: "GREEN, and it was RED in between - both states are mine and both a
 blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:   # what the author should read; NEVER gates anything (prompt §0). Newest first.
+  - "2026-09-15, AT THE AUTHOR`S EXPLICIT INSTRUCTION AFTER THE CENSUS: STOP 16`S TEN SURVIVING WORKTREES ARE
+    COPIED OFF $TMPDIR. The ten that ran 2026-09-13 - controls 79c7d7c6 3f696916 c3fab185 72e21b83 86a2e38d,
+    arm D 3bd8fcd8 8038176a, arm H 020444f2 cd53a065 b3b76c2f - now also live at
+    evidence.local/p05b-worktrees-rescued-20260915/. 263 MB, ten directories.
+    VERIFIED AFTER COPYING RATHER THAN ASSUMED, and the verification is the point: file counts match the
+    source exactly (153-244 each), `git` still works in every copy because cp -Rp kept .git/, and EVERY COPY
+    STILL REPRODUCES THE NUMBER STOP 16 RECORDED FROM IT - arm D 3bd8fcd8=3 and 8038176a=4, arm H all three
+    at 0, the five controls 3 each. Those are the counts that refuted P3 at 5 of 10, and they were read from
+    the worktrees in the first place BECAUSE behavior.changedFiles is null on all twenty records.
+    THE OTHER TEN WERE NOT COPIED AND THE AUTHOR DID NOT ASK FOR THEM: stop 16`s 2026-09-11 half was already
+    down to 11-63 files from ~153 when this ran. Whatever they still hold, they are past being a faithful copy
+    of what the agent wrote. They are still on disk if anyone wants to look.
+    WHAT THIS DOES NOT DO, SAID PLAINLY: evidence.local/ matches *.local in .gitignore, so THE RESCUE IS ON
+    ONE DISK AND UNVERSIONED. It survives the reaper; it does not survive the machine. A versioned pointer is
+    committed at evidence/p05b/rescued-worktrees/README.md so the rescue is discoverable from a clone, because
+    the directory holding it is not. Committing 263 MB of Maven target/ output into a public repo is not the
+    right answer; if these must outlive the laptop, THE DIFFS ARE WHAT TO KEEP, NOT THE WORKTREES.
+    THE UNDERLYING DECISION IS STILL YOURS AND STILL OPEN - where kept worktrees live. run-agent.sh is
+    UNCHANGED: it is the observatory`s registered instrument and where it writes is not mine to move."
   - "2026-09-15, ***THE `PHASE ISSUE CLOSED WHILE ITS LABS ARE UNRUN` FAILURE HAS A MECHANICAL CAUSE AND IT IS
     NOT A PERSON FORGETTING. IT IS AN ENABLED BOARD AUTOMATION, AND §4 STEP 14 TRIGGERS IT.***
     lab#15 WAS FOUND CLOSED during the end-of-session verification sweep. Times, from the issue timeline:
