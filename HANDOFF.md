@@ -17,7 +17,8 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 ## Position
 
 **Spine 16 of 28. Positions 4–16 CLOSED.** Stop 16 (Phase 5B, Lab 5B.5 — *blocked is not failed*)
-closed 2026-09-14. **E-017's primary prediction is VOID by its own decision-rule row 4**, and the
+closed 2026-09-14 and **merged 2026-09-15 — lab#85 → `30c84013`, obs#77 → `1376a2ee`**, both
+merged not squashed, every check green. **E-017's primary prediction is VOID by its own decision-rule row 4**, and the
 reason it is void is the result: only **5 of 10** treated runs were actually blocked, and the
 split is **total and by channel**. `lab#15` **stays OPEN** — Labs 5B.1–5B.4 are deferred, and four
 of the six exit-gate clauses are left unticked with them. Next is stop 17 (B8, run state and
@@ -130,6 +131,44 @@ would *not* catch the break, on the strength of this project's own `review_lesso
 fixtures by run id** — the very counter-examples that motivated the conjunction. A fixture set
 built from imagined cases tests its author's imagination; one built from the data that forced the
 design tests the design.
+
+### The §4a review found a real defect in the L2 control, and fixing it moved nothing — 2026-09-15
+
+**The classifier admitted `"08"` as a number and then cleared it.** `^[0-9]+$` is not the set bash
+arithmetic can evaluate: `[[ "08" -gt 0 ]]` errors to stderr and evaluates **false**, so **a run
+with eight refusals and no output was reported as a run where nothing was refused, at exit 0**.
+The overflow case does the same with no error printed at all. Reproduced against sha `84e860f76f23`
+before anything was changed. `07` is fine — valid octal, right answer by luck — so **a fixture set
+that tested a leading zero without an 8 or a 9 in it would have gone green.** This is the house
+failure mode sitting inside the guard built to catch it.
+
+Fixed by applying the principle the script's own header already stated and had not applied to
+itself — *refuse what cannot be evaluated, never coerce it*. Classifier `84e860f76f23` →
+`817e6eef00ea`, fixtures **29 → 39**, including the three F05 run ids a heading claiming *seven*
+had left at four. **The stop's result does not move and it is proved, not asserted: the replay was
+re-run over all 35 rows and returns the identical runId, changed-count and exit code on 35 of 35.**
+`evidence/p05b/numeric-domain/`.
+
+**A fortieth fixture lived for one CI run and its death is the better finding.** It asserted that a
+JSON number above 2⁵³ is refused; it passed locally and **failed in CI on the same commit**, because
+`jq-1.6` renders `999999999999999999` as `1e+18` and `jq-1.7` renders it exactly — **same record,
+same script, two answers, decided by the jq on the machine**. Removed rather than pinned, with the
+note kept where the case was: a count above 2⁵³ reaching this script would not classify
+reproducibly across environments. Nothing measured is affected; no value in either population
+exceeds 15.
+
+**Two corrections to the closed work, both conceded rather than argued away.** (1) The row-2/row-4
+**precedence was never registered before the run** — E-017 argued for it without disclosing that
+the argument came after the data. The verdict is unchanged and the disclosure is now in the file.
+(2) `KEPT ON DISK BUT NOT PROMOTED` is a **third** outcome against a rule that registered two. And
+one number was wrong: `evidence/p05b/delivery/README.md` said the agent "attempts a write exactly
+once" while its own table two paragraphs above recorded `Write: 0 (1 on cd563cee)` — `cd563cee`
+made **two**. Amended in place, dated.
+
+**An instrument note worth more than the finding.** The previous session recorded round 2 as a
+**stall** — *"916 bytes, 0 finding sections"*. It was true when read and false an hour later: the
+file finished writing at 16:24:28Z, at 8656 bytes with 6 findings and an acceptance gate of
+**ACCEPT**. **§4a's stall test is a snapshot**, and a header-only file may simply be unfinished.
 
 ### What is blocked on the author
 
@@ -1719,8 +1758,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: d4f652f prose: 94e71935a853 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: d4f652f prose: 94e71935a853 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 81235fa prose: b61d696020c4 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 81235fa prose: b61d696020c4 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The
