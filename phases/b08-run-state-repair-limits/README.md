@@ -289,6 +289,14 @@ on the first failure, for the same reason.
 | 6 | the completion contract | `DONE` confirmed by a script | **L2 only if a `Stop`-class hook runs it and exits non-zero on a failing contract.** Shipped as a markdown checklist the agent is asked to follow, it is **L3** — and §10.6's seven clauses are L3 today precisely because nothing runs them |
 | 7 | the `handoff` field | from-agent, to-agent, what was delivered, what remains | **L3, and deliberately.** Nothing executes on it at this stop. Author decision 11 item 7 asks for it written **and marked reserved**, which is a field waiting for a consumer — and calling that L1 would be the exact substitution the workspace `CLAUDE.md` names, *"adding `required:` to a template … none of these run"* |
 
+> **Rows 2 and 3 of this table were written before either correction below and are left as
+> written.** Row 2 still says `repair-limit.sh` runs on `PostToolUse`; it runs on `PreToolUse`,
+> for two separately measured reasons — `PostToolUse` exit 2 does not enforce (first
+> correction, from Phase 5A's extract) and `PostToolUse` on `Bash` never fires for a failing
+> command at all (second correction, from the probe). **The layer labels in rows 2, 3, 6 and 7
+> are unaffected** — what moved is which event does the work, not what kind of control it is.
+> Read the two corrections at the end of this section as the operative design.
+
 ### One variable, and the honest limit on what a null here can mean
 
 Every prior B step added one named thing. **B8 adds three at once** — state, limits, contract —
@@ -356,6 +364,152 @@ reached at all in this runner's configuration. Stop 16's arm H proved the mechan
 `Edit|Write|NotebookEdit`, not on `Bash`, and the matcher is the variable. §4 step 5 proves it
 on one run per task before any batch, and a failure there moves the enforcement point again
 rather than being written up as a null.
+
+**CORRECTED A SECOND TIME, 2026-09-15, still before the build and still before any run — and
+this one needed a measurement, because nothing in these repositories had made it.** The
+paragraph above sent one assumption to preflight. A preflight costs a benchmark run, so the
+assumption was probed first for a few cents: three `claude -p` sessions in a throwaway
+directory, the runner's own flag set from `run-agent.sh:757-777`, CLI `2.1.272`, model
+`claude-haiku-4-5-20251001`, thirteen `Bash` tool calls, one hook registered on both events.
+Payloads and derivation:
+[`evidence/b08/hook-event-probe-20260915T153209Z/`](../../evidence/b08/hook-event-probe-20260915T153209Z/README.md).
+
+| Bash call outcome | n | `PreToolUse` fired | `PostToolUse` fired |
+|---|---|---|---|
+| exited 0 | 6 | 6 | **6** |
+| exited non-zero | 6 | 6 | **0** |
+| blocked by the hook's own `exit 2` | 1 | 1 | 0 — **and the command never ran** |
+
+Two-sided Fisher on 6/6 vs 0/6: **p = 0.0022**.
+
+**The good news first, because it discharges this section's own open item.** `PreToolUse` on
+`Bash` **is** reached — 13 of 13 — and its `exit 2` **genuinely blocks a `Bash` call**: the
+blocked `touch` left no file. Stop 16 proved exit 2 on `Edit|Write|NotebookEdit`; the matcher
+was the variable, and the variable is now measured. **The L2 row in the table above is
+earned on `Bash` rather than inherited**, and it was earned without spending a preflight run.
+
+**The bad news is that the corrected design was still wrong, in the same place, for a second
+reason.** `PostToolUse` on `Bash` fires **if and only if the command exited 0**. So:
+
+- **`repair-record.sh` as specified above cannot see a single failure.** It is registered as
+  the recorder that *"computes the fingerprint from the command and its result"* — and it is
+  never handed a failing command at all. Built as designed, it would have reported
+  `totalRepairAttempts: 0` on every run of both arms, and that zero would have been read as
+  *the model does not fail these tasks* when it in fact meant *the counter is blind*. That is
+  the house failure mode verbatim: a control reporting success over a scope smaller than it
+  claims. **It would not have looked like a bug. It would have looked like P2 holding.**
+- **`tool_response` carries no exit code** either — its keys are
+  `{stdout, stderr, interrupted, isImage, noOutputExpected}` — so the event could not have
+  classified the outcome even where it does fire.
+- **But the event's presence is the signal its payload lacks.** Fired for every success and
+  for no failure, *"`PostToolUse` fired for fingerprint X"* means *"X succeeded"*. It is a
+  **success oracle**, and it is the only one a hook has in this runtime.
+
+**So both hooks stay, both jobs move, and the split is now load-bearing for a reason the
+first correction got backwards.** That correction said *"the fingerprint is only knowable
+after a command fails"*. It is not: a fingerprint is knowable **before** the call, from the
+command text, and whether the call is a *repeat* is knowable from the history the hook itself
+wrote. The failure is the part that is not observable. The counter therefore stops trying to
+count failures — which cannot be done — and counts what can: **consecutive attempts at the
+same fingerprint, cleared by a success.**
+
+| Hook | Event | Job | Exit code that matters | Layer |
+|---|---|---|---|---|
+| `repair-limit.sh` | **`PreToolUse` on `Bash`** | fingerprint the command; increment its consecutive-attempt counter and the run total; **write the state file on every call, allow or block**; if this call would exceed `≤ 3` for the fingerprint or `≤ 7` in total, write the BLOCKED reason to stderr and **exit 2** | **2 — measured to block on `Bash`** | **L2** — the bad value cannot be written down after the fix, because the tool call does not happen |
+| `repair-record.sh` | **`PostToolUse` on `Bash`** | the **success oracle**: its firing means that fingerprint's last attempt succeeded, so **clear** that fingerprint's consecutive counter | **0 always** — it records, it never decides | **L2 as a recorder**, **not** a control |
+
+**Why the oracle is not optional.** Without it no success is ever observable, so a
+fingerprint's counter could only ever rise, and a run that legitimately ran `./mvnw test`
+four times — passing each time — would be blocked on the fourth. The limit the build spec
+asks for is `MAX_REPAIR_ATTEMPTS_PER_FAILURE`, and *per failure* is exactly what the reset
+buys. **One hook cannot do this**, which is what the first correction meant and did not
+establish.
+
+**What is still unproven, and what §4 step 5 is now for.** Not the mechanism — that is
+settled above. What a probe in a throwaway directory cannot show is that **the overlay
+arrives inside a real observatory worktree and writes its file there**: that
+`run-agent.sh:338` copies it, that `--setting-sources project` loads *this* `settings.json`,
+that `$CLAUDE_PROJECT_DIR` resolves inside the worktree, and that the state file lands
+**outside** it. That is one preflight run per task, and it is a smaller and better-aimed
+question than the one this section started with.
+
+## Built — §4 step 4, 2026-09-15
+
+Everything below exists on `stop17/b8-run-state-repair-limits` and every fixture set in it was
+run before this section was written. Hashes are registered in E-018 and E-019.
+
+### The overlay, `build/customizations/agent-v1.1/`
+
+| file | what it is | layer |
+|---|---|---|
+| `.claude/agents/backend-feature-phases.md` | **v1.0's, byte-identical** (`b3450564b6f32d61`) | — |
+| `.ai/hooks/policy-gate.sh` | **v1.0's, byte-identical** (`f432abbcbf1f3b90`) | L2, inherited from B7 |
+| `.ai/policies/protected-paths.yaml` | **v1.0's, byte-identical** (`76c4c34c0f4ca5eb`) | L3 — data the gate reads |
+| `.claude/settings.json` | v1.0's `Edit\|Write\|NotebookEdit` entry **unchanged**, plus `PreToolUse`/`Bash` and `PostToolUse`/`Bash` | — |
+| `.ai/hooks/repair-limit.sh` | `PreToolUse`/`Bash`: fingerprint, count, **refuse at the limit with exit 2** | **L2** |
+| `.ai/hooks/repair-record.sh` | `PostToolUse`/`Bash`: the success oracle; clears a fingerprint; **always exits 0** | **L2 as a recorder**, not a control |
+| `CLAUDE.md` | the run-state note and §10.6's seven clauses as prose | **L3** |
+
+`verify-v1.0` itself is untouched — `git status --porcelain build/customizations/verify-v1.0`
+is empty — because *a measured version is never edited*.
+
+### One deviation from the Build spec above, and it is forced rather than chosen
+
+The spec's fingerprint is `failure class + command + normalized primary error + affected
+module`. **Three of those four are not observable to a hook in this runtime**, and the probe
+that established it is
+[`evidence/b08/hook-event-probe-20260915T153209Z/`](../../evidence/b08/hook-event-probe-20260915T153209Z/README.md):
+`PostToolUse` on `Bash` never fires for a failing command (0 of 6; 6 of 6 for successes;
+p = 0.0022), and where it does fire `tool_response` carries no exit code. There is no event
+that hands a hook a failure class, an error string, or the module a failure landed in.
+
+**So the fingerprint is the normalized command text alone**, and the counter counts repeat
+attempts rather than failures, with a success clearing the fingerprint. This is not a
+weakening dressed up as a simplification — it is the same move the observatory made in 2026-08
+when phrase-matching failure classes failed four times and *"an agent that changed no file and
+called no tool did not attempt the task"* worked: **a rule over facts the record already
+holds, needing no vocabulary.** The spec's version needs a vocabulary, and this runtime does
+not supply one.
+
+**What it costs, said plainly:** two genuinely different failures of the same command are one
+fingerprint, and the same failure reached by two differently-typed commands is two. The limit
+is therefore coarser than the spec's. It is still `≤ 3` and `≤ 7`, still enforced by something
+that executes, and it is the finest rule the available events can support.
+
+### The checkers, and what each one is allowed to claim
+
+| tool | claims | fixtures | result |
+|---|---|---|---|
+| `tools/verify-repair-limit.sh` | the limit **refuses**: 4th identical attempt and 8th total, both exit 2; a success resets; a refusal does not inflate the counters; the two hooks agree on the fingerprint; it fails open **and records that it did**; it writes outside the worktree | 30 | **30 of 30 pass** |
+| `tools/check-run-state.sh` + `tools/verify-run-state-checker.sh` | the schema is **enforced**, not merely documented — every required field removed one at a time, wrong types, and invariants that would mean the limit had not held | 41 | **41 of 41 pass** |
+| `tools/check-completion-contract.sh` + `tools/verify-completion-contract-checker.sh` | §10.6's seven clauses over a finished worktree, **and that UNDECIDABLE never reads as PASS** | 27 | **27 of 27 pass** |
+
+All five scripts are ShellCheck clean at `-S warning`.
+
+**The completion-contract checker decides 4 of 7 clauses and says so in its own output.**
+Clauses 1 (acceptance criteria mapped), 4 (static analysis) and 5 without a baseline are
+reported `UNDECIDABLE`, the summary line reads `decidable clauses: 5 of 7`, and a run where
+nothing at all could be decided exits **2 — not 0**. Six of its 27 fixtures exist only to prove
+that, because a checker that quietly counted undecidable clauses as satisfied would report
+seven green clauses over a scope of four. That is the shape that voided a twenty-run experiment
+here, and it is cheaper to write the fixture than to find it later.
+
+### Author decision 11 item 7 — the only item with a deadline, discharged here
+
+`.agent/run-state.json` gains a **`handoff`** block — `fromAgent`, `toAgent`, `delivered`,
+`remaining` — written **unconditionally** on every run of the treated arm and carrying a
+`reserved` note naming B8a. `tools/check-run-state.sh` requires the block and all four fields
+to be **present**, and deliberately does **not** require them to be non-null: at this version
+nothing writes them, and a checker demanding values would be a checker demanding that B8a
+already exist. Two of its fixtures are negative controls pinning exactly that — an all-null
+handoff is valid, and so is a populated one.
+
+**It is L3 and it is labelled L3.** Nothing executes on it at this stop. By the workspace rule
+applied in order: the bad value can still be written down — any process can put anything in a
+JSON field — so it is not L1; and the field itself runs nothing. Calling it a control would be
+the substitution `CLAUDE.md` names by name, *"adding `required:` to a template … none of these
+run"*. What `check-run-state.sh` enforces is that **the field exists and says it is reserved**,
+which is a real L2 claim about the schema and not a claim about the handoff.
 
 ## Predict before you run
 

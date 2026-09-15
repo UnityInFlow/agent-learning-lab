@@ -77,6 +77,49 @@ both delivered and proved, both null on quality and small on cost.
    *Mechanism:* stated in §How the treatment is delivered, and the reason it is not an in-run hook
    is given there rather than left as an omission.
 
+> **DATED CORRECTION TO P1's AND P2's MECHANISM, 2026-09-15 — written before the overlay was
+> built and before any run of this experiment. The predicted values above are NOT edited**
+> (§4 step 12): P1 stays 10 of 10 / 0 of 10, and P2 stays zero `block` decisions with the
+> median registered above. What is corrected is the *mechanism sentence* under each, because a
+> free probe showed the mechanism as written cannot produce the quantity it names.
+>
+> **The measurement.** Three `claude -p` sessions in a throwaway directory with the runner's
+> own flag set, CLI `2.1.272`, model `claude-haiku-4-5-20251001`, thirteen `Bash` calls, one
+> hook on both events. Payloads and derivation:
+> [`evidence/b08/hook-event-probe-20260915T153209Z/`](../evidence/b08/hook-event-probe-20260915T153209Z/README.md).
+> **`PostToolUse` on `Bash` fires if and only if the command exited 0** — 6 of 6 successes,
+> 0 of 6 failures, two-sided Fisher **p = 0.0022** — and `tool_response` carries no exit code
+> (`{stdout, stderr, interrupted, isImage, noOutputExpected}`). `PreToolUse` fired on 13 of 13,
+> and its `exit 2` blocked a `Bash` call outright.
+>
+> **What that does to P1.** The mechanism sentence says the file exists iff `repair-record.sh`
+> ran on the first `Bash` `PostToolUse`. Under the measurement that is true only if the run's
+> first `Bash` call *succeeded*; a run whose first command failed would have no file, and P1
+> would have recorded a delivery failure that was really an oracle artefact. **The file is now
+> written by `repair-limit.sh` on `PreToolUse`, which fires on every `Bash` call whatever its
+> outcome.** P1's *prediction* is unchanged and its *proof is strictly stronger*: the file
+> exists iff the hook executed, and the hook executes on every call rather than on every
+> successful one.
+>
+> **What that does to P2, and this is the substantive half.** The mechanism says *"the counter
+> counts **failing commands**"*. **A hook in this runtime cannot count failing commands** — no
+> event carries one. Built as written, `totalRepairAttempts` would have read **0 on every run
+> of both arms**, and that zero would have been reported as *the model does not fail this task*
+> when it meant *the counter never sees a failure*. It would not have looked like a defect; on
+> BE-003 **it would have looked exactly like P2 holding.**
+>
+> **The corrected quantity, registered here before any run.** `totalRepairAttempts` counts
+> **repeat attempts at the same command fingerprint** — a second or later `PreToolUse` on a
+> fingerprint whose counter a success has not cleared — with `PostToolUse` acting as the
+> success oracle that clears it. This is a rule over facts the record already holds, needing
+> no exit code and no vocabulary, which is the same shape as the rule Track A landed on for
+> BLOCKED (*"an agent that changed no file and called no tool did not attempt the task"*).
+> **It is a different quantity from the one P2's mechanism named, and the predicted number is
+> deliberately carried across unchanged rather than re-tuned to fit it** — re-tuning a number
+> to a definition discovered after it was written is the thing this project does not do.
+> P2 remains the row registered as most likely to be wrong, and it is now also the row whose
+> *units* were corrected before it was measured; both facts are reported with the result.
+
 *A prediction you did not write down is always retroactively correct.*
 
 ## Independent variable
@@ -125,6 +168,47 @@ cost column — and **nothing in this project has ever observed whether this run
 `Stop` hook at all**. Building it blind and measuring it in the same batch would confound the
 step's only cost signal. It is `tools/check-completion-contract.sh` at scoring time, **L2 as a
 checker and explicitly not an in-run control**, and the in-run version is named as follow-up.
+
+> **CONTENT HASHES, REGISTERED AT §4 STEP 4 — 2026-09-15, before the preflight run and before
+> any batch run.** `sha256`, first 32 hex characters, of the overlay as it exists on this
+> branch. `tools/check-overlay-parity.sh` re-derives these; a mismatch at scoring time voids
+> the run rather than being explained.
+>
+> | file | in `agent-v1.1` (treated) | in `verify-v1.0` (control) |
+> |---|---|---|
+> | `CLAUDE.md` | `a94237242e8c1308fb1d434a06a03463` | **absent** |
+> | `.claude/settings.json` | `925a382322daada434a8d3716f869688` | `1dc38808bee86df9b128435a90ef27cf` |
+> | `.ai/hooks/repair-limit.sh` | `fa38193a5093c09bf0261947b0b4d275` | absent |
+> | `.ai/hooks/repair-record.sh` | `7339e63045fa4e2a2ecd835d57e317d9` | absent |
+> | `.claude/agents/backend-feature-phases.md` | `b3450564b6f32d6193e8580db766210e` | `b3450564b6f32d6193e8580db766210e` — **identical, byte for byte** |
+> | `.ai/hooks/policy-gate.sh` | `f432abbcbf1f3b90ec4dd801a23c333a` | `f432abbcbf1f3b90ec4dd801a23c333a` — **identical** |
+> | `.ai/policies/protected-paths.yaml` | `76c4c34c0f4ca5ebeb12dbb3c25bd717` | `76c4c34c0f4ca5ebeb12dbb3c25bd717` — **identical** |
+>
+> **The three inherited files are byte-identical to v1.0's, asserted rather than assumed.**
+> That is what makes "v1.0's overlay **plus**" a true description of the independent variable:
+> the agent prose, the policy gate and the deny list are not merely *similar*, they are the
+> same bytes, so nothing in them can be a between-arm difference. `verify-v1.0` itself was not
+> touched — *a measured version is never edited* (§3 pre-made decision) — and
+> `git status --porcelain build/customizations/verify-v1.0` is empty on this branch.
+>
+> **DATED CORRECTION TO THE CONTROL ASSERTION IN THE ROW ABOVE, 2026-09-15.** That row reads
+> *"`customization.instructionsHash` equals `verify-v1.0/CLAUDE.md`'s sha and **not** the
+> treated one"*. **`verify-v1.0` carries no `CLAUDE.md`** — it never did; its prose lives in
+> `.claude/agents/backend-feature-phases.md`. `run-agent.sh:572-576` returns the literal
+> `null` for a file that is not there, so the control's `instructionsHash` will be **`null`**,
+> not a sha. **The assertion is therefore: treated runs carry
+> `instructionsHash = sha256:a94237242e8c1308fb1d434a06a03463` and control runs carry
+> `null`.** That is a stronger separation than the one registered, not a weaker one, and it is
+> corrected here rather than discovered while reading a sheet. *(The registered wording is left
+> above as written; this note is the operative form.)*
+>
+> **And what that costs, stated plainly:** `CLAUDE.md` is a file the treated arm has and the
+> control does not, so the v1.1 bundle includes *an instruction file* among its three things.
+> E-003 measured a 57-word global instruction file and found it moved nothing (`REJECT`,
+> 2/10 vs 3/10, p = 1.0), which is the best available reason to expect this carries no effect
+> of its own — but it is **a fourth thing in a bundle already registered as three**, and the
+> limitation section's sentence *"a null cannot be attributed to any one of them"* now covers
+> four, not three. Registered here, before the run.
 
 ## Controlled variables
 
