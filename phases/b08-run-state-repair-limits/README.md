@@ -577,6 +577,61 @@ It is written here, before the batch, for one reason: **so that if the batch doe
 the band, this line already exists and cannot be produced afterwards as a prediction.** The
 registered band stands unedited (§4 step 12).
 
+## Preflight — §4 step 5, BE-004 pair, 2026-09-15
+
+**Neither run enters `n`.** Both sit under `EXP-B8-RUNSTATE-BE004-PREFLIGHT`, `n = 1` per arm.
+
+| | treated | control |
+|---|---|---|
+| run id | `aa143b15-b6ad-4fd1-b1c6-4ae3b89fb9d0` | `b356238d-6bfd-46cf-8a19-29bd49117b32` |
+| overlay | `agent-v1.1` | `verify-v1.0` |
+| evaluator | **exit 0**, acceptance 7/7 | **exit 0**, acceptance 7/7 |
+| `behavior.modelCalls` | 28 | 28 |
+| `behavior.toolCalls` | 26 | 26 |
+| `efficiency.estimatedCost` | `$0.234364` | `$0.198211` |
+
+All five delivery conditions hold, checked the same way as the BE-003 pair: the state file
+names `observatory-run-aa143b15-…` at `schemaVersion: b8-v1.1`; `hookExecutions` carry
+**8 `repair-limit/allow` and 6 `repair-record/success`**; nothing was written inside the
+worktree; the `init` read-back delivers `["Read","Edit","Write","Bash"]` at `verdict=match`;
+the control's file is **absent by `stat`**. `check-run-state.sh` exits 0.
+
+### 8 allows, 6 successes — and the two missing ones are the most useful thing in this preflight
+
+**Two `Bash` commands failed in the treated run, and the success oracle is the only thing in
+this project that can see them.** No evaluator field, no telemetry counter and no hash records
+a failing command; the evaluator reads the end state, and the end state here is
+`acceptance 7/7, exit 0`. What identifies the two failures is the *gap* between the events:
+eight `PreToolUse` allows against six `PostToolUse` successes, with the two uncleared
+fingerprints still sitting in `repairAttemptsByFingerprint`. The design derived that from a
+free probe; this is the first time it has been read off a real benchmark run.
+
+**It also answers the question the workbook said the batch could not answer, in the one
+direction the batch could never have shown.** §Design registered *"a counter that increments on
+failure will read 0 on almost every run in both arms"*, and on that reasoning a run that passes
+7/7 would have been assumed to have failed nothing. It failed two commands on the way.
+
+### And it bears directly on P2 — at `n = 1`, which is why this is written before the batch
+
+`totalRepairAttempts` on this run is **0**, while P2 predicts a median of **at least 1** on
+BE-004. The two are not in conflict: **the model failed two commands and retried neither.**
+Under the corrected definition registered in E-019 the counter counts *repeat attempts*, and a
+failure nobody repeats contributes nothing to it — which is the definition working as intended,
+not a gap in it.
+
+**What it does mean is that P2's `≥ 1` needs the model to fail *and then try the same thing
+again*, and this run shows the first half happening without the second.** That is registered
+here, before the batch, with its `n = 1`. It is not a refutation, P2 is not edited (§4 step 12),
+and if the batch lands at a median of 0 this paragraph is the reason that outcome will be
+readable rather than re-interpreted afterwards.
+
+**One number to carry forward and not to read as a result:** the pair's cost gap is `+18.2 %`
+(`$0.234364` against `$0.198211`), against P5's registered `+2 %` to `+8 %`. The BE-003 pair was
+`+47 %`. Both are `n = 1` per arm, both sit against a transferred MDE derived from 10-per-arm
+populations, and **the registered band stands unedited**. Two preflight pairs both landing above
+the band is a reason to read the cost column carefully at step 8 — not a reason to change what
+was predicted.
+
 ## Predict before you run
 
 The predictions are registered **per task**, in their own files, with their own MDEs and their
