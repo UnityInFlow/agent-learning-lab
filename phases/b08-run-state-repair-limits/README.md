@@ -315,13 +315,47 @@ registered as a limitation *before* the run rather than discovered in the write-
 
 ### The assumption that gets proved at preflight rather than asserted here
 
-The design above puts the enforcement on a **`PostToolUse` hook on `Bash` exiting 2**. Phase 5B's
-extract established that `exit 2` blocks and feeds stderr back to the model, and stop 16's arm H
-demonstrated it live on `PreToolUse` — **5 of 5 arm-H runs changed zero files**, against arm D's
-`permissions.deny`, which changed 2, 3, 3, 4 and 13. But `PostToolUse` fires *after* the tool has
-run, and whether its exit 2 reaches the model the same way is **not something this workbook has
-measured**. §4 step 5 proves it on one run before any batch. If it does not hold, the enforcement
-point moves to `PreToolUse` on the repair command and the change is recorded there, not here.
+*(Original text, kept — it was wrong, and the correction below is the reason this section
+exists at all.)*
+
+> The design above puts the enforcement on a **`PostToolUse` hook on `Bash` exiting 2**. Phase 5B's
+> extract established that `exit 2` blocks and feeds stderr back to the model, and stop 16's arm H
+> demonstrated it live on `PreToolUse` — **5 of 5 arm-H runs changed zero files**, against arm D's
+> `permissions.deny`, which changed 2, 3, 3, 4 and 13. But `PostToolUse` fires *after* the tool has
+> run, and whether its exit 2 reaches the model the same way is **not something this workbook has
+> measured**. §4 step 5 proves it on one run before any batch. If it does not hold, the enforcement
+> point moves to `PreToolUse` on the repair command and the change is recorded there, not here.
+
+**CORRECTED the same day, before the build and before any prediction, 2026-09-15.** It did not
+need a preflight run, because **Phase 5A had already extracted the answer** and this design did
+not apply it. `phases/05a-guardrails/README.md:58-60`:
+
+> *"Exit 2's meaning is per-event: `PreToolUse` blocks the tool call, `UserPromptSubmit` rejects
+> the prompt, `PermissionRequest` denies it, **`PostToolUse` merely shows stderr because the tool
+> already ran**."*
+
+So a `PostToolUse` hook exiting 2 **does not enforce anything**. The command has run; the model
+is merely told about it. By the layer rule applied in order, a repair limit built that way is
+**L3 wearing L2's clothes** — the exact phrase Phase 5B uses for a counter held in a hook's own
+process, now earned a second way. Shipping it would have put an L2 label on the step's only
+control and left the gate clause *"limits technically enforced"* answered by a message.
+
+**The corrected design uses both events, and each does only what its exit code permits:**
+
+| Hook | Event | Job | Exit code that matters | Layer |
+|---|---|---|---|---|
+| `repair-record.sh` | `PostToolUse` on `Bash` | compute the fingerprint from the command and its result, write/increment the counters in the run-state file | **0 always** — it records, it never decides | **L2 as a recorder** (it executes and writes), **not** a control |
+| `repair-limit.sh` | `PreToolUse` on `Bash` | read the counters; if this call would exceed `≤ 3` for the current fingerprint or `≤ 7` total, **write the BLOCKED reason to stderr and exit 2** | **2 — and here it genuinely blocks** | **L2** — the bad value cannot be written down after the fix, because the tool call does not happen |
+
+The two-hook split is not decoration. **Recording and enforcing need different events**, because
+the fingerprint is only knowable *after* a command fails and the block must happen *before* the
+next one runs. A single-hook design has to choose one of those and silently loses the other.
+
+**What is still unproven and does go to preflight:** that a `PreToolUse` hook on `Bash` is
+reached at all in this runner's configuration. Stop 16's arm H proved the mechanism on
+`Edit|Write|NotebookEdit`, not on `Bash`, and the matcher is the variable. §4 step 5 proves it
+on one run per task before any batch, and a failure there moves the enforcement point again
+rather than being written up as a null.
 
 ## Predict before you run
 
