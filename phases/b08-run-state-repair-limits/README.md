@@ -359,12 +359,54 @@ rather than being written up as a null.
 
 ## Predict before you run
 
-<!-- TODO -->
+The predictions are registered **per task**, in their own files, with their own MDEs and their
+own decision rules — author decision 9, and no verdict is computed across the two:
+
+- [`experiments/E-018-run-state-repair-limits-BE003.md`](../../experiments/E-018-run-state-repair-limits-BE003.md) — `EXP-B8-RUNSTATE-BE003`
+- [`experiments/E-019-run-state-repair-limits-BE004.md`](../../experiments/E-019-run-state-repair-limits-BE004.md) — `EXP-B8-RUNSTATE-BE004`
+
+**The one prediction registered as most likely to be wrong** is P2's second half, and it is
+worth naming here because it is the only row in either file that reports a quantity nobody has
+measured: `totalRepairAttempts` — **failing commands**, not failing runs. The evaluator has only
+ever seen the end state, so this project genuinely does not know whether the pinned model
+compiles clean on the first attempt on a five-file cross-module change. The prediction is
+**median 0 on BE-003 and at least 1 on BE-004**, and either way it is the first number of its
+kind in the track.
+
+**The expected verdict is `KEEP AS L2, WITH NO MEASURED EFFECT`** — decision-rule row 3, the row
+B7 closed on. That is written down before the batch so that landing there is a result and not a
+consolation.
 
 ## Lab B8.1 — measure against v1.0
 
-<!-- TODO: the gate asks for *no regression*, which is a different test
-     from an improvement. Say in advance what regression you would accept. -->
+The scaffold asks the right question — *the gate asks for **no regression**, which is a different
+test from an improvement; say in advance what regression you would accept* — so here is the
+answer, before the batch.
+
+**What "no regression" is measured against.** `verify-v1.0` as it closed at B7, **re-run
+concurrently**, not the stored E-015/E-016 numbers. Those runs recorded `runtime.version`
+`2.1.267`; stop 16 ran on `2.1.268`; this batch runs on **`2.1.272`**. Comparing against stored
+runs would put a three-version CLI move inside the comparison, and the CLI is a controlled
+variable. The stored numbers are used for **one** thing — transferring the MDE — and are labelled
+transferred everywhere they appear.
+
+**The regression I will accept, registered now:**
+
+| dimension | accepted | rejected |
+|---|---|---|
+| evaluator pass rate | a difference of **0 to 4 runs** at `n = 10` — it does not clear Fisher, so it is **NOT DETECTABLE**, and it is not called "no regression proved" either | **5 or more runs below** the control → decision-rule row 1, **REJECT** |
+| rubric, any of four categories | a median delta of **0** — which, on a 0–2 integer scale, is the smallest thing the instrument can report and is consistent with any true effect under one point | **≥ 1 point in the worse direction** → row 2, **REJECT on quality** |
+| `estimatedCost` | anything **inside** the transferred MDE — $0.045 (30 %) on BE-003, $0.030 (13 %) on BE-004. The predicted +2 % to +8 % sits inside both, so P5 is registered as **undecidable by this experiment** | **outside**, worse direction → row 5, **REJECT on cost**, recorded *beside* the quality row and never instead of it |
+| `modelCalls` | inside 6 calls (BE-003) / 4.09 calls (BE-004) | outside → row 4, **INCONCLUSIVE**, named with the amount |
+| `durationMs` | **no verdict is taken from duration at all.** BE-004's control range spans a factor of six (190 000 ms median, 180 000–1 084 000), and a machine sleep is not excludable after the fact | — |
+
+**And what no result here can establish.** The repair limit will not fire during the batch,
+because the model does not fail these tasks. So Lab B8.1 answers *"does carrying v1.1 cost
+anything"* and **cannot** answer *"does v1.1's enforcement work"*. The second question is
+answered by `tools/verify-repair-limit.sh`, which executes and must refuse, and by the deliberate
+failure below. Reporting Lab B8.1's null as evidence that the limits work would be the house
+failure mode — a control reporting success over a scope smaller than it claims — and it is
+written here so that it cannot be done by accident later.
 
 ## Deliberate failure
 
