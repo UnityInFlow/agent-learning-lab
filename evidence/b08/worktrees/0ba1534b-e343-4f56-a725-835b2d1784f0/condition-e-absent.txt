@@ -1,0 +1,3 @@
+CONDITION (e): no run-state file was written by this control run.
+Checked by `stat` on /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//run-state-observatory-run-0ba1534b-e343-4f56-a725-835b2d1784f0.json on 2026-09-15 immediately after the run: absent.
+The verify-v1.0 overlay carries neither repair hook, so there is nothing that could have written one.

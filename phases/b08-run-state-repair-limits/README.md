@@ -511,6 +511,72 @@ the substitution `CLAUDE.md` names by name, *"adding `required:` to a template �
 run"*. What `check-run-state.sh` enforces is that **the field exists and says it is reserved**,
 which is a real L2 claim about the schema and not a claim about the handoff.
 
+## Preflight — §4 step 5, BE-003 pair, 2026-09-15
+
+**Neither run enters `n`.** Both sit under `EXP-B8-RUNSTATE-BE003-PREFLIGHT`, they are `n = 1`
+per arm, and nothing below is a result about the treatment's effect.
+
+| | treated | control |
+|---|---|---|
+| run id | `1df030f7-b6e4-4220-8129-0f5c2268e1b8` | `0ba1534b-e343-4f56-a725-835b2d1784f0` |
+| overlay | `agent-v1.1` | `verify-v1.0` |
+| evaluator | **exit 0**, acceptance 7/7 | **exit 0** |
+| `customization.instructionsHash` | `sha256:a94237242e8c1308fb1d434a06a03463` | **`null`** |
+| `customization.agentHash` | `sha256:b3450564b6f32d6193e8580db766210e` | **identical** |
+| `runtime.version` | `2.1.272 (Claude Code)` | `2.1.272 (Claude Code)` |
+| `behavior.modelCalls` | 22 | 18 |
+| `efficiency.estimatedCost` | `$0.134602` | `$0.091396` |
+
+Both worktrees, both run records, the init read-back and the run-state file are preserved under
+`evidence/b08/worktrees/<run id>/` **the day they were made**, because `$TMPDIR` on this machine
+empties a kept worktree in about three days and leaves the directory behind — which is why the
+decision-11 census returned no reading at all.
+
+### The five delivery conditions, each checked rather than inferred
+
+| | condition | result |
+|---|---|---|
+| a | the run-state file exists and names **that** run's worktree | **holds** — `worktree` reads `…/observatory-run-1df030f7-…`, `schemaVersion: b8-v1.1` |
+| b | its `hookExecutions` prove both hooks ran inside a real worktree | **holds** — `repair-limit/allow: 7`, `repair-record/success: 7` |
+| c | **nothing** was written inside the worktree | **holds** — no `run-state*` or `*.jsonl` anywhere under it |
+| d | the `init` read-back shows **`Bash`** in the delivered tool set (author decision 8) | **holds** — `delivered n=4 ["Read","Edit","Write","Bash"]`, `verdict=match` |
+| e | the control writes **no such file at all** | **holds** — absent by `stat`, and the v1.0 overlay carries neither hook |
+
+`./tools/check-run-state.sh` on the treated file exits **0**.
+
+**Condition (b) is the one the preflight was actually for.** The hook *mechanism* was already
+settled for free before the build (`evidence/b08/hook-event-probe-…/`); what a probe in a
+throwaway directory could not show is that `run-agent.sh:338` copies the overlay into an
+observatory worktree, that `--setting-sources project` loads *this* `settings.json` rather than
+the operator's, and that `$CLAUDE_PROJECT_DIR` resolves inside the worktree so the hook finds
+its own paths. Fourteen hook executions across two events say all three hold.
+
+**And condition (d) is not a formality here.** `tools:` filtering rewrites the delivered set —
+E-005 had `Read, Grep, Glob, Bash` delivered as `["Read","Bash"]` on 10 of 10 runs — so a
+`Bash` matcher in a run whose model was never handed `Bash` would produce an empty state file
+and look exactly like a hook that did not execute. It was handed `Bash`, and it made seven
+`Bash` calls.
+
+### Two things worth writing down before the batch, neither of which is a result
+
+**1. Seven `Bash` calls, seven allows, seven successes, zero repairs, zero blocks.** Every
+`Bash` command in the treated run succeeded on its first attempt. That is what P2 predicts for
+BE-003 (`totalRepairAttempts` median 0) and it is `n = 1`, so it is consistent with the
+prediction and is not evidence for it. It is also the first direct confirmation **inside a real
+run** of the probe's finding: 7 `PreToolUse` allows and 7 `PostToolUse` successes means all
+seven succeeded, and had any failed, the `PostToolUse` count would have been lower while the
+`PreToolUse` count stayed at seven.
+
+**2. The cost gap in this pair is far larger than P5 predicts, and it is `n = 1` per arm.**
+`$0.134602` against `$0.091396` is **+47 %**; P5 predicts +2 % to +8 % and registers that band
+as sitting inside the transferred MDE of $0.045 (30 %). **This is not a refutation of P5 and is
+not recorded as one.** Two single runs of a task whose cost varies run to run cannot separate a
+treatment effect from ordinary variance — E-016's BE-004 control range spans a factor of six —
+and the prediction is registered against a 10-per-arm comparison, not against a preflight pair.
+It is written here, before the batch, for one reason: **so that if the batch does land outside
+the band, this line already exists and cannot be produced afterwards as a prediction.** The
+registered band stands unedited (§4 step 12).
+
 ## Predict before you run
 
 The predictions are registered **per task**, in their own files, with their own MDEs and their
