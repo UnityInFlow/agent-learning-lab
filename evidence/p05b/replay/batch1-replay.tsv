@@ -1,0 +1,21 @@
+runId	variant	changed	den	exit	reason
+3bd8fcd8	blocked-deny-5b5	3	0	0	not a permission block: 0 denials and 3 changed file(s)
+b2453820	blocked-deny-5b5	13	1	0	not a permission block: 1 denial(s) but 13 changed file(s) — the run pro
+1a8cbbfb	blocked-deny-5b5	3	15	0	not a permission block: 15 denial(s) but 3 changed file(s) — the run pro
+cd563cee	blocked-deny-5b5	2	4	0	not a permission block: 4 denial(s) but 2 changed file(s) — the run prod
+8038176a	blocked-deny-5b5	4	8	0	not a permission block: 8 denial(s) but 4 changed file(s) — the run prod
+cd53a065	blocked-hook-5b5	0	1	2	permission block: 1 denial(s) and 0 changed files (toolCalls 10)
+b3b76c2f	blocked-hook-5b5	0	1	2	permission block: 1 denial(s) and 0 changed files (toolCalls 8)
+020444f2	blocked-hook-5b5	0	2	2	permission block: 2 denial(s) and 0 changed files (toolCalls 9)
+d3f7b3d4	blocked-hook-5b5	0	3	2	permission block: 3 denial(s) and 0 changed files (toolCalls 11)
+47332479	blocked-hook-5b5	0	3	2	permission block: 3 denial(s) and 0 changed files (toolCalls 9)
+3f696916	plain	3	0	0	not a permission block: 0 denials and 3 changed file(s)
+5ece8350	plain	2	0	0	not a permission block: 0 denials and 2 changed file(s)
+8da2bea8	plain	3	0	0	not a permission block: 0 denials and 3 changed file(s)
+79c7d7c6	plain	3	0	0	not a permission block: 0 denials and 3 changed file(s)
+f50cc968	plain	3	0	0	not a permission block: 0 denials and 3 changed file(s)
+c3be0061	plain	3	0	0	not a permission block: 0 denials and 3 changed file(s)
+cb07a4d7	plain	3	0	0	not a permission block: 0 denials and 3 changed file(s)
+c3fab185	plain	3	0	0	not a permission block: 0 denials and 3 changed file(s)
+72e21b83	plain	3	0	0	not a permission block: 0 denials and 3 changed file(s)
+86a2e38d	plain	3	0	0	not a permission block: 0 denials and 3 changed file(s)

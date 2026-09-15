@@ -11,21 +11,14 @@ acceptance:
   agent_sha:     4aa690d15304
   strict:        false
 opencode:        1.18.27
-reviewed_utc:    20260911T080012Z
+reviewed_utc:    20260914T135117Z
 runs:            1           # independent sessions; findings unioned below
 families:        1           # distinct models; the recurrence denominator
 artifacts:
   - path: templates/run-record.yaml
     sha:  7c59a58067c8
     dirty: false
-lab_head:        dc86a26
+lab_head:        e4cfa30
 lab_dirty:       true   # the TREE, not the artifact - see each artifact's own dirty:
 ```
 
-## Panel
-
-Every family failed. No review was produced.
-
-| Family | Outcome | |
-|---|---|---|
-| ollama-cloud/glm-5.2 | FAILED | rc=1 155s |

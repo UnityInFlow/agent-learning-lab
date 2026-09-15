@@ -1,0 +1,47 @@
+verify-permission-block-classifier: 29 cases
+  -- the thing this classifier is FOR: a denial signal AND nothing produced --
+  ok    1 denial, 0 changed files is a block                             exit 2
+  ok    2 denials, 0 changed files is a block                            exit 2
+  ok      the reason names the tool-call count too                       exit 2
+  ok    many denials, 0 changed files is a block                         exit 2
+  -- THE SIX REAL PASSING RUNS WITH DENIALS. Firing on any of these is the disaster. --
+  FAIL  c0b6721e EXP-4B-ORCH-OVERHEAD d=1 tc=25 ch=3                     exit 2 (want 0), missing the\ run\ produced\ work
+        permission block: 1 denial(s) and 0 changed files (toolCalls 25)
+  FAIL  2744a92c EXP-4B-ORCH-OVERHEAD d=1 tc=19 ch=3                     exit 2 (want 0), missing not\ a\ permission\ block
+        permission block: 1 denial(s) and 0 changed files (toolCalls 19)
+  FAIL  fb894d7d EXP-4B-ORCH-OVERHEAD d=2 tc=14 ch=3                     exit 2 (want 0), missing 2\ denial\(s\)\ but\ 3\ changed\ file\(s\)
+        permission block: 2 denial(s) and 0 changed files (toolCalls 14)
+  FAIL  beae5092 EXP-4B-ORCH-OVERHEAD d=1 tc=19 ch=3                     exit 2 (want 0), missing not\ a\ permission\ block
+        permission block: 1 denial(s) and 0 changed files (toolCalls 19)
+  FAIL  1f806f3d EXP-4B-ORCH-OVERHEAD d=1 tc=22 ch=3                     exit 2 (want 0), missing not\ a\ permission\ block
+        permission block: 1 denial(s) and 0 changed files (toolCalls 22)
+  FAIL  4d7c537d EXP-4B-ORCH-OVERHEAD d=1 tc=23 ch=3                     exit 2 (want 0), missing not\ a\ permission\ block
+        permission block: 1 denial(s) and 0 changed files (toolCalls 23)
+  FAIL    one changed file is still work, not a block                    exit 2 (want 0), missing 1\ changed\ file\(s\)
+        permission block: 1 denial(s) and 0 changed files (toolCalls 25)
+  -- obs#47's OWN seven F05 runs: the case this fix provably does NOT close --
+  ok    4d0246d7 F05 d=0 tc=12 ch=1 stays unclassified                   exit 0
+  ok    ca952174 F05 d=0 tc=12 ch=1                                      exit 0
+  ok    344274bf F05 d=0 tc=11 ch=1                                      exit 0
+  ok    b32a4396 F05 d=0 tc=18 ch=1                                      exit 0
+  -- an empty result with NO denial is somebody else's case, not this one --
+  FAIL  0 denials, 0 changed is not claimed by this rule                 exit 2 (want 0), missing nothing\ was\ refused
+        permission block: 0 denial(s) and 0 changed files (toolCalls 8)
+  FAIL  0 denials, 0 changed, 0 tool calls either                        exit 2 (want 0), missing nothing\ was\ refused
+        permission block: 0 denial(s) and 0 changed files (toolCalls 0)
+  ok    an ordinary passing run                                          exit 0
+  -- input this script cannot reason about must be REFUSED, never cleared --
+  ok    malformed JSON is unclassifiable, not clean                      exit 3
+  ok    an empty string is unclassifiable, not clean                     exit 3
+  ok    whitespace only is unclassifiable                                exit 3
+  ok    ABSENT permissionDenials is NOT zero denials                     exit 3
+  ok      and an absent behavior block is refused too                    exit 3
+  ok    non-numeric permissionDenials is refused                         exit 3
+  ok    non-numeric changed count is refused, not coerced                exit 3
+  ok      an empty changed count is refused, not 0                       exit 3
+  -- usage --
+  ok    no arguments                                                     exit 1
+  ok    one argument                                                     exit 1
+  ok    three arguments                                                  exit 1
+
+verify-permission-block-classifier: 20 passed, 9 failed
