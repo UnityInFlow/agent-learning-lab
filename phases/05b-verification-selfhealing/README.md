@@ -586,8 +586,8 @@ passed) and bare (18 of 18 failed); `git -C agent-observatory status --short` (e
 > round-2 review of `classify-permission-block.sh` found a real defect in its numeric domain:
 > `^[0-9]+$` admits `"08"`, which bash arithmetic cannot evaluate, so **a run with eight
 > refusals and no output was reported as a run where nothing was refused, at exit 0**. Fixed;
-> the pattern is now a canonical decimal integer on both conjuncts, the fixture set is **40 of
-> 40**, and the classifier sha moved `84e860f76f23` → `817e6eef00ea`. **Every "29 of 29" above
+> the pattern is now a canonical decimal integer on both conjuncts, the fixture set is **39 of
+> 39**, and the classifier sha moved `84e860f76f23` → `817e6eef00ea`. **Every "29 of 29" above
 > is left exactly as written** — it is the count as it stood when the measurement was taken, and
 > the deliberate failure at §4 step 9 ran against that set. **No number in this workbook moves:**
 > the replay was re-run over all 35 rows against the fixed classifier and is identical on every

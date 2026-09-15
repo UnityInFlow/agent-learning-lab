@@ -497,7 +497,7 @@ deny rule while its own tool-mix table two paragraphs above recorded `Write: 0 (
 downstream moves: every decision-bearing number reads the runtime's refusal and the changed-file
 count, not the attempt count. (Review finding 11.)
 
-**4. The classifier's fixture set is now 40 cases, not 29, and the classifier's sha has moved.**
+**4. The classifier's fixture set is now 39 cases, not 29, and the classifier's sha has moved.**
 Round 2 found a real defect in the numeric domain — `^[0-9]+$` admits `"08"`, which bash
 arithmetic cannot evaluate, so a run with **eight refusals and no output was reported as a run
 where nothing was refused, at exit 0**. Fixed, and **the replay was re-run over all 35 rows and

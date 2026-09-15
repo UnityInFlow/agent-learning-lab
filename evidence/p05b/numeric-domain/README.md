@@ -33,15 +33,33 @@ Anything outside it is **refused at exit 3, never cleared** — which is the pri
 own header already stated for the changed-file count ("refused, never coerced") and had not
 applied to itself. Classifier now at sha `817e6eef00ea`.
 
-The fixture set went from **29 to 40 cases**, and the new ones include two guards against the fix
+The fixture set went from **29 to 39 cases**, and the new ones include two guards against the fix
 being *over*-tight: a legitimate `0` must still classify, and a large in-range count must still
 block.
 
-**One fixture failed on its first run and is kept rather than tuned away.** `jq -r` renders a JSON
-number above 2^53 in scientific notation — `999999999999999999` comes back as `1e+18` — so the
-value this script sees is not the value the record holds. It is refused, which is the right
-answer, but the refusal is jq's precision ceiling and not the pattern's bound. Both are asserted
-as separate cases so a later reader does not "fix" the pattern to admit it.
+**One fixture failed twice, in two different directions, and the second failure is a finding of
+its own.** It asserted that a JSON number above 2^53 is refused, because `jq -r` renders
+`999999999999999999` as `1e+18`. That passed locally and **failed in CI** — and the cause is not
+the classifier:
+
+| environment | `jq --version` | `jq -r` on `999999999999999999` | classifier verdict |
+|---|---|---|---|
+| this machine | `jq-1.6` | `1e+18` | **refused, exit 3** |
+| CI | 1.7 | `999999999999999999` | **block, exit 2** |
+
+**Same record, same script, two answers, decided by the jq on the machine.** The fixture was
+removed rather than tuned, because it was testing jq and not this script, and pinning either
+answer would make the suite fail on the other jq. Fixture set is therefore **39**, not 40.
+
+Recorded rather than dropped, because it is a real property of the input pipeline: **if a count
+above 2^53 could ever reach this script, its classification would not be reproducible across
+environments.** No value in any population here exceeds 15, so nothing measured is affected — but
+that is a fact about the data, not a guarantee from the tool, and the distinction is the whole
+point of this directory. The comment in the fixture file carries the same note so the next reader
+does not re-add the case.
+
+The in-range guard uses `9007199254740991` (2^53−1), which every jq renders exactly, and it
+passes in both environments.
 
 ## The proof that the stop's result did not move
 
