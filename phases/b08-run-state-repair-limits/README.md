@@ -1247,9 +1247,19 @@ file was **mid-write and the run was alive**; my process check came back empty b
 output on this machine arrives with command lines stripped, so it matched nothing. That is the
 documented shape — *"the procedure written to catch a control that reports success over a smaller
 scope than it claims was itself one"* — this time with `rtk` in the role `LC_ALL` played in 2026-09-03.
-Cost: one duplicate review invocation, whose own file (`…183208Z.md`) **did** stall at 1 139 bytes
-and is left on disk as what a real stall looks like beside a real one. No evidence was destroyed
-and no benchmark run was touched.
+Cost: one duplicate review invocation, whose own file — **`…184333Z.md`**, 1 139 bytes, no verdict
+line — is the one that really did stall, and is left on disk beside two complete ones. No evidence
+was destroyed and no benchmark run was touched.
+
+> **Corrected within the hour, 2026-09-16, by me.** The sentence above first named `…183208Z.md`
+> as the stall. It is **23 563 bytes and carries `verdict: REJECT`** — it *completed*, and what
+> made it look like a stall was reading it mid-write, which is the same mistake in the same hour
+> for the same reason. So there are **three** round-2 files, not two: `…182713Z` (17 532 B,
+> REJECT), `…183208Z` (23 563 B, REJECT) and `…184333Z` (1 139 B, the actual stall). **The second
+> one's findings were on disk and undisposed when this section was first written**, which is a
+> worse error than mislabelling a filename: a review file with findings in it is owed a
+> disposition, and I had written the round up as though it had none. Its dispositions are in the
+> section below.
 
 `Round 2 of at most three. Reviewed by codex + deepseek-v4-pro, acceptance minimax-m3; fixes and
 dispositions by Opus 5 (claude-opus-5), autonomously, 2026-09-16.`

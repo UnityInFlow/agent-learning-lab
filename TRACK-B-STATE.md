@@ -1650,9 +1650,13 @@ process_violations_this_session:  # the first entry is THIS session's; the rest 
     bare pgrep twice and both times it produced a WRONG CONCLUSION over a live process.
     (1) §4a round 2`s findings file read 1139 bytes and my filtered pgrep matched nothing, so I
     called it a STALL and RE-RAN THE REVIEW. It was mid-write and alive; the duplicate`s own file
-    (findings/opencode/review-check-run-state-20260916T183208Z.md) then really did stall at 1139
-    bytes and is LEFT ON DISK beside the real one, because a genuine stall next to a false positive
-    is worth more than a tidy directory. (2) A waiter built on `until ! pgrep -f opencode-review.sh`
+    (findings/opencode/review-check-run-state-20260916T184333Z.md, 1139 bytes, NO verdict line) then
+    really did stall and is LEFT ON DISK beside two complete ones. CORRECTED WITHIN THE HOUR: this
+    bullet first named 183208Z as the stall; that file is 23563 BYTES WITH verdict: REJECT and
+    COMPLETED - I read it mid-write too, the same mistake twice in the same hour. THERE ARE THREE
+    ROUND-2 FILES, NOT TWO, AND THE MIDDLE ONE`S FINDINGS WERE UNDISPOSED when the round was first
+    written up, which is the worse half of this: a review file with findings in it is owed a
+    disposition. (2) A waiter built on `until ! pgrep -f opencode-review.sh`
     exited immediately while the deepseek pass was still running and printed `round 3 finished` over
     a live run. Redone with LC_ALL=C, which works. COST: one duplicate review invocation of quota.
     NO evidence destroyed, NO benchmark run touched, NO registered variable moved. Recorded because
