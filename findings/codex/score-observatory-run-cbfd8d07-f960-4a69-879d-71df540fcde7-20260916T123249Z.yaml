@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-cbfd8d07-f960-4a69-879d-71df540fcde7
+  mode:           run
+  run_id:         cbfd8d07-f960-4a69-879d-71df540fcde7
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:18081/api/runs/cbfd8d07-f960-4a69-879d-71df540fcde7
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260916T123249Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusal paths throw baseline ApiException subclasses"
+    evidence: "OrderController.kt:24,41,53,67; ShipmentController.kt:32,42,67"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "Order-status decision uses separate if statements"
+    evidence: "OrderController.kt:59"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Refused cancel re-reads order state but not shipment state"
+    evidence: "OrderControllerTest.kt:125"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Controller constructor dependencies differ outside the permitted change list"
+    evidence: "work OrderController.kt:20; baseline OrderController.kt:17; work ShipmentController.kt:26; baseline ShipmentController.kt:25"
+ambiguous_categories: []
