@@ -871,6 +871,54 @@ created and before any run of it. The author did not review before the run.*
      Then force the same failure four times and confirm it BLOCKS rather
      than looping. -->
 
+## Keep, modify, remove — §4 step 10, decided per component from the measurement
+
+§4 step 10 is blunt: *"A rule with no measured effect is removed, and its removal is recorded as the
+finding."* B3 is the precedent — a 57-word instruction file moved nothing and was removed and **not
+replaced**. B8 built three things, they did not all measure the same, and they do not all get the
+same answer.
+
+| component | layer | what 20 treated runs measured | decision |
+|---|---|---|---|
+| the **run-state file** written outside the worktree | **L2** | delivered on **20 of 20**, absent on **17 of 17** scored controls, `check-run-state.sh` exit 0 on every one. No behaviour effect on any registered outcome | **KEEP** |
+| **`repair-record.sh`** as a success oracle | **L2** | the `PreToolUse`/`PostToolUse` gap is the **only** instrument in this project that can see a failing command. It saw one on BE-003 (48 vs 47) and two in the BE-004 preflight (8 vs 6) | **KEEP — and it is the stop's real deliverable** |
+| **`repair-limit.sh`'s blocking threshold** | **L2 by fixture, never exercised in a run** | **0 blocks across 20 treated runs.** `totalRepairAttempts` reached 1 exactly once and the limit is above 1 | **KEEP, with the gap stated — see below** |
+| the **completion contract** | **L3** | decides seven clauses at *scoring* time; no `Stop`-class hook runs it. P6 predicted it would change nothing in-run and it did not | **KEEP as L3, labelled** — and it is **not** counted as a control |
+
+### The blocking threshold is the interesting one, and the rule does not cleanly apply
+
+**Step 10's rule would remove it**: it has no measured effect, 0 of 20. **It is kept anyway, and the
+reason is stated rather than assumed.** A limit that blocks a *repeated failing command* is a safety
+property — it fires on pathological runs, and twenty runs on two tasks a capable model passes are
+not pathological. Removing a guard because a happy path never tripped it is the error that reads as
+prudence.
+
+**What is honestly recorded instead of an effect:**
+
+- its blocking path has **never executed in a benchmark run**, on either task, at any stop;
+- its only evidence is `tools/verify-repair-limit.sh`, **30 of 30 cases**, re-run at this stop —
+  which proves the code blocks when fed the state that should trigger it, and proves nothing about
+  whether that state occurs;
+- so it is **L2 by fixture and unexercised in situ**, and that phrase is the claim. It is not "a
+  measured control".
+
+**What would exercise it**, registered here so a later stop can do it rather than rediscover the
+question: a task on which the pinned model actually retries a failing command. This batch says it
+does not — one failed command on BE-003 and two in the BE-004 preflight, **retried zero times
+between them**. That is a fact about the model, not about the hook, and it is why P2's second half
+was refuted.
+
+### What this stop actually bought
+
+**Not a behaviour change — the registered outcomes moved by 0 on both tasks.** What it bought is an
+*observation channel*: before B8 nothing in this project could distinguish a run in which every
+command succeeded from a run in which two failed and the agent carried on. The evaluator reads the
+end state; the telemetry counts calls; no hash sees an exit code. The `PreToolUse`/`PostToolUse`
+gap does, and it did so on a run the evaluator scored 7/7 exit 0.
+
+**That is a smaller claim than "v1.1 improves the agent" and a more durable one**, and it is the
+claim the evidence supports.
+
 ## Exit gate
 
 **From the build track:** counters persist across interruption · limits technically enforced ·
