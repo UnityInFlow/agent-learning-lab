@@ -866,6 +866,23 @@ exists or it does not — not a rate.
 *Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-16, before the variant directory was
 created and before any run of it. The author did not review before the run.*
 
+### Disclosed BEFORE the run: this run overlaps the opencode second reader
+
+**The second reader is in flight as this run starts**, and this project's own `EXCLUSIONS.md` names
+a concurrent `opencode` process among its contaminants. The overlap is declared here, before the
+run, rather than discovered later in the timestamps — the same disclosure the B7 preflight made
+when its review call overlapped a batch by under a minute.
+
+**Why it is run anyway rather than waited out:** every one of D1–D5 is **binary or structural** —
+a file exists or does not, a hash equals a registered value or does not, an exit code is 0 or is
+not, a tool name is in a delivered set or is not. **None of them is a duration, a cost, a token
+count or a rate**, which are the quantities a competing process can move. `durationMs`,
+`estimatedCost` and `modelCalls` from this run therefore **enter nothing** — no comparison, no MDE,
+no table — and are not reported as measurements.
+
+**If any of D1–D5 comes back ambiguous rather than binary, the run is discarded and repeated on a
+quiet machine.** That rule is written here before the outcome is known.
+
 
 <!-- TODO: interrupt a run mid-repair and confirm the counters survive.
      Then force the same failure four times and confirm it BLOCKS rather
