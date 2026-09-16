@@ -149,7 +149,13 @@ G=$(run --baseline not-a-sha --evaluator-exit 0 --summary "$SUMMARY" --policy "$
 #     clause this script calls itself authoritative on — then PASSED having read no rules.
 REINDENTED="$SANDBOX/reindented-policy.yaml"
 printf 'deny:\n    - "**/pom.xml"\n    - "**/Dockerfile"\n' > "$REINDENTED"
-G=$(run --baseline "$BASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$REINDENTED")
+# A CLEAN BASELINE, because §4a round 3 changed the precedence: a FAILING clause now outranks the
+# zero-pattern inconclusive, so reusing $BASE (which the cases above left with a changed pom.xml
+# and an added TODO) would exit 1 for a reason that is not what these two cases test.
+ZPBASE="$(git -C "$WT" rev-parse HEAD)"
+printf 'class Z { void z(){} }\n' > "$WT/src/Z.java"
+git -C "$WT" add -A; git -C "$WT" commit -qm zp-clean
+G=$(run --baseline "$ZPBASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$REINDENTED")
 [[ "$G" == 2 ]] && ok "a policy that parses to ZERO deny patterns is exit 2, not PASS" "exit 2" \
                 || bad "zero-pattern policy" "exit 2" "exit $G"
 # AND THE LINE A READER READS MUST AGREE WITH THE EXIT CODE. The first fix left `PASS 6` on
@@ -158,9 +164,22 @@ G=$(run --baseline "$BASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$RE
                                  || bad "clause 6 line on zero patterns" "UNDECIDABLE" "$(line 6)"
 grep -qE 'PASS +6\.' "$SANDBOX/out.txt" && bad "clause 6 must not print PASS on zero rules" "no PASS line" "a PASS line is present" \
                                          || ok "NEGATIVE CONTROL: no PASS 6 line exists in that output" "absent"
+
+echo
+echo "AND §4a ROUND 3'S PRECEDENCE FIX: a REAL FAILURE OUTRANKS THE INCONCLUSIVE."
+printf 'class Q { /* TODO finish me */ }\n' > "$WT/src/Q.java"
+git -C "$WT" add -A; git -C "$WT" commit -qm add-todo
+G=$(run --baseline "$ZPBASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$REINDENTED")
+[[ "$G" == 1 ]] && ok "a FAILING clause plus a zero-pattern policy is exit 1, not exit 2" "exit 1" \
+               || bad "failure outranks inconclusive" "exit 1" "exit $G"
+[[ "$(line 5)" == FAIL ]] && ok "…and the failing clause is still reported as FAIL" "FAIL" \
+                          || bad "clause 5 in the precedence case" "FAIL" "$(line 5)"
+grep -q 'reporting the failure, not the inconclusive' "$SANDBOX/out.txt" \
+  && ok "…and the output says which of the two it chose" "note present" || bad "precedence note" "present" "absent"
+ZPBASE="$(git -C "$WT" rev-parse HEAD)"
 UNQUOTED="$SANDBOX/unquoted-policy.yaml"
 printf 'deny:\n  - **/pom.xml\n' > "$UNQUOTED"
-G=$(run --baseline "$BASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$UNQUOTED")
+G=$(run --baseline "$ZPBASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$UNQUOTED")
 [[ "$G" == 2 ]] && ok "unquoted YAML scalars also parse to zero, also exit 2" "exit 2" \
                 || bad "unquoted policy" "exit 2" "exit $G"
 
@@ -226,6 +245,46 @@ OUT="$("$CHECK" "$SWEEP" --baseline "$SB" --evaluator-exit 0 --summary "$SUMMARY
 printf '%s' "$OUT" | grep -qE 'PASS +6\.' \
   && ok "NEGATIVE CONTROL: an ordinary .java change is not caught by any pattern" "PASS" \
   || bad "ordinary file" "PASS 6" "$(printf '%s' "$OUT" | grep -E ' +6\.' | awk '{print $1}')"
+
+echo
+echo "THE OTHER TWO §4a ROUND-3 BLOCKING FINDINGS:"
+# (i) clause 5 matched the diff's OWN `+++ b/<path>` header, so a FILENAME could fail it.
+HDRBASE="$(git -C "$WT" rev-parse HEAD)"
+printf 'nothing critical here\n' > "$WT/TODO.md"
+git -C "$WT" add -A >/dev/null 2>&1; git -C "$WT" commit -qm add-todo-md >/dev/null 2>&1
+G=$(run --baseline "$HDRBASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$POLICY")
+[[ "$(line 5)" == PASS ]] && ok "adding a file NAMED TODO.md does not fail clause 5 on its name" "PASS" \
+                          || bad "diff-header false positive" "PASS" "$(line 5)"
+# NEGATIVE CONTROL: a real TODO in the CONTENT must still fail it.
+printf 'class R { /* TODO: implement */ }\n' > "$WT/src/R.java"
+git -C "$WT" add -A >/dev/null 2>&1; git -C "$WT" commit -qm add-real-todo >/dev/null 2>&1
+G=$(run --baseline "$HDRBASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$POLICY")
+[[ "$(line 5)" == FAIL ]] && ok "NEGATIVE CONTROL: a TODO in the CONTENT still fails clause 5" "FAIL" \
+                          || bad "real TODO" "FAIL" "$(line 5)"
+
+# (ii) clause 6 read only the tracked diff, so an UNTRACKED forbidden file was invisible.
+UNBASE="$(git -C "$WT" rev-parse HEAD)"
+printf '<project/>\n' > "$WT/untracked-pom-dir-pom.xml"
+mkdir -p "$WT/newsvc"; printf '<project/>\n' > "$WT/newsvc/pom.xml"   # untracked, never staged
+G=$(run --baseline "$UNBASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$POLICY")
+[[ "$(line 6)" == FAIL ]] && ok "an UNTRACKED forbidden pom.xml fails clause 6" "FAIL" \
+                          || bad "untracked forbidden file" "FAIL" "$(line 6)"
+rm -rf "$WT/newsvc" "$WT/untracked-pom-dir-pom.xml"
+# NEGATIVE CONTROL: an untracked ORDINARY file must not fail it.
+printf 'class S {}\n' > "$WT/src/S.java"
+G=$(run --baseline "$UNBASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$POLICY")
+[[ "$(line 6)" == PASS ]] && ok "NEGATIVE CONTROL: an untracked ordinary file does not fail clause 6" "PASS" \
+                          || bad "untracked ordinary file" "PASS" "$(line 6)"
+rm -f "$WT/src/S.java"
+
+# (iii) a single path matching two branches is counted ONCE.
+DEDUPBASE="$(git -C "$WT" rev-parse HEAD)"
+printf '<project><!-- changed for the dedup case --></project>\n' > "$WT/service/pom.xml"
+git -C "$WT" add -A >/dev/null 2>&1; git -C "$WT" commit -qm touch-pom >/dev/null 2>&1
+G=$(run --baseline "$DEDUPBASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$POLICY")
+grep -qE 'FAIL +6\..*\b1 path\(s\) match' "$SANDBOX/out.txt" \
+  && ok "one offending path is counted ONCE, not once per matching branch" "1 path(s)" \
+  || bad "hit dedup" "1 path(s)" "$(grep -E 'FAIL +6\.' "$SANDBOX/out.txt" | sed 's/.*  //')"
 
 echo
 echo "USAGE errors are exit 30, distinct from FAIL:"

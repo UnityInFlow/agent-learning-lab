@@ -1278,6 +1278,64 @@ was destroyed and no benchmark run was touched.
 `Round 2 of at most three. Reviewed by codex + deepseek-v4-pro, acceptance minimax-m3; fixes and
 dispositions by Opus 5 (claude-opus-5), autonomously, 2026-09-16.`
 
+### §4a round 3 — the cap. Four blocking defects, all fixed, and the gate's objection answered by fixture rather than by a fourth verdict
+
+`findings/opencode/review-check-run-state-20260916T184333Z.md`, `reviewed_utc 20260916T184333Z`,
+18 183 bytes, **REJECT**, over the tree at `a55240a`. Same panel; codex ok 36 s, deepseek ok 175 s.
+Eleven line-level findings, **four of them the gate's blocking list**, and every one of the four is
+real:
+
+| # | finding | rec. | the fix |
+|---|---|---|---|
+| 1 | **`.handoff.reserved` was a substring test.** `test("B8a")` accepted the string **`"not reserved for B8a"`** — a value that asserts the opposite of the contract | 1/2, blocking | anchored to `^B8a`, five fixtures including the negated string |
+| 2 | **clause 5 matched the diff's own `+++ b/<path>` header.** Adding a file *named* `TODO.md` failed "no critical findings" on its **filename** | 1/2, blocking | header lines dropped before the content grep; a fixture adds `TODO.md` (PASS) and a real in-content `TODO` (FAIL) |
+| 3 | **the exit precedence downgraded a real failure to an inconclusive.** The `ZERO_PATTERNS` branch — which *I* added in round 2 — exited 2 *before* the `FAILED` check, so a genuine clause failure **plus** an unparseable policy reported "nothing could be decided" | 1/2, blocking | a failure now outranks the inconclusive, both are still printed, and a fixture drives exactly that combination |
+| 4 | **clause 6 never saw an untracked file.** `git diff --name-only` lists tracked changes only, so an **untracked forbidden `pom.xml`** sitting in the worktree passed *"no forbidden files changed"* | 1/2, blocking | `ls-files --others --exclude-standard` is unioned in; fixtures cover an untracked `pom.xml` (FAIL) and an untracked ordinary file (PASS) |
+| 5 | a path matching both matcher branches was **counted twice** | 1/2, non-blocking | one path counts once; a fixture asserts the printed count reads `1 path(s)` |
+
+**The one I want on the record is #1, because it is the second of its kind in the same file.** Round
+1 found `inside("allow block success error")` — a containment test doing a membership test's job.
+Round 3 found `test("B8a")` doing the same thing to the `reserved` field. **Two instances, one
+author, one file, one stop**, and the second one arrived *after* I had written up the first as a
+lesson. The class is worth more than either instance: **in this file, any check that asks "does the
+value contain X" is probably meant to ask "is the value X".**
+
+**And #3 is mine twice over** — the defect I introduced in round 2's fix, caught in round 3. Round 2
+already recorded one of those. That is two rounds in a row where the fix carried a defect of its own,
+which is the argument for the third round existing at all.
+
+**A fix of mine that would have broken the measurement, caught before it was committed.** My first
+attempt at #1 anchored on `^reserved for B8a`. The **measured** hook writes
+`"B8a — author decision 11 item 7. …"`, so that anchor would have **rejected all 22 kept run-state
+files** — a checker fix that invalidates the thing it checks. It was caught by running the new
+checker against the hook's own output before committing, which is the only reason it is not in the
+history as a green suite over a broken invariant. The anchor is `^B8a`, which is what the hook
+actually writes.
+
+**Disputed, by sweep rather than by argument.** The gate's fourth blocking item in the *sibling*
+review claimed clause 6 *"enforces only 12 of 18 deny patterns"* because bash collapses `**` to `*`.
+**One representative path per deny pattern, through the real checker: 18 of 18 caught**, plus a
+negative control that an ordinary `.java` change is not. The collapse happens; the loss does not,
+because `*` crosses `/` in a `case` pattern. **The sweep is now a fixture** — the suite genuinely
+had never exercised a directory glob, which is the half of that finding that was right.
+
+**§4a caps the loop at three rounds, and this is round three.** The gate returned REJECT and its
+four objections are answered — not by a fourth verdict, which the section does not allow, but by
+**executable fixtures, one per objection, each of which fails against the pre-fix file**. Recorded
+that way rather than as ACCEPT, because nothing has scored this tree and saying otherwise would be
+the substitution this project keeps catching.
+
+**Suites after round 3, every one re-run immediately before this was written:**
+`verify-repair-limit` **30 of 30**, `verify-run-state-checker` **73 of 73**,
+`verify-completion-contract-checker` **54 of 54**, `verify-b8-batch-guards` **12 of 12**,
+`shellcheck -S warning` clean over `tools/*.sh`, `evidence/b08/*.sh` and the three overlay hooks,
+`bash -n` clean. **And the final checker still admits 22 of 22 kept run-state files**
+(`evidence/b08/recheck-20260916/round3-final-checker-over-22-kept-files.tsv`) — three rounds of
+strengthening and nothing in the batch was retroactively invalidated.
+
+`Round 3 of three — the cap. Reviewed by codex + deepseek-v4-pro, acceptance minimax-m3; fixes and
+dispositions by Opus 5 (claude-opus-5), autonomously, 2026-09-16.`
+
 ## §5 validation table
 
 **Every command in the "re-derive" column was run again immediately before this table was

@@ -152,6 +152,15 @@ expect "an array member in .hookExecutions"                          1 "$(mutate
 expect "NEGATIVE CONTROL: object members still pass"                 0 "$(mutate '.blocks = [{"ts":"t","fingerprint":"f","command":"c","reason":"r"}]')"
 
 echo
+echo "THE §4a ROUND-3 SUBSTRING FINDING — the SECOND containment-for-membership defect in this"
+echo "one file, after the .decision enum in round 1:"
+expect "reserved = \"not reserved for B8a\" — says the OPPOSITE and used to pass" 1 "$(mutate '.handoff.reserved = "not reserved for B8a"')"
+expect "reserved = \"nothing to do with B8a here\""                            1 "$(mutate '.handoff.reserved = "nothing to do with B8a here"')"
+expect "reserved = \"\" — empty"                                              1 "$(mutate '.handoff.reserved = ""')"
+expect "NEGATIVE CONTROL: the value the MEASURED hook actually writes"        0 "$GOOD"
+expect "NEGATIVE CONTROL: a bare \"B8a\" is accepted"                          0 "$(mutate '.handoff.reserved = "B8a"')"
+
+echo
 echo "USAGE errors are exit 30, distinct from INVALID — so a broken call is not read as a bad file:"
 "$CHECK" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "no argument" "exit 30" || bad "no argument" "exit 30" "exit $G"
 "$CHECK" "$SANDBOX/nope.json" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "unreadable path" "exit 30" || bad "unreadable path" "exit 30" "exit $G"

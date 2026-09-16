@@ -119,7 +119,12 @@ undec 4 "static analysis passed" "the benchmark configures no static analyser; n
 # is not proof there are no others, so a clean result is reported as "none of the mechanical
 # kind" and never as "no critical findings".
 if [[ -n "$BASELINE" ]]; then
-  ADDED="$(git -C "$WORKTREE" diff "$BASELINE" -- . 2>/dev/null | grep -c '^+.*\(TODO\|FIXME\|XXX\|not implemented\|NotImplemented\)' || true)"
+  # `^+` matched the diff's OWN `+++ b/<path>` header, so adding a file named TODO.md or
+  # FIXME.md failed clause 5 on its filename rather than on its contents. §4a round 3, 1/2,
+  # blocking. The header lines are dropped before the content grep runs.
+  ADDED="$(git -C "$WORKTREE" diff "$BASELINE" -- . 2>/dev/null \
+    | grep -v '^+++ ' \
+    | grep -c '^+.*\(TODO\|FIXME\|XXX\|not implemented\|NotImplemented\)' || true)"
   if [[ "${ADDED:-0}" -gt 0 ]]; then
     fail 5 "no critical findings" "$ADDED added line(s) hold TODO/FIXME/not-implemented"
   else
@@ -147,22 +152,34 @@ if [[ -n "$BASELINE" ]]; then
     # reader can see how many rules were actually applied.
     PATTERNS="$(sed -n '/^deny:/,/^[a-z]/p' "$POLICY" | sed -n 's/^  - "\(.*\)".*/\1/p')"
     NPAT="$(printf '%s\n' "$PATTERNS" | grep -c . || true)"
-    CHANGED="$(git -C "$WORKTREE" diff --name-only "$BASELINE" -- .)"
+    # UNTRACKED FILES COUNT AS CHANGED, AND `git diff --name-only` DOES NOT SEE THEM. An
+    # untracked `pom.xml` sitting in the worktree passed clause 6 — "no forbidden files changed"
+    # over a scope that excluded every file the agent had not staged. §4a round 3, 1/2, blocking.
+    CHANGED="$(
+      git -C "$WORKTREE" diff --name-only "$BASELINE" -- .
+      git -C "$WORKTREE" ls-files --others --exclude-standard
+    )"
     HITS=""
     while IFS= read -r pat; do
       # shellcheck disable=SC2317
       [[ -z "$pat" ]] && continue
       while IFS= read -r f; do
         [[ -z "$f" ]] && continue
+        hit=0
         case "$pat" in
           '**/'*) # shellcheck disable=SC2053
-                  [[ "$(basename "$f")" == ${pat#'**/'} ]] && HITS="$HITS $f" ;;
+                  [[ "$(basename "$f")" == ${pat#'**/'} ]] && hit=1 ;;
         esac
         # shellcheck disable=SC2254
-        case "$f" in ${pat}) HITS="$HITS $f" ;; esac
+        case "$f" in ${pat}) hit=1 ;; esac
+        # ONE path counts ONCE, however many branches or patterns match it.
+        [[ "$hit" = 1 ]] && case " $HITS " in *" $f "*) ;; *) HITS="$HITS $f" ;; esac
       done <<<"$CHANGED"
     done < <(printf '%s\n' "$PATTERNS")
-    HITS="$(printf '%s' "$HITS" | tr ' ' '\n' | grep -c . || true)"
+    # DEDUPLICATED: a path matching both the basename branch and the glob branch was counted
+    # twice, so the printed count could exceed the number of offending files. The verdict never
+    # depended on it (any count > 0 fails), but a number a reader reads has to be right.
+    HITS="$(printf '%s' "$HITS" | tr ' ' '\n' | grep -c . | tr -d ' ' || true)"
     if [[ "${NPAT:-0}" -eq 0 ]]; then
       # ZERO RULES READ IS UNDECIDABLE ON THE CLAUSE, NOT A PASS ON IT. The first fix for this
       # (2026-09-16, earlier today) set the exit code to 2 and LEFT THE `PASS 6` LINE ON STDOUT,
@@ -200,8 +217,14 @@ echo
 echo "  decidable clauses: $DECIDED of 7   failing: $FAILED"
 [[ "$SHARED_23" -eq 1 ]] && echo "  NOTE: clauses 2 and 3 are TWO LINES FROM ONE INSTRUMENT (the evaluator's exit code). They are not two independent decisions."
 [[ -n "$GUARD_EXIT" ]] && echo "  NOTE: evaluator exit $GUARD_EXIT is a guard, not a build or test failure — clauses 2 and 3 are UNDECIDABLE on it, not failed."
+# A REAL FAILURE OUTRANKS AN INCONCLUSIVE. Until §4a round 3 the ZERO_PATTERNS branch exited 2
+# BEFORE the `FAILED` check ran, so a run with a genuine clause-5 or clause-7 FAILURE *and* an
+# unparseable policy file exited 2 — "nothing could be decided" — instead of 1. That downgrades a
+# known failure to an unknown, which is the wrong direction for a gate to be wrong in. 1/2,
+# blocking. Both conditions are still reported; only the precedence changed.
 if [[ "$ZERO_PATTERNS" -eq 1 ]]; then
   echo "  the policy file parsed to ZERO deny patterns — clause 6 read no rules" >&2
+  [[ "$FAILED" -eq 0 ]] || { echo "  and $FAILED decidable clause(s) FAILED — reporting the failure, not the inconclusive" >&2; exit 1; }
   exit 2
 fi
 if [[ "$DECIDED" -eq 0 ]]; then

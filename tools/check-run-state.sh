@@ -67,8 +67,18 @@ for f in fromAgent toAgent delivered remaining; do
   jq -e "has(\"handoff\") and (.handoff | has(\"$f\"))" "$FILE" >/dev/null 2>&1 \
     || problem ".handoff.$f: missing (author decision 11 item 7 requires the field, reserved)"
 done
-jq -e '(.handoff.reserved // "") | test("B8a")' "$FILE" >/dev/null 2>&1 \
-  || problem '.handoff.reserved: must say the block is reserved for B8a, so a later reader cannot mistake data for a control'
+# ANCHORED, NOT A SUBSTRING. `test("B8a")` passed the string "not reserved for B8a" — a value that
+# says the OPPOSITE of the contract. §4a round 3, 1/2, and it is the SAME defect class as the
+# `.decision` enum from round 1: a containment test standing in for a membership test. Twice in one
+# stop, in one file, which is worth more than either instance.
+# The anchor is `^B8a` because that is what the MEASURED hook writes — "B8a — author decision 11
+# item 7. Nothing at stop 17 reads or writes these fields…". My first attempt at this fix anchored
+# on "^reserved for B8a" and would have REJECTED ALL 22 KEPT RUN-STATE FILES: a checker fix that
+# breaks the measurement it checks. Caught by running it against the hook's own output before
+# committing, which is the only reason it is not in the history as a green suite over a broken
+# invariant.
+jq -e '(.handoff.reserved // "") | test("^B8a")' "$FILE" >/dev/null 2>&1 \
+  || problem '.handoff.reserved: must BEGIN with "B8a" — a substring test accepted "not reserved for B8a"'
 
 # --- the invariants the hooks are supposed to maintain ---------------------------------------
 # These are what separate a file that LOOKS like a run-state from one a run actually produced.
