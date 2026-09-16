@@ -1683,6 +1683,34 @@ board_state: "GREEN, and it was RED in between - both states are mine and both a
 blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:
+  - "2026-09-16, THE MOST SERIOUS OF THE 25 §4a FINDINGS, AND IT IS NOT MINE TO FIX AT THIS STOP.
+    The critic found at 2/2 that `policy-gate.sh` is wired in `build/customizations/agent-v1.1/.claude/settings.json`
+    ONLY to the `Edit|Write|NotebookEdit` matcher, so a `Bash` write - `sed -i`, `echo >`, `tee -a` -
+    BYPASSES the protected-paths policy entirely. This is not hypothetical here: STOP 16 ALREADY
+    MEASURED this model completing a task with 29-91 `Bash` calls after `Edit` was denied. So B7`s
+    Layer 2 gate, inherited into v1.1, has a channel it does not watch, and the channel is the one
+    the model demonstrably falls back to. IT IS RECORDED AND CARRIED TO v1.2, NOT FIXED: the overlay
+    has run 40 benchmark runs and §6 plus §3 both forbid editing a measured version. It changes NO
+    stop-17 claim - B8`s registered outcomes never read the policy. It is here because the author is
+    the one who decides what v1.2 is for, and this is the strongest candidate on the table."
+  - "2026-09-16, TWO SENTENCES ON THE PUBLISHED BOARDS ARE NOW STALE AND I DID NOT REWRITE THEM.
+    `b2-board.html:688` and `road-to-agent.html:563-564` say that promoting B6`s skill `is a B8
+    decision at the v1.1 boundary`. B8 HAS NOW CLOSED WITHOUT MAKING IT - v1.1 is kept, not promoted,
+    and v1.0`s `tools:` line was not moved. Both sentences sit in the STOP-13 sections, which these
+    boards keep by design alongside every superseded `Spine N of 28` header, so they are HISTORICAL
+    RATHER THAN FALSE. Editing a historical section to match today is how a board stops being a
+    record, so they stand. A reader skimming will nonetheless read them as pending, which is why this
+    is written down rather than left to be noticed."
+  - "2026-09-16, A CRITIC`S FINDING AND MY OWN MET IN THE MIDDLE, AND TOGETHER THEY ARE TESTABLE
+    WITHOUT SPENDING A DOLLAR. §4a flagged (1/2) that `repair-limit.sh` and `repair-record.sh` do an
+    UNLOCKED read-modify-write on one run-state file, so concurrent `Bash` calls race and a lost
+    update drops a record. Independently, writing the §5 table found run b90c76d7 recording 5
+    `repair-limit` allows against 7 `repair-record` successes - a gap that is structurally impossible
+    if both hooks see and record every event. NEITHER HALF PROVES THE OTHER: a lost update and a
+    missed `PreToolUse` firing leave identical artefacts, and nothing on disk separates them. What is
+    new is that the anomaly now has a NAMED CANDIDATE CAUSE that needs no agent and no benchmark run
+    to test - drive the two hooks concurrently against one state file and count. The test belongs to
+    whichever version fixes the locking, not to this stop, whose overlay is measured."
   - "2026-09-16, A CORRECTION TO MY OWN NOTE OF 2026-09-15 BELOW, AND IT IS THE HOUSE FAILURE MODE
     POINTING AT ITSELF. I recorded `A CLAUDE SESSION FROM 2026-09-10 IS STILL ALIVE ON THIS MACHINE
     AND IT IS NOT A BUILDER`, pid 8011, session-id 452ce7db, and told the author it was an abandoned
