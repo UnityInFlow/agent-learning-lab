@@ -29,8 +29,9 @@
 # EXIT CODES:
 #   0   every DECIDABLE clause passes, and the undecidable ones are listed
 #   1   at least one decidable clause FAILS
-#   2   nothing could be decided at all (no baseline, no summary, no evaluator result)
-#   30  usage / unreadable worktree
+#   2   nothing could be decided at all (no baseline, no summary, no evaluator result), OR the
+#       policy file parsed to zero deny patterns so clause 6 would have passed having read nothing
+#   30  usage / unreadable worktree / a --baseline that does not resolve to a commit
 #
 # Usage: tools/check-completion-contract.sh <worktree> [--baseline <sha>] [--evaluator-exit <n>]
 #                                           [--summary <file>] [--policy <protected-paths.yaml>]
@@ -50,7 +51,18 @@ done
 [[ -n "$WORKTREE" && -d "$WORKTREE" ]] || { echo "usage: check-completion-contract.sh <worktree> [flags]" >&2; exit 30; }
 git -C "$WORKTREE" rev-parse --git-dir >/dev/null 2>&1 || { echo "check-completion-contract: $WORKTREE is not a git worktree" >&2; exit 30; }
 
-DECIDED=0; FAILED=0
+# A BASELINE THAT DOES NOT RESOLVE IS A USAGE ERROR, NOT AN EMPTY DIFF. Until §4a round 1 every
+# `git diff "$BASELINE"` below sent stderr to /dev/null, so a typo'd or unreachable sha produced
+# an EMPTY diff and clauses 5 and 6 then PASSED having compared nothing — a control reporting
+# success over a scope of zero, which is this project's house failure mode and the exact reason
+# `tools/skill-activation.sh` was rewritten three times. Found by codex + deepseek, 1/2
+# recurrence. Resolved once, here, rather than at each use site.
+if [[ -n "$BASELINE" ]]; then
+  git -C "$WORKTREE" rev-parse --verify --quiet "${BASELINE}^{commit}" >/dev/null 2>&1 \
+    || { echo "check-completion-contract: --baseline $BASELINE does not resolve to a commit in $WORKTREE" >&2; exit 30; }
+fi
+
+DECIDED=0; FAILED=0; SHARED_23=0; ZERO_PATTERNS=0
 pass()  { DECIDED=$((DECIDED+1)); printf '  PASS        %d. %-42s %s\n' "$1" "$2" "$3"; }
 fail()  { DECIDED=$((DECIDED+1)); FAILED=$((FAILED+1)); printf '  FAIL        %d. %-42s %s\n' "$1" "$2" "$3"; }
 undec() { printf '  UNDECIDABLE %d. %-42s %s\n' "$1" "$2" "$3"; }
@@ -67,12 +79,13 @@ undec 1 "acceptance criteria mapped" "needs the ticket read against the diff; no
 # disagree with it, and then two controls would be claiming the same thing in two voices.
 if [[ -n "$EVAL_EXIT" ]]; then
   if [[ "$EVAL_EXIT" == "0" ]]; then
-    pass 2 "build passed"          "evaluator exit 0"
-    pass 3 "required tests passed" "evaluator exit 0"
+    pass 2 "build passed"          "evaluator exit 0 (shared source, see note)"
+    pass 3 "required tests passed" "evaluator exit 0 (shared source, see note)"
   else
-    fail 2 "build passed"          "evaluator exit $EVAL_EXIT"
-    fail 3 "required tests passed" "evaluator exit $EVAL_EXIT"
+    fail 2 "build passed"          "evaluator exit $EVAL_EXIT (shared source, see note)"
+    fail 3 "required tests passed" "evaluator exit $EVAL_EXIT (shared source, see note)"
   fi
+  SHARED_23=1
 else
   undec 2 "build passed"          "no --evaluator-exit given; not re-run here on purpose"
   undec 3 "required tests passed" "no --evaluator-exit given; not re-run here on purpose"
@@ -107,9 +120,18 @@ if [[ -n "$BASELINE" ]]; then
     POLICY="$HERE/build/customizations/agent-v1.1/.ai/policies/protected-paths.yaml"
   fi
   if [[ -r "$POLICY" ]]; then
-    CHANGED="$(git -C "$WORKTREE" diff --name-only "$BASELINE" -- . 2>/dev/null)"
+    # THE DENY LIST IS EXTRACTED FIRST AND COUNTED, AND ZERO PATTERNS IS UNDECIDABLE, NOT PASS.
+    # The `sed` below is format-dependent: reindent the YAML, switch to unquoted scalars, or
+    # rename the key and it yields NOTHING — and clause 6, the one clause this script calls
+    # itself authoritative on, then passed having read no rules at all. Found by codex +
+    # deepseek at §4a round 1, 1/2 recurrence. The count is now printed on the PASS line so a
+    # reader can see how many rules were actually applied.
+    PATTERNS="$(sed -n '/^deny:/,/^[a-z]/p' "$POLICY" | sed -n 's/^  - "\(.*\)".*/\1/p')"
+    NPAT="$(printf '%s\n' "$PATTERNS" | grep -c . || true)"
+    CHANGED="$(git -C "$WORKTREE" diff --name-only "$BASELINE" -- .)"
     HITS=""
     while IFS= read -r pat; do
+      # shellcheck disable=SC2317
       [[ -z "$pat" ]] && continue
       while IFS= read -r f; do
         [[ -z "$f" ]] && continue
@@ -120,15 +142,18 @@ if [[ -n "$BASELINE" ]]; then
         # shellcheck disable=SC2254
         case "$f" in ${pat}) HITS="$HITS $f" ;; esac
       done <<<"$CHANGED"
-    done < <(sed -n '/^deny:/,/^[a-z]/p' "$POLICY" | sed -n 's/^  - "\(.*\)".*/\1/p')
+    done < <(printf '%s\n' "$PATTERNS")
     HITS="$(printf '%s' "$HITS" | tr ' ' '\n' | grep -c . || true)"
     if [[ "${HITS:-0}" -gt 0 ]]; then
       fail 6 "no forbidden files changed" "$HITS path(s) match the deny list"
     else
-      pass 6 "no forbidden files changed" "no changed path matches the deny list"
+      pass 6 "no forbidden files changed" "$NPAT deny pattern(s) read; no changed path matches"
     fi
   else
     undec 6 "no forbidden files changed" "policy file unreadable: $POLICY"
+  fi
+  if [[ -r "$POLICY" && "${NPAT:-0}" -eq 0 ]]; then
+    ZERO_PATTERNS=1
   fi
 else
   undec 6 "no forbidden files changed" "no --baseline given; nothing to diff against"
@@ -147,9 +172,17 @@ fi
 
 echo
 echo "  decidable clauses: $DECIDED of 7   failing: $FAILED"
+[[ "$SHARED_23" -eq 1 ]] && echo "  NOTE: clauses 2 and 3 are TWO LINES FROM ONE INSTRUMENT (the evaluator's exit code). They are not two independent decisions."
+if [[ "$ZERO_PATTERNS" -eq 1 ]]; then
+  echo "  the policy file parsed to ZERO deny patterns — clause 6 read no rules" >&2
+  exit 2
+fi
 if [[ "$DECIDED" -eq 0 ]]; then
   echo "  nothing could be decided — this is NOT a pass" >&2
   exit 2
+fi
+if [[ $((7 - DECIDED)) -ge 4 ]]; then
+  echo "  WARNING: $((7 - DECIDED)) of 7 clauses were UNDECIDABLE. Exit 0 here means \"no decidable clause failed\", NOT \"the contract is satisfied\"."
 fi
 [[ "$FAILED" -eq 0 ]] || exit 1
 exit 0

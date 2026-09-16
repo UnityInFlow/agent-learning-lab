@@ -109,6 +109,61 @@ G=$(run --baseline "$NEWBASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "
   || bad "pre-existing TODO" "PASS" "$(line 5)"
 
 echo
+echo "THE FOUR §4a ROUND-1 FINDINGS — each case is the failure scenario the critic named, and"
+echo "the first three PASSED this checker before 2026-09-16:"
+
+# (a) a --baseline that does not resolve used to give an EMPTY diff, so clauses 5 and 6 passed
+#     having compared nothing. It is now a usage error.
+G=$(run --baseline deadbeefdeadbeefdeadbeefdeadbeefdeadbeef --evaluator-exit 0 --summary "$SUMMARY" --policy "$POLICY")
+[[ "$G" == 30 ]] && ok "a --baseline sha that does not resolve is exit 30, not an empty diff" "exit 30" \
+                 || bad "unresolvable baseline" "exit 30" "exit $G"
+G=$(run --baseline not-a-sha --evaluator-exit 0 --summary "$SUMMARY" --policy "$POLICY")
+[[ "$G" == 30 ]] && ok "a --baseline that is not a sha at all is exit 30" "exit 30" \
+                 || bad "nonsense baseline" "exit 30" "exit $G"
+
+# (b) a policy file the extractor cannot parse yielded ZERO patterns, and clause 6 — the one
+#     clause this script calls itself authoritative on — then PASSED having read no rules.
+REINDENTED="$SANDBOX/reindented-policy.yaml"
+printf 'deny:\n    - "**/pom.xml"\n    - "**/Dockerfile"\n' > "$REINDENTED"
+G=$(run --baseline "$BASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$REINDENTED")
+[[ "$G" == 2 ]] && ok "a policy that parses to ZERO deny patterns is exit 2, not PASS" "exit 2" \
+                || bad "zero-pattern policy" "exit 2" "exit $G"
+UNQUOTED="$SANDBOX/unquoted-policy.yaml"
+printf 'deny:\n  - **/pom.xml\n' > "$UNQUOTED"
+G=$(run --baseline "$BASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$UNQUOTED")
+[[ "$G" == 2 ]] && ok "unquoted YAML scalars also parse to zero, also exit 2" "exit 2" \
+                || bad "unquoted policy" "exit 2" "exit $G"
+
+# (c) NEGATIVE CONTROL for (b): the registered policy still parses, and the PASS line now says
+#     how many rules were applied, so an empty read cannot hide behind a green clause.
+#     A FRESH baseline is taken here on purpose: the cases above deliberately left a changed
+#     pom.xml and an added TODO in the history, and reusing $BASE would have this control
+#     failing on clause 6 for a reason that has nothing to do with what it is testing.
+CLEANBASE="$(git -C "$WT" rev-parse HEAD)"
+printf 'class C { void h(){} }\n' > "$WT/src/C.java"
+git -C "$WT" add -A; git -C "$WT" commit -qm ordinary-work
+G=$(run --baseline "$CLEANBASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$POLICY")
+[[ "$G" == 0 ]] && ok "the REGISTERED policy still parses and still passes" "exit 0" \
+                || bad "registered policy" "exit 0" "exit $G"
+grep -qE 'PASS +6\..*deny pattern\(s\) read' "$SANDBOX/out.txt" \
+  && ok "clause 6's PASS line states how many rules it applied" "count printed" \
+  || bad "clause 6 rule count" "printed on the PASS line" "absent"
+
+# (d) clauses 2 and 3 are two lines from one instrument, and the summary now says so rather
+#     than letting a reader count them as two independent decisions.
+grep -q 'TWO LINES FROM ONE INSTRUMENT' "$SANDBOX/out.txt" \
+  && ok "the shared source of clauses 2 and 3 is stated in the output" "note present" \
+  || bad "clauses 2/3 shared-source note" "present" "absent"
+
+# (e) and when four or more clauses are undecidable, exit 0 says what it does NOT mean.
+G=$(run --evaluator-exit 0)
+[[ "$G" == 0 ]] && ok "evaluator exit only: 5 of 7 undecidable, still exit 0" "exit 0" \
+                || bad "sparse inputs" "exit 0" "exit $G"
+grep -q 'WARNING: 5 of 7 clauses were UNDECIDABLE' "$SANDBOX/out.txt" \
+  && ok "…and the output warns that exit 0 is not \"contract satisfied\"" "warning present" \
+  || bad "undecidable-majority warning" "present" "absent"
+
+echo
 echo "USAGE errors are exit 30, distinct from FAIL:"
 "$CHECK" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "no worktree argument" "exit 30" || bad "no argument" "exit 30" "exit $G"
 "$CHECK" "$SANDBOX/nope" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "a path that is not a directory" "exit 30" || bad "bad path" "exit 30" "exit $G"

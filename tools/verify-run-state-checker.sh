@@ -100,6 +100,26 @@ expect "a run that recorded blocks"                              0 "$(mutate '.b
 expect "a run that recorded an error execution (fail-open)"      0 "$(mutate '.hookExecutions += [{"hook":"repair-limit","ts":"t","decision":"error","reason":"no-command"}]')"
 
 echo
+echo "THE THREE §4a ROUND-1 FINDINGS — each fixture is the failure scenario the critic named,"
+echo "and each one PASSED this checker before 2026-09-16:"
+expect "decision \"allo\" — a PREFIX of a valid enum value"          1 "$(mutate '.hookExecutions[0].decision = "allo"')"
+expect "decision \"low b\" — a SUBSTRING spanning two values"        1 "$(mutate '.hookExecutions[0].decision = "low b"')"
+expect "decision \"\" — the empty string is inside every string"     1 "$(mutate '.hookExecutions[0].decision = ""')"
+expect "decision \"allowed\" — a SUPERSTRING of a valid value"       1 "$(mutate '.hookExecutions[0].decision = "allowed"')"
+expect "a file that raises its OWN ceiling to 1000 and sits at 900"  1 "$(mutate '.limits.maxTotalRepairAttempts = 1000 | .totalRepairAttempts = 900')"
+expect "a file that raises its own per-failure ceiling to 99"        1 "$(mutate '.limits.maxRepairAttemptsPerFailure = 99 | .repairAttemptsByFingerprint = {"aaaaaaaaaaaaaaaa":50}')"
+expect "a file that LOWERS its own ceilings below the registered 3/7" 1 "$(mutate '.limits = {"maxRepairAttemptsPerFailure":1,"maxTotalRepairAttempts":2}')"
+expect "totalRepairAttempts = 2.5 — a count that is not whole"       1 "$(mutate '.totalRepairAttempts = 2.5')"
+expect "a fingerprint counter of 1.5"                               1 "$(mutate '.repairAttemptsByFingerprint = {"aaaaaaaaaaaaaaaa":1.5}')"
+expect "a limit declared as 3.5"                                    1 "$(mutate '.limits.maxRepairAttemptsPerFailure = 3.5')"
+
+echo
+echo "AND THE NEGATIVE CONTROLS FOR THOSE THREE — the strengthened checks must still accept:"
+expect "every valid decision value, one execution each"             0 "$(mutate '.hookExecutions = [{"hook":"repair-limit","ts":"t","decision":"allow"},{"hook":"repair-limit","ts":"t","decision":"block","reason":"r"},{"hook":"repair-record","ts":"t","decision":"success"},{"hook":"repair-limit","ts":"t","decision":"error","reason":"r"}]')"
+expect "the registered limits stated explicitly as 3 and 7"         0 "$(mutate '.limits = {"maxRepairAttemptsPerFailure":3,"maxTotalRepairAttempts":7}')"
+expect "whole-number counts at the boundary (0 and 7)"              0 "$(mutate '.totalRepairAttempts = 7 | .repairAttemptsByFingerprint = {}')"
+
+echo
 echo "USAGE errors are exit 30, distinct from INVALID — so a broken call is not read as a bad file:"
 "$CHECK" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "no argument" "exit 30" || bad "no argument" "exit 30" "exit $G"
 "$CHECK" "$SANDBOX/nope.json" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "unreadable path" "exit 30" || bad "unreadable path" "exit 30" "exit $G"
