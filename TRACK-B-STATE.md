@@ -1641,6 +1641,32 @@ board_state: "GREEN, and it was RED in between - both states are mine and both a
 blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:
+  - "2026-09-16, A CORRECTION TO MY OWN NOTE OF 2026-09-15 BELOW, AND IT IS THE HOUSE FAILURE MODE
+    POINTING AT ITSELF. I recorded `A CLAUDE SESSION FROM 2026-09-10 IS STILL ALIVE ON THIS MACHINE
+    AND IT IS NOT A BUILDER`, pid 8011, session-id 452ce7db, and told the author it was an abandoned
+    cmux pane that could resume five-day-stale state over stop 17. THAT SESSION IS THIS SESSION.
+    Re-derived rather than reasoned: `ps -o ppid= -p $$` from inside my own Bash tool call returns
+    36281 whose parent is 8011. The three zsh `until grep -q BATCH DONE evidence/b07/batch.out`
+    loops hanging off it are MY OWN abandoned waits from the stop-15 work earlier in this same
+    long-running session, not another agent`s. THE ORIGINAL NOTE IS LEFT STANDING AND NOT DELETED
+    (§6, §4 step 12); this correction sits beside it. WHY IT MATTERS BEYOND TIDINESS: I read a
+    process tree, found something that matched the shape of the 2026-09-10 two-builders halt, and
+    reported it WITHOUT CHECKING WHETHER IT WAS ME - a control reporting over a scope it had not
+    established, which is the exact failure this project names as its own. It cost nothing because I
+    chose not to act on it; had I killed pid 8011 as `an abandoned session`, I would have killed the
+    builder mid-batch. WHAT WAS ACTUALLY TRUE AT THAT MOMENT AND STILL IS: exactly one builder, this
+    one, and the working tree was and is clean.
+    Corrected by Opus 5 (claude-opus-5), autonomous, 2026-09-16."
+  - "2026-09-16, TWO NON-MINE PROCESSES CHECKED AND CLEARED, recorded because a validator reading a
+    `ps` output during this stop will find them. (1) claude session c4abaebc, pid 38200, started
+    11:45 local - ITS cwd IS ~/Documents/workspace-1-ideas/ai-agents/repo-context, a DIFFERENT
+    project, and its `findings/codex/.inflight-...` wait-loop resolves against THAT repo, not this
+    lab. It is not a second builder on this working tree and the §7 two-builders condition is NOT
+    matched. (2) pid 96007 `codex --dangerously-bypass-approvals-and-sandbox`, running 14h49m under
+    an interactive zsh - the author`s own codex session, unrelated to scoring. Neither touches
+    agent-learning-lab; the lab tree is clean at d845bc6 on stop17/b8-run-state-repair-limits and
+    has not moved under me."
+
   - "2026-09-16, A STALE HEADER ON A REGISTERED INSTRUMENT, AND I AM DELIBERATELY NOT FIXING IT.
     benchmark/rubrics/backend-quality-be004.yaml opens with `BE-004 backend quality rubric - DRAFT,
     UNPROVEN` and `It may NOT be used to score a run until it has been proved on BE-004`s five
