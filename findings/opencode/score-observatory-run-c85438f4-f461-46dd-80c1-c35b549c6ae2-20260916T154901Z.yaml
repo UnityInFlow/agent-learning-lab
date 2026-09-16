@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c85438f4-f461-46dd-80c1-c35b549c6ae2
+  mode:          run
+  run_id:        c85438f4-f461-46dd-80c1-c35b549c6ae2
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/c85438f4-f461-46dd-80c1-c35b549c6ae2
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.qGOYrMIbRT/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260916T154901Z
+  attachments:   3 file(s) under test, 3 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: confirm throws only ResourceNotFoundException and ConflictException, both present in baseline.
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:57
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: status decision is two if statements with no else and no when.
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:62
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: body and $.error.code asserted, but no get() re-read of persisted state.
+    evidence: sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt:100
+  - name: change-focus
+    score: 1
+    anchor_level: 1
+    reason: methods identical, but SHIPMENT_INVALID_STATE added to ErrorCode is not an import.
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt:36
+ambiguous_categories: []
+```

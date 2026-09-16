@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality.yaml
+  rubric_sha:    396e1799eb2b
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-16d8b401-300f-473f-8a61-51c4cdc847a4
+  mode:          run
+  run_id:        16d8b401-300f-473f-8a61-51c4cdc847a4
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/16d8b401-300f-473f-8a61-51c4cdc847a4
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.pIvpJzKqkR/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260916T151218Z
+  attachments:   3 file(s) under test, 3 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: confirm throws ResourceNotFoundException and ConflictException, existing baseline ApiException subclasses, no error body assembled.
+    evidence: observatory-run-16d8b401/ShipmentController.kt:60
+  - name: maintainability
+    score: 2
+    anchor_level: 2
+    reason: single when(shipment.status) in expression position, no else, value returned.
+    evidence: observatory-run-16d8b401/ShipmentController.kt:65
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: bodies asserted and confirm called twice, but persisted state never re-read via separate get.
+    evidence: observatory-run-16d8b401/ShipmentControllerTest.kt:96
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: create/getById/list and imports identical to baseline; only confirm added.
+    evidence: observatory-run-16d8b401/ShipmentController.kt:57
+ambiguous_categories: []
+```
