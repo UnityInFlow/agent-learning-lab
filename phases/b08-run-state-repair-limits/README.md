@@ -1255,6 +1255,43 @@ What this changes, and what it does not:
 18 for BE-004 — a task the batch's own report never asked for, which is why it was not found
 earlier.
 
+## The published boards were checked claim by claim, not by the green check — 2026-09-16
+
+`check-board-freshness.sh` compares a digest and **cannot read a sentence**. On 2026-09-11 that let
+a board publish *"17 of 17 treated runs denied a real violation"* when the policy gate had denied
+nothing, and the check passed over it. So the boards were verified the way that incident says to:
+every factual claim in the new stop-17 material was extracted from both sources and checked
+against the measurements.
+
+**Both boards republished with real content, first attempt each, no refusals.** Markers relabelled
+to prose `e67c87306a93`, built-from `196731f`; `check-board-freshness.sh` exits 0, *2 board(s)
+current*. Relabelling alone would **also** have gone green and would have left both boards lying,
+which is the failure the check exists to prevent rather than to perform.
+
+**Every stop-17 claim on both boards is correct against the evidence.** The ones that could have
+been wrong, and what each was checked against:
+
+| claim, as published | checked against |
+|---|---|
+| three of four gate clauses; clause 3 NOT met, L3, gate not closed | the exit gate above, and `grep -rln classify-permission-block` in `agent-observatory` at `1376a2eef553` → two paths, one of them the file itself |
+| `0` block decisions across 20 treated runs | `manifest.tsv` column 16 → `20 treated 0`, `20 control 0` |
+| BE-003 `10/10 vs 10/10`, four medians Δ0, `+2.4 %`, `n = 10` | `E-018:325`, `:354-357`, `:367` |
+| BE-004 `9/10 vs 7/7`, three of four Δ0, `+4.4 %`, `n = 9` / `n = 7` | `E-019:328`, `:352-355`, `:362` |
+| `48 allows against 47 successes` (BE-003 pooled) | re-derived from manifest columns 17 and 18 |
+| BE-004 pooled gap `0` by cancellation: seq 03 `+1`, seq 09 `+1`, seq 05 `−2`; and `5 allows against 7 successes` on `b90c76d7` | the same re-derivation, and `b90c76d7`'s own `run-state.json`: `Counter({('repair-record','success'): 7, ('repair-limit','allow'): 5})` |
+| `instr_hash` 20/`null` 20, `agent_hash` 40 of 40, `init_tools` match 40 of 40, `state_file` PRESENT×20 / ABSENT×17 + 3 `INCONCLUSIVE-0-edits` | manifest columns 11, 12, 13, 24 |
+| re-derived MDE `$0.0163` / `$0.0089` | `evidence/b08/scoring-20260916/mde-rederived.md:16`, `:23` |
+| BE-005 absent: `eea144ef940f` holds BE-001…BE-004, no PR open | `git ls-tree origin/main tasks/` and the repo's open-PR list, both read this session |
+| **Runs on record 617**, and *"stop 17 added 45 — 40 batch, 2 + 2 preflight, 1 deliberate-failure"* | **the arithmetic and the instrument agree exactly.** `40 + 4 + 1 = 45`; `572 + 45 = 617`; and `GET /api/runs?limit=1000` returns **617 total with 45 under the four `EXP-B8-RUNSTATE*` keys and 572 not** |
+
+**One thing the check found, and it is not a stop-17 claim.** Two sentences already on the boards
+say that promoting B6's skill *"is a B8 decision at the v1.1 boundary"* — `b2-board.html:688` and
+`road-to-agent.html:563-564`. **B8 has now closed without making that decision.** Both sentences
+sit in the stop-13 sections, which these boards keep by design alongside every superseded *"Spine
+N of 28"* header, so they are **historical rather than false** — but a reader skimming will read
+them as pending. Recorded in `author_notes` rather than rewritten, because editing a historical
+section to match today is how a board stops being a record.
+
 ## Commit
 
 <!-- TODO -->
