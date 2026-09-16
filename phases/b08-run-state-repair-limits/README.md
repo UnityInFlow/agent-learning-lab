@@ -821,6 +821,52 @@ written here so that it cannot be done by accident later.
 
 ## Deliberate failure
 
+### The prediction, written and committed BEFORE the variant exists and before any run of it
+
+**What is being tested is not the agent. It is P1.** P1 is the gate on this whole stop — decision
+rule row 0 voids the experiment if it fails on two treated runs — and it held on 20 of 20 treated
+runs. **A gate that has never been shown to fail is indistinguishable from a gate that cannot
+fail** (§6, and the house failure mode this project has met four times). So the deliberate failure
+breaks the treatment in the one way that would be invisible to every other check, and asks whether
+P1 notices.
+
+**The break: `agent-v1.1-unwired-DELIBERATE-FAILURE`.** Byte-identical to `agent-v1.1` in every
+file *except* `.claude/settings.json`, from which the two `Bash` hook registrations are removed.
+The hook **scripts are still there**, executable, unchanged — `.ai/hooks/repair-limit.sh` and
+`.ai/hooks/repair-record.sh` both present. `CLAUDE.md` is unchanged, so `instructionsHash` will be
+the registered treated sha. `backend-feature-phases.md` is unchanged, so `agentHash` matches too.
+
+**This is the L3-wearing-L2 costume, deliberately.** Every artefact a reader would check says the
+treatment is installed: the files exist, the hashes match, the overlay directory looks right. The
+one thing that does not happen is execution — which is exactly the substitution the workspace
+`CLAUDE.md` warns about (*"adding `required:` to a template, documenting a unit, defining an enum
+in a comment — none of these run"*) and exactly what B7's `hooksHash` cannot catch, because it is
+declared and never computed.
+
+**Predicted, before the run:**
+
+| # | prediction | mechanism |
+|---|---|---|
+| D1 | **the run-state file is ABSENT** at `${TMPDIR}/run-state-observatory-run-<runId>.json` | no `PreToolUse` registration means `repair-limit.sh` never executes, and the file exists if and only if it executed |
+| D2 | **`customization.instructionsHash` is the registered treated sha** `sha256:a94237242e8c1308fb1d434a06a03463` | `CLAUDE.md` is untouched — so the hash says "treated" on a run where the treatment did not execute |
+| D3 | **`customization.agentHash` matches both arms** `sha256:b3450564b6f32d6193e8580db766210e` | the agent file is untouched |
+| D4 | **the evaluator still passes, exit 0** | the hooks touch nothing the evaluator scores; a run without them is a plain baseline run |
+| D5 | **the `init` read-back still shows `Bash`** in the delivered tool set | `tools:` is unchanged; the break is in the hook wiring, not in the tool grant |
+
+**The reading, registered in advance.** If D1 holds while D2 and D3 hold, then **P1 is a real
+control**: it detects a treatment that every hash in the run record calls delivered. If D1 fails —
+a run-state file appears without the hook being registered — then **P1 is measuring something other
+than hook execution**, the 20 of 20 in this stop means less than it appears, and the stop's delivery
+proof needs rebuilding before the exit gate can be answered.
+
+**`n = 1`, one run, on BE-003, under its own key `EXP-B8-RUNSTATE-BE003-DELIBERATE-FAILURE`.** It
+enters no comparison and no `n`. One run is sufficient because D1 is a structural claim — the file
+exists or it does not — not a rate.
+
+*Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-16, before the variant directory was
+created and before any run of it. The author did not review before the run.*
+
+
 <!-- TODO: interrupt a run mid-repair and confirm the counters survive.
      Then force the same failure four times and confirm it BLOCKS rather
      than looping. -->
