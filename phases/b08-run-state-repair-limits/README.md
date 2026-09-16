@@ -1088,6 +1088,112 @@ learning:
     repair limit cannot be exercised until that number is above zero.
 ```
 
+## §4a review — round 1, and what a critic found in my own controls, 2026-09-16
+
+Two invocations, panel `codex` (`gpt-5.6-sol`, agent sha `5ae27fa4d5e2`) + `ollama-cloud/deepseek-v4-pro`,
+acceptance `ollama-cloud/minimax-m3` (`4aa690d15304`), opencode 1.18.27. Both exited 0 with findings
+below the header, no stall, no dropped family. **Both acceptance gates returned REJECT.** 25
+line-level findings. The dotfile-path artefacts were reviewed as byte-identical copies in a
+scratchpad, because `rtk` hides `.claude/` and `.ai/` paths from the harness and it would have
+reviewed nothing and exited 0 (§4a rule 5); each copy's sha is in the findings header.
+
+Findings files: `findings/opencode/review-protected-paths-v1.1-20260916T174543Z.md` (contracts, 337
+lines) and `findings/opencode/review-repair-limit-20260916T175132Z.md` (tools, 249 lines).
+
+### The seven findings in my own checkers, all real, all fixed at `5d23904`
+
+**Two of my controls were grading their own homework, and that is the house failure mode.** Each
+fix has a fixture that *is* the failure scenario the critic named, and **each of those fixtures
+passed the old checker** — proved by running the old file out of git, not asserted:
+
+| finding | rec. | the fix | old → new |
+|---|---|---|---|
+| `check-run-state.sh`: `inside("allow block success error")` is a **substring** test, so `"allo"`, `"low b"`, `""` and `"allowed"` all passed the `.decision` enum | 2/2 | exact membership via `index($d)` | `allo`: **exit 0 → exit 1** |
+| `check-run-state.sh`: the counter ceilings were read from `.limits` **in the file being checked**, falling back to 3/7 only if absent — so a file declaring `maxTotalRepairAttempts: 1000` while sitting at 900 passed the check meant to catch it | 1/2 | the registered 3 and 7 are written in the checker, and the file's own `.limits` block is now **checked against** them | tamper: **exit 0 → exit 1** |
+| `check-run-state.sh`: `type == "number"` admits `2.5` for three fields that are counts | 1/2 | integrality checked separately from type | `2.5`: **exit 0 → exit 1** |
+| `check-completion-contract.sh`: a `--baseline` that does not resolve gave an **empty diff with stderr discarded**, so clauses 5 and 6 PASSED having compared nothing | 1/2 | the baseline is resolved once, up front; an unresolvable one is **exit 30** | new fixture |
+| `check-completion-contract.sh`: the deny list is extracted by `sed`, and a reindented or unquoted policy file yields **zero patterns** — so clause 6, *the one clause this script calls itself authoritative on*, PASSED having read no rules | 1/2 | patterns are extracted and **counted** first; zero is **exit 2**, and the count is printed on the PASS line | new fixture |
+| `check-completion-contract.sh`: clauses 2 and 3 print as two independent PASSes from one instrument | 2/2 | both lines say `shared source`, and the summary says *"clauses 2 and 3 are TWO LINES FROM ONE INSTRUMENT"* | new fixture |
+| `check-completion-contract.sh`: exit 0 with most clauses undecidable reads as "contract satisfied" | 1/2 | a majority-undecidable run prints what exit 0 does **not** mean | new fixture |
+
+Fixture sets: **41 → 54** and **27 → 36**, all green, re-run immediately before this section.
+
+**And the measurement survives the stricter test, which is the part that matters.** The
+strengthened `check-run-state.sh` re-run over all **22 kept run-state files** admits **22 of 22**
+(`evidence/b08/recheck-20260916/strengthened-checker-over-22-kept-files.tsv`). The defects were
+real and admitted nothing false *in this batch*, so the recorded `state_valid` column stands —
+said from the re-run, not from hope. The old column is not edited; it is what the old checker
+returned.
+
+### Two findings disputed, with the evidence, not with "stylistic"
+
+**1. *"the run-state file is keyed by project basename, not by run id, so two sequential runs share
+it and run 2 starts already blocked"* (1/2).** True of the code, and **the failure scenario cannot
+occur in the registered harness**: the observatory creates a fresh worktree per run named
+`observatory-run-<uuid>`, so `$(basename "$CLAUDE_PROJECT_DIR")` **is** per-run. Checked rather
+than argued — **22 of 22** kept state files carry a **distinct** `.worktree` naming their own run,
+and `$TMPDIR` holds **23 distinct** `run-state-observatory-run-*.json` files. **The scope limit is
+recorded, not waved away:** outside this harness — the same project directory reused across runs —
+the finding is correct and the hook would carry a counter between runs.
+
+**2. *"`repair-record.sh`'s success predicate is exit 0, not task success"* (1/2, the critic marked
+it non-blocking).** Correct, and **already written in the file's own header** before the review
+ran: `./mvnw test -Dtest=DoesNotExist` exits 0 and clears the fingerprint. It is the honest limit
+on the success oracle and is recorded as one, not fixed — a semantic success predicate is the
+phrase-matching trap this stop is named after.
+
+### The one finding that meets my own §5 finding, and together they are the better result
+
+The critic flagged **no locking on the read-modify-write of the run-state file** (1/2): concurrent
+`Bash` calls race, and a lost update drops a record. Independently, writing the §5 table found that
+run `b90c76d7` recorded **5 `repair-limit` allows against 7 `repair-record` successes** — a gap
+that is structurally impossible if both hooks see and record every event.
+
+**The critic's finding is a mechanism for my anomaly.** Neither half proves it: a lost allow
+record and a missed `PreToolUse` firing look identical in the artefact, and nothing here
+distinguishes them. What can be said is that the anomaly now has a named candidate cause that is
+**testable without an agent** — drive the two hooks concurrently against one state file and count
+— and that the test belongs to whichever version fixes the locking, not to this stop, whose overlay
+is measured.
+
+### The twelve findings on the measured overlay are NOT fixed, and §6 is the reason
+
+`build/customizations/agent-v1.1/` ran 40 benchmark runs. §6: *"never edit a registered variable
+mid-experiment"*, and §3's overlay decision: *"a version that has been measured is never edited; a
+change is a new version."* So every finding below is **recorded, carried to v1.2, and changes no
+claim this stop makes** — except where the last column says it does.
+
+| # | artefact | rec. | finding | does it move a stop-17 claim? |
+|---|---|---|---|---|
+| 1 | `.claude/settings.json` | **2/2** | `policy-gate.sh` is wired only to the `Edit\|Write\|NotebookEdit` matcher, so **`Bash` writes bypass the policy entirely** (`sed -i`, `echo >`, `tee -a`) | **No stop-17 claim, and it is the most serious of the 25.** Stop 16 already measured this model completing a task with **29–91 `Bash` calls** after `Edit` was denied, so the bypass is not hypothetical here. It is a finding about **B7's** gate, inherited into v1.1, and it belongs to v1.2's design |
+| 2 | `protected-paths.yaml` | **2/2** | the deny list is **enumerative** and misses whole categories the boundary sentence claims — `Dockerfile.prod`, `Jenkinsfile`, `pnpm-lock.yaml` pass | No. B8's registered outcomes do not read the policy |
+| 3 | `protected-paths.yaml` | 1/2 | *"fnmatch semantics"* is named with **no implementation specified**; shell `globstar` and Python `fnmatch` disagree, and a root `pom.xml` is undefined | No |
+| 4 | `backend-feature-phases.md` | 1/2 | the file still tells the agent its boundaries are **prose**, while v1.1's gate now executes them | No — but it is stale prose inside a measured treatment, which is worth knowing when reading a null |
+| 5 | `CLAUDE.md` | 1/2 | completion-contract clause 6 **restates the already-enforced** protected-paths gate, so it is a **constant** across every run it can see | No, and it is the v2-rubric lesson again: *restating a gate carries no information* |
+| 6 | `CLAUDE.md` + `backend-feature-phases.md` | 1/2 | **two different repair thresholds** for one situation — *"fails twice, stop"* against the hook's *3 before the 4th is refused* — and the prose never defines a fingerprint | No. The counter stayed at 0 because the model **never retried**, not because it followed either number — but a contradiction between what the agent reads and what the hook enforces is exactly the kind of thing that makes a null hard to attribute |
+| 7 | `CLAUDE.md` | 1/2 | *"Required tests passed. All of them"* is ambiguous between the ticket's tests and the repo's | No |
+| 8 | `backend-feature-phases.md` | 1/2 | the phase markers are **self-reported strings and nothing checks them** | **Already recorded** — the workbook labels the phase contract **L3** for this exact reason. Confirmation, not a new finding |
+| 9 | `backend-feature-phases.md` | 1/2 | *"touch a file only if the ticket cannot be completed without it"* has no objective standard | No |
+| 10 | `backend-feature-phases.md` | 1/2 | the escalation threshold is undefined (changes-correctness vs reasonably-interpreted) | No |
+| 11 | `CLAUDE.md` + `backend-feature-phases.md` | 1/2 | the `DONE` marker is required **even on escalation**, while the completion contract says an escalated run is not done | No — a contradiction inside the measured prose, carried |
+| 12 | `backend-feature-phases.md` | 1/2 | *"approved commands"* and a `Bash` CLI-level allowlist are **named but nowhere defined or verifiable** | No, and this is the shape this project keeps meeting: **prose that names a control which does not exist** — L3 wearing L2's clothes. Recorded as such |
+
+**One overlay finding is not deferred but answered here, because it bears on gate clause 2.** The
+critic's strongest tools finding (2/2) is that `repair-limit.sh`'s **fingerprint is the sha256 of
+the whitespace-normalised command text**, so `-Dtest=A` and `-Dtest=B` are two fingerprints and a
+cosmetic argument change resets the consecutive counter. **Verified in the file** (`repair-limit.sh`
+lines 58–68), and it is a **deliberate, documented** choice: a semantic classifier is the trap this
+stop is named after, and phrase-matching an error string failed four times in the observatory.
+
+The finding's true content is therefore not "a bug" but **a limit on what clause 2 enforces**: the
+implemented fingerprint is **narrower than the registered definition** in `build/README.md#b8`,
+which says *failure class + command + normalized primary error + affected module*. So the limit
+bounds **byte-identical retries**, not repair attempts in the spec's sense. That gap is now stated
+in the §5 table's clause-2 row rather than left for a reader to discover.
+
+`Reviewed by codex + deepseek-v4-pro; dispositions decided by Opus 5 (claude-opus-5), autonomously,
+2026-09-16. Round 1 of at most three.`
+
 ## §5 validation table
 
 **Every command in the "re-derive" column was run again immediately before this table was
