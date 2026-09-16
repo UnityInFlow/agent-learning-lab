@@ -1088,6 +1088,65 @@ learning:
     repair limit cannot be exercised until that number is above zero.
 ```
 
+## §5 validation table
+
+**Every command in the "re-derive" column was run again immediately before this table was
+written** (§5), on 2026-09-16, and the three that decide a verdict — the manifest's per-arm
+hash and counter columns, the 36 rubric shas, and the reference count behind clause 3 — were
+re-derived by the orchestrator from the files themselves rather than taken from a subagent's
+report.
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| *counters persist across interruption* | `evidence/b08/worktrees/b90c76d7-12df-4dcb-beb6-630dd8cef809/run-state.json` — BE-004 seq 05 **treated**, evaluator exit 0. `schemaVersion: b8-v1.1`, `hookExecutions` **12 entries**, first `2026-09-16T01:44:34Z`, last `2026-09-16T04:47:41Z` (3 h 03 m). The interruption itself: `evidence/b08/sleep-2026-09-15/pmset-and-run-starts.txt` — clamshell sleep `2026-09-15T19:48:55Z`, lid-open wake `2026-09-16T06:59:36Z` | **L2 for the persistence** — the counters are on disk and accumulated across every gap, and nothing about that is asserted. **L3 for it being a test**: `n = 1`, and the interruption was an accident, not something this stop arranged | `python3 -c "import json;d=json.load(open(P));print(d['schemaVersion'],len(d['hookExecutions']),d['hookExecutions'][0]['ts'],d['hookExecutions'][-1]['ts'])"` → `b8-v1.1 12 2026-09-16T01:44:34Z 2026-09-16T04:47:41Z`. A file re-initialised after the sleep would carry a short array and a late first timestamp |
+| *limits technically enforced* (`build/README.md#b8`: *"enforced by hook or wrapper, never by prompt"*) | `build/customizations/agent-v1.1/.ai/hooks/repair-limit.sh`, sha **`fa38193a5093c09bf0261947b0b4d2750b9c973b90fb17123eec82519077cea5`**, registered as a `PreToolUse`/`Bash` hook in `.claude/settings.json` sha **`925a382322daada434a8d3716f8696882a1759b048ccc7f0d580a902ea27fb2b`**. Fixture set `tools/verify-repair-limit.sh` — **30 of 30**, re-run 2026-09-16 at this step. Wiring proved by removal: `evidence/b08/deliberate-failure-20260916/`, run `5116b598-3cdd-49b3-b497-2e4bf7de46c2` | **L2 by fixture — and explicitly *unexercised in situ*.** The blocking branch fired **0 times in 20 treated runs**; its evidence is fixtures plus the removal probe, never a benchmark run | `./tools/verify-repair-limit.sh` → `30 of 30 cases pass`; `awk -F'\t' '!/^#/&&!/^task\t/{print $3,$16}' evidence/b08/batch-20260915T182436Z/manifest.tsv \| sort \| uniq -c` → `20 control 0`, `20 treated 0` |
+| *a blocked run produces a clear machine-readable result* | **NOT MET.** `grep -rln classify-permission-block` in `agent-observatory` at `1376a2eef5539914a463f9226ccc11cc8a421df4` returns exactly two paths: `runner/lib/classify-permission-block.sh` and `runner/verify-permission-block-classifier.sh`, its own verifier. Nothing in the run path calls it. From the other side: `blocks` = 0 on 20 of 20 treated rows, so no blocked run exists to inspect | **L3 — and therefore the gate is not closed.** §5: *"if the only proof that a gate held is that you say so, write L3 and do not close the gate"* | `git -C ../agent-observatory rev-parse HEAD` then the `grep -rln` above → two paths, one of which is the file itself. There is no third caller to find |
+| *no regression against the v1.0 benchmark* | Population: `evidence/b08/batch-20260915T182436Z/manifest.tsv`, **40 rows**; `evidence/b08/gate-20260916/admitted.tsv`, **36**; 4 gate refusals named in `gate-results.tsv` (BE-004 `2ebaa773`, `80b21210`, `00b6ccbb` — `f13=yes`, evaluator 12; BE-004 treated `ebf9e05e`, evaluator 11). Scores: `evidence/b08/scoring-20260916/category-values.tsv`, 36 rows, **four non-null categories on 36 of 36**, rubric shas **20 × `396e1799eb2b`** (BE-003) and **16 × `6252778b8472`** (BE-004). Readings in `experiments/E-018-…-BE003.md:352-369` and `E-019-…-BE004.md:350-363`; MDE in `evidence/b08/scoring-20260916/mde-rederived.md` | **L2 for every number** — sheets, manifest and reports are all re-readable. **L3 for the phrase "no regression"** as a property: what is shown is *no regression this instrument can see*, and the instrument's floor is written down — one full rubric point, **$0.0163** on BE-003 (`n = 10`), **$0.0089** on BE-004 (`n = 7` control / `n = 9` treated) | `./tools/codex-score.sh benchmark/rubrics/backend-quality.yaml --run-id <any BE-003 id>` reproduces a sheet at the same sha; medians from `category-values.tsv` by `awk`; BE-003 evaluator 10/10 vs 10/10 and BE-004 9/10 vs 7/7 from manifest columns 3 and 6 |
+| *the prediction was on record before the first run* | Prediction commit **`5d7bfe0`**, `2026-09-15T14:31:03Z`. First run `startedAt`: BE-003 `2026-09-15T18:24:37Z` (E-018:318), BE-004 `2026-09-15T19:21:40Z` (E-019:316) | **L2** — the ordering is in git, not in prose | `git log --format=%cI -1 5d7bfe0` precedes both timestamps by ≥ 3 h 53 m |
+| *P1 — the treatment reached the treated arm and not the control* | `manifest.tsv`: `instr_hash` = `sha256:a94237242e8c1308fb1d434a06a03463` on **20 treated**, `null` on **20 control**; `agent_hash` = `sha256:b3450564b6f32d6193e8580db766210e` on **40 of 40** (so nothing about the B5 phase agent moved between arms); `state_file` **PRESENT × 20 treated**, **ABSENT × 17 control** and `INCONCLUSIVE-0-edits × 3` (the three F13 control runs made no edits, so their column is honest rather than a claim); `state_valid` = 0 (`check-run-state.sh` accepts) on **20 of 20** treated; `init_tools` = `n=4 ["Read","Edit","Write","Bash"]/match` on **40 of 40** | **L2** — every value is read back from the run's own init record or from the hook's own output, never from the flag that was passed | `awk -F'\t'` over columns 12, 11, 13, 14 and 24 of the manifest reproduces each count. The two registered hashes are re-derivable from the overlay: `shasum -a 256 build/customizations/agent-v1.1/CLAUDE.md` → `a94237242e8c1308f…` and `.claude/agents/backend-feature-phases.md` → `b3450564b6f32d619…`, the runner storing the first 32 hex characters |
+| *the registered variables did not move* | `runtime_ver` = `2.1.272 (Claude Code)` and `model` = `claude-haiku-4-5-20251001` on **40 of 40** manifest rows; benchmark baseline `eea144ef940fda4cb6090561fdd901aed0013c8e`; runner commit `1376a2eef553`; rubric shas as above, one per task with **no mixing** | **L2** | `awk -F'\t' '{print $9,$10}' manifest.tsv \| sort -u` → one line; `git -C ../agent-observatory-benchmarks rev-parse origin/main` → `eea144ef…`; `shasum -a 256` on both rubric files |
+| *at least one scored cell re-read by hand, beside the sheet's value* | `evidence/b08/hand-rereads-20260916/BE-003-change-focus-6e5cac9b.md` — run `6e5cac9b-…`, `change-focus`, **hand = 1, sheet = 1**, cited at `ApiError.kt:36`. `evidence/b08/hand-rereads-20260916/BE-004-change-focus-b33a8233.md` — run `b33a8233-…`, `change-focus`, **hand = 2, sheet = 1**, cited at `OrderController.kt:21` and `ShipmentController.kt:26`. Both committed at **`8c56ba8`, 2026-09-16T09:51:59Z** | **L2 — and the ordering is the point.** The hand values predate every sheet of this batch by 2 h 18 m, so neither was written with a number to match | `git log --format=%cI -1 8c56ba8` → `2026-09-16T09:51:59Z`; earliest `scored_utc` across the 36 sheets → `20260916T120919Z`. **The BE-004 cell disagrees with its sheet and is left disagreeing** — the disagreement is the evidence for the change-focus defect, not something to reconcile by editing either value |
+| *second reader, not a vote* | `evidence/b08/scoring-20260916/second-reader-results.tsv`, 36 rows; concordance in `concordance.md`: architecture-consistency **29/30**, maintainability **29/30**, test-quality **26/30**, change-focus **17/30** | **L2** — two harnesses, both on disk, per run id | `diff` the two results files by run id; the change-focus column is the one that splits, which is the third independent arrival at the same defect |
+| *deliberate failure: the wiring, not the file, is what executes* | `evidence/b08/deliberate-failure-20260916/`, run `5116b598-3cdd-49b3-b497-2e4bf7de46c2`. Variant `build/customizations/agent-v1.1-unwired-DELIBERATE-FAILURE/` — the three hook scripts present and byte-identical, the `settings.json` registration removed. `condition-d1-absent.txt`: *"condition D1: run-state file ABSENT"*. The run still produced `"evaluation":{"exitCode":0,"passed":true}` | **L2** — the failure was induced on a real run and observed, not argued | `shasum -a 256` the three hook scripts in both overlays (identical); `diff` the two `settings.json` (the hook block is the only change); `stat` the run-state path for `5116b598` → no such file |
+| *author decision 11 item 7 — the `handoff` field is written and marked reserved* | `handoff` is a top-level key of every treated run's `run-state.json`; re-read here from `b90c76d7-…/run-state.json` alongside `phase`, `goal`, `affectedFiles`, `limits`, `repairAttemptsByFingerprint`, `totalRepairAttempts`, `blocks`. Marked reserved for B8a in the workbook at `phases/b08-run-state-repair-limits/README.md:497-513` | **L3, and deliberately** — nothing executes on it at this stop, which is what "reserved" means. Calling a written field a control would be the substitution the workspace `CLAUDE.md` names | `python3 -c "import json;print(sorted(json.load(open(P)).keys()))"` → `handoff` is present; `grep -rl '"handoff"' evidence/b08/worktrees/*/run-state.json \| wc -l` → 22 |
+| *the population is exactly the 40 named runs, and no run was re-run* | 40 manifest rows = 36 admitted + 4 gate-refused; 3 of the 4 are `f13=yes` (`api_error`, evaluator 12) and were **deliberately not topped up**, as E-016 did at `n = 7`; the fourth (`ebf9e05e`, evaluator 11) is BE-004's **first evaluator failure on this model** and is a result, not an exclusion | **L2** — every id reconciles, in both directions | `wc -l` on `manifest.tsv` minus header and comments → 40; `wc -l admitted.tsv` → 36; `awk -F'\t' '$7=="yes"' manifest.tsv` → 3 rows, all BE-004 control |
+
+**Every number above carries its `n`.** BE-003 is `n = 10` per arm. BE-004 is `n = 9` treated and
+`n = 7` control after the gate, and the one BE-004 evaluator failure is written as *one run*, never
+as a rate — §5 forbids stating an `n < 5` result as a property, and `n = 1` is the strongest case
+of that. Clause 1's persistence demonstration is `n = 1` and is labelled as such in its own row.
+
+### One thing this table found that the exit gate above does not say, 2026-09-16
+
+The success oracle's evidence is the **gap** between `PreToolUse` allows and `PostToolUse`
+successes, and §4 step 10 keeps it as *"the stop's real deliverable"* on the strength of the
+BE-003 pooled gap, **48 allows vs 47 successes**. Re-deriving the same columns for BE-004 at this
+step gives a pooled gap of **0** — and that 0 is a **cancellation, not an agreement**: seq 03
+`+1`, seq 09 `+1`, seq 05 `−2`.
+
+A negative gap cannot happen if both hooks see every `Bash` event, because every success must have
+had an allow. On seq 05 — run `b90c76d7-…`, the same run clause 1 rests on — the state file records
+**5 `repair-limit` allows and 7 `repair-record` successes**. So on 1 of 20 treated runs the two
+hooks demonstrably did **not** see the same event stream, and it is the run that spanned the
+80-minute sleep.
+
+What this changes, and what it does not:
+
+- **It does not change any registered outcome.** No prediction reads the gap; P2's registered
+  quantity is `totalRepairAttempts`, which is 0 on that run and read from the same file.
+- **It does change what may be claimed for the oracle.** A gap is interpretable only when the
+  allow side is complete, and this batch contains one run where it is not. The honest form of the
+  step-10 keep is *"the gap is the only instrument here that can see a failing command, and it is
+  trustworthy per run only where allows ≥ successes"* — true of 19 of 20 runs.
+- **It sharpens clause 1 rather than weakening it.** The counters survived the sleep; the *event
+  capture* did not survive it intact. Those are two different properties of the same run, and only
+  the first is what the clause asks about.
+
+**Nothing above is edited into a prediction, a sheet or a result.** Found by Opus 5
+(`claude-opus-5`), autonomously, at §4 step 13, 2026-09-16, by re-deriving manifest columns 17 and
+18 for BE-004 — a task the batch's own report never asked for, which is why it was not found
+earlier.
+
 ## Commit
 
 <!-- TODO -->
