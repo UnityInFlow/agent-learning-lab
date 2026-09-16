@@ -131,6 +131,20 @@ fi
 if jq -e --argjson m "$REG_TOTAL" '(.totalRepairAttempts // 0) > $m' "$FILE" >/dev/null 2>&1; then
   problem ".totalRepairAttempts: exceeds the registered $REG_TOTAL — the total limit did not hold"
 fi
+# EVERY MEMBER OF THESE TWO ARRAYS MUST BE AN OBJECT, AND THIS CHECK GOES FIRST BECAUSE THE
+# TWO BELOW SILENTLY NO-OP WITHOUT IT. `.blocks = ["corrupt"]` and `.hookExecutions = ["corrupt"]`
+# both passed with exit 0 until now: indexing a string with `.reason` or `.decision` is a jq
+# ERROR, `jq -e` then exits non-zero, and an `if jq -e ...` guard reads a failed query as "no
+# problem found". So a corrupt array disabled exactly the checks meant to read it. Found by codex
+# at §4a round 3 — and the acceptance model DISPUTED it as already handled by null-coalescing,
+# which is wrong: the three mutations were run and two of them exited 0. The gate can be wrong in
+# both directions, which is why a finding gets tested rather than voted on.
+if jq -e '[.blocks[] | select(type != "object")] | length > 0' "$FILE" >/dev/null 2>&1; then
+  problem ".blocks: every entry must be an OBJECT; a scalar member disables the checks below"
+fi
+if jq -e '[.hookExecutions[] | select(type != "object")] | length > 0' "$FILE" >/dev/null 2>&1; then
+  problem ".hookExecutions: every entry must be an OBJECT; a scalar member disables the checks below"
+fi
 # Every recorded block must name a reason, or a blocked run cannot be explained afterwards.
 if jq -e '[.blocks[] | select((.reason // "") == "" or (.fingerprint // "") == "")] | length > 0' "$FILE" >/dev/null 2>&1; then
   problem ".blocks: every entry needs a non-empty .reason and .fingerprint"

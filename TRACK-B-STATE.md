@@ -1650,13 +1650,17 @@ process_violations_this_session:  # the first entry is THIS session's; the rest 
     bare pgrep twice and both times it produced a WRONG CONCLUSION over a live process.
     (1) §4a round 2`s findings file read 1139 bytes and my filtered pgrep matched nothing, so I
     called it a STALL and RE-RAN THE REVIEW. It was mid-write and alive; the duplicate`s own file
-    (findings/opencode/review-check-run-state-20260916T184333Z.md, 1139 bytes, NO verdict line) then
-    really did stall and is LEFT ON DISK beside two complete ones. CORRECTED WITHIN THE HOUR: this
-    bullet first named 183208Z as the stall; that file is 23563 BYTES WITH verdict: REJECT and
-    COMPLETED - I read it mid-write too, the same mistake twice in the same hour. THERE ARE THREE
-    ROUND-2 FILES, NOT TWO, AND THE MIDDLE ONE`S FINDINGS WERE UNDISPOSED when the round was first
-    written up, which is the worse half of this: a review file with findings in it is owed a
-    disposition. (2) A waiter built on `until ! pgrep -f opencode-review.sh`
+    was a SECOND COMPLETE REVIEW, not a stall. CORRECTED TWICE AND THE SECOND CORRECTION RETRACTS THE
+    FIRST: **NO REVIEW FILE EVER STALLED.** All three completed - 182713Z 17532 B REJECT (round 2,
+    delegated), 183208Z 23563 B REJECT (round 2 AGAIN, my duplicate), 184333Z 18183 B REJECT
+    (ROUND 3). I called a file a stall THREE TIMES and was wrong every time, always by reading it
+    mid-write at 1139 bytes - a provenance header - and applying §4a`s `header-only is a stall`
+    rule to a file that was merely unfinished. THE RULE IS ABOUT A FILE WHOSE RUN IS DEAD, and the
+    liveness half is what I kept getting wrong because bare pgrep reports nothing here. The stall
+    rule NEEDS the liveness check, and on this machine the liveness check NEEDS LC_ALL=C: the two
+    halves are not independent and I treated them as if they were. CONSEQUENCES: one duplicate
+    review invocation, and 183208Z`s findings sat UNDISPOSED while the round was written up as
+    though there were none. (2) A waiter built on `until ! pgrep -f opencode-review.sh`
     exited immediately while the deepseek pass was still running and printed `round 3 finished` over
     a live run. Redone with LC_ALL=C, which works. COST: one duplicate review invocation of quota.
     NO evidence destroyed, NO benchmark run touched, NO registered variable moved. Recorded because

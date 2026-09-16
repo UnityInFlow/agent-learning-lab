@@ -142,6 +142,16 @@ G=$(AGENT_REPAIR_LIMIT_HOOK="$SANDBOX/moved.sh" "$CHECK" "$GOOD" >/dev/null 2>&1
                || bad "moved limits" "exit 1" "exit $G"
 
 echo
+echo "THE §4a ROUND-3 FINDING — a scalar member of either array used to DISABLE the checks"
+echo "meant to read it, because jq errors and \`if jq -e\` reads an error as \"no problem\":"
+expect "a string member in .blocks"                                  1 "$(mutate '.blocks = ["corrupt"]')"
+expect "a string member in .hookExecutions"                          1 "$(mutate '.hookExecutions = ["corrupt"]')"
+expect "a number member in .hookExecutions"                          1 "$(mutate '.hookExecutions = [42]')"
+expect "a null member in .blocks"                                    1 "$(mutate '.blocks = [null]')"
+expect "an array member in .hookExecutions"                          1 "$(mutate '.hookExecutions = [[]]')"
+expect "NEGATIVE CONTROL: object members still pass"                 0 "$(mutate '.blocks = [{"ts":"t","fingerprint":"f","command":"c","reason":"r"}]')"
+
+echo
 echo "USAGE errors are exit 30, distinct from INVALID — so a broken call is not read as a bad file:"
 "$CHECK" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "no argument" "exit 30" || bad "no argument" "exit 30" "exit $G"
 "$CHECK" "$SANDBOX/nope.json" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "unreadable path" "exit 30" || bad "unreadable path" "exit 30" "exit $G"

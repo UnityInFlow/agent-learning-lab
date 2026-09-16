@@ -195,6 +195,39 @@ grep -q 'WARNING: 5 of 7 clauses were UNDECIDABLE' "$SANDBOX/out.txt" \
   || bad "undecidable-majority warning" "present" "absent"
 
 echo
+echo "THE §4a ROUND-3 BLOCKING FINDING, TESTED RATHER THAN ARGUED: the critic said clause 6"
+echo "enforces only 12 of 18 deny patterns because bash collapses \`**\` to \`*\`. It is DISPUTED,"
+echo "and this is the sweep that disputes it — one representative path per deny pattern:"
+SWEEP="$SANDBOX/sweep"; mkdir -p "$SWEEP"; git -C "$SWEEP" init -q
+git -C "$SWEEP" config user.email f@x; git -C "$SWEEP" config user.name f
+SWEEP_PATHS="svc/pom.xml svc/build.gradle svc/build.gradle.kts svc/settings.gradle \
+svc/settings.gradle.kts svc/gradle.properties svc/yarn.lock svc/package-lock.json \
+.github/workflows/ci.yml svc/Dockerfile svc/docker-compose.yml svc/docker-compose.yaml \
+infra/terraform/main.tf deploy/prod/app.yaml charts/app/values.yaml k8s/deployment.yaml \
+svc/.env svc/.env.production"
+for p in $SWEEP_PATHS; do mkdir -p "$SWEEP/$(dirname "$p")"; printf 'base\n' > "$SWEEP/$p"; done
+printf 'class A{}\n' > "$SWEEP/A.java"
+git -C "$SWEEP" add -A >/dev/null; git -C "$SWEEP" commit -qm base >/dev/null
+SB="$(git -C "$SWEEP" rev-parse HEAD)"
+SWEEP_CAUGHT=0; SWEEP_TOTAL=0; SWEEP_MISSED=""
+for p in $SWEEP_PATHS; do
+  printf 'changed\n' > "$SWEEP/$p"; git -C "$SWEEP" add -A >/dev/null; git -C "$SWEEP" commit -qm t >/dev/null
+  OUT="$("$CHECK" "$SWEEP" --baseline "$SB" --evaluator-exit 0 --summary "$SUMMARY" --policy "$POLICY" 2>&1)"
+  SWEEP_TOTAL=$((SWEEP_TOTAL+1))
+  if printf '%s' "$OUT" | grep -qE 'FAIL +6\.'; then SWEEP_CAUGHT=$((SWEEP_CAUGHT+1)); else SWEEP_MISSED="$SWEEP_MISSED $p"; fi
+  git -C "$SWEEP" reset -q --hard "$SB"
+done
+[[ "$SWEEP_CAUGHT" == "$SWEEP_TOTAL" ]] \
+  && ok "clause 6 FAILS on every one of the 18 deny patterns, directory globs included" "$SWEEP_CAUGHT of $SWEEP_TOTAL" \
+  || bad "deny-pattern sweep" "$SWEEP_TOTAL of $SWEEP_TOTAL" "$SWEEP_CAUGHT — missed:$SWEEP_MISSED"
+# NEGATIVE CONTROL: an ordinary source file must NOT be caught by any of the 18.
+printf 'class A{ void f(){} }\n' > "$SWEEP/A.java"; git -C "$SWEEP" add -A >/dev/null; git -C "$SWEEP" commit -qm ok >/dev/null
+OUT="$("$CHECK" "$SWEEP" --baseline "$SB" --evaluator-exit 0 --summary "$SUMMARY" --policy "$POLICY" 2>&1)"
+printf '%s' "$OUT" | grep -qE 'PASS +6\.' \
+  && ok "NEGATIVE CONTROL: an ordinary .java change is not caught by any pattern" "PASS" \
+  || bad "ordinary file" "PASS 6" "$(printf '%s' "$OUT" | grep -E ' +6\.' | awk '{print $1}')"
+
+echo
 echo "USAGE errors are exit 30, distinct from FAIL:"
 "$CHECK" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "no worktree argument" "exit 30" || bad "no argument" "exit 30" "exit $G"
 "$CHECK" "$SANDBOX/nope" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "a path that is not a directory" "exit 30" || bad "bad path" "exit 30" "exit $G"

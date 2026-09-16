@@ -1251,15 +1251,29 @@ Cost: one duplicate review invocation, whose own file — **`…184333Z.md`**, 1
 line — is the one that really did stall, and is left on disk beside two complete ones. No evidence
 was destroyed and no benchmark run was touched.
 
-> **Corrected within the hour, 2026-09-16, by me.** The sentence above first named `…183208Z.md`
-> as the stall. It is **23 563 bytes and carries `verdict: REJECT`** — it *completed*, and what
-> made it look like a stall was reading it mid-write, which is the same mistake in the same hour
-> for the same reason. So there are **three** round-2 files, not two: `…182713Z` (17 532 B,
-> REJECT), `…183208Z` (23 563 B, REJECT) and `…184333Z` (1 139 B, the actual stall). **The second
-> one's findings were on disk and undisposed when this section was first written**, which is a
-> worse error than mislabelling a filename: a review file with findings in it is owed a
-> disposition, and I had written the round up as though it had none. Its dispositions are in the
-> section below.
+> **Corrected twice, 2026-09-16, and the second correction retracts the first.** **No review file
+> ever stalled.** All three completed:
+>
+> | file | `reviewed_utc` | size | verdict | what it is |
+> |---|---|---|---|---|
+> | `…182713Z.md` | 18:27:13Z | 17 532 B | REJECT | round 2, the delegated invocation |
+> | `…183208Z.md` | 18:32:08Z | 23 563 B | REJECT | round 2 **again** — my duplicate |
+> | `…184333Z.md` | 18:43:33Z | 18 183 B | REJECT | **round 3** |
+>
+> I called a file a stall **three times** and was wrong every time, for one reason: I read each
+> one while it was still being written, saw 1 139 bytes — a provenance header — and applied §4a's
+> *"a header-only findings file is a stall"* rule to a file that was simply not finished. The rule
+> is about a file whose run is **dead**; the liveness half of it is what I kept getting wrong,
+> because `pgrep` without `LC_ALL=C` reports nothing here. **So the stall rule needs the liveness
+> check to work, and on this machine the liveness check needs the locale — the two halves are not
+> independent, and I treated them as if they were.**
+>
+> Two consequences, both worse than the mislabelling. **One duplicate review was run** (`183208Z`)
+> because I judged `182713Z` dead while it was alive. And **`183208Z`'s findings sat undisposed**
+> while this section was first written as though there were nothing to dispose — a review file
+> with findings in it is owed a disposition per §4a, and I owed one to a whole file. Both files'
+> findings are disposed of below, and the duplicate turned out to carry the round's most useful
+> finding, which is luck and not a defence.
 
 `Round 2 of at most three. Reviewed by codex + deepseek-v4-pro, acceptance minimax-m3; fixes and
 dispositions by Opus 5 (claude-opus-5), autonomously, 2026-09-16.`
