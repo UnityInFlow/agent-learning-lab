@@ -120,6 +120,28 @@ expect "the registered limits stated explicitly as 3 and 7"         0 "$(mutate 
 expect "whole-number counts at the boundary (0 and 7)"              0 "$(mutate '.totalRepairAttempts = 7 | .repairAttemptsByFingerprint = {}')"
 
 echo
+echo "THE §4a ROUND-2 FINDINGS:"
+expect "an EMPTY .worktree — a run-state with no identity"           1 "$(mutate '.worktree = ""')"
+expect "an EMPTY .startedAt"                                         1 "$(mutate '.startedAt = ""')"
+expect "an EMPTY .phase"                                             1 "$(mutate '.phase = ""')"
+expect "an EMPTY .schemaVersion"                                     1 "$(mutate '.schemaVersion = ""')"
+expect "NEGATIVE CONTROL: non-empty required strings still pass"     0 "$GOOD"
+
+# The registered ceilings are now READ FROM THE HOOK rather than restated, so the refusal when
+# the hook cannot be read has to be shown to happen.
+G=$(AGENT_REPAIR_LIMIT_HOOK="$SANDBOX/no-such-hook.sh" "$CHECK" "$GOOD" >/dev/null 2>&1; echo $?)
+[[ "$G" == 30 ]] && ok "an unreadable hook is exit 30 — the ceiling is never guessed" "exit 30" \
+                 || bad "unreadable hook" "exit 30" "exit $G"
+printf '#!/usr/bin/env bash\necho no constants here\n' > "$SANDBOX/constantless.sh"
+G=$(AGENT_REPAIR_LIMIT_HOOK="$SANDBOX/constantless.sh" "$CHECK" "$GOOD" >/dev/null 2>&1; echo $?)
+[[ "$G" == 30 ]] && ok "a hook with no MAX_ constants is exit 30, not a fallback to 3/7" "exit 30" \
+                 || bad "constantless hook" "exit 30" "exit $G"
+printf '#!/usr/bin/env bash\nMAX_PER_FINGERPRINT=5\nMAX_TOTAL=9\n' > "$SANDBOX/moved.sh"
+G=$(AGENT_REPAIR_LIMIT_HOOK="$SANDBOX/moved.sh" "$CHECK" "$GOOD" >/dev/null 2>&1; echo $?)
+[[ "$G" == 1 ]] && ok "if the HOOK's limits move, the checker follows the hook and refuses a 3/7 file" "exit 1" \
+               || bad "moved limits" "exit 1" "exit $G"
+
+echo
 echo "USAGE errors are exit 30, distinct from INVALID — so a broken call is not read as a bad file:"
 "$CHECK" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "no argument" "exit 30" || bad "no argument" "exit 30" "exit $G"
 "$CHECK" "$SANDBOX/nope.json" >/dev/null 2>&1; G=$?; [[ "$G" == 30 ]] && ok "unreadable path" "exit 30" || bad "unreadable path" "exit 30" "exit $G"

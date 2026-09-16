@@ -49,6 +49,15 @@ want_type '.limits'                     object
 want_type '.limits.maxRepairAttemptsPerFailure' number
 want_type '.limits.maxTotalRepairAttempts'      number
 
+# A REQUIRED STRING MUST ALSO BE NON-EMPTY. §4a round 2, 1/2: `type == "string"` accepts "", so
+# a run-state with no worktree, no start time and no phase passed as valid — a file with no
+# identity at all. The type check and the emptiness check are separate so the message says which.
+for f in schemaVersion worktree startedAt updatedAt phase; do
+  if jq -e --arg f "$f" '(.[$f] // "") == ""' "$FILE" >/dev/null 2>&1; then
+    problem ".$f: present but EMPTY — a required string with no value is not a value"
+  fi
+done
+
 # --- the handoff block — author decision 11 item 7 ------------------------------------------
 # Written UNCONDITIONALLY and MARKED RESERVED. This checker asserts it is PRESENT and has its
 # four fields; it deliberately does NOT assert they are non-null, because at this version
@@ -91,8 +100,23 @@ fi
 # the file's own `.limits` block is now CHECKED AGAINST them rather than trusted as the source.
 # Found by §4a round 1, codex + deepseek, 1/2 recurrence — and 1/2 is a detection threshold, not
 # a truth value.
-REG_PER=3
-REG_TOTAL=7
+# AND THEY ARE READ FROM THE HOOK, NOT RESTATED HERE. §4a round 2 pointed out at 1/2 that
+# hardcoding 3 and 7 in this file makes a SECOND copy of the rule that can drift from the first:
+# raise MAX_PER_FINGERPRINT in repair-limit.sh and this checker starts rejecting valid run-state
+# files. That is the same argument check-completion-contract.sh already makes about the deny list
+# — "a second copy of the rules in the code is a rule that can disagree with the file it claims
+# to enforce" — so the fix is the same shape. If the hook cannot be read, that is exit 30: a
+# checker with no registered ceiling has nothing to check against and must not fall back to a
+# guess, because a guess is how the file ended up grading its own homework in the first place.
+# The path is overridable ONLY so the fixture set can prove the exit-30 refusal below; a
+# refusal that has never been shown to happen is indistinguishable from one that cannot.
+HOOK="${AGENT_REPAIR_LIMIT_HOOK:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/build/customizations/agent-v1.1/.ai/hooks/repair-limit.sh}"
+REG_PER="$(sed -n 's/^MAX_PER_FINGERPRINT=\([0-9][0-9]*\).*/\1/p' "$HOOK" 2>/dev/null | head -1)"
+REG_TOTAL="$(sed -n 's/^MAX_TOTAL=\([0-9][0-9]*\).*/\1/p' "$HOOK" 2>/dev/null | head -1)"
+if [[ -z "$REG_PER" || -z "$REG_TOTAL" ]]; then
+  echo "check-run-state: cannot read the registered limits from $HOOK — refusing to guess" >&2
+  exit 30
+fi
 if jq -e --argjson m "$REG_PER" '.limits.maxRepairAttemptsPerFailure != $m' "$FILE" >/dev/null 2>&1; then
   problem ".limits.maxRepairAttemptsPerFailure: expected the registered $REG_PER, found $(jq -r '.limits.maxRepairAttemptsPerFailure' "$FILE")"
 fi

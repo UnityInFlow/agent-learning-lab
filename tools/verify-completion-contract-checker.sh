@@ -69,10 +69,34 @@ done
 
 echo
 echo "IT REFUSES — each decidable clause driven to FAIL:"
+# THESE THREE CASES USED TO ASSERT THE WRONG THING, AND §4a ROUND 2 IS WHY THEY CHANGED.
+# They required clause 2 to read `FAIL build passed` on evaluator exit 21 — and 21 is the SCOPE
+# GUARD (BE-004 verify-evaluator.sh:5-16): a submission that BUILT, whose tests PASSED, and which
+# then touched an unrelated production file. The suite was enforcing the misclassification rather
+# than catching it, which is a fixture set defending a defect. 12 and 13 are the real functional
+# and contract failures and those still FAIL.
+G=$(run --baseline "$BASE" --evaluator-exit 12 --summary "$SUMMARY" --policy "$POLICY")
+[[ "$G" == 1 ]] && ok "evaluator exit 12 (functional) is exit 1" "exit 1" || bad "functional failure" "exit 1" "exit $G"
+[[ "$(line 2)" == FAIL ]] && ok "clause 2 FAILS on evaluator exit 12" "FAIL" || bad "clause 2 on 12" "FAIL" "$(line 2)"
+[[ "$(line 3)" == FAIL ]] && ok "clause 3 FAILS on evaluator exit 12" "FAIL" || bad "clause 3 on 12" "FAIL" "$(line 3)"
+G=$(run --baseline "$BASE" --evaluator-exit 13 --summary "$SUMMARY" --policy "$POLICY")
+[[ "$(line 2)" == FAIL ]] && ok "clause 2 FAILS on evaluator exit 13 (contract)" "FAIL" || bad "clause 2 on 13" "FAIL" "$(line 2)"
+
+echo
+echo "AND A GUARD EXIT IS NOT A BUILD FAILURE — the §4a round-2 correction:"
 G=$(run --baseline "$BASE" --evaluator-exit 21 --summary "$SUMMARY" --policy "$POLICY")
-[[ "$G" == 1 ]] && ok "a failing evaluator exit is exit 1" "exit 1" || bad "failing evaluator" "exit 1" "exit $G"
-[[ "$(line 2)" == FAIL ]] && ok "clause 2 (build) FAILS on evaluator exit 21" "FAIL" || bad "clause 2" "FAIL" "$(line 2)"
-[[ "$(line 3)" == FAIL ]] && ok "clause 3 (tests) FAILS on evaluator exit 21" "FAIL" || bad "clause 3" "FAIL" "$(line 3)"
+[[ "$(line 2)" == UNDECIDABLE ]] && ok "clause 2 is UNDECIDABLE on exit 21 (scope guard), not FAIL" "UNDECIDABLE" \
+  || bad "clause 2 on 21" "UNDECIDABLE" "$(line 2)"
+[[ "$(line 3)" == UNDECIDABLE ]] && ok "clause 3 is UNDECIDABLE on exit 21, not FAIL" "UNDECIDABLE" \
+  || bad "clause 3 on 21" "UNDECIDABLE" "$(line 3)"
+grep -q 'is a guard, not a build or test failure' "$SANDBOX/out.txt" \
+  && ok "…and the output says so in as many words" "note present" || bad "guard note" "present" "absent"
+G=$(run --baseline "$BASE" --evaluator-exit 20 --summary "$SUMMARY" --policy "$POLICY")
+[[ "$(line 2)" == UNDECIDABLE ]] && ok "exit 20 (dependency guard) behaves the same way" "UNDECIDABLE" \
+  || bad "clause 2 on 20" "UNDECIDABLE" "$(line 2)"
+G=$(run --baseline "$BASE" --evaluator-exit 99 --summary "$SUMMARY" --policy "$POLICY")
+[[ "$(line 2)" == UNDECIDABLE ]] && ok "an UNMAPPED exit is undecidable, never guessed" "UNDECIDABLE" \
+  || bad "clause 2 on 99" "UNDECIDABLE" "$(line 2)"
 
 printf '<project><dep/></project>\n' > "$WT/service/pom.xml"
 git -C "$WT" add -A; git -C "$WT" commit -qm "touch a forbidden file"
@@ -128,6 +152,12 @@ printf 'deny:\n    - "**/pom.xml"\n    - "**/Dockerfile"\n' > "$REINDENTED"
 G=$(run --baseline "$BASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$REINDENTED")
 [[ "$G" == 2 ]] && ok "a policy that parses to ZERO deny patterns is exit 2, not PASS" "exit 2" \
                 || bad "zero-pattern policy" "exit 2" "exit $G"
+# AND THE LINE A READER READS MUST AGREE WITH THE EXIT CODE. The first fix left `PASS 6` on
+# stdout while exiting 2; §4a round 2's acceptance gate blocked on exactly that.
+[[ "$(line 6)" == UNDECIDABLE ]] && ok "…and clause 6 PRINTS UNDECIDABLE, never PASS, on zero rules" "UNDECIDABLE" \
+                                 || bad "clause 6 line on zero patterns" "UNDECIDABLE" "$(line 6)"
+grep -qE 'PASS +6\.' "$SANDBOX/out.txt" && bad "clause 6 must not print PASS on zero rules" "no PASS line" "a PASS line is present" \
+                                         || ok "NEGATIVE CONTROL: no PASS 6 line exists in that output" "absent"
 UNQUOTED="$SANDBOX/unquoted-policy.yaml"
 printf 'deny:\n  - **/pom.xml\n' > "$UNQUOTED"
 G=$(run --baseline "$BASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$UNQUOTED")
@@ -151,6 +181,7 @@ grep -qE 'PASS +6\..*deny pattern\(s\) read' "$SANDBOX/out.txt" \
 
 # (d) clauses 2 and 3 are two lines from one instrument, and the summary now says so rather
 #     than letting a reader count them as two independent decisions.
+G=$(run --baseline "$CLEANBASE" --evaluator-exit 0 --summary "$SUMMARY" --policy "$POLICY")
 grep -q 'TWO LINES FROM ONE INSTRUMENT' "$SANDBOX/out.txt" \
   && ok "the shared source of clauses 2 and 3 is stated in the output" "note present" \
   || bad "clauses 2/3 shared-source note" "present" "absent"

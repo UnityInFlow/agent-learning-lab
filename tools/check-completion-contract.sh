@@ -62,7 +62,7 @@ if [[ -n "$BASELINE" ]]; then
     || { echo "check-completion-contract: --baseline $BASELINE does not resolve to a commit in $WORKTREE" >&2; exit 30; }
 fi
 
-DECIDED=0; FAILED=0; SHARED_23=0; ZERO_PATTERNS=0
+DECIDED=0; FAILED=0; SHARED_23=0; ZERO_PATTERNS=0; GUARD_EXIT=""
 pass()  { DECIDED=$((DECIDED+1)); printf '  PASS        %d. %-42s %s\n' "$1" "$2" "$3"; }
 fail()  { DECIDED=$((DECIDED+1)); FAILED=$((FAILED+1)); printf '  FAIL        %d. %-42s %s\n' "$1" "$2" "$3"; }
 undec() { printf '  UNDECIDABLE %d. %-42s %s\n' "$1" "$2" "$3"; }
@@ -81,11 +81,30 @@ if [[ -n "$EVAL_EXIT" ]]; then
   if [[ "$EVAL_EXIT" == "0" ]]; then
     pass 2 "build passed"          "evaluator exit 0 (shared source, see note)"
     pass 3 "required tests passed" "evaluator exit 0 (shared source, see note)"
+    SHARED_23=1
   else
-    fail 2 "build passed"          "evaluator exit $EVAL_EXIT (shared source, see note)"
-    fail 3 "required tests passed" "evaluator exit $EVAL_EXIT (shared source, see note)"
+    # A NON-ZERO EVALUATOR EXIT DOES NOT MEAN THE BUILD FAILED, AND SAYING SO WAS WRONG.
+    # The benchmark's contract (BE-004 verify-evaluator.sh:5-16) maps 21 to the SCOPE GUARD and
+    # 20 to the DEPENDENCY GUARD — a run that BUILT and whose tests PASSED, and then touched an
+    # unrelated production file or added a Maven dependency. Until §4a round 2 this branch
+    # printed `FAIL 2. build passed` for exit 21, which is a checker asserting a fact the
+    # instrument never reported. 12 and 13 ARE functional and contract failures, so those two
+    # are attributed; everything else is reported as the guard it is, with the attribution
+    # between build and tests left UNDECIDABLE rather than guessed.
+    case "$EVAL_EXIT" in
+      12|13)
+        fail 2 "build passed"          "evaluator exit $EVAL_EXIT — functional/contract failure (shared source)"
+        fail 3 "required tests passed" "evaluator exit $EVAL_EXIT — functional/contract failure (shared source)"
+        SHARED_23=1 ;;
+      20|21)
+        undec 2 "build passed"          "evaluator exit $EVAL_EXIT is a GUARD (scope/dependency); it reports nothing about the build"
+        undec 3 "required tests passed" "evaluator exit $EVAL_EXIT is a GUARD; the suites are not what it failed on"
+        GUARD_EXIT="$EVAL_EXIT" ;;
+      *)
+        undec 2 "build passed"          "evaluator exit $EVAL_EXIT is unmapped here; attribution not guessed"
+        undec 3 "required tests passed" "evaluator exit $EVAL_EXIT is unmapped here; attribution not guessed" ;;
+    esac
   fi
-  SHARED_23=1
 else
   undec 2 "build passed"          "no --evaluator-exit given; not re-run here on purpose"
   undec 3 "required tests passed" "no --evaluator-exit given; not re-run here on purpose"
@@ -144,8 +163,15 @@ if [[ -n "$BASELINE" ]]; then
       done <<<"$CHANGED"
     done < <(printf '%s\n' "$PATTERNS")
     HITS="$(printf '%s' "$HITS" | tr ' ' '\n' | grep -c . || true)"
-    if [[ "${HITS:-0}" -gt 0 ]]; then
-      fail 6 "no forbidden files changed" "$HITS path(s) match the deny list"
+    if [[ "${NPAT:-0}" -eq 0 ]]; then
+      # ZERO RULES READ IS UNDECIDABLE ON THE CLAUSE, NOT A PASS ON IT. The first fix for this
+      # (2026-09-16, earlier today) set the exit code to 2 and LEFT THE `PASS 6` LINE ON STDOUT,
+      # so a reader parsing per-clause output saw PASS while the process said 2. §4a round 2
+      # caught that at 1/2 and the acceptance gate blocked on it — my own fix wearing the same
+      # defect it fixed. The line itself is what a reader reads, so the line is what changes.
+      undec 6 "no forbidden files changed" "the policy parsed to ZERO deny patterns — no rules were read"
+    elif [[ "${HITS:-0}" -gt 0 ]]; then
+      fail 6 "no forbidden files changed" "$HITS path(s) match the deny list ($NPAT pattern(s) read)"
     else
       pass 6 "no forbidden files changed" "$NPAT deny pattern(s) read; no changed path matches"
     fi
@@ -173,6 +199,7 @@ fi
 echo
 echo "  decidable clauses: $DECIDED of 7   failing: $FAILED"
 [[ "$SHARED_23" -eq 1 ]] && echo "  NOTE: clauses 2 and 3 are TWO LINES FROM ONE INSTRUMENT (the evaluator's exit code). They are not two independent decisions."
+[[ -n "$GUARD_EXIT" ]] && echo "  NOTE: evaluator exit $GUARD_EXIT is a guard, not a build or test failure — clauses 2 and 3 are UNDECIDABLE on it, not failed."
 if [[ "$ZERO_PATTERNS" -eq 1 ]]; then
   echo "  the policy file parsed to ZERO deny patterns — clause 6 read no rules" >&2
   exit 2

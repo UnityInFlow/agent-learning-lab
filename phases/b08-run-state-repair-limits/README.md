@@ -1194,6 +1194,66 @@ in the §5 table's clause-2 row rather than left for a reader to discover.
 `Reviewed by codex + deepseek-v4-pro; dispositions decided by Opus 5 (claude-opus-5), autonomously,
 2026-09-16. Round 1 of at most three.`
 
+### §4a round 2 — the acceptance gate blocked on my own fix, and it was right
+
+Same panel, same versions. **Exit 0, findings below the header, REJECT again**, at
+`findings/opencode/review-check-run-state-20260916T182713Z.md` (201 lines). Seven findings.
+
+**Three of the four round-1 defects are gone and the critic says so** — the enum substring test is
+not mentioned by either family; deepseek confirms the ceilings *"removes the file-grades-its-own-
+homework vector"*; and the unresolvable-baseline and zero-pattern cases *"assert the right exit
+codes"*.
+
+**The fourth survived in a form I introduced, and the gate blocked on exactly that.** My
+zero-pattern fix set the exit code to 2 and **left `PASS 6. no forbidden files changed — 0 deny
+pattern(s) read` on stdout**. A reader parsing per-clause output saw PASS while the process said 2.
+**My fix wore the defect it fixed.** The line a reader reads is what a reader reads, so the line is
+what changed: clause 6 now prints **UNDECIDABLE** on zero rules, and a fixture asserts that **no
+`PASS 6` line exists at all** in that output.
+
+**And one finding is a correctness bug, not a reporting one.** Clauses 2 and 3 were driven from
+`--evaluator-exit` with *any* non-zero mapped to `FAIL build passed`. **Evaluator exit 21 is the
+scope guard** and 20 the dependency guard (`BE-004/verify-evaluator.sh:5-16`) — a submission that
+**built, whose tests passed**, and which then touched an unrelated production file. The checker was
+asserting a fact the instrument never reported. Now: **12 and 13** attribute (functional, contract);
+**20 and 21** report the guard and leave clauses 2 and 3 **UNDECIDABLE**; an unmapped code is
+undecidable rather than guessed.
+
+**The fixture set was defending that bug**, which is the worse half of it. Three cases *required*
+`clause 2 == FAIL` on exit 21. A fixture set that encodes a misclassification cannot catch it, and
+this project has now shipped that twice. Those three cases were rewritten to exit 12 and 13, and
+five new cases assert the guard behaviour.
+
+| finding | rec. | disposition |
+|---|---|---|
+| clause 6 printed `PASS` on stdout while exiting 2 | 1/2 + **acceptance block** | **fixed** — prints `UNDECIDABLE`; a fixture asserts no `PASS 6` line exists |
+| one evaluator exit drove both clauses; exit 21 misreported as a build failure | 1/2 | **fixed** — 12/13 attribute, 20/21 report the guard as undecidable, unmapped codes undecidable |
+| the fixture suite *required* clause 2 to FAIL on a successful build | 1/2 | **fixed** — the three cases moved to 12/13, five new guard cases added |
+| `REG_PER`/`REG_TOTAL` duplicated the hook's constants and can drift | 1/2, called L1 | **fixed** — both are now **read out of `repair-limit.sh`**, the same argument this project already makes about the deny list. An unreadable or constantless hook is **exit 30, never a fallback**, and three fixtures prove it — including one where the hook's limits *move* and the checker follows the hook |
+| empty `.worktree` / `.startedAt` / `.updatedAt` / `.phase` passed type-only validation | 1/2 | **fixed** — required strings must be non-empty; four fixtures plus a negative control |
+| the suite had no fixture for an empty required scalar | 1/2 | **fixed** by the same four fixtures |
+| clauses 2 and 3 can never disagree, being one instrument | 1/2 | **answered in the output**, not removed: both lines say `shared source` and the summary says *"TWO LINES FROM ONE INSTRUMENT"*. Two clauses of §10.6 genuinely have one instrument here, and the fix for that is a second instrument, which would be a new registered variable |
+
+**Fixture sets after round 2: 30 of 30, 62 of 62, 44 of 44, and the batch guards 12 of 12** — every
+one re-run immediately before this was written. **And the twice-strengthened checker still admits
+22 of 22 kept run-state files**
+(`evidence/b08/recheck-20260916/round2-strengthened-checker-over-22-kept-files.tsv`), so nothing in
+the batch was retroactively invalidated by either round.
+
+**A process failure of mine, recorded because the catch was luck.** I read
+`review-check-run-state-20260916T182713Z.md` at 1 139 bytes, ran `pgrep` filtered for
+`lab-critic|lab-acceptance`, got zero, called it a stall under §4a, and **re-ran the review**. The
+file was **mid-write and the run was alive**; my process check came back empty because the tool
+output on this machine arrives with command lines stripped, so it matched nothing. That is the
+documented shape — *"the procedure written to catch a control that reports success over a smaller
+scope than it claims was itself one"* — this time with `rtk` in the role `LC_ALL` played in 2026-09-03.
+Cost: one duplicate review invocation, whose own file (`…183208Z.md`) **did** stall at 1 139 bytes
+and is left on disk as what a real stall looks like beside a real one. No evidence was destroyed
+and no benchmark run was touched.
+
+`Round 2 of at most three. Reviewed by codex + deepseek-v4-pro, acceptance minimax-m3; fixes and
+dispositions by Opus 5 (claude-opus-5), autonomously, 2026-09-16.`
+
 ## §5 validation table
 
 **Every command in the "re-derive" column was run again immediately before this table was
