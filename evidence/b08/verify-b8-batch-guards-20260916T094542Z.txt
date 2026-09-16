@@ -1,0 +1,15 @@
+verify-b8-batch-guards: driving evidence/b08/run-b8-batch.sh with B8_GUARDS_ONLY=1
+  ok   — A: the registered configuration passes all guards and runs nothing (exit 0)
+  ok   — B: a dead API port is refused, naming the code it answered (exit 7)
+  ok   — C: a dead OTLP endpoint is refused (exit 7)
+  ok   — D: a control whose agent file drifted is refused (exit 6)
+  ok   — E: an agent file that drifted in BOTH arms alike is still refused (exit 6)
+  ok   — F: a drifted treated CLAUDE.md is refused (exit 6)
+  ok   — G: a control overlay carrying a CLAUDE.md is refused (exit 6)
+  ok   — H: a treated overlay missing repair-record.sh is refused (exit 6)
+  ok   — H2: a treated hook that is present but NOT executable is refused (exit 6)
+  ok   — I: a control overlay carrying repair-limit.sh is refused (exit 6)
+  ok   — J: a live lock refuses a second batch (exit 8)
+  ok   — K: a stale lock (dead pid) does not block a batch (exit 0)
+
+verify-b8-batch-guards: 12 passed, 0 failed

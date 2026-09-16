@@ -89,7 +89,6 @@ if [[ -e "$LOCK" ]] && kill -0 "$(cat "$LOCK" 2>/dev/null)" 2>/dev/null; then
 fi
 echo $$ > "$LOCK"
 trap 'rm -f "$LOCK"' EXIT
-mkdir -p "$EVID/init-schema" "$KEEPDIR" "$SMALLDIR"
 MANIFEST="$EVID/manifest.tsv"
 
 # PRE-FLIGHT THE ENDPOINTS ONCE. A batch that starts against a dead API burns the first run
@@ -123,6 +122,13 @@ done
 if [[ -n "${B8_GUARDS_ONLY:-}" ]]; then
   echo "guards-only: every guard passed and NOTHING was run"; exit 0
 fi
+
+# THE DIRECTORIES ARE CREATED AFTER THE GUARDS-ONLY EXIT, and that is a fix rather than a
+# tidy-up. Before it, every guards-only invocation left a dated batch-<TAG>/ behind: the
+# twelve fixture cases and one manual probe created 13 empty directories, each of which reads
+# to a stranger as a batch that produced nothing. Found while the real batch was mid-flight
+# and fixed afterwards, because §4 step 4 forbids editing a tool while a run of it is running.
+mkdir -p "$EVID/init-schema" "$KEEPDIR" "$SMALLDIR"
 
 LAUNCH_CLAUDE="$(claude --version 2>/dev/null | awk '{print $1}')"
 {
@@ -164,8 +170,14 @@ one() {  # one <task> <arm> <seq>
   mc="$(printf '%s' "$rec"   | jq -r '.behavior.modelCalls // "null"')"
   tc="$(printf '%s' "$rec"   | jq -r '.behavior.toolCalls // "null"')"
   cost="$(printf '%s' "$rec" | jq -r '.efficiency.estimatedCost // "null"')"
-  dur="$(printf '%s' "$rec"  | jq -r '.durationMs // "null"')"
-  chg="$(printf '%s' "$rec"  | jq -r '.changedFiles // "null"')"
+  # CORRECTED 2026-09-16 after the batch: these two were read at the TOP LEVEL of the record
+  # and are not there, so every row of batch-20260915T182436Z reads null in both columns. The
+  # values were never lost — evidence/b08/rederive-null-columns.sh recovers them from the run
+  # records the driver had already saved. Same failure mode the state file names for
+  # `.behavior.*` vs `.overhead.*`: a wrong jq path reads null and looks like a missing
+  # measurement. `.result.changedFiles` is an ARRAY of paths, so the count is `length`.
+  dur="$(printf '%s' "$rec"  | jq -r '.efficiency.durationMs // "null"')"
+  chg="$(printf '%s' "$rec"  | jq -r 'if .result.changedFiles then (.result.changedFiles|length) else "null" end')"
   ev="$(printf '%s' "$rec"   | jq -r '.evaluation.exitCode // "null"')"
   rv="$(printf '%s' "$rec"   | jq -r '.runtime.version // "null"')"
   rm="$(printf '%s' "$rec"   | jq -r '.runtime.model // "null"')"

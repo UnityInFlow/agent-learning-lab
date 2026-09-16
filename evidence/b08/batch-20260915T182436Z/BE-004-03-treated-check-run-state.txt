@@ -1,0 +1,1 @@
+check-run-state: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//run-state-observatory-run-c897f0cb-5735-4ad4-aea5-d6723dba390f.json is valid against schema b8-v1.1
