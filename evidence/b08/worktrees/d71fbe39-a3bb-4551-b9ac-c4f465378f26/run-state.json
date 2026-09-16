@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "b8-v1.1",
+  "runStatePath": ".agent/run-state.json",
+  "worktree": "/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-d71fbe39-a3bb-4551-b9ac-c4f465378f26",
+  "startedAt": "2026-09-15T18:29:39Z",
+  "updatedAt": "2026-09-15T18:31:07Z",
+  "phase": "unknown",
+  "goal": null,
+  "affectedFiles": [],
+  "lastAttempt": {
+    "ts": "2026-09-15T18:30:57Z",
+    "fingerprint": "bf3adf888011fdc2",
+    "command": "cd /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-d71fbe39-a3bb-4551-b9ac-c4f465378f26/sample-service && ./mvnw test",
+    "attempt": 1
+  },
+  "repairAttemptsByFingerprint": {},
+  "totalRepairAttempts": 0,
+  "blocks": [],
+  "limits": {
+    "maxRepairAttemptsPerFailure": 3,
+    "maxTotalRepairAttempts": 7
+  },
+  "handoff": {
+    "reserved": "B8a — author decision 11 item 7. Nothing at stop 17 reads or writes these fields; they are L3 data awaiting a consumer.",
+    "fromAgent": null,
+    "toAgent": null,
+    "delivered": null,
+    "remaining": null
+  },
+  "hookExecutions": [
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-15T18:29:39Z",
+      "decision": "allow",
+      "fingerprint": "ade07f546b38382f",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-15T18:29:40Z",
+      "decision": "success",
+      "fingerprint": "ade07f546b38382f",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-15T18:30:57Z",
+      "decision": "allow",
+      "fingerprint": "bf3adf888011fdc2",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-15T18:31:07Z",
+      "decision": "success",
+      "fingerprint": "bf3adf888011fdc2",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    }
+  ]
+}

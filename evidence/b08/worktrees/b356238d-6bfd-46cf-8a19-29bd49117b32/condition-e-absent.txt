@@ -1,0 +1,2 @@
+CONDITION (e): no run-state file was written by this control run (BE-004).
+Checked by `stat` on 2026-09-15 immediately after the run: absent.

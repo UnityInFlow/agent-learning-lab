@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:    6252778b8472
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-af75aeeb-604e-4b9a-9937-befd4a314f52
+  mode:          run
+  run_id:        af75aeeb-604e-4b9a-9937-befd4a314f52
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/af75aeeb-604e-4b9a-9937-befd4a314f52
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.O7GtkwkrW9/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260916T163827Z
+  attachments:   7 file(s) under test, 7 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: every refusal throws a baseline ApiException subclass, no ApiError literal constructed.
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:50
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: order-status decision in cancel is a bare if, not an exhaustive when.
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:56
+  - name: test-quality
+    score: 2
+    anchor_level: 2
+    reason: all four clauses (double-cancel body, 409 re-reads, envelope, post-cancel get) citable.
+    evidence: sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:142
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: create/getById/list identical across both trees; only permitted additions present.
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:29
+ambiguous_categories: []
+```

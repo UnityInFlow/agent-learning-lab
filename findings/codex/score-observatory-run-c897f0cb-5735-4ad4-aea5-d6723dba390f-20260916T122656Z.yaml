@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c897f0cb-5735-4ad4-aea5-d6723dba390f
+  mode:           run
+  run_id:         c897f0cb-5735-4ad4-aea5-d6723dba390f
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:18081/api/runs/c897f0cb-5735-4ad4-aea5-d6723dba390f
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260916T122656Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusal paths throw baseline ApiException subclasses; neither controller constructs error bodies"
+    evidence: "work/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:25,40,50,63; work/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:31,41,61"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "The order-status decision uses an if branch"
+    evidence: "work/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:56"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Bodies are asserted, but clauses b and d lack separate HTTP re-reads"
+    evidence: "work/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:103"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Both test reset methods changed from expression bodies to blocks"
+    evidence: "baseline/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:35; work/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:40; baseline/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt:35; work/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt:40"
+ambiguous_categories: []

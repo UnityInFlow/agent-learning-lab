@@ -1,0 +1,58 @@
+# The clamshell sleep that split the BE-004 arm — evidence, captured 2026-09-16T07:0xZ
+
+## The driver's own run-start headers (UTC)
+BE-003 01 treated 18:24:37Z
+BE-003 01 control 18:27:06Z
+BE-003 02 treated 18:29:34Z
+BE-003 02 control 18:32:09Z
+BE-003 03 treated 18:35:03Z
+BE-003 03 control 18:38:03Z
+BE-003 04 treated 18:40:31Z
+BE-003 04 control 18:45:21Z
+BE-003 05 treated 18:48:13Z
+BE-003 05 control 18:50:25Z
+BE-003 06 treated 18:52:47Z
+BE-003 06 control 18:55:04Z
+BE-003 07 treated 18:57:35Z
+BE-003 07 control 19:00:35Z
+BE-003 08 treated 19:02:58Z
+BE-003 08 control 19:05:21Z
+BE-003 09 treated 19:07:52Z
+BE-003 09 control 19:10:08Z
+BE-003 10 treated 19:12:53Z
+BE-003 10 control 19:17:49Z
+BE-004 01 treated 19:21:40Z
+BE-004 01 control 19:25:59Z
+BE-004 02 treated 19:30:11Z
+BE-004 02 control 19:34:05Z
+BE-004 03 treated 19:37:25Z
+BE-004 03 control 19:41:00Z
+BE-004 04 treated 19:44:24Z
+BE-004 04 control 19:48:07Z
+BE-004 05 treated 00:19:19Z
+BE-004 05 control 05:40:20Z
+BE-004 06 treated 07:00:47Z
+
+## pmset, the window BE-004 04 control started in (local, +0200)
+2026-09-15 21:48:55 +0200 Sleep               	Entering Sleep state due to 'Clamshell Sleep':TCPKeepAlive=active Using AC (Charge:62%) 31 secs   
+2026-09-15 21:49:26 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to smc.sysState.Wake(0x70070000) wifibt SMC.OutboxNotEmpty/ Using BATT (Charge:62%) 45 secs   
+2026-09-15 21:49:36 +0200 ThermalEvent        	Ignored DarkWake thermal emergency signal TCPKeepAlive=active              	          
+2026-09-15 21:50:11 +0200 Sleep               	Entering Sleep state due to 'Maintenance Sleep':TCPKeepAlive=active Using Batt (Charge:62%) 125 secs  
+2026-09-15 21:52:16 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to smc.sysState.Wake(0x70070000) wifibt SMC.OutboxNotEmpty/ Using BATT (Charge:62%) 46 secs   
+2026-09-15 21:53:02 +0200 Sleep               	Entering Sleep state due to 'Maintenance Sleep':TCPKeepAlive=active Using Batt (Charge:62%) 903 secs  
+2026-09-15 22:08:05 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to NUB.SPMISw3IRQ nub-spmi0.0x02 rtc/SleepService Using BATT (Charge:62%) 2 secs    
+2026-09-15 22:08:07 +0200 Sleep               	Entering Sleep state due to 'Sleep Service Back to Sleep':TCPKeepAlive=active Using Batt (Charge:62%) 917 secs  
+2026-09-15 22:23:24 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to NUB.SPMISw3IRQ nub-spmi0.0x02 rtc/SleepService Using BATT (Charge:62%) 4 secs    
+2026-09-15 22:23:28 +0200 Sleep               	Entering Sleep state due to 'Sleep Service Back to Sleep':TCPKeepAlive=active Using Batt (Charge:62%) 990 secs  
+2026-09-15 22:39:58 +0200 DarkWake            	DarkWake from Deep Idle [CDNP] : due to NUB.SPMISw3IRQ nub-spmi0.0x02 rtc/SleepService Using BATT (Charge:62%) 3 secs    
+2026-09-15 22:40:01 +0200 Sleep               	Entering Sleep state due to 'Sleep Service Back to Sleep':TCPKeepAlive=active Using Batt (Charge:62%) 1057 secs 
+
+## the wake that ended it (local, +0200)
+2026-09-16 08:50:28 +0200 Wake Requests       	[*process=dasd request=SleepService deltaSecs=1013 wakeAt=2026-09-16 09:07:21 info="com.apple.dasd:501:com.apple.intelligenceplatform.IntelligencePlatformCore.ViewLive"] [process=mDNSResponder request=Maintenance deltaSecs=7197 wakeAt=2026-09-16 10:50:25 info="upkeep wake"] [process=powerd request=TCPKATurnOff deltaSecs=277167 wakeAt=2026-09-19 13:49:56] [process=powerd request=CSPNEvaluation deltaSecs=3612 wakeAt=2026-09-16 09:50:41] [process=powerd request=UserWake deltaSecs=18128 wakeAt=2026-09-16 13:52:37 info="com.apple.alarm.user-invisible-com.apple.calaccessd.travelEngine.periodicRefreshTimer,1002"]           
+2026-09-16 08:50:28 +0200 PM Client Acks      	Delays to Sleep notifications: [com.apple.time is slow(251 ms)] [systemstats is slow(402 ms)] [com.apple.audio.ParrotAudioPlugin is slow(563 ms)] [IOMFB_daemon is slow(577 ms)] [com.apple.audio.MacAudio is slow(615 ms)] [NESessionManager is slow(633 ms)] [com.apple.bluetooth.sleep is slow(1544 ms)] [PLSleepWakeAgent is slow(2865 ms)]           
+2026-09-16 08:59:36 +0200 Assertions          	PID 694(mDNSResponder) Created MaintenanceWake "mDNSResponder:maintenance" 00:00:00  id:0x0xd000090d0 [System: PrevIdle DeclUser kDisp]          
+2026-09-16 08:59:36 +0200 Wake                	Wake from Deep Idle [CDNVA] : due to smc.sysState.Wake(0x70070000) lid SMC.OutboxNotEmpty/HID Activity Using BATT (Charge:58%)           
+2026-09-16 08:59:36 +0200 WakeDetails         	DriverReason:smc.sysState.Wake(0x70070000) - DriverDetails:                
+2026-09-16 08:59:36 +0200 WakeTime            	WakeTime: 0.175 sec                                                        	          
+2026-09-16 08:59:36 +0200 Kernel Client Acks  	Delays to Wake notifications: [Port-USB-C driver is slow(msg: SetState to 1)(52 ms)] [AppleCS42L84Audio driver is slow(msg: DidChangeState to 1)(76 ms)] [Codec Output driver is slow(msg: WillChangeState to 1)(76 ms)] [RTBuddy(GFX) driver is slow(msg: SetState to 2)(102 ms)] [AppleAVD driver is slow(msg: SetState to 1)(103 ms)] [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(106 ms)] [AppleConvergedIPCOLYBTControl driver is slow(msg: SetState to 1)(131 ms)] [AppleMultiFunctionManager driver is slow(msg: SetState to 1)(141 ms)] [Port-MagSafe 3 driver is slow(msg: SetState to 1)(53 ms)] [Codec Output driver is slow(msg: WillChangeState to 1)(75 ms)] [AppleCS42L84Audio driver is slow(msg: DidChangeState to 1)(75 ms)] [RTBuddy(GFX) driver is slow(msg: SetState to 2)(102 ms)] [AppleAVD driver is slow(msg: SetState to 1)(102 ms)] [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(105 ms)] [AppleConvergedIPCOLYBTControl driver is slow(msg: SetState to 1)(128 ms)] [AppleMultiFunctionManager driver is slow(msg: SetState to 1)(130 ms)] Delays to Sleep notifications: [powerd is slow(3280 ms)] [Codec Output driver is slow(msg: SetState to 1)(76 ms)] [RTBuddy(GFX) driver is slow(msg: SetState to 2)(101 ms)] [AppleAVD driver is slow(msg: SetState to 1)(103 ms)] [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(104 ms)] [AppleConvergedIPCOLYBTControl driver is slow(msg: SetState to 1)(130 ms)] [AppleMultiFunctionManager driver is slow(msg: SetState to 1)(145 ms)] [Codec Output driver is slow(msg: WillChangeState to 1)(75 ms)] [AppleCS42L84Audio driver is slow(msg: DidChangeState to 1)(75 ms)] [RTBuddy(GFX) driver is slow(msg: SetState to 2)(102 ms)] [AppleAVD driver is slow(msg: SetState to 1)(104 ms)] [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(104 ms)] [AppleConvergedIPCOLYBTControl driver is slow(msg: SetState to 1)(128 ms)] [AppleMultiFunctionManager driver is slow(msg: SetState to 1)(149 ms)] [AppleCS42L84Audio driver is slow(msg: DidChangeState to 1)(75 ms)] [Codec Output driver is slow(msg: WillChangeState to 1)(75 ms)] [AppleAVD driver is slow(msg: SetState to 1)(102 ms)] [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(106 ms)] [AppleConvergedIPCOLYBTControl driver is slow(msg: SetState to 1)(133 ms)] [AppleMultiFunctionManager driver is slow(msg: SetState to 1)(138 ms)] [powerd is slow(6496 ms)] [Codec Output driver is slow(msg: SetState to 1)(74 ms)] [RTBuddy(GFX) driver is slow(msg: SetState to 2)(103 ms)] [AppleAVD driver is slow(msg: SetState to 1)(104 ms)] [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(106 ms)] [AppleConvergedIPCOLYBTControl driver is slow(msg: SetState to 1)(132 ms)] [AppleMultiFunctionManager driver is slow(msg: SetState to 1)(150 ms)] [Codec Output driver is slow(msg: WillChangeState to 1)(75 ms)] [AppleCS42L84Audio driver is slow(msg: DidChangeState to 1)(75 ms)] [AppleAVD driver is slow(msg: SetState to 1)(103 ms)] [RTBuddy(ANS2) driver is slow(msg: SetState to 2)(106 ms)] [AppleConvergedIPCOLYBTControl driver is slow(msg: SetState to 1)(132 ms)] [AppleMultiFunctionManager driver is slow(msg: SetState to 1)(146 ms)] [Codec Output driver is slow(msg: WillChangeState to 1)(72 ms)]           
+2026-09-16 08:59:37 +0200 Assertions          	PID 694(mDNSResponder) Released MaintenanceWake "mDNSResponder:maintenance" 00:00:00  id:0x0xd000090d0 [System: PrevIdle DeclUser IPushSrvc kCPU kDisp]          

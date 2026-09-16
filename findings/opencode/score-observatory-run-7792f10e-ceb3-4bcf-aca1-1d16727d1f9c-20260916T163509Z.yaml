@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:    6252778b8472
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-7792f10e-ceb3-4bcf-aca1-1d16727d1f9c
+  mode:          run
+  run_id:        7792f10e-ceb3-4bcf-aca1-1d16727d1f9c
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:18081/api/runs/7792f10e-ceb3-4bcf-aca1-1d16727d1f9c
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.tEmuEFdI70/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260916T163509Z
+  attachments:   7 file(s) under test, 7 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 2
+    anchor_level: 2
+    reason: Every refusal throws an existing ApiException subclass, no error body assembled in controllers.
+    evidence: OrderController.kt:55
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: cancel's order-status decision is an if guard, not an exhaustive when expression.
+    evidence: OrderController.kt:48
+  - name: test-quality
+    score: 2
+    anchor_level: 2
+    reason: All four clauses hold — double-cancel body, post-409 re-reads, envelope, post-success get re-reads.
+    evidence: OrderControllerTest.kt:110
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: Unnamed methods identical; differences are cancel, create guard, status field, query method, ErrorCode constants.
+    evidence: OrderController.kt:73
+ambiguous_categories: []
+```

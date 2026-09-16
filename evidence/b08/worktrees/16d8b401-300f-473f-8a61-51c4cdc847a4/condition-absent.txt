@@ -1,0 +1,2 @@
+condition: run-state file ABSENT at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//run-state-observatory-run-16d8b401-300f-473f-8a61-51c4cdc847a4.json
+stat: /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//run-state-observatory-run-16d8b401-300f-473f-8a61-51c4cdc847a4.json: stat: No such file or directory

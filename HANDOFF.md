@@ -16,7 +16,26 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 16 of 28. Positions 4–16 CLOSED.** Stop 16 (Phase 5B, Lab 5B.5 — *blocked is not failed*)
+**Spine 17 of 28. Positions 4–17 CLOSED.** Stop 17 (B8 — run state, repair limits, completion
+contract) closed 2026-09-16 at **three of four gate clauses**, with clause 3 (*a blocked run
+produces a clear machine-readable result*) written **L3 and left open** rather than waved through.
+**v1.1 is kept and NOT promoted**; nothing in this track has been promoted. Both tasks land on
+decision-rule **row 3** — `KEEP AS L2, WITH NO MEASURED EFFECT` — and BE-004's `change-focus` cell
+is **`UNMEASURABLE`**, its IMPROVED row **declined**. `lab#33` is **CLOSED**: a B-step issue closes
+when its deliverable is decided, and "kept, not promoted, with one clause open" is a decision.
+
+**What is BLOCKED ON YOU: BE-005 is not merged, and B8a cannot open.** Author decision 11 registers
+B8a — *Decomposition depth*, spine position **17a** — on a **new** task, **BE-005**, and requires a
+halt naming the missing PR if it is not on `agent-observatory-benchmarks` `main` with
+`verify-evaluator.sh` re-run there. Checked rather than assumed: `tasks/` on `origin/main` at
+`eea144ef940f` holds **BE-001 … BE-004 and no BE-005**, and **no PR for it is open** (the repo's
+open-PR list is empty; the newest merged PR is #29, BE-004). Decision 11 also forbids the two
+shortcuts: **BE-004 is not a substitute**, and **BE-005 is never mine to design** — it is the
+author's build with Claude Fable 5.1, per the *"When BE-005 gets designed, and by whom"* section.
+So the run halts here under §7 (*a new task besides BE-003 and BE-004 is the author's*), exactly as
+stop 12 halted on benchmarks#29.
+
+*(Superseded line, kept:)* **Spine 16 of 28. Positions 4–16 CLOSED.** Stop 16 (Phase 5B, Lab 5B.5 — *blocked is not failed*)
 closed 2026-09-14 and **merged 2026-09-15 — lab#85 → `30c84013`, obs#77 → `1376a2ee`**, both
 merged not squashed, every check green. **E-017's primary prediction is VOID by its own decision-rule row 4**, and the
 reason it is void is the result: only **5 of 10** treated runs were actually blocked, and the
@@ -51,6 +70,80 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## Stop 17 — B8 closed at three of four clauses: the treatment was provably delivered and moved nothing, and the one thing it bought is a way to see a command fail — 2026-09-16
+
+**v1.1 exists, is kept, and is NOT promoted.** Nothing has been promoted in this track.
+
+**The gate closes at three of four, and clause 3 is written L3 and left open rather than waved
+through.** *A blocked run produces a clear machine-readable result* fails from both sides at once:
+`runner/lib/classify-permission-block.sh` has exactly two references in `agent-observatory` at
+`1376a2eef553` — itself and its own verifier — so in the run path it is **L3 whatever its fixture
+count**, and `repair-limit.sh` emitted **0 `block` decisions across 20 treated runs**, so no blocked
+run exists whose result could be inspected. §5's rule decided it: *if the only proof that a gate held
+is that you say so, write L3 and do not close the gate.*
+
+**The treatment was delivered, provably, per run — and every registered outcome is flat.** That
+pairing is the result. `instr_hash` `sha256:a94237242e8c1308fb1d434a06a03463` on 20 treated rows and
+`null` on 20 controls; `agent_hash` identical on **40 of 40**, so the B5 phase agent did not move
+between arms; `state_file` PRESENT × 20 treated / ABSENT × 17 control (+ 3 `INCONCLUSIVE-0-edits`,
+the F13 controls that made no edits at all); `state_valid` 0 on 20 of 20; `init_tools`
+`n=4 ["Read","Edit","Write","Bash"]/match` on 40 of 40. Against that: BE-003 evaluator **10/10 vs
+10/10**, BE-004 **9/10 vs 7/7**, all four rubric medians **Δ0** on BE-003 and three of four on
+BE-004, cost **+2.4 %** and **+4.4 %** — both inside the **re-derived** MDE, `$0.0163` (BE-003,
+`n = 10`) and `$0.0089` (BE-004, `n = 7` control). Decision-rule **row 3** on both tasks:
+`KEEP AS L2, WITH NO MEASURED EFFECT`.
+
+**P2's second half is refuted, and its refutation is sharper than the prediction was.** It put
+BE-004's `totalRepairAttempts` median at ≥ 1 because a five-file cross-module task should make the
+model retry. It is **0**, with a single `1` across twenty runs: **this model does not repeat a
+failing command.** So a counter of *repeat* attempts sits at 0 while commands are genuinely failing
+— and the repair limit, whose entire purpose is to stop a repair loop, **cannot be exercised** until
+that number rises above zero. Its threshold (3 per fingerprint, 7 per run) is **L2 by fixture, 30 of
+30, and unexercised in situ**, and §4 step 10 keeps it anyway with the gap named rather than
+deleting it on the no-measured-effect rule.
+
+**What the stop actually bought is an observation channel.** The gap between `PreToolUse` allows and
+`PostToolUse` successes is the only instrument in this project that can see a `Bash` command fail —
+BE-003 pooled **48 allows vs 47 successes**, and two more failures in the BE-004 preflight.
+
+**And writing the §5 table found the bound on that channel.** BE-004's pooled gap is **0 by
+cancellation, not agreement**: seq 03 `+1`, seq 09 `+1`, seq 05 `−2`. A negative gap cannot happen if
+both hooks see every `Bash` event, and on seq 05 — run `b90c76d7`, the same run the persistence
+clause rests on — the state file records **5 allows against 7 successes**. On 1 of 20 treated runs
+the two hooks did not see the same event stream, and it is the run that spanned the 80-minute sleep.
+It moves no registered outcome; it bounds what the oracle may claim to 19 of 20 runs.
+
+**Clause 1 was proved by an accident nobody arranged, and it is labelled `n = 1`.** The batch ran
+across a clamshell sleep (`2026-09-15T19:48:55Z` → `2026-09-16T06:59:36Z`). Run `b90c76d7` began
+inside that window and its `run-state.json` carries `schemaVersion: b8-v1.1` with **12
+`hookExecutions` spanning 3 h 03 m** across gaps of 35, 32, 16, 80, 10 and 8 minutes. A file
+re-initialised after a sleep would show a short array and a late first timestamp.
+
+**BE-004 produced its first evaluator failure on this model** — run `ebf9e05e`, exit 11 — and the
+success oracle says every one of its ten `Bash` commands succeeded: it never ran the suite it broke.
+One run; no rate claimed.
+
+**`change-focus` on BE-004 fired the IMPROVED row and the row was declined.** Six structurally
+equivalent control runs scored `2,2,0,0,0,0` with no hunk in an unnamed method and no `src/main`
+deletion on any of them. Three independent arrivals at the same defect: the hand re-read (hand **2**
+vs sheet **1**, written 2 h 18 m before any sheet of the batch existed), the codex-vs-second-reader
+concordance (**17/30** on that category against 29/30, 29/30 and 26/30 on the others), and the
+six-run scatter. That is the mechanism **author decision 10.3** recorded without one.
+
+**Author decision 11 item 7 is discharged:** `.agent/run-state.json` carries a top-level `handoff`
+field on all 22 treated run-state files, **marked reserved for B8a**, and labelled **L3** because
+nothing executes on it — a written field is not a control.
+
+**The deliberate failure proves the wiring, not the file, is what executes.** The unwired variant
+keeps all three hook scripts byte-identical and removes only their registration in
+`.claude/settings.json`; the artefact vanishes (`condition D1: run-state file ABSENT`) while the run
+still passes the evaluator. All five registered predictions held.
+
+Workbook: [`phases/b08-run-state-repair-limits/README.md`](phases/b08-run-state-repair-limits/README.md).
+Experiments: [`E-018`](experiments/E-018-run-state-repair-limits-BE003.md),
+[`E-019`](experiments/E-019-run-state-repair-limits-BE004.md). Roll-up:
+[`findings/track-b-2026-09-16.md`](findings/track-b-2026-09-16.md).
 
 ## Stop 16 — Phase 5B, Lab 5B.5: `permissions.deny` is not a boundary, and BLOCKED has nowhere to be recorded — 2026-09-14
 
@@ -1758,8 +1851,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 81235fa prose: b61d696020c4 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 81235fa prose: b61d696020c4 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 196731f prose: e67c87306a93 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 196731f prose: e67c87306a93 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The

@@ -1,0 +1,3 @@
+init-schema: delivered n=4 ["Read","Edit","Write","Bash"]
+init-schema: declared  n=4 ["Read","Edit","Write","Bash"]
+init-schema: verdict=match
