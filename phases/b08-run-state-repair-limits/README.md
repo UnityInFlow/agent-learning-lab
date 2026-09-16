@@ -983,9 +983,110 @@ claim the evidence supports.
 a blocked run produces a clear machine-readable result · **no regression against the v1.0
 benchmark.**
 
+**Three of the four clauses are met. The third is not, and the stop closes saying so.**
+
+### 1. Counters persist across interruption — **MET**, and by accident rather than by design
+
+| evidence | |
+|---|---|
+| the artefact | `evidence/b08/worktrees/b90c76d7-…/run-state.json` — BE-004 seq 05 treated |
+| the interruption | that run began at `00:19:19Z`, **inside the clamshell-sleep window**, on a machine cycling Sleep/DarkWake |
+| the span | hook executions from `01:44:34Z` to `04:47:41Z` — **3 h 3 m**, **12 executions** |
+| the gaps | **35 min, 32 min, 16 min, 80 min, 10 min, 8 min** between consecutive executions on the same file |
+| the counters | `schemaVersion: b8-v1.1` intact, `hookExecutions` **not reset**, 12 entries accumulated across every gap |
+
+**A file that had been re-initialised after a sleep would show a short array and a late first
+timestamp. It shows twelve entries spanning three hours.** The counters survived an 80-minute
+system sleep mid-run and kept appending.
+
+**This is `n = 1` and it is an accident, not a designed test**, and both facts are stated rather
+than smoothed over. It is nonetheless a stronger demonstration than the synthetic interruption this
+stop would otherwise have written: a real sleep, on a real benchmark run, that nobody arranged.
+
+### 2. Limits technically enforced — **MET as specified, with the exercise gap named**
+
+The clause in `build/README.md#b8` is *"enforced by hook or wrapper, **never by prompt**"*, and that
+is structural: `repair-limit.sh` runs as a `PreToolUse` hook and blocks with `exit 2`; nothing about
+the limit is asked of the model. **Proved by `tools/verify-repair-limit.sh`, 30 of 30 cases**,
+re-run at this stop.
+
+**And the deliberate failure proves the enforcement path is real rather than nominal**
+(`5116b598`): remove the hook's *registration* while leaving the script in place, and the artefact
+vanishes — so the wiring, not the file, is what executes.
+
+**What is not claimed:** the blocking branch has **never fired in a benchmark run**, 0 of 20. Its
+evidence is fixtures. The honest description is **L2 by fixture, unexercised in situ**, and §4
+step 10 records why it is kept anyway.
+
+### 3. A blocked run produces a clear machine-readable result — **NOT MET**
+
+**`runner/lib/classify-permission-block.sh` has exactly two references in `agent-observatory`:
+itself and `runner/verify-permission-block-classifier.sh`, its own verifier. Nothing in the run path
+calls it.** A classifier that only its own test invokes is **L3 in the run path**, whatever its
+fixture count, and this stop does not inherit a control from stop 16 that stop 16 did not wire in.
+
+**Nor was the clause satisfied from the other direction:** `repair-limit.sh` emitted **zero `block`
+decisions across 20 treated runs**, so no blocked run exists whose result could be inspected.
+
+**The gate is therefore not closed on this clause, and §5 is explicit about what to do:** *"If the
+only proof that a gate held is that you say so, write L3 and do not close the gate."* Written: **L3,
+not closed.**
+
+### 4. No regression against the v1.0 benchmark — **MET, with the limit stated**
+
+| task | treated | control (v1.0) | reading |
+|---|---|---|---|
+| BE-003 | 10 / 10 evaluator exit 0 | 10 / 10 | **equal** |
+| BE-004 | 9 / 10 | 7 / 7 non-F13 | **one run**, inside P3's registered tolerance; row 1 needs five |
+| both | all rubric medians delta **0** except BE-004 `change-focus` | | that cell is **unmeasurable**, not an improvement — see E-019 |
+| cost | +2.4 % / +4.4 % | | inside the **re-derived** MDE, which is tighter than the transferred one |
+
+**"No regression" here means no regression this instrument could detect**, and the re-derived MDEs
+are the statement of what that instrument can see: one full rubric point, `$0.0163` on BE-003,
+`$0.0089` on BE-004. A regression smaller than those is not excluded by this batch.
+
+### The gate, in one line
+
+**B8 closes with three of four clauses met and clause 3 explicitly not met.** v1.1 is kept, is not
+promoted, and the unmet clause is carried forward as work rather than waved through — wiring
+`classify-permission-block.sh` into the run path is a change to `agent-observatory` that belongs to
+whichever stop next needs a BLOCKED verdict, not to a sentence here.
+
 **Plus, for this to count as a learned phase:**
 
-<!-- TODO -->
+```yaml
+learning:
+  what_was_added: >
+    A run-state file written OUTSIDE the worktree by a PreToolUse/Bash hook, a PostToolUse/Bash
+    hook that clears a fingerprint on success, a repair limit that blocks at 3 per fingerprint
+    and 7 per run, and a completion contract decided by script at scoring time.
+  why_it_exists: >
+    v1.0 asked the model to verify and to stop; B8 was to make two of those things execute.
+    The file is outside the worktree because B7 scored two correct runs exit 21 when a
+    guardrail's own log inside the worktree counted as an unrelated production file.
+  observed_effect: >
+    On the registered outcomes, none. Evaluator pass rates equal on BE-003 and within one run on
+    BE-004; all four rubric medians delta 0 on BE-003 and on three of four for BE-004; cost inside
+    the re-derived MDE on both tasks. What it DID produce is an observation channel: the gap
+    between PreToolUse allows and PostToolUse successes is the only thing in this project that can
+    see a command fail, and it saw one on BE-003 and two in the BE-004 preflight.
+  unexpected_effect: >
+    Three. (1) P2's second half was refuted — this model fails a command and retries it ZERO
+    times, so a counter of repeat attempts stays at 0 while commands are still failing. (2) BE-004
+    produced its first evaluator failure on this model, and the oracle says every one of that
+    run's ten Bash commands succeeded: it never ran the suite it broke. (3) The change-focus
+    anchors on BOTH rubrics were shown under-determined, three independent ways, which supplies
+    the mechanism decision 10.3 recorded without one.
+  keep_or_remove: >
+    KEEP the run-state file and the success oracle — the oracle is the stop's real deliverable.
+    KEEP the blocking threshold despite 0 of 20, with its description corrected to "L2 by
+    fixture, unexercised in situ" rather than "a measured control". KEEP the completion contract
+    labelled L3 and not counted as a control.
+  next_question: >
+    What is the rate at which this model repeats a failing command, on a task where it fails
+    more often? Three observed failures, zero repeats, is the whole of what is known — and the
+    repair limit cannot be exercised until that number is above zero.
+```
 
 ## Commit
 
