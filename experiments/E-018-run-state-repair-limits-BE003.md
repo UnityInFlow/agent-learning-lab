@@ -309,35 +309,183 @@ Hypothesis cites. It is not a disappointment; B7 closed on that row and the trac
 
 ## Observed telemetry
 
-<!-- pass OTLP_GRPC_PORT and check events.jsonl grows before trusting a telemetry-sourced
-     number -- the stop-11 rule -->
+Batch `20260915T182436Z`, driver [`evidence/b08/run-b8-batch.sh`](../evidence/b08/run-b8-batch.sh),
+manifest `evidence/b08/batch-20260915T182436Z/manifest.tsv`. **All twenty BE-003 runs executed
+between `18:24:37Z` and `19:21:00Z` on 2026-09-15 — before the clamshell sleep that split the
+BE-004 arm. This arm is uncontaminated by it.**
+
+**Timestamp check, from git and the run records rather than from prose:** prediction commit
+`5d7bfe0` at **`2026-09-15T14:31:03Z`**; first run `startedAt` **`2026-09-15T18:24:37Z`**. The
+prediction precedes the runs by 3 h 53 m.
+
+| | treated (`agent-v1.1`) | control (`verify-v1.0`) |
+|---|---|---|
+| runs | 10 | 10 |
+| F13 / F15 aborts | 0 | 0 |
+| evaluator exit 0 | **10 / 10** | **10 / 10** |
+| run-state file | **PRESENT 10 / 10** | **ABSENT 10 / 10** |
+| `check-run-state.sh` | exit **0** on all 10 | n/a — no file to validate |
+| `customization.instructionsHash` | `sha256:a94237242e8c1308fb1d434a06a03463`, **one distinct value** | **`null`, one distinct value** |
+| `customization.agentHash` | `sha256:b3450564b6f32d6193e8580db766210e` | **identical** |
+| `runtime.version` / `runtime.model` | `2.1.272 (Claude Code)` / `claude-haiku-4-5-20251001` | identical |
+| `init` read-back (decision 8) | `n=4 ["Read","Edit","Write","Bash"]` / `verdict=match` | identical |
+| `totalRepairAttempts` | `[0 ×10]`, median **0** | `[0 ×10]` |
+| `repair-limit` `block` decisions | **0** | — |
+| hook executions | **48 PreToolUse / 47 PostToolUse** | 0 / 0 |
+| `estimatedCost` median | `$0.119766` [`0.102048`–`0.144211`] | `$0.116974` [`0.101403`–`0.140168`] |
+| `modelCalls` median | 19 [17–22] | 21 [17–26] |
+| `changedFiles` / `addedLines` median | 3 / 78 | 3 / 75 |
+| `durationMs` median | 111 000 ms | 110 000 ms [97 000–151 000] — **reported, no verdict** |
+
+**`durationMs` and `changedFiles` were `null` in the manifest** — the driver read them at the top
+level of the run record and they live at `.efficiency.durationMs` and `.result.changedFiles`. They
+are re-derived from the 44 saved run records by
+[`evidence/b08/rederive-null-columns.sh`](../evidence/b08/rederive-null-columns.sh), 44 read and 0
+unreadable. The manifest keeps its nulls; nothing was overwritten.
 
 ## Results
 
+**Rubric, codex `gpt-5.6-sol`, rubric sha `396e1799eb2b` read back from all 20 sheet headers.**
+Sheets: `evidence/b08/scoring-20260916/category-values.tsv`, one per run, no duplicates, exit 0 on
+all 20.
+
+| category | treated `n=10` | control `n=10` | median delta |
+|---|---|---|---|
+| architecture-consistency | `[2 ×10]` → **2** | `[1, 2 ×9]` → **2** | **0** |
+| maintainability | `[0 ×7, 2 ×3]` → **0** | `[0 ×7, 2 ×3]` → **0** | **0** |
+| test-quality | `[1 ×9, 2]` → **1** | `[1 ×9, 2]` → **1** | **0** |
+| change-focus | `[1 ×10]` → **1** | `[1 ×10]` → **1** | **0** |
+
+**Three of the four distributions are not merely equal in median — they are identical multisets.**
+The fourth differs by a single run.
+
+**The MDE, re-derived from this batch's own control as registered**
+([`evidence/b08/scoring-20260916/mde-rederived.md`](../evidence/b08/scoring-20260916/mde-rederived.md)):
+
+| outcome | transferred MDE | re-derived MDE | observed delta | reading |
+|---|---|---|---|---|
+| `estimatedCost` | $0.045 (30 %) | **$0.0163 (13.6 %)** | **+$0.0028** (+2.4 %) | inside → not detectable |
+| `modelCalls` | 6 (29 %) | **3.04 (14.5 %)** | **−2.0** | inside → not detectable |
+| rubric categories | one full point | one full point (the scale's floor) | 0 on all four | inside → not detectable |
+
+**The re-derived limits are tighter than the transferred ones**, so the null is not an artefact of a
+generous limit.
+
 ## Which predictions held
+
+| | prediction | outcome |
+|---|---|---|
+| **P1** | 10/10 treated carry the run-state file, 0/10 control | **HELD, both halves.** Decision-rule row 0 does not fire and the experiment is readable |
+| **P2** first half | zero `block` decisions across all treated runs | **HELD**, `k = 0` |
+| **P2** second half | `totalRepairAttempts` median **0** on BE-003 | **HELD** — 0 on all ten runs, not merely at the median |
+| **P3** | pass rates equal or differing by at most one run | **HELD** — 10/10 against 10/10, a difference of zero |
+| **P4** | all four category medians equal, delta 0 | **HELD** — and reported as *not detectable*, never as "identical", exactly as P4 registered. Three distributions are in fact identical multisets |
+| **P5** | cost rises, +2 % to +8 %, and the band sits inside the MDE | **HELD in direction and size** — observed **+2.4 %**, inside the predicted band and inside the re-derived MDE. P5 registered itself as *undecidable by this experiment on purpose*; it is |
+| **P6** | the completion contract changes nothing in-run because it does not execute in one | **HELD by construction** — no `Stop`-class hook exists, both arms identical with respect to it |
+
+**Every registered prediction held on this task.** That is worth one caution rather than
+satisfaction: six of the seven predict *no difference*, and an instrument that finds no difference
+is consistent both with a treatment that does nothing and with an instrument that cannot see. The
+re-derived MDE is what separates those, and it is the tighter of the two available limits.
 
 ## Failure analysis
 
+**Nothing failed on this task.** No F13, no F15, no evaluator non-zero, no gate refusal, no run
+excluded. All twenty runs are in the scored population.
+
+**One thing is visible here that no previous stop could see: 48 `PreToolUse` allows against 47
+`PostToolUse` successes across the treated arm.** `PostToolUse` fires if and only if the command
+exited 0 (measured at `evidence/b08/hook-event-probe-…`, 6 of 6 successes and 0 of 6 failures,
+Fisher `p = 0.0022`). So **exactly one `Bash` command failed across ten runs that the evaluator
+scored 10/10 at exit 0**, and the model retried nothing — `totalRepairAttempts` is 0 on every run.
+
+That single failing command is not a result: it is `n = 1`, it is reported as a count and not as a
+rate, and no comparison is computed from it. It is recorded because it is the first direct evidence
+this project has that the success oracle sees something the evaluator, the telemetry and every hash
+cannot.
+
 ## Sanity checks
 
-- [ ] prediction commit timestamp vs first run `startedAt` — both written here verbatim
-- [ ] `customization.instructionsHash` differs between arms and matches the two overlays' shas
-- [ ] `runtime.model` and `runtime.version` identical across all runs, read from the record
-- [ ] benchmark revision identical across all runs
-- [ ] one scored cell re-read by hand off a kept worktree, its value written beside the sheet's
-- [ ] **the kept worktrees are copied somewhere durable the day they are made** — `$TMPDIR` on this
+**The checklist below was registered BEFORE the run and is restored here verbatim, ticked from
+evidence.** An earlier revision of this section replaced it with the table that follows; that was a
+mistake — a pre-registered checklist is a commitment, and replacing it with a prettier table written
+after the fact removes the commitment and keeps only the answer. *Restored by Opus 5, 2026-09-16.*
+
+<!-- pass OTLP_GRPC_PORT and check events.jsonl grows before trusting a telemetry-sourced
+     number -- the stop-11 rule -->
+- [x] prediction commit timestamp vs first run `startedAt` — both written here verbatim:
+      `5d7bfe0` at `2026-09-15T14:31:03Z`, first run `2026-09-15T18:24:37Z`
+- [x] `customization.instructionsHash` differs between arms and matches the two overlays' shas —
+      `sha256:a94237242e8c1308fb1d434a06a03463` on 10/10 treated, `null` on 10/10 control
+- [x] `runtime.model` and `runtime.version` identical across all runs, read from the record —
+      single distinct value each across all 20
+- [x] benchmark revision identical across all runs — `eea144ef940f`
+- [x] one scored cell re-read by hand off a kept worktree, its value written beside the sheet's —
+      `change-focus` on `6e5cac9b`: hand **1**, sheet **1**, committed at `8c56ba8` before any sheet
+- [x] **the kept worktrees are copied somewhere durable the day they are made** — `$TMPDIR` on this
       machine empties a worktree's files in about three days and leaves the directory, so `ls -d`
       passes on a hollowed one. The decision-11 census returned **no reading** because all 54 BE-004
       worktrees had been emptied before it opened. This box is here because that already happened.
+      **Done the same day by the driver itself**: 44 worktrees under `evidence.local/b08-worktrees/`
+      (1.1 GB) and the small artefacts under the committed `evidence/b08/worktrees/`.
+- [x] telemetry was checked before being trusted — `modelCalls` and `estimatedCost` are populated on
+      all 40 runs; the OTLP endpoints were asserted `200` by the driver before the first run
+
+| check | how | outcome |
+|---|---|---|
+| prediction precedes every run | `git show 5d7bfe0` against the first `startedAt` | **3 h 53 m** ahead |
+| one variable moved between arms | `agentHash`, `runtime.version`, `runtime.model`, `init` read-back all single-valued **across both arms** | only `instructionsHash` and the two `Bash` hooks differ |
+| the treatment reached the model | `instructionsHash` = registered sha on 10/10 treated | held |
+| the treatment stayed out of the control | `instructionsHash` `null` on 10/10 control; `verify-v1.0` carries no `CLAUDE.md` | held |
+| the scorer is the registered one | `model:` and `rubric_sha:` read back from all 20 sheets | `gpt-5.6-sol`, `396e1799eb2b`, single-valued |
+| a hand re-read precedes the sheets | [`evidence/b08/hand-rereads-20260916/BE-003-change-focus-6e5cac9b.md`](../evidence/b08/hand-rereads-20260916/BE-003-change-focus-6e5cac9b.md), committed at `8c56ba8` before any sheet existed | hand **1**, sheet **1** — agree |
+| the batch avoided the machine sleep | driver run-start headers against `pmset -g log` | all 20 finished **27 minutes before** the lid closed |
+
+**The hand/sheet agreement is reported without being leaned on.** Both readers can be downstream of
+the same ambiguous anchor text, and the hand re-read recorded in advance that a defensible reading
+of that anchor gives 2. Agreement on a value is not agreement that the anchor determines it.
 
 ## Decision
 
+**`KEEP AS L2, WITH NO MEASURED EFFECT` — decision-rule row 3, the registered expectation.**
+
+Rows 0, 1, 2, 4, 5, 6 and 7 are each checked and none fires: P1 held so row 0 is out; pass rates are
+equal so row 1 is out; no category median moved in either direction so rows 2 and 6 are out; every
+secondary is inside its re-derived MDE so rows 4 and 5 are out; zero blocks so row 7 is out.
+
+**v1.1 closes on BE-003 with no regression and no measured improvement, and the null is the
+result.** The run-state file and the repair-limit hook are **L2** — they execute, they are proved to
+execute on 10 of 10 treated runs by an artefact that exists if and only if the hook ran, and
+`check-run-state.sh` refuses a malformed one. The completion contract remains **L3** at this stop:
+it decides seven clauses over a finished worktree at scoring time and no `Stop`-class hook runs it,
+which P6 registered in advance rather than leaving as an omission.
+
+**This is the same row B7 closed on, and the track is not worse for it.** What B8 bought is not a
+measurable behaviour change but a per-run artefact that can see a failing command — which is how
+the 48/47 gap above became visible at all.
+
 ## Follow-up
 
-- The in-run completion contract (a `Stop`-class hook) is **not built at this stop** and is named
-  here so it is not mistaken for something this experiment measured.
-- `customization.hooksHash` is declared and never computed. An additive instrument PR that hashes
+- **The 48/47 gap deserves a measurement of its own.** One failing command in ten runs, retried
+  zero times, is a rate nobody has estimated. It needs its own registered prediction, not a
+  retrospective read of this batch.
+- **`totalRepairAttempts` has now been measured and is 0 everywhere on this task.** A counter whose
+  observed range is a single value across 20 runs is a candidate for removal under §4 step 10 on
+  BE-003 alone — but it is retained, because BE-004 produced a non-zero value and the two tasks are
+  separate experiments by decision 9.
+- **Pre-registered before the run, and still true:** the in-run completion contract (a `Stop`-class
+  hook) is **not built at this stop** and is named here so it is not mistaken for something this
+  experiment measured. P6 tested exactly that and held.
+- **Pre-registered before the run, and now with a number behind it:**
+  `customization.hooksHash` is declared and never computed. An additive instrument PR that hashes
   the overlay's `.claude/settings.json` and `.ai/hooks/*` the way `skills_hash` hashes `SKILL.md`s
   would make P1's assertion a hash rather than an artifact. It is the builder's merge under §4
   step 14 and it does **not** gate this step, because a schema field is not a control until a run
-  record shows it written.
+  record shows it written. **This batch is the argument for it:** P1 was proved 20 times over by an
+  artefact rather than a hash, and that worked — but it only works for a treatment that writes a
+  file, and the next overlay may not.
+- The BE-004 arm's `change-focus` instability
+  ([`evidence/b08/scoring-20260916/change-focus-scorer-defect.md`](../evidence/b08/scoring-20260916/change-focus-scorer-defect.md))
+  does **not** appear on this task: `change-focus` is `1` on twenty of twenty runs here. BE-003's
+  stability is the evidence that such an anchor set can be stable on this scorer.
+
