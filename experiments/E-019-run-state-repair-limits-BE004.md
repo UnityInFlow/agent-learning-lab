@@ -312,27 +312,204 @@ Hypothesis cites. It is not a disappointment; B7 closed on that row and the trac
 <!-- pass OTLP_GRPC_PORT and check events.jsonl grows before trusting a telemetry-sourced
      number -- the stop-11 rule -->
 
+Batch `20260915T182436Z`. Prediction commit `5d7bfe0` at **`2026-09-15T14:31:03Z`**; first BE-004
+run `startedAt` **`2026-09-15T19:21:40Z`**, 4 h 50 m later.
+
+**This arm was split by a clamshell sleep and that is stated before any number.** The lid closed at
+`2026-09-15T19:48:55Z`, 48 seconds after `BE-004 04 control` started; the machine cycled
+Sleep/DarkWake until the lid opened at `2026-09-16T06:59:36Z`. Seven runs (`01`–`04` treated,
+`01`–`03` control) are pre-sleep; the rest are not. Evidence:
+[`evidence/b08/sleep-2026-09-15/pmset-and-run-starts.txt`](../evidence/b08/sleep-2026-09-15/pmset-and-run-starts.txt).
+
+| | treated (`agent-v1.1`) | control (`verify-v1.0`) |
+|---|---|---|
+| runs made | 10 | 10 |
+| **F13 `api_error` aborts** | **0** | **3** — seq `04`, `05`, `10`, each with 0 edits |
+| evaluator exit 0 | **9 / 10** — seq `08` returned **11** | **7 / 7** of the non-F13 runs |
+| gate-admitted for scoring | **9** | **7** |
+| run-state file | **PRESENT 10 / 10** | **ABSENT** on all 7 scored; `INCONCLUSIVE-0-edits` on the three F13 runs |
+| `customization.instructionsHash` | `sha256:a94237242e8c1308fb1d434a06a03463`, one distinct value | **`null`**, one distinct value |
+| `agentHash` / `runtime.version` / `runtime.model` | one distinct value each | **identical to treated** |
+| `init` read-back | `n=4 ["Read","Edit","Write","Bash"]` / `match` | identical |
+| `totalRepairAttempts` (admitted) | `[0 ×8, 1]`, median **0** | `[0 ×7]` |
+| `repair-limit` `block` decisions | **0** | — |
+| hook executions (admitted) | **54 / 54**, gap **0** | 0 / 0 |
+| `estimatedCost` median | `$0.209355` [`0.195181`–`0.257077`] | `$0.200527` [`0.191364`–`0.208626`] |
+| `modelCalls` median | 28 [27–38] | 28 [25–32] |
+| `changedFiles` / `addedLines` median | 7 / 190 | 7 / 204 |
+| `durationMs` median | 187 000 ms | 167 000 ms — **reported, no verdict**; this arm crossed a sleep |
+
+**The three F13 runs are excluded by registration, not by choice after the fact**, and they are
+**not topped up**. E-016 reported at `n = 7` on the same reasoning, and picking a replacement after
+seeing which arm lost one is a choice the data would then contain.
+
 ## Results
+
+**Rubric, codex `gpt-5.6-sol`, sha `6252778b8472` read back from all 16 sheet headers.**
+
+| category | treated `n=9` | control `n=7` | median delta |
+|---|---|---|---|
+| architecture-consistency | `[2 ×9]` → **2** | `[2 ×7]` → **2** | **0** |
+| maintainability | `[0 ×8, 1]` → **0** | `[0 ×7]` → **0** | **0** |
+| test-quality | `[1 ×7, 2 ×2]` → **1** | `[1 ×4, 2 ×3]` → **1** | **0** |
+| **change-focus** | `[0, 1 ×4, 2 ×4]` → **1** | `[0 ×4, 1, 2 ×2]` → **0** | **+1** |
+
+**MDE re-derived from this batch's own control, `n = 7`**
+([`evidence/b08/scoring-20260916/mde-rederived.md`](../evidence/b08/scoring-20260916/mde-rederived.md)):
+
+| outcome | transferred | **re-derived** | observed delta | reading |
+|---|---|---|---|---|
+| `estimatedCost` | $0.045 (30 %) | **$0.0089 (4.5 %)** | **+$0.0088** (+4.4 %) | **inside by $0.0001** |
+| `modelCalls` | 6 (29 %) | **3.39 (12.2 %)** | 0 | inside |
+
+**The cost row clears by one ten-thousandth of a dollar, and the three lost runs are why.** At
+`n = 10` the same control spread gives an MDE near `$0.0074` and the observed `+$0.0088` would sit
+**outside** it. The F13 exclusions did not only shrink the sample; they moved this row from
+detectable to not detectable. The registered rule reads the population that occurred, and P5's own
+band (+2 % to +8 %) contains the observed +4.4 % — but this is the first thing a clean re-run would
+settle.
+
+### The `change-focus` delta is not a result, and the evidence is in the diffs
+
+Full analysis:
+[`evidence/b08/scoring-20260916/change-focus-scorer-defect.md`](../evidence/b08/scoring-20260916/change-focus-scorer-defect.md).
+
+- The full-arm exact permutation test gives **`p = 0.2378`** (11 440 labellings). The arms are not
+  separated.
+- Stratified by the sleep, **the direction reverses**: pre-sleep the *control* scores higher
+  (medians 2 vs 1); post-sleep the treated does (2 vs 0). A treatment effect does not change sign
+  when a laptop lid shuts.
+- The sleep cannot be acting on the scorer — **all 36 sheets were produced in one 25-minute window
+  on 2026-09-16**, long after every run finished.
+- So the runs were compared directly. **Six control runs, three scored `2` and four scored `0`,
+  have identical hunk contexts in both controllers, no deletions in `src/main`, no hunk inside any
+  unnamed method, and one added method each.** A `2`-scoring run and a `0`-scoring run open with
+  byte-identical additions.
+- Against the anchors, **neither value is supportable**: anchor 0 needs *two or more* unnamed
+  methods to differ and **zero do**; anchor 2 needs nothing beyond a closed list and **every run
+  adds a constructor parameter that is not on it**. The supported value is anchor 1 for all six.
+  **The scorer returned 1 on none of them.**
+- And it is specific to this rubric: on BE-003, `change-focus` is **`1` on twenty of twenty runs**.
 
 ## Which predictions held
 
+| | prediction | outcome |
+|---|---|---|
+| **P1** | run-state file on 10/10 treated, 0/10 control | **HELD.** PRESENT on 10 of 10 treated; ABSENT on all 7 scored controls. Row 0 does not fire |
+| **P2** first half | zero `block` decisions | **HELD**, `k = 0` across all treated runs |
+| **P2** second half | `totalRepairAttempts` median **≥ 1** on BE-004 | **REFUTED.** Median **0**; one run of nine reached 1. **The prediction is not edited** (§4 step 12) |
+| **P3** | pass rates equal or differing by at most one run | **HELD** — treated 9 of 10, control 7 of 7 non-F13: a difference of **one run**. Row 1 needs five |
+| **P4** | all four category medians equal, delta 0 | **REFUTED AS MEASURED** on `change-focus` (+1); held on the other three. The refutation rests entirely on the cell shown above to be undetermined by its own anchors, and that attribution is recorded rather than used to rescue the prediction. P4 is not edited |
+| **P5** | cost +2 % to +8 %, inside the MDE | **HELD in direction and size** — +4.4 %, inside the predicted band; inside the re-derived MDE **by $0.0001** |
+| **P6** | the completion contract changes nothing in-run | **HELD by construction** — no `Stop`-class hook exists |
+
+**P2's second half was registered in advance as the row most likely to be wrong, and it was wrong.**
+That is the most useful outcome in this file. The mechanism is on record from the preflight, written
+before the batch: the BE-004 preflight run failed two `Bash` commands and **retried neither**, so a
+counter of *repeat attempts at the same fingerprint* stays at 0 while commands are still failing.
+The batch confirms it at `n = 9`: 54 `PreToolUse` against 54 `PostToolUse` on the admitted treated
+runs — every command succeeded — with one run reaching `totalRepairAttempts = 1`.
+
 ## Failure analysis
+
+**Four runs left the scored population, and they are not one thing.**
+
+| run | seq / arm | exit | why | excluded? |
+|---|---|---|---|---|
+| `2ebaa773` | 04 control | 12 (`F03`) | **F13 `api_error`**, 0 edits | **yes**, by registration |
+| `80b21210` | 05 control | 12 (`F03`) | **F13 `api_error`**, 0 edits | **yes**, by registration |
+| `00b6ccbb` | 10 control | 12 (`F03`) | **F13 `api_error`**, 0 edits | **yes**, by registration |
+| `ebf9e05e` | 08 **treated** | **11 (`F05`)** | **a real failure** — see below | **not** an exclusion; it is the measurement |
+
+**`ebf9e05e` is the first evaluator failure BE-004 has ever produced on this model.** The workspace
+`CLAUDE.md` records 9 of 9 before stop 12, 10 of 10 in every arm at B5 and B6, 7 of 7 in both arms
+at B7. Exit **11** is `F05`, and in this evaluator that is **AC2 — the repository's own baseline
+tests, with the agent's tests stashed out** (`evaluator.sh:171-181`), a design that exists precisely
+to stop test-first work being scored as breakage. So this is a genuine regression of pre-existing
+behaviour, not a harness artefact.
+
+**And the oracle says something about it that nothing else can: `hooks 10/10` on that run.** Every
+one of its ten `Bash` commands exited 0. It never ran the suite it broke. No evaluator field, no
+telemetry counter and no hash records that; the gap between `PreToolUse` and `PostToolUse` is the
+only place it appears.
+
+**It is one run.** It is reported as a count, it enters the pass-rate row as the failure it is, and
+no rate, mechanism or property is claimed from it (§5, `n < 5`).
+
+**The three F13 controls all fall inside the sleep window**, which is recorded as a co-occurrence
+rather than a cause: an `api_error` is a dropped connection, a sleeping machine drops connections,
+and three of three landing there is consistent with that — but three events cannot establish it.
 
 ## Sanity checks
 
-- [ ] prediction commit timestamp vs first run `startedAt` — both written here verbatim
-- [ ] `customization.instructionsHash` differs between arms and matches the two overlays' shas
-- [ ] `runtime.model` and `runtime.version` identical across all runs, read from the record
-- [ ] benchmark revision identical across all runs
-- [ ] one scored cell re-read by hand off a kept worktree, its value written beside the sheet's
-- [ ] **the kept worktrees are copied somewhere durable the day they are made** — `$TMPDIR` on this
+- [x] prediction commit timestamp vs first run `startedAt` — `5d7bfe0` at `2026-09-15T14:31:03Z`;
+      first BE-004 run `2026-09-15T19:21:40Z`
+- [x] `customization.instructionsHash` differs between arms and matches the two overlays' shas —
+      registered sha on 10/10 treated, `null` on 10/10 control
+- [x] `runtime.model` and `runtime.version` identical across all runs, read from the record —
+      one distinct value each across all 20
+- [x] benchmark revision identical across all runs — `eea144ef940f`
+- [x] one scored cell re-read by hand off a kept worktree, its value written beside the sheet's —
+      `change-focus` on `b33a8233`: hand **2**, sheet **2**, committed at `d845bc6` **before any
+      sheet existed**. The agreement is reported and **not leaned on**: the hand reader recorded, in
+      advance, that the anchor does not determine the value, and the scorer's own scatter across six
+      equivalent runs is the demonstration
+- [x] **the kept worktrees are copied somewhere durable the day they are made** — done by the driver
+      itself the same day: 44 under `evidence.local/b08-worktrees/`, small artefacts committed under
+      `evidence/b08/worktrees/` — `$TMPDIR` on this
       machine empties a worktree's files in about three days and leaves the directory, so `ls -d`
       passes on a hollowed one. The decision-11 census returned **no reading** because all 54 BE-004
       worktrees had been emptied before it opened. This box is here because that already happened.
 
 ## Decision
 
+**`KEEP AS L2, WITH NO MEASURED EFFECT` on the three measurable categories — decision-rule row 3 —
+and `change-focus` recorded as UNMEASURABLE. Row 6 is declined, with reasons, and the declining is
+itself reported.**
+
+**Row 6's condition is met as written**: *"Any rubric category median moves by ≥ 1 point in the
+better direction with P3 holding → IMPROVED"*. `change-focus` moved +1 and P3 held. **I am not
+recording `IMPROVED`**, and the grounds are not judgement but evidence:
+
+- the cell it reads is demonstrably not determined by its own anchors — six structurally identical
+  runs scored `2,2,0,0,0,0`, and the one value the anchors support was returned on none of them;
+- the arms are not separated by an exact permutation test (`p = 0.2378`);
+- the direction reverses at a laptop lid closing.
+
+**Row 6 anticipated exactly this and is the reason it is declinable:** it was registered with the
+clause *"a positive here is first a reason to check the delivery proof"*, because B8's treatment has
+no mechanism by which it should improve a rubric score. The delivery proof is sound — P1 held 10/10
+— so the check moved to the measurement, and the measurement is where it failed.
+
+**The gap this exposes is in the decision rule, not in the result.** Rows 0–7 have a row for *the
+treatment was not delivered* (row 0) and none for *the instrument did not measure*. A rule with no
+such row forces a choice between reporting an effect nobody believes and silently ignoring a row
+that fired. **This is recorded as a defect in E-019's own decision rule, discovered by running it**,
+and it is the kind of thing only a registered rule can expose — an unregistered one would have been
+quietly adjusted.
+
+**What a validator should check first:** open
+`evidence/b08/scoring-20260916/change-focus-scorer-defect.md`, take any two of the six control runs
+named there — one scored 2 and one scored 0 — and diff them against each other. If they differ in a
+way anchor 0 or anchor 2 names, this decision is wrong and `IMPROVED` should stand.
+
+**v1.1 closes on BE-004 with no regression** (P3 held; the one genuine failure is within the
+one-run tolerance registered before the run) **and no credible improvement.**
+
 ## Follow-up
+
+- **BE-004's `change-focus` anchors are the instrument to fix**, not the category: BE-003's are
+  stable at `n = 20` on the same scorer. The fix moves rubric sha `6252778b8472`, which four
+  experiments cite, so it is an author decision at a version boundary and **not** a change this
+  stop may make (§6).
+- **A clean BE-004 re-run under a new experiment key would settle two rows at once** — the cost row
+  that clears its MDE by `$0.0001` only because `n = 7`, and whether `change-focus` scatters again
+  on a rubric nobody has touched. About $4 and 80 minutes. It is **not** done here: the population
+  that occurred is what the registered rule reads, and re-running an arm because its result was
+  inconvenient is the thing this project does not do. It is offered to the author as a decision.
+- **`totalRepairAttempts` has now been measured on both tasks** — 0 on all 20 BE-003 runs, median 0
+  with a single 1 on BE-004. The quantity is real and the counter works; what P2 got wrong was the
+  rate at which this model repeats a failed command, which is apparently near zero.
 
 - The in-run completion contract (a `Stop`-class hook) is **not built at this stop** and is named
   here so it is not mistaken for something this experiment measured.
