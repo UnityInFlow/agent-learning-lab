@@ -1436,4 +1436,27 @@ section to match today is how a board stops being a record.
 
 ## Commit
 
-<!-- TODO -->
+**One PR in `agent-learning-lab` — `lab#95`**, carrying: this workbook, `E-018` and `E-019` with
+their dated result sections, the `agent-v1.1` overlay and the unwired deliberate-failure variant,
+`tools/check-run-state.sh` and `tools/check-completion-contract.sh` with their three fixture sets,
+the whole of `evidence/b08/**` (the 40-row manifest, the gate, the 36 registered sheets and their
+36 second-reader sheets, both hand re-reads, the MDE re-derivation, the deliberate-failure run, the
+hook-event probe, the sleep record and the three post-review re-checks), the five §4a findings
+files, `findings/track-b-2026-09-16.md`, `HANDOFF.md` with both board markers, and
+`TRACK-B-STATE.md`.
+
+**Nothing registered is edited; everything is added to.** The overlay, both rubrics, the manifest,
+every run folder, every sheet, both hand re-reads and every prediction stand exactly as they were
+written. The three corrections this stop made to its own text — the design's hook event, the
+`change-focus` scatter, and twice on which review file stalled — are **dated amendments carried
+beside the original wording**, never rewrites of it.
+
+**What is NOT in this PR, and where it went instead:** wiring
+`runner/lib/classify-permission-block.sh` into the run path, which is what gate clause 3 needs and
+is a change to `agent-observatory` rather than to this repo. It belongs to whichever stop next needs
+a BLOCKED verdict, and the clause is recorded **NOT MET** rather than deferred quietly.
+
+**Merge discipline: merge, never squash.** A squash orphans every sha on the branch, and this
+stop's board markers cite one (`built-from: 196731f`), which would leave
+`check-board-freshness.sh` reporting `UNVERIFIABLE` in CI and *"current"* locally — the exact
+failure `boards.local/README.md` documents.
