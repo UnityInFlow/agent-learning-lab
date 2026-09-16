@@ -697,6 +697,77 @@ a tool while a run of it is in flight — the driver was mid-batch when this was
 moves below the guards-only exit, and the 13 empty directories are removed, after the batch ends
 and before the PR. *Found by Opus 5 (claude-opus-5), autonomous, 2026-09-15.*
 
+## The batch ran across a clamshell sleep, and the BE-004 arm is split by it
+
+**Written 2026-09-16T07:0xZ, while the batch was still running and before any sheet was opened**,
+so that nothing below can be produced afterwards as an interpretation. Evidence:
+[`evidence/b08/sleep-2026-09-15/pmset-and-run-starts.txt`](../../evidence/b08/sleep-2026-09-15/pmset-and-run-starts.txt).
+
+**The cause is exact and it is not the machine being flaky.** `pmset -g log`:
+
+```
+2026-09-15 21:48:55 +0200 Sleep  Entering Sleep state due to 'Clamshell Sleep' ... Using AC
+```
+
+That is **19:48:55Z**. `BE-004 04 control` started at **19:48:07Z** — forty-eight seconds earlier.
+The lid was closed on top of a running batch, and the machine then cycled Sleep / DarkWake all
+night: 605 sleep entries in the log, the batch's own run-start headers showing gaps of
+**4h31m** (`BE-004 05 treated` at `00:19:19Z`) and **5h21m** (`BE-004 05 control` at `05:40:20Z`)
+against a 3-to-4-minute run. It ended at `2026-09-16 08:59:36 +0200` — `Wake ... due to ... lid
+... HID Activity`, the lid being opened — and `BE-004 06 treated` started 71 seconds later.
+
+**`caffeinate -i` was running and did not prevent this, by design.** `-i` prevents *idle* sleep.
+It has no effect on clamshell sleep. The launch command was
+`nohup caffeinate -i evidence/b08/run-b8-batch.sh`, and it did exactly what it says.
+
+### Which runs are clean, stated as a boundary rather than a judgement
+
+| runs | started | status |
+|---|---|---|
+| **BE-003, all 20** | 18:24:37Z – 19:21:00Z | **clean** — the whole arm ran and finished before the lid closed |
+| **BE-004 01–04 treated, 01–03 control** (7 runs) | 19:21:40Z – 19:44:24Z | **clean** — pre-sleep |
+| `BE-004 04 control` | 19:48:07Z | **F13**, `"terminal_reason":"api_error"`, 0 edits, evaluator 12 (`F03`) |
+| `BE-004 05 treated` | 00:19:19Z | completed, evaluator 0 — but **ran inside the sleep/wake cycle** |
+| `BE-004 05 control` | 05:40:20Z | **F13**, `api_error`, 0 edits, evaluator 12 |
+| `BE-004 06` onward | 07:00:47Z – | post-wake |
+
+### What the registered rules already decide, and what they do not
+
+**Decided before the batch, and followed:** `F13` infrastructure aborts are excluded by name in
+both experiment files, so the two `api_error` controls leave the scored population — **they are
+not re-run**. E-016 is the precedent: it reported at `n = 7` rather than topping up, and decision 9
+registered the rule in advance (*"the scored population may be below `n = 10`"*). A replacement run
+chosen after seeing **which arm** lost one is a choice the data would then contain.
+
+**Also decided before the batch:** §4 step 6 and this stop's own state-file instruction say
+*"do not run across a machine sleep; if a run's duration looks contaminated, exclude duration, not
+the run"*. So `BE-004 05 treated` stays in the population with its duration excluded. Duration was
+already unusable here for an unrelated reason — see the null-column note below.
+
+**What the rules do NOT decide, and it is named here rather than resolved quietly:** the
+interleaving exists so that drift lands on both arms alike, and a nine-hour split does not. The
+BE-004 arm is now *two populations wearing one experiment key* — seven runs from a quiet hour and
+the rest from a night of DarkWake cycles — and `BE-004 05 treated` is the most expensive run in the
+arm at `$0.257` against a pre-sleep treated median near `$0.20`, which is what a run that retried
+across a dropped connection looks like. **Whether the BE-004 comparison survives that is a step-8
+question**, answered against the population that occurred, with the pre-sleep seven reported
+separately and — at `n = 4` and `n = 3` per arm — stated as *true of those runs*, never as a
+property (§5).
+
+**BE-003 is untouched by all of this** and is the arm the exit gate can lean on without a caveat.
+
+*Recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-16.*
+
+### A second instrument defect, found at the 20-run mark: two null columns
+
+`durationMs` and `changedFiles` are `null` on **every row of the manifest** — wrong `jq` paths in
+the driver, the same class of mistake the state file warns about for `.behavior.*` versus
+`.overhead.*`. **Neither takes a verdict:** duration is registered as *"no verdict is taken from
+duration"* and `changedFiles` appears in no decision-rule row. Both are recoverable from the run
+records already saved under `evidence/b08/worktrees/<run id>/run-record.json`, so no run is harmed
+and nothing needs re-running. The paths are corrected and both columns re-derived from those saved
+records after the batch ends — not while the driver is in flight (§4 step 4).
+
 ## Predict before you run
 
 The predictions are registered **per task**, in their own files, with their own MDEs and their
