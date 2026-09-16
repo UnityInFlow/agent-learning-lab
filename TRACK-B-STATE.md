@@ -1641,6 +1641,27 @@ board_state: "GREEN, and it was RED in between - both states are mine and both a
 blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:
+  - "2026-09-16, A STALE HEADER ON A REGISTERED INSTRUMENT, AND I AM DELIBERATELY NOT FIXING IT.
+    benchmark/rubrics/backend-quality-be004.yaml opens with `BE-004 backend quality rubric - DRAFT,
+    UNPROVEN` and `It may NOT be used to score a run until it has been proved on BE-004`s five
+    gate-passing fixtures`. IT WAS PROVED, at spine stop 12: six codex sheets, all four dimensions
+    separating in the predicted direction, recorded in E-011 §4 step 4, and the sha 6252778b8472 is
+    cited as the registered rubric by E-011, E-013, E-016 and E-019. So the file tells a reader it
+    cannot be used while four experiments use it. THE FIX IS NOT MINE TO MAKE: the header is inside
+    the file, so amending it CHANGES THE SHA, and the sha is the registered variable §6 forbids
+    moving mid-experiment. A header amendment is a version boundary and re-registration across four
+    experiment files - an author decision, not a tidy-up. Recorded here so the next reader of that
+    file does not stop on it, and so a validator does not read it as scoring under an unproven rubric."
+  - "2026-09-16: THE CODEX CLI MOVED UNDER THE TRACK, 0.147.0 (stop 15) -> 0.154.0 (now), AND THE
+    REGISTERED VARIABLE DID NOT. tools/codex-score.sh:46 pins the scorer MODEL to gpt-5.6-sol and that
+    is what Decision C registers; the CLI version is recorded in every sheet`s provenance header
+    (`codex: codex-cli 0.147.0` on the stop-15 sheets), so the move is visible rather than silent.
+    Not a §7 halt and not a Decision H trigger. It matters for ONE thing and it is already handled by
+    the design: B8`s verdict is taken against its OWN concurrent control, scored on the same day by
+    the same CLI, and E-018/E-019 register their MDEs as TRANSFERRED from E-015/E-016 precisely so a
+    cross-step comparison is a limit and not a verdict. Any later claim that compares a B8 number
+    directly with a B7 number has to carry this line."
+
   - "2026-09-15, THIS SESSION, AND IT IS MINE NOT THE MACHINE`S: I READ A RUN`S agent.log INTO MY OWN
     CONTEXT with `head -20`, which §0 forbids in as many words - `never cat, Read or sed an evidence
     file, a sheet, a run-record dump, the telemetry file, a findings file or a review file into your own
