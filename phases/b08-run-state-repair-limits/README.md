@@ -888,6 +888,47 @@ quiet machine.** That rule is written here before the outcome is known.
      Then force the same failure four times and confirm it BLOCKS rather
      than looping. -->
 
+### The result — all five held, and P1 is therefore a real control
+
+Run `5116b598-3cdd-49b3-b497-2e4bf7de46c2`, `EXP-B8-RUNSTATE-BE003-DELIBERATE-FAILURE`, `n = 1`,
+2026-09-16. Evidence: [`evidence/b08/deliberate-failure-20260916/`](../../evidence/b08/deliberate-failure-20260916/).
+
+| # | predicted | observed | |
+|---|---|---|---|
+| D1 | run-state file **ABSENT** | **absent** — `stat`: *No such file or directory* | **HELD** |
+| D2 | `instructionsHash` = the registered **treated** sha | `sha256:a94237242e8c1308fb1d434a06a03463` | **HELD** |
+| D3 | `agentHash` matches both arms | `sha256:b3450564b6f32d6193e8580db766210e` | **HELD** |
+| D4 | evaluator still passes | **exit 0** | **HELD** |
+| D5 | `init` read-back still shows `Bash` | `delivered n=4 ["Read","Edit","Write","Bash"]`, `verdict=match` | **HELD** |
+
+**The load-bearing detail is that the run was not idle.** It made **6 `Bash` calls** and **3 edit
+calls**. Had it made none, an absent state file would be `INCONCLUSIVE-0-edits` — the driver's own
+category — and would have proved nothing. It ran six commands that *would* have fired
+`repair-limit.sh` on every one, and no file appeared, because nothing registered the hook.
+
+### What this establishes, in the terms registered before the run
+
+**P1 is a real control.** The registered reading was: *"If D1 holds while D2 and D3 hold, then P1
+detects a treatment that every hash in the run record calls delivered."* It does. This run's record
+is indistinguishable from a treated run by **every hash the runner computes** — `instructionsHash`
+is the treated sha, `agentHash` matches, `runtime.version` and `runtime.model` match, the delivered
+tool set matches, and the evaluator passes. **On the hashes alone it is a treated run.** The only
+artefact that knows otherwise is the one P1 reads.
+
+**So the 20 of 20 in this stop means what it appears to mean**, and that was not safe to assume
+beforehand: a proof that has never been shown to fail is indistinguishable from a proof that cannot.
+
+**And it measures the size of the hole that `hooksHash` leaves.** `customization.hooksHash` is
+declared in `run.schema.json:60`, in the web types, in the DTO and in the entity, and is computed
+nowhere. This run is what that hole looks like from inside: an overlay that is *not* the treatment,
+wearing every hash the treatment wears. A `hooksHash` over `.claude/settings.json` would have caught
+it — and until one exists, **an artefact that only appears when code executes is the stronger
+proof**, which is the opposite of what a schema field suggests.
+
+*The opencode overlap disclosed above did occur; the second reader was running throughout. No
+prediction here is a duration, cost or rate, and `durationMs`, `estimatedCost` and `modelCalls`
+from this run are recorded nowhere and enter nothing.*
+
 ## Keep, modify, remove — §4 step 10, decided per component from the measurement
 
 §4 step 10 is blunt: *"A rule with no measured effect is removed, and its removal is recorded as the
