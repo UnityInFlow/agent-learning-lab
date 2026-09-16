@@ -3,9 +3,14 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "What is BLOCKED ON YOU" item 000 below — it is the live halt, it names the one thing
-that has to happen before the run can move, and it outranks everything else in this file.** Then
-item 0, then "Stop 11 is CLOSED".
+**Start at "What is BLOCKED ON YOU" in the Stop 17 section below — that is the live halt as of
+2026-09-16, it names the one thing that has to happen before the run can move, and it outranks
+everything else in this file.**
+
+*(Superseded pointer, kept:)* "Start at 'What is BLOCKED ON YOU' item 000 below — it is the live
+halt … Then item 0, then 'Stop 11 is CLOSED'." That pointer is from the thirteenth session and the
+halt it names is discharged; it is corrected rather than deleted because the line telling a reader
+where to start is exactly the line this project has now found stale four times.
 
 Stops 4–9 are merged. **Stop 10 (B4) is closed `INCONCLUSIVE`: the first agent exists and does
 not promote.** The run's two largest results now stand as a pair. B3: *a global instruction file,
@@ -139,6 +144,45 @@ nothing executes on it — a written field is not a control.
 keeps all three hook scripts byte-identical and removes only their registration in
 `.claude/settings.json`; the artefact vanishes (`condition D1: run-state file ABSENT`) while the run
 still passes the evaluator. All five registered predictions held.
+
+### What is BLOCKED ON YOU
+
+**HALT, 2026-09-16 (§7: *"any decision this prompt did not pre-make that changes what a version
+means … a new task besides BE-003 and — from stop 12, by author decision 9 — BE-004"*) — BE-005
+does not exist, so B8a cannot open.** This is **not** a halt inside stop 17: stop 17 is complete
+through §4 step 14 and merged.
+
+**Yours, and only yours:** design and merge **BE-005** with Claude Fable 5.1. Author decision 11
+registers B8a — *Decomposition depth*, spine position **17a** — on BE-005 and on nothing else, and
+your two standing instructions with the adoption were *"halt before B8a if BE-005 is not merged to
+benchmarks main"* and *"never design BE-005 yourself — I do that with Fable."*
+
+**Checked rather than assumed, 2026-09-16:** `tasks/` on `agent-observatory-benchmarks`
+`origin/main` at `eea144ef940fda4cb6090561fdd901aed0013c8e` holds exactly `BE-001-customer-validation`,
+`BE-002-order-amount-validation`, `BE-003-confirm-shipment`, `BE-004-cancel-order` — **no BE-005** —
+and the repository's **open-PR list is empty**, so there is no PR to wait on. The newest merged PR
+there is still **#29** (BE-004, 2026-09-07).
+
+**The missing artefact, named as §7 requires:** a PR in `UnityInFlow/agent-observatory-benchmarks`
+adding `tasks/BE-005-<name>/` to decision 9's build shape — ticket, evaluator on BE-003's exit-code
+contract, two evaluator-owned suites, known-bad fixtures including one that passes every naive gate
+and dies only at the late clause, gate-passing quality variants, `verify-evaluator.sh`, and a rubric
+proved on codex per 10.2 with its sha registered — **merged to `main`, with `verify-evaluator.sh`
+re-run on `main`** rather than taken from CI, which is the precedent BE-004 set. Plus **Gate B**
+before any of it counts: five plain-baseline runs on the finished ticket, with the wrong shape on at
+least half. Decision 11's own step 6 then asks you to record it as adopted in `TRACK-B-STATE.md`
+`author_decisions` item 11 and prompt §3.
+
+**What I refused rather than overlooked.** I did **not** open B8a on BE-004 — decision 11 item 5
+registers one task and names BE-005, and substituting would move a registered variable before the
+step opens. I did **not** design, sketch, draft or propose a BE-005 ticket, trap, fixture, evaluator
+or threshold — §6 says the builder never writes a benchmark task, decision 11 says *"Opus 5 proposes
+none of them"*, and a candidate list from me would contaminate the design session it is meant to
+feed. I did **not** skip ahead to stops 18–19; B8a sits at 17a before them by decision 11 item 3,
+and opening a later stop while 17a is blocked would break spine order for no measurement gain.
+
+*(Superseded by the halt above, kept:)* Nothing — `blocked_on_author` was empty from the stop-17
+re-entry until this halt, and no §7 bullet was matched while the stop was open.
 
 Workbook: [`phases/b08-run-state-repair-limits/README.md`](phases/b08-run-state-repair-limits/README.md).
 Experiments: [`E-018`](experiments/E-018-run-state-repair-limits-BE003.md),
@@ -1851,8 +1895,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 196731f prose: e67c87306a93 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 196731f prose: e67c87306a93 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 93d6ff3 prose: c32edff33e62 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 93d6ff3 prose: c32edff33e62 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The
