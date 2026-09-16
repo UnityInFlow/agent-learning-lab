@@ -108,3 +108,40 @@ read as `IMPROVED`**.
 
 *Opus 5 (claude-opus-5), autonomous, 2026-09-16. Every diff fact above was derived in the main
 context from the kept worktrees, not from a subagent's report.*
+
+---
+
+## Addendum, same day, written after the BE-003 arm was tabulated — this NARROWS the claim above
+
+**The section above says "the `change-focus` instrument". The BE-003 numbers say that is too broad,
+and the correction belongs here rather than as an edit to what was already written.**
+
+On **BE-003, `change-focus` is perfectly stable: `1` on all ten treated runs and `1` on all ten
+control runs — twenty of twenty, no scatter at all** — and `1` is exactly what the BE-003 hand
+re-read arrived at independently. So on that rubric the anchor ambiguity the hand re-read identified
+is real *in the text* and yet the scorer resolved it consistently, and consistently the same way a
+careful human reader did.
+
+**The scatter is specific to the BE-004 rubric.** Six structurally equivalent BE-004 control runs
+returned `2,2,0,0,0,0` and never the residual, while twenty BE-003 runs returned `1` every time.
+
+| | runs | `change-focus` values | scatter |
+|---|---|---|---|
+| BE-003, rubric `396e1799eb2b` | 20 | all `1` | **none** |
+| BE-004, rubric `6252778b8472` | 16 | `0,0,0,0,1,1,1,1,1,2,2,2,2,2,2,2` | wide |
+
+**So the refined finding is:** both rubrics carry a `change-focus` anchor 2 whose whitelist is
+narrower than a correct solution requires — that much the two hand re-reads established on the text
+— but **only the BE-004 port produces an unstable score from it.** The BE-004 anchors differ from
+BE-003's in having a longer permitted list covering two controllers, two packages and a repository
+method, and its anchor 2 ends *"Anything beyond that list is a difference"* with a citation
+requirement across four methods in two trees. That is a great deal more for a reader to hold, and
+it is the one that scatters.
+
+**What this does to the verdict is nothing — BE-004's `change-focus` row is unmeasurable either
+way.** What it does to the *recommendation* is make it specific: the instrument to look at is the
+**BE-004 rubric's `change-focus` anchors**, not the category in general, and BE-003's stability at
+`n = 20` is the evidence that a `change-focus` anchor set *can* be stable on this scorer.
+
+*Narrowed by Opus 5 (claude-opus-5), autonomous, 2026-09-16, from the BE-003 arm's own numbers.
+The section above is left exactly as written.*
