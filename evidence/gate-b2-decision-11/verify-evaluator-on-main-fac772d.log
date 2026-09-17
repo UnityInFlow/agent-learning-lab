@@ -1,0 +1,402 @@
+# BE-005 ticket A' — verify-evaluator.sh re-run ON MAIN after the merge
+# repo:   UnityInFlow/agent-observatory-benchmarks
+# sha:    fac772d216c0c63f7947b489a162debb5cb58251 (merge of PR #31), fresh detached clone
+# not:    not CI, not the branch run, not another session's count
+# by:     Claude Opus 5 (claude-opus-5), 2026-09-17
+# result: all 17 cases behaved as specified — exit 0
+#
+verify-evaluator: staging pristine fixture in /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p
+verify-evaluator: baseline 44ec78f4dca3
+
+==============================================================
+case: baseline-untouched  (expecting exit 12)
+==============================================================
+      baseline  44ec78f4dca3
+    
+    Changed files (0):
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              pass (recorded, not an AC)
+      AC3/AC5 functional suites          FAIL
+          part 1 fulfilment              FAIL
+          part 2 customer rule           FAIL
+          part 3 pagination              FAIL
+      AC4 error contract                 not reached
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 NO — no production file changed
+      AC7 scope discipline               PASS
+    
+      acceptance 4/7   exit 12
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-baseline-untouched.json
+    RESULT: OK (exit 12)
+
+==============================================================
+case: stale-status  (expecting exit 12)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          FAIL
+          part 1 fulfilment              FAIL
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 not reached
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 4/7   exit 12
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-stale-status.json
+    RESULT: OK (exit 12)
+
+==============================================================
+case: stale-amend  (expecting exit 12)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          FAIL
+          part 1 fulfilment              FAIL
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 not reached
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 4/7   exit 12
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-stale-amend.json
+    RESULT: OK (exit 12)
+
+==============================================================
+case: placeholder-filter  (expecting exit 12)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          FAIL
+          part 1 fulfilment              FAIL
+          part 2 customer rule           PASS
+          part 3 pagination              FAIL
+      AC4 error contract                 not reached
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 4/7   exit 12
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-placeholder-filter.json
+    RESULT: OK (exit 12)
+
+==============================================================
+case: save-then-check  (expecting exit 12)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          FAIL
+          part 1 fulfilment              FAIL
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 not reached
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 4/7   exit 12
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-save-then-check.json
+    RESULT: OK (exit 12)
+
+==============================================================
+case: no-customer-rule  (expecting exit 12)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              pass (recorded, not an AC)
+      AC3/AC5 functional suites          FAIL
+          part 1 fulfilment              PASS
+          part 2 customer rule           FAIL
+          part 3 pagination              PASS
+      AC4 error contract                 not reached
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 4/7   exit 12
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-no-customer-rule.json
+    RESULT: OK (exit 12)
+
+==============================================================
+case: envelope-breaks-list  (expecting exit 11)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 FAIL (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          FAIL
+          part 1 fulfilment              FAIL
+          part 2 customer rule           FAIL
+          part 3 pagination              FAIL
+      AC4 error contract                 not reached
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 3/7   exit 11
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-envelope-breaks-list.json
+    RESULT: OK (exit 11)
+
+==============================================================
+case: default-error-body  (expecting exit 13)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          PASS
+          part 1 fulfilment              PASS
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 FAIL (right status, wrong envelope)
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 6/7   exit 13
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-default-error-body.json
+    RESULT: OK (exit 13)
+
+==============================================================
+case: known-good  (expecting exit 0)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          PASS
+          part 1 fulfilment              PASS
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 PASS
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 7/7   exit 0
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-known-good.json
+    RESULT: OK (exit 0)
+
+==============================================================
+case: scope-violation  (expecting exit 21)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          PASS
+          part 1 fulfilment              PASS
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 PASS
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               FAIL (1 unrelated)
+          unrelated: sample-service/src/main/kotlin/com/unityinflow/sample/SampleServiceApplication.kt
+    
+      acceptance 6/7   exit 21
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-scope-violation.json
+    RESULT: OK (exit 21)
+
+==============================================================
+case: new-dependency  (expecting exit 20)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          PASS
+          part 1 fulfilment              PASS
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 PASS
+      AC6 no new dependencies            FAIL (+1)
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               FAIL (1 unrelated)
+          unrelated: sample-service/pom.xml
+    
+      acceptance 5/7   exit 20
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-new-dependency.json
+    RESULT: OK (exit 20)
+
+==============================================================
+case: good-inline-envelope  (expecting exit 0)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          PASS
+          part 1 fulfilment              PASS
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 PASS
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 7/7   exit 0
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-good-inline-envelope.json
+    RESULT: OK (exit 0)
+
+==============================================================
+case: good-nested-ifs  (expecting exit 0)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          PASS
+          part 1 fulfilment              PASS
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 PASS
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 7/7   exit 0
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-good-nested-ifs.json
+    RESULT: OK (exit 0)
+
+==============================================================
+case: good-noisy-diff  (expecting exit 0)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          PASS
+          part 1 fulfilment              PASS
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 PASS
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 7/7   exit 0
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-good-noisy-diff.json
+    RESULT: OK (exit 0)
+
+==============================================================
+case: good-strong-tests  (expecting exit 0)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+      - sample-service/src/test/kotlin/com/unityinflow/sample/order/PartialFulfilmentTest.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          PASS
+          part 1 fulfilment              PASS
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 PASS
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 7/7   exit 0
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-good-strong-tests.json
+    RESULT: OK (exit 0)
+
+==============================================================
+case: good-weak-tests  (expecting exit 0)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+      - sample-service/src/test/kotlin/com/unityinflow/sample/order/PartialFulfilmentTest.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          PASS
+          part 1 fulfilment              PASS
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 PASS
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 7/7   exit 0
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-good-weak-tests.json
+    RESULT: OK (exit 0)
+
+==============================================================
+case: good-stored-consistent  (expecting exit 0)
+==============================================================
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+      - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+    
+      AC1 build                          PASS
+      AC2 existing tests                 PASS (exempt: OrderControllerTest.kt)
+          agent's own tests              fail (recorded, not an AC)
+      AC3/AC5 functional suites          PASS
+          part 1 fulfilment              PASS
+          part 2 customer rule           PASS
+          part 3 pagination              PASS
+      AC4 error contract                 PASS
+      AC6 no new dependencies            PASS
+      AC0 task attempted                 yes (9 production file(s))
+      AC7 scope discipline               PASS
+    
+      acceptance 7/7   exit 0
+      evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//be005-verify.9oQY6p/evaluation-good-stored-consistent.json
+    RESULT: OK (exit 0)
+
+verify-evaluator: all 17 cases behaved as specified — evaluator discriminates.
