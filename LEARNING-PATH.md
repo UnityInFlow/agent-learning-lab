@@ -68,6 +68,7 @@ acceptance gate, and the specific trap.
 | B6 | One specialist skill | 3 | v1.0 |
 | B7 | Deterministic verification + policies | **5A** | v1.0 |
 | B8 | Persistent run state, hard repair limits, completion contract | **5B** | **v1.1** |
+| B8a | Decomposition depth — one orchestrator + three specialists, on BE-005 only | 4B + **B8** | — · version-neutral, measured against v1.1 (author decision 11, 2026-09-14) |
 | B9 | Knowledge router + hit-rate instrumentation | 6A + **6B** | v1.2 |
 | B10 | Port the Copilot adapter to Claude | 4A | v1.2 |
 | B11 | Efficiency — caches, retrieval budgets, command dedup | 6B + 10 | v1.2 |
@@ -93,6 +94,7 @@ and B's numeric order. Track A teaches the primitive; the B step that follows bu
 | 1 | [0A — Agent mechanics](phases/00a-agent-mechanics/) | | 15 | [**B7** — Verification + policies](phases/b07-verification-policies/) ⟵ **v1.0** |
 | 2 | [0B — Observatory](phases/00b-observatory/) | | 16 | [5B — Verification, self-healing](phases/05b-verification-selfhealing/) |
 | 3 | [**B1** — Experiment contract](phases/b01-experiment-contract/) | | 17 | [**B8** — Run state, repair limits](phases/b08-run-state-repair-limits/) ⟵ **v1.1** |
+| | | | 17a | **B8a** — Decomposition depth §§ — workbook `phases/b08a-decomposition-depth/` is created when the stop opens |
 | 4 | [**B2** — Plain-prompt baseline](phases/b02-plain-baseline/) | | 18 | [6A — Code intelligence](phases/06a-code-intelligence/) |
 | 5 | [1 — Custom instructions](phases/01-instructions/) | | 19 | [6B — Knowledge retrieval](phases/06b-knowledge-retrieval/) |
 | 6 | [**B3** — Minimal global instructions](phases/b03-global-instructions/) | | 20 | [**B9** — Knowledge router](phases/b09-knowledge-router/) |
@@ -108,6 +110,13 @@ and B's numeric order. Track A teaches the primitive; the B step that follows bu
 **◇ No build counterpart.** Phases 2, 7 and 8 have no B step depending on them, so the
 alternation breaks three times. Either that is deliberate — they are pure-learning phases —
 or three B steps are missing. Unresolved.
+
+**§§ Inserted, not renumbered.** Author decision 11 (2026-09-14) added **B8a — Decomposition depth** at
+position **17a**, after B8 and before 6A, so that no existing stop number moves. It runs on **BE-005**,
+a benchmark task that does not yet exist on `agent-observatory-benchmarks` `main`; **the path is
+blocked at 17a until BE-005 is merged there**, its evaluator proof re-run on `main`, and its Gate B
+passed. `TRACK-B-STATE.md` `blocked_on_author` holds the halt. *(Row and note added 2026-09-16 by
+Claude Fable 5.1 at the author's direction; the plan had jumped 17 → 18 with no blocked step visible.)*
 
 **‡ Placement is provisional**, because prerequisite order and version order disagree:
 
