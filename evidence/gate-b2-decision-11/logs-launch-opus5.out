@@ -1,0 +1,23 @@
+
+======== BE-005 01  key=EXP-B8A-GATEB2-BE005-PROBE  12:53:39Z ========
+  -> d2a58c88-2e73-477f-a471-edbdf1a5fc6e rc=12 eval=12 f13=no edits=14 changed=13 calls=43 cost=0.387945 dur=245000
+     worktree copied -> evidence.local/gate-b-worktrees/d2a58c88-2e73-477f-a471-edbdf1a5fc6e; diff.patch 729 lines
+
+======== BE-005 02  key=EXP-B8A-GATEB2-BE005-PROBE  12:58:11Z ========
+  -> a3604c83-c08d-4e67-8243-9f1e3a6fd5f6 rc=12 eval=12 f13=no edits=11 changed=10 calls=49 cost=0.425516 dur=273000
+     worktree copied -> evidence.local/gate-b-worktrees/a3604c83-c08d-4e67-8243-9f1e3a6fd5f6; diff.patch 664 lines
+
+======== BE-005 03  key=EXP-B8A-GATEB2-BE005-PROBE  13:03:10Z ========
+  -> d86d4b84-de30-4023-a86a-b926bfed7b6c rc=12 eval=12 f13=no edits=14 changed=12 calls=42 cost=0.380654 dur=188000
+     worktree copied -> evidence.local/gate-b-worktrees/d86d4b84-de30-4023-a86a-b926bfed7b6c; diff.patch 686 lines
+
+======== BE-005 04  key=EXP-B8A-GATEB2-BE005-PROBE  13:06:45Z ========
+  -> 16e8cf7a-6abd-47cc-b3d4-4419390a1db6 rc=12 eval=12 f13=no edits=13 changed=12 calls=38 cost=0.330384 dur=221000
+     worktree copied -> evidence.local/gate-b-worktrees/16e8cf7a-6abd-47cc-b3d4-4419390a1db6; diff.patch 678 lines
+
+======== BE-005 05  key=EXP-B8A-GATEB2-BE005-PROBE  13:10:53Z ========
+  -> fe943ecf-1b3e-48cc-93e3-b8ca0aeeb54c rc=0 eval=0 f13=no edits=12 changed=12 calls=50 cost=0.424297 dur=230000
+     worktree copied -> evidence.local/gate-b-worktrees/fe943ecf-1b3e-48cc-93e3-b8ca0aeeb54c; diff.patch 739 lines
+
+manifest: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/gate-b2-decision-11/manifest.tsv
+GATE B RUNS DONE 2026-09-17T13:15:16Z — now read the five diffs

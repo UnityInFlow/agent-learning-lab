@@ -1,0 +1,10 @@
+# GATE B (author decision 11 step 4)  started 2026-09-17T12:53:39Z  n=5  task BE-005  key EXP-B8A-GATEB2-BE005-PROBE
+# benchmarks main fac772d216c0c63f7947b489a162debb5cb58251  claude 2.1.274  model claude-haiku-4-5-20251001
+# API http://127.0.0.1:18081  OTLP http://localhost:14318 / http://localhost:14317
+# shape column: PENDING until runs/<id>/CLASSIFICATION.md is written and author-confirmed; then WRONG | RIGHT | NO-ATTEMPT
+seq	run_id	rc	evaluator_exit	f13	edits	runtime_ver	model	instr_hash	agent_hash	model_calls	tool_calls	cost	duration_ms	changed	worktree	shape
+01	d2a58c88-2e73-477f-a471-edbdf1a5fc6e	12	12	no	14	2.1.274 (Claude Code)	claude-haiku-4-5-20251001	null	null	43	39	0.387945	245000	13	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-d2a58c88-2e73-477f-a471-edbdf1a5fc6e	PENDING
+02	a3604c83-c08d-4e67-8243-9f1e3a6fd5f6	12	12	no	11	2.1.274 (Claude Code)	claude-haiku-4-5-20251001	null	null	49	45	0.425516	273000	10	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-a3604c83-c08d-4e67-8243-9f1e3a6fd5f6	PENDING
+03	d86d4b84-de30-4023-a86a-b926bfed7b6c	12	12	no	14	2.1.274 (Claude Code)	claude-haiku-4-5-20251001	null	null	42	38	0.380654	188000	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-d86d4b84-de30-4023-a86a-b926bfed7b6c	PENDING
+04	16e8cf7a-6abd-47cc-b3d4-4419390a1db6	12	12	no	13	2.1.274 (Claude Code)	claude-haiku-4-5-20251001	null	null	38	35	0.330384	221000	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-16e8cf7a-6abd-47cc-b3d4-4419390a1db6	PENDING
+05	fe943ecf-1b3e-48cc-93e3-b8ca0aeeb54c	0	0	no	12	2.1.274 (Claude Code)	claude-haiku-4-5-20251001	null	null	50	41	0.424297	230000	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-fe943ecf-1b3e-48cc-93e3-b8ca0aeeb54c	PENDING
