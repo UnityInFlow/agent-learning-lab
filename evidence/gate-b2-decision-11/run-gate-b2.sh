@@ -28,7 +28,7 @@ N=5
 TASK="BE-005"
 KEY="EXP-B8A-GATEB2-BE005-PROBE"
 MODEL="claude-haiku-4-5-20251001"
-EXPECT_BENCH_SHA="TO-BE-SET-AT-MERGE"   # benchmarks main after the A' PR merges; the driver refuses until it is
+EXPECT_BENCH_SHA="fac772d216c0c63f7947b489a162debb5cb58251"   # benchmarks main after PR #31 (ticket A') merged 2026-09-17; filled by Claude Opus 5 before the first run
 
 export API="http://127.0.0.1:18081"
 export WEB="http://localhost:5174"
