@@ -1,0 +1,5 @@
+# GATE B (author decision 11 step 4)  started 2026-09-17T08:23:53Z  n=5  task BE-005  key EXP-B8A-GATEB-BE005-PROBE
+# benchmarks main a662c966f7fc2c2653cce29deb40e6b84f511b66  claude 2.1.272  model claude-haiku-4-5-20251001
+# API http://127.0.0.1:18081  OTLP http://localhost:14318 / http://localhost:14317
+# shape column: PENDING until runs/<id>/CLASSIFICATION.md is written and author-confirmed; then WRONG | RIGHT | NO-ATTEMPT
+seq	run_id	rc	evaluator_exit	f13	edits	runtime_ver	model	instr_hash	agent_hash	model_calls	tool_calls	cost	duration_ms	changed	worktree	shape
