@@ -13,4 +13,4 @@ Three write sites, three recomputation functions, the release written at `cancel
 `good-stored-consistent` shape done right, the case the design page says "a passing Gate B 'wrong'
 run looks like". Not `NO-ATTEMPT`: 12 edits, 10 production files.
 
-**Author's confirmation:** _pending_
+**Author's confirmation:** CONFIRMED as read, in session, 2026-09-17 ("confirm rows as read"). Recorded by Claude Fable 5.1.

@@ -18,4 +18,4 @@ path that forgot to derive; no shipment-side write exists.
 
 Not `NO-ATTEMPT`: 14 edits, 9 production files.
 
-**Author's confirmation:** _pending_ — same flip condition as run 04.
+**Author's confirmation:** CONFIRMED as read, in session, 2026-09-17 ("confirm rows as read"). Recorded by Claude Fable 5.1.

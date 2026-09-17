@@ -19,5 +19,5 @@ of the fact — a rubric question (architecture-consistency anchor 1 territory),
 
 Not `NO-ATTEMPT`: 13 edits, 10 production files.
 
-**Author's confirmation:** _pending_ — this is the classification most worth a second pair of eyes,
+**Author's confirmation:** CONFIRMED as read, in session, 2026-09-17 ("confirm rows as read"). Recorded by Claude Fable 5.1.
 because the field exists and a reader who stops at `Order.kt` would call it stored.

@@ -12,4 +12,4 @@ Evaluator exit **0** (7/7) — recorded beside the shape, not used by it. 12 fil
 One recompute function called from three shipment-side sites, the release written at `cancel`.
 Same class as run 01 (`good-stored-consistent`), tidier. Not `NO-ATTEMPT`: 12 edits, 10 production files.
 
-**Author's confirmation:** _pending_
+**Author's confirmation:** CONFIRMED as read, in session, 2026-09-17 ("confirm rows as read"). Recorded by Claude Fable 5.1.

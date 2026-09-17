@@ -59,3 +59,17 @@ failure class. A second failure ends the step with the negative recorded (item 1
 adds to a redesign, and did not exist before it: the model's actual early-shape failure on this
 service is *a placeholder field on the entity that a later read path trusts*, and a redesigned trap
 that punishes that shape has five runs of evidence behind it where candidate A's had none.
+
+---
+
+## Called, 2026-09-17, in session
+
+**The author confirmed all five rows as read.** WRONG 2 of 5, threshold 3: **Gate B FAILED on ticket A.**
+First of the two failures decision 11 item 11 allows. The rule stands unedited.
+
+**The author's decision at step 2: redesign A → A', not candidate B.** Part 1 gains one clause that
+changes fulfilment with no shipment event — an order quantity amendment, refused below the allocated
+total, after which the status must reflect the new quantity. Under a derived shape it costs nothing;
+under a stored copy it is a fourth write site in a different package; under the placeholder shape runs
+04 and 05 reached for, it is simply wrong. A' gets its own Gate B with its own rule written before its
+runs; the five diffs here are prior evidence for that rule, not its gate.

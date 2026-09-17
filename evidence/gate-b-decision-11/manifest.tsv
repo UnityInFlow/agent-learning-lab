@@ -3,8 +3,9 @@
 # API http://127.0.0.1:18081  OTLP http://localhost:14318 / http://localhost:14317
 # shape column: PENDING until runs/<id>/CLASSIFICATION.md is written and author-confirmed; then WRONG | RIGHT | NO-ATTEMPT
 seq	run_id	rc	evaluator_exit	f13	edits	runtime_ver	model	instr_hash	agent_hash	model_calls	tool_calls	cost	duration_ms	changed	worktree	shape
-01	e7cf60e7-45a3-445c-ae58-03fcbc7c97c6	0	0	no	12	2.1.272 (Claude Code)	claude-haiku-4-5-20251001	null	null	40	36	0.379274	238000	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e7cf60e7-45a3-445c-ae58-03fcbc7c97c6	PENDING
-02	171cce49-22a0-4b53-afaf-2ff516ee3d7d	0	0	no	12	2.1.272 (Claude Code)	claude-haiku-4-5-20251001	null	null	40	36	0.341361	203000	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-171cce49-22a0-4b53-afaf-2ff516ee3d7d	PENDING
-03	427f427c-77cb-4533-9beb-2f8e65525aa6	0	0	no	13	2.1.272 (Claude Code)	claude-haiku-4-5-20251001	null	null	43	41	0.374196	252000	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-427f427c-77cb-4533-9beb-2f8e65525aa6	PENDING
-04	6821eeae-ee5b-4e24-ae39-cfed36bb89fd	12	12	no	12	2.1.272 (Claude Code)	claude-haiku-4-5-20251001	null	null	27	35	0.281836	206000	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6821eeae-ee5b-4e24-ae39-cfed36bb89fd	PENDING
-05	2059576a-9d5b-4c5c-87f5-fb6d1eb52f72	12	12	no	14	2.1.272 (Claude Code)	claude-haiku-4-5-20251001	null	null	38	36	0.326932	207000	11	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2059576a-9d5b-4c5c-87f5-fb6d1eb52f72	PENDING
+01	e7cf60e7-45a3-445c-ae58-03fcbc7c97c6	0	0	no	12	2.1.272 (Claude Code)	claude-haiku-4-5-20251001	null	null	40	36	0.379274	238000	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e7cf60e7-45a3-445c-ae58-03fcbc7c97c6	WRONG
+02	171cce49-22a0-4b53-afaf-2ff516ee3d7d	0	0	no	12	2.1.272 (Claude Code)	claude-haiku-4-5-20251001	null	null	40	36	0.341361	203000	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-171cce49-22a0-4b53-afaf-2ff516ee3d7d	WRONG
+03	427f427c-77cb-4533-9beb-2f8e65525aa6	0	0	no	13	2.1.272 (Claude Code)	claude-haiku-4-5-20251001	null	null	43	41	0.374196	252000	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-427f427c-77cb-4533-9beb-2f8e65525aa6	RIGHT
+04	6821eeae-ee5b-4e24-ae39-cfed36bb89fd	12	12	no	12	2.1.272 (Claude Code)	claude-haiku-4-5-20251001	null	null	27	35	0.281836	206000	12	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6821eeae-ee5b-4e24-ae39-cfed36bb89fd	RIGHT
+05	2059576a-9d5b-4c5c-87f5-fb6d1eb52f72	12	12	no	14	2.1.272 (Claude Code)	claude-haiku-4-5-20251001	null	null	38	36	0.326932	207000	11	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2059576a-9d5b-4c5c-87f5-fb6d1eb52f72	RIGHT
+# shape column filled 2026-09-17 after the author confirmed every row as read: WRONG 2 of 5, threshold 3 -> GATE B FAILED on ticket A

@@ -25,6 +25,6 @@ time — it is right, and the rule's tie-break (*what the read path returns*) po
 
 Not `NO-ATTEMPT`: 12 edits, 10 production files.
 
-**Author's confirmation:** _pending_ — if the author reads "a filter that returns the stale stored
+**Author's confirmation:** CONFIRMED as read, in session, 2026-09-17 ("confirm rows as read"). Recorded by Claude Fable 5.1.
 value" as a read path returning the stored value, this run flips to WRONG. I did not read it that
 way because the rule's wrong shape needs a shipment-package write, and there is none.
