@@ -48,6 +48,16 @@ jobs:
         run: ./.claude/hooks/opencode-review.test.sh
       - name: The spine status renderer still refuses
         run: ./tools/verify-render-spine-status.sh
+      # Offline fixture sets for the Track B checkers: no model, network, docker or sibling
+      # checkout. Run by hand only, they were words a human chose to run; here they gate.
+      - name: The agent overlay checker still refuses
+        run: ./tools/verify-agent-overlay-checker.sh
+      - name: The overlay parity checker still refuses
+        run: ./tools/verify-overlay-parity-checker.sh
+      - name: The skill activation classifier still refuses
+        run: ./tools/verify-skill-activation.sh
+      - name: The state re-read counter still refuses
+        run: ./tools/verify-count-state-reread.sh
 
   yaml:
     name: contracts parse
