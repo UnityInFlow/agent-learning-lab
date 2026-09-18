@@ -58,6 +58,14 @@ jobs:
         run: ./tools/verify-skill-activation.sh
       - name: The state re-read counter still refuses
         run: ./tools/verify-count-state-reread.sh
+      - name: The completion contract checker still refuses
+        run: ./tools/verify-completion-contract-checker.sh
+      - name: The policy gate still refuses
+        run: ./tools/verify-policy-gate.sh
+      - name: The repair limit still refuses
+        run: ./tools/verify-repair-limit.sh
+      - name: The run state checker still refuses
+        run: ./tools/verify-run-state-checker.sh
 
   yaml:
     name: contracts parse
