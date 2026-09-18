@@ -46,6 +46,8 @@ jobs:
       # asserting the reviewer was NOT called run here too.
       - name: The review hook behaves
         run: ./.claude/hooks/opencode-review.test.sh
+      - name: The spine status renderer still refuses
+        run: ./tools/verify-render-spine-status.sh
 
   yaml:
     name: contracts parse
