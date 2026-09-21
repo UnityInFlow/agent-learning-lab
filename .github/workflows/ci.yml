@@ -67,6 +67,27 @@ jobs:
       - name: The run state checker still refuses
         run: ./tools/verify-run-state-checker.sh
 
+  verify-sh:
+    name: verify-sh — every exit code is produced
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Its own job rather than a step of `shell tools`: the fixture set resolves
+    # ../agent-observatory-benchmarks, and actions/checkout cannot write outside the
+    # workspace, so both repositories are checked out side by side underneath it.
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: agent-learning-lab
+      # The sibling is pinned to `main`, which moves: a benchmarks commit can turn this job red.
+      - uses: actions/checkout@v7
+        with:
+          repository: UnityInFlow/agent-observatory-benchmarks
+          ref: main
+          path: agent-observatory-benchmarks
+      - name: Every exit code verify-sh can return is produced
+        run: bash tools/verify-verify-sh.sh
+        working-directory: agent-learning-lab
+
   yaml:
     name: contracts parse
     runs-on: ubuntu-latest
