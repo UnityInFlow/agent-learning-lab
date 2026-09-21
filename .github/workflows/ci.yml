@@ -32,12 +32,12 @@ jobs:
       - name: Syntax check every tool
         run: for f in tools/*.sh .claude/hooks/*.sh; do bash -n "$f" || exit 1; done
       - name: ShellCheck
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # master as of 2026-09-21, pinned
         with:
           scandir: ./tools
           severity: warning
       - name: ShellCheck the hooks
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # master as of 2026-09-21, pinned
         with:
           scandir: ./.claude/hooks
           severity: warning
