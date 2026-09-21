@@ -2,8 +2,11 @@
 # Prove what render-spine-status.py does on the fixtures in tools/fixtures/spine-status/, and
 # nothing wider:
 #   - running, blocked and done each print exactly three lines on stdout and nothing else: line 1
-#     starts `**Status: ` and is byte-equal to the one written below for the fixture (word, ` — `,
-#     live comment, nothing after), line 2 is blank, line 3 is the provenance line for that file;
+#     is byte-equal to the status line written below for the fixture (word, ` — `, live comment,
+#     nothing after), line 2 is blank, and line 3 is byte-equal to
+#     *Generated from `<file>` at <token>.* where <token> is `uncommitted` or a 7-40 character
+#     lowercase hex sha. Prefix, token and the closing `.*` are each checked, so a provenance
+#     line that drops the sha, or carries anything before or after it, fails;
 #   - the blocked fixture's superseded history (`position 8`, the value the hand-written line was
 #     once stuck on) never reaches the output;
 #   - a second `#` inside the live comment does not cut it: the text after it is on the status
@@ -13,12 +16,18 @@
 #     not empty), and a stderr that carries no `Traceback` and does carry the phrase the renderer
 #     emits for that case. Other invalid inputs are not tested here, so this proves nothing about
 #     them, and nothing here reads the renderer's source.
-# The renderer is overridable through RENDER_SPINE_STATUS; each of the seven mutants under
-# tools/fixtures/spine-status/mutants/ must make this script fail (the step's Check runs them).
-# No sha is asserted: CI checks out shallow.
+# The renderer is overridable through RENDER_SPINE_STATUS. When it is UNSET, this script then
+# re-runs ITSELF once per `*.py` under tools/fixtures/spine-status/mutants/, with that file as
+# the renderer, and fails unless every one of them fails the cases above; an empty mutants
+# directory fails too. The sweep decides this script's exit code here, in this file — it is not
+# a claim about a mutant loop living in some step elsewhere. A run with RENDER_SPINE_STATUS set
+# is a leaf: it skips the sweep, so there is no recursion.
+# No sha is asserted for the renderer itself: CI checks out shallow.
 set -uo pipefail
+SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 cd "$(dirname "$0")/.." || exit 1
 F=tools/fixtures/spine-status
+SWEEP="${RENDER_SPINE_STATUS:-}"          # set ⇒ this is a leaf run, no mutant sweep
 RENDER="${RENDER_SPINE_STATUS:-tools/render-spine-status.py}"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 pass=0; fail=0
@@ -33,13 +42,11 @@ run() { # run <file>; sets rc, out, err. out/err are for messages only — the a
 }
 
 renders() { # renders <name> <file> <expected-status-line> [absent-phrase]
-  local name="$1" file="$2" want="$3" absent="${4:-}" status n lines l1 l2 l3
+  local name="$1" file="$2" want="$3" absent="${4:-}" n lines l1 l2 l3 pfx rest token
   run "$file"
   if [ "$rc" -ne 0 ]; then bad "$name" "exit $rc, stderr: $err"; return; fi
   n="$(grep -c -e '^\*\*Status: ' "$TMP/out")"
   if [ "$n" -ne 1 ]; then bad "$name" "$n **Status: lines, expected exactly 1"; return; fi
-  status="$(grep -e '^\*\*Status: ' "$TMP/out")"
-  if [ "$status" != "$want" ]; then bad "$name" "status line is '$status', expected '$want'"; return; fi
   # Nothing else on stdout: exactly the status line, a blank line and the provenance line. awk
   # counts an unterminated last line too, so a renderer that drops the final newline is not
   # silently short by one.
@@ -48,10 +55,26 @@ renders() { # renders <name> <file> <expected-status-line> [absent-phrase]
     bad "$name" "$lines lines on stdout, expected 3 (status, blank, provenance)"; return
   fi
   l1="$(sed -n 1p "$TMP/out")"; l2="$(sed -n 2p "$TMP/out")"; l3="$(sed -n 3p "$TMP/out")"
-  if [ "$l1" != "$want" ]; then bad "$name" "line 1 is '$l1', expected the status line"; return; fi
+  # Line 1 whole, so a suffix or a changed word fails. With exactly one **Status: line in the
+  # output and that line being line 1, this is the whole status-line contract — checking the
+  # grep-extracted line as well would assert the same bytes twice.
+  if [ "$l1" != "$want" ]; then bad "$name" "line 1 is '$l1', expected '$want'"; return; fi
   if [ -n "$l2" ]; then bad "$name" "line 2 is '$l2', expected blank"; return; fi
-  if ! grep -qF -e "Generated from \`$file\` at " <<<"$l3"; then
-    bad "$name" "line 3 is '$l3', expected the provenance line"; return
+  # Line 3 whole as well, by peeling the literal prefix and the literal closing `.*` off and
+  # requiring what is left to be a provenance token. A prefix-only match would accept
+  # `… at .*` with no sha, and `UNEXPECTED … at abc1234.* EXTRA` with noise on both sides.
+  pfx="*Generated from \`$file\` at "
+  rest="${l3#"$pfx"}"
+  if [ "$rest" = "$l3" ]; then
+    bad "$name" "line 3 is '$l3', expected it to start '$pfx'"; return
+  fi
+  token="${rest%".*"}"
+  if [ "$token" = "$rest" ]; then
+    bad "$name" "line 3 is '$l3', expected it to end '.*'"; return
+  fi
+  if ! [[ "$token" =~ ^([0-9a-f]{7,40}|uncommitted)$ ]]; then
+    bad "$name" "line 3 provenance token is '$token', expected a short sha or 'uncommitted'"
+    return
   fi
   if [ -n "$absent" ] && grep -qF -e "$absent" <<<"$out"; then
     bad "$name" "superseded text '$absent' leaked into the output"; return
@@ -94,6 +117,23 @@ refuses "status: running, is refused"                       "$F/trailing-comma.m
   "has status 'running,'"
 refuses "a missing file is refused"                         "$F/does-not-exist.md" \
   "cannot read $F/does-not-exist.md"
+
+# The mutant sweep. Only the default run does it; a run driven with RENDER_SPINE_STATUS is the
+# leaf the sweep itself spawned, and stops here.
+if [ -z "$SWEEP" ]; then
+  mutants=("$F"/mutants/*.py)
+  if [ ! -e "${mutants[0]}" ]; then
+    bad "mutant sweep" "no *.py under $F/mutants/ — nothing proves the cases above can fail"
+  else
+    for m in "${mutants[@]}"; do
+      if RENDER_SPINE_STATUS="$m" bash "$SELF" >/dev/null 2>&1; then
+        bad "mutant $(basename "$m") is killed" "it passed the cases above"
+      else
+        ok "mutant $(basename "$m") is killed"
+      fi
+    done
+  fi
+fi
 
 echo ""
 echo "verify-render-spine-status: $pass passed, $fail failed"
