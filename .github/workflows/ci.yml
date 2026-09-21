@@ -157,6 +157,22 @@ jobs:
       # check-sheet-categories.sh discriminating; the cases are what prove it.
       - name: The category-set check still rejects a short sheet
         run: ./tools/verify-sheet-category-checker.sh
+      # The category check admits a sheet by SHAPE; this admits the set of sheets by IDENTITY.
+      # Thirty-four well-formed sheets could still be two for one run and none for another, so
+      # every owed run id (plus the probe id) must have exactly one admitted 2026-09-07 sheet.
+      - name: Every owed second-reader run id has exactly one admitted sheet
+        run: bash evidence/second-reader/verify-sheet-coverage.sh
+      # A coverage check that cannot fail is a list, not a check. Feed it one run id that has
+      # no sheet and require a non-zero exit, so a verifier that stops reading its ids file
+      # (or always exits 0) turns this job red instead of staying quietly green.
+      - name: The coverage check refuses a run id with no sheet
+        run: |
+          ids="$RUNNER_TEMP/made-up-run-ids.txt"
+          printf 'deadbeef-0000\n' > "$ids"
+          if bash evidence/second-reader/verify-sheet-coverage.sh "$ids"; then
+            echo "verify-sheet-coverage.sh admitted made-up run id deadbeef-0000; it must refuse" >&2
+            exit 1
+          fi
 
   board-freshness:
     name: a published board does not outlive its source
