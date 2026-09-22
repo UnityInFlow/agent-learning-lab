@@ -4,6 +4,10 @@
 #
 #     <path-prefix><TAB><why this material is not scanned>
 #
+# A prefix ends on a PATH COMPONENT boundary, not on a character: `evidence` covers
+# evidence/b06/run.sh and never evidence2/dump.sh. Write the trailing slash anyway — it
+# says which of the two you meant without making the reader check the matcher.
+#
 # A prefix here is a written claim about files that exist, so a prefix matching no tracked
 # file is an error rather than a permission, and an empty reason is refused. Everything not
 # covered by a row has to sit under a directory a ShellCheck step already scans.

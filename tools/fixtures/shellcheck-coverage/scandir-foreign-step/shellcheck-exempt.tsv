@@ -1,0 +1,2 @@
+# FIXTURE exempt table. Deliberately empty of rows: infra/deploy.sh is exempted by nobody
+# and scanned by nothing, however much the foreign step's scandir: looks like coverage.

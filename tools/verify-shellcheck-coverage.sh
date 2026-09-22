@@ -21,11 +21,30 @@
 # severity is right, or whether the scan passes — `shellcheck -S warning` in CI answers
 # that, and this script would happily admit a repository whose every script is broken.
 #
-# AND ONE BOUND WORTH SAYING OUT LOUD. An exempt prefix that is REDUNDANT — one already
-# inside a scandir — is admitted here. The "matches no tracked file" rule does not catch
-# it, because such a prefix does match real files; it is simply a row that claims nothing.
-# Refusing it would be a fifth rule nobody has registered, so this script does not pretend
-# to have one.
+# WHAT "PREFIX" MEANS, because a string prefix is not a path prefix. Every prefix on both
+# sides — scandir and exempt row alike — has to end on a PATH COMPONENT BOUNDARY. `evidence`
+# covers `evidence/b06/run.sh` and the file `evidence` itself; it does NOT cover
+# `evidence2/dump.sh`. The two sides used to be asymmetric — scandirs were normalised to a
+# trailing slash and exempt rows were matched verbatim — so a row that merely forgot its
+# slash silently exempted a sibling directory nobody had written down. One `covers` answers
+# both now, and fixture 10 is the sibling directory proving it.
+#
+# AND THREE BOUNDS WORTH SAYING OUT LOUD.
+#
+#   1. An exempt prefix that is REDUNDANT — one already inside a scandir — is admitted here.
+#      The "matches no tracked file" rule does not catch it, because such a prefix does match
+#      real files; it is simply a row that claims nothing. Refusing it would be a rule nobody
+#      has registered, so this script does not pretend to have one.
+#   2. Coverage is only ever read as an EXPLICIT `scandir:` under a step whose `uses:` line
+#      names the ShellCheck action. A workflow that omitted the key and leaned on whatever
+#      the action defaults to is refused with exit 2 ("names no scandir"), not admitted — a
+#      configuration that may well be scanning everything. That is the conservative direction
+#      of the two, and deliberately so: this script's whole job is to never call an unscanned
+#      file scanned. If the lab ever does lean on the default, this is the line to change, and
+#      the change wants its own fixture.
+#   3. `severity:` is not read at all. A scandir scanned at a severity that reports nothing
+#      still counts as covered here; `shellcheck -S warning` in CI is what makes it mean
+#      something.
 #
 # OVERRIDES, which is also how this script proves it REFUSES. Setting any of
 #
@@ -55,19 +74,44 @@ FIXTURES="tools/fixtures/shellcheck-coverage"
 # Asserted at the END against the cases that actually ran, for the reason
 # tools/verify-phase-contract-checker.sh gives: a count announced before any case has
 # executed is a count no case has to agree with.
-EXPECTED_CASES=8
+EXPECTED_CASES=11
 
 # --------------------------------------------------------------------------------------
-# Reading the scandirs out of the workflow. A value of `.` or `./` means the whole
-# checkout; it becomes the sentinel `*`, which no path prefix can collide with. A BLANK
-# line is never that sentinel — an empty prefix list has to mean "covers nothing", or an
-# empty exempt table would silently cover every script in the repository.
+# Reading the scandirs out of the workflow.
+#
+# ONLY A SHELLCHECK STEP'S scandir COUNTS. The key is read while the most recent `uses:`
+# names shellcheck, and a new list item resets that. A `scandir:` input belonging to some
+# other action — or left behind in a neighbouring step by an edit — used to be read as a
+# ShellCheck scan directory, which would have admitted every script under a directory
+# nothing shellchecks. Fixture 11 is that foreign step.
+#
+# A value of `.` or `./` means the whole checkout; it becomes the sentinel `*`, which no
+# path prefix can collide with. A BLANK value is never that sentinel — an empty prefix list
+# has to mean "covers nothing", or an empty exempt table would silently cover every script
+# in the repository. Blank emits the marker `!blank` instead, which check_coverage names as
+# an offender and drops: an empty scandir scans nothing and saying so is the point. Fixture
+# 9 is the blank value; before it, `scandir:` with no value read as "scans everything" and
+# returned a clean exit over an uncovered repository, in flat contradiction of this comment.
 # --------------------------------------------------------------------------------------
 scandir_prefixes() {
-  local workflow="$1" raw dir
-  while IFS= read -r raw; do
-    dir="${raw%\"}"; dir="${dir#\"}"
+  local workflow="$1" line dir in_shellcheck=0
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ "$line" =~ ^[[:space:]]*# ]] && continue
+    [[ "$line" =~ ^[[:space:]]*-[[:space:]] ]] && in_shellcheck=0
+    if [[ "$line" =~ uses:[[:space:]]*(.*)$ ]]; then
+      if [[ "${BASH_REMATCH[1]}" == *shellcheck* ]]; then in_shellcheck=1; else in_shellcheck=0; fi
+      continue
+    fi
+    [[ "$line" =~ ^[[:space:]]*scandir:[[:space:]]*(.*)$ ]] || continue
+    [[ "$in_shellcheck" -eq 1 ]] || continue
+    dir="${BASH_REMATCH[1]}"
+    dir="${dir%"${dir##*[![:space:]]}"}"          # trailing whitespace
+    dir="${dir%\"}"; dir="${dir#\"}"
     dir="${dir%\'}"; dir="${dir#\'}"
+    if [[ -z "${dir//[[:space:]]/}" ]]; then
+      printf '!blank\n'
+      continue
+    fi
     dir="${dir#./}"
     dir="${dir%/}"
     if [[ -z "$dir" || "$dir" == "." ]]; then
@@ -75,7 +119,22 @@ scandir_prefixes() {
       continue
     fi
     printf '%s/\n' "$dir"
-  done < <(sed -n 's/^[[:space:]]*scandir:[[:space:]]*//p' "$workflow" | sed 's/[[:space:]]*$//')
+  done < "$workflow"
+}
+
+# covers <path> <prefix> — one answer for both sides of the comparison. True when the
+# prefix IS the path, or names a directory the path sits under. A prefix that does not end
+# in `/` still has to end on a component boundary, so `evidence` never covers `evidence2/`.
+covers() {
+  local path="$1" p="$2"
+  [[ "$p" == '*' ]] && return 0        # the whole-checkout scandir covers everything
+  [[ "$path" == "$p" ]] && return 0
+  if [[ "$p" == */ ]]; then
+    [[ "$path" == "$p"* ]] && return 0
+    return 1
+  fi
+  [[ "$path" == "$p"/* ]] && return 0
+  return 1
 }
 
 # is_under <path> <newline-delimited prefixes>
@@ -83,8 +142,7 @@ is_under() {
   local path="$1" prefixes="$2" p
   while IFS= read -r p || [[ -n "$p" ]]; do
     [[ -z "${p//[[:space:]]/}" ]] && continue
-    [[ "$p" == '*' ]] && return 0      # the whole-checkout scandir covers everything
-    [[ "$path" == "$p"* ]] && return 0
+    covers "$path" "$p" && return 0
   done <<< "$prefixes"
   return 1
 }
@@ -96,6 +154,7 @@ check_coverage() {
   local pop="$1" workflow="$2" exempt="$3"
   local line path reason lineno=0 offenders=0
   local scandirs="" ex_prefixes="" pop_paths="" matched p
+  local kept="" blanks=0
 
   [[ -r "$pop" ]]      || { echo "verify-shellcheck-coverage: cannot read script list $pop" >&2; return 2; }
   [[ -r "$workflow" ]] || { echo "verify-shellcheck-coverage: cannot read workflow file $workflow" >&2; return 2; }
@@ -106,6 +165,24 @@ check_coverage() {
     echo "verify-shellcheck-coverage: $workflow names no scandir — there is no scan to compare against" >&2
     return 2
   fi
+
+  # A `scandir:` with an empty value is named and then dropped. It is NOT the whole-checkout
+  # sentinel and it is not silence either: the workflow claims a scan and hands it nothing.
+  # Dropping it can empty the prefix list, which is exactly what "covers nothing" means, so
+  # the walk below continues and Pass 2 names every script the workflow no longer reaches.
+  while IFS= read -r p || [[ -n "$p" ]]; do
+    [[ -z "${p//[[:space:]]/}" ]] && continue
+    if [[ "$p" == '!blank' ]]; then
+      blanks=$((blanks + 1))
+      continue
+    fi
+    kept="$kept$p"$'\n'
+  done <<< "$scandirs"
+  if [[ "$blanks" -gt 0 ]]; then
+    echo "  $workflow gives $blanks ShellCheck step(s) an empty scandir:, which scans nothing"
+    offenders=$((offenders + blanks))
+  fi
+  scandirs="$kept"
 
   # Membership is tested with bash pattern matching against newline-delimited lists, NOT
   # with `printf ... | grep -Fxq`: under `set -o pipefail` that pipeline reports failure
@@ -144,7 +221,7 @@ check_coverage() {
     matched=0
     while IFS= read -r p || [[ -n "$p" ]]; do
       [[ -z "${p//[[:space:]]/}" ]] && continue
-      [[ "$p" == "$path"* ]] && { matched=1; break; }
+      covers "$p" "$path" && { matched=1; break; }
     done <<< "$pop_paths"
     if [[ "$matched" -eq 0 ]]; then
       echo "  $exempt:$lineno exempts $path, which matches no tracked shell script"
@@ -263,6 +340,11 @@ fixture_case 5 exempt-empty-reason   1 "an exempt row whose reason column is emp
 fixture_case 6 exempt-no-tab         1 "an exempt row with no reason column at all is refused"
 fixture_case 7 exempt-duplicate      1 "a prefix listed twice in the table is refused"
 fixture_case 8 all-exempt            0 "NEGATIVE CONTROL: scripts covered only by the table are admitted"
+# 9-11 were each written after a reviewer found the script admitting something it should
+# not have. Case 9 is the one that mattered: a blank scandir: read as "scans everything".
+fixture_case 9  scandir-blank            1 "a scandir: with an empty value covers nothing, and is said so"
+fixture_case 10 exempt-prefix-no-boundary 1 "an exempt prefix stops at a path component: evidence never covers evidence2/"
+fixture_case 11 scandir-foreign-step      1 "a scandir: on a step that is not ShellCheck is not coverage"
 
 echo
 ran=$((pass + fail))

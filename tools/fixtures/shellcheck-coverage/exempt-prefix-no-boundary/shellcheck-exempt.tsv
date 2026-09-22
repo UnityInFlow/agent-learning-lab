@@ -1,0 +1,5 @@
+# FIXTURE exempt table. The row forgot its trailing slash. `evidence` is a real prefix of a
+# real tracked file, so the "matches no tracked script" rule stays quiet — the only thing
+# standing between this row and a silently exempted sibling directory is the component
+# boundary in covers(). evidence2/dump.sh was exempted by nobody.
+evidence	as-run artifacts, immutable once written

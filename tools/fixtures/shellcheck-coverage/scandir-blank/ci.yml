@@ -1,0 +1,17 @@
+# FIXTURE, not a workflow anything runs. The second ShellCheck step's `scandir:` has been
+# left with NO VALUE — the shape an edit leaves behind when a directory is renamed and the
+# new name never gets typed. A blank value is not "scans everything"; it scans nothing, and
+# the hooks it used to cover fall out of the scan.
+name: ci
+jobs:
+  shell:
+    name: shell tools
+    steps:
+      - uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca
+        with:
+          scandir: ./tools
+          severity: warning
+      - uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca
+        with:
+          scandir:
+          severity: warning
