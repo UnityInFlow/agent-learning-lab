@@ -1,0 +1,12 @@
+# Tracked *.sh that CI deliberately does NOT ShellCheck: <path-prefix><TAB><why>.
+#
+# A prefix is matched on a path-component boundary, so `evidence` covers `evidence/b07/x.sh`
+# and never `evidence2/x.sh`. There is no wildcard and no sentinel: an empty prefix is an
+# error, and a literal `*` is just a path that matches nothing.
+#
+# A row here is a claim that the files under it are outside ShellCheck's reach for a stated
+# reason — not that they are clean. tools/verify-shellcheck-coverage.sh refuses a row that
+# matches no tracked file, carries no reason, repeats a prefix, or names something a
+# scandir already covers.
+evidence/	as-run artifacts, immutable once written; two under evidence/b07/ hold deliberate SC1073 syntax errors
+build/customizations/	registered instrument material, including a copy deliberately left unwired

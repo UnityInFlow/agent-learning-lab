@@ -66,6 +66,12 @@ jobs:
         run: ./tools/verify-repair-limit.sh
       - name: The run state checker still refuses
         run: ./tools/verify-run-state-checker.sh
+      # A script nothing ShellChecks looks exactly like one that lints clean: both are a
+      # green run with no output. This compares every tracked *.sh against the directories
+      # the two steps above scan — pinned in tools/shellcheck-scanned.txt, never parsed out
+      # of this file — and against the exempt table's written reasons.
+      - name: Every tracked script is ShellChecked or exempt
+        run: ./tools/verify-shellcheck-coverage.sh
 
   verify-sh:
     name: verify-sh — every exit code is produced
