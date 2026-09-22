@@ -11,6 +11,11 @@
 # A prefix here is a written claim about files that exist, so a prefix matching no tracked
 # file is an error rather than a permission, and an empty reason is refused. Everything not
 # covered by a row has to sit under a directory a ShellCheck step already scans.
+#
+# THERE IS NO WILDCARD IN THIS COLUMN. `*` is not "everything"; it is a path prefix that
+# matches no tracked file, and is refused as one. The whole-checkout sentinel belongs to the
+# workflow side, where `scandir: .` mints it. A row reading `*` once exempted the entire
+# repository, which is why the verifier now carries a fixture for it.
 # tools/verify-shellcheck-coverage.sh enforces both directions and CI runs it.
 evidence/	as-run artifacts, immutable once written; two under evidence/b07/ hold deliberate syntax errors that ShellCheck reports as SC1073, so scanning them would fail the build for the thing they were written to be
 build/customizations/	registered instrument material handed to the agent under test, including a copy deliberately left unwired; ShellCheck findings here would be edits to the instrument

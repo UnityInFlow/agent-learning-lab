@@ -1,0 +1,18 @@
+# FIXTURE, not a workflow anything runs. Two steps carry a `scandir:`. The second belongs to
+# an unrelated action, and the only occurrence of the word "shellcheck" anywhere on its
+# `uses:` line is inside the TRAILING COMMENT a maintainer left when they swapped the action
+# out. The substring test used to read the whole remainder of the line, so that comment —
+# prose, changing nothing that runs — decided that ./scripts was being shellchecked.
+name: ci
+jobs:
+  shell:
+    name: shell tools
+    steps:
+      - uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca
+        with:
+          scandir: ./tools
+          severity: warning
+      - name: Some other analyzer
+        uses: example/some-other-analyzer@0000000000000000000000000000000000000000 # replaces shellcheck temporarily
+        with:
+          scandir: ./scripts

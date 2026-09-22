@@ -1,0 +1,10 @@
+# FIXTURE exempt table. The row is a bare `*`, written by an author who read the column as a
+# glob and meant "the legacy scripts, for now". It is not a glob. `*` is the private sentinel
+# scandir_prefixes mints for `scandir: .`, and covers() used to honour it from EITHER side, so
+# this one row matched a tracked script in Pass 1 and then exempted every script in Pass 2 —
+# an exit 0 over a repository with an unscanned directory in it. THE PREVIOUS VERSION OF THE
+# SCRIPT ADMITS THIS FIXTURE; this is the case that tells the two versions apart. The refusal
+# it must produce is the one Pass 2 gives for unscanned/run.sh, not merely any exit 1: if the
+# sentinel guard in is_under regressed, the row would still be refused by Pass 1 as a prefix
+# matching no tracked file, and the case would go green over a broken guard.
+*	legacy scripts awaiting cleanup

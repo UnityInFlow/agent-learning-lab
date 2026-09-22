@@ -1,0 +1,2 @@
+# FIXTURE exempt table. Deliberately empty of rows: scripts/deploy.sh is exempted by nobody,
+# and the only thing that ever made it look scanned was a word in a comment.

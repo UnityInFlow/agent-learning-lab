@@ -1,0 +1,15 @@
+# FIXTURE, not a workflow anything runs. An ordinary two-step workflow: the interesting file
+# in this case is the exempt table next to it, not this one.
+name: ci
+jobs:
+  shell:
+    name: shell tools
+    steps:
+      - uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca
+        with:
+          scandir: ./tools
+          severity: warning
+      - uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca
+        with:
+          scandir: ./.claude/hooks
+          severity: warning
