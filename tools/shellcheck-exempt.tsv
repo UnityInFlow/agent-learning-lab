@@ -1,0 +1,12 @@
+# Which tracked *.sh files this repository does NOT put through ShellCheck, and why.
+#
+# Format, tab-separated, one row per exempted path prefix:
+#
+#     <path-prefix><TAB><why this material is not scanned>
+#
+# A prefix here is a written claim about files that exist, so a prefix matching no tracked
+# file is an error rather than a permission, and an empty reason is refused. Everything not
+# covered by a row has to sit under a directory a ShellCheck step already scans.
+# tools/verify-shellcheck-coverage.sh enforces both directions and CI runs it.
+evidence/	as-run artifacts, immutable once written; two under evidence/b07/ hold deliberate syntax errors that ShellCheck reports as SC1073, so scanning them would fail the build for the thing they were written to be
+build/customizations/	registered instrument material handed to the agent under test, including a copy deliberately left unwired; ShellCheck findings here would be edits to the instrument

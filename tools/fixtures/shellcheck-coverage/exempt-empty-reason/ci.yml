@@ -1,0 +1,16 @@
+# FIXTURE, not a workflow anything runs. Only the two indented `scandir:` values below are
+# read by tools/verify-shellcheck-coverage.sh; the rest is here so the file reads like the
+# real .github/workflows/ci.yml it stands in for.
+name: ci
+jobs:
+  shell:
+    name: shell tools
+    steps:
+      - uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca
+        with:
+          scandir: ./tools
+          severity: warning
+      - uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca
+        with:
+          scandir: ./.claude/hooks
+          severity: warning

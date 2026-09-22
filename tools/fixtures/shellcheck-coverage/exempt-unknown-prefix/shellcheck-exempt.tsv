@@ -1,0 +1,3 @@
+# FIXTURE exempt table. archive/ matches nothing tracked: a claim about files that do not exist.
+evidence/	as-run artifacts, immutable once written
+archive/	kept for history

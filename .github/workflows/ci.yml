@@ -41,6 +41,13 @@ jobs:
         with:
           scandir: ./.claude/hooks
           severity: warning
+      # The two steps above scan two directories. That is a fact about those directories,
+      # not about the repository: a shell file added anywhere else would be unscanned, and
+      # unscanned looks exactly like clean. This step compares the scanned set against
+      # every tracked *.sh and fails on any file that is in neither it nor the written
+      # exemptions in tools/shellcheck-exempt.tsv.
+      - name: Every tracked script is ShellChecked or exempt for a named reason
+        run: ./tools/verify-shellcheck-coverage.sh
       # opencode, git and the reviewer are all stubbed — no network, no tokens, no model
       # calls. A hook that silently does nothing is worse than no hook, so the cases
       # asserting the reviewer was NOT called run here too.

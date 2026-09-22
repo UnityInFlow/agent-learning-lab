@@ -1,0 +1,3 @@
+# FIXTURE exempt table. NEGATIVE CONTROL. No script is under a scandir; both prefixes match and both are justified.
+evidence/	as-run artifacts, immutable once written
+build/customizations/	registered instrument material

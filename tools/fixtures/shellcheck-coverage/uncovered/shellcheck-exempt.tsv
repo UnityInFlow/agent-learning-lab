@@ -1,0 +1,2 @@
+# FIXTURE exempt table. infra/deploy.sh is under no scandir and no prefix here — the gap the script exists to find.
+evidence/	as-run artifacts, immutable once written

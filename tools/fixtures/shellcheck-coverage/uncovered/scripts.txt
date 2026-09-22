@@ -1,0 +1,3 @@
+tools/check-links.sh
+evidence/b06/run.sh
+infra/deploy.sh

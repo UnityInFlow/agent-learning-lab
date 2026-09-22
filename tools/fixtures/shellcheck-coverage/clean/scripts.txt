@@ -1,0 +1,4 @@
+tools/check-links.sh
+tools/verify-sh.sh
+.claude/hooks/opencode-review.sh
+evidence/b06/run.sh

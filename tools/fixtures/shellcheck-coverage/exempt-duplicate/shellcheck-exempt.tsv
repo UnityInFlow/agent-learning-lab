@@ -1,0 +1,3 @@
+# FIXTURE exempt table. Two rows for one prefix: a reader cannot tell which reason is in force.
+evidence/	as-run artifacts, immutable once written
+evidence/	second opinion about the same prefix
