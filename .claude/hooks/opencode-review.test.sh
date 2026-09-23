@@ -148,6 +148,39 @@ else
   printf 'FAIL  %-44s out=%s argv=%s\n' "budget names what it dropped" "$out" "$argv"; FAIL=$((FAIL+1))
 fi
 
+# --- Python tools became reviewable on 2026-09-23. The lab's checkers are .py as often as
+# .sh (render-spine-status.py, check-phase-contract.py, count-state-reread.py), and a critic
+# that cannot see them reports on half the tools and says nothing about the half it missed.
+# From main, so the Python tool is the ONLY file in the branch diff: on a branch that also
+# carried the .sh tools, the reviewer would be called whatever the .py glob did, and only the
+# argv assertion below would notice.
+git -C "$FIXTURE" checkout -q main
+git -C "$FIXTURE" checkout -q -b feature5
+printf 'print("hi")\n' > "$FIXTURE/tools/render-spine-status.py"
+git -C "$FIXTURE" add -A >/dev/null; git -C "$FIXTURE" commit -qm pytool
+run "a changed Python tool IS reviewable" "$PUSH" 0 1
+if grep -q 'tools/render-spine-status.py' "$CALLS" 2>/dev/null; then
+  printf 'ok    %-44s argv carries the Python tool\n' "python tool argv"; PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s argv was: %s\n' "python tool argv" "$(cat "$CALLS" 2>/dev/null)"; FAIL=$((FAIL+1))
+fi
+
+# --- ...but a mutant fixture is NOT a tool. These are deliberately-broken renderers that a
+# verifier exists to kill; reviewing them spends the artifact budget on defects that are the
+# point. `tools/*.py` is one level deep, and bash's [[ ]] does not enforce that on its own —
+# this case is the only thing standing between the glob and eight fixtures.
+git -C "$FIXTURE" checkout -q main
+git -C "$FIXTURE" checkout -q -b feature6
+mkdir -p "$FIXTURE/tools/fixtures/spine-status/mutants"
+printf 'print("all statuses")\n' > "$FIXTURE/tools/fixtures/spine-status/mutants/all-statuses.py"
+git -C "$FIXTURE" add -A >/dev/null; git -C "$FIXTURE" commit -qm mutant
+run "a mutant fixture is NOT reviewable" "$PUSH" 0 0
+
+# Back to a branch that DOES carry reviewable artifacts. The cases below assert the reviewer
+# was not called; on feature6 nothing is reviewable, so they would pass without proving
+# anything about the reason they name.
+git -C "$FIXTURE" checkout -q feature4
+
 run_bare_path() {  # same as run(), but with a PATH that contains no opencode at all
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"
   : > "$CALLS"

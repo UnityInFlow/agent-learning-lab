@@ -52,6 +52,12 @@ CONTRACT_GLOBS=(
 )
 TOOL_GLOBS=(
   'tools/*.sh'
+  # One level deep ON PURPOSE. The lab's Python tools live directly in tools/, while the eight
+  # tools/fixtures/spine-status/mutants/*.py are deliberately-broken renderers — fixtures a
+  # verifier must kill, not tools a critic should read. Drawing them in would spend the whole
+  # MAX_ARTIFACTS budget reviewing code whose defects are the point. `select_matching` is what
+  # makes this depth real; see the slash-count guard there.
+  'tools/*.py'
   '.claude/hooks/*.sh'
 )
 # EVERY ARTIFACT GOES INTO ONE PROMPT PER FAMILY — `opencode-review.sh` attaches them all to
@@ -97,6 +103,12 @@ select_matching() {
   while IFS= read -r f; do
     [ -f "$f" ] || continue          # deleted files have nothing to review
     for glob in "${globs[@]}"; do
+      # Every glob above names ONE directory level. bash does not enforce that: inside [[ ]] a
+      # `*` crosses `/`, so `tools/*.py` also matches
+      # tools/fixtures/spine-status/mutants/all-statuses.py, and `experiments/*.md` would match
+      # anything nested under experiments/. Comparing slash counts makes the depth the globs
+      # already claim actually hold, instead of being a comment a reader believes.
+      [ "${f//[^\/]/}" = "${glob//[^\/]/}" ] || continue
       # shellcheck disable=SC2053
       if [[ "$f" == $glob ]]; then printf '%s\n' "$f"; break; fi
     done
