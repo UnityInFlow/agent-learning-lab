@@ -67,6 +67,9 @@ for t in bash env git jq cat dirname; do
   src="$(command -v "$t" 2>/dev/null)" && ln -sf "$src" "$MINBIN/$t"
 done
 
+# Every case below is counted; the tail guard refuses a run whose total drifts from this,
+# because a suite that quietly lost a case still exits 0 and reads exactly like a pass.
+EXPECTED_CASES=32
 PASS=0; FAIL=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -331,7 +334,81 @@ run "not JSON"                    'not json at all'           0 0
 run "JSON without a command"      '{"tool_name":"Bash"}'      0 0
 run "JSON, wrong shape"           '{"tool_input":"a string"}' 0 0
 
+# --- a review glob that matches nothing is a dead glob, not a clean repository
+#
+# A glob whose directory was renamed, or which carries a typo, selects nothing. The hook then
+# exits 0 with "no review-scoped files in the diff" — the exact line a genuinely unreviewable
+# diff produces — so a hole in the review scope and a clean pass are indistinguishable from
+# the outside. Nothing else in this suite notices: every other case supplies its own files, so
+# a dead glob sitting beside the live ones changes no count, no verdict and no message.
+#
+# This hook carries TWO arrays, and a failure that only said "dead glob" would leave a reader
+# grepping both, so every line names the array the entry came from.
+#
+# The entries are read OUT OF THE HOOK, never restated here, so the two cannot drift: a glob
+# added to either array is checked by this case on the next run without anyone remembering to.
+TRACKED="$WORK/tracked"
+git ls-files > "$TRACKED" 2>/dev/null   # cwd is the repo root; see the cd at the top
+
+glob_coverage_failures() {  # <array-name> <glob>... -> prints "<array-name> <glob>" per dead entry
+  local array="$1"; shift
+  local glob f matched
+  for glob in "$@"; do
+    matched=0
+    while IFS= read -r f; do
+      # shellcheck disable=SC2053 # unquoted RHS is a deliberate glob match, as in the hook
+      if [[ "$f" == $glob ]]; then matched=1; break; fi
+    done < "$TRACKED"
+    [ "$matched" = 1 ] || printf '%s %s\n' "$array" "$glob"
+  done
+}
+
+# The sentinels survive only if the extraction below fails; an unread array would otherwise
+# make the next case pass over nothing at all. The `>= 3` assertions are the second half of
+# that guard: an array read as empty cannot slip through as "no dead entries".
+CONTRACT_GLOBS=('CONTRACT_GLOBS-was-not-extracted-from-the-hook')
+eval "$(awk '/^CONTRACT_GLOBS=\(/,/^\)/' "$HOOK")"
+TOOL_GLOBS=('TOOL_GLOBS-was-not-extracted-from-the-hook')
+eval "$(awk '/^TOOL_GLOBS=\(/,/^\)/' "$HOOK")"
+
+CONTRACT_COUNT=${#CONTRACT_GLOBS[@]}
+TOOL_COUNT=${#TOOL_GLOBS[@]}
+dead_globs="$(glob_coverage_failures CONTRACT_GLOBS "${CONTRACT_GLOBS[@]}"
+              glob_coverage_failures TOOL_GLOBS "${TOOL_GLOBS[@]}")"
+if [ "$CONTRACT_COUNT" -ge 3 ] && [ "$TOOL_COUNT" -ge 3 ] && [ -z "$dead_globs" ]; then
+  printf 'ok    %-44s %s contract + %s tool globs, each live\n' \
+    "every review glob is live" "$CONTRACT_COUNT" "$TOOL_COUNT"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s %s contract + %s tool entries read, dead: %s\n' \
+    "every review glob is live" "$CONTRACT_COUNT" "$TOOL_COUNT" "${dead_globs:-none}"
+  FAIL=$((FAIL+1))
+fi
+
+# The refusal, run rather than described: the same check over the same entries plus one
+# deliberately dead glob per array must name both, each with its array, and nothing else.
+DEAD_CONTRACT='benchmark/renamed-away/*.yaml'
+DEAD_TOOL='tools/renamed-away/*.sh'
+injected_dead="$(glob_coverage_failures CONTRACT_GLOBS "${CONTRACT_GLOBS[@]}" "$DEAD_CONTRACT"
+                 glob_coverage_failures TOOL_GLOBS "${TOOL_GLOBS[@]}" "$DEAD_TOOL")"
+want_dead="CONTRACT_GLOBS $DEAD_CONTRACT
+TOOL_GLOBS $DEAD_TOOL"
+if [ "$injected_dead" = "$want_dead" ]; then
+  printf 'ok    %-44s both dead entries named, with their arrays\n' "a dead glob is caught"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s reported: %s (want exactly: %s)\n' \
+    "a dead glob is caught" "${injected_dead:-nothing}" "$want_dead"
+  FAIL=$((FAIL+1))
+fi
+
 echo
+if [ "$((PASS+FAIL))" -ne "$EXPECTED_CASES" ]; then
+  echo "opencode-review.test: ran $((PASS+FAIL)) cases, expected ${EXPECTED_CASES}." >&2
+  echo "  A case was added or lost without updating EXPECTED_CASES. Fix the count or find the" >&2
+  echo "  missing case; a shrinking suite that still exits 0 is indistinguishable from a pass." >&2
+  exit 1
+fi
 if [ "$FAIL" -eq 0 ]; then
   echo "opencode-review.test: all ${PASS} cases behaved as specified."
   exit 0
