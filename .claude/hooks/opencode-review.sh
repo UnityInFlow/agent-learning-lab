@@ -30,6 +30,10 @@
 # textual ambiguities in the same file. Neither saw the other's list. One model run twice
 # would have produced neither list twice.
 #
+# WHAT IT CANNOT REVIEW, IT NAMES. Two things reach stderr instead of the critic: artifacts
+# past the budget (PARTIAL REVIEW) and artifacts DELETED on this branch (REMOVED). Both are
+# printed by name. Nothing in scope leaves the machine unmentioned.
+#
 # Env: LAB_REVIEW_HOOK=0 disables it. LAB_REVIEW_PANEL overrides the panel.
 # LAB_REVIEW_RUNS is runs PER FAMILY (default 1 — the panel is the diversity now).
 
@@ -52,6 +56,12 @@ CONTRACT_GLOBS=(
 )
 TOOL_GLOBS=(
   'tools/*.sh'
+  # One level deep ON PURPOSE. The lab's Python tools live directly in tools/, while the eight
+  # tools/fixtures/spine-status/mutants/*.py are deliberately-broken renderers — fixtures a
+  # verifier must kill, not tools a critic should read. Drawing them in would spend the whole
+  # MAX_ARTIFACTS budget reviewing code whose defects are the point. `select_matching` is what
+  # makes this depth real; see the slash-count guard there.
+  'tools/*.py'
   '.claude/hooks/*.sh'
 )
 # EVERY ARTIFACT GOES INTO ONE PROMPT PER FAMILY — `opencode-review.sh` attaches them all to
@@ -70,10 +80,16 @@ payload="$(cat 2>/dev/null || true)"
 command_line="$(printf '%s' "$payload" | jq -r '.tool_input.command // empty' 2>/dev/null || true)"
 [ -n "$command_line" ] || exit 0
 
-case "$command_line" in
-  *"git push"*|*"gh pr create"*) ;;
-  *) exit 0 ;;
-esac
+# Match the command NAME, not the substring. A plain `*"git push"*` also fired on
+# `git pushdown origin`, which is a different command entirely — the review cost was wasted
+# rather than missed, but a trigger that cannot say what it triggers on is not a trigger.
+# The boundaries are deliberately loose on the right: `git push;`, `git push && …` and
+# `… && git push` must all still match, because a compound command is how this is usually
+# invoked. Erring toward reviewing is the safe direction; erring toward not reviewing is the
+# failure this hook exists to prevent.
+_trigger='(^|[^[:alnum:]_-])git[[:space:]]+push([^[:alnum:]_-]|$)'
+_trigger_pr='(^|[^[:alnum:]_-])gh[[:space:]]+pr[[:space:]]+create([^[:alnum:]_-]|$)'
+[[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]] || exit 0
 
 command -v opencode >/dev/null 2>&1 || {
   echo "opencode-review hook: opencode not installed, skipping" >&2; exit 0
@@ -92,20 +108,55 @@ changed="$(git diff --name-only "$base"...HEAD 2>/dev/null || true)"
 # Globs come in positionally rather than through a nameref: `local -n` needs bash 4.3, and
 # it also hides the arrays from ShellCheck, which then reports them unused. Passing them as
 # arguments keeps the required check honest instead of silenced.
+# Existence is NOT tested here; see the removed/ranked split below. A path that matches a
+# glob is in scope whether or not it still exists, because a deletion is a change to the
+# artifact and the loudest one.
 select_matching() {
   local globs=("$@") f glob
   while IFS= read -r f; do
-    [ -f "$f" ] || continue          # deleted files have nothing to review
     for glob in "${globs[@]}"; do
+      # Every glob above names an exact DEPTH — one path segment after its directory prefix,
+      # which is ONE slash for `tools/*.py` and TWO for `benchmark/rubrics/*.yaml`. bash does
+      # not enforce that: inside [[ ]] a `*` crosses `/`, so `tools/*.py` also matches
+      # tools/fixtures/spine-status/mutants/all-statuses.py, and `experiments/*.md` would match
+      # anything nested under experiments/. Comparing SLASH COUNTS between a path and its own
+      # glob makes each glob's declared depth actually hold, instead of being a comment a
+      # reader believes. Note what this is NOT: a general matcher. A recursive glob
+      # (`tools/**/*.py`) would match nothing here, because the guard is depth EQUALITY.
+      [ "${f//[^\/]/}" = "${glob//[^\/]/}" ] || continue
       # shellcheck disable=SC2053
       if [[ "$f" == $glob ]]; then printf '%s\n' "$f"; break; fi
     done
   done <<< "$changed"
 }
 
-ranked=()
-while IFS= read -r f; do [ -n "$f" ] && ranked+=("$f"); done < <(select_matching "${CONTRACT_GLOBS[@]}")
-while IFS= read -r f; do [ -n "$f" ] && ranked+=("$f"); done < <(select_matching "${TOOL_GLOBS[@]}")
+matched=()
+while IFS= read -r f; do [ -n "$f" ] && matched+=("$f"); done < <(select_matching "${CONTRACT_GLOBS[@]}")
+while IFS= read -r f; do [ -n "$f" ] && matched+=("$f"); done < <(select_matching "${TOOL_GLOBS[@]}")
+
+[ ${#matched[@]} -gt 0 ] || exit 0
+
+# NO SILENT DELETION. `git diff --name-only` lists removed paths, and until 2026-09-23 a
+# `[ -f "$f" ] || continue` inside select_matching dropped them before they reached `ranked[]`
+# — so they never entered `dropped[]` either, and the PARTIAL REVIEW notice below never fired
+# for them. `git rm benchmark/rubrics/backend-quality.yaml && git push` therefore exited 0 in
+# total silence over a removed measurement instrument. That is a control reporting success
+# over a smaller scope than it claims, which is the exact failure this file's header names.
+# A renamed contract is the same event: `git mv` shows the old path as a deletion, and the new
+# path may match no glob at all, so without this the whole change disappears.
+# A removed file still cannot be REVIEWED — there is nothing left to read, and handing the
+# critic a path that does not resolve would be a fabricated review. So it is ANNOUNCED
+# instead, and that difference is the entire point: told rather than not told.
+ranked=(); removed=()
+for f in "${matched[@]}"; do
+  if [ -f "$f" ]; then ranked+=("$f"); else removed+=("$f"); fi
+done
+
+if [ ${#removed[@]} -gt 0 ]; then
+  echo "opencode-review hook: REMOVED — ${#removed[@]} review-scoped artifact(s) deleted on this branch." >&2
+  echo "  NOT reviewed (a deleted file has nothing left to read — check the removal by hand):" >&2
+  for f in "${removed[@]}"; do echo "    $f" >&2; done
+fi
 
 [ ${#ranked[@]} -gt 0 ] || exit 0
 
