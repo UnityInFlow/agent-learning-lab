@@ -34,10 +34,12 @@
 # would have produced neither list twice.
 #
 # WHAT IT CANNOT REVIEW, IT NAMES. Things that reach stderr instead of the critic: artifacts
-# past the budget (PARTIAL REVIEW), artifacts DELETED on this branch (REMOVED), the three
+# past the budget (PARTIAL REVIEW), artifacts DELETED on this branch (REMOVED), the
 # environment failures that used to pass in silence — no `jq`, no merge base with
-# `origin/main`, no executable `tools/opencode-review.sh` — and, since 2026-09-23, a payload
-# that is not JSON at all (all NOT REVIEWED). Each is printed by name. Nothing in scope leaves
+# `origin/main`, no executable `tools/opencode-review.sh`, a payload that is not JSON at all,
+# a `git diff` that failed after the merge base resolved, stdin that could not be read, and a
+# repository root this hook could not reach (all NOT REVIEWED). The full list, with each
+# site's classification, is THE SWEEP below. Each is printed by name. Nothing in scope leaves
 # the machine unmentioned. The reviewer's own exit code is reported by category too, because
 # a gate that returned REJECT and a reviewer that never started are not the same event.
 #
@@ -53,6 +55,56 @@
 # That is the whole test for a path neither the author nor the critic has thought of yet: ask
 # which of the two the path is. A missing `jq` does not mean the command was not a push; it
 # means the hook could not read it. That is a decline, and a decline is announced.
+#
+# THE SWEEP, 2026-09-23, round 3. Two review rounds each fixed the doors they were pointed at
+# — three of them, then one more — and a third round found a fourth. Fixing the named door is
+# how a corridor stays open, so this is the LIST instead: every place in this file where a
+# command's status is discarded or the script leaves early, classified under the one rule
+# above, with the reason in a clause. A later reader checks the code against this list rather
+# than re-deriving it, and `opencode-review.test.sh` holds the list to the code — every
+# `exit 0` below is either preceded by its own notice on stderr or carries a `# SILENT:`
+# clause, and the suite fails on one that is neither, and on a `|| true` anywhere in the
+# executable part of this file.
+#
+#   SILENT — the hook ESTABLISHED that no review was owed:
+#     LAB_REVIEW_HOOK=0 ................. the operator turned it off; that IS the answer.
+#     no command in the payload ......... the call was read; there is no command in it.
+#     the command is not a push ......... read, matched against the trigger, and it is not one.
+#     the diff listed nothing ........... the diff RAN and this branch changed nothing.
+#     nothing matched a glob ............ the changed list was read; no artifact is in scope.
+#     every matched artifact deleted .... already announced by name as REMOVED, two lines up.
+#     the reviewer exited 0 ............. the review ran; it named its own findings file.
+#
+#   ANNOUNCED — the hook merely FAILED TO FIND OUT:
+#     repo root unreachable ............. cannot locate the tree it would have examined.
+#     stdin unreadable (`cat` failed) ... the call was never read — not the same as empty.
+#     the payload is not JSON ........... whether this was a push could not be established.
+#     `jq` missing, or `jq` non-zero .... the only parser here; no parser, no answer.
+#     `opencode` missing ................ nothing on this branch reaches the critic.
+#     tools/opencode-review.sh missing .. every artifact on the branch goes unreviewed.
+#     no merge base with origin/main .... the changed set is unknown, not empty.
+#     `git diff --name-only` failed ..... the same unknown. This is round 3's finding.
+#     the panel is empty ................ no harness to send the artifacts to.
+#     `codex` gone from a panel naming it the review quietly stopped being a two-harness one.
+#     the reviewer exited 1 / 3 / 4 / ?.. a REJECT and a reviewer that never started differ.
+#
+#   NEITHER, and left alone on purpose — these decline nothing, so the rule does not reach:
+#     a non-numeric LAB_REVIEW_MAX_ARTIFACTS makes `[ … -gt 0 ]` exit 2; bash prints its own
+#       message on stderr, the cap is not applied, and EVERY artifact is reviewed. It errs
+#       toward more review and it is not silent. Listed because omitting it would look like
+#       it had not been looked at.
+#     `dirname` missing resolves the root to `/`; the run then trips the
+#       tools/opencode-review.sh door and announces there. A wrong root, not a silent one.
+#     `select_matching` runs no external command and cannot fail, so the two reads of its
+#       output are not discarded statuses.
+#
+# ONE SITE IS ARGUABLE AND IS NOT BEING GUESSED AT QUIETLY. A payload whose `tool_input` is
+# the wrong SHAPE (`{"tool_input":"a string"}`) is read with `?` and yields an absent command,
+# which this file classifies as ESTABLISHED and keeps SILENT. The other reading is that the
+# hook failed to find a command in a call it could not interpret. It stays silent because the
+# JSON was parsed whole and genuinely contains no command — but a reader who disagrees is
+# disagreeing with a judgement, not finding an oversight, and should say so rather than
+# assume nobody looked.
 #
 # Env: LAB_REVIEW_HOOK=0 disables it. LAB_REVIEW_PANEL overrides the panel.
 # LAB_REVIEW_RUNS is runs PER FAMILY (default 1 — the panel is the diversity now).
@@ -91,12 +143,36 @@ TOOL_GLOBS=(
 # the hook's whole budget is 900s for two families plus the gate. Revise it with numbers.
 MAX_ARTIFACTS="${LAB_REVIEW_MAX_ARTIFACTS:-4}"
 
-[ "${LAB_REVIEW_HOOK:-1}" = "0" ] && exit 0
+[ "${LAB_REVIEW_HOOK:-1}" = "0" ] && exit 0  # SILENT: turned off on purpose — no review is owed.
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." 2>/dev/null && pwd)" || exit 0
-cd "$repo_root" || exit 0
+# ONE DOOR, NOT TWO. Resolving the root and entering it were separate silent `|| exit 0`
+# lines. Neither had ESTABLISHED anything: a hook that cannot find its own repository has not
+# found that nothing changed, it has failed to look. They are announced as one line because
+# to a reader they are one event — this hook does not know where it is.
+#
+# THE TEST SUITE CANNOT CONSTRUCT THIS DOOR, and the reason is a proof rather than an
+# omission: `<hook dir>/../..` is a textual PREFIX of the hook's own path, so the kernel
+# already traversed it to open this file. It can only fail if the root is deleted or made
+# untraversable between that open and this line — a race, not a state a fixture can set up.
+# So the suite holds this door STRUCTURALLY (every exit is announced or marked `# SILENT:`)
+# rather than behaviourally, and reverting the notice below still fails that case. Said here
+# because an untested announcement that nobody admits is untested is the house failure mode.
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." 2>/dev/null && pwd)"
+if [ -z "$repo_root" ] || ! cd "$repo_root" 2>/dev/null; then
+  echo "opencode-review hook: NOT REVIEWED — this hook could not reach its own repository root from ${BASH_SOURCE[0]}, so nothing on this branch could be examined." >&2
+  exit 0
+fi
 
-payload="$(cat 2>/dev/null || true)"
+# STDIN IS READ, NOT ASSUMED. `cat … || true` discarded the read's status, and an unreadable
+# stdin then produced exactly what an empty one does: an empty payload, valid JSON by vacuity,
+# no command, silent exit 0. An empty stdin is a FOUND NOTHING — zero JSON values, no command,
+# nothing owed. A read that FAILED is a FAILED TO FIND OUT, and only the first may be silent.
+cat_status=0
+payload="$(cat 2>/dev/null)" || cat_status=$?
+[ "$cat_status" -eq 0 ] || {
+  echo "opencode-review hook: NOT REVIEWED — the tool call could not be read from stdin (cat exited ${cat_status}), so whether this was a push could not be established." >&2
+  exit 0
+}
 
 # `jq` is gated like `opencode` and `codex` are, and for the same reason. It is the only
 # parser here, so without it the read below fails, `command_line` is empty, and the hook
@@ -133,7 +209,7 @@ command_line="$(printf '%s' "$payload" | jq -r '.tool_input?.command? // empty' 
   echo "opencode-review hook: NOT REVIEWED — jq exited ${jq_status} reading the tool call, so whether this was a push could not be established." >&2
   exit 0
 }
-[ -n "$command_line" ] || exit 0
+[ -n "$command_line" ] || exit 0  # SILENT: the call was READ and holds no command.
 
 # Match the command NAME, not the substring. A plain `*"git push"*` also fired on
 # `git pushdown origin`, which is a different command entirely — the review cost was wasted
@@ -160,7 +236,7 @@ command_line="$(printf '%s' "$payload" | jq -r '.tool_input?.command? // empty' 
 _opts='([[:space:]]+-[^[:space:]]*([[:space:]]+[^-[:space:]][^[:space:]]*)?)*'
 _trigger="(^|[^[:alnum:]_-])git${_opts}[[:space:]]+push([^[:alnum:]_-]|\$)"
 _trigger_pr="(^|[^[:alnum:]_-])gh${_opts}[[:space:]]+pr[[:space:]]+create([^[:alnum:]_-]|\$)"
-[[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]] || exit 0
+[[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]] || exit 0  # SILENT: read, and it is not a push.
 
 command -v opencode >/dev/null 2>&1 || {
   echo "opencode-review hook: NOT REVIEWED — opencode is not installed, so nothing on this branch reaches the critic." >&2
@@ -178,13 +254,29 @@ command -v opencode >/dev/null 2>&1 || {
 # An absent `origin/main` — a fork whose default branch is `master`, a remote not yet fetched,
 # a renamed default branch — leaves `base` empty. The changed set is then unknown, not empty,
 # and the difference is the one rule: the hook did not find nothing, it failed to find out.
-base="$(git merge-base HEAD origin/main 2>/dev/null || true)"
-[ -n "$base" ] || {
+base_status=0
+base="$(git merge-base HEAD origin/main 2>/dev/null)" || base_status=$?
+if [ "$base_status" -ne 0 ] || [ -z "$base" ]; then
   echo "opencode-review hook: NOT REVIEWED — git merge-base HEAD origin/main found nothing (a fork, an unfetched remote, or a renamed default branch), so this branch's changed files could not be listed and no artifact reached the critic." >&2
   exit 0
+fi
+
+# THE DOOR TWO LINES BELOW A DOOR, and the reason this file now carries a list instead of a
+# growing set of patches. The merge base announced; the diff, in the same file and the same
+# class, did not — `2>/dev/null || true` turned a failed diff into an empty string, and the
+# emptiness check then exited 0 in silence, indistinguishable from a branch that changed
+# nothing. Same file, same class, opposite policy, for no reason anyone had written down.
+#
+# The two outcomes are separated here because they are separate events: a diff that RAN and
+# listed nothing has established that no review is owed, and stays silent; a diff that FAILED
+# has established nothing at all, and is announced.
+changed_status=0
+changed="$(git diff --name-only "$base"...HEAD 2>/dev/null)" || changed_status=$?
+[ "$changed_status" -eq 0 ] || {
+  echo "opencode-review hook: NOT REVIEWED — git diff --name-only ${base}...HEAD exited ${changed_status}, so this branch's changed files could not be listed and no artifact reached the critic." >&2
+  exit 0
 }
-changed="$(git diff --name-only "$base"...HEAD 2>/dev/null || true)"
-[ -n "$changed" ] || exit 0
+[ -n "$changed" ] || exit 0  # SILENT: the diff RAN and this branch changed nothing.
 
 # Contracts first, tools second, so a push that exceeds the budget drops tools rather than
 # the rubric the experiment is registered against.
@@ -217,7 +309,7 @@ matched=()
 while IFS= read -r f; do [ -n "$f" ] && matched+=("$f"); done < <(select_matching "${CONTRACT_GLOBS[@]}")
 while IFS= read -r f; do [ -n "$f" ] && matched+=("$f"); done < <(select_matching "${TOOL_GLOBS[@]}")
 
-[ ${#matched[@]} -gt 0 ] || exit 0
+[ ${#matched[@]} -gt 0 ] || exit 0  # SILENT: the changed list was read; nothing in it is in scope.
 
 # NO SILENT DELETION. `git diff --name-only` lists removed paths, and until 2026-09-23 a
 # `[ -f "$f" ] || continue` inside select_matching dropped them before they reached `ranked[]`
@@ -241,7 +333,7 @@ if [ ${#removed[@]} -gt 0 ]; then
   for f in "${removed[@]}"; do echo "    $f" >&2; done
 fi
 
-[ ${#ranked[@]} -gt 0 ] || exit 0
+[ ${#ranked[@]} -gt 0 ] || exit 0  # SILENT: every match was deleted and REMOVED named them above.
 
 artifacts=("${ranked[@]}")
 dropped=()
@@ -302,4 +394,4 @@ case $review_status in
   1) echo "opencode-review hook: NOT REVIEWED — the reviewer exited 1 without producing a review (bad usage, an unusable panel, or every family failing), so none of the ${#artifacts[@]} artifact(s) was read. The push already happened and is unaffected." >&2 ;;
   *) echo "opencode-review hook: NOT REVIEWED — the reviewer exited ${review_status}, which this hook does not recognise, so whether the ${#artifacts[@]} artifact(s) were read is unknown. The push already happened and is unaffected." >&2 ;;
 esac
-exit 0
+exit 0  # SILENT: the reviewer ran and every outcome above has already been named.

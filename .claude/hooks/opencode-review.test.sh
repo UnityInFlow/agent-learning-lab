@@ -101,7 +101,7 @@ done
 # skipped case fails that comparison and the run cannot read as a complete pass. "Everything
 # ran and passed" and "everything that ran, passed" are different sentences and now print
 # differently.
-EXPECTED_CASES=52
+EXPECTED_CASES=58
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -429,12 +429,25 @@ run_bare_path "opencode not installed" "$PUSH" 0 0
 # hook's stdout goes back to Claude Code as tool output; stderr is where a notice belongs and
 # what the step requires. Merging the two would let a notice moved to stdout keep passing,
 # which is the same class of under-assertion as matching on a flattened argv.
-run_announcing() {  # run_announcing <name> <root> <path> <stdin-json> <want-calls> <must-say>
+#
+# THE SEVENTH ARGUMENT IS A STDIN MODE, not a second runner. `unreadable` hands the hook an
+# fd 0 that is open for WRITING (`0>/dev/null`), which is the one way to make `cat` fail
+# deterministically without ever blocking: a closed fd 0 gets reopened somewhere up the chain
+# on this platform, and a directory on fd 0 can hang. Everything the runner asserts — exit 0,
+# the call count, the notice on stderr, an empty stdout — is asserted identically in both
+# modes, which is the point of putting it here instead of in a sixth bespoke block.
+run_announcing() {  # run_announcing <name> <root> <path> <stdin-json> <want-calls> <must-say> [pipe|unreadable]
   local name="$1" root="$2" path="$3" payload="$4" want_calls="$5" must_say="$6"
+  local stdin_mode="${7:-pipe}"
   : > "$CALLS"; : > "$ARGV"
   local errf="$WORK/announce-stderr"
-  local out; out="$(printf '%s' "$payload" | env PATH="$path" \
+  local out
+  if [ "$stdin_mode" = unreadable ]; then
+    out="$(env PATH="$path" "$root/.claude/hooks/opencode-review.sh" 2>"$errf" 0>/dev/null)"
+  else
+    out="$(printf '%s' "$payload" | env PATH="$path" \
       "$root/.claude/hooks/opencode-review.sh" 2>"$errf")"
+  fi
   local got_exit=$?
   local got_calls; got_calls="$(wc -l < "$CALLS" | tr -d ' ')"
   local err; err="$(cat "$errf")"
@@ -873,6 +886,135 @@ else
   run_announcing "a missing reviewer is named, not silent" "$NOREVIEWER" "$STUB:$PATH" "$PUSH" 0 \
     "NOT REVIEWED — tools/opencode-review.sh is missing or not executable"
 fi
+
+# --- THE SWEEP (2026-09-23, round 3): THE CORRIDOR, NOT THE NEXT DOOR
+#
+# Rounds 1 and 2 each named doors and each got them fixed; round 3 named a fourth, two lines
+# below one that had already been fixed. Three rounds of patching the door that was pointed
+# at is evidence about the METHOD, not about the doors, so the hook now carries a classified
+# list of every site where a status is discarded or the script leaves early (THE SWEEP in its
+# header), and the two cases below hold that list to the code:
+#
+#   - every `exit 0` in the hook is either preceded by its own notice on stderr or carries an
+#     inline `# SILENT: <reason>`; a new exit that is neither fails here, whether or not
+#     anyone thought to write a behavioural case for it;
+#   - the number of SILENT exits is fixed, so a new silent exit fails even when its author
+#     remembers the marker — the marker declares an intent, the count forces it past a reader.
+#
+# This is what makes the two behavioural cases further down a sweep rather than a fourth
+# patch. It is a STATIC check and it is weaker than running the path: it proves the notice is
+# there, not that it fires. That is exactly the strength the repo-root door can have (its
+# failure cannot be constructed — see the proof in the hook) and no more than the strength
+# the other two doors need, since those are also tested behaviourally below.
+hook_exit_sites() {  # hook_exit_sites <file> — one line per exit 0: "<class> <lineno> <text>"
+  awk 'BEGIN { prev = "" }
+       {
+         if ($0 !~ /^[[:space:]]*#/ && $0 ~ /exit 0/) {
+           if ($0 ~ /# SILENT:/)      cls = "silent"
+           else if (prev ~ />&2/)     cls = "announced"
+           else                       cls = "UNCLASSIFIED"
+           printf "%s %d %s\n", cls, NR, $0
+         }
+         prev = $0
+       }' "$1"
+}
+# Seven, and each one is a line in THE SWEEP's SILENT list. Raising this number is the moment
+# to ask which of the two things the new path is; lowering it means a silent exit became an
+# announced one, which is this step's whole direction and also needs a deliberate edit.
+EXPECTED_SILENT_EXITS=7
+
+SITES="$(hook_exit_sites "$HOOK")"
+unclassified="$(printf '%s\n' "$SITES" | grep '^UNCLASSIFIED ' || true)"
+if [ -z "$unclassified" ]; then
+  printf 'ok    %-44s every exit is announced or marked\n' "no exit in the hook is unclassified"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s these exits neither announce nor carry a "# SILENT:" reason:\n' \
+    "no exit in the hook is unclassified"
+  printf '        %s\n' "$unclassified"
+  printf '        Classify each under the header rule: did the hook ESTABLISH that no review\n'
+  printf '        was owed (mark it "# SILENT: <reason>"), or did it merely FAIL TO FIND OUT\n'
+  printf '        (print one line naming what went unreviewed, on stderr, then exit 0)?\n'
+  FAIL=$((FAIL+1))
+fi
+
+silent_count="$(printf '%s\n' "$SITES" | grep -c '^silent ' || true)"
+if [ "$silent_count" = "$EXPECTED_SILENT_EXITS" ]; then
+  printf 'ok    %-44s %s of them, as enumerated in THE SWEEP\n' \
+    "the hook's silent exits are the enumerated ones" "$silent_count"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s %s silent exit(s), expected %s\n' \
+    "the hook's silent exits are the enumerated ones" "$silent_count" "$EXPECTED_SILENT_EXITS"
+  printf '        A silent exit was added or removed. Update THE SWEEP in the hook header and\n'
+  printf '        EXPECTED_SILENT_EXITS together, or the list stops describing the code.\n'
+  FAIL=$((FAIL+1))
+fi
+
+# `|| true` is the shape that opened all four doors: it converts a command that FAILED into
+# one that produced nothing, and every emptiness check downstream then reads the failure as a
+# finding. The hook has none left, and this is what keeps it that way. The idiom that replaced
+# it — `status=0; x="$(cmd)" || status=$?` — costs one extra line and makes the difference
+# between the two outcomes available to the code that has to choose between them.
+swallowed="$(awk '!/^[[:space:]]*#/ && /\|\| true/ { printf "%d: %s\n", NR, $0 }' "$HOOK")"
+if [ -z "$swallowed" ]; then
+  printf 'ok    %-44s no "|| true" outside comments\n' "the hook discards no command status"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s "|| true" discards a status here:\n' "the hook discards no command status"
+  printf '        %s\n' "$swallowed"
+  FAIL=$((FAIL+1))
+fi
+
+# (d) `git diff --name-only` FAILS AFTER THE MERGE BASE RESOLVED — round 3's finding, and the
+# one the two cases above exist to generalise. A git stub forwards everything to the real git
+# except `diff`, which exits 128. The merge base therefore still resolves, so a hook that
+# announced the merge-base door instead would fail this case on its fixed string rather than
+# pass for the neighbouring reason.
+GITSTUB="$WORK/gitstub"; mkdir -p "$GITSTUB"
+REALGIT="$(command -v git 2>/dev/null || true)"
+if [ -n "$REALGIT" ]; then
+  cat > "$GITSTUB/git" <<GITSH
+#!/usr/bin/env bash
+if [ "\${1:-}" = diff ] && [ "\${STUB_GIT_DIFF_FAILS:-1}" = 1 ]; then
+  echo "fatal: simulated git diff failure" >&2
+  exit 128
+fi
+exec "$REALGIT" "\$@"
+GITSH
+  chmod +x "$GITSTUB/git"
+fi
+
+# THE CONTROL FIRST, again, and here it carries more than usual: it proves the stub itself is
+# not what produces the zero-call outcome below. Same copy, same stub on $PATH, the failure
+# switched off — and the hook reviews. Without it, a stub that broke `git` outright would
+# produce a notice and no call, and the case below could not tell that from the diff door.
+DIFFAIL="$WORK/repo-difffail"
+if [ -z "$REALGIT" ] || ! prepare_copy "$DIFFAIL" difffail; then
+  printf 'skip  %-44s no git on PATH, or the fixture copy failed\n' \
+    "the git stub alone still reviews"; SKIP=$((SKIP+1))
+  printf 'skip  %-44s no git on PATH, or the fixture copy failed\n' \
+    "a failing git diff is named, not silent"; SKIP=$((SKIP+1))
+else
+  export STUB_GIT_DIFF_FAILS=0
+  run_announcing "the git stub alone still reviews" "$DIFFAIL" "$GITSTUB:$STUB:$PATH" "$PUSH" 1 \
+    "reviewing 1 of 1 changed artifact(s)"
+  export STUB_GIT_DIFF_FAILS=1
+  run_announcing "a failing git diff is named, not silent" "$DIFFAIL" "$GITSTUB:$STUB:$PATH" \
+    "$PUSH" 0 "NOT REVIEWED — git diff --name-only"
+  unset STUB_GIT_DIFF_FAILS
+fi
+
+# (e) STDIN THAT CANNOT BE READ. `payload="$(cat … || true)"` threw away the read's status, so
+# an unreadable stdin produced an empty payload — which is valid JSON by vacuity, holds no
+# command, and left through the silent exit reserved for "the call was read and there is no
+# command in it". The two are not the same event and no longer print the same way.
+#
+# fd 0 is handed over OPEN FOR WRITING, which makes `cat` exit 1 on EBADF immediately. The
+# distinction this case protects is visible in the suite already: `run_silent "empty stdin"`
+# two hundred lines up requires SILENCE for a stdin that was read and was empty.
+run_announcing "unreadable stdin is named, not silent" "$FIXTURE" "$STUB:$PATH" '' 0 \
+  "NOT REVIEWED — the tool call could not be read from stdin" unreadable
 
 # --- THE REVIEWER'S EXIT CODE IS NOT A BOOLEAN (2026-09-23, round 2)
 #
