@@ -1,0 +1,3 @@
+# fixture exempt table
+evidence/	as-run artifacts
+*	a wildcard is not a sentinel here

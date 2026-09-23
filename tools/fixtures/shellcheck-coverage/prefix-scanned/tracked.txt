@@ -1,0 +1,2 @@
+tools/a.sh
+tools/sub/b.sh

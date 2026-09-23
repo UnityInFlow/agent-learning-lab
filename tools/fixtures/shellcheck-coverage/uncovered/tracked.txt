@@ -1,0 +1,3 @@
+tools/a.sh
+evidence/b.sh
+other/loose.sh
