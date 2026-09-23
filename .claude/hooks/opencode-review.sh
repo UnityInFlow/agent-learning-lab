@@ -12,7 +12,10 @@
 #   {"tool_name":"Bash","tool_input":{"command":"git push …"},"tool_response":{…}}
 # Command filtering lives in settings.json as `"if": "Bash(git push:*)"`, so this script is
 # not spawned at all for anything else. It re-checks anyway, because it is also run directly
-# by its test and by anyone debugging it.
+# by its test and by anyone debugging it. NOTE that the settings.json matcher is a SECOND
+# door with its own reach: this script recognises `git -C … push` and the other global-option
+# forms (see the trigger below), but whether Claude Code spawns it for them is that matcher's
+# question, not this file's, and it is not settled here.
 #
 # THIS SCRIPT NEVER FAILS A TOOL CALL. It exits 0 on every path — missing opencode, a broken
 # reviewer, malformed stdin, no git. A reviewer that can break `git push` would be removed
@@ -31,10 +34,12 @@
 # would have produced neither list twice.
 #
 # WHAT IT CANNOT REVIEW, IT NAMES. Things that reach stderr instead of the critic: artifacts
-# past the budget (PARTIAL REVIEW), artifacts DELETED on this branch (REMOVED), and the three
+# past the budget (PARTIAL REVIEW), artifacts DELETED on this branch (REMOVED), the three
 # environment failures that used to pass in silence — no `jq`, no merge base with
-# `origin/main`, no executable `tools/opencode-review.sh` (all NOT REVIEWED). Each is printed
-# by name. Nothing in scope leaves the machine unmentioned.
+# `origin/main`, no executable `tools/opencode-review.sh` — and, since 2026-09-23, a payload
+# that is not JSON at all (all NOT REVIEWED). Each is printed by name. Nothing in scope leaves
+# the machine unmentioned. The reviewer's own exit code is reported by category too, because
+# a gate that returned REJECT and a reviewer that never started are not the same event.
 #
 # THE ONE RULE, because the two promises above disagree exactly where a path is quiet, and a
 # list of today's three exceptions is no use on the fourth:
@@ -94,15 +99,40 @@ cd "$repo_root" || exit 0
 payload="$(cat 2>/dev/null || true)"
 
 # `jq` is gated like `opencode` and `codex` are, and for the same reason. It is the only
-# parser here, so without it the line below fails inside `|| true`, `command_line` is empty,
-# and the hook exits 0 having said nothing — indistinguishable from "that was not a push".
-# It is not the same event: an unparseable payload is silent below BECAUSE the hook read it
-# and found no push; a missing `jq` means it never read anything. Announce, per the one rule.
+# parser here, so without it the read below fails, `command_line` is empty, and the hook
+# exits 0 having said nothing — indistinguishable from "that was not a push". It is not the
+# same event: a missing `jq` means the hook never read anything. Announce, per the one rule.
 command -v jq >/dev/null 2>&1 || {
   echo "opencode-review hook: NOT REVIEWED — jq is not installed, so the tool call cannot be read; no push on this machine reaches the critic until it is." >&2
   exit 0
 }
-command_line="$(printf '%s' "$payload" | jq -r '.tool_input.command // empty' 2>/dev/null || true)"
+
+# TWO QUESTIONS, NOT ONE, and until 2026-09-23 they collapsed into a single empty string.
+# `jq -r '.tool_input.command // empty' … || true` exits non-zero on a payload that is not
+# JSON, `|| true` swallows that, and the empty result then fell through the silent exit below
+# — so "the hook could not tell whether this was a push" left exactly the trace that "the hook
+# read the call and there was no command in it" leaves. That is the one rule's own
+# distinction, broken in the place it is least visible from outside: a truncated payload on a
+# real push exits 0 in silence and the developer records a review that never ran.
+#
+# So the payload is validated as JSON FIRST, on its own. `jq empty` prints nothing and exits
+# 0 for any valid input, including no input at all (an empty stdin is zero JSON values, not a
+# parse failure), and exits non-zero only when the bytes are not JSON. That is the decline.
+printf '%s' "$payload" | jq empty >/dev/null 2>&1 || {
+  echo "opencode-review hook: NOT REVIEWED — the tool call on stdin is not valid JSON, so whether this was a push could not be established; if it was, nothing on this branch reached the critic." >&2
+  exit 0
+}
+# ...and only then read, with `?` on both steps so a wrong SHAPE — `"tool_input":"a string"`,
+# which `.tool_input.command` errors on — is an ABSENT command rather than a parse failure.
+# That one stays silent, and should: the hook did read the call, and there is no command in
+# it. A non-zero status here is a jq that could not answer, so it is announced like the rest;
+# `|| true` is deliberately gone, because swallowing the status is what caused this defect.
+jq_status=0
+command_line="$(printf '%s' "$payload" | jq -r '.tool_input?.command? // empty' 2>/dev/null)" || jq_status=$?
+[ "$jq_status" -eq 0 ] || {
+  echo "opencode-review hook: NOT REVIEWED — jq exited ${jq_status} reading the tool call, so whether this was a push could not be established." >&2
+  exit 0
+}
 [ -n "$command_line" ] || exit 0
 
 # Match the command NAME, not the substring. A plain `*"git push"*` also fired on
@@ -112,8 +142,24 @@ command_line="$(printf '%s' "$payload" | jq -r '.tool_input.command // empty' 2>
 # `… && git push` must all still match, because a compound command is how this is usually
 # invoked. Erring toward reviewing is the safe direction; erring toward not reviewing is the
 # failure this hook exists to prevent.
-_trigger='(^|[^[:alnum:]_-])git[[:space:]]+push([^[:alnum:]_-]|$)'
-_trigger_pr='(^|[^[:alnum:]_-])gh[[:space:]]+pr[[:space:]]+create([^[:alnum:]_-]|$)'
+#
+# GLOBAL OPTIONS SIT BETWEEN THE COMMAND AND ITS SUBCOMMAND, and until 2026-09-23 the trigger
+# required `push` to follow `git` immediately — so `git -C <dir> push`, `git -c k=v push`,
+# `git --no-pager push` and `git --git-dir=… push` all failed to match and the hook exited 0
+# in silence. `git -C` is the standard form in submodule, monorepo and CI-script pushes, so
+# this was not an edge: it was a whole class of real pushes recorded as reviewed because the
+# suite was green and `git push` is the documented trigger. The hook had not ESTABLISHED that
+# no review was owed; it had failed to recognise a push, and the one rule says those differ.
+#
+# `_opts` is that gap, and only that: a run of option-shaped tokens IMMEDIATELY after the
+# command name — each starting with `-`, each optionally followed by its own value token
+# (`-C <dir>`, `-c <k>=<v>`). Contiguity is what keeps it from swallowing subcommands:
+# `git commit -m push` does NOT match, because `commit` is not option-shaped and the run
+# cannot skip it. The known over-match is `git -C push` (a directory literally named `push`,
+# with no subcommand at all), which reviews when it need not — the safe direction, as above.
+_opts='([[:space:]]+-[^[:space:]]*([[:space:]]+[^-[:space:]][^[:space:]]*)?)*'
+_trigger="(^|[^[:alnum:]_-])git${_opts}[[:space:]]+push([^[:alnum:]_-]|\$)"
+_trigger_pr="(^|[^[:alnum:]_-])gh${_opts}[[:space:]]+pr[[:space:]]+create([^[:alnum:]_-]|\$)"
 [[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]] || exit 0
 
 command -v opencode >/dev/null 2>&1 || {
@@ -233,7 +279,27 @@ fi
 }
 
 echo "opencode-review hook: reviewing ${#artifacts[@]} of ${#ranked[@]} changed artifact(s) — panel ${panel}, -n ${runs}" >&2
-./tools/opencode-review.sh -n "$runs" -P "$panel" "${artifacts[@]}" >&2 || {
-  echo "opencode-review hook: reviewer failed; the push already happened and is unaffected" >&2
-}
+./tools/opencode-review.sh -n "$runs" -P "$panel" "${artifacts[@]}" >&2
+review_status=$?
+
+# THE REVIEWER'S EXIT CODE IS NOT A BOOLEAN. Until 2026-09-23 every non-zero status printed
+# the one string "reviewer failed", which put a review that RAN and returned REJECT in the
+# same sentence as a reviewer that never started — and `tools/classify-model-output.sh`
+# exists in this repository precisely because "nothing was five different things wearing one
+# word". Collapsing them here re-made that mistake one script further out.
+#
+# The codes are the reviewer's own, read off `tools/opencode-review.sh`, not the classifier's
+# five: 1 is every could-not-produce-a-review path (bad usage, no panel, every family failed),
+# 3 is `LAB_ACCEPT_STRICT=1` with an acceptance verdict of REJECT, 4 is the gate having run on
+# opencode's default agent instead of `lab-acceptance`. Only the last two are reviews that
+# happened, so only the first says NOT REVIEWED. An unrecognised code is reported as
+# unrecognised rather than folded into one of these — a new code must not arrive disguised as
+# a known one.
+case $review_status in
+  0) ;;   # the review ran; the reviewer has already named its findings file on stderr.
+  3) echo "opencode-review hook: the review RAN and its acceptance gate returned REJECT (reviewer exit 3). This is a finding, not a failure — read the findings file named above. The push already happened and is unaffected." >&2 ;;
+  4) echo "opencode-review hook: NOT REVIEWED by the gate — the reviewer exited 4: lab-acceptance was not loaded and opencode used its default agent, whose answer looks identical to a real one. Treat the acceptance verdict as absent. The push already happened and is unaffected." >&2 ;;
+  1) echo "opencode-review hook: NOT REVIEWED — the reviewer exited 1 without producing a review (bad usage, an unusable panel, or every family failing), so none of the ${#artifacts[@]} artifact(s) was read. The push already happened and is unaffected." >&2 ;;
+  *) echo "opencode-review hook: NOT REVIEWED — the reviewer exited ${review_status}, which this hook does not recognise, so whether the ${#artifacts[@]} artifact(s) were read is unknown. The push already happened and is unaffected." >&2 ;;
+esac
 exit 0

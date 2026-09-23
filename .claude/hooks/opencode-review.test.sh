@@ -101,7 +101,7 @@ done
 # skipped case fails that comparison and the run cannot read as a complete pass. "Everything
 # ran and passed" and "everything that ran, passed" are different sentences and now print
 # differently.
-EXPECTED_CASES=42
+EXPECTED_CASES=52
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -145,6 +145,38 @@ run "gh pr created is not create" '{"tool_name":"Bash","tool_input":{"command":"
 # is a worse bug than the one it fixed, so both directions are asserted.
 run "a compound git push counts"  '{"tool_name":"Bash","tool_input":{"command":"make lint && git push"}}' 0 1
 run "git push with a semicolon"   '{"tool_name":"Bash","tool_input":{"command":"git push; echo done"}}' 0 1
+
+# A GLOBAL OPTION BETWEEN `git` AND `push` IS STILL A PUSH, and until 2026-09-23 none of these
+# four matched: the trigger required `push` to follow `git` immediately, so each exited 0 in
+# silence with no review and no notice. `git -C` is the ordinary form in submodule, monorepo
+# and CI-script pushes, so the hook was quiet on a whole class of real ones while the suite
+# was green — the near-miss cases above only ever tested token BOUNDARIES around `push`, never
+# something standing between it and `git`, which is why nothing here caught it. Each of the
+# four option SHAPES is its own case because they are different shapes, not one shape written
+# four ways: a value in a separate argument (`-C <dir>`), a value attached with `=`
+# (`--git-dir=…`), a long option with no value at all (`--no-pager`), and a short option whose
+# value is itself `k=v` (`-c k=v`) — a trigger can accept one and miss the others.
+run "git -C <dir> push counts"    '{"tool_name":"Bash","tool_input":{"command":"git -C . push origin main"}}' 0 1
+run "git -c k=v push counts"      '{"tool_name":"Bash","tool_input":{"command":"git -c user.name=x push"}}' 0 1
+run "git --no-pager push counts"  '{"tool_name":"Bash","tool_input":{"command":"git --no-pager push"}}' 0 1
+# THE TRAILING SLASH IN THIS PATH IS LOAD-BEARING and the case is worthless without it. Write
+# it as `--git-dir=/srv/mono/.git push` and the command CONTAINS the literal `.git push`, with
+# `.` in front of it — so the pre-fix trigger matched it, for a reason that has nothing to do
+# with option tolerance, and the case passed before the fix and after it. Checked by running
+# it against the old regex. A case that cannot fail is not a case.
+run "git --git-dir=… push counts" '{"tool_name":"Bash","tool_input":{"command":"git --git-dir=/srv/mono/.git/ push origin main"}}' 0 1
+run "gh --repo … pr create counts" '{"tool_name":"Bash","tool_input":{"command":"gh --repo o/r pr create --title x"}}' 0 1
+# ...and the boundary must survive the widening. This is the near miss ABOVE wearing a global
+# option, and it is a PAIRED guard rather than a case with a mutation of its own: dropping the
+# `([^[:alnum:]_-]|$)` after `push` fails it and `git pushdown is not a push` together, and
+# every looser trigger tried against it fails that one too. Said plainly because a reader
+# checking whether each case can fail alone will find that this one cannot, and should meet
+# that here rather than conclude the suite is padded. It is kept for the direction it covers:
+# the widening admitted options, and this is the assertion that it admitted only options.
+run "git -C . pushdown is not a push" '{"tool_name":"Bash","tool_input":{"command":"git -C . pushdown origin"}}' 0 0
+# A subcommand is not an option, so the option run cannot skip one to reach a later `push`:
+# `git commit -m push` is a commit whose message happens to be the word.
+run "git commit -m push is not a push" '{"tool_name":"Bash","tool_input":{"command":"git commit -m push"}}' 0 0
 
 # --- the case the hook exists for
 run "push with a changed rubric"  "$PUSH" 0 1
@@ -389,6 +421,37 @@ run_bare_path() {  # same as run(), but with a PATH that contains no opencode at
 }
 run_bare_path "opencode not installed" "$PUSH" 0 0
 
+# The third runner: a case that must SAY something. It lives here with the other two rather
+# than beside its first user, because it now has users in two places — the malformed payload
+# below and the three environment doors at the end of the file.
+#
+# STDERR AND STDOUT ARE SEPARATED HERE, unlike run() and run_silent() which merge them. A
+# hook's stdout goes back to Claude Code as tool output; stderr is where a notice belongs and
+# what the step requires. Merging the two would let a notice moved to stdout keep passing,
+# which is the same class of under-assertion as matching on a flattened argv.
+run_announcing() {  # run_announcing <name> <root> <path> <stdin-json> <want-calls> <must-say>
+  local name="$1" root="$2" path="$3" payload="$4" want_calls="$5" must_say="$6"
+  : > "$CALLS"; : > "$ARGV"
+  local errf="$WORK/announce-stderr"
+  local out; out="$(printf '%s' "$payload" | env PATH="$path" \
+      "$root/.claude/hooks/opencode-review.sh" 2>"$errf")"
+  local got_exit=$?
+  local got_calls; got_calls="$(wc -l < "$CALLS" | tr -d ' ')"
+  local err; err="$(cat "$errf")"
+  local said=no
+  case "$err" in *"$must_say"*) said=yes ;; esac
+  if [ "$got_exit" = 0 ] && [ "$got_calls" = "$want_calls" ] && [ "$said" = yes ] && [ -z "$out" ]; then
+    printf 'ok    %-44s exit 0, %s call(s), named it on stderr\n' "$name" "$got_calls"
+    PASS=$((PASS+1))
+  else
+    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want %s), on stderr: %s, stdout: %s\n' \
+      "$name" "$got_exit" "$got_calls" "$want_calls" "$said" "${out:-<empty, as wanted>}"
+    printf '        wanted to hear: %s\n' "$must_say"
+    printf '        heard on stderr: %s\n' "${err:-<nothing>}"
+    FAIL=$((FAIL+1))
+  fi
+}
+
 # --- malformed input must not produce a stack trace on someone's push
 #
 # Exit 0 and no reviewer call is only half of that promise, and it is the half that cannot
@@ -416,9 +479,24 @@ run_silent() {  # run_silent <name> <stdin-json> — exit 0, no reviewer call, a
   fi
 }
 run_silent "empty stdin"                 ''
-run_silent "not JSON"                    'not json at all'
 run_silent "JSON without a command"      '{"tool_name":"Bash"}'
 run_silent "JSON, wrong shape"           '{"tool_input":"a string"}'
+
+# A CASE THAT CODIFIED THE DEFECT, CORRECTED RATHER THAN DELETED. This input used to be
+# `run_silent "not JSON"`, requiring the hook to say nothing about a payload it could not
+# parse — the same silence it produces for a payload it parsed and found no command in. Those
+# are the two sides of the header's one rule ("failing to find out is not the same as finding
+# nothing"), and the suite was requiring the wrong one: a hook fixed to honour its own rule
+# FAILED this case, so the case was the thing keeping the defect in place. It is kept, with
+# the same input, asserting the opposite — deleting it would have left the input untested and
+# the silence free to come back.
+#
+# The three cases above are what makes it a distinction rather than a blanket announcement:
+# empty stdin is zero JSON values, `{"tool_name":"Bash"}` is JSON with no command, and
+# `{"tool_input":"a string"}` is JSON the hook READ and found no command in — all three are
+# "found nothing" and stay silent. Only bytes that are not JSON are "could not find out".
+run_announcing "a payload that is not JSON is named" "$FIXTURE" "$STUB:$PATH" \
+  'not json at all' 0 "NOT REVIEWED — the tool call on stdin is not valid JSON"
 
 # --- a review glob that matches nothing is a dead glob, not a clean repository
 #
@@ -712,33 +790,6 @@ fi
 # unreviewed — `origin/main`, `jq`, `tools/opencode-review.sh` — so a notice that stops naming
 # it fails here rather than passing on a generic word like "skipping".
 #
-# STDERR AND STDOUT ARE SEPARATED HERE, unlike run() and run_silent() which merge them. A
-# hook's stdout goes back to Claude Code as tool output; stderr is where a notice belongs and
-# what the step requires. Merging the two would let a notice moved to stdout keep passing,
-# which is the same class of under-assertion as matching on a flattened argv.
-run_announcing() {  # run_announcing <name> <root> <path> <stdin-json> <want-calls> <must-say>
-  local name="$1" root="$2" path="$3" payload="$4" want_calls="$5" must_say="$6"
-  : > "$CALLS"; : > "$ARGV"
-  local errf="$WORK/announce-stderr"
-  local out; out="$(printf '%s' "$payload" | env PATH="$path" \
-      "$root/.claude/hooks/opencode-review.sh" 2>"$errf")"
-  local got_exit=$?
-  local got_calls; got_calls="$(wc -l < "$CALLS" | tr -d ' ')"
-  local err; err="$(cat "$errf")"
-  local said=no
-  case "$err" in *"$must_say"*) said=yes ;; esac
-  if [ "$got_exit" = 0 ] && [ "$got_calls" = "$want_calls" ] && [ "$said" = yes ] && [ -z "$out" ]; then
-    printf 'ok    %-44s exit 0, %s call(s), named it on stderr\n' "$name" "$got_calls"
-    PASS=$((PASS+1))
-  else
-    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want %s), on stderr: %s, stdout: %s\n' \
-      "$name" "$got_exit" "$got_calls" "$want_calls" "$said" "${out:-<empty, as wanted>}"
-    printf '        wanted to hear: %s\n' "$must_say"
-    printf '        heard on stderr: %s\n' "${err:-<nothing>}"
-    FAIL=$((FAIL+1))
-  fi
-}
-
 # A pristine copy of the fixture, forced onto its own branch off the trunk with exactly one
 # changed rubric on it. Off the trunk and force-cleaned because the cases above leave FIXTURE
 # on whatever branch they last used, with whatever they last wrote still in the tree — a case
@@ -821,6 +872,42 @@ if ! prepare_copy "$NOREVIEWER" noreviewer || ! chmod -x "$NOREVIEWER/tools/open
 else
   run_announcing "a missing reviewer is named, not silent" "$NOREVIEWER" "$STUB:$PATH" "$PUSH" 0 \
     "NOT REVIEWED — tools/opencode-review.sh is missing or not executable"
+fi
+
+# --- THE REVIEWER'S EXIT CODE IS NOT A BOOLEAN (2026-09-23, round 2)
+#
+# The hook used to print one string — "reviewer failed" — for every non-zero status, and
+# nothing at all for 0. `tools/opencode-review.sh` exits 1 when it could not produce a review
+# at all, 3 when `LAB_ACCEPT_STRICT=1` and the acceptance gate said REJECT, and 4 when that
+# gate ran on opencode's default agent instead of `lab-acceptance`. Three different events:
+# one where nothing was read, one where everything was read and the gate rejected it, one
+# where the verdict is not the gate's. A developer reading "reviewer failed" cannot tell a
+# REJECT from a reviewer that never started — and this repository already has
+# `tools/classify-model-output.sh` because "nothing was five different things wearing one
+# word". Each case asserts the sentence for ITS code, so a hook that collapses any two of
+# them back together fails here.
+#
+# The reviewer IS invoked in all three (want-calls 1); what differs is only what it returns.
+# STUB_REVIEWER_EXIT is exported because run_announcing passes the environment through `env`.
+REVEXIT="$WORK/repo-reviewer-exit"
+if ! prepare_copy "$REVEXIT" reviewerexit; then
+  printf 'skip  %-44s could not build a copy of the fixture (cp/git failed)\n' \
+    "reviewer exit 1 is named as unreviewed"; SKIP=$((SKIP+1))
+  printf 'skip  %-44s could not build a copy of the fixture (cp/git failed)\n' \
+    "reviewer exit 3 is named as a REJECT"; SKIP=$((SKIP+1))
+  printf 'skip  %-44s could not build a copy of the fixture (cp/git failed)\n' \
+    "reviewer exit 4 is named as a fallback"; SKIP=$((SKIP+1))
+else
+  export STUB_REVIEWER_EXIT=1
+  run_announcing "reviewer exit 1 is named as unreviewed" "$REVEXIT" "$STUB:$PATH" "$PUSH" 1 \
+    "NOT REVIEWED — the reviewer exited 1"
+  export STUB_REVIEWER_EXIT=3
+  run_announcing "reviewer exit 3 is named as a REJECT" "$REVEXIT" "$STUB:$PATH" "$PUSH" 1 \
+    "the review RAN and its acceptance gate returned REJECT"
+  export STUB_REVIEWER_EXIT=4
+  run_announcing "reviewer exit 4 is named as a fallback" "$REVEXIT" "$STUB:$PATH" "$PUSH" 1 \
+    "lab-acceptance was not loaded"
+  unset STUB_REVIEWER_EXIT
 fi
 
 echo
