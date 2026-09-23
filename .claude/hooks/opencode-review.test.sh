@@ -88,7 +88,7 @@ done
 
 # Every case below is counted; the tail guard refuses a run whose total drifts from this,
 # because a suite that quietly lost a case still exits 0 and reads exactly like a pass.
-EXPECTED_CASES=36
+EXPECTED_CASES=38
 PASS=0; FAIL=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -424,50 +424,135 @@ run_silent "JSON, wrong shape"           '{"tool_input":"a string"}'
 # a tracked file. "The hook still covers the scope it is supposed to cover" is a different
 # claim — it cannot be derived from the hook, because an expectation read from the hook moves
 # with the hook — and it is asserted by name in the required-set case below.
+#
+# WHICH FILE LIST THE GLOBS ARE RESOLVED AGAINST, AND WHY IT IS NOT THIS CHECKOUT. `git ls-files`
+# answers for whatever branch, worktree or sparse clone the suite happens to run in. A scoped
+# file deleted or renamed on a feature branch — or simply never fetched — is then absent, this
+# case FAILs naming a glob that is perfectly live on trunk, and the cheapest way for a reader to
+# silence it is to delete that glob from the hook. That is exactly the scope shrinkage the
+# required-set case below exists to catch: a check that pushes a reader toward the harm its
+# neighbour prevents is worse than no check at all. So the list is read from the TRUNK TREE, and
+# a checkout with no trunk ref to read skips this case BY NAME rather than guessing from the
+# working tree. The case says "on trunk" in its name either way, so nobody has to infer it.
 TRACKED="$WORK/tracked"
-git ls-files > "$TRACKED" 2>/dev/null   # cwd is the repo root; see the cd at the top
+TRUNK_REF=''
+for _ref in origin/main origin/master main master; do
+  git rev-parse --verify --quiet "${_ref}^{commit}" >/dev/null 2>&1 || continue
+  git ls-tree -r --name-only "$_ref" > "$TRACKED" 2>/dev/null || continue
+  TRUNK_REF="$_ref"; break
+done
 
-glob_coverage_failures() {  # <array-name> <glob>... -> prints "<array-name> <glob>" per dead entry
-  local array="$1"; shift
+glob_coverage_failures() {  # <file-list> <array-name> <glob>... -> "<array-name> <glob>" per dead entry
+  local list="$1" array="$2"; shift 2
   local glob f matched
   for glob in "$@"; do
     matched=0
     while IFS= read -r f; do
       # shellcheck disable=SC2053 # unquoted RHS is a deliberate glob match, as in the hook
       if [[ "$f" == $glob ]]; then matched=1; break; fi
-    done < "$TRACKED"
+    done < "$list"
     [ "$matched" = 1 ] || printf '%s %s\n' "$array" "$glob"
   done
 }
 
-# The sentinels survive only if the extraction below fails; an unread array would otherwise
-# make the next case pass over nothing at all. The `>= 3` assertions are the second half of
-# that guard: an array read as empty cannot slip through as "no dead entries".
+# READING THE ARRAYS OUT OF THE HOOK, AND THE COUPLING THAT COMES WITH IT.
+#
+# The entries are read from the hook so the two cannot drift. The obvious reader — an awk line
+# range `/^NAME=\(/,/^\)/` piped into `eval` — is the wrong one twice over. A range whose end
+# pattern never matches does not fail, it runs to end of file; and if the end pattern is merely
+# `^\)` then reindenting ONE array's closing paren silently extends its range to the NEXT
+# array's paren, so the eval quietly redefines both. Neither is caught by a count floor: the
+# `>= 3` assertions below refuse an EMPTY extraction, never a corrupt one, and the corrupt
+# extraction above still yields three entries.
+#
+# So this reads the array itself rather than a line range, and there is no eval. Between the
+# opener and the closing paren, every line must be one single-quoted entry, a comment or blank.
+# Anything else — an entry left unquoted, two entries on one line, the opener carrying its
+# entries inline, a paren that never arrives — is REFUSED by name, and the refusal reaches the
+# reader as this case's FAIL rather than as a corrupted array. That is the coupling, stated:
+# each array opens with `NAME=(` alone on its line, carries one quoted entry per line, and
+# closes with a paren on a line of its own. Indentation is free; structure is not.
+extract_glob_array() {  # <file> <array-name> -> one entry per line; non-zero if malformed
+  awk -v name="$2" -v q="'" '
+    $0 == name "=(" { inside = 1; next }
+    !inside { next }
+    $0 ~ "^[[:space:]]*\\)[[:space:]]*$" { closed = 1; exit }
+    $0 ~ "^[[:space:]]*(#|$)" { next }
+    $0 ~ "^[[:space:]]*" q "[^" q "]+" q "[[:space:]]*$" {
+      entry = $0
+      sub("^[[:space:]]*" q, "", entry)
+      sub(q "[[:space:]]*$", "", entry)
+      print entry
+      next
+    }
+    { bad = 1; exit }
+    END { if (!closed || bad) exit 3 }
+  ' "$1"
+}
+
+# The sentinels survive only if the extraction fails; an unread array would otherwise make the
+# next case pass over nothing at all. The `>= 3` assertions are the second half of that guard:
+# an array read as empty cannot slip through as "no dead entries".
 CONTRACT_GLOBS=('CONTRACT_GLOBS-was-not-extracted-from-the-hook')
-eval "$(awk '/^CONTRACT_GLOBS=\(/,/^\)/' "$HOOK")"
 TOOL_GLOBS=('TOOL_GLOBS-was-not-extracted-from-the-hook')
-eval "$(awk '/^TOOL_GLOBS=\(/,/^\)/' "$HOOK")"
+extraction_errors=''
+if _entries="$(extract_glob_array "$HOOK" CONTRACT_GLOBS)" && [ -n "$_entries" ]; then
+  CONTRACT_GLOBS=()
+  while IFS= read -r _entry; do
+    [ -n "$_entry" ] && CONTRACT_GLOBS+=("$_entry")
+  done <<< "$_entries"
+else
+  extraction_errors="${extraction_errors}CONTRACT_GLOBS "
+fi
+if _entries="$(extract_glob_array "$HOOK" TOOL_GLOBS)" && [ -n "$_entries" ]; then
+  TOOL_GLOBS=()
+  while IFS= read -r _entry; do
+    [ -n "$_entry" ] && TOOL_GLOBS+=("$_entry")
+  done <<< "$_entries"
+else
+  extraction_errors="${extraction_errors}TOOL_GLOBS "
+fi
+
+# A file list in which every glob the hook carries is live BY CONSTRUCTION — each glob with its
+# wildcards filled in. The two refusal cases below run against this rather than against the
+# trunk tree, so what they prove is a property of the CHECK and not of whatever the repository
+# happens to contain today: they behave identically on trunk, in CI and in a sparse clone.
+SYNTH="$WORK/synthetic-trunk"
+: > "$SYNTH"
+for _glob in "${CONTRACT_GLOBS[@]}" "${TOOL_GLOBS[@]}"; do
+  printf '%s\n' "${_glob//\*/x}" >> "$SYNTH"
+done
 
 CONTRACT_COUNT=${#CONTRACT_GLOBS[@]}
 TOOL_COUNT=${#TOOL_GLOBS[@]}
-dead_globs="$(glob_coverage_failures CONTRACT_GLOBS "${CONTRACT_GLOBS[@]}"
-              glob_coverage_failures TOOL_GLOBS "${TOOL_GLOBS[@]}")"
-if [ "$CONTRACT_COUNT" -ge 3 ] && [ "$TOOL_COUNT" -ge 3 ] && [ -z "$dead_globs" ]; then
-  printf 'ok    %-44s %s contract + %s tool globs, each live\n' \
-    "every review glob is live" "$CONTRACT_COUNT" "$TOOL_COUNT"
+if [ -n "$extraction_errors" ]; then
+  printf 'FAIL  %-44s could not read %sfrom %s; each array opens with NAME=( alone, one quoted entry per line, closing paren on its own line\n' \
+    "every review glob is live on trunk" "$extraction_errors" "$HOOK"
+  FAIL=$((FAIL+1))
+elif [ -z "$TRUNK_REF" ]; then
+  printf 'skip  %-44s no trunk ref here (tried origin/main origin/master main master); this check reads the trunk tree, never the checkout\n' \
+    "every review glob is live on trunk"
   PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s %s contract + %s tool entries read, dead: %s\n' \
-    "every review glob is live" "$CONTRACT_COUNT" "$TOOL_COUNT" "${dead_globs:-none}"
-  FAIL=$((FAIL+1))
+  dead_globs="$(glob_coverage_failures "$TRACKED" CONTRACT_GLOBS "${CONTRACT_GLOBS[@]}"
+                glob_coverage_failures "$TRACKED" TOOL_GLOBS "${TOOL_GLOBS[@]}")"
+  if [ "$CONTRACT_COUNT" -ge 3 ] && [ "$TOOL_COUNT" -ge 3 ] && [ -z "$dead_globs" ]; then
+    printf 'ok    %-44s %s contract + %s tool globs, each live in %s\n' \
+      "every review glob is live on trunk" "$CONTRACT_COUNT" "$TOOL_COUNT" "$TRUNK_REF"
+    PASS=$((PASS+1))
+  else
+    printf 'FAIL  %-44s %s contract + %s tool entries read, dead in %s: %s\n' \
+      "every review glob is live on trunk" "$CONTRACT_COUNT" "$TOOL_COUNT" "$TRUNK_REF" "${dead_globs:-none}"
+    FAIL=$((FAIL+1))
+  fi
 fi
 
 # The refusal, run rather than described: the same check over the same entries plus one
 # deliberately dead glob per array must name both, each with its array, and nothing else.
 DEAD_CONTRACT='benchmark/renamed-away/*.yaml'
 DEAD_TOOL='tools/renamed-away/*.sh'
-injected_dead="$(glob_coverage_failures CONTRACT_GLOBS "${CONTRACT_GLOBS[@]}" "$DEAD_CONTRACT"
-                 glob_coverage_failures TOOL_GLOBS "${TOOL_GLOBS[@]}" "$DEAD_TOOL")"
+injected_dead="$(glob_coverage_failures "$SYNTH" CONTRACT_GLOBS "${CONTRACT_GLOBS[@]}" "$DEAD_CONTRACT"
+                 glob_coverage_failures "$SYNTH" TOOL_GLOBS "${TOOL_GLOBS[@]}" "$DEAD_TOOL")"
 want_dead="CONTRACT_GLOBS $DEAD_CONTRACT
 TOOL_GLOBS $DEAD_TOOL"
 if [ "$injected_dead" = "$want_dead" ]; then
@@ -476,6 +561,53 @@ if [ "$injected_dead" = "$want_dead" ]; then
 else
   printf 'FAIL  %-44s reported: %s (want exactly: %s)\n' \
     "a dead glob is caught" "${injected_dead:-nothing}" "$want_dead"
+  FAIL=$((FAIL+1))
+fi
+
+# The other direction, and the reason the list is pinned to a ref at all: a file that is on
+# trunk but not in THIS checkout — deleted or renamed on the branch under test, never fetched
+# into a sparse clone — must NOT make its glob look dead. The two lists here differ by exactly
+# one file. The same glob is live against the first and dead against the second, so the choice
+# of list IS the bug, and it is exercised rather than asserted in a comment.
+BRANCH_LIST="$WORK/branch-missing-a-file"
+absent_glob="${CONTRACT_GLOBS[0]}"
+grep -Fxv -- "${absent_glob//\*/x}" "$SYNTH" > "$BRANCH_LIST" || true
+still_live="$(glob_coverage_failures "$SYNTH" CONTRACT_GLOBS "$absent_glob")"
+looks_dead="$(glob_coverage_failures "$BRANCH_LIST" CONTRACT_GLOBS "$absent_glob")"
+if [ -z "$still_live" ] && [ "$looks_dead" = "CONTRACT_GLOBS $absent_glob" ]; then
+  printf 'ok    %-44s %s live on trunk, dead only where the file is missing\n' \
+    "a branch-missing file is not a dead glob" "$absent_glob"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s trunk list said [%s], branch list said [%s] (want [] and [CONTRACT_GLOBS %s])\n' \
+    "a branch-missing file is not a dead glob" "$still_live" "$looks_dead" "$absent_glob"
+  FAIL=$((FAIL+1))
+fi
+
+# The refusal for the reader itself, since a reader that mis-reads the hook fails every case
+# above for the wrong reason. A well-formed array must come back as exactly its entries, and
+# each of the three malformations the old line-range reader swallowed must be refused: a
+# closing paren that never arrives (it used to read to end of file, or to the NEXT array's
+# paren), entries carried inline on the opener, and an entry left unquoted.
+MALFORMED_DIR="$WORK/glob-array-shapes"; mkdir -p "$MALFORMED_DIR"
+printf "G=(\n  'a/*.yaml'\n  'b/*.yaml'\n)\nH=(\n  'c/*.sh'\n)\n"  > "$MALFORMED_DIR/wellformed"
+printf "G=(\n  'a/*.yaml'\n  'b/*.yaml'\nH=(\n  'c/*.sh'\n)\n"     > "$MALFORMED_DIR/unclosed"
+printf "G=('a/*.yaml' 'b/*.yaml')\n"                               > "$MALFORMED_DIR/inline"
+printf "G=(\n  a/*.yaml\n)\n"                                      > "$MALFORMED_DIR/unquoted"
+want_entries='a/*.yaml
+b/*.yaml'
+got_entries="$(extract_glob_array "$MALFORMED_DIR/wellformed" G 2>/dev/null || echo REFUSED)"
+refused=''
+for _shape in unclosed inline unquoted; do
+  extract_glob_array "$MALFORMED_DIR/$_shape" G >/dev/null 2>&1 && refused="${refused}${_shape}-was-accepted "
+done
+if [ "$got_entries" = "$want_entries" ] && [ -z "$refused" ]; then
+  printf 'ok    %-44s 2 entries read; unclosed, inline and unquoted all refused\n' \
+    "a malformed glob array is refused"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s well-formed read as [%s]; accepted anyway: %s\n' \
+    "a malformed glob array is refused" "$got_entries" "${refused:-none}"
   FAIL=$((FAIL+1))
 fi
 
