@@ -88,8 +88,21 @@ done
 
 # Every case below is counted; the tail guard refuses a run whose total drifts from this,
 # because a suite that quietly lost a case still exits 0 and reads exactly like a pass.
+#
+# THREE OUTCOMES, NOT TWO. A case that could not run in this environment is SKIPPED, and a
+# skip is neither a pass nor a failure: it is a case whose verdict this run does not have.
+# Counting it as a pass is the failure this file exists to catch — the trunk-liveness check
+# is the only case that reads the real hook against the real trunk, and in a checkout with no
+# trunk ref (a shallow CI clone) it cannot run. If its skip incremented PASS, the tail read
+# "all 38 cases behaved as specified" and the EXPECTED_CASES guard matched, while the one
+# check that detects a dead glob never executed: a control reporting success over a smaller
+# scope than it claims. So SKIP is its own counter, the tail line names all three, and only
+# PASS+FAIL — the cases that actually ran — is compared against EXPECTED_CASES, which means a
+# skipped case fails that comparison and the run cannot read as a complete pass. "Everything
+# ran and passed" and "everything that ran, passed" are different sentences and now print
+# differently.
 EXPECTED_CASES=38
-PASS=0; FAIL=0
+PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
   : > "$CALLS"; : > "$ARGV"
@@ -198,13 +211,18 @@ argv="$(cat "$ARGV" 2>/dev/null)"
 # Ranked order on this branch, contracts first then tools, each in git's path order:
 #   benchmark/rubrics/r.yaml, templates/run-record.yaml,
 #   tools/check-something.sh, tools/t-a.sh, tools/t-b.sh, tools/t-c.sh, tools/t-d.sh
+# -F, not a regex. A filename is a literal, and `.` in a regex matches any character: with
+# `grep -q` the notice could print `tools/check-somethingXsh` and this loop would still call
+# it named. The asserted contract is "every dropped path, BY NAME", so the assertion has to
+# be by name too — a one-character corruption must fail it. Same for the leak loop, where a
+# regex would report a leak the argv does not contain.
 missing=""
 for f in tools/check-something.sh tools/t-a.sh tools/t-b.sh tools/t-c.sh tools/t-d.sh; do
-  printf '%s' "$out" | grep -q "$f" || missing="$missing $f"
+  printf '%s' "$out" | grep -qF "$f" || missing="$missing $f"
 done
 leaked=""
 for f in tools/check-something.sh tools/t-a.sh tools/t-b.sh tools/t-c.sh tools/t-d.sh; do
-  printf '%s' "$argv" | grep -q "$f" && leaked="$leaked $f"
+  printf '%s' "$argv" | grep -qF "$f" && leaked="$leaked $f"
 done
 if printf '%s' "$out" | grep -q 'PARTIAL REVIEW — 2 of 7' \
    && [ -z "$missing" ] && [ -z "$leaked" ] \
@@ -282,7 +300,7 @@ out="$(printf '%s' "$PUSH" | env PATH="$STUB:$PATH" \
         "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
 calls="$(wc -l < "$CALLS" | tr -d ' ')"
 if printf '%s' "$out" | grep -q 'REMOVED' \
-   && printf '%s' "$out" | grep -q 'benchmark/rubrics/registered.yaml' \
+   && printf '%s' "$out" | grep -qF 'benchmark/rubrics/registered.yaml' \
    && [ "$calls" = 0 ]; then
   printf 'ok    %-44s announced by name, nothing reviewed\n' "a deleted contract is announced"; PASS=$((PASS+1))
 else
@@ -304,9 +322,9 @@ out="$(printf '%s' "$PUSH" | env PATH="$STUB:$PATH" \
         "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
 argv="$(cat "$ARGV" 2>/dev/null)"
 if printf '%s' "$out" | grep -q 'REMOVED' \
-   && printf '%s' "$out" | grep -q 'benchmark/rubrics/registered.yaml' \
+   && printf '%s' "$out" | grep -qF 'benchmark/rubrics/registered.yaml' \
    && grep -Fxq 'tools/still-here.sh' "$ARGV" \
-   && ! printf '%s' "$argv" | grep -q 'registered.yaml'; then
+   && ! printf '%s' "$argv" | grep -qF 'registered.yaml'; then
   printf 'ok    %-44s named in stderr, absent from argv\n' "deletion announced beside a review"; PASS=$((PASS+1))
 else
   printf 'FAIL  %-44s out=%s argv=%s\n' "deletion announced beside a review" "$out" "$argv"; FAIL=$((FAIL+1))
@@ -530,9 +548,12 @@ if [ -n "$extraction_errors" ]; then
     "every review glob is live on trunk" "$extraction_errors" "$HOOK"
   FAIL=$((FAIL+1))
 elif [ -z "$TRUNK_REF" ]; then
+  # A skip, not a pass: this run has no verdict on glob liveness. See the SKIP counter's note
+  # at the head of the file — counting this as a pass let a shallow checkout print a full pass
+  # while the only check that detects a dead glob never ran.
   printf 'skip  %-44s no trunk ref here (tried origin/main origin/master main master); this check reads the trunk tree, never the checkout\n' \
     "every review glob is live on trunk"
-  PASS=$((PASS+1))
+  SKIP=$((SKIP+1))
 else
   dead_globs="$(glob_coverage_failures "$TRACKED" CONTRACT_GLOBS "${CONTRACT_GLOBS[@]}"
                 glob_coverage_failures "$TRACKED" TOOL_GLOBS "${TOOL_GLOBS[@]}")"
@@ -677,15 +698,28 @@ else
 fi
 
 echo
-if [ "$((PASS+FAIL))" -ne "$EXPECTED_CASES" ]; then
-  echo "opencode-review.test: ran $((PASS+FAIL)) cases, expected ${EXPECTED_CASES}." >&2
-  echo "  A case was added or lost without updating EXPECTED_CASES. Fix the count or find the" >&2
-  echo "  missing case; a shrinking suite that still exits 0 is indistinguishable from a pass." >&2
+# The tail line names all three outcomes, always, so a reader never has to infer a skip from
+# a total. RAN is PASS+FAIL: a skipped case did not run and is not part of what this run
+# verified, which is why the guard below compares RAN — not RAN+SKIP — against EXPECTED_CASES.
+RAN=$((PASS+FAIL))
+printf 'opencode-review.test: %s passed, %s failed, %s skipped.\n' "$PASS" "$FAIL" "$SKIP"
+if [ "$RAN" -ne "$EXPECTED_CASES" ]; then
+  echo "opencode-review.test: ran ${RAN} of ${EXPECTED_CASES} cases." >&2
+  if [ "$SKIP" -gt 0 ]; then
+    echo "  ${SKIP} case(s) were SKIPPED — each printed 'skip' with its name and its reason above." >&2
+    echo "  A skip is not a pass. This run verified less than the suite claims to verify, so it" >&2
+    echo "  is NOT a complete pass, whatever the other cases did. Re-run it where the skipped" >&2
+    echo "  case can execute (the trunk-liveness case needs a checkout with a trunk ref) before" >&2
+    echo "  treating the hook as covered." >&2
+  else
+    echo "  A case was added or lost without updating EXPECTED_CASES. Fix the count or find the" >&2
+    echo "  missing case; a shrinking suite that still exits 0 is indistinguishable from a pass." >&2
+  fi
   exit 1
 fi
 if [ "$FAIL" -eq 0 ]; then
-  echo "opencode-review.test: all ${PASS} cases behaved as specified."
+  echo "opencode-review.test: all ${PASS} cases ran and behaved as specified."
   exit 0
 fi
-echo "opencode-review.test: ${FAIL} of $((PASS+FAIL)) cases misbehaved." >&2
+echo "opencode-review.test: ${FAIL} of ${RAN} cases misbehaved." >&2
 exit 1
