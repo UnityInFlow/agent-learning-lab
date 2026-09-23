@@ -94,14 +94,14 @@ done
 # Counting it as a pass is the failure this file exists to catch — the trunk-liveness check
 # is the only case that reads the real hook against the real trunk, and in a checkout with no
 # trunk ref (a shallow CI clone) it cannot run. If its skip incremented PASS, the tail read
-# "all 38 cases behaved as specified" and the EXPECTED_CASES guard matched, while the one
+# "all 42 cases behaved as specified" and the EXPECTED_CASES guard matched, while the one
 # check that detects a dead glob never executed: a control reporting success over a smaller
 # scope than it claims. So SKIP is its own counter, the tail line names all three, and only
 # PASS+FAIL — the cases that actually ran — is compared against EXPECTED_CASES, which means a
 # skipped case fails that comparison and the run cannot read as a complete pass. "Everything
 # ran and passed" and "everything that ran, passed" are different sentences and now print
 # differently.
-EXPECTED_CASES=38
+EXPECTED_CASES=42
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -695,6 +695,132 @@ else
   printf 'FAIL  %-44s reported: %s (want exactly: %s)\n' \
     "a removed glob is caught" "${injected_missing:-nothing}" "$want_missing"
   FAIL=$((FAIL+1))
+fi
+
+# --- THE THREE DOORS THAT USED TO CLOSE IN SILENCE (2026-09-23)
+#
+# Each is a path where the hook cannot do its job: no `jq` to read the tool call, no merge
+# base with origin/main to list the branch's changes, no executable reviewer to send them to.
+# Each exited 0 with nothing on stderr, which reads from the outside exactly like "that push
+# had nothing to review" — so a developer records "rubric reviewed on push" against an
+# artifact the critic never saw. The hook now prints one line per door; these three cases are
+# what keeps it printing. They assert the NOTICE, not just exit 0 and zero calls: the old
+# behaviour already satisfied both of those, which is why the suite was green while all three
+# doors were shut.
+#
+# The substring each case looks for is a FIXED STRING containing the thing that went
+# unreviewed — `origin/main`, `jq`, `tools/opencode-review.sh` — so a notice that stops naming
+# it fails here rather than passing on a generic word like "skipping".
+#
+# STDERR AND STDOUT ARE SEPARATED HERE, unlike run() and run_silent() which merge them. A
+# hook's stdout goes back to Claude Code as tool output; stderr is where a notice belongs and
+# what the step requires. Merging the two would let a notice moved to stdout keep passing,
+# which is the same class of under-assertion as matching on a flattened argv.
+run_announcing() {  # run_announcing <name> <root> <path> <stdin-json> <want-calls> <must-say>
+  local name="$1" root="$2" path="$3" payload="$4" want_calls="$5" must_say="$6"
+  : > "$CALLS"; : > "$ARGV"
+  local errf="$WORK/announce-stderr"
+  local out; out="$(printf '%s' "$payload" | env PATH="$path" \
+      "$root/.claude/hooks/opencode-review.sh" 2>"$errf")"
+  local got_exit=$?
+  local got_calls; got_calls="$(wc -l < "$CALLS" | tr -d ' ')"
+  local err; err="$(cat "$errf")"
+  local said=no
+  case "$err" in *"$must_say"*) said=yes ;; esac
+  if [ "$got_exit" = 0 ] && [ "$got_calls" = "$want_calls" ] && [ "$said" = yes ] && [ -z "$out" ]; then
+    printf 'ok    %-44s exit 0, %s call(s), named it on stderr\n' "$name" "$got_calls"
+    PASS=$((PASS+1))
+  else
+    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want %s), on stderr: %s, stdout: %s\n' \
+      "$name" "$got_exit" "$got_calls" "$want_calls" "$said" "${out:-<empty, as wanted>}"
+    printf '        wanted to hear: %s\n' "$must_say"
+    printf '        heard on stderr: %s\n' "${err:-<nothing>}"
+    FAIL=$((FAIL+1))
+  fi
+}
+
+# A pristine copy of the fixture, forced onto its own branch off the trunk with exactly one
+# changed rubric on it. Off the trunk and force-cleaned because the cases above leave FIXTURE
+# on whatever branch they last used, with whatever they last wrote still in the tree — a case
+# that inherits that is not testing what its name says. One changed rubric because a door is
+# only worth naming when a review was owed: each of the three copies has an artifact the
+# critic should have seen.
+prepare_copy() {  # prepare_copy <dir> <branch>
+  local dir="$1" branch="$2"
+  cp -R "$FIXTURE" "$dir" || return 1
+  git -C "$dir" checkout -q -f -b "$branch" main || return 1
+  git -C "$dir" clean -qfd || return 1
+  echo 'version: 9' > "$dir/benchmark/rubrics/backend-quality.yaml" || return 1
+  git -C "$dir" add -A >/dev/null || return 1
+  git -C "$dir" commit -qm "a changed rubric on $branch" >/dev/null || return 1
+}
+
+# THE CONTROL FIRST, because a notice is only worth anything where a review was OWED. With all
+# three doors open, this same preparation reviews one artifact and says so. Without this case
+# the three below could each be firing over a copy where nothing reviewable changed at all —
+# a true notice about an empty change set, which would prove nothing and read identically.
+CONTROL="$WORK/repo-control"
+if ! prepare_copy "$CONTROL" control; then
+  printf 'skip  %-44s could not build a copy of the fixture (cp/git failed)\n' \
+    "prepare_copy leaves a review owed"
+  SKIP=$((SKIP+1))
+else
+  run_announcing "prepare_copy leaves a review owed" "$CONTROL" "$STUB:$PATH" "$PUSH" 1 \
+    "reviewing 1 of 1 changed artifact(s)"
+fi
+
+# (a) no merge base with origin/main. The ref is deleted from the copy, which is what a fork
+# with a `master` default, an unfetched remote or a renamed default branch looks like here.
+NOTRUNK="$WORK/repo-notrunk"
+if ! prepare_copy "$NOTRUNK" notrunk || ! git -C "$NOTRUNK" update-ref -d refs/remotes/origin/main; then
+  printf 'skip  %-44s could not build a trunkless copy of the fixture (cp/git failed)\n' \
+    "no trunk ref is named, not silent"
+  SKIP=$((SKIP+1))
+else
+  run_announcing "no trunk ref is named, not silent" "$NOTRUNK" "$STUB:$PATH" "$PUSH" 0 \
+    "NOT REVIEWED — git merge-base HEAD origin/main found nothing"
+fi
+
+# (b) no jq. A PATH holding only what the hook needs MINUS jq — and the opencode stub, so the
+# case turns on jq alone and cannot pass by tripping the opencode gate instead. If any of
+# those binaries cannot be linked, or jq is somehow still resolvable there, this case did not
+# run: that is a SKIP, not a pass.
+NOJQBIN="$WORK/nojqbin"; mkdir -p "$NOJQBIN"
+nojq_missing=""
+for t in bash env git cat dirname; do
+  src="$(command -v "$t" 2>/dev/null)" || { nojq_missing="$nojq_missing $t"; continue; }
+  ln -sf "$src" "$NOJQBIN/$t" || nojq_missing="$nojq_missing $t"
+done
+ln -sf "$STUB/opencode" "$NOJQBIN/opencode" || nojq_missing="$nojq_missing opencode"
+NOJQ="$WORK/repo-nojq"
+if [ -n "$nojq_missing" ]; then
+  printf 'skip  %-44s could not build a jq-less PATH; missing:%s\n' \
+    "no jq is named, not silent" "$nojq_missing"
+  SKIP=$((SKIP+1))
+elif ( PATH="$NOJQBIN"; command -v jq >/dev/null 2>&1 ); then
+  printf 'skip  %-44s jq is still resolvable on the jq-less PATH; the case would pass for the wrong reason\n' \
+    "no jq is named, not silent"
+  SKIP=$((SKIP+1))
+elif ! prepare_copy "$NOJQ" nojq; then
+  printf 'skip  %-44s could not build a copy of the fixture (cp/git failed)\n' \
+    "no jq is named, not silent"
+  SKIP=$((SKIP+1))
+else
+  run_announcing "no jq is named, not silent" "$NOJQ" "$NOJQBIN" "$PUSH" 0 \
+    "NOT REVIEWED — jq is not installed"
+fi
+
+# (c) no executable reviewer. The stub is left in place and stripped of its executable bit,
+# so this is a missing REVIEWER and not a deleted artifact — the two are different events and
+# the hook has a different notice for each.
+NOREVIEWER="$WORK/repo-noreviewer"
+if ! prepare_copy "$NOREVIEWER" noreviewer || ! chmod -x "$NOREVIEWER/tools/opencode-review.sh"; then
+  printf 'skip  %-44s could not build a copy with a non-executable reviewer\n' \
+    "a missing reviewer is named, not silent"
+  SKIP=$((SKIP+1))
+else
+  run_announcing "a missing reviewer is named, not silent" "$NOREVIEWER" "$STUB:$PATH" "$PUSH" 0 \
+    "NOT REVIEWED — tools/opencode-review.sh is missing or not executable"
 fi
 
 echo

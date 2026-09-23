@@ -30,9 +30,24 @@
 # textual ambiguities in the same file. Neither saw the other's list. One model run twice
 # would have produced neither list twice.
 #
-# WHAT IT CANNOT REVIEW, IT NAMES. Two things reach stderr instead of the critic: artifacts
-# past the budget (PARTIAL REVIEW) and artifacts DELETED on this branch (REMOVED). Both are
-# printed by name. Nothing in scope leaves the machine unmentioned.
+# WHAT IT CANNOT REVIEW, IT NAMES. Things that reach stderr instead of the critic: artifacts
+# past the budget (PARTIAL REVIEW), artifacts DELETED on this branch (REMOVED), and the three
+# environment failures that used to pass in silence — no `jq`, no merge base with
+# `origin/main`, no executable `tools/opencode-review.sh` (all NOT REVIEWED). Each is printed
+# by name. Nothing in scope leaves the machine unmentioned.
+#
+# THE ONE RULE, because the two promises above disagree exactly where a path is quiet, and a
+# list of today's three exceptions is no use on the fourth:
+#
+#   The hook exits 0 on every path, and exits SILENTLY only where it has ESTABLISHED that no
+#   review was owed — the command was not a push, nothing in scope changed. Wherever it merely
+#   FAILED TO FIND OUT, it prints one line naming what went unreviewed and why, and still
+#   exits 0.
+#
+# Failing to find out is not the same as finding nothing, and only the second may be silent.
+# That is the whole test for a path neither the author nor the critic has thought of yet: ask
+# which of the two the path is. A missing `jq` does not mean the command was not a push; it
+# means the hook could not read it. That is a decline, and a decline is announced.
 #
 # Env: LAB_REVIEW_HOOK=0 disables it. LAB_REVIEW_PANEL overrides the panel.
 # LAB_REVIEW_RUNS is runs PER FAMILY (default 1 — the panel is the diversity now).
@@ -77,6 +92,16 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." 2>/dev/null && pwd)" || e
 cd "$repo_root" || exit 0
 
 payload="$(cat 2>/dev/null || true)"
+
+# `jq` is gated like `opencode` and `codex` are, and for the same reason. It is the only
+# parser here, so without it the line below fails inside `|| true`, `command_line` is empty,
+# and the hook exits 0 having said nothing — indistinguishable from "that was not a push".
+# It is not the same event: an unparseable payload is silent below BECAUSE the hook read it
+# and found no push; a missing `jq` means it never read anything. Announce, per the one rule.
+command -v jq >/dev/null 2>&1 || {
+  echo "opencode-review hook: NOT REVIEWED — jq is not installed, so the tool call cannot be read; no push on this machine reaches the critic until it is." >&2
+  exit 0
+}
 command_line="$(printf '%s' "$payload" | jq -r '.tool_input.command // empty' 2>/dev/null || true)"
 [ -n "$command_line" ] || exit 0
 
@@ -92,14 +117,26 @@ _trigger_pr='(^|[^[:alnum:]_-])gh[[:space:]]+pr[[:space:]]+create([^[:alnum:]_-]
 [[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]] || exit 0
 
 command -v opencode >/dev/null 2>&1 || {
-  echo "opencode-review hook: opencode not installed, skipping" >&2; exit 0
+  echo "opencode-review hook: NOT REVIEWED — opencode is not installed, so nothing on this branch reaches the critic." >&2
+  exit 0
 }
-[ -x tools/opencode-review.sh ] || exit 0
+# The loudest of the three, and until 2026-09-23 the quietest: with no executable reviewer,
+# EVERY review-scoped artifact on the branch goes unreviewed, and the push said so nowhere.
+[ -x tools/opencode-review.sh ] || {
+  echo "opencode-review hook: NOT REVIEWED — tools/opencode-review.sh is missing or not executable, so every review-scoped artifact on this branch goes unreviewed." >&2
+  exit 0
+}
 
 # Compare against the trunk, not against HEAD~1: a push carries every commit on the branch,
 # and the artifact worth reviewing may have changed three commits ago.
+# An absent `origin/main` — a fork whose default branch is `master`, a remote not yet fetched,
+# a renamed default branch — leaves `base` empty. The changed set is then unknown, not empty,
+# and the difference is the one rule: the hook did not find nothing, it failed to find out.
 base="$(git merge-base HEAD origin/main 2>/dev/null || true)"
-[ -n "$base" ] || exit 0
+[ -n "$base" ] || {
+  echo "opencode-review hook: NOT REVIEWED — git merge-base HEAD origin/main found nothing (a fork, an unfetched remote, or a renamed default branch), so this branch's changed files could not be listed and no artifact reached the critic." >&2
+  exit 0
+}
 changed="$(git diff --name-only "$base"...HEAD 2>/dev/null || true)"
 [ -n "$changed" ] || exit 0
 
@@ -190,7 +227,10 @@ if ! command -v codex >/dev/null 2>&1 || [ ! -x tools/codex-critic.sh ]; then
       echo "  This is a ONE-harness review now. It is not the review the panel names." >&2 ;;
   esac
 fi
-[ -n "$panel" ] || { echo "opencode-review hook: empty panel, skipping" >&2; exit 0; }
+[ -n "$panel" ] || {
+  echo "opencode-review hook: NOT REVIEWED — the panel is empty, so there is no harness to send ${#artifacts[@]} changed artifact(s) to." >&2
+  exit 0
+}
 
 echo "opencode-review hook: reviewing ${#artifacts[@]} of ${#ranked[@]} changed artifact(s) — panel ${panel}, -n ${runs}" >&2
 ./tools/opencode-review.sh -n "$runs" -P "$panel" "${artifacts[@]}" >&2 || {
