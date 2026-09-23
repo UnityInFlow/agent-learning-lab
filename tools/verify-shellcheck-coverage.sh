@@ -19,6 +19,13 @@
 # contains that block verbatim, exactly once, as a fixed string. When it does not, this
 # script refuses and says the block must be re-pinned deliberately.
 #
+# THE BLOCK'S EDGES. In the pinned file, leading column-0 `#` lines AND the blank lines
+# between them and the first pinned line are documentation: the block starts at the first
+# line that is neither. Blank lines INSIDE the block are part of it, because ci.yml holds
+# them too. Without this, a blank separator line — the obvious way to end a comment header —
+# became the block's first line, and every comparison then failed with "not in ci.yml
+# verbatim" over a leading newline nobody could see in the message.
+#
 # THE SCANDIRS LINE IS A HUMAN ASSERTION, ON PURPOSE. The directories are read from the
 # `scandirs:` line of the pinned file, not extracted from the block. It is deliberately NOT
 # cross-checked against the block, because cross-checking it would be exactly the YAML
@@ -28,6 +35,13 @@
 # NO WILDCARD, NO SENTINEL. An empty scandirs entry and an empty exempt prefix are errors,
 # never "covers everything"; a literal `*` in either file is just a path that matches
 # nothing. Globbing is disabled below so the shell cannot expand one behind your back.
+# A scandirs entry naming the repository root (`.`) is refused for the same reason and not
+# because it is missing: `.` is an existing directory, so it passes every existence test,
+# while the boundary rule below covers nothing with it — no tracked path is `.` or begins
+# with `./` once normalised. Accepting it would be the sentinel this paragraph forbids,
+# spelled as a directory; refusing it is the difference between "scans everything" and
+# "silently scans nothing". An entry naming a path outside the repository (`..`, `../x`)
+# is refused with it.
 #
 # BOUNDARY MATCHING. Directories and prefixes are normalised the same way (leading `./` and
 # trailing `/` stripped) and matched on a path-component boundary: a path is covered by `d`
@@ -39,6 +53,11 @@
 # about shell files without a .sh extension, which `git ls-files '*.sh'` does not see. It
 # never invents an exempt row: a prefix matching no tracked file, carrying no reason,
 # repeated, or naming something a scandir already covers is refused rather than accepted.
+#
+# WHERE IT RUNS. `.github/workflows/ci.yml`, job `shell tools` (a required status check),
+# step "Every tracked script is ShellChecked or exempt". That line is what makes this an L2
+# control: a verifier that refuses correctly but is only ever run by hand is an L3 reminder,
+# and the difference is not visible in the script itself.
 #
 # OVERRIDES, which is also how this script proves it REFUSES. Setting any of
 #
@@ -53,11 +72,40 @@
 # below is demonstrated by the same code path that guards the repository, and each case
 # asserts the specific message, not merely a non-zero exit.
 #
+# WHICH INVOCATION IS A LEAF, AND WHY THERE HAS TO BE ONE. Case 12 below runs a COPY of this
+# script in FULL-RUN mode, because the defect it guards lives in the full run and nowhere
+# else. But a full run ends with case 12 — so an unguarded copy copies itself, and that copy
+# copies itself, without end. It is not a slow test; run once by hand it left 652 directories
+# and 5.6 GB under $TMPDIR in about three minutes, and two sessions of this run mistook their
+# own runaway children for a stall. SHELLCHECK_COVERAGE_LEAF is the guard, and it is the
+# shape tools/verify-render-spine-status.sh already uses for the same problem: there, a run
+# with RENDER_SPINE_STATUS set is a leaf and skips the mutant sweep.
+#
+#     SHELLCHECK_COVERAGE_LEAF  set ⇒ THIS invocation is a leaf: it runs the live check and
+#                               then stops, running no fixture and spawning nothing.
+#
+# A leaf is not a weakened run. It executes the whole full-run path — including the exit-2
+# abort below, which is the only thing case 12 asserts — and drops only the fixture sweep,
+# which case 12 does not look at. So the guard removes the recursion, not the path under
+# test: revert the abort and the leaf falls through to "FAIL — 1 … (exited 2)" and exits 1,
+# which case 12 reads as the wrong exit code and reports by name. It is NOT one of the four
+# overrides above: it does not select single-check mode and it changes no comparison. It does
+# lower the registered case count to 1, so the count asserted at the end still has to agree
+# with what actually ran.
+#
 # EXIT CODES, one contract, obeyed in every path:
 #     0  every check this invocation ran passed
 #     1  a coverage check refused (single-check mode), or a registered case did not behave
 #        as registered, or the number of cases that ran is not the number registered
 #     2  usage error, or an input file that could not be read
+#
+# The full run obeys 2 by ABORTING on it: if the live check cannot read one of its four
+# inputs it exits 2 there, before any fixture runs, rather than counting the unreadable
+# input as one more failed case and exiting 1. A caller that treats 2 as "infrastructure
+# broke, do not go hunting for missing coverage rows" and 1 as "coverage gap, block the
+# merge" is otherwise told the wrong thing by the very path CI runs. Case 12 asserts this.
+# A FIXTURE exiting 2 where 1 was registered is still exit 1: that is a registered case not
+# behaving as registered, and the 2 belongs to this invocation's own inputs.
 set -uo pipefail
 # Globbing off: a `*` in the pinned file or the exempt table must stay a literal path that
 # matches nothing, rather than expanding against the working directory.
@@ -74,7 +122,12 @@ FIXTURES="tools/fixtures/shellcheck-coverage"
 
 # Asserted at the END against the cases that actually ran: a count announced before any case
 # has executed is a number no case has to agree with.
-EXPECTED_CASES=11
+EXPECTED_CASES=14
+
+# The recursion guard (see the header). Set ⇒ this invocation is the leaf a case spawned: the
+# live check runs, the fixture sweep does not, and exactly one case is registered.
+LEAF="${SHELLCHECK_COVERAGE_LEAF:-}"
+[[ -n "$LEAF" ]] && EXPECTED_CASES=1
 
 if [[ "$#" -gt 0 ]]; then
   echo "verify-shellcheck-coverage: takes no arguments; see the header for the four overrides" >&2
@@ -132,6 +185,10 @@ check_coverage() { # check_coverage <ci file> <pinned file> <exempt file> <track
     fi
     if [[ "$started" -eq 0 ]]; then
       [[ "$line" == "#"* ]] && continue
+      # A blank line before the block has not started is still documentation — the blank
+      # separator under a comment header, which otherwise became the block's first line and
+      # made every later comparison fail on an invisible leading newline.
+      [[ -z "${line//[[:space:]]/}" ]] && continue
       started=1
       block="$line"
       continue
@@ -193,6 +250,13 @@ check_coverage() { # check_coverage <ci file> <pinned file> <exempt file> <track
     d="$(normalise_path "$d")"
     if [[ -z "$d" ]]; then
       echo "  $pinned: the scandirs: line holds an empty entry, which covers nothing"
+      offenders=$((offenders + 1))
+      continue
+    fi
+    if [[ "$d" == "." || "$d" == ".." || "$d" == ../* ]]; then
+      echo "  $pinned: scandirs entry '$d' names the repository root or a path outside it;"
+      echo "  it exists, so nothing would refuse it, and it covers no tracked path at all."
+      echo "  Name each scanned directory — there is no sentinel for 'everything'."
       offenders=$((offenders + 1))
       continue
     fi
@@ -312,7 +376,12 @@ fi
 pass=0
 fail=0
 
-echo "verify-shellcheck-coverage: the live repository, then the fixtures that prove it refuses"
+if [[ -n "$LEAF" ]]; then
+  echo "verify-shellcheck-coverage: leaf run (SHELLCHECK_COVERAGE_LEAF is set) — the live"
+  echo "repository only, no fixture sweep, so this copy spawns nothing."
+else
+  echo "verify-shellcheck-coverage: the live repository, then the fixtures that prove it refuses"
+fi
 echo
 
 LIVE_TRACKED="$TMP/tracked.txt"
@@ -323,6 +392,15 @@ fi
 
 live_out="$(check_coverage "$DEFAULT_CI" "$DEFAULT_PINNED" "$DEFAULT_EXEMPT" "$LIVE_TRACKED" 2>&1)"
 live_rc=$?
+# 2 is not one more failed case. An input this invocation could not read says nothing about
+# coverage, and folding it into the fail count would exit 1 — the code a caller reads as
+# "a script is unscanned", sending an operator to hunt for a missing row that does not exist.
+if [[ "$live_rc" -eq 2 ]]; then
+  printf '%s\n' "$live_out" >&2
+  echo "verify-shellcheck-coverage: exiting 2 — an input file could not be read, so no" >&2
+  echo "coverage question was answered and no fixture ran. This is not a coverage gap." >&2
+  exit 2
+fi
 if [[ "$live_rc" -eq 0 ]]; then
   echo "  ok   — 1 every tracked *.sh is scanned by the pinned steps or exempt for a named reason ($(grep -c . "$LIVE_TRACKED") scripts)"
   pass=$((pass + 1))
@@ -368,6 +446,56 @@ fixture_case() { # fixture_case <n> <dir> <expected exit> <expected message> <de
   pass=$((pass + 1))
 }
 
+# Case 12 is the only one that cannot be a fixture directory, because the defect it guards
+# lives in the FULL RUN and every fixture above is answered in single-check mode, where
+# `exit $?` has always carried 2 correctly. So it builds a miniature checkout in $TMP — a
+# copy of this script, a tracked *.sh for `git ls-files`, and deliberately NO workflow file —
+# and runs that copy with no override set, which is full-run mode. Round 1 of this step's
+# review failed here: the live check's 2 was counted as a failed case and the run exited 1.
+full_run_exit2_case() {
+  local n=12 desc="a full run whose workflow file cannot be read exits 2, not 1"
+  local root="$TMP/full-run-no-workflow" out rc
+  local want_msg="exiting 2 — an input file could not be read"
+
+  if ! mkdir -p "$root/tools" \
+     || ! cp "$SELF" "$root/tools/verify-shellcheck-coverage.sh" \
+     || ! cp "$DEFAULT_PINNED" "$root/tools/shellcheck-scanned.txt" \
+     || ! cp "$DEFAULT_EXEMPT" "$root/tools/shellcheck-exempt.tsv"; then
+    echo "  FAIL — $n $desc: could not build the miniature checkout under $root"
+    fail=$((fail + 1))
+    return
+  fi
+  printf '#!/usr/bin/env bash\ntrue\n' > "$root/tools/tracked-by-the-copy.sh"
+  if ! git -C "$root" init -q >/dev/null 2>&1 || ! git -C "$root" add -A >/dev/null 2>&1; then
+    echo "  FAIL — $n $desc: could not make $root a checkout, so git ls-files cannot answer"
+    fail=$((fail + 1))
+    return
+  fi
+
+  # No override set, so the copy is in FULL-RUN mode — the mode under test. The leaf flag is
+  # the recursion guard from the header, not an override: the copy still runs the live check
+  # and still reaches the exit-2 abort; it simply does not reach this case again.
+  out="$(env -u SHELLCHECK_CI_FILE -u SHELLCHECK_PINNED_FILE \
+             -u SHELLCHECK_EXEMPT_FILE -u SHELLCHECK_TRACKED_FILE \
+             SHELLCHECK_COVERAGE_LEAF=1 \
+         "$root/tools/verify-shellcheck-coverage.sh" 2>&1)"
+  rc=$?
+
+  if [[ "$rc" -ne 2 ]]; then
+    echo "  FAIL — $n $desc: expected exit 2, exited $rc: $(tr '\n' '|' <<<"$out")"
+    fail=$((fail + 1))
+    return
+  fi
+  if ! grep -qF -- "cannot read workflow file" <<<"$out" || ! grep -qF -- "$want_msg" <<<"$out"; then
+    echo "  FAIL — $n $desc: exited 2 for some other reason: $(tr '\n' '|' <<<"$out")"
+    fail=$((fail + 1))
+    return
+  fi
+  echo "  ok   — $n $desc"
+  pass=$((pass + 1))
+}
+
+if [[ -z "$LEAF" ]]; then
 fixture_case  2 clean            0 "" \
   "a population wholly scanned or exempt is admitted"
 fixture_case  3 uncovered        1 "other/loose.sh is neither scanned nor exempt" \
@@ -388,6 +516,13 @@ fixture_case 10 prefix-boundary  1 "evidence2/x.sh is neither scanned nor exempt
   "'evidence' does not cover 'evidence2/x.sh' — the boundary is a path component"
 fixture_case 11 wildcard-prefix  1 "exempts '*', which matches no tracked *.sh" \
   "a literal '*' prefix is a path that matches nothing, not a sentinel"
+full_run_exit2_case  # case 12 — the full-run exit-2 contract, built in $TMP above
+fixture_case 13 blank-separator  0 "" \
+  "a blank line under the pinned file's comment header is documentation, not the block"
+fixture_case 14 scandir-root     1 "names the repository root or a path outside it" \
+  "a scandirs entry of '.' is refused rather than silently covering nothing"
+fi  # end of the fixture sweep, which a leaf run skips
+
 
 echo
 ran=$((pass + fail))
