@@ -26,6 +26,26 @@
 # so the suite's strongest existing assertion could not see it and every case passed. The
 # three bottom rows are the five hand-written blocks, which asserted their notice and (some of
 # them) their call count while never capturing the hook's exit status at all.
+#
+# THE SECOND SWEEP, 2026-09-24, review round 1 of step 30. These three mutants are of THIS
+# FILE, not of the hook: the first round of review found the suite's own instruments — its
+# array reader, its tail guard, its exit classifier — each claiming a scope wider than it
+# checked. Each mutant was applied to a copy of this file beside it, run, and removed.
+#
+#   mutant of this file                                  result
+#   opener back to `$0 == name "=("` ............ 1 case fails: "an indented glob array is
+#                                                 still read" reads REFUSED. Nothing else
+#                                                 moves — which is what the false "could not
+#                                                 read the hook" failure looked like.
+#   an undeclared, always-skipping case added ... with the TOTAL guard: exit 1, "75 cases
+#                                                 exist … EXPECTED_CASES is 74". With the
+#                                                 guard removed: exit 0, "all 74 cases ran
+#                                                 and behaved as specified", one case
+#                                                 skipped. The false sentence, produced.
+#   classifier back to `exit 0` only ............ 1 case fails: the `return 0` shape comes
+#                                                 back "<not seen at all>" — not
+#                                                 UNCLASSIFIED, ABSENT, which is why the
+#                                                 count check could not notice it either.
 
 set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit 1
@@ -125,12 +145,24 @@ done
 # skipped case fails that comparison and the run cannot read as a complete pass. "Everything
 # ran and passed" and "everything that ran, passed" are different sentences and now print
 # differently.
+#
+# THAT COMPARISON IS NECESSARY AND IS NOT SUFFICIENT, which round 1 of step 30's review found
+# and the tail now fixes. "A skipped case fails that comparison" holds only while
+# EXPECTED_CASES already counts the skipped case. Add a NEW skip-capable case without bumping
+# the count and, in the environment where it skips, PASS+FAIL is exactly EXPECTED_CASES again:
+# green, with the tail claiming every case ran. So the tail compares TWICE — PASS+FAIL against
+# the declared count, and PASS+FAIL+SKIP against it as well — because "did everything run?"
+# and "is every case that exists declared?" are two questions and the second one is how an
+# undeclared case hides.
 # 69 → 73 on 2026-09-24 (round 5): one new case for the `-n` override, and three hand-written
 # blocks that each became TWO counted cases when their exit status and call count moved into
 # run_announcing — "it announced" and "it named the file" are separate claims that fail for
 # separate reasons, and a block asserting both under one name can only report the first thing
 # that broke.
-EXPECTED_CASES=73
+# 73 → 74 on 2026-09-24 (step 30, review round 1): the indented-but-well-formed glob array,
+# the shape the reader's own contract promised to accept and the only shape none of the three
+# malformed fixtures could have caught.
+EXPECTED_CASES=74
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -870,9 +902,21 @@ glob_coverage_failures() {  # <file-list> <array-name> <glob>... -> "<array-name
 # reader as this case's FAIL rather than as a corrupted array. That is the coupling, stated:
 # each array opens with `NAME=(` alone on its line, carries one quoted entry per line, and
 # closes with a paren on a line of its own. Indentation is free; structure is not.
+#
+# THE OPENER USED TO BE THE ONE PLACE THAT SENTENCE WAS FALSE (fixed 2026-09-24, round 1 of
+# step 30's review). It matched with `$0 == name "=("` — exact string equality, so an array
+# indented for any reason (wrapped in a `case` arm, aligned with its surroundings) set
+# `inside` never, the reader exited 3, and the trunk-liveness case FAILED with "could not
+# read CONTRACT_GLOBS from the hook" — a parser regression wearing a coverage failure's
+# words, whose cheapest silencing move is to delete a glob, which is the exact harm the
+# required-set case exists to prevent. The entry and closing-paren matchers always tolerated
+# indentation; only the opener did not, so the contract and two of its three matchers agreed
+# and the third quietly did not. It now matches leading whitespace like its siblings, and
+# `[[:space:]]*$` keeps the inline shape (`G=('a' 'b')`) refused: the opener carries nothing
+# but the paren. The indented shape is exercised as its own case below, not asserted here.
 extract_glob_array() {  # <file> <array-name> -> one entry per line; non-zero if malformed
   awk -v name="$2" -v q="'" '
-    $0 == name "=(" { inside = 1; next }
+    $0 ~ "^[[:space:]]*" name "=\\([[:space:]]*$" { inside = 1; next }
     !inside { next }
     $0 ~ "^[[:space:]]*\\)[[:space:]]*$" { closed = 1; exit }
     $0 ~ "^[[:space:]]*(#|$)" { next }
@@ -992,6 +1036,7 @@ fi
 # paren), entries carried inline on the opener, and an entry left unquoted.
 MALFORMED_DIR="$WORK/glob-array-shapes"; mkdir -p "$MALFORMED_DIR"
 printf "G=(\n  'a/*.yaml'\n  'b/*.yaml'\n)\nH=(\n  'c/*.sh'\n)\n"  > "$MALFORMED_DIR/wellformed"
+printf "    G=(\n      'a/*.yaml'\n      'b/*.yaml'\n    )\n"      > "$MALFORMED_DIR/indented"
 printf "G=(\n  'a/*.yaml'\n  'b/*.yaml'\nH=(\n  'c/*.sh'\n)\n"     > "$MALFORMED_DIR/unclosed"
 printf "G=('a/*.yaml' 'b/*.yaml')\n"                               > "$MALFORMED_DIR/inline"
 printf "G=(\n  a/*.yaml\n)\n"                                      > "$MALFORMED_DIR/unquoted"
@@ -1009,6 +1054,26 @@ if [ "$got_entries" = "$want_entries" ] && [ -z "$refused" ]; then
 else
   printf 'FAIL  %-44s well-formed read as [%s]; accepted anyway: %s\n' \
     "a malformed glob array is refused" "$got_entries" "${refused:-none}"
+  FAIL=$((FAIL+1))
+fi
+
+# THE OTHER HALF OF THE READER'S CONTRACT, and the half that was prose only until round 1 of
+# step 30's review: "Indentation is free; structure is not." The three shapes above are all
+# MALFORMED, so every one of them is refused whether the opener tolerates whitespace or not —
+# a reader that accepts nothing passes that case perfectly. This is the case that fails when
+# the opener is strict: a WELL-FORMED array, indented, must come back as exactly its entries.
+# Its mutation is one character-class: restore `$0 == name "=("` and this case FAILs while
+# every other case in the suite stays green, which is what the trunk-liveness case's false
+# "could not read" failure looked like from the outside.
+indented_entries="$(extract_glob_array "$MALFORMED_DIR/indented" G 2>/dev/null || echo REFUSED)"
+if [ "$indented_entries" = "$want_entries" ]; then
+  printf 'ok    %-44s 2 entries read through a 4-space indent\n' \
+    "an indented glob array is still read"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s read as [%s], want [%s] — the opener matcher is the only element that\n' \
+    "an indented glob array is still read" "$indented_entries" "$want_entries"
+  printf '        ever required column 0, against this file'"'"'s own "indentation is free" rule.\n'
   FAIL=$((FAIL+1))
 fi
 
@@ -1219,10 +1284,22 @@ fi
 # every announced exit in the hook is preceded by its NOT REVIEWED line, and a new door that
 # says something vaguer is UNCLASSIFIED rather than quietly counted. The refusal is run rather
 # than described, two cases below, over three synthetic shapes.
-hook_exit_sites() {  # hook_exit_sites <file> — one line per exit 0: "<class> <lineno> <text>"
+#
+# WHICH TERMINATION FORMS THE SWEEP CLAIMS, stated because round 1 of step 30's review found
+# the claim ("every early departure is classified") wider than the matcher. The matcher read
+# the literal `exit 0` only, so a door added inside a helper as `command -v x >/dev/null ||
+# return 0` — a successful early departure that skips the review exactly like an `exit 0`
+# does — was absent from SITES entirely: not UNCLASSIFIED, not counted, invisible. It now
+# reads `exit 0` AND `return 0`, and the refusal case below exercises a bare `return 0` as a
+# fourth shape. The forms deliberately OUTSIDE the claim are the non-zero ones (`exit 1`,
+# `return 1` — those FAIL the tool call, which the header's first promise forbids, so they
+# are a different defect and a louder one) and a status computed into a variable, which the
+# hook does not do. `return 0` costs nothing to include today: the hook carries none, so this
+# is a guard on the next one rather than a re-classification of anything present.
+hook_exit_sites() {  # hook_exit_sites <file> — one line per exit 0 / return 0: "<class> <lineno> <text>"
   awk 'BEGIN { prev = "" }
        {
-         if ($0 !~ /^[[:space:]]*#/ && $0 ~ /exit 0/) {
+         if ($0 !~ /^[[:space:]]*#/ && ($0 ~ /exit 0/ || $0 ~ /return 0/)) {
            if ($0 ~ /# SILENT:/)                             cls = "silent"
            else if (prev ~ />&2/ && prev ~ /NOT REVIEWED/)    cls = "announced"
            else                                              cls = "UNCLASSIFIED"
@@ -1260,15 +1337,24 @@ printf '%s\n' 'echo "opencode-review hook: NOT REVIEWED — a door" >&2' 'exit 0
   > "$EXITSHAPES/announced"
 printf '%s\n' 'echo "hook unavailable" >&2' 'exit 0'            > "$EXITSHAPES/generic"
 printf '%s\n' 'exit 0  # SILENT: nothing was owed'              > "$EXITSHAPES/silent"
+# The fourth shape, added with the `return 0` half of the matcher: a helper that departs
+# early on success. Under the old matcher this file produced NO line at all — the classifier
+# had nothing to say about a door it could not see — so the assertion is that it now comes
+# back UNCLASSIFIED, which is what makes the unclassified-site check above fire on it.
+printf '%s\n' 'command -v helper >/dev/null || return 0'        > "$EXITSHAPES/returning"
 cls_announced="$(hook_exit_sites "$EXITSHAPES/announced" | awk '{print $1}')"
 cls_generic="$(hook_exit_sites "$EXITSHAPES/generic"     | awk '{print $1}')"
 cls_silent="$(hook_exit_sites "$EXITSHAPES/silent"       | awk '{print $1}')"
-if [ "$cls_announced" = announced ] && [ "$cls_generic" = UNCLASSIFIED ] && [ "$cls_silent" = silent ]; then
-  printf 'ok    %-44s a bare ">&2" line is not an announcement\n' "the exit classifier reads the notice"
+cls_return="$(hook_exit_sites "$EXITSHAPES/returning"    | awk '{print $1}')"
+if [ "$cls_announced" = announced ] && [ "$cls_generic" = UNCLASSIFIED ] && \
+   [ "$cls_silent" = silent ] && [ "$cls_return" = UNCLASSIFIED ]; then
+  printf 'ok    %-44s a bare ">&2" line is not an announcement; "return 0" is a door\n' \
+    "the exit classifier reads the notice"
   PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s notice=%s generic=%s silent=%s (want announced/UNCLASSIFIED/silent)\n' \
-    "the exit classifier reads the notice" "$cls_announced" "$cls_generic" "$cls_silent"
+  printf 'FAIL  %-44s notice=%s generic=%s silent=%s return=%s (want announced/UNCLASSIFIED/silent/UNCLASSIFIED)\n' \
+    "the exit classifier reads the notice" "$cls_announced" "$cls_generic" "$cls_silent" \
+    "${cls_return:-<not seen at all>}"
   FAIL=$((FAIL+1))
 fi
 
@@ -1415,8 +1501,23 @@ fi
 echo
 # The tail line names all three outcomes, always, so a reader never has to infer a skip from
 # a total. RAN is PASS+FAIL: a skipped case did not run and is not part of what this run
-# verified, which is why the guard below compares RAN — not RAN+SKIP — against EXPECTED_CASES.
+# verified, which is why the first guard below compares RAN — not RAN+SKIP — against
+# EXPECTED_CASES.
+#
+# TWO COMPARISONS, BECAUSE ONE OF THEM HAD A BLIND SPOT SHAPED EXACTLY LIKE THIS FILE'S OWN
+# FAILURE MODE (added 2026-09-24, round 1 of step 30's review). RAN alone catches a suite
+# that grew or shrank only when the new case RUNS. A developer who adds a SKIP-capable case —
+# the suite already has four skip sites — and forgets to bump EXPECTED_CASES gets, in any
+# environment where that case skips, RAN == EXPECTED_CASES and FAIL == 0: exit 0, and the tail
+# printing "all N cases ran and behaved as specified" while a case never ran. The sentence is
+# false and the guard written to catch exactly that could not see it, because a skip is
+# invisible to a comparison that excludes skips. So TOTAL = PASS+FAIL+SKIP is compared too:
+# every case that EXISTS is counted once, whatever its outcome, and a case that was added
+# without being declared fails the run in the environment where it skips as surely as in the
+# one where it runs. The two comparisons answer different questions — "did everything run?"
+# and "is everything declared?" — and the suite needs both to make its tail line true.
 RAN=$((PASS+FAIL))
+TOTAL=$((PASS+FAIL+SKIP))
 printf 'opencode-review.test: %s passed, %s failed, %s skipped.\n' "$PASS" "$FAIL" "$SKIP"
 if [ "$RAN" -ne "$EXPECTED_CASES" ]; then
   echo "opencode-review.test: ran ${RAN} of ${EXPECTED_CASES} cases." >&2
@@ -1430,6 +1531,14 @@ if [ "$RAN" -ne "$EXPECTED_CASES" ]; then
     echo "  A case was added or lost without updating EXPECTED_CASES. Fix the count or find the" >&2
     echo "  missing case; a shrinking suite that still exits 0 is indistinguishable from a pass." >&2
   fi
+  exit 1
+fi
+if [ "$TOTAL" -ne "$EXPECTED_CASES" ]; then
+  echo "opencode-review.test: ${TOTAL} cases exist (${RAN} ran, ${SKIP} skipped) but EXPECTED_CASES is ${EXPECTED_CASES}." >&2
+  echo "  RAN matched the declared count only because a case SKIPPED: an undeclared case was" >&2
+  echo "  added, and its skip hid the drift from the comparison above. Bump EXPECTED_CASES to" >&2
+  echo "  ${TOTAL} if the case is meant to be there; a suite whose declared size is smaller than" >&2
+  echo "  its real one reports a complete pass over a scope it never fixed." >&2
   exit 1
 fi
 if [ "$FAIL" -eq 0 ]; then
