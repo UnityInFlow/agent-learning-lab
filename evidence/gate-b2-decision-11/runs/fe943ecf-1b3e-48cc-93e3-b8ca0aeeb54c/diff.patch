@@ -1,0 +1,739 @@
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+index ab3fe64..8ae3aed 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+@@ -24,14 +24,11 @@ data class ApiErrorBody(
+ /** Which input was rejected and why — populated for validation failures. */
+ data class FieldViolation(val field: String, val message: String)
+ 
+-/**
+- * The closed set of machine-readable error codes. Clients switch on these, so a code is
+- * part of the public API: add one deliberately, never rename one casually.
+- */
+ enum class ErrorCode {
+     ORDER_NOT_FOUND,
+     ORDER_ALREADY_EXISTS,
+     SHIPMENT_NOT_FOUND,
+     SHIPMENT_ALREADY_EXISTS,
++    CUSTOMER_NOT_FOUND,
+     VALIDATION_FAILED,
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiExceptions.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiExceptions.kt
+index a5a82da..9c9b47b 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiExceptions.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiExceptions.kt
+@@ -2,12 +2,6 @@ package com.unityinflow.sample.api
+ 
+ import org.springframework.http.HttpStatus
+ 
+-/**
+- * Base class for every failure that is part of the API contract.
+- *
+- * A controller or service signals a failure by throwing one of these; the status code
+- * and the response body follow from the exception, in one place.
+- */
+ sealed class ApiException(
+     val status: HttpStatus,
+     val code: ErrorCode,
+@@ -15,16 +9,16 @@ sealed class ApiException(
+     val fields: List<FieldViolation> = emptyList(),
+ ) : RuntimeException(message)
+ 
+-/** The addressed resource does not exist → 404. */
+ class ResourceNotFoundException(code: ErrorCode, message: String) :
+     ApiException(HttpStatus.NOT_FOUND, code, message)
+ 
+-/** The request conflicts with the current state of the resource → 409. */
+ class ConflictException(code: ErrorCode, message: String) :
+     ApiException(HttpStatus.CONFLICT, code, message)
+ 
+-/** The request is well-formed but violates a rule of the domain → 400. */
+ class ValidationException(
+     message: String,
+     fields: List<FieldViolation> = emptyList(),
+ ) : ApiException(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED, message, fields)
++
++class UnprocessableEntityException(code: ErrorCode, message: String) :
++    ApiException(HttpStatus.UNPROCESSABLE_ENTITY, code, message)
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerController.kt
+index 590f37d..c655a5c 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerController.kt
+@@ -1,5 +1,10 @@
+ package com.unityinflow.sample.customer
+ 
++import com.unityinflow.sample.api.ErrorCode
++import com.unityinflow.sample.api.ResourceNotFoundException
++import com.unityinflow.sample.api.ValidationException
++import com.unityinflow.sample.api.FieldViolation
++import org.springframework.http.HttpHeaders
+ import org.springframework.http.HttpStatus
+ import org.springframework.http.ResponseEntity
+ import org.springframework.web.bind.annotation.GetMapping
+@@ -7,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable
+ import org.springframework.web.bind.annotation.PostMapping
+ import org.springframework.web.bind.annotation.RequestBody
+ import org.springframework.web.bind.annotation.RequestMapping
++import org.springframework.web.bind.annotation.RequestParam
+ import org.springframework.web.bind.annotation.RestController
+ 
+ @RestController
+@@ -22,11 +28,35 @@ class CustomerController(
+     }
+ 
+     @GetMapping("/{customerId}")
+-    fun getById(@PathVariable customerId: String): ResponseEntity<Customer> =
++    fun getById(@PathVariable customerId: String): Customer =
+         repository.findById(customerId)
+-            ?.let { ResponseEntity.ok(it) }
+-            ?: ResponseEntity.notFound().build()
++            ?: throw ResourceNotFoundException(
++                ErrorCode.CUSTOMER_NOT_FOUND,
++                "No customer with id '$customerId'",
++            )
+ 
+     @GetMapping
+-    fun list(): List<Customer> = repository.findAll()
++    fun list(
++        @RequestParam(defaultValue = "100") limit: Int,
++        @RequestParam(defaultValue = "0") offset: Int,
++    ): ResponseEntity<List<Customer>> {
++        if (limit < 1 || limit > 100) {
++            throw ValidationException(
++                "Invalid limit",
++                listOf(FieldViolation("limit", "limit must be between 1 and 100")),
++            )
++        }
++        if (offset < 0) {
++            throw ValidationException(
++                "Invalid offset",
++                listOf(FieldViolation("offset", "offset must be 0 or more")),
++            )
++        }
++
++        val customers = repository.findAllPaged(limit, offset)
++        val headers = HttpHeaders().apply {
++            add("X-Total-Count", repository.count().toString())
++        }
++        return ResponseEntity.ok().headers(headers).body(customers)
++    }
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerRepository.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerRepository.kt
+index 7b97870..1316c9e 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerRepository.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerRepository.kt
+@@ -3,10 +3,6 @@ package com.unityinflow.sample.customer
+ import java.util.concurrent.ConcurrentHashMap
+ import org.springframework.stereotype.Repository
+ 
+-/**
+- * Deliberately in-memory: the benchmark fixture must start with `./mvnw test` and no
+- * external infrastructure, so an agent run is never blocked on a database container.
+- */
+ @Repository
+ class InMemoryCustomerRepository {
+ 
+@@ -21,5 +17,12 @@ class InMemoryCustomerRepository {
+ 
+     fun findAll(): List<Customer> = store.values.sortedBy { it.customerId }
+ 
++    fun findAllPaged(limit: Int, offset: Int): List<Customer> {
++        val sorted = store.values.sortedBy { it.customerId }
++        return sorted.drop(offset).take(limit)
++    }
++
++    fun count(): Int = store.size
++
+     fun clear() = store.clear()
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/order/Order.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/order/Order.kt
+index 90f2f56..2a130c9 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/order/Order.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/order/Order.kt
+@@ -2,22 +2,36 @@ package com.unityinflow.sample.order
+ 
+ import java.math.BigDecimal
+ 
+-/**
+- * An order placed by a customer.
+- *
+- * This is the baseline (pre-benchmark) shape. BE-002 asks an agent to reject orders
+- * whose amount is not positive; the baseline deliberately accepts any amount.
+- */
+ data class Order(
+     val orderId: String,
+     val customerId: String,
+     val amount: BigDecimal,
+     val currency: String,
++    val quantity: Int = 1,
++    val fulfilment: FulfilmentStatus? = null,
+ )
+ 
++data class FulfilmentStatus(
++    val allocated: Int,
++    val delivered: Int,
++    val status: FulfilmentState,
++)
++
++enum class FulfilmentState {
++    UNALLOCATED,
++    PARTIALLY_ALLOCATED,
++    FULLY_ALLOCATED,
++    DELIVERED,
++}
++
+ data class CreateOrderRequest(
+     val orderId: String,
+     val customerId: String,
+     val amount: BigDecimal,
+     val currency: String,
++    val quantity: Int = 1,
++)
++
++data class UpdateOrderQuantityRequest(
++    val quantity: Int,
+ )
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt
+index afd95de..fde67be 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt
+@@ -2,24 +2,42 @@ package com.unityinflow.sample.order
+ 
+ import com.unityinflow.sample.api.ConflictException
+ import com.unityinflow.sample.api.ErrorCode
++import com.unityinflow.sample.api.FieldViolation
+ import com.unityinflow.sample.api.ResourceNotFoundException
++import com.unityinflow.sample.api.UnprocessableEntityException
++import com.unityinflow.sample.api.ValidationException
++import com.unityinflow.sample.customer.InMemoryCustomerRepository
++import com.unityinflow.sample.shipment.InMemoryShipmentRepository
++import com.unityinflow.sample.shipment.ShipmentStatus
++import org.springframework.http.HttpHeaders
+ import org.springframework.http.HttpStatus
+ import org.springframework.http.ResponseEntity
+ import org.springframework.web.bind.annotation.GetMapping
+ import org.springframework.web.bind.annotation.PathVariable
+ import org.springframework.web.bind.annotation.PostMapping
++import org.springframework.web.bind.annotation.PutMapping
+ import org.springframework.web.bind.annotation.RequestBody
+ import org.springframework.web.bind.annotation.RequestMapping
++import org.springframework.web.bind.annotation.RequestParam
+ import org.springframework.web.bind.annotation.RestController
+ 
+ @RestController
+ @RequestMapping("/orders")
+ class OrderController(
+     private val repository: InMemoryOrderRepository,
++    private val customerRepository: InMemoryCustomerRepository,
++    private val shipmentRepository: InMemoryShipmentRepository,
+ ) {
+ 
+     @PostMapping
+     fun create(@RequestBody request: CreateOrderRequest): ResponseEntity<Order> {
++        if (request.quantity < 1) {
++            throw ValidationException(
++                "Invalid quantity",
++                listOf(FieldViolation("quantity", "quantity must be positive")),
++            )
++        }
++
+         if (repository.existsById(request.orderId)) {
+             throw ConflictException(
+                 ErrorCode.ORDER_ALREADY_EXISTS,
+@@ -27,20 +45,130 @@ class OrderController(
+             )
+         }
+ 
+-        val saved = repository.save(
+-            Order(request.orderId, request.customerId, request.amount, request.currency),
++        if (customerRepository.findById(request.customerId) == null) {
++            throw UnprocessableEntityException(
++                ErrorCode.CUSTOMER_NOT_FOUND,
++                "No customer with id '${request.customerId}'",
++            )
++        }
++
++        val order = Order(
++            request.orderId,
++            request.customerId,
++            request.amount,
++            request.currency,
++            request.quantity,
++            FulfilmentStatus(0, 0, FulfilmentState.UNALLOCATED),
+         )
++        val saved = repository.save(order)
+         return ResponseEntity.status(HttpStatus.CREATED).body(saved)
+     }
+ 
+     @GetMapping("/{orderId}")
+-    fun getById(@PathVariable orderId: String): Order =
+-        repository.findById(orderId)
++    fun getById(@PathVariable orderId: String): Order {
++        val order = repository.findById(orderId)
+             ?: throw ResourceNotFoundException(
+                 ErrorCode.ORDER_NOT_FOUND,
+                 "No order with id '$orderId'",
+             )
++        return order.withFulfilment(shipmentRepository)
++    }
+ 
+     @GetMapping
+-    fun list(): List<Order> = repository.findAll()
++    fun list(
++        @RequestParam(defaultValue = "100") limit: Int,
++        @RequestParam(defaultValue = "0") offset: Int,
++        @RequestParam(required = false) fulfilment: String?,
++    ): ResponseEntity<List<Order>> {
++        if (limit < 1 || limit > 100) {
++            throw ValidationException(
++                "Invalid limit",
++                listOf(FieldViolation("limit", "limit must be between 1 and 100")),
++            )
++        }
++        if (offset < 0) {
++            throw ValidationException(
++                "Invalid offset",
++                listOf(FieldViolation("offset", "offset must be 0 or more")),
++            )
++        }
++
++        if (fulfilment != null) {
++            try {
++                FulfilmentState.valueOf(fulfilment)
++            } catch (e: IllegalArgumentException) {
++                throw ValidationException(
++                    "Invalid fulfilment",
++                    listOf(FieldViolation("fulfilment", "fulfilment is not a valid status")),
++                )
++            }
++        }
++
++        var orders = repository.findAll().map { it.withFulfilment(shipmentRepository) }
++
++        if (fulfilment != null) {
++            val state = FulfilmentState.valueOf(fulfilment)
++            orders = orders.filter { it.fulfilment?.status == state }
++        }
++
++        val paged = orders.drop(offset).take(limit)
++        val headers = HttpHeaders().apply {
++            add("X-Total-Count", orders.size.toString())
++        }
++        return ResponseEntity.ok().headers(headers).body(paged)
++    }
++
++    @PutMapping("/{orderId}/quantity")
++    fun updateQuantity(
++        @PathVariable orderId: String,
++        @RequestBody request: UpdateOrderQuantityRequest,
++    ): Order {
++        if (request.quantity < 1) {
++            throw ValidationException(
++                "Invalid quantity",
++                listOf(FieldViolation("quantity", "quantity must be positive")),
++            )
++        }
++
++        val order = repository.findById(orderId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.ORDER_NOT_FOUND,
++                "No order with id '$orderId'",
++            )
++
++        val shipments = shipmentRepository.findByOrderId(orderId)
++        val allocated = shipments
++            .filter { it.status != ShipmentStatus.CANCELLED }
++            .sumOf { it.quantity }
++
++        if (request.quantity < allocated) {
++            throw ConflictException(
++                ErrorCode.VALIDATION_FAILED,
++                "New quantity is below allocated quantity",
++            )
++        }
++
++        val updated = order.copy(quantity = request.quantity)
++        repository.save(updated)
++        return updated.withFulfilment(shipmentRepository)
++    }
++}
++
++fun Order.withFulfilment(shipmentRepository: InMemoryShipmentRepository): Order {
++    val shipments = shipmentRepository.findByOrderId(orderId)
++    val allocated = shipments
++        .filter { it.status != ShipmentStatus.CANCELLED }
++        .sumOf { it.quantity }
++    val delivered = shipments
++        .filter { it.status == ShipmentStatus.DELIVERED }
++        .sumOf { it.quantity }
++
++    val state = when {
++        delivered >= quantity -> FulfilmentState.DELIVERED
++        allocated >= quantity -> FulfilmentState.FULLY_ALLOCATED
++        allocated > 0 -> FulfilmentState.PARTIALLY_ALLOCATED
++        else -> FulfilmentState.UNALLOCATED
++    }
++
++    return copy(fulfilment = FulfilmentStatus(allocated, delivered, state))
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderRepository.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderRepository.kt
+index e67302e..a47447f 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderRepository.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderRepository.kt
+@@ -3,10 +3,6 @@ package com.unityinflow.sample.order
+ import java.util.concurrent.ConcurrentHashMap
+ import org.springframework.stereotype.Repository
+ 
+-/**
+- * In-memory for the same reason as the customer store: a benchmark fixture must start
+- * with `./mvnw test` and no external infrastructure.
+- */
+ @Repository
+ class InMemoryOrderRepository {
+ 
+@@ -23,5 +19,12 @@ class InMemoryOrderRepository {
+ 
+     fun findAll(): List<Order> = store.values.sortedBy { it.orderId }
+ 
++    fun findAllPaged(limit: Int, offset: Int): List<Order> {
++        val sorted = store.values.sortedBy { it.orderId }
++        return sorted.drop(offset).take(limit)
++    }
++
++    fun count(): Int = store.size
++
+     fun clear() = store.clear()
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+index afe4e86..7c4103c 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+@@ -1,28 +1,17 @@
+ package com.unityinflow.sample.shipment
+ 
+-/**
+- * A shipment raised against an order.
+- *
+- * This is the baseline (pre-benchmark) shape. BE-003 asks an agent to add a confirm
+- * transition; the baseline deliberately has no way to move a shipment out of [CREATED].
+- */
+ data class Shipment(
+     val shipmentId: String,
+     val orderId: String,
+     val carrier: String,
+     val status: ShipmentStatus,
++    val quantity: Int = 1,
+ )
+ 
+-/**
+- * The lifecycle of a shipment.
+- *
+- * [CANCELLED] is terminal. It is reachable in the fixture only by writing it directly to
+- * the repository — there is no cancel endpoint — which is enough for a test to set up the
+- * state without giving the benchmark a second unrelated feature to implement.
+- */
+ enum class ShipmentStatus {
+     CREATED,
+     CONFIRMED,
++    DELIVERED,
+     CANCELLED,
+ }
+ 
+@@ -30,4 +19,5 @@ data class CreateShipmentRequest(
+     val shipmentId: String,
+     val orderId: String,
+     val carrier: String,
++    val quantity: Int = 1,
+ )
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7..0f21adf 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -2,7 +2,11 @@ package com.unityinflow.sample.shipment
+ 
+ import com.unityinflow.sample.api.ConflictException
+ import com.unityinflow.sample.api.ErrorCode
++import com.unityinflow.sample.api.FieldViolation
+ import com.unityinflow.sample.api.ResourceNotFoundException
++import com.unityinflow.sample.api.ValidationException
++import com.unityinflow.sample.order.InMemoryOrderRepository
++import org.springframework.http.HttpHeaders
+ import org.springframework.http.HttpStatus
+ import org.springframework.http.ResponseEntity
+ import org.springframework.web.bind.annotation.GetMapping
+@@ -10,21 +14,25 @@ import org.springframework.web.bind.annotation.PathVariable
+ import org.springframework.web.bind.annotation.PostMapping
+ import org.springframework.web.bind.annotation.RequestBody
+ import org.springframework.web.bind.annotation.RequestMapping
++import org.springframework.web.bind.annotation.RequestParam
+ import org.springframework.web.bind.annotation.RestController
+ 
+-/**
+- * Baseline shipment API: create, read, list.
+- *
+- * There is deliberately no way to confirm a shipment. That is BE-003.
+- */
+ @RestController
+ @RequestMapping("/shipments")
+ class ShipmentController(
+     private val repository: InMemoryShipmentRepository,
++    private val orderRepository: InMemoryOrderRepository,
+ ) {
+ 
+     @PostMapping
+     fun create(@RequestBody request: CreateShipmentRequest): ResponseEntity<Shipment> {
++        if (request.quantity < 1) {
++            throw ValidationException(
++                "Invalid quantity",
++                listOf(FieldViolation("quantity", "quantity must be positive")),
++            )
++        }
++
+         if (repository.existsById(request.shipmentId)) {
+             throw ConflictException(
+                 ErrorCode.SHIPMENT_ALREADY_EXISTS,
+@@ -32,12 +40,28 @@ class ShipmentController(
+             )
+         }
+ 
++        val order = orderRepository.findById(request.orderId)
++        if (order != null) {
++            val existingShipments = repository.findByOrderId(request.orderId)
++            val allocated = existingShipments
++                .filter { it.status != ShipmentStatus.CANCELLED }
++                .sumOf { it.quantity }
++
++            if (allocated + request.quantity > order.quantity) {
++                throw ConflictException(
++                    ErrorCode.VALIDATION_FAILED,
++                    "Shipment would exceed order quantity",
++                )
++            }
++        }
++
+         val saved = repository.save(
+             Shipment(
+                 shipmentId = request.shipmentId,
+                 orderId = request.orderId,
+                 carrier = request.carrier,
+                 status = ShipmentStatus.CREATED,
++                quantity = request.quantity,
+             ),
+         )
+         return ResponseEntity.status(HttpStatus.CREATED).body(saved)
+@@ -52,5 +76,87 @@ class ShipmentController(
+             )
+ 
+     @GetMapping
+-    fun list(): List<Shipment> = repository.findAll()
++    fun list(
++        @RequestParam(defaultValue = "100") limit: Int,
++        @RequestParam(defaultValue = "0") offset: Int,
++    ): ResponseEntity<List<Shipment>> {
++        if (limit < 1 || limit > 100) {
++            throw ValidationException(
++                "Invalid limit",
++                listOf(FieldViolation("limit", "limit must be between 1 and 100")),
++            )
++        }
++        if (offset < 0) {
++            throw ValidationException(
++                "Invalid offset",
++                listOf(FieldViolation("offset", "offset must be 0 or more")),
++            )
++        }
++
++        val shipments = repository.findAllPaged(limit, offset)
++        val headers = HttpHeaders().apply {
++            add("X-Total-Count", repository.count().toString())
++        }
++        return ResponseEntity.ok().headers(headers).body(shipments)
++    }
++
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        if (shipment.status != ShipmentStatus.CREATED) {
++            throw ConflictException(
++                ErrorCode.VALIDATION_FAILED,
++                "Cannot confirm shipment in ${shipment.status} status",
++            )
++        }
++
++        val updated = shipment.copy(status = ShipmentStatus.CONFIRMED)
++        repository.save(updated)
++        return updated
++    }
++
++    @PostMapping("/{shipmentId}/deliver")
++    fun deliver(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        if (shipment.status != ShipmentStatus.CONFIRMED) {
++            throw ConflictException(
++                ErrorCode.VALIDATION_FAILED,
++                "Cannot deliver shipment in ${shipment.status} status",
++            )
++        }
++
++        val updated = shipment.copy(status = ShipmentStatus.DELIVERED)
++        repository.save(updated)
++        return updated
++    }
++
++    @PostMapping("/{shipmentId}/cancel")
++    fun cancel(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        if (shipment.status != ShipmentStatus.CREATED) {
++            throw ConflictException(
++                ErrorCode.VALIDATION_FAILED,
++                "Cannot cancel shipment in ${shipment.status} status",
++            )
++        }
++
++        val updated = shipment.copy(status = ShipmentStatus.CANCELLED)
++        repository.save(updated)
++        return updated
++    }
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+index 8b1bd7d..d7baa7d 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+@@ -3,10 +3,6 @@ package com.unityinflow.sample.shipment
+ import java.util.concurrent.ConcurrentHashMap
+ import org.springframework.stereotype.Repository
+ 
+-/**
+- * In-memory for the same reason as the order store: a benchmark fixture must start with
+- * `./mvnw test` and no external infrastructure.
+- */
+ @Repository
+ class InMemoryShipmentRepository {
+ 
+@@ -23,5 +19,15 @@ class InMemoryShipmentRepository {
+ 
+     fun findAll(): List<Shipment> = store.values.sortedBy { it.shipmentId }
+ 
++    fun findAllPaged(limit: Int, offset: Int): List<Shipment> {
++        val sorted = store.values.sortedBy { it.shipmentId }
++        return sorted.drop(offset).take(limit)
++    }
++
++    fun findByOrderId(orderId: String): List<Shipment> =
++        store.values.filter { it.orderId == orderId }.sortedBy { it.shipmentId }
++
++    fun count(): Int = store.size
++
+     fun clear() = store.clear()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/customer/CustomerControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/customer/CustomerControllerTest.kt
+index e174d00..85e1f34 100644
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/customer/CustomerControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/customer/CustomerControllerTest.kt
+@@ -53,8 +53,10 @@ class CustomerControllerTest {
+     }
+ 
+     @Test
+-    fun `returns 404 for an unknown customer`() {
++    fun `returns 404 with the error envelope for an unknown customer`() {
+         mockMvc.perform(get("/customers/does-not-exist"))
+             .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("CUSTOMER_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
+     }
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt
+index f65e2c9..b5aa972 100644
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt
+@@ -1,5 +1,6 @@
+ package com.unityinflow.sample.order
+ 
++import com.unityinflow.sample.customer.InMemoryCustomerRepository
+ import org.junit.jupiter.api.BeforeEach
+ import org.junit.jupiter.api.Test
+ import org.springframework.beans.factory.annotation.Autowired
+@@ -12,13 +13,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+ 
+-/**
+- * Baseline behaviour of the order feature. BE-002 must not break any of these.
+- *
+- * Note how the failure cases assert the response *body*, not just the status: the error
+- * envelope is part of the API contract, so a change that returns the right status with
+- * the wrong shape is a breaking change for clients.
+- */
+ @SpringBootTest
+ @AutoConfigureMockMvc
+ class OrderControllerTest {
+@@ -29,8 +23,14 @@ class OrderControllerTest {
+     @Autowired
+     lateinit var repository: InMemoryOrderRepository
+ 
++    @Autowired
++    lateinit var customerRepository: InMemoryCustomerRepository
++
+     @BeforeEach
+-    fun reset() = repository.clear()
++    fun reset() {
++        repository.clear()
++        customerRepository.clear()
++    }
+ 
+     private fun createOrder(orderId: String, amount: String = "49.90") =
+         post("/orders")
+@@ -41,6 +41,12 @@ class OrderControllerTest {
+ 
+     @Test
+     fun `creates an order and returns 201`() {
++        mockMvc.perform(
++            post("/customers")
++                .contentType(MediaType.APPLICATION_JSON)
++                .content("""{"customerId":"C-1","name":"Test Customer","email":"test@example.com"}"""),
++        ).andExpect(status().isCreated)
++
+         mockMvc.perform(createOrder("O-1"))
+             .andExpect(status().isCreated)
+             .andExpect(jsonPath("$.orderId").value("O-1"))
+@@ -48,6 +54,12 @@ class OrderControllerTest {
+ 
+     @Test
+     fun `reads back a created order`() {
++        mockMvc.perform(
++            post("/customers")
++                .contentType(MediaType.APPLICATION_JSON)
++                .content("""{"customerId":"C-1","name":"Test Customer","email":"test@example.com"}"""),
++        ).andExpect(status().isCreated)
++
+         mockMvc.perform(createOrder("O-2")).andExpect(status().isCreated)
+ 
+         mockMvc.perform(get("/orders/O-2"))
+@@ -65,6 +77,12 @@ class OrderControllerTest {
+ 
+     @Test
+     fun `returns 409 with the error envelope for a duplicate order id`() {
++        mockMvc.perform(
++            post("/customers")
++                .contentType(MediaType.APPLICATION_JSON)
++                .content("""{"customerId":"C-1","name":"Test Customer","email":"test@example.com"}"""),
++        ).andExpect(status().isCreated)
++
+         mockMvc.perform(createOrder("O-3")).andExpect(status().isCreated)
+ 
+         mockMvc.perform(createOrder("O-3"))

@@ -1,0 +1,618 @@
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+index ab3fe64..9530244 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+@@ -33,5 +33,8 @@ enum class ErrorCode {
+     ORDER_ALREADY_EXISTS,
+     SHIPMENT_NOT_FOUND,
+     SHIPMENT_ALREADY_EXISTS,
++    CUSTOMER_NOT_FOUND,
++    CUSTOMER_DOES_NOT_EXIST,
++    INVALID_SHIPMENT_ALLOCATION,
+     VALIDATION_FAILED,
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiExceptions.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiExceptions.kt
+index a5a82da..7cd7f99 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiExceptions.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiExceptions.kt
+@@ -28,3 +28,9 @@ class ValidationException(
+     message: String,
+     fields: List<FieldViolation> = emptyList(),
+ ) : ApiException(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED, message, fields)
++
++/** The request cannot be processed due to semantic errors → 422. */
++class UnprocessableEntityException(
++    code: ErrorCode,
++    message: String,
++) : ApiException(HttpStatus.UNPROCESSABLE_ENTITY, code, message)
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerController.kt
+index 590f37d..cc2d379 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerController.kt
+@@ -1,5 +1,9 @@
+ package com.unityinflow.sample.customer
+ 
++import com.unityinflow.sample.api.ErrorCode
++import com.unityinflow.sample.api.FieldViolation
++import com.unityinflow.sample.api.ResourceNotFoundException
++import com.unityinflow.sample.api.ValidationException
+ import org.springframework.http.HttpStatus
+ import org.springframework.http.ResponseEntity
+ import org.springframework.web.bind.annotation.GetMapping
+@@ -7,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable
+ import org.springframework.web.bind.annotation.PostMapping
+ import org.springframework.web.bind.annotation.RequestBody
+ import org.springframework.web.bind.annotation.RequestMapping
++import org.springframework.web.bind.annotation.RequestParam
+ import org.springframework.web.bind.annotation.RestController
+ 
+ @RestController
+@@ -22,11 +27,36 @@ class CustomerController(
+     }
+ 
+     @GetMapping("/{customerId}")
+-    fun getById(@PathVariable customerId: String): ResponseEntity<Customer> =
++    fun getById(@PathVariable customerId: String): Customer =
+         repository.findById(customerId)
+-            ?.let { ResponseEntity.ok(it) }
+-            ?: ResponseEntity.notFound().build()
++            ?: throw ResourceNotFoundException(
++                ErrorCode.CUSTOMER_NOT_FOUND,
++                "No customer with id '$customerId'",
++            )
+ 
+     @GetMapping
+-    fun list(): List<Customer> = repository.findAll()
++    fun list(
++        @RequestParam(defaultValue = "100") limit: Int,
++        @RequestParam(defaultValue = "0") offset: Int,
++    ): ResponseEntity<List<Customer>> {
++        validatePaginationParams(limit, offset)
++
++        val (customers, total) = repository.findAll(limit, offset)
++        return ResponseEntity.ok()
++            .header("X-Total-Count", total.toString())
++            .body(customers)
++    }
++
++    private fun validatePaginationParams(limit: Int, offset: Int) {
++        val violations = mutableListOf<FieldViolation>()
++        if (limit < 1 || limit > 100) {
++            violations.add(FieldViolation("limit", "Must be between 1 and 100"))
++        }
++        if (offset < 0) {
++            violations.add(FieldViolation("offset", "Must be 0 or greater"))
++        }
++        if (violations.isNotEmpty()) {
++            throw ValidationException("Invalid pagination parameters", violations)
++        }
++    }
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerRepository.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerRepository.kt
+index 7b97870..e5ea95f 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerRepository.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerRepository.kt
+@@ -21,5 +21,12 @@ class InMemoryCustomerRepository {
+ 
+     fun findAll(): List<Customer> = store.values.sortedBy { it.customerId }
+ 
++    fun findAll(limit: Int, offset: Int): Pair<List<Customer>, Int> {
++        val all = findAll()
++        val total = all.size
++        val paginated = all.drop(offset).take(limit)
++        return Pair(paginated, total)
++    }
++
+     fun clear() = store.clear()
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/order/Order.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/order/Order.kt
+index 90f2f56..f1b1570 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/order/Order.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/order/Order.kt
+@@ -13,6 +13,8 @@ data class Order(
+     val customerId: String,
+     val amount: BigDecimal,
+     val currency: String,
++    val quantity: Int = 1,
++    val fulfilment: FulfilmentStatus? = null,
+ )
+ 
+ data class CreateOrderRequest(
+@@ -20,4 +22,18 @@ data class CreateOrderRequest(
+     val customerId: String,
+     val amount: BigDecimal,
+     val currency: String,
++    val quantity: Int = 1,
+ )
++
++data class FulfilmentStatus(
++    val allocated: Int,
++    val delivered: Int,
++    val status: FulfilmentStatusCode,
++)
++
++enum class FulfilmentStatusCode {
++    UNALLOCATED,
++    PARTIALLY_ALLOCATED,
++    FULLY_ALLOCATED,
++    DELIVERED,
++}
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt
+index afd95de..d6be0d7 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt
+@@ -2,7 +2,11 @@ package com.unityinflow.sample.order
+ 
+ import com.unityinflow.sample.api.ConflictException
+ import com.unityinflow.sample.api.ErrorCode
++import com.unityinflow.sample.api.FieldViolation
+ import com.unityinflow.sample.api.ResourceNotFoundException
++import com.unityinflow.sample.api.UnprocessableEntityException
++import com.unityinflow.sample.api.ValidationException
++import com.unityinflow.sample.customer.InMemoryCustomerRepository
+ import org.springframework.http.HttpStatus
+ import org.springframework.http.ResponseEntity
+ import org.springframework.web.bind.annotation.GetMapping
+@@ -10,12 +14,14 @@ import org.springframework.web.bind.annotation.PathVariable
+ import org.springframework.web.bind.annotation.PostMapping
+ import org.springframework.web.bind.annotation.RequestBody
+ import org.springframework.web.bind.annotation.RequestMapping
++import org.springframework.web.bind.annotation.RequestParam
+ import org.springframework.web.bind.annotation.RestController
+ 
+ @RestController
+ @RequestMapping("/orders")
+ class OrderController(
+     private val repository: InMemoryOrderRepository,
++    private val customerRepository: InMemoryCustomerRepository,
+ ) {
+ 
+     @PostMapping
+@@ -27,8 +33,29 @@ class OrderController(
+             )
+         }
+ 
++        if (request.quantity < 1) {
++            throw ValidationException(
++                "Quantity must be positive",
++                listOf(FieldViolation("quantity", "Must be at least 1")),
++            )
++        }
++
++        if (customerRepository.findById(request.customerId) == null) {
++            throw UnprocessableEntityException(
++                ErrorCode.CUSTOMER_DOES_NOT_EXIST,
++                "Customer with id '${request.customerId}' does not exist",
++            )
++        }
++
+         val saved = repository.save(
+-            Order(request.orderId, request.customerId, request.amount, request.currency),
++            Order(
++                request.orderId,
++                request.customerId,
++                request.amount,
++                request.currency,
++                request.quantity,
++                FulfilmentStatus(0, 0, FulfilmentStatusCode.UNALLOCATED),
++            ),
+         )
+         return ResponseEntity.status(HttpStatus.CREATED).body(saved)
+     }
+@@ -42,5 +69,42 @@ class OrderController(
+             )
+ 
+     @GetMapping
+-    fun list(): List<Order> = repository.findAll()
++    fun list(
++        @RequestParam(defaultValue = "100") limit: Int,
++        @RequestParam(defaultValue = "0") offset: Int,
++        @RequestParam(required = false) fulfilment: String?,
++    ): ResponseEntity<List<Order>> {
++        validatePaginationParams(limit, offset)
++
++        val (orders, total) = if (fulfilment != null) {
++            val status = try {
++                FulfilmentStatusCode.valueOf(fulfilment)
++            } catch (e: IllegalArgumentException) {
++                throw ValidationException(
++                    "Invalid fulfilment status",
++                    listOf(FieldViolation("fulfilment", "Unknown status: $fulfilment")),
++                )
++            }
++            repository.findByFulfilmentStatus(status, limit, offset)
++        } else {
++            repository.findAll(limit, offset)
++        }
++
++        return ResponseEntity.ok()
++            .header("X-Total-Count", total.toString())
++            .body(orders)
++    }
++
++    private fun validatePaginationParams(limit: Int, offset: Int) {
++        val violations = mutableListOf<FieldViolation>()
++        if (limit < 1 || limit > 100) {
++            violations.add(FieldViolation("limit", "Must be between 1 and 100"))
++        }
++        if (offset < 0) {
++            violations.add(FieldViolation("offset", "Must be 0 or greater"))
++        }
++        if (violations.isNotEmpty()) {
++            throw ValidationException("Invalid pagination parameters", violations)
++        }
++    }
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderRepository.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderRepository.kt
+index e67302e..6b46803 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderRepository.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderRepository.kt
+@@ -23,5 +23,22 @@ class InMemoryOrderRepository {
+ 
+     fun findAll(): List<Order> = store.values.sortedBy { it.orderId }
+ 
++    fun findAll(limit: Int, offset: Int): Pair<List<Order>, Int> {
++        val all = findAll()
++        val total = all.size
++        val paginated = all.drop(offset).take(limit)
++        return Pair(paginated, total)
++    }
++
++    fun findByFulfilmentStatus(status: FulfilmentStatusCode): List<Order> =
++        store.values.filter { it.fulfilment?.status == status }.sortedBy { it.orderId }
++
++    fun findByFulfilmentStatus(status: FulfilmentStatusCode, limit: Int, offset: Int): Pair<List<Order>, Int> {
++        val all = findByFulfilmentStatus(status)
++        val total = all.size
++        val paginated = all.drop(offset).take(limit)
++        return Pair(paginated, total)
++    }
++
+     fun clear() = store.clear()
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+index afe4e86..79f00b7 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+@@ -11,6 +11,7 @@ data class Shipment(
+     val orderId: String,
+     val carrier: String,
+     val status: ShipmentStatus,
++    val quantity: Int = 1,
+ )
+ 
+ /**
+@@ -23,6 +24,7 @@ data class Shipment(
+ enum class ShipmentStatus {
+     CREATED,
+     CONFIRMED,
++    DELIVERED,
+     CANCELLED,
+ }
+ 
+@@ -30,4 +32,5 @@ data class CreateShipmentRequest(
+     val shipmentId: String,
+     val orderId: String,
+     val carrier: String,
++    val quantity: Int = 1,
+ )
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7..728ebe8 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -2,7 +2,12 @@ package com.unityinflow.sample.shipment
+ 
+ import com.unityinflow.sample.api.ConflictException
+ import com.unityinflow.sample.api.ErrorCode
++import com.unityinflow.sample.api.FieldViolation
+ import com.unityinflow.sample.api.ResourceNotFoundException
++import com.unityinflow.sample.api.ValidationException
++import com.unityinflow.sample.order.FulfilmentStatus
++import com.unityinflow.sample.order.FulfilmentStatusCode
++import com.unityinflow.sample.order.InMemoryOrderRepository
+ import org.springframework.http.HttpStatus
+ import org.springframework.http.ResponseEntity
+ import org.springframework.web.bind.annotation.GetMapping
+@@ -10,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable
+ import org.springframework.web.bind.annotation.PostMapping
+ import org.springframework.web.bind.annotation.RequestBody
+ import org.springframework.web.bind.annotation.RequestMapping
++import org.springframework.web.bind.annotation.RequestParam
+ import org.springframework.web.bind.annotation.RestController
+ 
+ /**
+@@ -21,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController
+ @RequestMapping("/shipments")
+ class ShipmentController(
+     private val repository: InMemoryShipmentRepository,
++    private val orderRepository: InMemoryOrderRepository,
+ ) {
+ 
+     @PostMapping
+@@ -32,12 +39,38 @@ class ShipmentController(
+             )
+         }
+ 
++        if (request.quantity < 1) {
++            throw ValidationException(
++                "Quantity must be positive",
++                listOf(FieldViolation("quantity", "Must be at least 1")),
++            )
++        }
++
++        val order = orderRepository.findById(request.orderId)
++        if (order != null) {
++            val allocatedQuantity = repository.findByOrderId(request.orderId)
++                .filter { it.status != ShipmentStatus.CANCELLED }
++                .sumOf { it.quantity }
++
++            if (allocatedQuantity + request.quantity > order.quantity) {
++                throw ConflictException(
++                    ErrorCode.INVALID_SHIPMENT_ALLOCATION,
++                    "Shipment would exceed order quantity",
++                )
++            }
++
++            val newFulfilment = calculateFulfilment(order, request.orderId, request.quantity)
++            val updatedOrder = order.copy(fulfilment = newFulfilment)
++            orderRepository.save(updatedOrder)
++        }
++
+         val saved = repository.save(
+             Shipment(
+                 shipmentId = request.shipmentId,
+                 orderId = request.orderId,
+                 carrier = request.carrier,
+                 status = ShipmentStatus.CREATED,
++                quantity = request.quantity,
+             ),
+         )
+         return ResponseEntity.status(HttpStatus.CREATED).body(saved)
+@@ -52,5 +85,167 @@ class ShipmentController(
+             )
+ 
+     @GetMapping
+-    fun list(): List<Shipment> = repository.findAll()
++    fun list(
++        @RequestParam(defaultValue = "100") limit: Int,
++        @RequestParam(defaultValue = "0") offset: Int,
++    ): ResponseEntity<List<Shipment>> {
++        validatePaginationParams(limit, offset)
++
++        val (shipments, total) = repository.findAll(limit, offset)
++        return ResponseEntity.ok()
++            .header("X-Total-Count", total.toString())
++            .body(shipments)
++    }
++
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        if (shipment.status != ShipmentStatus.CREATED) {
++            throw ConflictException(
++                ErrorCode.INVALID_SHIPMENT_ALLOCATION,
++                "Cannot confirm shipment in ${shipment.status} status",
++            )
++        }
++
++        val updated = shipment.copy(status = ShipmentStatus.CONFIRMED)
++        return repository.save(updated)
++    }
++
++    @PostMapping("/{shipmentId}/deliver")
++    fun deliver(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        if (shipment.status != ShipmentStatus.CONFIRMED) {
++            throw ConflictException(
++                ErrorCode.INVALID_SHIPMENT_ALLOCATION,
++                "Cannot deliver shipment in ${shipment.status} status",
++            )
++        }
++
++        val updated = shipment.copy(status = ShipmentStatus.DELIVERED)
++        val savedShipment = repository.save(updated)
++
++        val order = orderRepository.findById(shipment.orderId)
++        if (order != null) {
++            val newFulfilment = calculateFulfilmentWithDelivery(order, shipment.orderId)
++            val updatedOrder = order.copy(fulfilment = newFulfilment)
++            orderRepository.save(updatedOrder)
++        }
++
++        return savedShipment
++    }
++
++    @PostMapping("/{shipmentId}/cancel")
++    fun cancel(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        if (shipment.status != ShipmentStatus.CREATED) {
++            throw ConflictException(
++                ErrorCode.INVALID_SHIPMENT_ALLOCATION,
++                "Cannot cancel shipment in ${shipment.status} status",
++            )
++        }
++
++        val updated = shipment.copy(status = ShipmentStatus.CANCELLED)
++        val savedShipment = repository.save(updated)
++
++        val order = orderRepository.findById(shipment.orderId)
++        if (order != null) {
++            val newFulfilment = calculateFulfilmentAfterCancel(order, shipment.orderId)
++            val updatedOrder = order.copy(fulfilment = newFulfilment)
++            orderRepository.save(updatedOrder)
++        }
++
++        return savedShipment
++    }
++
++    private fun calculateFulfilment(
++        order: com.unityinflow.sample.order.Order,
++        orderId: String,
++        newQuantity: Int,
++    ): FulfilmentStatus {
++        val allocatedQuantity = repository.findByOrderId(orderId)
++            .filter { it.status != ShipmentStatus.CANCELLED }
++            .sumOf { it.quantity } + newQuantity
++        val deliveredQuantity = repository.findByOrderId(orderId)
++            .filter { it.status == ShipmentStatus.DELIVERED }
++            .sumOf { it.quantity }
++
++        val status = when {
++            deliveredQuantity >= order.quantity -> FulfilmentStatusCode.DELIVERED
++            allocatedQuantity >= order.quantity -> FulfilmentStatusCode.FULLY_ALLOCATED
++            allocatedQuantity > 0 -> FulfilmentStatusCode.PARTIALLY_ALLOCATED
++            else -> FulfilmentStatusCode.UNALLOCATED
++        }
++
++        return FulfilmentStatus(allocatedQuantity, deliveredQuantity, status)
++    }
++
++    private fun calculateFulfilmentWithDelivery(
++        order: com.unityinflow.sample.order.Order,
++        orderId: String,
++    ): FulfilmentStatus {
++        val allocatedQuantity = repository.findByOrderId(orderId)
++            .filter { it.status != ShipmentStatus.CANCELLED }
++            .sumOf { it.quantity }
++        val deliveredQuantity = repository.findByOrderId(orderId)
++            .filter { it.status == ShipmentStatus.DELIVERED }
++            .sumOf { it.quantity }
++
++        val status = when {
++            deliveredQuantity >= order.quantity -> FulfilmentStatusCode.DELIVERED
++            allocatedQuantity >= order.quantity -> FulfilmentStatusCode.FULLY_ALLOCATED
++            allocatedQuantity > 0 -> FulfilmentStatusCode.PARTIALLY_ALLOCATED
++            else -> FulfilmentStatusCode.UNALLOCATED
++        }
++
++        return FulfilmentStatus(allocatedQuantity, deliveredQuantity, status)
++    }
++
++    private fun calculateFulfilmentAfterCancel(
++        order: com.unityinflow.sample.order.Order,
++        orderId: String,
++    ): FulfilmentStatus {
++        val allocatedQuantity = repository.findByOrderId(orderId)
++            .filter { it.status != ShipmentStatus.CANCELLED }
++            .sumOf { it.quantity }
++        val deliveredQuantity = repository.findByOrderId(orderId)
++            .filter { it.status == ShipmentStatus.DELIVERED }
++            .sumOf { it.quantity }
++
++        val status = when {
++            deliveredQuantity >= order.quantity -> FulfilmentStatusCode.DELIVERED
++            allocatedQuantity >= order.quantity -> FulfilmentStatusCode.FULLY_ALLOCATED
++            allocatedQuantity > 0 -> FulfilmentStatusCode.PARTIALLY_ALLOCATED
++            else -> FulfilmentStatusCode.UNALLOCATED
++        }
++
++        return FulfilmentStatus(allocatedQuantity, deliveredQuantity, status)
++    }
++
++    private fun validatePaginationParams(limit: Int, offset: Int) {
++        val violations = mutableListOf<FieldViolation>()
++        if (limit < 1 || limit > 100) {
++            violations.add(FieldViolation("limit", "Must be between 1 and 100"))
++        }
++        if (offset < 0) {
++            violations.add(FieldViolation("offset", "Must be 0 or greater"))
++        }
++        if (violations.isNotEmpty()) {
++            throw ValidationException("Invalid pagination parameters", violations)
++        }
++    }
+ }
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+index 8b1bd7d..1901dd3 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+@@ -23,5 +23,15 @@ class InMemoryShipmentRepository {
+ 
+     fun findAll(): List<Shipment> = store.values.sortedBy { it.shipmentId }
+ 
++    fun findAll(limit: Int, offset: Int): Pair<List<Shipment>, Int> {
++        val all = findAll()
++        val total = all.size
++        val paginated = all.drop(offset).take(limit)
++        return Pair(paginated, total)
++    }
++
++    fun findByOrderId(orderId: String): List<Shipment> =
++        store.values.filter { it.orderId == orderId }.sortedBy { it.shipmentId }
++
+     fun clear() = store.clear()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/customer/CustomerControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/customer/CustomerControllerTest.kt
+index e174d00..85e1f34 100644
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/customer/CustomerControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/customer/CustomerControllerTest.kt
+@@ -53,8 +53,10 @@ class CustomerControllerTest {
+     }
+ 
+     @Test
+-    fun `returns 404 for an unknown customer`() {
++    fun `returns 404 with the error envelope for an unknown customer`() {
+         mockMvc.perform(get("/customers/does-not-exist"))
+             .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("CUSTOMER_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
+     }
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt
+index f65e2c9..513fa6b 100644
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt
+@@ -1,5 +1,6 @@
+ package com.unityinflow.sample.order
+ 
++import com.unityinflow.sample.customer.InMemoryCustomerRepository
+ import org.junit.jupiter.api.BeforeEach
+ import org.junit.jupiter.api.Test
+ import org.springframework.beans.factory.annotation.Autowired
+@@ -29,14 +30,28 @@ class OrderControllerTest {
+     @Autowired
+     lateinit var repository: InMemoryOrderRepository
+ 
++    @Autowired
++    lateinit var customerRepository: InMemoryCustomerRepository
++
+     @BeforeEach
+-    fun reset() = repository.clear()
++    fun reset() {
++        repository.clear()
++        customerRepository.clear()
++        createCustomer("C-1")
++    }
++
++    private fun createCustomer(customerId: String) =
++        mockMvc.perform(
++            post("/customers")
++                .contentType(MediaType.APPLICATION_JSON)
++                .content("""{"customerId":"$customerId","name":"Test","email":"test@example.com"}"""),
++        )
+ 
+-    private fun createOrder(orderId: String, amount: String = "49.90") =
++    private fun createOrder(orderId: String, amount: String = "49.90", customerId: String = "C-1") =
+         post("/orders")
+             .contentType(MediaType.APPLICATION_JSON)
+             .content(
+-                """{"orderId":"$orderId","customerId":"C-1","amount":$amount,"currency":"EUR"}""",
++                """{"orderId":"$orderId","customerId":"$customerId","amount":$amount,"currency":"EUR"}""",
+             )
+ 
+     @Test
