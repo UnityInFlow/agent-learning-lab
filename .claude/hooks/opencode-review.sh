@@ -62,7 +62,11 @@
 # then `--git-dir`, then `--no-pager`, then a quoted directory — and a regex reading a shell
 # command line does not run out of forms. The third outcome is the fix instead:
 #
-#   RECOGNISED as a push (or a `gh pr create`) — review it, as before.
+#   RECOGNISED as a push (or a `gh pr create`) THIS TREE RUNS — review it, as before. The
+#     second half is the first-token rule added 2026-09-24: the command is split on the
+#     shell's separators, quote-aware, and it is reviewable only if some segment's FIRST TOKEN
+#     is `git` or `gh`. Recognising a push and being able to place it in this tree are two
+#     different things, and matching the trigger only ever bought the first.
 #   ESTABLISHED not to be one — SILENT. Either no push token stands anywhere the trigger could
 #     have reached (`git status`, `pushd /tmp`, `git pushdown origin`, `gh pr created 3`), or
 #     there is one and the hook READ its way past it: every token between the command name and
@@ -112,6 +116,13 @@
 #       token before it carries shell quoting or command substitution (`git -C "my repo" push`,
 #       `git $(cat d) push`). Round 5's finding, and the third branch of the classification
 #       above: unrecognised is now declined by default rather than by enumeration.
+#     the push runs through another program . a recognised push whose command has NO segment
+#       whose FIRST TOKEN is `git` or `gh` — `ssh host 'git push'`, `bash -c 'git push'`,
+#       `sh -c`, `eval`, `sudo`, `env`, `docker exec …`. Every one of these matched the
+#       trigger and was reviewed against whatever tree this file stands in, announcing
+#       `reviewing N artifact(s)` about a push executing elsewhere. It is a whitelist, not a
+#       sixth enumerated prefix: an unlisted wrapper declines by default rather than lying by
+#       default. PRE-EXISTING — `ssh host 'git push'` matched the original trigger too.
 #     repo root unreachable ............. cannot locate the tree it would have examined.
 #     stdin unreadable (`cat` failed) ... the call was never read — not the same as empty.
 #     the payload is not JSON ........... whether this was a push could not be established.
@@ -300,7 +311,80 @@ _readable_run='([^[:space:]]+[[:space:]]+)*'
 _opt_lead="(-[^[:space:]]*[[:space:]]+${_readable_run})?"
 _undecided="(^|[^[:alnum:]_-])(git|gh)[[:space:]]+${_opt_lead}(${_unreadable_tok})[[:space:]]+${_readable_run}(push|pr[[:space:]]+create)([^[:alnum:]_-]|\$)"
 
-if ! [[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]]; then
+# WHOSE TREE THE PUSH RUNS IN — positive recognition, and the reason no list of delegation
+# prefixes appears anywhere below. Everything above asks whether a PUSH is in the command;
+# until 2026-09-24 nothing asked whether THIS MACHINE'S TREE is the one it happens in.
+# `ssh build-host 'git push origin main'`, `bash -c 'git push'`, `sh -c '…'`, `eval 'git
+# push'`, `sudo git push`, `env FOO=1 git push` and `docker exec c git push` all match the
+# trigger, so the hook read every one of them as local, diffed the files under
+# ${BASH_SOURCE[0]} and announced `reviewing N artifact(s)` about a push executing somewhere
+# else. That is a FALSE REVIEW TRACE — the same family as the `-C <other repo>` review round 4
+# found, and worse than silence, because a developer reading the trace concludes the pushed
+# artifacts were seen by the critic. The shape is PRE-EXISTING: `ssh host 'git push'` matched
+# the original `git push` trigger too, before any of the option widenings above.
+#
+# THE FIX IS A WHITELIST, NOT A SIXTH BLACKLIST ENTRY. A list of delegation prefixes measures
+# whoever wrote it — `ssh`, `sudo`, `env`, `nohup`, `xargs`, `timeout`, `docker exec`, a
+# wrapper script with a name nobody here has heard of — and loses to every shape nobody
+# listed, which is the defect the three-way classification above was adopted to end. So the
+# question is inverted. The command is split into segments on the shell's own separators, and
+# a segment is a REVIEWABLE LOCAL PUSH only when its FIRST TOKEN is `git` or `gh` and the push
+# follows it with nothing but recognised options in between. Every other shape — including the
+# next delegation prefix nobody has thought of — declines by DEFAULT rather than by
+# enumeration, and the decline is announced like every other one.
+#
+# SPLITTING IS QUOTE-AWARE, and that is load-bearing rather than decorative. `ssh host 'cd /w
+# && git push'` splits on a naive `&&` into a second segment beginning `git push`, which would
+# read as local and reinstate the exact bug this replaces. A quote or a backslash suspends the
+# separators until it closes, so that command stays ONE segment whose first token is `ssh`.
+#
+# IT CANNOT NARROW THE TRIGGER, only redirect what the trigger already caught. A command with
+# no `git … push` / `gh … pr create` shape in it never reaches here, so `grep push notes.txt`
+# and `echo "do not push"` stay silent rather than announcing — the notice is reserved for a
+# command that carries a real push this hook cannot place in its own tree.
+_SEGMENTS=()
+_split_segments() {  # <command> -> _SEGMENTS: split on & | ; and newline, OUTSIDE quotes
+  local s="$1" i ch q='' cur=''
+  _SEGMENTS=()
+  for (( i = 0; i < ${#s}; i++ )); do
+    ch="${s:i:1}"
+    if [ -n "$q" ]; then               # inside '…' or "…": separators are ordinary text
+      cur+="$ch"
+      if [ "$ch" = "$q" ]; then q=''; fi
+      continue
+    fi
+    case "$ch" in
+      '\')  cur+="$ch"; i=$((i+1)); cur+="${s:i:1}" ;;   # an escape carries its next char
+      '"'|"'") q="$ch"; cur+="$ch" ;;
+      '&'|'|'|';'|$'\n') _SEGMENTS+=("$cur"); cur='' ;;
+      *) cur+="$ch" ;;
+    esac
+  done
+  _SEGMENTS+=("$cur")                  # always at least one, so `${_SEGMENTS[@]}` is safe
+}
+
+# The same two triggers, ANCHORED. `^[[:space:]]*git` is the whole first-token rule: nothing
+# may precede the command name in its segment but whitespace, and `_opts` then permits only
+# the option run the trigger above already permits before the subcommand. `git` is required to
+# end there — `gitfoo push` fails, because `_opts` cannot match `foo` and `push` does not
+# follow `git` directly.
+_local_trigger="^[[:space:]]*git${_opts}[[:space:]]+push([^[:alnum:]_-]|\$)"
+_local_trigger_pr="^[[:space:]]*gh${_opts}[[:space:]]+pr[[:space:]]+create([^[:alnum:]_-]|\$)"
+_local_push=no
+_split_segments "$command_line"
+for _seg in "${_SEGMENTS[@]}"; do
+  if [[ "$_seg" =~ $_local_trigger || "$_seg" =~ $_local_trigger_pr ]]; then
+    _local_push=yes
+    break
+  fi
+done
+
+if [[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]]; then
+  if [ "$_local_push" = no ]; then
+    echo "opencode-review hook: NOT REVIEWED — this command carries a push, and no segment of it is a push this hook can place in its own tree: the first token of every segment is something other than 'git' or 'gh', so the push is being run through another program (ssh, sudo, env, bash -c, docker exec or the like) and executes in a tree this hook cannot see. Reviewing the files under this checkout would record a review of the wrong tree. Nothing reached the critic; review it by hand, or push again from a command whose first token is git or gh." >&2
+    exit 0
+  fi
+else
   if [[ "$command_line" =~ $_undecided ]]; then
     # BASH_REMATCH: 2 is the command name, 5 the token that could not be read, 8 the push
     # token it stands in front of. Named rather than echoed whole, because the notice is about

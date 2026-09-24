@@ -162,7 +162,11 @@ done
 # 73 → 74 on 2026-09-24 (step 30, review round 1): the indented-but-well-formed glob array,
 # the shape the reader's own contract promised to accept and the only shape none of the three
 # malformed fixtures could have caught.
-EXPECTED_CASES=74
+# 74 → 81 on 2026-09-24 (step 31): the first-token rule. Four delegated shapes that used to be
+# reviewed against this tree (`ssh`, `bash -c`, `eval`, `sudo`), the quote-aware split in both
+# directions, and the guard that the new notice did not widen into every command carrying the
+# word `push`.
+EXPECTED_CASES=81
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -424,6 +428,68 @@ run_announcing "a quoted -C path is declined, not silent" "$FIXTURE" "$STUB:$PAT
 run_announcing "an unrecognised push form is declined" "$FIXTURE" "$STUB:$PATH" \
   '{"tool_name":"Bash","tool_input":{"command":"git $(cat dir) push origin main"}}' 0 \
   "NOT REVIEWED — this command carries a push token"
+
+# --- THE PUSH THAT RUNS SOMEWHERE ELSE (2026-09-24, step 31): THE FIRST-TOKEN RULE
+#
+# The third branch above asks whether the hook can READ the command. These ask the other
+# question nothing was asking: whether the push it read happens in the tree this hook stands
+# in. `ssh build-host 'git push origin main'` matches the trigger — it always did, before any
+# of the option widenings — so the hook diffed THIS checkout and announced `reviewing N
+# artifact(s)` about a push executing on another machine. A false review trace is worse than
+# silence: silence leaves the developer to look, a trace tells them someone already did.
+#
+# THE FOUR SHAPES ARE FOUR DIFFERENT PROGRAMS, not one written four ways, and that is the
+# argument for the whitelist rather than against it: a remote shell, an interpreter taking the
+# command as a `-c` argument, a builtin re-parsing a string, and a privilege wrapper that
+# passes its argv straight through. A blacklist has to know all four and the fifth; the rule
+# under test knows only `git` and `gh`, so the fifth declines without anyone naming it. None
+# of them is special-cased in the hook — grep it for `ssh` and there is nothing to find, which
+# is the claim these cases are really pinning.
+#
+# EACH ASSERTS ZERO REVIEWER CALLS AND A NOTICE ON STDERR, with an empty stdout, through the
+# same runner as every other decline. A shape that announced AND reviewed would be the
+# original defect wearing a notice.
+run_announcing "ssh 'git push' declines" "$FIXTURE" "$STUB:$PATH" \
+  '{"tool_name":"Bash","tool_input":{"command":"ssh build-host '"'"'git push origin main'"'"'"}}' 0 \
+  "no segment of it is a push this hook can place in its own tree"
+run_announcing "bash -c 'git push' declines" "$FIXTURE" "$STUB:$PATH" \
+  '{"tool_name":"Bash","tool_input":{"command":"bash -c '"'"'git push'"'"'"}}' 0 \
+  "no segment of it is a push this hook can place in its own tree"
+run_announcing "eval 'git push' declines" "$FIXTURE" "$STUB:$PATH" \
+  '{"tool_name":"Bash","tool_input":{"command":"eval '"'"'git push'"'"'"}}' 0 \
+  "no segment of it is a push this hook can place in its own tree"
+run_announcing "sudo git push declines" "$FIXTURE" "$STUB:$PATH" \
+  '{"tool_name":"Bash","tool_input":{"command":"sudo git push"}}' 0 \
+  "no segment of it is a push this hook can place in its own tree"
+
+# THE SPLIT IS QUOTE-AWARE, and these two are the pair that says so — one in each direction,
+# because a splitter that is wrong in either is wrong.
+#
+# A naive split on `&&` turns `ssh host 'cd /w && git push'` into a second segment reading
+# `git push'`, whose first token is `git`: the rule would then call a remote push local and
+# reinstate exactly the bug above, with the whitelist as cover. This case fails against that
+# splitter and passes against one that lets a quote suspend the separators. It asserts the
+# notice's own vocabulary — "the first token of every segment" — rather than the summary
+# clause its three neighbours use, so the RULE is pinned somewhere and not just its effect.
+run_announcing "a quoted && inside ssh still declines" "$FIXTURE" "$STUB:$PATH" \
+  '{"tool_name":"Bash","tool_input":{"command":"ssh host '"'"'cd /w && git push'"'"'"}}' 0 \
+  "the first token of every segment"
+# ...and the cost of getting quote-awareness wrong the other way: a separator inside a commit
+# message must not break the local push that follows it. A splitter that ignored quoting would
+# cut this into `git commit -m "a`, `b" `, ` git push` — the last of which is local, so the
+# case would still pass; a splitter that treated the opening quote as running to end-of-line
+# would swallow the `&& git push` and decline a perfectly ordinary local push. That second
+# failure is the one this pins, and it is the failure that would stop reviews silently.
+run_reviewing "a quoted separator keeps the push local" \
+  '{"tool_name":"Bash","tool_input":{"command":"git commit -m \"a;b\" && git push"}}' \
+  'benchmark/rubrics/backend-quality.yaml'
+# THE NOTICE DID NOT WIDEN INTO EVERY COMMAND. The first-token rule sits INSIDE the trigger's
+# yes-branch, so a command with no `git … push` shape in it never reaches the decline. Without
+# that placement every `grep push`, `echo "do not push"` and `cat push-notes.md` on this
+# machine would announce that the hook could not place their push — a notice on every shell
+# command is how a real notice stops being read.
+run_silent "a push token with no git stays silent" \
+  '{"tool_name":"Bash","tool_input":{"command":"grep push notes.txt"}}'
 
 # --- THE PUSH AIMED SOMEWHERE ELSE (2026-09-23, round 4)
 #
@@ -1311,6 +1377,14 @@ hook_exit_sites() {  # hook_exit_sites <file> — one line per exit 0 / return 0
 # Seven, and each one is a line in THE SWEEP's SILENT list. Raising this number is the moment
 # to ask which of the two things the new path is; lowering it means a silent exit became an
 # announced one, which is this step's whole direction and also needs a deliberate edit.
+#
+# STEP 31 ADDED A DOOR AND DID NOT MOVE THIS NUMBER, which is the shape to expect from now on.
+# The first-token rule declines a push the hook cannot place in its own tree — `ssh host 'git
+# push'`, `bash -c`, `eval`, `sudo`, and whatever wrapper nobody has named yet — and it
+# declines by ANNOUNCING, so it is an eighth announced exit and the silent count is untouched.
+# A first-token rule written as a silent `exit 0` would trip this guard on the next line, and
+# that is the guard doing its job: a delegated push that leaves quietly is the same event as
+# the one this step replaced, minus the false trace.
 EXPECTED_SILENT_EXITS=7
 
 SITES="$(hook_exit_sites "$HOOK")"
