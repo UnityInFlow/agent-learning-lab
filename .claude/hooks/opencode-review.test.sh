@@ -197,7 +197,7 @@ done
 # reviewed against this tree (`ssh`, `bash -c`, `eval`, `sudo`), the quote-aware split in both
 # directions, and the guard that the new notice did not widen into every command carrying the
 # word `push`.
-EXPECTED_CASES=81
+EXPECTED_CASES=86
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -459,6 +459,15 @@ run_announcing "a quoted -C path is declined, not silent" "$FIXTURE" "$STUB:$PAT
 run_announcing "an unrecognised push form is declined" "$FIXTURE" "$STUB:$PATH" \
   '{"tool_name":"Bash","tool_input":{"command":"git $(cat dir) push origin main"}}' 0 \
   "NOT REVIEWED — this command carries a push token"
+# PLAIN PARAMETER EXPANSION, the one shell form neither the trigger nor this branch read until
+# round 1 of step 31's review. `$GIT_OPTS` is not option-shaped, so the trigger never reaches
+# `push`; it held no `$(`, so the unreadable-token language did not see it either; and the
+# command left through the SILENT not-a-push exit. With `GIT_OPTS='-C ../other'` in the
+# developer's shell that is a push to another tree, recorded as reviewed, in total silence.
+# The case asserts the announcement, so reverting `_unreadable_tok` to `$(`-only fails it.
+run_announcing "a \$VAR push form is declined, not silent" "$FIXTURE" "$STUB:$PATH" \
+  '{"tool_name":"Bash","tool_input":{"command":"git $GIT_OPTS push origin main"}}' 0 \
+  "NOT REVIEWED — this command carries a push token"
 
 # --- THE PUSH THAT RUNS SOMEWHERE ELSE (2026-09-24, step 31): THE FIRST-TOKEN RULE
 #
@@ -494,6 +503,24 @@ run_announcing "eval 'git push' declines" "$FIXTURE" "$STUB:$PATH" \
 run_announcing "sudo git push declines" "$FIXTURE" "$STUB:$PATH" \
   '{"tool_name":"Bash","tool_input":{"command":"sudo git push"}}' 0 \
   "no segment of it is a push this hook can place in its own tree"
+
+# WHAT AN EARLIER SEGMENT DOES TO A LATER ONE — round 1 of this step's own review, and the
+# first-token rule's own blind spot rather than an inherited one. `cd /path/to/other-repo &&
+# git push origin main` HAS a segment whose first token is `git`, so the rule read it as local
+# and the hook announced `reviewing N artifact(s)` about this checkout for a push executing in
+# a sibling repository. That is the same false review trace the rule replaced, reached through
+# the shell's own cwd rather than through a wrapper program.
+#
+# THE PAIR IS THE POINT, because a fix that declines on any `cd` anywhere would break the
+# ordinary `git push && cd ..`: only segments BEFORE the push can move the shell it runs in,
+# and after it the push has already happened here. One case per direction, so a fix that
+# declines everything passes neither.
+run_announcing "cd elsewhere then push declines" "$FIXTURE" "$STUB:$PATH" \
+  '{"tool_name":"Bash","tool_input":{"command":"cd /path/to/other-repo && git push origin main"}}' 0 \
+  "can change the working directory of the shell the push then runs in"
+run_reviewing "cd AFTER the push still reviews" \
+  '{"tool_name":"Bash","tool_input":{"command":"git push origin main && cd /path/to/other-repo"}}' \
+  'benchmark/rubrics/backend-quality.yaml'
 
 # THE SPLIT IS QUOTE-AWARE, and these two are the pair that says so — one in each direction,
 # because a splitter that is wrong in either is wrong.
@@ -576,6 +603,14 @@ run_announcing "git --git-dir <other> declines" "$FIXTURE" "$STUB:$PATH" \
 run_announcing "an unresolvable --git-dir declines" "$FIXTURE" "$STUB:$PATH" \
   "$(_payload 'git --git-dir=/srv/mono/.git/ push origin main')" 0 \
   "NOT REVIEWED — this push names a repository directory this hook could not resolve"
+# ...and WHY it could not be resolved, which is a second finding inside the first. `git -C
+# $dir push` is option-shaped, so it passes the trigger and lands here with `$dir` as four
+# literal characters. The old notice told the developer their directory was wrong; the truth
+# is that this hook cannot expand a shell variable. The case asserts the expansion wording, so
+# collapsing the two reasons back into one fails it.
+run_announcing "an unexpandable -C says so, not 'wrong dir'" "$FIXTURE" "$STUB:$PATH" \
+  "$(_payload 'git -C $target_dir push origin main')" 0 \
+  "written as a shell expansion or quotation, which this hook cannot expand"
 # ...and the other direction, twice. `--git-dir` pointing at THIS tree's git directory, and
 # `-C` pointing at a subdirectory of it, are both this repository — decided by git directory
 # rather than by string prefix, which is what makes the subdirectory case pass and would make
@@ -971,12 +1006,24 @@ for _ref in origin/main origin/master main master; do
   TRUNK_REF="$_ref"; break
 done
 
+# IT MATCHES THE WAY THE HOOK MATCHES, OR IT MEASURES SOMETHING ELSE (fixed 2026-09-24, round
+# 1 of step 31's review). This started as a bare `[[ "$f" == $glob ]]`, while the hook's
+# `select_matching` applies a SLASH-COUNT guard first. Inside `[[ ]]` a `*` crosses `/`, so
+# the check was strictly WIDER than the matcher it stands in for: move every depth-1 Python
+# tool into a subdirectory (`tools/render-spine-status.py` -> `tools/checkers/…`) and the hook
+# selects nothing for `tools/*.py` — Python tools silently leave review scope — while this
+# check still reported the glob live, because the nested file matched its wider pattern. A
+# coverage check that cannot see the coverage go to zero is the artifact's own named failure
+# mode standing inside the control built to catch it. The guard below is `select_matching`'s,
+# character for character; the two must stay identical or this check stops speaking about the
+# hook.
 glob_coverage_failures() {  # <file-list> <array-name> <glob>... -> "<array-name> <glob>" per dead entry
   local list="$1" array="$2"; shift 2
   local glob f matched
   for glob in "$@"; do
     matched=0
     while IFS= read -r f; do
+      [ "${f//[^\/]/}" = "${glob//[^\/]/}" ] || continue
       # shellcheck disable=SC2053 # unquoted RHS is a deliberate glob match, as in the hook
       if [[ "$f" == $glob ]]; then matched=1; break; fi
     done < "$list"
@@ -1105,6 +1152,37 @@ if [ "$injected_dead" = "$want_dead" ]; then
 else
   printf 'FAIL  %-44s reported: %s (want exactly: %s)\n' \
     "a dead glob is caught" "${injected_dead:-nothing}" "$want_dead"
+  FAIL=$((FAIL+1))
+fi
+
+# THE DEATH THIS CHECK USED TO MISS, and the reason its matcher now carries the hook's depth
+# guard (round 1 of step 31's review). A glob does not only die by having its directory
+# renamed; it dies just as completely when its files move DEEPER. `select_matching` compares
+# slash counts before it matches, so `tools/*.py` selects nothing once every Python tool lives
+# at `tools/checkers/…` — Python tools leave review scope entirely. A `[[ $f == $glob ]]` with
+# no guard still called the glob live, because `*` crosses `/` inside `[[ ]]`, and the suite
+# stayed green over a hook that had narrowed its own scope to zero.
+#
+# The list here holds ONE file per glob, each nested one level below the glob's own depth. A
+# matcher carrying the guard calls every entry dead; a matcher without it calls every entry
+# live, so this case fails the moment the guard is removed — which is the mutation, run rather
+# than described.
+NESTED="$WORK/nested-trunk"
+: > "$NESTED"
+for _glob in "${CONTRACT_GLOBS[@]}" "${TOOL_GLOBS[@]}"; do
+  _filled="${_glob//\*/x}"                                   # tools/*.py -> tools/x.py
+  printf '%s\n' "${_filled%/*}/deeper/${_filled##*/}" >> "$NESTED"   # -> tools/deeper/x.py
+done
+nested_dead="$(glob_coverage_failures "$NESTED" CONTRACT_GLOBS "${CONTRACT_GLOBS[@]}"
+               glob_coverage_failures "$NESTED" TOOL_GLOBS "${TOOL_GLOBS[@]}")"
+nested_dead_count=$(printf '%s\n' "$nested_dead" | grep -c . || true)
+if [ "$nested_dead_count" = "$((CONTRACT_COUNT + TOOL_COUNT))" ]; then
+  printf 'ok    %-44s all %s globs dead when their files nest one level deeper\n' \
+    "a glob whose files moved deeper is dead" "$nested_dead_count"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s %s of %s globs reported dead; the matcher is wider than the hook'"'"'s select_matching (missing the slash-count guard)\n' \
+    "a glob whose files moved deeper is dead" "$nested_dead_count" "$((CONTRACT_COUNT + TOOL_COUNT))"
   FAIL=$((FAIL+1))
 fi
 
@@ -1411,13 +1489,22 @@ hook_exit_sites() {  # hook_exit_sites <file> — one line per exit 0 / return 0
 # to ask which of the two things the new path is; lowering it means a silent exit became an
 # announced one, which is this step's whole direction and also needs a deliberate edit.
 #
-# STEP 31 ADDED A DOOR AND DID NOT MOVE THIS NUMBER, which is the shape to expect from now on.
+# STEP 31 ADDED DOORS AND DID NOT MOVE THIS NUMBER, which is the shape to expect from now on.
 # The first-token rule declines a push the hook cannot place in its own tree — `ssh host 'git
 # push'`, `bash -c`, `eval`, `sudo`, and whatever wrapper nobody has named yet — and it
 # declines by ANNOUNCING, so it is an eighth announced exit and the silent count is untouched.
 # A first-token rule written as a silent `exit 0` would trip this guard on the next line, and
 # that is the guard doing its job: a delegated push that leaves quietly is the same event as
 # the one this step replaced, minus the false trace.
+#
+# ROUND 1 OF ITS REVIEW ADDED A NINTH, and MOVED ONE COMMAND OFF THE SILENT LIST WITHOUT
+# CHANGING THE COUNT — worth reading twice, because it is the shape a reader would expect to
+# see here and does not. The ninth is the relocation door (`cd /other && git push`). The move
+# is `git $GIT_OPTS push`, which used to leave through the "the command is not a push" silent
+# exit and now leaves through the third branch's announcement: the SITE is the same site and
+# is still silent for the commands it was always right about (`git status`, `git commit -m
+# push`), so nothing here moves. A count that watches sites cannot see a command change which
+# site it reaches, which is what the behavioural cases above are for.
 EXPECTED_SILENT_EXITS=7
 
 SITES="$(hook_exit_sites "$HOOK")"

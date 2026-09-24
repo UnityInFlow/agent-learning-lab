@@ -73,10 +73,12 @@
 #     that token was readable, so one of them is the subcommand and the token is that
 #     subcommand's argument (`git commit -m push`, `git log --grep="fix push bug"`).
 #   NEITHER — ANNOUNCED. The command carries `push` or `pr create`, and a token standing
-#     between the command name and it carries shell quoting or command substitution that this
-#     recogniser's token language does not read (`git -C "my repo" push`, `git $(cat d) push`).
-#     The hook has not found that no review was owed; it has failed to find out which of the
-#     two this was, and the one rule above sends that to stderr.
+#     between the command name and it carries shell quoting, or an expansion of ANY kind, that
+#     this recogniser's token language does not read (`git -C "my repo" push`, `git $(cat d)
+#     push`, `git $GIT_OPTS push`). Expansion and substitution are one case, not two: this
+#     process holds neither value. The hook has not found that no review was owed; it has
+#     failed to find out which of the two this was, and the one rule above sends that to
+#     stderr.
 #
 # The third branch is the point: the NEXT unreadable form is announced without anyone having
 # to think of it first, because being announced requires only being unrecognised. Round 4's
@@ -113,9 +115,11 @@
 #
 #   ANNOUNCED — the hook merely FAILED TO FIND OUT:
 #     a push token in a form it cannot read . the command carries `push` or `pr create`, and a
-#       token before it carries shell quoting or command substitution (`git -C "my repo" push`,
-#       `git $(cat d) push`). Round 5's finding, and the third branch of the classification
-#       above: unrecognised is now declined by default rather than by enumeration.
+#       token before it carries shell quoting or an expansion (`git -C "my repo" push`, `git
+#       $(cat d) push`, `git $GIT_OPTS push`). Round 5's finding, and the third branch of the
+#       classification above: unrecognised is now declined by default rather than by
+#       enumeration. Plain `$VAR` joined `$(…)` on 2026-09-24, round 1 of step 31's review —
+#       until then it left through the SILENT exit, which is the defect wearing the other coat.
 #     the push runs through another program . a recognised push whose command has NO segment
 #       whose FIRST TOKEN is `git` or `gh` — `ssh host 'git push'`, `bash -c 'git push'`,
 #       `sh -c`, `eval`, `sudo`, `env`, `docker exec …`. Every one of these matched the
@@ -123,6 +127,13 @@
 #       `reviewing N artifact(s)` about a push executing elsewhere. It is a whitelist, not a
 #       sixth enumerated prefix: an unlisted wrapper declines by default rather than lying by
 #       default. PRE-EXISTING — `ssh host 'git push'` matched the original trigger too.
+#     an earlier segment can move the shell . a segment whose first token IS `git`, preceded in
+#       the same command line by a segment that can change the current shell's directory —
+#       `cd /other && git push`, `eval "$setup"; git push`. Only current-shell constructs can
+#       do this (`cd`, `pushd`, `popd`, `eval`, `source`, `.`, and `builtin`/`command` in front
+#       of them); an external program runs in a fork and cannot. That set is closed by shell
+#       semantics, which is why it may be written out where a list of wrapper programs may not.
+#       Round 1 of step 31's own review.
 #     repo root unreachable ............. cannot locate the tree it would have examined.
 #     stdin unreadable (`cat` failed) ... the call was never read — not the same as empty.
 #     the payload is not JSON ........... whether this was a push could not be established.
@@ -295,7 +306,18 @@ _trigger_pr="(^|[^[:alnum:]_-])gh${_opts}[[:space:]]+pr[[:space:]]+create([^[:al
 # `_undecided` does not try to recognise a push. It asks the far cheaper question the trigger
 # cannot: is there a `push` / `pr create` token that the trigger FAILED TO REACH because a
 # token in front of it is written in a language this recogniser does not read — shell quoting
-# (`"`, `'`, a backtick, a backslash) or command substitution (`$(`)?
+# (`"`, `'`, a backtick, a backslash) or an EXPANSION of any kind (`$(…)`, `$VAR`, `${VAR}`)?
+#
+# PLAIN PARAMETER EXPANSION WAS THE ONE SHELL FORM NEITHER SIDE READ (fixed 2026-09-24, round
+# 1 of step 31's review). `$(` was listed and bare `$` was not, so `git $GIT_OPTS push origin
+# main` — with `GIT_OPTS='-C ../other'` or `-c k=v` in the developer's shell — failed the
+# trigger (`$GIT_OPTS` is not option-shaped, so `push` does not follow `git`) AND failed this
+# branch (`$GIT_OPTS` has no `$(`), and left through the silent not-a-push exit below. A real
+# push, possibly aimed at another tree, was recorded as reviewed with nothing said. The
+# distinction the old pattern drew — substitution is unreadable, expansion is not — describes
+# no property of this recogniser: it cannot read EITHER, because both are the shell's values
+# and not this process's. So the test is now the `$` itself, which subsumes `$(` and needs no
+# list of expansion syntaxes to keep up with.
 #
 # The lead is what keeps it off ordinary commands, and it is doing the whole job of separating
 # ESTABLISHED from NEITHER. The gap between the command name and the push token may begin ONLY
@@ -306,7 +328,7 @@ _trigger_pr="(^|[^[:alnum:]_-])gh${_opts}[[:space:]]+pr[[:space:]]+create([^[:al
 # between `git` and the word.
 _sq="'"
 _unreadable_chars="[\"${_sq}\`\\\\]"
-_unreadable_tok="[^[:space:]]*(${_unreadable_chars}|[\$][(])[^[:space:]]*"
+_unreadable_tok="[^[:space:]]*(${_unreadable_chars}|[\$])[^[:space:]]*"
 _readable_run='([^[:space:]]+[[:space:]]+)*'
 _opt_lead="(-[^[:space:]]*[[:space:]]+${_readable_run})?"
 _undecided="(^|[^[:alnum:]_-])(git|gh)[[:space:]]+${_opt_lead}(${_unreadable_tok})[[:space:]]+${_readable_run}(push|pr[[:space:]]+create)([^[:alnum:]_-]|\$)"
@@ -370,16 +392,67 @@ _split_segments() {  # <command> -> _SEGMENTS: split on & | ; and newline, OUTSI
 # follow `git` directly.
 _local_trigger="^[[:space:]]*git${_opts}[[:space:]]+push([^[:alnum:]_-]|\$)"
 _local_trigger_pr="^[[:space:]]*gh${_opts}[[:space:]]+pr[[:space:]]+create([^[:alnum:]_-]|\$)"
+
+# WHAT AN EARLIER SEGMENT CAN STILL DO TO A LATER ONE — round 1 of this step's own review.
+#
+# The first-token rule reads each segment ALONE, and `cd /path/to/other-repo && git push
+# origin main` has a segment whose first token is `git`. The rule called it local, the hook
+# diffed the tree under ${BASH_SOURCE[0]} and announced `reviewing N artifact(s)` — the same
+# false review trace the rule was built to end, wearing a `cd` instead of an `ssh`.
+#
+# THIS IS A CLOSED SET AND THE `ssh`/`sudo`/`docker exec` LIST WAS NOT, which is the whole
+# reason one is written out here and the other never will be. For a later segment to run
+# anywhere but this hook's own cwd, an EARLIER segment must have changed the cwd of the
+# CURRENT SHELL. An external program cannot: it runs in a fork, and its cwd dies with it —
+# that is shell semantics, not a survey of what is installed. Only current-shell constructs
+# reach it: the builtins that move it (`cd`, `pushd`, `popd`), the constructs that execute
+# arbitrary text in it (`eval`, `source`, `.`), and the two prefixes that run a builtin
+# through another word (`builtin`, `command`). `exec` is in for completeness — it replaces the
+# shell, so nothing after it runs at all. Add to this list only when the SHELL grows a new way
+# to move the current process; do not add program names to it.
+#
+# A FIRST TOKEN THIS FILE CANNOT READ COUNTS AS RELOCATING, in the same direction as
+# everything else here: `$CD /other && git push` and `"$helper" && git push` may expand to any
+# word in the set above, so they decline. The cost is real and is accepted on purpose — `FOO=$BAR
+# make lint && git push` declines too. It declines LOUDLY, on stderr, with the reason and the
+# remedy (push from a command whose segments this hook can read), which is the trade this file
+# makes everywhere: an announced decline over a review of the wrong tree.
+#
+# ONLY SEGMENTS BEFORE THE PUSH MATTER. `git push && cd /other` reviews normally — the push
+# has already run in this tree. `||` is not distinguished from `&&`, so `cd /other || git
+# push` declines although a failed `cd` leaves the cwd alone; that is the safe direction and
+# is deliberate, not an oversight.
+# IT PRINTS ITS VERDICT AND DOES NOT RETURN ONE. A predicate written as `return 0` / `return 1`
+# would read the same here, and it would be indistinguishable — to the test's exit-site sweep
+# and to a human — from a DOOR: a successful early departure that skips the review, which the
+# sweep classifies and counts. This function ends nothing; it answers a question about one
+# token. Printing keeps that visible in the shape rather than in a comment.
+_relocating_token() {  # <segment> -> its first token when THAT token can move the shell; else nothing
+  local t="${1#"${1%%[![:space:]]*}"}"   # leading whitespace off
+  t="${t%%[[:space:]]*}"                 # first token only
+  t="${t#\(}"; t="${t#\{}"               # a subshell or group opener is not the token
+  case "${t#\\}" in
+    cd|pushd|popd|eval|source|.|builtin|command|exec) printf '%s' "$t" ;;
+    *'$'*|*'"'*|*"'"*|*'`'*) printf '%s' "$t" ;;   # unreadable: it may expand to one of the above
+  esac
+}
+
 _local_push=no
+_relocated_by=''
 _split_segments "$command_line"
 for _seg in "${_SEGMENTS[@]}"; do
   if [[ "$_seg" =~ $_local_trigger || "$_seg" =~ $_local_trigger_pr ]]; then
-    _local_push=yes
+    if [ -n "$_relocated_by" ]; then _local_push=relocated; else _local_push=yes; fi
     break
   fi
+  if [ -z "$_relocated_by" ]; then _relocated_by="$(_relocating_token "$_seg")"; fi
 done
 
 if [[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]]; then
+  if [ "$_local_push" = relocated ]; then
+    echo "opencode-review hook: NOT REVIEWED — this command's push does begin a segment with 'git' or 'gh', but an earlier segment of the same command line starts with '${_relocated_by}', which can change the working directory of the shell the push then runs in (cd, pushd, popd, eval, source, . — or a token this hook cannot read). The push may therefore happen in a tree this hook cannot see, and reviewing the files under this checkout would record a review of the wrong tree. Nothing reached the critic; review it by hand, or push from a command with no segment before the push." >&2
+    exit 0
+  fi
   if [ "$_local_push" = no ]; then
     echo "opencode-review hook: NOT REVIEWED — this command carries a push, and no segment of it is a push this hook can place in its own tree: the first token of every segment is something other than 'git' or 'gh', so the push is being run through another program (ssh, sudo, env, bash -c, docker exec or the like) and executes in a tree this hook cannot see. Reviewing the files under this checkout would record a review of the wrong tree. Nothing reached the critic; review it by hand, or push again from a command whose first token is git or gh." >&2
     exit 0
@@ -397,7 +470,7 @@ else
     # hit exactly that while testing a different change, so the failure is observed rather than
     # imagined. No case can reach it while the numbering is right, which is why it is written
     # here as well as fixed.
-    echo "opencode-review hook: NOT REVIEWED — this command carries a push token ('${BASH_REMATCH[8]:-?}') in a form this hook does not recognise: the token '${BASH_REMATCH[5]:-?}' standing between '${BASH_REMATCH[2]:-?}' and it uses shell quoting or command substitution, which this recogniser does not read. Whether this was a push was never established, so if it was, nothing it pushed reached the critic. Review it by hand, or push again from a command this hook can read." >&2
+    echo "opencode-review hook: NOT REVIEWED — this command carries a push token ('${BASH_REMATCH[8]:-?}') in a form this hook does not recognise: the token '${BASH_REMATCH[5]:-?}' standing between '${BASH_REMATCH[2]:-?}' and it uses shell quoting or an expansion (\$VAR, \$(…)), which this recogniser does not read — the value is the shell's, not this process's. Whether this was a push was never established, so if it was, nothing it pushed reached the critic. Review it by hand, or push again from a command this hook can read." >&2
     exit 0
   fi
   exit 0  # SILENT: read, and it is not a push — no push token the trigger failed to reach.
@@ -488,8 +561,18 @@ if [ "$push_target_count" -gt 0 ]; then
       *)         target_gitdir="$(_abs_gitdir "$push_target_dir" 2>/dev/null)" || target_gitdir='' ;;
     esac
   fi
+  # WHY IT COULD NOT BE RESOLVED IS PART OF THE NOTICE (round 1 of step 31's review). `git -C
+  # $dir push` reaches here with `$dir` as a literal four characters, and the old wording —
+  # "could not resolve" — told the developer their directory was wrong when the truth is that
+  # this hook cannot expand a shell variable: the value is the shell's, not this process's.
+  # The decline was right and the diagnosis was not, and a notice nobody can act on is most of
+  # the way back to silence. Same vocabulary as the third branch above, for the same reason.
+  _why_unresolved='it names no repository this hook can reach'
+  case "$push_target_dir" in *'$'*|*'"'*|*"'"*|*'`'*)
+    _why_unresolved='its directory is written as a shell expansion or quotation, which this hook cannot expand — the value is the shell'"'"'s, not this process'"'"'s' ;;
+  esac
   if [ -z "$own_gitdir" ] || [ -z "$target_gitdir" ]; then
-    echo "opencode-review hook: NOT REVIEWED — this push names a repository directory this hook could not resolve (${push_targets}), so whether it targets this tree could not be established and nothing it pushed reached the critic." >&2
+    echo "opencode-review hook: NOT REVIEWED — this push names a repository directory this hook could not resolve (${push_targets}): ${_why_unresolved}. Whether it targets this tree could not be established, and nothing it pushed reached the critic." >&2
     exit 0
   fi
   if [ "$target_gitdir" != "$own_gitdir" ]; then
