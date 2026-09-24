@@ -85,6 +85,33 @@
 #     into one ................................ 1: "an unexpandable -C says so, not 'wrong
 #                                               dir'".
 #
+# THE FIFTH SWEEP, 2026-09-24, round 2 of step 31's own review — two mutants of the HOOK, one
+# per direction of the same rule, each applied to the committed file, run, and reverted with
+# `git checkout --`. The rule is "a push this hook can place does not END the scan; only one it
+# cannot does", and it has exactly two ways to be wrong.
+#
+#   mutant                                             result
+#   the `break` restored on the PLACEABLE
+#     push ...................................... 1: "a cd and a SECOND push after a local one
+#                                               declines" — and it fails by REVIEWING (1
+#                                               reviewer call, nothing on stderr), which is
+#                                               the defect itself rather than a near miss:
+#                                               `git push && cd /other && git push` earns a
+#                                               `reviewing N artifact(s)` trace from the first
+#                                               push while the second runs in the sibling
+#                                               repository, unreviewed and unannounced.
+#   the relocation gate made order-blind (a
+#     relocating token ANYWHERE on the line
+#     counts) ................................... 1: "cd AFTER the push still reviews" — 0
+#                                               reviewer calls where 1 was wanted. The other
+#                                               direction, and the one that costs reviews: a
+#                                               fix that declined on any `cd` in the command
+#                                               would pass the new case and stop reviewing the
+#                                               ordinary `git push && cd ..`.
+#
+# NEITHER MUTANT MOVES THE OTHER'S CASE, which is what makes this a pair rather than two
+# spellings of one assertion.
+#
 #
 # THE SECOND SWEEP, 2026-09-24, review round 1 of step 30. These three mutants are of THIS
 # FILE, not of the hook: the first round of review found the suite's own instruments — its
