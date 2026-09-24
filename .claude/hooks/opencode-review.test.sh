@@ -27,6 +27,37 @@
 # three bottom rows are the five hand-written blocks, which asserted their notice and (some of
 # them) their call count while never capturing the hook's exit status at all.
 #
+# THE THIRD SWEEP, 2026-09-24, step 31 — the first-token rule, six mutants of the HOOK, each
+# applied to the committed file, run, and reverted with `git checkout --`. Both directions are
+# here on purpose: a rule that is absent reviews a delegated push, and a rule that is too wide
+# announces on `git status`. Only one of those is the bug this step fixed, and a suite that
+# only tested the first would accept the second as a fix.
+#
+#   mutant of the hook                                   result
+#   the `_local_push` gate never fires .......... 5 fail: every delegated shape is reviewed
+#                                                 against this tree again — the defect itself.
+#   the anchor dropped from `_local_trigger` .... the same 5. `ssh host 'git push'` has a
+#                                                 segment CONTAINING `git push`; the claim is
+#                                                 that it BEGINS with it.
+#   the notice reduced to "NOT REVIEWED — a
+#     push." .................................... the same 5, on their stderr string alone —
+#                                                 the wording is load-bearing, and the
+#                                                 corridor guard still passes, which is why
+#                                                 these cases exist beside it.
+#   the splitter made quote-unaware ............. 1: "a quoted && inside ssh still declines".
+#                                                 The other four have no separator in them, so
+#                                                 this is the only case that can see it.
+#   a quote made to run to end of segment ....... 1: "a quoted separator keeps the push local"
+#                                                 — the same splitter, failing the other way,
+#                                                 and the way that stops real reviews.
+#   the decline hoisted OUT of the trigger's
+#     yes-branch ................................ 11, of which "a push token with no git stays
+#                                                 silent" is the one written for it: `git
+#                                                 status`, `pushd /tmp` and `grep push` all
+#                                                 announce that their push could not be
+#                                                 placed. A notice on every shell command is
+#                                                 how a real notice stops being read.
+#
 # THE SECOND SWEEP, 2026-09-24, review round 1 of step 30. These three mutants are of THIS
 # FILE, not of the hook: the first round of review found the suite's own instruments — its
 # array reader, its tail guard, its exit classifier — each claiming a scope wider than it
@@ -442,9 +473,11 @@ run_announcing "an unrecognised push form is declined" "$FIXTURE" "$STUB:$PATH" 
 # argument for the whitelist rather than against it: a remote shell, an interpreter taking the
 # command as a `-c` argument, a builtin re-parsing a string, and a privilege wrapper that
 # passes its argv straight through. A blacklist has to know all four and the fifth; the rule
-# under test knows only `git` and `gh`, so the fifth declines without anyone naming it. None
-# of them is special-cased in the hook — grep it for `ssh` and there is nothing to find, which
-# is the claim these cases are really pinning.
+# under test knows only `git` and `gh`, so the fifth declines without anyone naming it. The
+# four appear in the hook exactly once, inside the notice, as EXAMPLES for the developer
+# reading it — nothing branches on them, and mutant E below (the anchor dropped from
+# `_local_trigger`) fails all four together, which is what a rule rather than a list looks
+# like when it breaks.
 #
 # EACH ASSERTS ZERO REVIEWER CALLS AND A NOTICE ON STDERR, with an empty stdout, through the
 # same runner as every other decline. A shape that announced AND reviewed would be the
