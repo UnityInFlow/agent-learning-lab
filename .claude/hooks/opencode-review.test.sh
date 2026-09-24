@@ -7,6 +7,45 @@
 # Exit 0 if every case behaves, 1 otherwise. A hook that silently does nothing is worse than
 # no hook, so the cases that assert the reviewer was NOT called matter as much as the ones
 # that assert it was.
+#
+# THE MUTATION SWEEP OF 2026-09-24, recorded here because a case nobody has ever seen fail is
+# a claim, not a test. Each mutant was applied to a COPY of the hook in a clone of this
+# repository — the hook in the tree is byte-identical to the trunk's — and run twice: once
+# against this file, once against the file as it stood on the trunk before these assertions
+# existed. The second column is what the round-5 gaps cost.
+#
+#   mutant                                        this file          the file before it
+#   `-n` dropped from the invocation .......... 7 cases fail ....... (count 4+N caught it)
+#   `-n` SPLIT from its value, count unchanged . 7 cases fail ....... 69/69 GREEN — gap (a)
+#   `runs=` hardcoded past LAB_REVIEW_RUNS ..... 1 case fails ....... n/a, no case existed
+#   the reviewer fired TWICE on one push ...... all 5 blocks fail ... all 5 blocks GREEN
+#   exit 1 after a completed review ........... 4 of 5 blocks fail .. all 5 blocks GREEN
+#   exit 1 on the deletion-only path .......... deletion-only fails . all 5 blocks GREEN
+#
+# The split-flag row is the one to read twice: the argv element count was 5 before and after,
+# so the suite's strongest existing assertion could not see it and every case passed. The
+# three bottom rows are the five hand-written blocks, which asserted their notice and (some of
+# them) their call count while never capturing the hook's exit status at all.
+#
+# THE SECOND SWEEP, 2026-09-24, review round 1 of step 30. These three mutants are of THIS
+# FILE, not of the hook: the first round of review found the suite's own instruments — its
+# array reader, its tail guard, its exit classifier — each claiming a scope wider than it
+# checked. Each mutant was applied to a copy of this file beside it, run, and removed.
+#
+#   mutant of this file                                  result
+#   opener back to `$0 == name "=("` ............ 1 case fails: "an indented glob array is
+#                                                 still read" reads REFUSED. Nothing else
+#                                                 moves — which is what the false "could not
+#                                                 read the hook" failure looked like.
+#   an undeclared, always-skipping case added ... with the TOTAL guard: exit 1, "75 cases
+#                                                 exist … EXPECTED_CASES is 74". With the
+#                                                 guard removed: exit 0, "all 74 cases ran
+#                                                 and behaved as specified", one case
+#                                                 skipped. The false sentence, produced.
+#   classifier back to `exit 0` only ............ 1 case fails: the `return 0` shape comes
+#                                                 back "<not seen at all>" — not
+#                                                 UNCLASSIFIED, ABSENT, which is why the
+#                                                 count check could not notice it either.
 
 set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit 1
@@ -18,6 +57,11 @@ trap 'rm -rf "$WORK"' EXIT
 STUB="$WORK/bin"; mkdir -p "$STUB"
 CALLS="$WORK/reviewer-calls"   # one line per INVOCATION — this is what the call count reads
 ARGV="$WORK/reviewer-argv"     # one line per ARGUMENT — this is what the argv assertions read
+# run_announcing's stderr capture, named here rather than inside the runner so a case that
+# needs MORE than one notice — every dropped path by name, a deleted path beside a reviewed
+# one — can route exit status and call count through the runner and still read the same
+# stderr afterwards, instead of re-running the hook in a block of its own.
+ANNOUNCE_ERR="$WORK/announce-stderr"
 
 # A fake repo with a fake trunk, so `git merge-base HEAD origin/main` resolves without
 # touching the real one.
@@ -101,7 +145,24 @@ done
 # skipped case fails that comparison and the run cannot read as a complete pass. "Everything
 # ran and passed" and "everything that ran, passed" are different sentences and now print
 # differently.
-EXPECTED_CASES=69
+#
+# THAT COMPARISON IS NECESSARY AND IS NOT SUFFICIENT, which round 1 of step 30's review found
+# and the tail now fixes. "A skipped case fails that comparison" holds only while
+# EXPECTED_CASES already counts the skipped case. Add a NEW skip-capable case without bumping
+# the count and, in the environment where it skips, PASS+FAIL is exactly EXPECTED_CASES again:
+# green, with the tail claiming every case ran. So the tail compares TWICE — PASS+FAIL against
+# the declared count, and PASS+FAIL+SKIP against it as well — because "did everything run?"
+# and "is every case that exists declared?" are two questions and the second one is how an
+# undeclared case hides.
+# 69 → 73 on 2026-09-24 (round 5): one new case for the `-n` override, and three hand-written
+# blocks that each became TWO counted cases when their exit status and call count moved into
+# run_announcing — "it announced" and "it named the file" are separate claims that fail for
+# separate reasons, and a block asserting both under one name can only report the first thing
+# that broke.
+# 73 → 74 on 2026-09-24 (step 30, review round 1): the indented-but-well-formed glob array,
+# the shape the reader's own contract promised to accept and the only shape none of the three
+# malformed fixtures could have caught.
+EXPECTED_CASES=74
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -137,10 +198,27 @@ run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
 # elements plus one per artifact. The COUNT is what makes it "exactly these": a whole-line
 # grep alone cannot see an extra artifact that also arrived, and an extra artifact is how a
 # review of the wrong tree would look from here.
-run_reviewing() {  # run_reviewing <name> <stdin-json> <artifact>... — exit 0, one call, exactly these
+# THE `-n` HALF OF THE ARGV CONTRACT LIVES HERE, added 2026-09-24 after round 5.
+#
+# The preamble above states the invocation as `-n N -P panel "${artifacts[@]}"`, and until
+# now only `-P` was ever checked — at the two panel blocks, and nowhere else. So a hook that
+# dropped `-n "$runs"` entirely, or split the flag from its value, passed every case in this
+# file on exactly the dimension the preamble says is the contract: the element count 4+N was
+# the only thing standing near it, and a two-element `-P panel` plus two artifacts counts the
+# same as `-n 1 -P panel` plus one. Folding the assertion into this runner rather than into
+# one new case is what makes it cover ground: every run_reviewing case now enforces
+# flag/value ADJACENCY for `-n` too, on every trigger shape it already exercises.
+#
+# `--runs N` drives the override AND the expectation from one number, so a case cannot assert
+# a value it did not ask the hook for. Without it the runner passes no LAB_REVIEW_RUNS at all
+# and wants `-n 1` — the hook's own default, which is the thing worth testing by default and
+# which an always-exported override would hide.
+run_reviewing() {  # run_reviewing [--runs N] <name> <stdin-json> <artifact>... — exit 0, one call, exactly these
+  local want_runs=1 runs_env=()
+  if [ "${1:-}" = --runs ]; then want_runs="$2"; runs_env=("LAB_REVIEW_RUNS=$2"); shift 2; fi
   local name="$1" payload="$2"; shift 2
   : > "$CALLS"; : > "$ARGV"
-  local out; out="$(printf '%s' "$payload" | env PATH="$STUB:$PATH" \
+  local out; out="$(printf '%s' "$payload" | env ${runs_env[@]+"${runs_env[@]}"} PATH="$STUB:$PATH" \
       "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
   local got_exit=$?
   local got_calls; got_calls="$(wc -l < "$CALLS" | tr -d ' ')"
@@ -148,12 +226,15 @@ run_reviewing() {  # run_reviewing <name> <stdin-json> <artifact>... — exit 0,
   local want_args=$((4 + $#))
   local missing='' a
   for a in "$@"; do grep -Fxq -- "$a" "$ARGV" || missing="$missing $a"; done
-  if [ "$got_exit" = 0 ] && [ "$got_calls" = 1 ] && [ -z "$missing" ] && [ "$got_args" = "$want_args" ]; then
-    printf 'ok    %-44s reviewed exactly %s artifact(s): %s\n' "$name" "$#" "$*"
+  local n_adjacent=no
+  argv_has_flag_value "$ARGV" -n "$want_runs" && n_adjacent=yes
+  if [ "$got_exit" = 0 ] && [ "$got_calls" = 1 ] && [ -z "$missing" ] && [ "$got_args" = "$want_args" ] \
+     && [ "$n_adjacent" = yes ]; then
+    printf 'ok    %-44s reviewed exactly %s artifact(s) at -n %s: %s\n' "$name" "$#" "$want_runs" "$*"
     PASS=$((PASS+1))
   else
-    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want 1), %s argv element(s) (want %s), not handed over:%s\n' \
-      "$name" "$got_exit" "$got_calls" "$got_args" "$want_args" "${missing:-none}"
+    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want 1), %s argv element(s) (want %s), -n %s adjacent: %s, not handed over:%s\n' \
+      "$name" "$got_exit" "$got_calls" "$got_args" "$want_args" "$want_runs" "$n_adjacent" "${missing:-none}"
     [ -n "$out" ] && printf '        %s\n' "$out"
     printf '        argv was: %s\n' "$(tr '\n' ' ' < "$ARGV")"
     FAIL=$((FAIL+1))
@@ -180,7 +261,7 @@ run_announcing() {  # run_announcing <name> <root> <path> <stdin-json> <want-cal
   local name="$1" root="$2" path="$3" payload="$4" want_calls="$5" must_say="$6"
   local stdin_mode="${7:-pipe}"
   : > "$CALLS"; : > "$ARGV"
-  local errf="$WORK/announce-stderr"
+  local errf="$ANNOUNCE_ERR"
   local out
   if [ "$stdin_mode" = unreadable ]; then
     out="$(env PATH="$path" "$root/.claude/hooks/opencode-review.sh" 2>"$errf" 0>/dev/null)"
@@ -407,6 +488,18 @@ run_reviewing "git -C <a subdirectory> reviews" \
   "$(_payload "git -C $FIXTURE/tools push origin main")" \
   'benchmark/rubrics/backend-quality.yaml'
 
+# --- THE `-n` VALUE IS THE HOOK'S TO COMPUTE, and this is the case that says so.
+#
+# Every run_reviewing case above wants `-n 1`, which the hook produces from
+# `runs="${LAB_REVIEW_RUNS:-1}"`. A hook that ignored the variable and wrote a literal `-n 1`
+# would satisfy all of them — the default and the constant are indistinguishable from outside
+# until something asks for a different number. This asks for three, and wants `-n` and `3`
+# present and ADJACENT in the recorded argv, which is the same claim `-P` has always carried.
+# It routes through the same runner as its neighbours (the `--runs` form), so it also inherits
+# exit 0, one call, and the exact artifact set rather than restating them in a block.
+run_reviewing --runs 3 "LAB_REVIEW_RUNS reaches the reviewer" "$PUSH" \
+  'benchmark/rubrics/backend-quality.yaml'
+
 # --- the case the hook exists for
 run "push with a changed rubric"  "$PUSH" 0 1
 run "gh pr create, changed rubric" "$PR"  0 1
@@ -460,9 +553,28 @@ mkdir -p "$FIXTURE/benchmark/rubrics"
 echo 'version: 9' > "$FIXTURE/benchmark/rubrics/r.yaml"
 for n in a b c d; do printf '#!/usr/bin/env bash\nexit 0\n' > "$FIXTURE/tools/t-$n.sh"; done
 git -C "$FIXTURE" add -A >/dev/null; git -C "$FIXTURE" commit -qm many
-: > "$CALLS"; : > "$ARGV"
-out="$(printf '%s' "$PUSH" | env LAB_REVIEW_MAX_ARTIFACTS=2 PATH="$STUB:$PATH" \
-        "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
+# THE HOOK'S EXIT STATUS AND THE REVIEWER'S CALL COUNT ARE ASSERTED BY run_announcing, added
+# 2026-09-24 after round 5. This block used to capture neither: it read the notice and the
+# argv and said nothing about whether the hook exited 0 or how many times it fired the
+# reviewer — so a budget that dropped the right files while invoking the reviewer twice, or
+# while exiting 1 on a developer's push, passed here and the tail still read "all cases
+# behaved as specified". Every case routed through run() / run_bare_path() / run_silent()
+# has asserted both since the file existed; this block is now no different.
+#
+# LAB_REVIEW_MAX_ARTIFACTS is EXPORTED rather than passed as an argument because
+# run_announcing invokes the hook through `env PATH=… ` and therefore hands the whole
+# environment through — the same route STUB_REVIEWER_EXIT takes at the end of this file. It is
+# unset immediately afterwards, since a budget of 2 leaking into a later case would silently
+# shrink a review the case below believes is complete.
+export LAB_REVIEW_MAX_ARTIFACTS=2
+run_announcing "budget caps the review and says so" "$FIXTURE" "$STUB:$PATH" "$PUSH" 1 \
+  'PARTIAL REVIEW — 2 of 7'
+unset LAB_REVIEW_MAX_ARTIFACTS
+# ...and the same run's output is read again here, from the files run_announcing left behind,
+# rather than by pushing a second time. Two claims, two counted cases: "it capped and said so"
+# and "it named every single one it dropped" fail for different reasons and a reader should be
+# able to tell which.
+out="$(cat "$ANNOUNCE_ERR" 2>/dev/null)"
 argv="$(cat "$ARGV" 2>/dev/null)"
 # EVERY dropped path, by name — not "some tools/t- appeared". The guarantee in the hook is
 # "every dropped file is named", and an assertion that only greps for one of them passes a
@@ -485,8 +597,7 @@ leaked=""
 for f in tools/check-something.sh tools/t-a.sh tools/t-b.sh tools/t-c.sh tools/t-d.sh; do
   printf '%s' "$argv" | grep -qF "$f" && leaked="$leaked $f"
 done
-if printf '%s' "$out" | grep -q 'PARTIAL REVIEW — 2 of 7' \
-   && [ -z "$missing" ] && [ -z "$leaked" ] \
+if [ -z "$missing" ] && [ -z "$leaked" ] \
    && grep -Fxq 'benchmark/rubrics/r.yaml' "$ARGV" \
    && grep -Fxq 'templates/run-record.yaml' "$ARGV"; then
   printf 'ok    %-44s all 5 dropped named, both contracts kept\n' "budget names what it dropped"; PASS=$((PASS+1))
@@ -556,16 +667,22 @@ git -C "$FIXTURE" checkout -q main
 git -C "$FIXTURE" checkout -q -b feature7
 (cd "$FIXTURE" && git rm -q benchmark/rubrics/registered.yaml)
 git -C "$FIXTURE" commit -qm "rm the registered rubric" >/dev/null
-: > "$CALLS"; : > "$ARGV"
-out="$(printf '%s' "$PUSH" | env PATH="$STUB:$PATH" \
-        "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
-calls="$(wc -l < "$CALLS" | tr -d ' ')"
-if printf '%s' "$out" | grep -q 'REMOVED' \
-   && printf '%s' "$out" | grep -qF 'benchmark/rubrics/registered.yaml' \
-   && [ "$calls" = 0 ]; then
-  printf 'ok    %-44s announced by name, nothing reviewed\n' "a deleted contract is announced"; PASS=$((PASS+1))
+# Routed through run_announcing 2026-09-24 (round 5). The block already counted the reviewer's
+# invocations, but it never captured the hook's EXIT STATUS — a hook that announced the
+# deletion and then exited 1 would fail the developer's push while this case stayed green —
+# and it merged stdout into stderr, so a notice that migrated to stdout (where it reaches
+# Claude Code as tool output instead of the terminal) read the same. The runner asserts exit 0,
+# zero calls, the notice on STDERR and an empty stdout, which is four of this block's claims
+# expressed once.
+run_announcing "a deleted contract is announced" "$FIXTURE" "$STUB:$PATH" "$PUSH" 0 'REMOVED'
+# The fifth claim — BY NAME — is its own counted case, read from the same run. "It said
+# something about a removal" and "it said which file" fail for different reasons; a notice
+# that announces a count and no path is the under-reporting this whole section exists against.
+out="$(cat "$ANNOUNCE_ERR" 2>/dev/null)"
+if printf '%s' "$out" | grep -qF 'benchmark/rubrics/registered.yaml'; then
+  printf 'ok    %-44s the removal names the file\n' "a deleted contract is named"; PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s out=%s calls=%s\n' "a deleted contract is announced" "$out" "$calls"; FAIL=$((FAIL+1))
+  printf 'FAIL  %-44s out=%s\n' "a deleted contract is named" "$out"; FAIL=$((FAIL+1))
 fi
 
 # ...and the announcement has to survive a push that DOES review something. A lone notice on
@@ -578,17 +695,23 @@ git -C "$FIXTURE" checkout -q -b feature8
 (cd "$FIXTURE" && git rm -q benchmark/rubrics/registered.yaml)
 printf '#!/usr/bin/env bash\nexit 0\n' > "$FIXTURE/tools/still-here.sh"
 git -C "$FIXTURE" add -A >/dev/null; git -C "$FIXTURE" commit -qm "rm rubric, add tool"
-: > "$CALLS"; : > "$ARGV"
-out="$(printf '%s' "$PUSH" | env PATH="$STUB:$PATH" \
-        "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
+# Same routing as the block above, and here the call count it gains is load-bearing rather
+# than defensive: this is the push where a review DOES happen, so "exactly one reviewer call"
+# is the assertion separating a deletion announced beside a review from a deletion announced
+# beside two reviews of the same artifact set — the double-fire the step names.
+run_announcing "deletion announced beside a review" "$FIXTURE" "$STUB:$PATH" "$PUSH" 1 'REMOVED'
+# ...and the argv half, from the same run: the surviving tool handed over as its own whole
+# argv element, the deleted path nowhere in the argv at all. The positive claim is whole-line
+# (`-Fx`) and the negative one is substring, for the reason given further up — "this path must
+# not appear ANYWHERE in the argv" is the stronger thing to say about absence.
+out="$(cat "$ANNOUNCE_ERR" 2>/dev/null)"
 argv="$(cat "$ARGV" 2>/dev/null)"
-if printf '%s' "$out" | grep -q 'REMOVED' \
-   && printf '%s' "$out" | grep -qF 'benchmark/rubrics/registered.yaml' \
+if printf '%s' "$out" | grep -qF 'benchmark/rubrics/registered.yaml' \
    && grep -Fxq 'tools/still-here.sh' "$ARGV" \
    && ! printf '%s' "$argv" | grep -qF 'registered.yaml'; then
-  printf 'ok    %-44s named in stderr, absent from argv\n' "deletion announced beside a review"; PASS=$((PASS+1))
+  printf 'ok    %-44s named in stderr, absent from argv\n' "the deleted path stays out of argv"; PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s out=%s argv=%s\n' "deletion announced beside a review" "$out" "$argv"; FAIL=$((FAIL+1))
+  printf 'FAIL  %-44s out=%s argv=%s\n' "the deleted path stays out of argv" "$out" "$argv"; FAIL=$((FAIL+1))
 fi
 
 # Back to a branch that DOES carry reviewable artifacts. The cases below assert the reviewer
@@ -607,28 +730,53 @@ for t in bash env git jq cat dirname tr grep paste; do
   src="$(command -v "$t" 2>/dev/null)" && ln -sf "$src" "$PANELBIN/$t"
 done
 ln -sf "$STUB/opencode" "$PANELBIN/opencode"
+# THESE TWO STAY BESPOKE, and the reason is `env -i`. Round 5 asked for the five hand-written
+# blocks to be routed through the existing runners rather than grow a sixth shape, and three
+# of them were; these two cannot be, because every runner in this file invokes the hook
+# through `env PATH=… ` — the ambient environment passes straight through. That is exactly
+# what these cases must not have. The panel is decided by `command -v codex` and by nothing
+# else, so the case that proves it has to hand the hook an environment holding only the PATH
+# it was given; routed through a runner, a `codex` reachable some other way, or a stray
+# LAB_REVIEW_* left exported by an earlier block, would decide the outcome instead and the
+# pair could still separate for the wrong reason.
+#
+# So they keep the invocation and gain what round 5 actually found missing: the hook's EXIT
+# STATUS and the reviewer's INVOCATION COUNT, which neither of them captured. A degraded panel
+# that fired the reviewer twice, or exited 1 on the developer's push, was green here.
 : > "$CALLS"; : > "$ARGV"
 out="$(printf '%s' "$PUSH" | env -i PATH="$PANELBIN" HOME="$HOME" \
         "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
+got_exit=$?
 argv="$(cat "$ARGV" 2>/dev/null)"
-if printf '%s' "$out" | grep -q "panel reduced to 'deepseek-v4-pro'" \
+calls="$(wc -l < "$CALLS" | tr -d ' ')"
+if [ "$got_exit" = 0 ] && [ "$calls" = 1 ] \
+   && printf '%s' "$out" | grep -q "panel reduced to 'deepseek-v4-pro'" \
    && printf '%s' "$out" | grep -q 'ONE-harness review' \
    && argv_has_flag_value "$ARGV" -P 'deepseek-v4-pro'; then
-  printf 'ok    %-44s panel reduced and announced\n' "codex missing degrades the panel"; PASS=$((PASS+1))
+  printf 'ok    %-44s exit 0, 1 call, panel reduced and announced\n' "codex missing degrades the panel"; PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s out=%s argv=%s\n' "codex missing degrades the panel" "$out" "$argv"; FAIL=$((FAIL+1))
+  printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want 1), out=%s argv=%s\n' \
+    "codex missing degrades the panel" "$got_exit" "$calls" "$out" "$argv"; FAIL=$((FAIL+1))
 fi
 
 printf '#!/usr/bin/env bash\nexit 0\n' > "$PANELBIN/codex"; chmod +x "$PANELBIN/codex"
+# The other half of the pair, bespoke for the same `env -i` reason — and additionally the one
+# block no runner could carry whatever the environment did, because it asserts the ABSENCE of
+# a notice and every runner in this file is built around a string that must be PRESENT. It
+# gains exit status and call count in the same shape as its twin above.
 : > "$CALLS"; : > "$ARGV"
 out="$(printf '%s' "$PUSH" | env -i PATH="$PANELBIN" HOME="$HOME" \
         "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
+got_exit=$?
 argv="$(cat "$ARGV" 2>/dev/null)"
-if ! printf '%s' "$out" | grep -q 'panel reduced' \
+calls="$(wc -l < "$CALLS" | tr -d ' ')"
+if [ "$got_exit" = 0 ] && [ "$calls" = 1 ] \
+   && ! printf '%s' "$out" | grep -q 'panel reduced' \
    && argv_has_flag_value "$ARGV" -P 'deepseek-v4-pro,codex'; then
-  printf 'ok    %-44s full panel, no reduction notice\n' "codex present keeps the panel"; PASS=$((PASS+1))
+  printf 'ok    %-44s exit 0, 1 call, full panel, no reduction notice\n' "codex present keeps the panel"; PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s out=%s argv=%s\n' "codex present keeps the panel" "$out" "$argv"; FAIL=$((FAIL+1))
+  printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want 1), out=%s argv=%s\n' \
+    "codex present keeps the panel" "$got_exit" "$calls" "$out" "$argv"; FAIL=$((FAIL+1))
 fi
 
 run_bare_path() {  # same as run(), but with a PATH that contains no opencode at all
@@ -754,9 +902,21 @@ glob_coverage_failures() {  # <file-list> <array-name> <glob>... -> "<array-name
 # reader as this case's FAIL rather than as a corrupted array. That is the coupling, stated:
 # each array opens with `NAME=(` alone on its line, carries one quoted entry per line, and
 # closes with a paren on a line of its own. Indentation is free; structure is not.
+#
+# THE OPENER USED TO BE THE ONE PLACE THAT SENTENCE WAS FALSE (fixed 2026-09-24, round 1 of
+# step 30's review). It matched with `$0 == name "=("` — exact string equality, so an array
+# indented for any reason (wrapped in a `case` arm, aligned with its surroundings) set
+# `inside` never, the reader exited 3, and the trunk-liveness case FAILED with "could not
+# read CONTRACT_GLOBS from the hook" — a parser regression wearing a coverage failure's
+# words, whose cheapest silencing move is to delete a glob, which is the exact harm the
+# required-set case exists to prevent. The entry and closing-paren matchers always tolerated
+# indentation; only the opener did not, so the contract and two of its three matchers agreed
+# and the third quietly did not. It now matches leading whitespace like its siblings, and
+# `[[:space:]]*$` keeps the inline shape (`G=('a' 'b')`) refused: the opener carries nothing
+# but the paren. The indented shape is exercised as its own case below, not asserted here.
 extract_glob_array() {  # <file> <array-name> -> one entry per line; non-zero if malformed
   awk -v name="$2" -v q="'" '
-    $0 == name "=(" { inside = 1; next }
+    $0 ~ "^[[:space:]]*" name "=\\([[:space:]]*$" { inside = 1; next }
     !inside { next }
     $0 ~ "^[[:space:]]*\\)[[:space:]]*$" { closed = 1; exit }
     $0 ~ "^[[:space:]]*(#|$)" { next }
@@ -876,6 +1036,7 @@ fi
 # paren), entries carried inline on the opener, and an entry left unquoted.
 MALFORMED_DIR="$WORK/glob-array-shapes"; mkdir -p "$MALFORMED_DIR"
 printf "G=(\n  'a/*.yaml'\n  'b/*.yaml'\n)\nH=(\n  'c/*.sh'\n)\n"  > "$MALFORMED_DIR/wellformed"
+printf "    G=(\n      'a/*.yaml'\n      'b/*.yaml'\n    )\n"      > "$MALFORMED_DIR/indented"
 printf "G=(\n  'a/*.yaml'\n  'b/*.yaml'\nH=(\n  'c/*.sh'\n)\n"     > "$MALFORMED_DIR/unclosed"
 printf "G=('a/*.yaml' 'b/*.yaml')\n"                               > "$MALFORMED_DIR/inline"
 printf "G=(\n  a/*.yaml\n)\n"                                      > "$MALFORMED_DIR/unquoted"
@@ -893,6 +1054,26 @@ if [ "$got_entries" = "$want_entries" ] && [ -z "$refused" ]; then
 else
   printf 'FAIL  %-44s well-formed read as [%s]; accepted anyway: %s\n' \
     "a malformed glob array is refused" "$got_entries" "${refused:-none}"
+  FAIL=$((FAIL+1))
+fi
+
+# THE OTHER HALF OF THE READER'S CONTRACT, and the half that was prose only until round 1 of
+# step 30's review: "Indentation is free; structure is not." The three shapes above are all
+# MALFORMED, so every one of them is refused whether the opener tolerates whitespace or not —
+# a reader that accepts nothing passes that case perfectly. This is the case that fails when
+# the opener is strict: a WELL-FORMED array, indented, must come back as exactly its entries.
+# Its mutation is one character-class: restore `$0 == name "=("` and this case FAILs while
+# every other case in the suite stays green, which is what the trunk-liveness case's false
+# "could not read" failure looked like from the outside.
+indented_entries="$(extract_glob_array "$MALFORMED_DIR/indented" G 2>/dev/null || echo REFUSED)"
+if [ "$indented_entries" = "$want_entries" ]; then
+  printf 'ok    %-44s 2 entries read through a 4-space indent\n' \
+    "an indented glob array is still read"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s read as [%s], want [%s] — the opener matcher is the only element that\n' \
+    "an indented glob array is still read" "$indented_entries" "$want_entries"
+  printf '        ever required column 0, against this file'"'"'s own "indentation is free" rule.\n'
   FAIL=$((FAIL+1))
 fi
 
@@ -1103,10 +1284,22 @@ fi
 # every announced exit in the hook is preceded by its NOT REVIEWED line, and a new door that
 # says something vaguer is UNCLASSIFIED rather than quietly counted. The refusal is run rather
 # than described, two cases below, over three synthetic shapes.
-hook_exit_sites() {  # hook_exit_sites <file> — one line per exit 0: "<class> <lineno> <text>"
+#
+# WHICH TERMINATION FORMS THE SWEEP CLAIMS, stated because round 1 of step 30's review found
+# the claim ("every early departure is classified") wider than the matcher. The matcher read
+# the literal `exit 0` only, so a door added inside a helper as `command -v x >/dev/null ||
+# return 0` — a successful early departure that skips the review exactly like an `exit 0`
+# does — was absent from SITES entirely: not UNCLASSIFIED, not counted, invisible. It now
+# reads `exit 0` AND `return 0`, and the refusal case below exercises a bare `return 0` as a
+# fourth shape. The forms deliberately OUTSIDE the claim are the non-zero ones (`exit 1`,
+# `return 1` — those FAIL the tool call, which the header's first promise forbids, so they
+# are a different defect and a louder one) and a status computed into a variable, which the
+# hook does not do. `return 0` costs nothing to include today: the hook carries none, so this
+# is a guard on the next one rather than a re-classification of anything present.
+hook_exit_sites() {  # hook_exit_sites <file> — one line per exit 0 / return 0: "<class> <lineno> <text>"
   awk 'BEGIN { prev = "" }
        {
-         if ($0 !~ /^[[:space:]]*#/ && $0 ~ /exit 0/) {
+         if ($0 !~ /^[[:space:]]*#/ && ($0 ~ /exit 0/ || $0 ~ /return 0/)) {
            if ($0 ~ /# SILENT:/)                             cls = "silent"
            else if (prev ~ />&2/ && prev ~ /NOT REVIEWED/)    cls = "announced"
            else                                              cls = "UNCLASSIFIED"
@@ -1144,15 +1337,24 @@ printf '%s\n' 'echo "opencode-review hook: NOT REVIEWED — a door" >&2' 'exit 0
   > "$EXITSHAPES/announced"
 printf '%s\n' 'echo "hook unavailable" >&2' 'exit 0'            > "$EXITSHAPES/generic"
 printf '%s\n' 'exit 0  # SILENT: nothing was owed'              > "$EXITSHAPES/silent"
+# The fourth shape, added with the `return 0` half of the matcher: a helper that departs
+# early on success. Under the old matcher this file produced NO line at all — the classifier
+# had nothing to say about a door it could not see — so the assertion is that it now comes
+# back UNCLASSIFIED, which is what makes the unclassified-site check above fire on it.
+printf '%s\n' 'command -v helper >/dev/null || return 0'        > "$EXITSHAPES/returning"
 cls_announced="$(hook_exit_sites "$EXITSHAPES/announced" | awk '{print $1}')"
 cls_generic="$(hook_exit_sites "$EXITSHAPES/generic"     | awk '{print $1}')"
 cls_silent="$(hook_exit_sites "$EXITSHAPES/silent"       | awk '{print $1}')"
-if [ "$cls_announced" = announced ] && [ "$cls_generic" = UNCLASSIFIED ] && [ "$cls_silent" = silent ]; then
-  printf 'ok    %-44s a bare ">&2" line is not an announcement\n' "the exit classifier reads the notice"
+cls_return="$(hook_exit_sites "$EXITSHAPES/returning"    | awk '{print $1}')"
+if [ "$cls_announced" = announced ] && [ "$cls_generic" = UNCLASSIFIED ] && \
+   [ "$cls_silent" = silent ] && [ "$cls_return" = UNCLASSIFIED ]; then
+  printf 'ok    %-44s a bare ">&2" line is not an announcement; "return 0" is a door\n' \
+    "the exit classifier reads the notice"
   PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s notice=%s generic=%s silent=%s (want announced/UNCLASSIFIED/silent)\n' \
-    "the exit classifier reads the notice" "$cls_announced" "$cls_generic" "$cls_silent"
+  printf 'FAIL  %-44s notice=%s generic=%s silent=%s return=%s (want announced/UNCLASSIFIED/silent/UNCLASSIFIED)\n' \
+    "the exit classifier reads the notice" "$cls_announced" "$cls_generic" "$cls_silent" \
+    "${cls_return:-<not seen at all>}"
   FAIL=$((FAIL+1))
 fi
 
@@ -1299,8 +1501,23 @@ fi
 echo
 # The tail line names all three outcomes, always, so a reader never has to infer a skip from
 # a total. RAN is PASS+FAIL: a skipped case did not run and is not part of what this run
-# verified, which is why the guard below compares RAN — not RAN+SKIP — against EXPECTED_CASES.
+# verified, which is why the first guard below compares RAN — not RAN+SKIP — against
+# EXPECTED_CASES.
+#
+# TWO COMPARISONS, BECAUSE ONE OF THEM HAD A BLIND SPOT SHAPED EXACTLY LIKE THIS FILE'S OWN
+# FAILURE MODE (added 2026-09-24, round 1 of step 30's review). RAN alone catches a suite
+# that grew or shrank only when the new case RUNS. A developer who adds a SKIP-capable case —
+# the suite already has four skip sites — and forgets to bump EXPECTED_CASES gets, in any
+# environment where that case skips, RAN == EXPECTED_CASES and FAIL == 0: exit 0, and the tail
+# printing "all N cases ran and behaved as specified" while a case never ran. The sentence is
+# false and the guard written to catch exactly that could not see it, because a skip is
+# invisible to a comparison that excludes skips. So TOTAL = PASS+FAIL+SKIP is compared too:
+# every case that EXISTS is counted once, whatever its outcome, and a case that was added
+# without being declared fails the run in the environment where it skips as surely as in the
+# one where it runs. The two comparisons answer different questions — "did everything run?"
+# and "is everything declared?" — and the suite needs both to make its tail line true.
 RAN=$((PASS+FAIL))
+TOTAL=$((PASS+FAIL+SKIP))
 printf 'opencode-review.test: %s passed, %s failed, %s skipped.\n' "$PASS" "$FAIL" "$SKIP"
 if [ "$RAN" -ne "$EXPECTED_CASES" ]; then
   echo "opencode-review.test: ran ${RAN} of ${EXPECTED_CASES} cases." >&2
@@ -1314,6 +1531,14 @@ if [ "$RAN" -ne "$EXPECTED_CASES" ]; then
     echo "  A case was added or lost without updating EXPECTED_CASES. Fix the count or find the" >&2
     echo "  missing case; a shrinking suite that still exits 0 is indistinguishable from a pass." >&2
   fi
+  exit 1
+fi
+if [ "$TOTAL" -ne "$EXPECTED_CASES" ]; then
+  echo "opencode-review.test: ${TOTAL} cases exist (${RAN} ran, ${SKIP} skipped) but EXPECTED_CASES is ${EXPECTED_CASES}." >&2
+  echo "  RAN matched the declared count only because a case SKIPPED: an undeclared case was" >&2
+  echo "  added, and its skip hid the drift from the comparison above. Bump EXPECTED_CASES to" >&2
+  echo "  ${TOTAL} if the case is meant to be there; a suite whose declared size is smaller than" >&2
+  echo "  its real one reports a complete pass over a scope it never fixed." >&2
   exit 1
 fi
 if [ "$FAIL" -eq 0 ]; then
