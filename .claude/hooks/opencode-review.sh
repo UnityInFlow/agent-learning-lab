@@ -305,7 +305,15 @@ if ! [[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]]; then
     # BASH_REMATCH: 2 is the command name, 5 the token that could not be read, 8 the push
     # token it stands in front of. Named rather than echoed whole, because the notice is about
     # a FORM — the next one will be a different command with the same defect in it.
-    echo "opencode-review hook: NOT REVIEWED — this command carries a push token ('${BASH_REMATCH[8]}') in a form this hook does not recognise: the token '${BASH_REMATCH[5]}' standing between '${BASH_REMATCH[2]}' and it uses shell quoting or command substitution, which this recogniser does not read. Whether this was a push was never established, so if it was, nothing it pushed reached the critic. Review it by hand, or push again from a command this hook can read." >&2
+    #
+    # EVERY INDEX CARRIES `:-`, and that is this file's own promise rather than a defensive
+    # habit. `set -u` is on, so an index this regex stops producing — anyone adding a group, or
+    # reordering these — aborts the hook with EXIT 1, and a hook that exits non-zero FAILS THE
+    # PUSH, which the header's first promise says it never does. A mutation run on 2026-09-24
+    # hit exactly that while testing a different change, so the failure is observed rather than
+    # imagined. No case can reach it while the numbering is right, which is why it is written
+    # here as well as fixed.
+    echo "opencode-review hook: NOT REVIEWED — this command carries a push token ('${BASH_REMATCH[8]:-?}') in a form this hook does not recognise: the token '${BASH_REMATCH[5]:-?}' standing between '${BASH_REMATCH[2]:-?}' and it uses shell quoting or command substitution, which this recogniser does not read. Whether this was a push was never established, so if it was, nothing it pushed reached the critic. Review it by hand, or push again from a command this hook can read." >&2
     exit 0
   fi
   exit 0  # SILENT: read, and it is not a push — no push token the trigger failed to reach.
