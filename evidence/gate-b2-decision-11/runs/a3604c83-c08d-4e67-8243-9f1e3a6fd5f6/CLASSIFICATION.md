@@ -1,4 +1,4 @@
-# Run 02 — a3604c83 — shape: **WRONG** (proposed; PENDING until the author confirms or overrules)
+# Run 02 — a3604c83 — shape: **WRONG** (AUTHOR-CONFIRMED 2026-09-24, as proposed)
 
 - run id: `a3604c83-c08d-4e67-8243-9f1e3a6fd5f6`
 - evaluator exit: **12** — recorded beside the shape, and by RULE.md §2 it does not decide it

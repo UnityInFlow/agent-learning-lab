@@ -1,4 +1,4 @@
-# Run 05 — fe943ecf — shape: **RIGHT** (proposed; PENDING until the author confirms or overrules)
+# Run 05 — fe943ecf — shape: **RIGHT** (AUTHOR-CONFIRMED 2026-09-24, as proposed)
 
 - run id: `fe943ecf-1b3e-48cc-93e3-b8ca0aeeb54c`
 - evaluator exit: **0** — recorded beside the shape, and by RULE.md §2 it does not decide it
