@@ -225,7 +225,14 @@ done
 # reviewed against this tree (`ssh`, `bash -c`, `eval`, `sudo`), the quote-aware split in both
 # directions, and the guard that the new notice did not widen into every command carrying the
 # word `push`.
-EXPECTED_CASES=86
+# 81 → 86 on 2026-09-24 (step 31, review round 1): plain `$VAR` before the push token, the
+# relocation gate in both directions, the `-C` whose directory is an unexpandable expansion,
+# and the glob-liveness matcher's depth guard.
+# 86 → 87 on 2026-09-24 (step 31, review round 2): the command line carrying TWO pushes with a
+# `cd` between them. The trail above stopped at 81 while the count was 86 — the round-1
+# reviewer read that as stale prose rather than a defect, correctly, because the tail guard
+# holds the count to the code; it is completed here so the next reader does not have to.
+EXPECTED_CASES=87
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -549,6 +556,29 @@ run_announcing "cd elsewhere then push declines" "$FIXTURE" "$STUB:$PATH" \
 run_reviewing "cd AFTER the push still reviews" \
   '{"tool_name":"Bash","tool_input":{"command":"git push origin main && cd /path/to/other-repo"}}' \
   'benchmark/rubrics/backend-quality.yaml'
+
+# ...AND THE SHAPE THAT IS BOTH AT ONCE — round 2 of this step's own review, and the case whose
+# absence is why the defect it pins reached a second review round rather than this suite.
+#
+# `git push && cd /path/to/other-repo && git push` carries TWO pushes: the first is this
+# tree's, the second is not. The pair above is one case per direction and neither can see it —
+# the declining case has no push before the `cd`, and the reviewing case has no push after it.
+# The scan stopped at the first segment it could place, set `yes`, broke out of the loop, and
+# the hook announced `reviewing N artifact(s)`. The second push went to the sibling repository
+# UNREVIEWED and, worse, UNANNOUNCED: the relocation gate never got to look at the `cd`,
+# because the loop had already left. A developer reading the trace concludes the pushed
+# artifacts were seen by the critic, which is this file's oldest failure mode wearing this
+# step's own machinery.
+#
+# IT ASSERTS THE RELOCATION NOTICE, not merely "did not review", and that is deliberate: a
+# hook that declined every compound command would also produce zero reviewer calls here, and
+# "cd AFTER the push still reviews" directly above is the case that fails against it. The two
+# together are the both-directions check — one says a later relocation must decline, the other
+# says an earlier push must not make relocation ignorable, and no single wrong rule passes
+# both.
+run_announcing "a cd and a SECOND push after a local one declines" "$FIXTURE" "$STUB:$PATH" \
+  '{"tool_name":"Bash","tool_input":{"command":"git push origin main && cd /path/to/other-repo && git push origin main"}}' 0 \
+  "can change the working directory of the shell the push then runs in"
 
 # THE SPLIT IS QUOTE-AWARE, and these two are the pair that says so — one in each direction,
 # because a splitter that is wrong in either is wrong.

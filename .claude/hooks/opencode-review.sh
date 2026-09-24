@@ -133,7 +133,11 @@
 #       do this (`cd`, `pushd`, `popd`, `eval`, `source`, `.`, and `builtin`/`command` in front
 #       of them); an external program runs in a fork and cannot. That set is closed by shell
 #       semantics, which is why it may be written out where a list of wrapper programs may not.
-#       Round 1 of step 31's own review.
+#       Round 1 of step 31's own review. Round 2 added the case the sentence above still reads
+#       as impossible: a command line carrying TWO pushes, `git push && cd /other && git push`,
+#       where the first is this tree's and the second is not. The scan no longer stops at the
+#       first push it can place, so the second is declined here rather than left unannounced
+#       behind a `reviewing N artifact(s)` trace earned by the first.
 #     repo root unreachable ............. cannot locate the tree it would have examined.
 #     stdin unreadable (`cat` failed) ... the call was never read — not the same as empty.
 #     the payload is not JSON ........... whether this was a push could not be established.
@@ -422,6 +426,29 @@ _local_trigger_pr="^[[:space:]]*gh${_opts}[[:space:]]+pr[[:space:]]+create([^[:a
 # has already run in this tree. `||` is not distinguished from `&&`, so `cd /other || git
 # push` declines although a failed `cd` leaves the cwd alone; that is the safe direction and
 # is deliberate, not an oversight.
+#
+# BEFORE *WHICH* PUSH — round 2 of this step's own review, and the sentence above read as if
+# there were only ever one. A command line may carry SEVERAL pushes, and each one is placed by
+# the segments in front of IT. `git push && cd /path/to/other-repo && git push` has a first
+# push this hook can place and a second it cannot, and the scan used to stop at the first: it
+# set `yes`, broke out of the loop, and the hook announced `reviewing N artifact(s)`. The
+# second push ran in the sibling repository — UNREVIEWED, and worse, UNANNOUNCED, because the
+# relocation gate directly above never got to look at the segment that moved the shell. That
+# is this step's own registered claim — review only a push this hook can place in its own tree
+# — failing on a shape the step introduced the machinery for.
+#
+# SO THE SCAN READS EVERY SEGMENT, AND THE FIRST UNPLACEABLE PUSH WINS over any placeable one
+# before it. A local push no longer ends the scan; it only records that one was seen. The
+# question the loop answers is not "is there a push I can place?" but "is there a push I
+# CANNOT?", and those differ exactly when a command line carries more than one. Erring this
+# way costs a review that could have run (the first push's artifacts are this tree's, and the
+# decline sends the developer to look at them by hand); erring the other way is the false
+# review trace, which is the failure this whole file exists to prevent.
+#
+# The break stays on the UNPLACEABLE find, not on the placeable one — once a push has been
+# found that cannot be placed, nothing a later segment says can make the command reviewable,
+# and `_relocated_by` must keep naming the segment that caused THIS decline rather than the
+# last relocating token on the line.
 # IT PRINTS ITS VERDICT AND DOES NOT RETURN ONE. A predicate written as `return 0` / `return 1`
 # would read the same here, and it would be indistinguishable — to the test's exit-site sweep
 # and to a human — from a DOOR: a successful early departure that skips the review, which the
@@ -442,15 +469,19 @@ _relocated_by=''
 _split_segments "$command_line"
 for _seg in "${_SEGMENTS[@]}"; do
   if [[ "$_seg" =~ $_local_trigger || "$_seg" =~ $_local_trigger_pr ]]; then
-    if [ -n "$_relocated_by" ]; then _local_push=relocated; else _local_push=yes; fi
-    break
+    # A push that HAS been relocated ends the scan: the command is already unreviewable, and
+    # `_relocated_by` is the token that made it so.
+    if [ -n "$_relocated_by" ]; then _local_push=relocated; break; fi
+    # A push that has NOT been relocated does not end it. A later segment may still move the
+    # shell and carry a second push, and stopping here is how that one went unannounced.
+    _local_push=yes
   fi
   if [ -z "$_relocated_by" ]; then _relocated_by="$(_relocating_token "$_seg")"; fi
 done
 
 if [[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]]; then
   if [ "$_local_push" = relocated ]; then
-    echo "opencode-review hook: NOT REVIEWED — this command's push does begin a segment with 'git' or 'gh', but an earlier segment of the same command line starts with '${_relocated_by}', which can change the working directory of the shell the push then runs in (cd, pushd, popd, eval, source, . — or a token this hook cannot read). The push may therefore happen in a tree this hook cannot see, and reviewing the files under this checkout would record a review of the wrong tree. Nothing reached the critic; review it by hand, or push from a command with no segment before the push." >&2
+    echo "opencode-review hook: NOT REVIEWED — a push in this command does begin a segment with 'git' or 'gh', but an earlier segment of the same command line starts with '${_relocated_by}', which can change the working directory of the shell the push then runs in (cd, pushd, popd, eval, source, . — or a token this hook cannot read). That push may therefore happen in a tree this hook cannot see, and reviewing the files under this checkout would record a review of the wrong tree. This is the whole command's answer even when an EARLIER push on the same line was this tree's: nothing reached the critic, so review it by hand, or push from a command with no segment before the push." >&2
     exit 0
   fi
   if [ "$_local_push" = no ]; then
