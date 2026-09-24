@@ -57,11 +57,35 @@
 # which of the two the path is. A missing `jq` does not mean the command was not a push; it
 # means the hook could not read it. That is a decline, and a decline is announced.
 #
-# THE SWEEP, 2026-09-23, rounds 3 and 4. Two review rounds each fixed the doors they were
+# RECOGNITION IS THREE-WAY, NOT TWO. This is round 5's finding, and it is deliberately not a
+# fifth shape added to the trigger. Four rounds each taught that regex one more form — `-C`,
+# then `--git-dir`, then `--no-pager`, then a quoted directory — and a regex reading a shell
+# command line does not run out of forms. The third outcome is the fix instead:
+#
+#   RECOGNISED as a push (or a `gh pr create`) — review it, as before.
+#   ESTABLISHED not to be one — SILENT. Either no push token stands anywhere the trigger could
+#     have reached (`git status`, `pushd /tmp`, `git pushdown origin`, `gh pr created 3`), or
+#     there is one and the hook READ its way past it: every token between the command name and
+#     that token was readable, so one of them is the subcommand and the token is that
+#     subcommand's argument (`git commit -m push`, `git log --grep="fix push bug"`).
+#   NEITHER — ANNOUNCED. The command carries `push` or `pr create`, and a token standing
+#     between the command name and it carries shell quoting or command substitution that this
+#     recogniser's token language does not read (`git -C "my repo" push`, `git $(cat d) push`).
+#     The hook has not found that no review was owed; it has failed to find out which of the
+#     two this was, and the one rule above sends that to stderr.
+#
+# The third branch is the point: the NEXT unreadable form is announced without anyone having
+# to think of it first, because being announced requires only being unrecognised. Round 4's
+# quoted `-C` directory is one instance of it and has a case below — pinned, not special-cased.
+#
+# THE SWEEP, 2026-09-24, rounds 3 to 5. Two review rounds each fixed the doors they were
 # pointed at — three of them, then one more — a third round found a fourth, and a fourth round
 # found one this file had just built: the trigger widening below made `git -C <dir> push` match
 # without making the directory it names reviewable. A widening that admits a command it cannot
-# serve owes a decline, not a review of whatever tree it happens to be standing in.
+# serve owes a decline, not a review of whatever tree it happens to be standing in. A fifth
+# round then found the shape the four had in common — every one of them was a form the trigger
+# could not read leaving in silence — and that is answered by the three-way classification
+# above rather than by a fifth widening.
 # Fixing the named door is how a corridor stays open, so this is the LIST instead: every place in this file where a
 # command's status is discarded or the script leaves early, classified under the one rule
 # above, with the reason in a clause. A later reader checks the code against this list rather
@@ -73,17 +97,21 @@
 #   SILENT — the hook ESTABLISHED that no review was owed:
 #     LAB_REVIEW_HOOK=0 ................. the operator turned it off; that IS the answer.
 #     no command in the payload ......... the call was read; there is no command in it.
-#     the command is not a push ......... read, matched against the trigger, and it is not one.
-#       NARROWED, AND SAID SO: a value token carrying a space (`git -C "my repo" push`) is not
-#       option-shaped to `_opts`, so such a push does not match and leaves through here as
-#       "not a push". That is the trigger's reach and it is the one place this list admits a
-#       silent exit covering something it did not establish. Widening it is its own change.
+#     the command is not a push ......... read, matched against the trigger, it is not one, AND
+#       it carries no push token the trigger failed to reach — the ESTABLISHED branch of the
+#       three-way classification above. Round 4 found this exit covering something it had not
+#       established (a quoted `-C` directory); that case now leaves through the ANNOUNCED
+#       entry below instead, and this one no longer admits an exception.
 #     the diff listed nothing ........... the diff RAN and this branch changed nothing.
 #     nothing matched a glob ............ the changed list was read; no artifact is in scope.
 #     every matched artifact deleted .... already announced by name as REMOVED, two lines up.
 #     the reviewer exited 0 ............. the review ran; it named its own findings file.
 #
 #   ANNOUNCED — the hook merely FAILED TO FIND OUT:
+#     a push token in a form it cannot read . the command carries `push` or `pr create`, and a
+#       token before it carries shell quoting or command substitution (`git -C "my repo" push`,
+#       `git $(cat d) push`). Round 5's finding, and the third branch of the classification
+#       above: unrecognised is now declined by default rather than by enumeration.
 #     repo root unreachable ............. cannot locate the tree it would have examined.
 #     stdin unreadable (`cat` failed) ... the call was never read — not the same as empty.
 #     the payload is not JSON ........... whether this was a push could not be established.
@@ -249,7 +277,39 @@ command_line="$(printf '%s' "$payload" | jq -r '.tool_input?.command? // empty' 
 _opts='([[:space:]]+-[^[:space:]]*([[:space:]]+[^-[:space:]][^[:space:]]*)?)*'
 _trigger="(^|[^[:alnum:]_-])git${_opts}[[:space:]]+push([^[:alnum:]_-]|\$)"
 _trigger_pr="(^|[^[:alnum:]_-])gh${_opts}[[:space:]]+pr[[:space:]]+create([^[:alnum:]_-]|\$)"
-[[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]] || exit 0  # SILENT: read, and it is not a push.
+
+# THE THIRD BRANCH, and the only reason the two regexes above are allowed to be incomplete.
+# See RECOGNITION IS THREE-WAY in the header for why this is here instead of a fifth widening.
+#
+# `_undecided` does not try to recognise a push. It asks the far cheaper question the trigger
+# cannot: is there a `push` / `pr create` token that the trigger FAILED TO REACH because a
+# token in front of it is written in a language this recogniser does not read — shell quoting
+# (`"`, `'`, a backtick, a backslash) or command substitution (`$(`)?
+#
+# The lead is what keeps it off ordinary commands, and it is doing the whole job of separating
+# ESTABLISHED from NEITHER. The gap between the command name and the push token may begin ONLY
+# with an option-shaped token or with an unreadable one. If it begins with a plain word, that
+# word is the subcommand, the hook has READ its way past the push token, and the token is that
+# subcommand's argument: `git commit -m push` and `git log --grep="fix push bug"` both stop
+# here and stay silent. That is an establishment, not a guess — nothing unreadable stood
+# between `git` and the word.
+_sq="'"
+_unreadable_chars="[\"${_sq}\`\\\\]"
+_unreadable_tok="[^[:space:]]*(${_unreadable_chars}|[\$][(])[^[:space:]]*"
+_readable_run='([^[:space:]]+[[:space:]]+)*'
+_opt_lead="(-[^[:space:]]*[[:space:]]+${_readable_run})?"
+_undecided="(^|[^[:alnum:]_-])(git|gh)[[:space:]]+${_opt_lead}(${_unreadable_tok})[[:space:]]+${_readable_run}(push|pr[[:space:]]+create)([^[:alnum:]_-]|\$)"
+
+if ! [[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]]; then
+  if [[ "$command_line" =~ $_undecided ]]; then
+    # BASH_REMATCH: 2 is the command name, 5 the token that could not be read, 8 the push
+    # token it stands in front of. Named rather than echoed whole, because the notice is about
+    # a FORM — the next one will be a different command with the same defect in it.
+    echo "opencode-review hook: NOT REVIEWED — this command carries a push token ('${BASH_REMATCH[8]}') in a form this hook does not recognise: the token '${BASH_REMATCH[5]}' standing between '${BASH_REMATCH[2]}' and it uses shell quoting or command substitution, which this recogniser does not read. Whether this was a push was never established, so if it was, nothing it pushed reached the critic. Review it by hand, or push again from a command this hook can read." >&2
+    exit 0
+  fi
+  exit 0  # SILENT: read, and it is not a push — no push token the trigger failed to reach.
+fi
 
 # WHICH TREE THE PUSH IS AIMED AT — the door the widening directly above opened, and round 3's
 # finding. `git -C <dir> push` now MATCHES, which was the point; but `repo_root` comes from
@@ -276,11 +336,11 @@ _trigger_pr="(^|[^[:alnum:]_-])gh${_opts}[[:space:]]+pr[[:space:]]+create([^[:al
 # ONLY `git` IS PARSED, not `gh`: `gh --repo o/r pr create` names a GitHub repository while the
 # branch being proposed is this local one, which is the tree the hook should read.
 #
-# THE KNOWN NARROWING, stated here rather than found later: a directory whose name contains a
-# space (`git -C "my repo" push`) does not match the trigger at all — `_opts` takes a value
-# token as one whitespace-free word — so it leaves through the silent "not a push" exit above.
-# That is the trigger's reach, not this check's; widening it is a separate change with its own
-# cases, and it is named in THE SWEEP's list rather than left for a reader to discover.
+# THE NARROWING IS STILL HERE AND IS NO LONGER SILENT. A directory whose name contains a space
+# (`git -C "my repo" push`) still does not match the trigger — `_opts` takes a value token as
+# one whitespace-free word — so this check never sees it. It no longer leaves quietly: it is
+# caught by `_undecided` above and declined by name. The trigger's reach did not change; what
+# changed is that falling outside it is an announced outcome rather than an unrecorded one.
 _git_opts_re="(^|[^[:alnum:]_-])git(${_opts})[[:space:]]+push([^[:alnum:]_-]|\$)"
 push_targets=''        # "<option> <dir>" per tree-naming option found, verbatim, for the notice
 push_target_count=0

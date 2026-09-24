@@ -101,7 +101,7 @@ done
 # skipped case fails that comparison and the run cannot read as a complete pass. "Everything
 # ran and passed" and "everything that ran, passed" are different sentences and now print
 # differently.
-EXPECTED_CASES=66
+EXPECTED_CASES=69
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -205,6 +205,30 @@ run_announcing() {  # run_announcing <name> <root> <path> <stdin-json> <want-cal
   fi
 }
 
+# THE FOURTH RUNNER, hoisted here 2026-09-24 from beside the malformed-payload cases further
+# down. It asserts what run() cannot: that the hook produced NO OUTPUT AT ALL. run() captures
+# the merged streams and prints them only on failure, so a case asserting "exit 0, 0 reviewer
+# calls" passes just as happily when the hook has printed a notice. That blindness was
+# harmless while every non-push command left through one silent exit; it stops being harmless
+# the moment a second, ANNOUNCING branch sits next to it, because then "said nothing" is the
+# only thing separating `git status` from a spurious notice on every shell command.
+run_silent() {  # run_silent <name> <stdin-json> — exit 0, no reviewer call, and no output
+  local name="$1" payload="$2"
+  : > "$CALLS"; : > "$ARGV"
+  local out; out="$(printf '%s' "$payload" | env PATH="$STUB:$PATH" \
+      "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
+  local got_exit=$?
+  local got_calls; got_calls="$(wc -l < "$CALLS" | tr -d ' ')"
+  if [ "$got_exit" = 0 ] && [ "$got_calls" = 0 ] && [ -z "$out" ]; then
+    printf 'ok    %-44s exit 0, 0 call(s), said nothing\n' "$name"
+    PASS=$((PASS+1))
+  else
+    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want 0), said: %s\n' \
+      "$name" "$got_exit" "$got_calls" "${out:-<nothing>}"
+    FAIL=$((FAIL+1))
+  fi
+}
+
 PUSH='{"tool_name":"Bash","tool_input":{"command":"git push -u origin feature"}}'
 PR='{"tool_name":"Bash","tool_input":{"command":"gh pr create --title x"}}'
 
@@ -217,14 +241,20 @@ git -C "$FIXTURE" checkout -q -b feature
 echo 'version: 1' > "$FIXTURE/benchmark/rubrics/backend-quality.yaml"
 git -C "$FIXTURE" add -A >/dev/null; git -C "$FIXTURE" commit -qm rubric
 
-run "git status is not a push"    '{"tool_name":"Bash","tool_input":{"command":"git status"}}' 0 0
-run "pushd is not a push"         '{"tool_name":"Bash","tool_input":{"command":"pushd /tmp"}}'  0 0
-run "gh pr view is not create"    '{"tool_name":"Bash","tool_input":{"command":"gh pr view 3"}}' 0 0
+# THESE ASSERT SILENCE, NOT JUST THE ABSENCE OF A REVIEW, and the change from run() to
+# run_silent() on 2026-09-24 is the guard on the new announcing branch rather than a tidy-up.
+# The three-way classification's whole risk is that it trades a silent miss for a notice on
+# every shell command a developer runs; under run() that trade would have been invisible here,
+# because run() asserts exit status and reviewer call count and prints the output only when a
+# case has already failed. Every one of these is an ESTABLISHED non-push and must say nothing.
+run_silent "git status is not a push"    '{"tool_name":"Bash","tool_input":{"command":"git status"}}'
+run_silent "pushd is not a push"         '{"tool_name":"Bash","tool_input":{"command":"pushd /tmp"}}'
+run_silent "gh pr view is not create"    '{"tool_name":"Bash","tool_input":{"command":"gh pr view 3"}}'
 # The near misses. These pass trivially against a substring match only because they contain
 # no `git push` at all; the two below DO contain it as a prefix of a longer command name, and
 # a substring trigger fires on both.
-run "git pushdown is not a push"  '{"tool_name":"Bash","tool_input":{"command":"git pushdown origin"}}' 0 0
-run "gh pr created is not create" '{"tool_name":"Bash","tool_input":{"command":"gh pr created 3"}}' 0 0
+run_silent "git pushdown is not a push"  '{"tool_name":"Bash","tool_input":{"command":"git pushdown origin"}}'
+run_silent "gh pr created is not create" '{"tool_name":"Bash","tool_input":{"command":"gh pr created 3"}}'
 # ...while a compound command still is one. A trigger tightened until it misses a real push
 # is a worse bug than the one it fixed, so both directions are asserted.
 run "a compound git push counts"  '{"tool_name":"Bash","tool_input":{"command":"make lint && git push"}}' 0 1
@@ -270,10 +300,49 @@ run_reviewing "gh --repo … pr create counts" '{"tool_name":"Bash","tool_input"
 # checking whether each case can fail alone will find that this one cannot, and should meet
 # that here rather than conclude the suite is padded. It is kept for the direction it covers:
 # the widening admitted options, and this is the assertion that it admitted only options.
-run "git -C . pushdown is not a push" '{"tool_name":"Bash","tool_input":{"command":"git -C . pushdown origin"}}' 0 0
+run_silent "git -C . pushdown is not a push" '{"tool_name":"Bash","tool_input":{"command":"git -C . pushdown origin"}}'
 # A subcommand is not an option, so the option run cannot skip one to reach a later `push`:
 # `git commit -m push` is a commit whose message happens to be the word.
-run "git commit -m push is not a push" '{"tool_name":"Bash","tool_input":{"command":"git commit -m push"}}' 0 0
+#
+# THIS ONE CARRIES A PUSH TOKEN, which makes it the case that separates the two silent
+# readings from each other. Under a naive third branch — "contains `push`, did not match the
+# trigger, therefore announce" — this command announces, and so does every `git log
+# --grep="fix push bug"` a developer runs. It stays silent because the hook READ its way past
+# the token: `commit` is a plain word standing between `git` and `push` with nothing
+# unreadable in front of it, so the token is that subcommand's argument and no review is owed.
+# That is an establishment, and only an establishment may be silent.
+run_silent "git commit -m push is not a push" '{"tool_name":"Bash","tool_input":{"command":"git commit -m push"}}'
+# The same shape with the quoting that DOES defeat the recogniser, on the other side of the
+# same boundary: a quoted message is read past (the lead token `commit` is a plain word), a
+# quoted option VALUE is not (the lead token is `-C`). Kept adjacent so the boundary is one
+# thing a reader can see rather than two cases in different sections.
+run_silent "a quoted commit message stays silent" \
+  '{"tool_name":"Bash","tool_input":{"command":"git commit -m \"push the button\""}}'
+
+# --- THE THIRD BRANCH (2026-09-24, round 5): UNRECOGNISED IS DECLINED, NOT DISCARDED
+#
+# Four review rounds each found one more command form the trigger could not read — `-C`, then
+# `--git-dir`, then `--no-pager`, then a directory name containing a space — and each was
+# fixed by teaching the regex that form. The fourth finding is the argument against the first
+# three fixes: a regex reading a shell command line does not run out of forms, so a suite that
+# enumerates them measures the author's imagination and calls it coverage.
+#
+# So the hook classifies THREE ways now, and these two cases are the third: a command carrying
+# a push token that matches no recognised shape must SAY SO. The first is round 4's own
+# finding, pinned so the behaviour cannot silently revert. The second is a form nobody has
+# asked the hook to handle and nobody intends to — a directory arriving from command
+# substitution — and it is here precisely because it is not special-cased anywhere: it must be
+# announced by being unrecognised, which is the only claim that generalises past this file.
+#
+# BOTH ASSERT AN EMPTY STDOUT AND A NAMED NOTICE ON STDERR (run_announcing separates the two
+# streams), and both assert ZERO reviewer calls — an announcement that also reviewed this tree
+# would be the round-3 defect wearing a notice.
+run_announcing "a quoted -C path is declined, not silent" "$FIXTURE" "$STUB:$PATH" \
+  '{"tool_name":"Bash","tool_input":{"command":"git -C \"my repo\" push origin main"}}' 0 \
+  "NOT REVIEWED — this command carries a push token"
+run_announcing "an unrecognised push form is declined" "$FIXTURE" "$STUB:$PATH" \
+  '{"tool_name":"Bash","tool_input":{"command":"git $(cat dir) push origin main"}}' 0 \
+  "NOT REVIEWED — this command carries a push token"
 
 # --- THE PUSH AIMED SOMEWHERE ELSE (2026-09-23, round 4)
 #
@@ -591,22 +660,10 @@ run_bare_path "opencode not installed" "$PUSH" 0 0
 # OUTPUT IS EMPTY instead: input the hook cannot read, it says nothing about.
 # (`2>&1` on the capture is what makes stderr reach `$out` at all; without it this asserts
 # half as much as it reads.)
-run_silent() {  # run_silent <name> <stdin-json> — exit 0, no reviewer call, and no output
-  local name="$1" payload="$2"
-  : > "$CALLS"; : > "$ARGV"
-  local out; out="$(printf '%s' "$payload" | env PATH="$STUB:$PATH" \
-      "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
-  local got_exit=$?
-  local got_calls; got_calls="$(wc -l < "$CALLS" | tr -d ' ')"
-  if [ "$got_exit" = 0 ] && [ "$got_calls" = 0 ] && [ -z "$out" ]; then
-    printf 'ok    %-44s exit 0, 0 call(s), said nothing\n' "$name"
-    PASS=$((PASS+1))
-  else
-    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want 0), said: %s\n' \
-      "$name" "$got_exit" "$got_calls" "${out:-<nothing>}"
-    FAIL=$((FAIL+1))
-  fi
-}
+# `run_silent` itself is DEFINED WITH THE OTHER RUNNERS at the top of the file, not here beside
+# its first user, because 2026-09-24 gave it users above this point too: the established
+# non-push commands are now required to be silent rather than merely reviewless, which is the
+# half of the three-way classification that a new announcement could quietly break.
 run_silent "empty stdin"                 ''
 run_silent "JSON without a command"      '{"tool_name":"Bash"}'
 run_silent "JSON, wrong shape"           '{"tool_input":"a string"}'
