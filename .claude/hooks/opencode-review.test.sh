@@ -18,6 +18,11 @@ trap 'rm -rf "$WORK"' EXIT
 STUB="$WORK/bin"; mkdir -p "$STUB"
 CALLS="$WORK/reviewer-calls"   # one line per INVOCATION — this is what the call count reads
 ARGV="$WORK/reviewer-argv"     # one line per ARGUMENT — this is what the argv assertions read
+# run_announcing's stderr capture, named here rather than inside the runner so a case that
+# needs MORE than one notice — every dropped path by name, a deleted path beside a reviewed
+# one — can route exit status and call count through the runner and still read the same
+# stderr afterwards, instead of re-running the hook in a block of its own.
+ANNOUNCE_ERR="$WORK/announce-stderr"
 
 # A fake repo with a fake trunk, so `git merge-base HEAD origin/main` resolves without
 # touching the real one.
@@ -101,7 +106,12 @@ done
 # skipped case fails that comparison and the run cannot read as a complete pass. "Everything
 # ran and passed" and "everything that ran, passed" are different sentences and now print
 # differently.
-EXPECTED_CASES=69
+# 69 → 73 on 2026-09-24 (round 5): one new case for the `-n` override, and three hand-written
+# blocks that each became TWO counted cases when their exit status and call count moved into
+# run_announcing — "it announced" and "it named the file" are separate claims that fail for
+# separate reasons, and a block asserting both under one name can only report the first thing
+# that broke.
+EXPECTED_CASES=73
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -137,10 +147,27 @@ run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
 # elements plus one per artifact. The COUNT is what makes it "exactly these": a whole-line
 # grep alone cannot see an extra artifact that also arrived, and an extra artifact is how a
 # review of the wrong tree would look from here.
-run_reviewing() {  # run_reviewing <name> <stdin-json> <artifact>... — exit 0, one call, exactly these
+# THE `-n` HALF OF THE ARGV CONTRACT LIVES HERE, added 2026-09-24 after round 5.
+#
+# The preamble above states the invocation as `-n N -P panel "${artifacts[@]}"`, and until
+# now only `-P` was ever checked — at the two panel blocks, and nowhere else. So a hook that
+# dropped `-n "$runs"` entirely, or split the flag from its value, passed every case in this
+# file on exactly the dimension the preamble says is the contract: the element count 4+N was
+# the only thing standing near it, and a two-element `-P panel` plus two artifacts counts the
+# same as `-n 1 -P panel` plus one. Folding the assertion into this runner rather than into
+# one new case is what makes it cover ground: every run_reviewing case now enforces
+# flag/value ADJACENCY for `-n` too, on every trigger shape it already exercises.
+#
+# `--runs N` drives the override AND the expectation from one number, so a case cannot assert
+# a value it did not ask the hook for. Without it the runner passes no LAB_REVIEW_RUNS at all
+# and wants `-n 1` — the hook's own default, which is the thing worth testing by default and
+# which an always-exported override would hide.
+run_reviewing() {  # run_reviewing [--runs N] <name> <stdin-json> <artifact>... — exit 0, one call, exactly these
+  local want_runs=1 runs_env=()
+  if [ "${1:-}" = --runs ]; then want_runs="$2"; runs_env=("LAB_REVIEW_RUNS=$2"); shift 2; fi
   local name="$1" payload="$2"; shift 2
   : > "$CALLS"; : > "$ARGV"
-  local out; out="$(printf '%s' "$payload" | env PATH="$STUB:$PATH" \
+  local out; out="$(printf '%s' "$payload" | env ${runs_env[@]+"${runs_env[@]}"} PATH="$STUB:$PATH" \
       "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
   local got_exit=$?
   local got_calls; got_calls="$(wc -l < "$CALLS" | tr -d ' ')"
@@ -148,12 +175,15 @@ run_reviewing() {  # run_reviewing <name> <stdin-json> <artifact>... — exit 0,
   local want_args=$((4 + $#))
   local missing='' a
   for a in "$@"; do grep -Fxq -- "$a" "$ARGV" || missing="$missing $a"; done
-  if [ "$got_exit" = 0 ] && [ "$got_calls" = 1 ] && [ -z "$missing" ] && [ "$got_args" = "$want_args" ]; then
-    printf 'ok    %-44s reviewed exactly %s artifact(s): %s\n' "$name" "$#" "$*"
+  local n_adjacent=no
+  argv_has_flag_value "$ARGV" -n "$want_runs" && n_adjacent=yes
+  if [ "$got_exit" = 0 ] && [ "$got_calls" = 1 ] && [ -z "$missing" ] && [ "$got_args" = "$want_args" ] \
+     && [ "$n_adjacent" = yes ]; then
+    printf 'ok    %-44s reviewed exactly %s artifact(s) at -n %s: %s\n' "$name" "$#" "$want_runs" "$*"
     PASS=$((PASS+1))
   else
-    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want 1), %s argv element(s) (want %s), not handed over:%s\n' \
-      "$name" "$got_exit" "$got_calls" "$got_args" "$want_args" "${missing:-none}"
+    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want 1), %s argv element(s) (want %s), -n %s adjacent: %s, not handed over:%s\n' \
+      "$name" "$got_exit" "$got_calls" "$got_args" "$want_args" "$want_runs" "$n_adjacent" "${missing:-none}"
     [ -n "$out" ] && printf '        %s\n' "$out"
     printf '        argv was: %s\n' "$(tr '\n' ' ' < "$ARGV")"
     FAIL=$((FAIL+1))
@@ -180,7 +210,7 @@ run_announcing() {  # run_announcing <name> <root> <path> <stdin-json> <want-cal
   local name="$1" root="$2" path="$3" payload="$4" want_calls="$5" must_say="$6"
   local stdin_mode="${7:-pipe}"
   : > "$CALLS"; : > "$ARGV"
-  local errf="$WORK/announce-stderr"
+  local errf="$ANNOUNCE_ERR"
   local out
   if [ "$stdin_mode" = unreadable ]; then
     out="$(env PATH="$path" "$root/.claude/hooks/opencode-review.sh" 2>"$errf" 0>/dev/null)"
@@ -407,6 +437,18 @@ run_reviewing "git -C <a subdirectory> reviews" \
   "$(_payload "git -C $FIXTURE/tools push origin main")" \
   'benchmark/rubrics/backend-quality.yaml'
 
+# --- THE `-n` VALUE IS THE HOOK'S TO COMPUTE, and this is the case that says so.
+#
+# Every run_reviewing case above wants `-n 1`, which the hook produces from
+# `runs="${LAB_REVIEW_RUNS:-1}"`. A hook that ignored the variable and wrote a literal `-n 1`
+# would satisfy all of them — the default and the constant are indistinguishable from outside
+# until something asks for a different number. This asks for three, and wants `-n` and `3`
+# present and ADJACENT in the recorded argv, which is the same claim `-P` has always carried.
+# It routes through the same runner as its neighbours (the `--runs` form), so it also inherits
+# exit 0, one call, and the exact artifact set rather than restating them in a block.
+run_reviewing --runs 3 "LAB_REVIEW_RUNS reaches the reviewer" "$PUSH" \
+  'benchmark/rubrics/backend-quality.yaml'
+
 # --- the case the hook exists for
 run "push with a changed rubric"  "$PUSH" 0 1
 run "gh pr create, changed rubric" "$PR"  0 1
@@ -460,9 +502,28 @@ mkdir -p "$FIXTURE/benchmark/rubrics"
 echo 'version: 9' > "$FIXTURE/benchmark/rubrics/r.yaml"
 for n in a b c d; do printf '#!/usr/bin/env bash\nexit 0\n' > "$FIXTURE/tools/t-$n.sh"; done
 git -C "$FIXTURE" add -A >/dev/null; git -C "$FIXTURE" commit -qm many
-: > "$CALLS"; : > "$ARGV"
-out="$(printf '%s' "$PUSH" | env LAB_REVIEW_MAX_ARTIFACTS=2 PATH="$STUB:$PATH" \
-        "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
+# THE HOOK'S EXIT STATUS AND THE REVIEWER'S CALL COUNT ARE ASSERTED BY run_announcing, added
+# 2026-09-24 after round 5. This block used to capture neither: it read the notice and the
+# argv and said nothing about whether the hook exited 0 or how many times it fired the
+# reviewer — so a budget that dropped the right files while invoking the reviewer twice, or
+# while exiting 1 on a developer's push, passed here and the tail still read "all cases
+# behaved as specified". Every case routed through run() / run_bare_path() / run_silent()
+# has asserted both since the file existed; this block is now no different.
+#
+# LAB_REVIEW_MAX_ARTIFACTS is EXPORTED rather than passed as an argument because
+# run_announcing invokes the hook through `env PATH=… ` and therefore hands the whole
+# environment through — the same route STUB_REVIEWER_EXIT takes at the end of this file. It is
+# unset immediately afterwards, since a budget of 2 leaking into a later case would silently
+# shrink a review the case below believes is complete.
+export LAB_REVIEW_MAX_ARTIFACTS=2
+run_announcing "budget caps the review and says so" "$FIXTURE" "$STUB:$PATH" "$PUSH" 1 \
+  'PARTIAL REVIEW — 2 of 7'
+unset LAB_REVIEW_MAX_ARTIFACTS
+# ...and the same run's output is read again here, from the files run_announcing left behind,
+# rather than by pushing a second time. Two claims, two counted cases: "it capped and said so"
+# and "it named every single one it dropped" fail for different reasons and a reader should be
+# able to tell which.
+out="$(cat "$ANNOUNCE_ERR" 2>/dev/null)"
 argv="$(cat "$ARGV" 2>/dev/null)"
 # EVERY dropped path, by name — not "some tools/t- appeared". The guarantee in the hook is
 # "every dropped file is named", and an assertion that only greps for one of them passes a
@@ -485,8 +546,7 @@ leaked=""
 for f in tools/check-something.sh tools/t-a.sh tools/t-b.sh tools/t-c.sh tools/t-d.sh; do
   printf '%s' "$argv" | grep -qF "$f" && leaked="$leaked $f"
 done
-if printf '%s' "$out" | grep -q 'PARTIAL REVIEW — 2 of 7' \
-   && [ -z "$missing" ] && [ -z "$leaked" ] \
+if [ -z "$missing" ] && [ -z "$leaked" ] \
    && grep -Fxq 'benchmark/rubrics/r.yaml' "$ARGV" \
    && grep -Fxq 'templates/run-record.yaml' "$ARGV"; then
   printf 'ok    %-44s all 5 dropped named, both contracts kept\n' "budget names what it dropped"; PASS=$((PASS+1))
@@ -556,16 +616,22 @@ git -C "$FIXTURE" checkout -q main
 git -C "$FIXTURE" checkout -q -b feature7
 (cd "$FIXTURE" && git rm -q benchmark/rubrics/registered.yaml)
 git -C "$FIXTURE" commit -qm "rm the registered rubric" >/dev/null
-: > "$CALLS"; : > "$ARGV"
-out="$(printf '%s' "$PUSH" | env PATH="$STUB:$PATH" \
-        "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
-calls="$(wc -l < "$CALLS" | tr -d ' ')"
-if printf '%s' "$out" | grep -q 'REMOVED' \
-   && printf '%s' "$out" | grep -qF 'benchmark/rubrics/registered.yaml' \
-   && [ "$calls" = 0 ]; then
-  printf 'ok    %-44s announced by name, nothing reviewed\n' "a deleted contract is announced"; PASS=$((PASS+1))
+# Routed through run_announcing 2026-09-24 (round 5). The block already counted the reviewer's
+# invocations, but it never captured the hook's EXIT STATUS — a hook that announced the
+# deletion and then exited 1 would fail the developer's push while this case stayed green —
+# and it merged stdout into stderr, so a notice that migrated to stdout (where it reaches
+# Claude Code as tool output instead of the terminal) read the same. The runner asserts exit 0,
+# zero calls, the notice on STDERR and an empty stdout, which is four of this block's claims
+# expressed once.
+run_announcing "a deleted contract is announced" "$FIXTURE" "$STUB:$PATH" "$PUSH" 0 'REMOVED'
+# The fifth claim — BY NAME — is its own counted case, read from the same run. "It said
+# something about a removal" and "it said which file" fail for different reasons; a notice
+# that announces a count and no path is the under-reporting this whole section exists against.
+out="$(cat "$ANNOUNCE_ERR" 2>/dev/null)"
+if printf '%s' "$out" | grep -qF 'benchmark/rubrics/registered.yaml'; then
+  printf 'ok    %-44s the removal names the file\n' "a deleted contract is named"; PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s out=%s calls=%s\n' "a deleted contract is announced" "$out" "$calls"; FAIL=$((FAIL+1))
+  printf 'FAIL  %-44s out=%s\n' "a deleted contract is named" "$out"; FAIL=$((FAIL+1))
 fi
 
 # ...and the announcement has to survive a push that DOES review something. A lone notice on
@@ -578,17 +644,23 @@ git -C "$FIXTURE" checkout -q -b feature8
 (cd "$FIXTURE" && git rm -q benchmark/rubrics/registered.yaml)
 printf '#!/usr/bin/env bash\nexit 0\n' > "$FIXTURE/tools/still-here.sh"
 git -C "$FIXTURE" add -A >/dev/null; git -C "$FIXTURE" commit -qm "rm rubric, add tool"
-: > "$CALLS"; : > "$ARGV"
-out="$(printf '%s' "$PUSH" | env PATH="$STUB:$PATH" \
-        "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
+# Same routing as the block above, and here the call count it gains is load-bearing rather
+# than defensive: this is the push where a review DOES happen, so "exactly one reviewer call"
+# is the assertion separating a deletion announced beside a review from a deletion announced
+# beside two reviews of the same artifact set — the double-fire the step names.
+run_announcing "deletion announced beside a review" "$FIXTURE" "$STUB:$PATH" "$PUSH" 1 'REMOVED'
+# ...and the argv half, from the same run: the surviving tool handed over as its own whole
+# argv element, the deleted path nowhere in the argv at all. The positive claim is whole-line
+# (`-Fx`) and the negative one is substring, for the reason given further up — "this path must
+# not appear ANYWHERE in the argv" is the stronger thing to say about absence.
+out="$(cat "$ANNOUNCE_ERR" 2>/dev/null)"
 argv="$(cat "$ARGV" 2>/dev/null)"
-if printf '%s' "$out" | grep -q 'REMOVED' \
-   && printf '%s' "$out" | grep -qF 'benchmark/rubrics/registered.yaml' \
+if printf '%s' "$out" | grep -qF 'benchmark/rubrics/registered.yaml' \
    && grep -Fxq 'tools/still-here.sh' "$ARGV" \
    && ! printf '%s' "$argv" | grep -qF 'registered.yaml'; then
-  printf 'ok    %-44s named in stderr, absent from argv\n' "deletion announced beside a review"; PASS=$((PASS+1))
+  printf 'ok    %-44s named in stderr, absent from argv\n' "the deleted path stays out of argv"; PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s out=%s argv=%s\n' "deletion announced beside a review" "$out" "$argv"; FAIL=$((FAIL+1))
+  printf 'FAIL  %-44s out=%s argv=%s\n' "the deleted path stays out of argv" "$out" "$argv"; FAIL=$((FAIL+1))
 fi
 
 # Back to a branch that DOES carry reviewable artifacts. The cases below assert the reviewer
@@ -607,28 +679,53 @@ for t in bash env git jq cat dirname tr grep paste; do
   src="$(command -v "$t" 2>/dev/null)" && ln -sf "$src" "$PANELBIN/$t"
 done
 ln -sf "$STUB/opencode" "$PANELBIN/opencode"
+# THESE TWO STAY BESPOKE, and the reason is `env -i`. Round 5 asked for the five hand-written
+# blocks to be routed through the existing runners rather than grow a sixth shape, and three
+# of them were; these two cannot be, because every runner in this file invokes the hook
+# through `env PATH=… ` — the ambient environment passes straight through. That is exactly
+# what these cases must not have. The panel is decided by `command -v codex` and by nothing
+# else, so the case that proves it has to hand the hook an environment holding only the PATH
+# it was given; routed through a runner, a `codex` reachable some other way, or a stray
+# LAB_REVIEW_* left exported by an earlier block, would decide the outcome instead and the
+# pair could still separate for the wrong reason.
+#
+# So they keep the invocation and gain what round 5 actually found missing: the hook's EXIT
+# STATUS and the reviewer's INVOCATION COUNT, which neither of them captured. A degraded panel
+# that fired the reviewer twice, or exited 1 on the developer's push, was green here.
 : > "$CALLS"; : > "$ARGV"
 out="$(printf '%s' "$PUSH" | env -i PATH="$PANELBIN" HOME="$HOME" \
         "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
+got_exit=$?
 argv="$(cat "$ARGV" 2>/dev/null)"
-if printf '%s' "$out" | grep -q "panel reduced to 'deepseek-v4-pro'" \
+calls="$(wc -l < "$CALLS" | tr -d ' ')"
+if [ "$got_exit" = 0 ] && [ "$calls" = 1 ] \
+   && printf '%s' "$out" | grep -q "panel reduced to 'deepseek-v4-pro'" \
    && printf '%s' "$out" | grep -q 'ONE-harness review' \
    && argv_has_flag_value "$ARGV" -P 'deepseek-v4-pro'; then
-  printf 'ok    %-44s panel reduced and announced\n' "codex missing degrades the panel"; PASS=$((PASS+1))
+  printf 'ok    %-44s exit 0, 1 call, panel reduced and announced\n' "codex missing degrades the panel"; PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s out=%s argv=%s\n' "codex missing degrades the panel" "$out" "$argv"; FAIL=$((FAIL+1))
+  printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want 1), out=%s argv=%s\n' \
+    "codex missing degrades the panel" "$got_exit" "$calls" "$out" "$argv"; FAIL=$((FAIL+1))
 fi
 
 printf '#!/usr/bin/env bash\nexit 0\n' > "$PANELBIN/codex"; chmod +x "$PANELBIN/codex"
+# The other half of the pair, bespoke for the same `env -i` reason — and additionally the one
+# block no runner could carry whatever the environment did, because it asserts the ABSENCE of
+# a notice and every runner in this file is built around a string that must be PRESENT. It
+# gains exit status and call count in the same shape as its twin above.
 : > "$CALLS"; : > "$ARGV"
 out="$(printf '%s' "$PUSH" | env -i PATH="$PANELBIN" HOME="$HOME" \
         "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
+got_exit=$?
 argv="$(cat "$ARGV" 2>/dev/null)"
-if ! printf '%s' "$out" | grep -q 'panel reduced' \
+calls="$(wc -l < "$CALLS" | tr -d ' ')"
+if [ "$got_exit" = 0 ] && [ "$calls" = 1 ] \
+   && ! printf '%s' "$out" | grep -q 'panel reduced' \
    && argv_has_flag_value "$ARGV" -P 'deepseek-v4-pro,codex'; then
-  printf 'ok    %-44s full panel, no reduction notice\n' "codex present keeps the panel"; PASS=$((PASS+1))
+  printf 'ok    %-44s exit 0, 1 call, full panel, no reduction notice\n' "codex present keeps the panel"; PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s out=%s argv=%s\n' "codex present keeps the panel" "$out" "$argv"; FAIL=$((FAIL+1))
+  printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want 1), out=%s argv=%s\n' \
+    "codex present keeps the panel" "$got_exit" "$calls" "$out" "$argv"; FAIL=$((FAIL+1))
 fi
 
 run_bare_path() {  # same as run(), but with a PATH that contains no opencode at all
