@@ -58,6 +58,34 @@
 #                                                 placed. A notice on every shell command is
 #                                                 how a real notice stops being read.
 #
+# THE FOURTH SWEEP, 2026-09-24, round 1 of step 31's OWN review — five mutants, each applied
+# to the committed file, run, reverted with `git checkout --`. Three fixes, two directions
+# each where a direction exists.
+#
+#   mutant                                             result
+#   `_unreadable_tok` back to `$(`-only ....... 1: "a $VAR push form is declined, not
+#                                               silent". `git $GIT_OPTS push` leaves through
+#                                               the SILENT exit again — the defect itself.
+#   the relocation gate never fires ........... 1: "cd elsewhere then push declines". `cd
+#                                               /other && git push` is reviewed against this
+#                                               tree again.
+#   the relocation gate widened by one word
+#     (`make` added to the set) ............... 1: "a compound git push counts". The other
+#                                               direction, and the one that matters more:
+#                                               a gate that declines `make lint && git push`
+#                                               stops reviewing the ordinary local push, and
+#                                               a suite testing only the first direction
+#                                               would accept it as a fix.
+#   the liveness matcher's depth guard
+#     removed ................................. 1: "a glob whose files moved deeper is dead"
+#                                               — 0 of 6 globs reported dead, which is the
+#                                               check agreeing with a hook that selects
+#                                               nothing.
+#   the two unresolved reasons collapsed
+#     into one ................................ 1: "an unexpandable -C says so, not 'wrong
+#                                               dir'".
+#
+#
 # THE SECOND SWEEP, 2026-09-24, review round 1 of step 30. These three mutants are of THIS
 # FILE, not of the hook: the first round of review found the suite's own instruments — its
 # array reader, its tail guard, its exit classifier — each claiming a scope wider than it
