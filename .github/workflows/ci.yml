@@ -28,16 +28,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      # fetch-depth: 0 so this checkout carries `origin/main`. The review hook test resolves
+      # its glob-liveness case against the TRUNK tree, never the checkout, and under the
+      # default shallow fetch there is no trunk ref to read — so that case SKIPS, and a skip
+      # is not a pass, so the suite exits non-zero. The ref makes the check RUN.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: Syntax check every tool
         run: for f in tools/*.sh .claude/hooks/*.sh; do bash -n "$f" || exit 1; done
       - name: ShellCheck
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # master as of 2026-09-21, pinned
         with:
           scandir: ./tools
           severity: warning
       - name: ShellCheck the hooks
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # master as of 2026-09-21, pinned
         with:
           scandir: ./.claude/hooks
           severity: warning
@@ -46,6 +52,53 @@ jobs:
       # asserting the reviewer was NOT called run here too.
       - name: The review hook behaves
         run: ./.claude/hooks/opencode-review.test.sh
+      - name: The spine status renderer still refuses
+        run: ./tools/verify-render-spine-status.sh
+      # Offline fixture sets for the Track B checkers: no model, network, docker or sibling
+      # checkout. Run by hand only, they were words a human chose to run; here they gate.
+      - name: The agent overlay checker still refuses
+        run: ./tools/verify-agent-overlay-checker.sh
+      - name: The overlay parity checker still refuses
+        run: ./tools/verify-overlay-parity-checker.sh
+      - name: The skill activation classifier still refuses
+        run: ./tools/verify-skill-activation.sh
+      - name: The state re-read counter still refuses
+        run: ./tools/verify-count-state-reread.sh
+      - name: The completion contract checker still refuses
+        run: ./tools/verify-completion-contract-checker.sh
+      - name: The policy gate still refuses
+        run: ./tools/verify-policy-gate.sh
+      - name: The repair limit still refuses
+        run: ./tools/verify-repair-limit.sh
+      - name: The run state checker still refuses
+        run: ./tools/verify-run-state-checker.sh
+      # A script nothing ShellChecks looks exactly like one that lints clean: both are a
+      # green run with no output. This compares every tracked *.sh against the directories
+      # the two steps above scan — pinned in tools/shellcheck-scanned.txt, never parsed out
+      # of this file — and against the exempt table's written reasons.
+      - name: Every tracked script is ShellChecked or exempt
+        run: ./tools/verify-shellcheck-coverage.sh
+
+  verify-sh:
+    name: verify-sh — every exit code is produced
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Its own job rather than a step of `shell tools`: the fixture set resolves
+    # ../agent-observatory-benchmarks, and actions/checkout cannot write outside the
+    # workspace, so both repositories are checked out side by side underneath it.
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: agent-learning-lab
+      # The sibling is pinned to `main`, which moves: a benchmarks commit can turn this job red.
+      - uses: actions/checkout@v7
+        with:
+          repository: UnityInFlow/agent-observatory-benchmarks
+          ref: main
+          path: agent-observatory-benchmarks
+      - name: Every exit code verify-sh can return is produced
+        run: bash tools/verify-verify-sh.sh
+        working-directory: agent-learning-lab
 
   yaml:
     name: contracts parse
@@ -116,6 +169,22 @@ jobs:
       # check-sheet-categories.sh discriminating; the cases are what prove it.
       - name: The category-set check still rejects a short sheet
         run: ./tools/verify-sheet-category-checker.sh
+      # The category check admits a sheet by SHAPE; this admits the set of sheets by IDENTITY.
+      # Thirty-four well-formed sheets could still be two for one run and none for another, so
+      # every owed run id (plus the probe id) must have exactly one admitted 2026-09-07 sheet.
+      - name: Every owed second-reader run id has exactly one admitted sheet
+        run: bash evidence/second-reader/verify-sheet-coverage.sh
+      # A coverage check that cannot fail is a list, not a check. Feed it one run id that has
+      # no sheet and require a non-zero exit, so a verifier that stops reading its ids file
+      # (or always exits 0) turns this job red instead of staying quietly green.
+      - name: The coverage check refuses a run id with no sheet
+        run: |
+          ids="$RUNNER_TEMP/made-up-run-ids.txt"
+          printf 'deadbeef-0000\n' > "$ids"
+          if bash evidence/second-reader/verify-sheet-coverage.sh "$ids"; then
+            echo "verify-sheet-coverage.sh admitted made-up run id deadbeef-0000; it must refuse" >&2
+            exit 1
+          fi
 
   board-freshness:
     name: a published board does not outlive its source

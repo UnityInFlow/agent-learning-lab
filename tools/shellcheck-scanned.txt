@@ -1,0 +1,25 @@
+# The ShellCheck steps of .github/workflows/ci.yml, pinned byte-for-byte.
+#
+# WHY A COPY. tools/verify-shellcheck-coverage.sh must know which directories CI actually
+# ShellChecks. Reading that out of the workflow means parsing YAML, and three separate
+# defects in the parsing attempt (lab#109) each let a wrong answer through while looking
+# right. So the workflow is not parsed at all: this file holds the steps verbatim, the
+# verifier requires ci.yml to contain them exactly, and the scandirs: line below is the
+# human-written statement of what those steps scan. Change the steps in ci.yml and this
+# file must be updated in the same commit, on purpose, where a reviewer sees it.
+#
+# FORMAT. Leading column-0 '#' lines are documentation. The pinned block is every line
+# from the first line that is not a column-0 '#' up to the line before the single
+# column-0 'scandirs:' line. The scandirs: line lists the directories the pinned steps
+# scan, whitespace-separated.
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # master as of 2026-09-21, pinned
+        with:
+          scandir: ./tools
+          severity: warning
+      - name: ShellCheck the hooks
+        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # master as of 2026-09-21, pinned
+        with:
+          scandir: ./.claude/hooks
+          severity: warning
+scandirs: ./tools ./.claude/hooks

@@ -1,0 +1,13 @@
+# Which check kills which mutant. One line per *.py in this directory: the file name, a TAB,
+# and a fixed substring of the FAIL line verify-render-spine-status.sh prints when the check
+# that mutant targets fails. The sweep counts a mutant as killed only when its leaf run exits
+# non-zero AND prints this substring; a mutant with no line here, a line naming no file, a
+# duplicate line or an empty substring fails the sweep. Lines starting with # are comments.
+all-statuses.py	**Status: lines, expected exactly 1
+crashes.py	stderr is a traceback, not a refusal message
+exit-two.py	exit 2, expected 1
+newline-only.py	1 bytes on stdout, expected 0
+no-final-newline.py	stdout does not end in exactly one newline byte
+second-hash-cut.py	line 1 is '**Status: running** — position 12 OPEN at §4 step 3', expected
+status-suffix.py	OPEN at §4 step 3 (legacy)', expected
+stray-line.py	4 lines on stdout, expected 3 (status, blank, provenance)

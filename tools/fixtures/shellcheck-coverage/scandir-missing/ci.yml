@@ -1,0 +1,13 @@
+name: fixture
+jobs:
+  shell:
+    name: shell tools
+    steps:
+      - uses: actions/checkout@v7
+      - name: ShellCheck
+        uses: example/action-shellcheck@1111111111111111111111111111111111111111 # pinned
+        with:
+          scandir: ./tools
+          severity: warning
+      - name: Something else
+        run: true

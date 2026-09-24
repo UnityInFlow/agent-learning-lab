@@ -1,0 +1,9 @@
+# Fixture: the scandirs line names the repository root. '.' is an existing directory, so
+# every existence test passes it, while the boundary rule covers nothing with it. Refused
+# on purpose — a value that silently scans nothing must not read as "scans everything".
+      - name: ShellCheck
+        uses: example/action-shellcheck@1111111111111111111111111111111111111111 # pinned
+        with:
+          scandir: ./tools
+          severity: warning
+scandirs: .

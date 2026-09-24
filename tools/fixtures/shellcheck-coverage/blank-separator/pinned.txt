@@ -1,0 +1,11 @@
+# Fixture copy of the ShellCheck steps, with the obvious mistake: a blank line between this
+# comment header and the first pinned line. The block starts at the first line that is
+# neither a column-0 '#' nor blank, so this fixture must be ADMITTED — before the round-2
+# fix the blank line became the block's first line and ci.yml "did not contain it verbatim".
+
+      - name: ShellCheck
+        uses: example/action-shellcheck@1111111111111111111111111111111111111111 # pinned
+        with:
+          scandir: ./tools
+          severity: warning
+scandirs: ./tools

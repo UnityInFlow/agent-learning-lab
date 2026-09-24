@@ -1,0 +1,7 @@
+# Fixture copy of the ShellCheck steps, byte-for-byte, then the scandirs claim.
+      - name: ShellCheck
+        uses: example/action-shellcheck@1111111111111111111111111111111111111111 # pinned
+        with:
+          scandir: ./tools
+          severity: warning
+scandirs: ./no-such-dir

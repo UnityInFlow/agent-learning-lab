@@ -83,7 +83,11 @@ m_solved()     { echo 'fun confirm() {}' >> "$1/sample-service/src/main/kotlin/c
 m_test_added() { echo 'class T' > "$1/sample-service/src/test/kotlin/T.kt"; }
 m_build_fail() { touch "$1/sample-service/FAIL_PACKAGE"; }
 m_test_fail()  { touch "$1/sample-service/FAIL_TEST"; }
-m_new_dep()    { sed -i '' 's|</dependencies>|<dependency><artifactId>archunit</artifactId></dependency></dependencies>|' "$1/sample-service/pom.xml"; }
+# No `sed -i ''`: that is BSD syntax. GNU sed reads the empty string as the script and the real
+# script as a file name, so on ubuntu-latest the pom was never mutated and this case saw exit 0
+# (lab PR #104, first CI run of this fixture set, 2026-09-21). Rewrite through a temp file instead.
+m_new_dep()    { local p="$1/sample-service/pom.xml"
+                 sed 's|</dependencies>|<dependency><artifactId>archunit</artifactId></dependency></dependencies>|' "$p" > "$p.new" && mv "$p.new" "$p"; }
 m_out_of_scope(){ mkdir -p "$1/sample-service/src/main/kotlin/com/unityinflow/sample/billing"
                   echo 'class Billing' > "$1/sample-service/src/main/kotlin/com/unityinflow/sample/billing/Billing.kt"; }
 m_root_scratch(){ echo scratch > "$1/notes.md"; }
