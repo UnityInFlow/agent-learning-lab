@@ -37,8 +37,9 @@
 # past the budget (PARTIAL REVIEW), artifacts DELETED on this branch (REMOVED), the
 # environment failures that used to pass in silence — no `jq`, no merge base with
 # `origin/main`, no executable `tools/opencode-review.sh`, a payload that is not JSON at all,
-# a `git diff` that failed after the merge base resolved, stdin that could not be read, and a
-# repository root this hook could not reach (all NOT REVIEWED). The full list, with each
+# a `git diff` that failed after the merge base resolved, stdin that could not be read, a
+# push aimed at a repository this hook is not in, and a repository root this hook could not
+# reach (all NOT REVIEWED). The full list, with each
 # site's classification, is THE SWEEP below. Each is printed by name. Nothing in scope leaves
 # the machine unmentioned. The reviewer's own exit code is reported by category too, because
 # a gate that returned REJECT and a reviewer that never started are not the same event.
@@ -56,9 +57,12 @@
 # which of the two the path is. A missing `jq` does not mean the command was not a push; it
 # means the hook could not read it. That is a decline, and a decline is announced.
 #
-# THE SWEEP, 2026-09-23, round 3. Two review rounds each fixed the doors they were pointed at
-# — three of them, then one more — and a third round found a fourth. Fixing the named door is
-# how a corridor stays open, so this is the LIST instead: every place in this file where a
+# THE SWEEP, 2026-09-23, rounds 3 and 4. Two review rounds each fixed the doors they were
+# pointed at — three of them, then one more — a third round found a fourth, and a fourth round
+# found one this file had just built: the trigger widening below made `git -C <dir> push` match
+# without making the directory it names reviewable. A widening that admits a command it cannot
+# serve owes a decline, not a review of whatever tree it happens to be standing in.
+# Fixing the named door is how a corridor stays open, so this is the LIST instead: every place in this file where a
 # command's status is discarded or the script leaves early, classified under the one rule
 # above, with the reason in a clause. A later reader checks the code against this list rather
 # than re-deriving it, and `opencode-review.test.sh` holds the list to the code — every
@@ -70,6 +74,10 @@
 #     LAB_REVIEW_HOOK=0 ................. the operator turned it off; that IS the answer.
 #     no command in the payload ......... the call was read; there is no command in it.
 #     the command is not a push ......... read, matched against the trigger, and it is not one.
+#       NARROWED, AND SAID SO: a value token carrying a space (`git -C "my repo" push`) is not
+#       option-shaped to `_opts`, so such a push does not match and leaves through here as
+#       "not a push". That is the trigger's reach and it is the one place this list admits a
+#       silent exit covering something it did not establish. Widening it is its own change.
 #     the diff listed nothing ........... the diff RAN and this branch changed nothing.
 #     nothing matched a glob ............ the changed list was read; no artifact is in scope.
 #     every matched artifact deleted .... already announced by name as REMOVED, two lines up.
@@ -84,6 +92,11 @@
 #     tools/opencode-review.sh missing .. every artifact on the branch goes unreviewed.
 #     no merge base with origin/main .... the changed set is unknown, not empty.
 #     `git diff --name-only` failed ..... the same unknown. This is round 3's finding.
+#     the push names ANOTHER repository . `-C <dir>` / `--git-dir=<dir>` resolving to a git
+#       directory that is not this one: recognised as a push, and not reviewable from here.
+#       This is round 4's finding, and it arrived as the cost of round 3's widening.
+#     that directory did not resolve .... no repository there, or more than one named at once;
+#       whether it is this tree was never established, so neither answer may be assumed.
 #     the panel is empty ................ no harness to send the artifacts to.
 #     `codex` gone from a panel naming it the review quietly stopped being a two-harness one.
 #     the reviewer exited 1 / 3 / 4 / ?.. a REJECT and a reviewer that never started differ.
@@ -238,6 +251,101 @@ _trigger="(^|[^[:alnum:]_-])git${_opts}[[:space:]]+push([^[:alnum:]_-]|\$)"
 _trigger_pr="(^|[^[:alnum:]_-])gh${_opts}[[:space:]]+pr[[:space:]]+create([^[:alnum:]_-]|\$)"
 [[ "$command_line" =~ $_trigger || "$command_line" =~ $_trigger_pr ]] || exit 0  # SILENT: read, and it is not a push.
 
+# WHICH TREE THE PUSH IS AIMED AT — the door the widening directly above opened, and round 3's
+# finding. `git -C <dir> push` now MATCHES, which was the point; but `repo_root` comes from
+# ${BASH_SOURCE[0]} and every git command below runs in THAT tree, never in the directory `-C`
+# or `--git-dir` names. A push aimed at a sibling repository was therefore reviewed against
+# this one: the developer records a review that happened on the wrong tree while the pushed
+# artifacts go unseen — worse than the silence the widening replaced, because it leaves a
+# positive trace. Recognising a push and being able to review it are two different things, and
+# the widening bought only the first.
+#
+# This hook cannot review a tree it is not in: nothing here can enter another repository and
+# call the result this branch's changed set. So it is a CANNOT REVIEW door, and the one rule
+# sends it to stderr — named and declined, never quietly reviewed against the wrong diff.
+#
+# ANOTHER TREE IS DECIDED BY GIT DIRECTORY, not by string prefix. `git -C tools push` is this
+# repository seen from a subdirectory and must review normally; a submodule or a nested clone
+# under the same prefix is a different repository despite the prefix; a linked worktree is a
+# different checkout on a different branch. `rev-parse --absolute-git-dir` answers all three
+# alike, and both sides are pushed through `cd … && pwd -P` so a symlinked root (`/var` ->
+# `/private/var` on macOS) cannot read as two repositories. A directory that resolves to no
+# repository at all is not "different" — it is UNESTABLISHED, and that is its own notice,
+# because guessing in either direction here is exactly how the wrong diff got reviewed.
+#
+# ONLY `git` IS PARSED, not `gh`: `gh --repo o/r pr create` names a GitHub repository while the
+# branch being proposed is this local one, which is the tree the hook should read.
+#
+# THE KNOWN NARROWING, stated here rather than found later: a directory whose name contains a
+# space (`git -C "my repo" push`) does not match the trigger at all — `_opts` takes a value
+# token as one whitespace-free word — so it leaves through the silent "not a push" exit above.
+# That is the trigger's reach, not this check's; widening it is a separate change with its own
+# cases, and it is named in THE SWEEP's list rather than left for a reader to discover.
+_git_opts_re="(^|[^[:alnum:]_-])git(${_opts})[[:space:]]+push([^[:alnum:]_-]|\$)"
+push_targets=''        # "<option> <dir>" per tree-naming option found, verbatim, for the notice
+push_target_count=0
+push_target_dir=''
+push_target_opt=''
+if [[ "$command_line" =~ $_git_opts_re ]]; then
+  # BASH_REMATCH[2] is the WHOLE option run because `_opts` is wrapped in its own group here;
+  # matching `_opts` directly would hand back only its last repetition and lose every earlier
+  # option. The walk below consumes a value token exactly where `_opts` did, so it stays
+  # aligned with what the trigger actually matched rather than with a second, divergent idea
+  # of git's command line.
+  read -r -a _opt_tokens <<< "${BASH_REMATCH[2]}"
+  _i=0
+  while [ "$_i" -lt "${#_opt_tokens[@]}" ]; do
+    _tok="${_opt_tokens[$_i]}"
+    _next="${_opt_tokens[$((_i+1))]:-}"
+    case "$_tok" in
+      --git-dir=*)
+        push_target_opt='--git-dir'; push_target_dir="${_tok#--git-dir=}"
+        push_targets="${push_targets}${push_targets:+, }--git-dir ${push_target_dir}"
+        push_target_count=$((push_target_count+1)); _i=$((_i+1)) ;;
+      -C|--git-dir)
+        # A bare `-C` with nothing after it is the documented over-match `git -C push`: the
+        # regex backtracked to an option with no value, there is no directory, and nothing is
+        # recorded — that push reviews this tree, as it did before.
+        if [ -n "$_next" ]; then
+          push_target_opt="$_tok"; push_target_dir="$_next"
+          push_targets="${push_targets}${push_targets:+, }${_tok} ${_next}"
+          push_target_count=$((push_target_count+1))
+        fi
+        _i=$((_i+2)) ;;
+      *)
+        case "$_next" in ''|-*) _i=$((_i+1)) ;; *) _i=$((_i+2)) ;; esac ;;
+    esac
+  done
+fi
+
+if [ "$push_target_count" -gt 0 ]; then
+  _abs_gitdir() {  # <dir> -> physical git directory git would use there, or nothing at all
+    local g
+    g="$(git -C "$1" rev-parse --absolute-git-dir 2>/dev/null)" || return 1
+    [ -n "$g" ] || return 1
+    (cd "$g" 2>/dev/null && pwd -P)
+  }
+  own_gitdir="$(_abs_gitdir . 2>/dev/null)" || own_gitdir=''
+  target_gitdir=''
+  # MORE THAN ONE tree-naming option (`git -C a --git-dir=b push`) is left unresolved on
+  # purpose: git composes them, this does not, and a wrong answer here reviews the wrong tree
+  # while saying nothing. Unresolved is announced, so the developer learns rather than guesses.
+  if [ "$push_target_count" -eq 1 ]; then
+    case "$push_target_opt" in
+      --git-dir) target_gitdir="$(cd "$push_target_dir" 2>/dev/null && pwd -P)" ;;
+      *)         target_gitdir="$(_abs_gitdir "$push_target_dir" 2>/dev/null)" || target_gitdir='' ;;
+    esac
+  fi
+  if [ -z "$own_gitdir" ] || [ -z "$target_gitdir" ]; then
+    echo "opencode-review hook: NOT REVIEWED — this push names a repository directory this hook could not resolve (${push_targets}), so whether it targets this tree could not be established and nothing it pushed reached the critic." >&2
+    exit 0
+  fi
+  if [ "$target_gitdir" != "$own_gitdir" ]; then
+    echo "opencode-review hook: NOT REVIEWED — this push targets another repository (${push_targets}), and this hook can only examine the tree it lives in (${repo_root}); nothing pushed from there reached the critic. Run the review in that repository." >&2
+    exit 0
+  fi
+fi
+
 command -v opencode >/dev/null 2>&1 || {
   echo "opencode-review hook: NOT REVIEWED — opencode is not installed, so nothing on this branch reaches the critic." >&2
   exit 0
@@ -251,13 +359,19 @@ command -v opencode >/dev/null 2>&1 || {
 
 # Compare against the trunk, not against HEAD~1: a push carries every commit on the branch,
 # and the artifact worth reviewing may have changed three commits ago.
-# An absent `origin/main` — a fork whose default branch is `master`, a remote not yet fetched,
-# a renamed default branch — leaves `base` empty. The changed set is then unknown, not empty,
+# An absent `origin/main` — a trunk still called `master`, a remote not yet fetched, a fork, a
+# renamed default branch — leaves `base` empty. The changed set is then unknown, not empty,
 # and the difference is the one rule: the hook did not find nothing, it failed to find out.
+#
+# ONLY `origin/main` IS TRIED, and the notice now says so. A repository whose trunk is
+# `origin/master` has a fetched remote and no rename to undo, so a notice offering those as
+# causes sends its reader to fetch and retry forever: the decline is permanent there until
+# this hook learns a second ref, which is a change to what it reviews and not a wording fix.
+# Naming the limit is the honest half of that, and it is the half this file can do today.
 base_status=0
 base="$(git merge-base HEAD origin/main 2>/dev/null)" || base_status=$?
 if [ "$base_status" -ne 0 ] || [ -z "$base" ]; then
-  echo "opencode-review hook: NOT REVIEWED — git merge-base HEAD origin/main found nothing (a fork, an unfetched remote, or a renamed default branch), so this branch's changed files could not be listed and no artifact reached the critic." >&2
+  echo "opencode-review hook: NOT REVIEWED — git merge-base HEAD origin/main found nothing (a trunk still called origin/master, a remote not yet fetched, a fork, or a renamed default branch), so this branch's changed files could not be listed and no artifact reached the critic. Only origin/main is tried; a repository whose trunk is named anything else declines here every time, and fetching will not change that." >&2
   exit 0
 fi
 

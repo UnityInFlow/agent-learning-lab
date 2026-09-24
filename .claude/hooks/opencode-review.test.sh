@@ -101,7 +101,7 @@ done
 # skipped case fails that comparison and the run cannot read as a complete pass. "Everything
 # ran and passed" and "everything that ran, passed" are different sentences and now print
 # differently.
-EXPECTED_CASES=58
+EXPECTED_CASES=65
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -117,6 +117,90 @@ run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
     printf 'FAIL  %-44s exit %s (want %s), %s call(s) (want %s)\n' \
       "$name" "$got_exit" "$want_exit" "$got_calls" "$want_calls"
     [ -n "$out" ] && printf '        %s\n' "$out"
+    FAIL=$((FAIL+1))
+  fi
+}
+
+# THE RUNNER FOR "IT REVIEWED, AND IT REVIEWED THIS", added 2026-09-23 after round 4.
+#
+# run() asserts the hook's exit status and the reviewer's CALL COUNT. It cannot see WHAT the
+# reviewer was handed, and six cases asserting the round-3 trigger shapes were green on
+# exactly that blindness: one of them named `/srv/mono/.git/`, a path this fixture does not
+# contain, and passed because the stub is invoked against the fixture whatever the payload
+# says. The case could observe "does this shape match the trigger?" and nothing else, while
+# reading — to anyone scanning the file — as proof that such a push is reviewed end to end.
+# A green case over a behaviour the suite cannot see is the failure this project names most
+# often, and it was sitting inside the test that exists to catch it.
+#
+# So this runner asserts the ARTIFACT SET. Each expected path must appear as its own WHOLE
+# argv line, and the argv must be exactly `-n N -P panel` plus those paths — four flag
+# elements plus one per artifact. The COUNT is what makes it "exactly these": a whole-line
+# grep alone cannot see an extra artifact that also arrived, and an extra artifact is how a
+# review of the wrong tree would look from here.
+run_reviewing() {  # run_reviewing <name> <stdin-json> <artifact>... — exit 0, one call, exactly these
+  local name="$1" payload="$2"; shift 2
+  : > "$CALLS"; : > "$ARGV"
+  local out; out="$(printf '%s' "$payload" | env PATH="$STUB:$PATH" \
+      "$FIXTURE/.claude/hooks/opencode-review.sh" 2>&1)"
+  local got_exit=$?
+  local got_calls; got_calls="$(wc -l < "$CALLS" | tr -d ' ')"
+  local got_args; got_args="$(wc -l < "$ARGV" | tr -d ' ')"
+  local want_args=$((4 + $#))
+  local missing='' a
+  for a in "$@"; do grep -Fxq -- "$a" "$ARGV" || missing="$missing $a"; done
+  if [ "$got_exit" = 0 ] && [ "$got_calls" = 1 ] && [ -z "$missing" ] && [ "$got_args" = "$want_args" ]; then
+    printf 'ok    %-44s reviewed exactly %s artifact(s): %s\n' "$name" "$#" "$*"
+    PASS=$((PASS+1))
+  else
+    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want 1), %s argv element(s) (want %s), not handed over:%s\n' \
+      "$name" "$got_exit" "$got_calls" "$got_args" "$want_args" "${missing:-none}"
+    [ -n "$out" ] && printf '        %s\n' "$out"
+    printf '        argv was: %s\n' "$(tr '\n' ' ' < "$ARGV")"
+    FAIL=$((FAIL+1))
+  fi
+}
+
+# The third runner: a case that must SAY something. It lives here with the other three
+# rather than beside its first user, because it has users in three places — the pushes aimed
+# at another tree just below, the malformed payload further down, and the environment doors
+# at the end of the file.
+#
+# STDERR AND STDOUT ARE SEPARATED HERE, unlike run() and run_silent() which merge them. A
+# hook's stdout goes back to Claude Code as tool output; stderr is where a notice belongs and
+# what the step requires. Merging the two would let a notice moved to stdout keep passing,
+# which is the same class of under-assertion as matching on a flattened argv.
+#
+# THE SEVENTH ARGUMENT IS A STDIN MODE, not a second runner. `unreadable` hands the hook an
+# fd 0 that is open for WRITING (`0>/dev/null`), which is the one way to make `cat` fail
+# deterministically without ever blocking: a closed fd 0 gets reopened somewhere up the chain
+# on this platform, and a directory on fd 0 can hang. Everything the runner asserts — exit 0,
+# the call count, the notice on stderr, an empty stdout — is asserted identically in both
+# modes, which is the point of putting it here instead of in a sixth bespoke block.
+run_announcing() {  # run_announcing <name> <root> <path> <stdin-json> <want-calls> <must-say> [pipe|unreadable]
+  local name="$1" root="$2" path="$3" payload="$4" want_calls="$5" must_say="$6"
+  local stdin_mode="${7:-pipe}"
+  : > "$CALLS"; : > "$ARGV"
+  local errf="$WORK/announce-stderr"
+  local out
+  if [ "$stdin_mode" = unreadable ]; then
+    out="$(env PATH="$path" "$root/.claude/hooks/opencode-review.sh" 2>"$errf" 0>/dev/null)"
+  else
+    out="$(printf '%s' "$payload" | env PATH="$path" \
+      "$root/.claude/hooks/opencode-review.sh" 2>"$errf")"
+  fi
+  local got_exit=$?
+  local got_calls; got_calls="$(wc -l < "$CALLS" | tr -d ' ')"
+  local err; err="$(cat "$errf")"
+  local said=no
+  case "$err" in *"$must_say"*) said=yes ;; esac
+  if [ "$got_exit" = 0 ] && [ "$got_calls" = "$want_calls" ] && [ "$said" = yes ] && [ -z "$out" ]; then
+    printf 'ok    %-44s exit 0, %s call(s), named it on stderr\n' "$name" "$got_calls"
+    PASS=$((PASS+1))
+  else
+    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want %s), on stderr: %s, stdout: %s\n' \
+      "$name" "$got_exit" "$got_calls" "$want_calls" "$said" "${out:-<empty, as wanted>}"
+    printf '        wanted to hear: %s\n' "$must_say"
+    printf '        heard on stderr: %s\n' "${err:-<nothing>}"
     FAIL=$((FAIL+1))
   fi
 }
@@ -156,16 +240,29 @@ run "git push with a semicolon"   '{"tool_name":"Bash","tool_input":{"command":"
 # four ways: a value in a separate argument (`-C <dir>`), a value attached with `=`
 # (`--git-dir=…`), a long option with no value at all (`--no-pager`), and a short option whose
 # value is itself `k=v` (`-c k=v`) — a trigger can accept one and miss the others.
-run "git -C <dir> push counts"    '{"tool_name":"Bash","tool_input":{"command":"git -C . push origin main"}}' 0 1
-run "git -c k=v push counts"      '{"tool_name":"Bash","tool_input":{"command":"git -c user.name=x push"}}' 0 1
-run "git --no-pager push counts"  '{"tool_name":"Bash","tool_input":{"command":"git --no-pager push"}}' 0 1
-# THE TRAILING SLASH IN THIS PATH IS LOAD-BEARING and the case is worthless without it. Write
-# it as `--git-dir=/srv/mono/.git push` and the command CONTAINS the literal `.git push`, with
-# `.` in front of it — so the pre-fix trigger matched it, for a reason that has nothing to do
-# with option tolerance, and the case passed before the fix and after it. Checked by running
-# it against the old regex. A case that cannot fail is not a case.
-run "git --git-dir=… push counts" '{"tool_name":"Bash","tool_input":{"command":"git --git-dir=/srv/mono/.git/ push origin main"}}' 0 1
-run "gh --repo … pr create counts" '{"tool_name":"Bash","tool_input":{"command":"gh --repo o/r pr create --title x"}}' 0 1
+# EACH OF THESE ASSERTS WHAT WAS REVIEWED, NOT JUST THAT SOMETHING WAS. Until round 4 they
+# asserted a call count, which cannot tell a review of this branch from a review of some other
+# tree that happened to be handed to the same stub — and one of them named a directory this
+# fixture does not contain, so it could never have observed the difference. The artifact named
+# here is the only reviewable file on this branch, so "exactly this one" is a real claim.
+run_reviewing "git -C <dir> push counts"    '{"tool_name":"Bash","tool_input":{"command":"git -C . push origin main"}}' \
+  'benchmark/rubrics/backend-quality.yaml'
+run_reviewing "git -c k=v push counts"      '{"tool_name":"Bash","tool_input":{"command":"git -c user.name=x push"}}' \
+  'benchmark/rubrics/backend-quality.yaml'
+run_reviewing "git --no-pager push counts"  '{"tool_name":"Bash","tool_input":{"command":"git --no-pager push"}}' \
+  'benchmark/rubrics/backend-quality.yaml'
+run_reviewing "gh --repo … pr create counts" '{"tool_name":"Bash","tool_input":{"command":"gh --repo o/r pr create --title x"}}' \
+  'benchmark/rubrics/backend-quality.yaml'
+# THE `--git-dir=…` SHAPE HAS MOVED, and the move is the round-4 finding rather than a tidy-up.
+# It used to live here as `run "git --git-dir=… push counts" … 0 1`, asserting that a push at
+# `/srv/mono/.git/` produced one reviewer call — against THIS fixture, which contains no such
+# path. The shape matching the trigger is worth asserting and is asserted still; what the hook
+# then DOES with a directory it is not in is a decline, and both halves are exercised in
+# "THE PUSH AIMED SOMEWHERE ELSE" further down, where the second fixture repository lives.
+# (The trailing slash there remains load-bearing: written `--git-dir=/srv/mono/.git push` the
+# command contains the literal `.git push`, which the pre-widening trigger matched for reasons
+# that have nothing to do with option tolerance, and the case would pass before the fix and
+# after it. A case that cannot fail is not a case.)
 # ...and the boundary must survive the widening. This is the near miss ABOVE wearing a global
 # option, and it is a PAIRED guard rather than a case with a mutation of its own: dropping the
 # `([^[:alnum:]_-]|$)` after `push` fails it and `git pushdown is not a push` together, and
@@ -177,6 +274,69 @@ run "git -C . pushdown is not a push" '{"tool_name":"Bash","tool_input":{"comman
 # A subcommand is not an option, so the option run cannot skip one to reach a later `push`:
 # `git commit -m push` is a commit whose message happens to be the word.
 run "git commit -m push is not a push" '{"tool_name":"Bash","tool_input":{"command":"git commit -m push"}}' 0 0
+
+# --- THE PUSH AIMED SOMEWHERE ELSE (2026-09-23, round 4)
+#
+# The cost of the widening above, and the reason it needed cases of its own. `git -C <dir>
+# push` now MATCHES the trigger — which was the point — but the hook resolves its root from
+# ${BASH_SOURCE[0]} and runs `merge-base` and `diff` in THAT tree, never in the directory the
+# option names. Left there, a push aimed at a sibling repository is reviewed against this one:
+# the developer is told "reviewing 1 artifact" about a file they never pushed, while what they
+# did push goes unseen. That is worse than the silence the widening replaced, because it
+# leaves a positive trace. The hook declines instead, by name.
+#
+# FOUR CASES, TWO OUTCOMES, AND THE SEPARATION IS THE POINT. A decline that fires on every
+# `-C` would be as wrong as reviewing the wrong tree — `git -C . push` and `git -C tools push`
+# are this repository, and a hook that refuses them stops reviewing the ordinary monorepo
+# push. So each direction is asserted: two shapes naming a REAL second repository must
+# decline, one naming a directory that resolves to no repository at all must say so in its own
+# words (unestablished is not the same as different), and two naming THIS tree — through
+# `--git-dir` and through a subdirectory — must review it exactly as a bare `git push` does.
+#
+# THE SECOND REPOSITORY IS A REAL ONE, with its own git directory. The hook compares absolute
+# git directories, so a plain directory would land in the unresolvable arm instead and the two
+# notices could not separate — the case would pass while proving the other thing.
+OTHER="$WORK/other-repo"
+mkdir -p "$OTHER"
+git -C "$OTHER" init -q -b main
+git -C "$OTHER" config user.email t@t; git -C "$OTHER" config user.name t
+echo other > "$OTHER/README.md"
+git -C "$OTHER" add -A >/dev/null; git -C "$OTHER" commit -qm other
+
+_payload() {  # _payload <command> -> the tool call JSON carrying it
+  printf '{"tool_name":"Bash","tool_input":{"command":"%s"}}' "$1"
+}
+
+run_announcing "git -C <other repo> declines" "$FIXTURE" "$STUB:$PATH" \
+  "$(_payload "git -C $OTHER push origin main")" 0 \
+  "NOT REVIEWED — this push targets another repository"
+run_announcing "git --git-dir=<other> declines" "$FIXTURE" "$STUB:$PATH" \
+  "$(_payload "git --git-dir=$OTHER/.git push origin main")" 0 \
+  "NOT REVIEWED — this push targets another repository"
+# The SEPARATED form, which is a different shape and not the same case written twice: the
+# value arrives as its own token, so a parser that only handles `--git-dir=<dir>` reads this
+# one as an option with no directory and reviews this tree while the push went elsewhere.
+run_announcing "git --git-dir <other> declines" "$FIXTURE" "$STUB:$PATH" \
+  "$(_payload "git --git-dir $OTHER/.git push origin main")" 0 \
+  "NOT REVIEWED — this push targets another repository"
+# The directory that is not a repository at all — the shape that used to live up in the
+# trigger section asserting one reviewer call against a fixture that has never contained
+# `/srv/mono/.git/`. It declines, and it declines in ITS OWN words: "could not resolve" and
+# "targets another repository" are different findings, and a hook that collapsed them would
+# tell a developer with a typo that their push went to another repository.
+run_announcing "an unresolvable --git-dir declines" "$FIXTURE" "$STUB:$PATH" \
+  "$(_payload 'git --git-dir=/srv/mono/.git/ push origin main')" 0 \
+  "NOT REVIEWED — this push names a repository directory this hook could not resolve"
+# ...and the other direction, twice. `--git-dir` pointing at THIS tree's git directory, and
+# `-C` pointing at a subdirectory of it, are both this repository — decided by git directory
+# rather than by string prefix, which is what makes the subdirectory case pass and would make
+# a submodule under the same prefix fail.
+run_reviewing "git --git-dir=<this repo> reviews" \
+  "$(_payload "git --git-dir=$FIXTURE/.git push origin main")" \
+  'benchmark/rubrics/backend-quality.yaml'
+run_reviewing "git -C <a subdirectory> reviews" \
+  "$(_payload "git -C $FIXTURE/tools push origin main")" \
+  'benchmark/rubrics/backend-quality.yaml'
 
 # --- the case the hook exists for
 run "push with a changed rubric"  "$PUSH" 0 1
@@ -420,50 +580,6 @@ run_bare_path() {  # same as run(), but with a PATH that contains no opencode at
   fi
 }
 run_bare_path "opencode not installed" "$PUSH" 0 0
-
-# The third runner: a case that must SAY something. It lives here with the other two rather
-# than beside its first user, because it now has users in two places — the malformed payload
-# below and the three environment doors at the end of the file.
-#
-# STDERR AND STDOUT ARE SEPARATED HERE, unlike run() and run_silent() which merge them. A
-# hook's stdout goes back to Claude Code as tool output; stderr is where a notice belongs and
-# what the step requires. Merging the two would let a notice moved to stdout keep passing,
-# which is the same class of under-assertion as matching on a flattened argv.
-#
-# THE SEVENTH ARGUMENT IS A STDIN MODE, not a second runner. `unreadable` hands the hook an
-# fd 0 that is open for WRITING (`0>/dev/null`), which is the one way to make `cat` fail
-# deterministically without ever blocking: a closed fd 0 gets reopened somewhere up the chain
-# on this platform, and a directory on fd 0 can hang. Everything the runner asserts — exit 0,
-# the call count, the notice on stderr, an empty stdout — is asserted identically in both
-# modes, which is the point of putting it here instead of in a sixth bespoke block.
-run_announcing() {  # run_announcing <name> <root> <path> <stdin-json> <want-calls> <must-say> [pipe|unreadable]
-  local name="$1" root="$2" path="$3" payload="$4" want_calls="$5" must_say="$6"
-  local stdin_mode="${7:-pipe}"
-  : > "$CALLS"; : > "$ARGV"
-  local errf="$WORK/announce-stderr"
-  local out
-  if [ "$stdin_mode" = unreadable ]; then
-    out="$(env PATH="$path" "$root/.claude/hooks/opencode-review.sh" 2>"$errf" 0>/dev/null)"
-  else
-    out="$(printf '%s' "$payload" | env PATH="$path" \
-      "$root/.claude/hooks/opencode-review.sh" 2>"$errf")"
-  fi
-  local got_exit=$?
-  local got_calls; got_calls="$(wc -l < "$CALLS" | tr -d ' ')"
-  local err; err="$(cat "$errf")"
-  local said=no
-  case "$err" in *"$must_say"*) said=yes ;; esac
-  if [ "$got_exit" = 0 ] && [ "$got_calls" = "$want_calls" ] && [ "$said" = yes ] && [ -z "$out" ]; then
-    printf 'ok    %-44s exit 0, %s call(s), named it on stderr\n' "$name" "$got_calls"
-    PASS=$((PASS+1))
-  else
-    printf 'FAIL  %-44s exit %s (want 0), %s call(s) (want %s), on stderr: %s, stdout: %s\n' \
-      "$name" "$got_exit" "$got_calls" "$want_calls" "$said" "${out:-<empty, as wanted>}"
-    printf '        wanted to hear: %s\n' "$must_say"
-    printf '        heard on stderr: %s\n' "${err:-<nothing>}"
-    FAIL=$((FAIL+1))
-  fi
-}
 
 # --- malformed input must not produce a stack trace on someone's push
 #
@@ -906,13 +1022,26 @@ fi
 # there, not that it fires. That is exactly the strength the repo-root door can have (its
 # failure cannot be constructed — see the proof in the hook) and no more than the strength
 # the other two doors need, since those are also tested behaviourally below.
+# WHAT "ANNOUNCED" HAS TO MEAN HERE, tightened 2026-09-23 after round 4. This classified any
+# `exit 0` whose previous line contained `>&2` as announced, without reading the message — so
+# `echo "hook unavailable" >&2; exit 0` passed the sweep while naming neither what went
+# unreviewed nor why, which is the whole content of the hook's rule. A structural check that
+# accepts the shape of a notice and not its substance is a control reporting success over a
+# smaller scope than it claims, in the case that exists to catch exactly that.
+#
+# So the preceding line must carry the hook's own decline vocabulary — `NOT REVIEWED` — and
+# not merely a redirection. That is still weaker than running the path (it proves the notice
+# is there, not that it fires), and it is now as strong as a static check can be about this:
+# every announced exit in the hook is preceded by its NOT REVIEWED line, and a new door that
+# says something vaguer is UNCLASSIFIED rather than quietly counted. The refusal is run rather
+# than described, two cases below, over three synthetic shapes.
 hook_exit_sites() {  # hook_exit_sites <file> — one line per exit 0: "<class> <lineno> <text>"
   awk 'BEGIN { prev = "" }
        {
          if ($0 !~ /^[[:space:]]*#/ && $0 ~ /exit 0/) {
-           if ($0 ~ /# SILENT:/)      cls = "silent"
-           else if (prev ~ />&2/)     cls = "announced"
-           else                       cls = "UNCLASSIFIED"
+           if ($0 ~ /# SILENT:/)                             cls = "silent"
+           else if (prev ~ />&2/ && prev ~ /NOT REVIEWED/)    cls = "announced"
+           else                                              cls = "UNCLASSIFIED"
            printf "%s %d %s\n", cls, NR, $0
          }
          prev = $0
@@ -938,6 +1067,27 @@ else
   FAIL=$((FAIL+1))
 fi
 
+# The refusal for the classifier itself, run rather than described. Three one-line shapes: a
+# real notice, a generic one that redirects to stderr and names nothing, and a marked silent
+# exit. The middle one is the round-4 finding — it must come back UNCLASSIFIED, and it did not
+# before the `NOT REVIEWED` half of the rule above was added.
+EXITSHAPES="$WORK/exit-shapes"; mkdir -p "$EXITSHAPES"
+printf '%s\n' 'echo "opencode-review hook: NOT REVIEWED — a door" >&2' 'exit 0' \
+  > "$EXITSHAPES/announced"
+printf '%s\n' 'echo "hook unavailable" >&2' 'exit 0'            > "$EXITSHAPES/generic"
+printf '%s\n' 'exit 0  # SILENT: nothing was owed'              > "$EXITSHAPES/silent"
+cls_announced="$(hook_exit_sites "$EXITSHAPES/announced" | awk '{print $1}')"
+cls_generic="$(hook_exit_sites "$EXITSHAPES/generic"     | awk '{print $1}')"
+cls_silent="$(hook_exit_sites "$EXITSHAPES/silent"       | awk '{print $1}')"
+if [ "$cls_announced" = announced ] && [ "$cls_generic" = UNCLASSIFIED ] && [ "$cls_silent" = silent ]; then
+  printf 'ok    %-44s a bare ">&2" line is not an announcement\n' "the exit classifier reads the notice"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s notice=%s generic=%s silent=%s (want announced/UNCLASSIFIED/silent)\n' \
+    "the exit classifier reads the notice" "$cls_announced" "$cls_generic" "$cls_silent"
+  FAIL=$((FAIL+1))
+fi
+
 silent_count="$(printf '%s\n' "$SITES" | grep -c '^silent ' || true)"
 if [ "$silent_count" = "$EXPECTED_SILENT_EXITS" ]; then
   printf 'ok    %-44s %s of them, as enumerated in THE SWEEP\n' \
@@ -956,13 +1106,39 @@ fi
 # finding. The hook has none left, and this is what keeps it that way. The idiom that replaced
 # it — `status=0; x="$(cmd)" || status=$?` — costs one extra line and makes the difference
 # between the two outcomes available to the code that has to choose between them.
-swallowed="$(awk '!/^[[:space:]]*#/ && /\|\| true/ { printf "%d: %s\n", NR, $0 }' "$HOOK")"
+#
+# `|| :` IS THE SAME SHAPE, and searching for the literal `|| true` missed it — round 4's
+# finding. `:` is the null command; it discards the status identically and reads as a typo to
+# anyone scanning quickly, which makes it the likelier of the two to arrive unnoticed. The
+# claim in this file's own header is that the hook discards NO command status, so the check
+# has to cover both spellings or the claim is wider than the check. The refusal below is run
+# over a synthetic file rather than described, for the same reason every other refusal here is.
+status_discard_sites() {  # <file> -> "<lineno>: <line>" per discarded status, outside comments
+  awk '!/^[[:space:]]*#/ && /\|\|[[:space:]]*(true|:)([^[:alnum:]_]|$)/ { printf "%d: %s\n", NR, $0 }' "$1"
+}
+swallowed="$(status_discard_sites "$HOOK")"
 if [ -z "$swallowed" ]; then
-  printf 'ok    %-44s no "|| true" outside comments\n' "the hook discards no command status"
+  printf 'ok    %-44s neither "|| true" nor "|| :" outside comments\n' "the hook discards no command status"
   PASS=$((PASS+1))
 else
-  printf 'FAIL  %-44s "|| true" discards a status here:\n' "the hook discards no command status"
+  printf 'FAIL  %-44s a status is discarded here:\n' "the hook discards no command status"
   printf '        %s\n' "$swallowed"
+  FAIL=$((FAIL+1))
+fi
+
+# The refusal: both spellings caught, on their own lines, and nothing else — `|| continue` is
+# control flow rather than a discarded status, and a commented example is not code.
+DISCARDSHAPES="$WORK/discard-shapes"
+printf '%s\n' 'x="$(cmd)" || true' 'y="$(cmd)" || :' 'z="$(cmd)" || continue' \
+  '# an example of || true inside a comment' > "$DISCARDSHAPES"
+got_discards="$(status_discard_sites "$DISCARDSHAPES" | awk '{print $1}' | tr '\n' ' ')"
+if [ "$got_discards" = "1: 2: " ]; then
+  printf 'ok    %-44s "|| true" and "|| :" caught, "|| continue" and comments not\n' \
+    "both discard shapes are caught"
+  PASS=$((PASS+1))
+else
+  printf 'FAIL  %-44s reported lines [%s] (want [1: 2: ])\n' \
+    "both discard shapes are caught" "$got_discards"
   FAIL=$((FAIL+1))
 fi
 
