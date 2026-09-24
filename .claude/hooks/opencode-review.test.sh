@@ -101,7 +101,7 @@ done
 # skipped case fails that comparison and the run cannot read as a complete pass. "Everything
 # ran and passed" and "everything that ran, passed" are different sentences and now print
 # differently.
-EXPECTED_CASES=65
+EXPECTED_CASES=66
 PASS=0; FAIL=0; SKIP=0
 run() {  # run <name> <stdin-json> <expect-exit> <expect-calls> [env=val ...]
   local name="$1" payload="$2" want_exit="$3" want_calls="$4"; shift 4
@@ -953,12 +953,23 @@ fi
 # with a `master` default, an unfetched remote or a renamed default branch looks like here.
 NOTRUNK="$WORK/repo-notrunk"
 if ! prepare_copy "$NOTRUNK" notrunk || ! git -C "$NOTRUNK" update-ref -d refs/remotes/origin/main; then
-  printf 'skip  %-44s could not build a trunkless copy of the fixture (cp/git failed)\n' \
-    "no trunk ref is named, not silent"
-  SKIP=$((SKIP+1))
+  for _c in "no trunk ref is named, not silent" "the trunk notice names its own limit"; do
+    printf 'skip  %-44s could not build a trunkless copy of the fixture (cp/git failed)\n' "$_c"
+    SKIP=$((SKIP+1))
+  done
 else
   run_announcing "no trunk ref is named, not silent" "$NOTRUNK" "$STUB:$PATH" "$PUSH" 0 \
     "NOT REVIEWED — git merge-base HEAD origin/main found nothing"
+  # ...and the SUBSTANCE of that notice, which is round 4's third finding and the half a
+  # fixed-prefix assertion cannot see. The old notice offered "a fork, an unfetched remote,
+  # or a renamed default branch" to a reader whose trunk is simply called `origin/master`:
+  # none of those is their cause, and every one of them suggests an action that will not
+  # work. The decline is PERMANENT there until the hook learns a second ref, so the notice
+  # has to say so. Asserted as its own case rather than by lengthening the case above,
+  # because "the right door fired" and "the notice told the truth about it" are two claims
+  # and a suite that merges them cannot report which one broke.
+  run_announcing "the trunk notice names its own limit" "$NOTRUNK" "$STUB:$PATH" "$PUSH" 0 \
+    "Only origin/main is tried"
 fi
 
 # (b) no jq. A PATH holding only what the hook needs MINUS jq — and the opencode stub, so the
