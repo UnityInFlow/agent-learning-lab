@@ -7,6 +7,25 @@
 # Exit 0 if every case behaves, 1 otherwise. A hook that silently does nothing is worse than
 # no hook, so the cases that assert the reviewer was NOT called matter as much as the ones
 # that assert it was.
+#
+# THE MUTATION SWEEP OF 2026-09-24, recorded here because a case nobody has ever seen fail is
+# a claim, not a test. Each mutant was applied to a COPY of the hook in a clone of this
+# repository — the hook in the tree is byte-identical to the trunk's — and run twice: once
+# against this file, once against the file as it stood on the trunk before these assertions
+# existed. The second column is what the round-5 gaps cost.
+#
+#   mutant                                        this file          the file before it
+#   `-n` dropped from the invocation .......... 7 cases fail ....... (count 4+N caught it)
+#   `-n` SPLIT from its value, count unchanged . 7 cases fail ....... 69/69 GREEN — gap (a)
+#   `runs=` hardcoded past LAB_REVIEW_RUNS ..... 1 case fails ....... n/a, no case existed
+#   the reviewer fired TWICE on one push ...... all 5 blocks fail ... all 5 blocks GREEN
+#   exit 1 after a completed review ........... 4 of 5 blocks fail .. all 5 blocks GREEN
+#   exit 1 on the deletion-only path .......... deletion-only fails . all 5 blocks GREEN
+#
+# The split-flag row is the one to read twice: the argv element count was 5 before and after,
+# so the suite's strongest existing assertion could not see it and every case passed. The
+# three bottom rows are the five hand-written blocks, which asserted their notice and (some of
+# them) their call count while never capturing the hook's exit status at all.
 
 set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit 1
