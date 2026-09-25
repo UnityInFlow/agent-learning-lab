@@ -3,9 +3,14 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "What is BLOCKED ON YOU" in the Stop 17 section below — that is the live halt as of
-2026-09-16, it names the one thing that has to happen before the run can move, and it outranks
+**Start at "What is BLOCKED ON YOU" in the Stop 17a section below — that is the live halt as of
+2026-09-25, it names the one decision that has to be made before the run can move, and it outranks
 everything else in this file.**
+
+*(Superseded pointer, kept:)* "Start at 'What is BLOCKED ON YOU' in the Stop 17 section below —
+that is the live halt as of 2026-09-16." **That halt is discharged**: BE-005 is on benchmarks
+`main`, its `verify-evaluator.sh` was re-run there at 17 of 17, and Gate B′ passed with all five
+rows author-confirmed. The run moved past it and then hit a different wall at the rubric proof.
 
 *(Superseded pointer, kept:)* "Start at 'What is BLOCKED ON YOU' item 000 below — it is the live
 halt … Then item 0, then 'Stop 11 is CLOSED'." That pointer is from the thirteenth session and the
@@ -21,7 +26,14 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 17 of 28. Positions 4–17 CLOSED.** Stop 17 (B8 — run state, repair limits, completion
+**Spine 17a of 28. Positions 4–17 CLOSED; 17a (B8a — decomposition depth) is OPEN and HALTED at
+its pre-step-1 rubric proof, 2026-09-25.** The 2026-09-16 BE-005 halt is discharged; the live halt
+is the one in the Stop 17a section — BE-005's `change-focus` rubric dimension does not separate on
+the fixtures, three of four do, and every available fix moves something that is the author's. The
+rubric is ported but **not registered**, decision 11 is **not** recorded as adopted, and §4 step 1
+is not opened.
+
+Stop 17 (B8 — run state, repair limits, completion
 contract) closed 2026-09-16 at **three of four gate clauses**, with clause 3 (*a blocked run
 produces a clear machine-readable result*) written **L3 and left open** rather than waved through.
 **v1.1 is kept and NOT promoted**; nothing in this track has been promoted. Both tasks land on
@@ -75,6 +87,112 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## Stop 17a — B8a is open at the pre-step-1 rubric proof, and the proof FAILED on one dimension — 2026-09-25
+
+The 2026-09-16 halt is **discharged**, and by evidence re-derived in this session rather than
+carried from a note: `tasks/BE-005-partial-fulfilment` is on benchmarks `main` behind a two-parent
+merge (#31 → `fac772d2`, an ancestor of tip `2fc445d`), I re-ran
+`tasks/BE-005-partial-fulfilment/verify-evaluator.sh` on a clean `main` myself at **17 of 17,
+exit 0**, and Gate B′ passed at **WRONG 4 of 5 against a threshold of 3** with **all five rows
+author-confirmed on 2026-09-24** (`evidence/gate-b2-decision-11/RESULT.md`, lab `990cef4`, which is
+on `origin/main`). That put the run on the `>= 3 WRONG` branch of the author's standing instruction
+`AUTHOR-DECISION-11-CONTINUE.md`, whose three pre-step-1 acts are: port the rubric draft with two
+named additions, prove it on codex, register the sha and record decision 11 adopted.
+
+**Act (a) is done. Act (b) ran and did not pass. Act (c) has not happened.**
+
+The rubric is ported at `benchmark/rubrics/backend-quality-be005.yaml`, version `2-be005`, sha
+`945817b8c509`, and the port is **proved minimal** — diffing the draft's body against the port's
+gives only the version line, the `architecture-consistency` comment with its anchors 0 and 2, and
+the `test-quality` comment with its anchors 1 and 2; `maintainability` and `change-focus` are
+byte-identical. Both additions trace to the one thing ticket A′ added, `PUT /orders/{orderId}/quantity`.
+The `test-quality` addition is a **fifth required clause** rather than an alternative inside clause
+(a), because a suite that re-reads only after a cancel passes `known-bad-stale-amend` unchanged —
+and that costs something, stated before the proof rather than discovered by it: **no fixture's tests
+call the amendment endpoint**, so `good-strong-tests` was predicted at 1 and no fixture reaches
+anchor 2.
+
+All 28 predicted cells are committed at **`300b6ca`, 05:30:15Z**, before the first sheet
+(`scored_utc 20260925T053037Z`). Seven codex calls, exit 0 each, codex and nothing else per
+decision 10.2. Every cell was read twice — by the scoring subagent and by me over the same files —
+and **the two readings agree on all 28**.
+
+**Three dimensions separate; `change-focus` does not.**
+
+- `architecture-consistency` separates on **both** its variants, and the cell the predictions named
+  most consequential **held**: `good-stored-consistent` scores **0**, citing the three shipment-side
+  stored-fulfilment writes. That variant is the one whose defect **every gate passes** — the
+  evaluator cannot see it and must not try — so this anchor is the only instrument that can, and it
+  can. B8a's registered outcome can live here.
+- `maintainability` separates, `good-nested-ifs` 0 against six 2s.
+- `test-quality` separates at **1 versus 0**, and the at-risk prediction held exactly: the scorer
+  applied clause (e).
+- `change-focus` **fails**. `good-noisy-diff` scores 0 — and so do `good-stored-consistent` and
+  `good-nested-ifs`, **neither of which varies that dimension**. Three registered predictions are
+  refuted in that one column; they are not edited.
+
+**It is not a scorer error, and the diagnosis is worth more than the halt.** Both 0-cells cite
+`known-good` as the tree they compared against, which is exactly what `tools/codex-score.sh:161`
+attaches when the target is a fixture — while the `--run-id` path instead attaches the **pre-agent
+HEAD** (`:158-159`, Decision D). `change-focus` is the one dimension whose meaning turns on which
+reference is attached: against the pre-agent tree it asks *did the agent touch what no clause
+required*, which is the construct; against `known-good` it asks *does this differ from the reference
+solution*, which **every quality variant does by construction, being `known-good` plus one defect**.
+BE-004's anchor fired only on *"two or more **unnamed** methods"*, and the variants' defects sit in
+methods the ticket names, so they never tripped it. The draft had to drop that qualifier — BE-005's
+ticket names nearly every method — and the qualifier was the only thing keeping the dimension
+orthogonal. **BE-004's `change-focus` row passed for a reason unrelated to what it claimed to
+prove**, which is this project's house failure mode aimed at its own instrument.
+
+Author decision 9 makes a non-separating dimension a §7 halt and *"not something to edit past"*, so:
+the anchor was **not** narrowed until it separated, the harness was **not** changed, **no fixture was
+touched**, the sha is **not** registered, and decision 11 is **not** recorded as adopted. §4 step 1
+is not opened and `phases/b08a-decomposition-depth/` does not exist.
+
+### What is BLOCKED ON YOU
+
+**HALT (§7: a gate that cannot be closed without moving a registered variable) — the BE-005
+`change-focus` dimension does not separate, and every fix moves something that is yours.**
+
+Everything is on branch `stop17a/b8a-decomposition-depth` and nothing is merged. The full result,
+all 28 cells with their predictions beside them, the scorer's own reasons and line citations, and
+the three ways forward are in **`evidence/b08a/rubric-proof/RESULT.md`**; the predictions are in
+`PREDICTIONS.md` at `300b6ca` and are untouched.
+
+The three options, shortest form — the long form with costs is in `RESULT.md`:
+
+1. **Narrow `change-focus` and re-prove.** Cheapest in money, most dangerous epistemically: any
+   narrowing chosen after seeing these cells is fitted to them. If taken, the honest form is to
+   write the new anchor and its 28 predicted cells **before** re-scoring.
+2. **Score `change-focus` against the pre-agent tree in fixture mode.** Arguably a correction, not a
+   fit — it makes the fixture proof ask the question a run is scored on. Costs a change to
+   `codex-score.sh` and `opencode-score.sh`, a fixture set proving the new branch, and a re-score of
+   **BE-004's** proof to see whether its `change-focus` row survives the same treatment.
+3. **Register the rubric with `change-focus` marked `unmeasured`** and take B8a's registered outcome
+   from `architecture-consistency`, which separated. Costs nothing, needs no instrument, narrows what
+   B8a can claim — the 15 % weight carries no measurement, so the weighted total is not comparable to
+   BE-004's — and has a precedent in **your own decision 10.3**, which carved `change-focus` out of
+   the Decision H fallback and made such a cell *"unmeasured"* rather than computed.
+
+Option 3 is the only one needing no new instrument and no re-score. It is still not the builder's:
+it changes what the registered rubric measures, and B13's `quality_score` clause reads the weighted
+total.
+
+**Two smaller things for you, neither a halt, both in `TRACK-B-STATE.md` `author_notes`:**
+`AUTHOR-DECISION-11-CONTINUE.md` says *evaluator 1.1.0* where `main` carries `1.0.0`
+(`evaluator.sh:58`; the verifier passes either way, but 1.0.0 is the string a run record will
+register), and its budget line *"25× the median plain-run cost, $0.34"* uses **Gate B round 1's**
+median, on the ticket that **failed** its gate. Gate B′'s median on the registered ticket is
+**$0.388** — re-derived by me from `manifest.tsv`, not read from the prose — so the ceiling is
+registered as **25 × $0.388 = $9.70**; your reading gives $8.53 and lowering it needs no halt.
+
+**One thing this session could not do, disclosed rather than papered over.** Editing this file makes
+`./tools/check-board-freshness.sh` demand a republish, and **this session has no Artifact tool**, so
+the two boards cannot be republished from here. The markers are therefore **left stale on purpose**
+and the board check is **red** — relabelling a marker for a board that cannot be shown to have been
+published is how one ends up provably current and wrong, which has happened here once. Nothing is
+merged, so nothing red reaches `main`.
 
 ## Stop 17 — B8 closed at three of four clauses: the treatment was provably delivered and moved nothing, and the one thing it bought is a way to see a command fail — 2026-09-16
 

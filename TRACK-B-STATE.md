@@ -4,7 +4,23 @@ Owned by the autonomous run. `run-track-b.sh` reads `status: running   # STOP 12
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running   # RE-ENTERED 2026-09-24T23:1xZ. THE §7 HALT OF 2026-09-16 IS DISCHARGED, and it is
+status: blocked   # §7 HALT 2026-09-25T05:5xZ, AT STOP 17a`s PRE-STEP-1 RUBRIC PROOF. NOT a halt on
+                  # BE-005 - that halt is DISCHARGED and I re-derived all three of its conditions myself
+                  # (verify-evaluator.sh re-run by me on a clean benchmarks main at 17 of 17; #31 fac772d2 a
+                  # two-parent merge and an ancestor of tip 2fc445d; Gate B` WRONG 4 of 5, all five rows
+                  # author-confirmed, lab 990cef4 on origin/main). THE NEW BLOCKER IS THE RUBRIC PROOF:
+                  # THREE DIMENSIONS SEPARATE AND change-focus DOES NOT. good-noisy-diff scores 0 and so do
+                  # good-stored-consistent and good-nested-ifs, NEITHER OF WHICH VARIES THAT DIMENSION.
+                  # Author decision 9 makes that a §7 halt and "not something to edit past", so NOTHING was
+                  # narrowed, NO fixture was touched, the harness was NOT changed, THE SHA IS NOT REGISTERED
+                  # and DECISION 11 IS NOT RECORDED AS ADOPTED. §4 step 1 is not opened and
+                  # phases/b08a-decomposition-depth/ DOES NOT EXIST.
+                  # THE GOOD NEWS IS IN THE SAME PROOF: architecture-consistency SEPARATES ON BOTH ITS
+                  # VARIANTS, including good-stored-consistent at 0 - the one variant whose defect EVERY GATE
+                  # PASSES, the cell PREDICTIONS.md named most consequential, and the dimension B8a`s trap
+                  # actually lives in. So option 3 in RESULT.md costs nothing. IT IS STILL NOT MINE.
+                  # NOTHING IS RUNNING. NO BENCHMARK RUN WAS MADE THIS SESSION AND NONE IS OWED.
+  # SUPERSEDED, kept not deleted: status: running   # RE-ENTERED 2026-09-24T23:1xZ. THE §7 HALT OF 2026-09-16 IS DISCHARGED, and it is
                   # discharged by evidence I re-derived myself, not by a note. ALL THREE CONDITIONS OF §3 ROW 17a
                   # ARE MET: (1) BE-005 IS ON benchmarks main - `git ls-tree -d --name-only origin/main tasks/`
                   # returns FIVE entries including tasks/BE-005-partial-fulfilment, merged as PR #30 (a662c966,
@@ -38,7 +54,11 @@ prompt_read_at: 2026-09-25T05:1xZ   # READ IN FULL AGAIN before any other action
   # SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-15T16:1xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8. Sha UNCHANGED at 76a83fb7f604, so no `prompt changed` line is owed under §0.  SUPERSEDED, kept not deleted: 2026-09-14T13:4xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8. Sha CHANGED BY MY OWN ADOPTION EDIT (see prompt_sha), so the `prompt changed` line §0 owes is in in_flight below.  SUPERSEDED, kept not deleted: 2026-09-13T10:0xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed.  SUPERSEDED, kept not deleted: 2026-09-11T10:1xZ   # RE-READ IN FULL this session, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed; it was re-read anyway because the author`s instruction named the §0a preflight as the first act.  SUPERSEDED, kept not deleted: 2026-09-11T07:5xZ   # RE-READ IN FULL AGAIN this session, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed. SUPERSEDED, kept not deleted: 2026-09-11T06:5xZ   # WHOLE PROMPT RE-READ IN FULL before any other action this session, sections 0-8 (§9 excluded again on the author`s explicit instruction "Ignore section 9"). The sha was UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed; it was re-read anyway because the author`s instruction named the §0a preflight as the first act and §0a is only reachable by reading it. prompt_read_at: 2026-09-10T09:2xZ   # RE-READ IN FULL this session because the sha CHANGED (ba62c35dbbd2 -> 16ec79abbf55). §9 excluded on the author`s explicit instruction, as before. SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-09T07:0xZ
 stop: 17a          # B8a - DECOMPOSITION DEPTH, on BE-005 ONLY (author decision 11 items 2-5), version-neutral, measured against v1.1. Spine position 17a, inserted after B8 and before 6A so no stop number moves. Prereqs 4B (stop 11) and B8 (stop 17) are both CLOSED AND MERGED. OPENED 2026-09-24 on branch stop17a/b8a-decomposition-depth, created off main at d4faa7e which IS origin/main (fetched and compared, not assumed).
   # SUPERSEDED, kept not deleted: stop: 17           # B8 - run state, repair limits, completion contract - v1.1. OPENED 2026-09-15 on branch stop17/b8-run-state-repair-limits. Track A prerequisite Phase 5B (stop 16) IS CLOSED AND MERGED. The B-step issue is **lab#33** - CHECKED AGAINST THE ISSUE LIST VIA THE API, NOT GUESSED (27=B2 ... 33=B8, 33 is open). Both tasks per author decision 9: BE-003 and BE-004.  SUPERSEDED, kept not deleted: 16           # Phase 5B - verification loops, bounded self-healing, completion. OPEN as of 2026-09-11T10:2xZ on branch stop16/phase-5b-verification-selfhealing. The spine`s closing condition is EVIDENCE ON DISK for Lab 5B.5 (obs#47, BLOCKED != FAILED). The Phase issue is lab#15 - CHECKED AGAINST THE ISSUE LIST, NOT GUESSED.  SUPERSEDED, kept not deleted: 16           # Phase 5B: reading, extract, Lab 5B.5 (obs#47, BLOCKED != FAILED). NOT YET OPENED - no stop-16 artifact exists and §6 forbids creating one early. STOP 15 IS CLOSED AND MERGED: PR lab#84 -> 2d201a5, nine checks green, lab#32 commented and CLOSED, card Done, both boards republished, check-board-freshness 2 board(s) current at 865f553b9c12. SUPERSEDED, kept not deleted: 15           # B7 - deterministic verification and policies. OPEN, at §4 steps 7-8. NOT CLOSED and NOT CLOSEABLE this session: the exit gate needs P7 (rubric quality) and P7 needs codex, which is refusing on auth. Steps 1-6 were done in earlier sessions; steps 7 and 8 are done in this one EXCEPT the registered sheets. stop: 15           # B7 - deterministic verification and policies. v1.0 CLOSES HERE, measured against B2 on BE-003 and against BE-004`s own B5 control on BE-004 (author decision 9); NEVER across tasks. NOT YET OPENED. Stop 14 CLOSED AND MERGED: PR lab#82 -> 259c996, nine checks green, lab#7 COMMENTED AND LEFT OPEN (5A.2-5A.7 deferred), card Done, both boards republished, check-board-freshness 2 board(s) current at 32590f81db10. SUPERSEDED, kept not deleted: 14           # Phase 5A - guardrails: reading, extract, Lab 5A.1 (remove a capability before policing it). NOT YET OPENED. STOP 13 IS CLOSED AND MERGED: PR lab#80 -> 4b21650 (nine checks green) plus the follow-up lab#81 -> 4eb5a59; lab#31 commented and CLOSED, card moved to Done, both boards republished and check-board-freshness reports 2 board(s) current at cd59aacd084f. SUPERSEDED, kept not deleted: 13           # B6 - ONE specialist skill, chosen from a failure MEASURED in B2-B5, on BOTH tasks (author decision 9). NOT YET OPENED. Stop 12 CLOSED and MERGED: PR lab#79 -> 2e32f214, nine checks green, lab#30 commented and closed, card Done. SUPERSEDED, kept not deleted: 12           # B5 - workflow phases, on BOTH BE-003 and BE-004 (author decision 9). OPEN. Steps 1-3 done: workbook opened and issue lab#30 commented at 05:19:39Z, extract and layer labels at 1031a99, and the two prediction registrations at 5777b07 (E-010, BE-003) and ccd5c0c (E-011, BE-004).
-loop_step: pre-1(b)-SCORING   # ACT (a) IS DONE AND COMMITTED (300b6ca, 2026-09-25T05:30:15Z): the rubric is
+loop_step: pre-1(b)-FAILED   # ACT (a) DONE, ACT (b) RAN AND DID NOT PASS, ACT (c) NOT STARTED AND MUST
+  # NOT BE. The seven codex sheets exist and are committed; three of the four separation rows hold and
+  # change-focus does not. The next act is NOT a §4 step and NOT mine: it is the author choosing among the
+  # three options in evidence/b08a/rubric-proof/RESULT.md. See blocked_on_author.
+  # SUPERSEDED, kept not deleted: loop_step: pre-1(b)-SCORING   # ACT (a) IS DONE AND COMMITTED (300b6ca, 2026-09-25T05:30:15Z): the rubric is
   # ported to benchmark/rubrics/backend-quality-be005.yaml, version 2-be005, sha 945817b8c509, and its
   # PREDICTED DIRECTIONS FOR ALL 28 CELLS ARE COMMITTED IN THE SAME COMMIT, BEFORE ANY SCORING CALL
   # (evidence/b08a/rubric-proof/PREDICTIONS.md). ACT (b), THE SEVEN CODEX SHEETS, IS RUNNING at this write
@@ -940,7 +960,30 @@ last_verified: "EVERY FACT THIS SESSION WAS RE-DERIVED BY ME IN THE MAIN CONTEXT
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "PRE-1 ACT (a) THEN (b) THEN (c), IN THAT ORDER, ON BRANCH stop17a/b8a-decomposition-depth.
+next_action: "NOTHING BY ME. THE RUN IS HALTED ON THE AUTHOR`S DECISION and the driver stops on
+  status: blocked. A session that starts anyway should: read blocked_on_author and
+  evidence/b08a/rubric-proof/RESULT.md, confirm the author has NOT chosen among the three options, and if
+  they have not, DO NOTHING AND END THE TURN.
+  DO NOT narrow the change-focus anchor. DO NOT change codex-score.sh or opencode-score.sh. DO NOT touch a
+  BE-005 fixture. DO NOT register the rubric sha. DO NOT record decision 11 as adopted. DO NOT open §4
+  step 1 or create phases/b08a-decomposition-depth/. DO NOT re-score the seven fixtures - the seven sheets
+  are on disk, exit 0 each, and re-scoring measures the scorer`s variance, not the rubric.
+  WHEN THE AUTHOR CHOOSES: under option 3 the remaining pre-1 work is small - record the choice with its
+  provenance in build/README.md beside decision C and 10.3, register the sha 945817b8c509 with
+  change-focus marked `unmeasured` in the adoption record, record decision 11 ADOPTED in author_decisions
+  item 11 and PROMPT §3, and then §4 step 1. Under options 1 or 2 the new anchor or the new harness branch
+  and its 28 predicted cells are written and committed BEFORE any re-score, and option 2 additionally owes
+  a re-score of BE-004`s proof.
+  THE B8a DESIGN IS ALREADY FIXED AND NEEDS NO REDERIVATION when the stop opens: cut B by phase
+  (planner -> implementer -> verifier, orchestrator routes only), tools lists planner Read/Grep/Glob,
+  implementer full default, verifier Read/Grep/Glob/Bash, each probed by decision 8`s init read-back;
+  method-only prose (Q6 option A); overlay build/customizations/b8a-pipeline-v1.0/.claude/agents/ with
+  four files; one bounce so the delivery proof asserts 3 or 5 delegation events and nothing else, with
+  `once` explicitly L3; deliberate failure = orchestrator without Task, row 0a; experiment key E-020
+  (next free - E-019 is the highest on disk); cost ceiling 25 x $0.388 = $9.70. There is NO B8a section in
+  build/README.md and NO lab issue for B8a (lab#27-38 are B2-B13; 33 is B8, closed), so step 1 creates
+  both.
+  SUPERSEDED, kept not deleted: PRE-1 ACT (a) THEN (b) THEN (c), IN THAT ORDER, ON BRANCH stop17a/b8a-decomposition-depth.
   The author`s CONTINUE instruction (workspace root AUTHOR-DECISION-11-CONTINUE.md, >= 3 WRONG branch) puts
   three acts BEFORE §4 step 1 and all three conditions that license them are RE-DERIVED AND TRUE (see
   in_flight).
@@ -1955,7 +1998,43 @@ process_violations_stop8:  # KEPT, not deleted. Disclosed rather than tidied awa
   - "I TRUNCATED experiments/E-004-skill-activation.md TO 0 BYTES mid-session by calling open(path, `w`) before the content it was to be given had been built, so the write failed after the truncate. Recovered in full from git within a minute because the file was committed; nothing was lost. The lesson is the same one this project keeps meeting from the other side: the destructive step ran before the check that would have stopped it. Every file write after that point builds the whole string first, writes a .tmp, and os.replace()s it"
 
 board_state: "GREEN, and it was RED in between - both states are mine and both are recorded rather than only the final one. `./tools/check-board-freshness.sh` exits 0: `2 board(s) current at 12716f4646e1`, both markers `built-from: d14d1ec`. IT WENT RED BECAUSE I EDITED HANDOFF.md (item 000, the pass-16 section), which is exactly what §4 step 14 says editing HANDOFF.md does. BOTH BOARDS WERE REPUBLISHED WITH REAL CONTENT, NOT RELABELLED: runs on record 325 -> 335 re-derived from the API, position 12 marked HALTED on benchmarks#29, and a new pass-16 section on each. Relabelling alone would ALSO have gone green and would have left both boards lying, which is the failure this check exists to prevent rather than to perform. ALL HANDOFF EDITS WERE FINISHED BEFORE PUBLISHING so the digest was final and one republish sufficed; publishing first would have needed a second pass. RE-DERIVED BY HAND after the republish, not taken from the preflight subagent`s table - its board row said `current at 0bc526aa09d3` and was stale by the time I read it."
-blocked_on_author: []   # EMPTY as of 2026-09-24T23:1xZ. The single item below was the §7 HALT of
+blocked_on_author:
+  - "HALT (§7: a gate that cannot be closed without moving a registered variable) — 2026-09-25T05:5xZ.
+    *** THE BE-005 RUBRIC`S change-focus DIMENSION DOES NOT SEPARATE ON THE FIXTURES, AND EVERY FIX MOVES
+    SOMETHING THAT IS YOURS. *** Author decision 9: `a dimension that does not separate is a §7 halt, not
+    something to edit past`.
+    WHAT PASSED: architecture-consistency separates on BOTH its variants - good-inline-envelope 0 and
+    good-stored-consistent 0 against five 2s - and good-stored-consistent is the variant whose defect EVERY
+    GATE PASSES, so that anchor is the only instrument that can see B8a`s trap, and it sees it.
+    maintainability separates 0 against six 2s. test-quality separates 1 vs 0, and the prediction I named
+    most likely to be wrong held exactly.
+    WHAT FAILED: good-noisy-diff scores 0 on change-focus and so do good-stored-consistent and
+    good-nested-ifs, neither of which varies that dimension. Three registered predictions refuted in one
+    column; not edited.
+    WHY, AND IT IS NOT A SCORER ERROR: both 0-cells cite known-good as the tree compared against, which is
+    what codex-score.sh:161 attaches for a FIXTURE, while the --run-id path attaches the PRE-AGENT HEAD
+    (:158-159, Decision D). Against known-good every quality variant differs BY CONSTRUCTION - each one IS
+    known-good plus one defect - and the draft`s change #4 had to drop BE-004`s `two or more UNNAMED
+    methods` qualifier because this ticket names nearly every method. That qualifier was the only thing
+    keeping the dimension orthogonal. BE-004`s change-focus row passed for a reason unrelated to what it
+    claimed to prove.
+    WHAT I TRIED, AND WHAT I REFUSED TO TRY: I proved the port minimal by diff; I registered all 28
+    predicted cells before the first scoring call; I read every cell twice (subagent + my own grep, agreeing
+    28 of 28); I opened the two failing sheets and read the scorer`s own reasons and line citations rather
+    than guessing; and I traced the cause into codex-score.sh. I did NOT narrow the anchor until it
+    separated, did NOT change the harness, did NOT touch a fixture, did NOT register the sha and did NOT
+    record decision 11 as adopted.
+    THE DECISION: three options, costed, in evidence/b08a/rubric-proof/RESULT.md - (1) narrow and re-prove,
+    cheapest and most dangerous; (2) attach the pre-agent tree in fixture mode, arguably a correction, costs
+    a harness change plus a re-score of BE-004`s proof; (3) register with change-focus marked `unmeasured`
+    and take B8a`s outcome from architecture-consistency, which costs nothing and has a precedent in YOUR
+    OWN decision 10.3. Option 3 needs no instrument and no re-score and is still not mine: it changes what
+    the registered rubric measures, and B13`s quality_score clause reads the weighted total.
+    EVERYTHING IS ON BRANCH stop17a/b8a-decomposition-depth. NOTHING IS MERGED. The board check is RED and
+    LEFT RED: editing HANDOFF.md demands a republish and THIS SESSION HAS NO ARTIFACT TOOL, so the markers
+    are stale ON PURPOSE - relabelling a board that cannot be shown to have been published is how one ends
+    up provably current and wrong."
+  # SUPERSEDED, kept not deleted: blocked_on_author: []   # EMPTY as of 2026-09-24T23:1xZ. The single item below was the §7 HALT of
   # 2026-09-16 on B8a/BE-005. IT IS DISCHARGED - all three of its conditions are met and were re-derived
   # by me this session (see status). Per §0 ("At the first re-entry under this prompt sha, move every item
   # in blocked_on_author that is discharged into author_notes verbatim with its date; delete nothing") it
