@@ -3,10 +3,15 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "The author's four decisions of 2026-09-25" immediately below the Position section —
-the Stop 17a halt is DISCHARGED, the author answered all four items, and NOTHING is blocked on
-the author as of 2026-09-25. Two things are OWED to the author's interactive session and are not
-blockers: both boards, and the prose: marker digest they must be set to.**
+**Start at "Stop 17a — B8a CLOSED" immediately below the Position section. It is the newest
+section: stop 17a closed 2026-09-25 with the verdict `NO ROW FIRES` and the ladder shut, the next
+stop is 18 (Phase 6A) and nothing of it exists, and NOTHING is blocked on the author.**
+
+*(Superseded pointer, kept:)* "Start at 'The author's four decisions of 2026-09-25' immediately
+below the Position section — the Stop 17a halt is DISCHARGED, the author answered all four items,
+and NOTHING is blocked on the author as of 2026-09-25. Two things are OWED to the author's
+interactive session and are not blockers: both boards, and the prose: marker digest they must be
+set to." 
 
 *(Superseded pointer, kept:)* "Start at 'What is BLOCKED ON YOU' in the Stop 17a section below —
 that is the live halt as of 2026-09-25, it names the one decision that has to be made before the
@@ -32,8 +37,12 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 17a of 28. Positions 4–17 CLOSED; 17a (B8a — decomposition depth) is OPEN and RUNNING.
-NOTHING is blocked on the author as of 2026-09-25.** Both §7 halts at this position are now
+**Spine 17a of 28. Positions 4–17a CLOSED — 17a (B8a — decomposition depth) closed 2026-09-25 with
+the verdict `NO ROW FIRES` and the ladder shut. NOTHING is blocked on the author.** The next stop is
+**18 (Phase 6A)**, and nothing of it exists — §6 forbids a future step's artifacts early.
+
+*(Superseded, kept:)* "Spine 17a of 28. Positions 4–17 CLOSED; 17a (B8a — decomposition depth) is OPEN
+and RUNNING. NOTHING is blocked on the author as of 2026-09-25. Both §7 halts at this position are now
 discharged — the 2026-09-16 one on BE-005's merge, and the 2026-09-25 one on the rubric proof,
 which the author discharged by answering all four of its items in an interactive session. The
 author took **option 3**: the rubric is registered with `change-focus` marked **`unmeasured`** and
@@ -101,6 +110,101 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## Stop 17a — B8a CLOSED: the split moved nothing the registered outcome could see, and the decision rule had no row for what happened — 2026-09-25
+
+**Read this first; it is the newest section.** Nothing is blocked on the author. Spine position moves to
+**18 (Phase 6A)** and **nothing of stop 18 exists.**
+
+### The verdict, and why it is spelled the way it is
+
+**`NO ROW FIRES`.** The registered decision rule is evaluated in order and the first row to fire wins.
+Row 0b fired (the **$9.70** cost ceiling, at **$9.7948** after pair 08) and is discharged by reporting
+the population that occurred, **`n = 8` per arm**. Then row 0a no (0 of 8), row 1 no (delivery 8 of 8,
+model pinned 16 of 16), **row 2 no** — its conjunction needs *both* rates at `p ≤ 0.05` and P2 is
+**0.1189** — row 3 no (it needs a *lower* treated rate), **row 4 no** — it fires only when *neither*
+rate separates and P3 is **0.0070**. The rule was written assuming its two secondaries would agree.
+They disagree on **4 of 16 runs, in both directions.**
+
+**The verdict is recorded as the gap rather than rounded to the nearest registered word**, and what
+*is* decided comes from a clause that is well defined on this outcome: decision 11 item 2 makes rung 10
+proposable **only if `IMPROVED` fires**. It did not. **The ladder closes, and that closure is the
+result** — which is exactly what item 2 registered in advance.
+
+### What was measured
+
+| | |
+|---|---|
+| registered outcome — `architecture-consistency`, codex, rubric `945817b8c509` | treated median **0** (`n = 7`) vs control median **0** (`n = 3`); predicted 2 vs 0. **REFUTED under every reading** — registered, second reader and adjudicated |
+| shape the model reaches for | **8 of 8** vs **2 of 8**, Fisher **`p = 0.0070`**. **Separates** — and its proof is **L3** |
+| evaluator pass rate | **7 of 8** vs **3 of 8**, **`p = 0.1189`**. Does not separate |
+| cost | **1.83×** ($0.7149 vs $0.3912) against a predicted 2–4× — **below the band** |
+| `modelCalls` | median **82.5** vs 43, against a predicted ≥ 90 |
+| delivery | **8 of 8** treated runs on all four hand-written conditions; `runtime.model` pinned on **21 of 21** runs of the stop |
+
+**Five of seven registered predictions are refuted, including the registered outcome**, and two of those
+refutations were predicted in the experiment file with their mechanism. **Promotion is refused by
+arithmetic:** B13's `tokens_per_accepted_task` allows **15 %** and the measured figure is **1.83×**, so
+the clause fails by about twelve times regardless of quality. **Measured, kept, not promoted** — which
+is what `build/README.md#b8a` wrote down before the run.
+
+### P2's registered mechanism is measured and it is false
+
+P2 read: *"the evaluator returns 12 on the wrong shape and 0 on the right one, so pass rate **is** shape
+on this ticket."* The evaluator **passes two wrong-shaped controls** and **fails two right-shaped
+submissions**. P2 was registered as *"the strongest thing the instrument will have"*; it is not
+measuring what it was registered to measure.
+
+### The deliberate failure — all three clauses held, and the near-miss is the finding
+
+Same four overlay files with **`Task` removed** from the orchestrator, `n = 5`, **$0.1694 total**
+against a $4.00 ceiling and a $3.60 estimate. The `init` read-back delivered `["Read","Grep","Glob"]`
+with verdict **`match`** on 5 of 5 — **the runtime did not rewrite the list**, as it did at stop 9 —
+zero delegation events on both sources, and **5 of 5 row 0a**.
+
+**The registered batch driver refused the broken overlay at exit 6 before any run was made**, so it
+could never have entered the registered population by accident.
+
+One run still **attempted** a delegation and the runtime refused it by name: *"No such tool available:
+Task. Task is disabled for this session, in subagents as well as here."* So **`tools:` withheld a
+capability here**, where E-005 at stop 9 concluded it *filters names, not capabilities* — that
+experiment **added** `Bash`; this one **removed** `Task`. Both stand. The list is not a boundary when
+it grants and is one when it withholds the dispatch tool.
+
+**The cheapness is the failure, not a saving.** Median **$0.0339** against the treated **$0.7149**,
+`modelCalls` **1–4** against **82.5**, `changedFiles` **0** and evaluator exit **12**, five times out of
+five. An orchestrator holding only `Read, Grep, Glob` cannot write a line of Kotlin.
+
+### Four instrument defects at one stop, one of them caught by CI in another repo
+
+1. **The decision rule** has no row for one of two rates separating. E-020's MDE section predicted that
+   composition failure **before** the batch.
+2. **Condition (d)'s grep counts an attempt, not a completion.** It matched the refused call's
+   `"subagent_type":"planner"` and returned `fail-1-of-3` where the truth is 0 of 3. No verdict moved,
+   and nothing in the registered arm changes; **as written it is not sound.** `author_notes`.
+3. **`baseline-report.py`'s `F13` rule discards `4abf7f01`, a complete control run.** The rule is **not**
+   changed and the run is **not** excluded; `REPORT.md` §7 carries the decision, its grounds and the
+   third population that shows what the rule costs. `author_notes`.
+4. **`agentHash` covers one file of four** — fixed by **obs#88**, an `agentsHash` over the set of
+   `.claude/agents/*.md`, written as `skills_hash()` is, with an 8-case fixture set proving a **rename**
+   and an **edit** produce different values. Its own first CI run failed on *"the live repository is not
+   covered"* because nothing ran the new check script — **the coverage control working.**
+
+### The honest limit
+
+**The strongest signal this stop produced carries the weakest proof.** The shape classification
+separates at `p = 0.0070`; nothing executes `evidence/b08a/shape/SHAPE-RULE.md`, and two blind readers
+plus a written adjudication stand in for the author confirmation Gate B′ had. The registered outcome, by
+contrast, sat in a rubric category that Decision D's gate filter left at **`n = 3`** on the control arm,
+on a task this model usually fails. **The composition chose an outcome the design could not populate**,
+and the answer was fixed before the batch ran.
+
+### What is BLOCKED ON YOU
+
+**Nothing.** Two items are `author_notes`, not blockers: the `F13` rule (a runner convention change is
+the author's), and condition (d)'s attempt-vs-completion grep.
+
+---
 
 ## The author's four decisions of 2026-09-25 — the rubric-proof halt is DISCHARGED
 
