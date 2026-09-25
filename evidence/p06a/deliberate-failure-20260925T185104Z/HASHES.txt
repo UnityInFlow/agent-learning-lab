@@ -1,0 +1,7 @@
+df run     : 20260925T185104Z
+claude     : 2.1.282 (Claude Code)
+model      : claude-haiku-4-5-20251001
+parent     : /tmp/stop18-mcp-df-20260925T185104Z/parent   (holds .mcp.json)
+child/cwd  : /tmp/stop18-mcp-df-20260925T185104Z/parent/child    (empty)
+sha256 parent/.mcp.json : 4f05c2ca444315a046caa6adfe009a65ea0e8f4e833047c3e1db1ed2af55682d
+spent_usd: 0.029033

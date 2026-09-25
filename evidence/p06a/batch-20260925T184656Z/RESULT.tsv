@@ -1,0 +1,11 @@
+arm	i	run_dir	started_at	finished_at	tool_present	server_present	server_status	approval_event	cost_usd	note
+A	1	/tmp/stop18-mcp-probe-20260925T184656Z/run-A-1	2026-09-25T18:46:57Z	2026-09-25T18:47:02Z	yes	yes	connected	no	0.0152341	ok
+A	2	/tmp/stop18-mcp-probe-20260925T184656Z/run-A-2	2026-09-25T18:47:02Z	2026-09-25T18:47:08Z	yes	yes	connected	no	0.014958099999999998	ok
+A	3	/tmp/stop18-mcp-probe-20260925T184656Z/run-A-3	2026-09-25T18:47:08Z	2026-09-25T18:47:13Z	yes	yes	connected	no	0.0152041	ok
+A	4	/tmp/stop18-mcp-probe-20260925T184656Z/run-A-4	2026-09-25T18:47:13Z	2026-09-25T18:47:18Z	yes	yes	connected	no	0.015269099999999999	ok
+A	5	/tmp/stop18-mcp-probe-20260925T184656Z/run-A-5	2026-09-25T18:47:19Z	2026-09-25T18:47:24Z	yes	yes	connected	no	0.0152041	ok
+B	1	/tmp/stop18-mcp-probe-20260925T184656Z/run-B-1	2026-09-25T18:47:24Z	2026-09-25T18:47:28Z	no	no	none	no	0.0131521	ok
+B	2	/tmp/stop18-mcp-probe-20260925T184656Z/run-B-2	2026-09-25T18:47:28Z	2026-09-25T18:47:32Z	no	no	none	no	0.013137099999999999	ok
+B	3	/tmp/stop18-mcp-probe-20260925T184656Z/run-B-3	2026-09-25T18:47:32Z	2026-09-25T18:47:36Z	no	no	none	no	0.0131421	ok
+B	4	/tmp/stop18-mcp-probe-20260925T184656Z/run-B-4	2026-09-25T18:47:36Z	2026-09-25T18:47:40Z	no	no	none	no	0.0131421	ok
+B	5	/tmp/stop18-mcp-probe-20260925T184656Z/run-B-5	2026-09-25T18:47:40Z	2026-09-25T18:47:44Z	no	no	none	no	0.0131421	ok

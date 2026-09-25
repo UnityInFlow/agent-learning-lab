@@ -1,0 +1,108 @@
+#!/usr/bin/env python3
+"""Stop 18 / Lab 6.5 probe MCP server — an INSTRUMENT, not a control.
+
+The smallest thing that makes "did a project-scoped .mcp.json reach the model?"
+observable: one stdio MCP server exposing exactly one uniquely named tool,
+`probe_marker`. Claude Code namespaces it as `mcp__stop18probe__probe_marker`,
+and that string either is or is not in the run's own system/init record.
+
+Dependency-free on purpose. An SDK would add a variable (its version) to an
+experiment whose entire point is that an unregistered variable is how a control
+gets believed. Line-delimited JSON-RPC 2.0 over stdin/stdout, per the MCP
+specification's stdio transport.
+
+This file is committed INERT, with a .fixture suffix, and is never a live
+.mcp.json server inside a tracked tree. run-mcp-hole-probe.sh copies it into a
+throwaway directory outside all three repositories.
+"""
+import json
+import sys
+
+# Echoed back to the client when it does not name one. The client's own
+# requested version is preferred, because a version mismatch would make the
+# server unreachable for a reason that has nothing to do with the flag.
+FALLBACK_PROTOCOL = "2025-06-18"
+
+TOOLS = [
+    {
+        "name": "probe_marker",
+        "description": (
+            "Stop-18 probe. Returns a fixed marker string. Exists only so that "
+            "its presence in the delivered tool set is observable."
+        ),
+        "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
+    }
+]
+
+
+def send(payload):
+    sys.stdout.write(json.dumps(payload) + "\n")
+    sys.stdout.flush()
+
+
+def result(req_id, value):
+    send({"jsonrpc": "2.0", "id": req_id, "result": value})
+
+
+def error(req_id, code, message):
+    send({"jsonrpc": "2.0", "id": req_id, "error": {"code": code, "message": message}})
+
+
+def handle(msg):
+    method = msg.get("method")
+    req_id = msg.get("id")
+
+    # A notification has no id and takes no response, ever. Answering one is a
+    # protocol violation that some clients drop the connection over.
+    if req_id is None:
+        return
+
+    if method == "initialize":
+        params = msg.get("params") or {}
+        requested = params.get("protocolVersion")
+        result(req_id, {
+            "protocolVersion": requested if isinstance(requested, str) else FALLBACK_PROTOCOL,
+            "capabilities": {"tools": {"listChanged": False}},
+            "serverInfo": {"name": "stop18probe", "version": "1.0.0"},
+        })
+    elif method == "tools/list":
+        result(req_id, {"tools": TOOLS})
+    elif method == "tools/call":
+        name = ((msg.get("params") or {}).get("name"))
+        if name == "probe_marker":
+            result(req_id, {
+                "content": [{"type": "text", "text": "STOP18-PROBE-MARKER-OK"}],
+                "isError": False,
+            })
+        else:
+            error(req_id, -32602, "unknown tool: %s" % name)
+    elif method == "ping":
+        result(req_id, {})
+    elif method in ("resources/list", "resources/templates/list"):
+        result(req_id, {"resources": [], "resourceTemplates": []})
+    elif method == "prompts/list":
+        result(req_id, {"prompts": []})
+    else:
+        error(req_id, -32601, "method not found: %s" % method)
+
+
+def main():
+    for line in sys.stdin:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            msg = json.loads(line)
+        except ValueError:
+            # A malformed line is not a reason to die: dying would make the
+            # server unreachable and the arm uninterpretable.
+            continue
+        try:
+            handle(msg)
+        except Exception as exc:  # noqa: BLE001 - never crash the transport
+            if msg.get("id") is not None:
+                error(msg.get("id"), -32603, "internal error: %s" % exc)
+
+
+if __name__ == "__main__":
+    main()

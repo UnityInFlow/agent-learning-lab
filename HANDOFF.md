@@ -37,9 +37,16 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 17a of 28. Positions 4–17a CLOSED — 17a (B8a — decomposition depth) closed 2026-09-25 with
-the verdict `NO ROW FIRES` and the ladder shut. NOTHING is blocked on the author.** The next stop is
-**18 (Phase 6A)**, and nothing of it exists — §6 forbids a future step's artifacts early.
+**Spine 18 of 28. Positions 4–18 CLOSED — 18 (Phase 6A — code intelligence) closed 2026-09-25 with
+its exit gate answered on all four clauses and one lab run, `n = 0` on the agent under test. NOTHING
+is blocked on the author.** `lab#8` **stays open**: the spine funds one lab per Track A stop and
+labs 6.1–6.4 are deferred, which §4 step 14 says keeps a Phase issue open. The next stop is
+**19 (Phase 6B — knowledge retrieval, READ PATH ONLY)**, and nothing of it exists — §6 forbids a
+future step's artifacts early.
+
+*(Superseded, kept:)* "Spine 17a of 28. Positions 4–17a CLOSED — 17a (B8a — decomposition depth)
+closed 2026-09-25 with the verdict `NO ROW FIRES` and the ladder shut. NOTHING is blocked on the
+author. The next stop is 18 (Phase 6A), and nothing of it exists."
 
 *(Superseded, kept:)* "Spine 17a of 28. Positions 4–17 CLOSED; 17a (B8a — decomposition depth) is OPEN
 and RUNNING. NOTHING is blocked on the author as of 2026-09-25. Both §7 halts at this position are now
@@ -110,6 +117,127 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## Stop 18 — Phase 6A CLOSED: the documented MCP safeguard does not exist in the mode this project runs, and the flag that replaces it walks further than anyone wrote down — 2026-09-25
+
+`Written by Opus 5 (claude-opus-5), autonomously, 2026-09-25. The author did not review before
+the close.`
+
+**Closed at §4 step 14. Exit gate answered on all four clauses. `lab#8` stays OPEN** — labs 6.1,
+6.2, 6.3 and 6.4 are deferred, the spine funds one, and the closing comment names the four.
+Workbook: `phases/06a-code-intelligence/README.md`. Experiment:
+`experiments/E-021-print-mode-mcp-hole-06a.md`. Row file: `findings/track-b-2026-09-25-3.md`.
+
+**`n = 0` on the agent under test.** 31 runs of `claude-haiku-4-5-20251001` at `claude 2.1.282`,
+$0.2629 against a $0.50 ceiling, and not one of them performed a task. Every number here is a
+property of the harness, read from each run's own `system`/`init` record before the model produced
+a token. Nothing at this stop enters any B step's comparison.
+
+### What was measured
+
+`runner/run-agent.sh:776` passes `--strict-mcp-config` on every claude run. The Claude Code docs
+describe a different safeguard beside it — an interactive approval prompt for a project-scoped
+`.mcp.json` — and then say, in the next sentence, that **`claude -p` "loads project-scoped servers
+without asking"**. Every run this project has ever made is `claude -p`. So the documented safeguard
+is **L3 and absent here**, and the question is whether the flag standing in for it is an **L2
+control that executes** or a claim about help text.
+
+One variable: the flag. A dependency-free stdio MCP server exposing one uniquely named tool, a
+project `.mcp.json` with **byte-identical sha256 in both arms**, and the delivered tool set read
+back per run — never inferred from the command line, because E-005 measured `Read, Grep, Glob,
+Bash` delivered as `["Read","Bash"]` on 10 of 10 runs.
+
+| Arm | n | probe tool in `init.tools` |
+|---|---|---|
+| **P** — positive control, `--mcp-config` | 1 | **yes, 1 of 1** — so a null in B is not a broken server |
+| **A** — the runner's flags MINUS `--strict-mcp-config` | 5 | **yes, 5 of 5** |
+| **B** — the harness exactly as it runs | 5 | **no, 0 of 5** |
+
+**Two-sided Fisher `p = 0.0079`** — the exact value the MDE registered before the run for a
+complete separation at `n = 5` per arm, transferred from E-005's zero-spread delivered-tool-set
+measurement. **Decision-rule row 1. `--strict-mcp-config` is L2, by measurement.**
+
+### The §4a review found a hole in that conclusion, and it was answered with a run
+
+Eight review invocations over two rounds, four artifacts each. **Arms D, D2 and D3 all ran with the
+flag OFF, and arm B tested the flag with the file IN the cwd — so the combination that decides the
+L2 label, the flag ON against a file ABOVE the worktree, had never been run.** The review said so.
+**Arm E ran it: DF5 registered at `99313d2` before the driver existed, predicted absent, and held at
+0 of 5.** The flag filters an ancestor's `.mcp.json` too, so the label is sound on both placements.
+
+Round 2 then found that arm E's `sed` substitution was unverified and **could have faked that null**
+— arm E is the only arm here whose conclusion is negative, and a negative is the one kind a broken
+probe can manufacture. Five hand checks closed it
+(`evidence/p06a/arm-e-*/POST-COPY-VERIFICATION.md`), the decisive one being that **the post-copy
+`probe_server.py` the run was actually pointed at answers the MCP handshake**. The driver still does
+not perform those checks itself; that is disclosed rather than fixed, because it produced a measured
+arm.
+
+**This is the first time in this track a review finding produced a new measurement rather than a
+correction**, and it is the argument for §4a that no amount of ShellCheck makes.
+
+### The deliberate failure was refuted, and it is the larger half of the stop
+
+§4 step 9 registered DF1/DF2 before the arm existed: with the `.mcp.json` **one directory above an
+empty cwd**, the probe would be **absent** on 5 of 5. **It loaded, 5 of 5.** The registered
+extension then held in both directions — **three levels up** (DF3), and **two levels above the
+cwd's own git root** (DF4, written deliberately to be wrong in the direction that would have been
+good news).
+
+**The loader walks upward and a git boundary does not stop it.** So the exposure is *a `.mcp.json`
+anywhere above the run*, not *one planted inside the worktree*, and a benchmark worktree's own git
+root does not contain it. **The extract's §3 understated the hole rather than overstating it.**
+Nothing is broken today — the flag is passed on every run — and that is exactly what a later step
+must not quietly remove.
+
+### Three things nobody registered
+
+1. **The runner's comment at `:759-762` is now measured on both halves.** Without the flag, the
+   agent inherited **five operator-scope claude.ai MCP servers** — Claude Docs, Slack, Google
+   Drive, Gmail, Calendar — on 5 of 5, delivering **53 tools against arm B's 28**, including
+   `slack_send_message` and Drive readers. Cost: **+15.7 % on the median ($0.015204 vs $0.013142)
+   for a nine-word prompt that does no work** — a lower bound on the same inflation across a
+   benchmark run.
+2. **`--setting-sources project` does not close this channel.** Every arm-A run carried it. Two
+   flags, two channels; only one of them is MCP.
+3. **Arm A's delivered tool set is nondeterministic** — 37 tools on one run and 53 on four, because
+   a remote connector was still `pending` at `init` — while arm B's is 28 with zero spread.
+   Reported as a **co-variate**, not a result: the registered outcome was 5 of 5 either way, so
+   decision-rule row 4 does not fire. Worth the sentence because every delivery proof in Track B
+   reads a set assumed to be a deterministic function of the launch.
+
+### Two instrument defects, both caught before they decided anything
+
+- **The F13 detector was a false positive on every run.** It grepped `rate.?limit` and matched the
+  routine `rate_limit_event` with `"status":"allowed"` that every run of this CLI emits — a record
+  saying the run was **not** limited. E-021 registers F13 under Exclusions, so a detector firing on
+  every run would have emptied the population into the exclusion list. Fixed to a structural `jq`
+  test **before the batch, with no run in flight**; the preflight's `RESULT.tsv` is not rewritten
+  and `evidence/p06a/preflight-*/NOTE-f13-false-positive.md` carries the correction.
+- **Prediction 4 held and its registered detector is not why.** The approval-event grep matches
+  nothing in this stream format on any of 26 runs, so it has never been shown to fire. What carries
+  the prediction is structural: `permission_denials: []` on 11 of 11, `terminal_reason: completed`,
+  and servers reaching `connected` with tools delivered inside a five-second non-interactive run.
+  §4 step 4 applied to my own instrument.
+
+### What stop 18 hands forward
+
+- **Stop 19 (Phase 6B)** is next. Read path only.
+- **Stop 20 (B9)** still owes an `mcpHash` writer — `run-agent.sh:645` emits four hashes and
+  `mcpHash` is not one, so it is null by construction on every run ever recorded and a
+  `CustomizationSnapshot` is not even persisted when all six are null. After arm D it owes more
+  than a hash: **a digest of the config a run received still would not say which directory it came
+  from.** `obs#88`'s `agentsHash` is the shape for the first half only.
+- **Stop 21 (B10)** cannot open on the codex arm while `verify-codex-isolation.sh` is
+  nondeterministic — **6 leaks and 4 ok across 10 invocations** of the same script on the same
+  machine, across two sessions. `author_notes`, not a halt: it guards an arm stop 18 never ran.
+- **Left open on purpose:** how far up the walk goes (`$HOME`? `/`?), and whether `--add-dir` or a
+  symlinked worktree changes it. One run answers it; §6 funds one lab per Track A stop.
+
+### What is blocked on the author
+
+**Nothing.** `blocked_on_author` is empty and no §7 bullet is matched. The board check is red and
+the republish is the author's by **author decision 12 item 4**; it is not a blocker and never was.
 
 ## Stop 17a — B8a CLOSED: the split moved nothing the registered outcome could see, and the decision rule had no row for what happened — 2026-09-25
 

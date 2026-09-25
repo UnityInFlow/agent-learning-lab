@@ -1,0 +1,14 @@
+probe run  : 20260925T184656Z
+claude     : 2.1.282 (Claude Code)
+model      : claude-haiku-4-5-20251001
+runner     : /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-observatory/runner/run-agent.sh
+runner sha : 5ba0719a5983
+workdir    : /tmp/stop18-mcp-probe-20260925T184656Z
+arms       : A,B   n=5   budget=$0.50   dry_run=0
+sha256 probe_server.py.fixture : 582e11f397812cadcdee1890b6e6104e414dd9a71b6638c0417c626f2c8bfd67
+sha256 mcp.json.fixture        : 080894469e57df4a1ae4ec84f313a301001c88fd311472aed15cb914c66fcc2d
+sha256 mcp-config.json (subst) : 078f9a41ff545164062f7a666be441b85a21b0f1d2ca670d85a1fb757c55b8c5
+spent_usd: 0.141584
+ceiling_usd: 0.50
+ceiling_hit: 0
+claude_after: 2.1.282 (Claude Code)

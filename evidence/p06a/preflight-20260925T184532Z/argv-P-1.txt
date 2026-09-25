@@ -1,0 +1,18 @@
+--permission-mode
+acceptEdits
+--allowedTools
+Bash(./mvnw:*)
+Bash(mvn:*)
+--disable-slash-commands
+--setting-sources
+project
+--strict-mcp-config
+--mcp-config
+/tmp/stop18-mcp-probe-20260925T184532Z/mcp-config.json
+--model
+claude-haiku-4-5-20251001
+--output-format
+stream-json
+--verbose
+-p
+Reply with the single word READY and nothing else.
