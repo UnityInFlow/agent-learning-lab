@@ -88,7 +88,23 @@ prompt_read_at: 2026-09-25T05:1xZ   # READ IN FULL AGAIN before any other action
   # SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-15T16:1xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8. Sha UNCHANGED at 76a83fb7f604, so no `prompt changed` line is owed under §0.  SUPERSEDED, kept not deleted: 2026-09-14T13:4xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8. Sha CHANGED BY MY OWN ADOPTION EDIT (see prompt_sha), so the `prompt changed` line §0 owes is in in_flight below.  SUPERSEDED, kept not deleted: 2026-09-13T10:0xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed.  SUPERSEDED, kept not deleted: 2026-09-11T10:1xZ   # RE-READ IN FULL this session, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed; it was re-read anyway because the author`s instruction named the §0a preflight as the first act.  SUPERSEDED, kept not deleted: 2026-09-11T07:5xZ   # RE-READ IN FULL AGAIN this session, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed. SUPERSEDED, kept not deleted: 2026-09-11T06:5xZ   # WHOLE PROMPT RE-READ IN FULL before any other action this session, sections 0-8 (§9 excluded again on the author`s explicit instruction "Ignore section 9"). The sha was UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed; it was re-read anyway because the author`s instruction named the §0a preflight as the first act and §0a is only reachable by reading it. prompt_read_at: 2026-09-10T09:2xZ   # RE-READ IN FULL this session because the sha CHANGED (ba62c35dbbd2 -> 16ec79abbf55). §9 excluded on the author`s explicit instruction, as before. SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-09T07:0xZ
 stop: 17a          # B8a - DECOMPOSITION DEPTH, on BE-005 ONLY (author decision 11 items 2-5), version-neutral, measured against v1.1. Spine position 17a, inserted after B8 and before 6A so no stop number moves. Prereqs 4B (stop 11) and B8 (stop 17) are both CLOSED AND MERGED. OPENED 2026-09-24 on branch stop17a/b8a-decomposition-depth, created off main at d4faa7e which IS origin/main (fetched and compared, not assumed).
   # SUPERSEDED, kept not deleted: stop: 17           # B8 - run state, repair limits, completion contract - v1.1. OPENED 2026-09-15 on branch stop17/b8-run-state-repair-limits. Track A prerequisite Phase 5B (stop 16) IS CLOSED AND MERGED. The B-step issue is **lab#33** - CHECKED AGAINST THE ISSUE LIST VIA THE API, NOT GUESSED (27=B2 ... 33=B8, 33 is open). Both tasks per author decision 9: BE-003 and BE-004.  SUPERSEDED, kept not deleted: 16           # Phase 5B - verification loops, bounded self-healing, completion. OPEN as of 2026-09-11T10:2xZ on branch stop16/phase-5b-verification-selfhealing. The spine`s closing condition is EVIDENCE ON DISK for Lab 5B.5 (obs#47, BLOCKED != FAILED). The Phase issue is lab#15 - CHECKED AGAINST THE ISSUE LIST, NOT GUESSED.  SUPERSEDED, kept not deleted: 16           # Phase 5B: reading, extract, Lab 5B.5 (obs#47, BLOCKED != FAILED). NOT YET OPENED - no stop-16 artifact exists and §6 forbids creating one early. STOP 15 IS CLOSED AND MERGED: PR lab#84 -> 2d201a5, nine checks green, lab#32 commented and CLOSED, card Done, both boards republished, check-board-freshness 2 board(s) current at 865f553b9c12. SUPERSEDED, kept not deleted: 15           # B7 - deterministic verification and policies. OPEN, at §4 steps 7-8. NOT CLOSED and NOT CLOSEABLE this session: the exit gate needs P7 (rubric quality) and P7 needs codex, which is refusing on auth. Steps 1-6 were done in earlier sessions; steps 7 and 8 are done in this one EXCEPT the registered sheets. stop: 15           # B7 - deterministic verification and policies. v1.0 CLOSES HERE, measured against B2 on BE-003 and against BE-004`s own B5 control on BE-004 (author decision 9); NEVER across tasks. NOT YET OPENED. Stop 14 CLOSED AND MERGED: PR lab#82 -> 259c996, nine checks green, lab#7 COMMENTED AND LEFT OPEN (5A.2-5A.7 deferred), card Done, both boards republished, check-board-freshness 2 board(s) current at 32590f81db10. SUPERSEDED, kept not deleted: 14           # Phase 5A - guardrails: reading, extract, Lab 5A.1 (remove a capability before policing it). NOT YET OPENED. STOP 13 IS CLOSED AND MERGED: PR lab#80 -> 4b21650 (nine checks green) plus the follow-up lab#81 -> 4eb5a59; lab#31 commented and CLOSED, card moved to Done, both boards republished and check-board-freshness reports 2 board(s) current at cd59aacd084f. SUPERSEDED, kept not deleted: 13           # B6 - ONE specialist skill, chosen from a failure MEASURED in B2-B5, on BOTH tasks (author decision 9). NOT YET OPENED. Stop 12 CLOSED and MERGED: PR lab#79 -> 2e32f214, nine checks green, lab#30 commented and closed, card Done. SUPERSEDED, kept not deleted: 12           # B5 - workflow phases, on BOTH BE-003 and BE-004 (author decision 9). OPEN. Steps 1-3 done: workbook opened and issue lab#30 commented at 05:19:39Z, extract and layer labels at 1031a99, and the two prediction registrations at 5777b07 (E-010, BE-003) and ccd5c0c (E-011, BE-004).
-loop_step: pre-1(c)-DONE -> 1   # ACT (c) IS DONE: THE SHA IS REGISTERED (945817b8c509, the rubric
+loop_step: 1-DONE -> 2   # *** §4 STEP 1 IS COMPLETE FOR STOP 17a. *** Workbook written
+  # (phases/b08a-decomposition-depth/README.md, 197 lines: Goal, Required reading, FIVE extract items each
+  # grounded in a file I opened, and `What this stop takes forward`); ./tools/check-links.sh run -
+  # ok=61 moved=11 blocked=2 unverified=0 *** broken=0 ***, and NOTHING NEW was added to SOURCES.md because
+  # all four external rows this step needs already exist and are already marked extracted.
+  # GITHUB, AND IT NEEDED A DECISION: *** B8a HAD NO ISSUE *** - the lab#27-lab#38 map is 27=B2 ... 33=B8,
+  # 34=B9, and decision 11 inserted 17a AFTER that map deliberately so no stop number would move. I CREATED
+  # *** lab#118 *** `B8a - Decomposition depth (spine stop 17a)` rather than hosting the opening on lab#33:
+  # lab#33 is CLOSED and its deliverable is decided, so reopening it to carry B8a would assert that B8 is
+  # undecided, which it is not. lab#33 got ONE CROSS-REFERENCE COMMENT and *** STAYED CLOSED - state read
+  # back as `closed` *** after the comment. The card for lab#118 is on project #2 and is
+  # *** In Progress, READ BACK *** as name=`In Progress` optionId=47fc9ee4, item PVTI_lADOD-WaCM4Bhgoqzg8s0yg
+  # - read back rather than trusted from the mutation`s own reply. PR lab#117 RETITLED off the halt:
+  # `Stop 17a - B8a decomposition depth: rubric registered at 945817b8c509, §4 step 1 opened`. It stays
+  # OPEN and is this stop`s one PR (§4 step 14, one PR per stop); it is no longer the author`s to merge
+  # because the §7 bullet that made it so is discharged.
+  # SUPERSEDED, kept not deleted: loop_step: pre-1(c)-DONE -> 1   # ACT (c) IS DONE: THE SHA IS REGISTERED (945817b8c509, the rubric
   # UNEDITED) AND DECISION 11 IS RECORDED ADOPTED. The author`s decision of 2026-09-25 discharged the
   # halt that stopped act (b) from closing, and act (c) needed no new measurement - option 3 costs no
   # instrument and no re-score, which is why the author chose it. §4 STEP 1 FOR STOP 17a IS NOW THE
@@ -1080,7 +1096,39 @@ last_verified: "2026-09-25. EVERY NUMBER BELOW WAS DERIVED BY MY OWN COMMAND IN 
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "*** §4 STEP 1 FOR STOP 17a. *** In this order, and the state file is written before each:
+next_action: "*** §4 STEP 2, THEN §4 STEP 3, WHICH IS §0 BOUNDARY 1 AND THE END OF THIS SESSION. ***
+  STEP 2 - design, and label EVERY artifact L1/L2/L3 by the workspace CLAUDE.md rule APPLIED IN ORDER,
+  stopping at the first yes. Into the workbook under `## Design - spine stop 17a`, following the shape
+  phases/b08-run-state-repair-limits/README.md §`Design - spine stop 17` uses. WHAT IS ALREADY KNOWN AND
+  MUST NOT BE RE-DECIDED - it is the AUTHOR`S, from B8A-BRAINSTORM.md Q1-Q8: cut B by phase
+  (planner -> implementer -> verifier); orchestrator ROUTE ONLY, judging no code and running no check;
+  tools: planner `Read, Grep, Glob`, implementer the full default set, verifier `Read, Grep, Glob, Bash`;
+  method prose GENERIC (per read path, stored or computed, and where computed) and saying NOTHING about
+  fulfilment, filters, amendments or this ticket; four agent files in a NEW overlay
+  build/customizations/b8a-pipeline-v1.0/.claude/agents/{orchestrator,planner,implementer,verifier}.md with
+  NO existing overlay edited and NO skill; ONE BOUNCE, so 3 or 5 delegation events and nothing else, where
+  4 or 6+ is a finding; deliberate failure = the same four files with `Task` REMOVED from the
+  orchestrator`s tools:, which must read back with no Task, show zero delegation events and be classed
+  ROW 0a. THE LAYER CALLS I MUST MAKE AND MUST NOT SOFTEN: the three tools: lists are the EXECUTED part
+  (and E-005 says the runtime REWRITES them, so they are not the treatment until the init read-back says
+  so); the ONE-BOUNCE LIMIT IS L3 - nothing counts delegations, and B8`s repair-limit hook counts repair
+  attempts per failure fingerprint, which is a DIFFERENT THING; the method prose is L3; the handoff field
+  is an L1-shaped medium carrying an L3 payload. Name the trap: build/README.md has NO #b8a section
+  because the step was inserted by decision 11 - SAY SO in the workbook rather than citing a section that
+  does not exist, and take the trap from decision 11 item 4`s §4.1 pattern and Gate B`s five rows.
+  STEP 3 - experiments/E-020-decomposition-depth-BE005.md from templates/experiment.md. EVERY prediction
+  needs a DIRECTION, a MAGNITUDE and a MECHANISM. Registered outcome architecture-consistency, codex,
+  rubric 945817b8c509; change-focus UNMEASURED and named as such in the registration in the author`s own
+  terms (15% weight carries no measurement -> the weighted total is NOT comparable to BE-004`s);
+  test-quality anchor 2 UNREACHABLE. MDE is TRANSFERRED and must SAY IT IS - from Gate B`s five runs
+  (median $0.388, range 0.330-0.426, 230 s, 43 model calls, 10-13 files) plus the preflight pair, and
+  re-derived from B8a`s own control for anything after. B8a`s CONTROL BATCH IS ALSO BE-005`s BASELINE and
+  is registered as such BEFORE it runs. Add the line `Predicted by Opus 5 (claude-opus-5), autonomously,
+  <ISO timestamp>; the author did not review before the run.` THEN COMMIT IT - the commit timestamp must
+  precede the first run`s startedAt, and the sha and timestamp go in the state file so no later session
+  re-derives them. NO RUN IS STARTED THIS SESSION. NO BATCH. NO PREFLIGHT RUN. Step 4 (build the four
+  agent files) and step 5 (the preflight pair) are the NEXT session`s, after the boundary.
+  SUPERSEDED, kept not deleted: next_action: "*** §4 STEP 1 FOR STOP 17a. *** In this order, and the state file is written before each:
   (1) create phases/b08a-decomposition-depth/README.md - Goal, Required reading, Extract, filled from
       sources I actually open, with every artifact labelled L1/L2/L3 by the workspace CLAUDE.md rule
       applied IN ORDER and stopping at the first yes;
@@ -2315,6 +2363,20 @@ author_notes:
     cites 18081. Those record what was true when they were written and rewriting them would be rewriting
     evidence (§6, §7). THE STANDING RULE, now demonstrated in BOTH directions: probe the port, never
     inherit it - and an open OTLP port is not proof that an export lands."
+  - "NEW 2026-09-25, A PROMPT-TEXT CORRECTION, NOT A HALT AND NOT A DEFECT. *** §0a ROW 1 SAYS THE REVIEW
+    HOOK SCRIPT `PASSES WHEN 16 OF 16 CASES PASS`. IT NOW HAS 87 CASES. *** `.claude/hooks/opencode-review.test.sh`
+    reports `87 passed, 0 failed, 0 skipped` and `all 87 cases ran and behaved as specified`, exit 0 -
+    RE-DERIVED BY MY OWN RUN in the main context, not taken from the preflight subagent`s table. The set grew
+    from 16 to 87 over the run, which is the fixture set getting BETTER. WHY IT IS WORTH YOUR ATTENTION
+    ANYWAY: the pass condition as written can no longer be matched literally, so a session that scores §0a
+    against the prompt text alone would mark a PASSING row `failed` and, under §0a`s own closing sentence
+    (`do not start stop 4 with an unproven review harness or a failing verifier; that is a halt under §7
+    with the row named`), could halt on a healthy instrument. A pass condition that has drifted from its
+    instrument is the house failure mode pointed the other way: instead of a control claiming MORE scope
+    than it has, it is a control being disbelieved for having more. THE FIX IS ONE LINE IN §0a AND IT IS
+    YOURS - the prompt is yours except where a standing instruction delegates an edit, and the decision-11
+    adoption was that; this is not. I DID NOT TOUCH §0a. Suggested wording, which cannot go stale when the
+    set grows: `the script`s own summary reports 0 failed and 0 skipped`."
   - "NEW 2026-09-25, AND IT IS A RECOMMENDATION ABOUT YOUR REPO, NOT A HALT. *** BE-005 HAS NO FIXTURE
     WHOSE TESTS EXERCISE THE AMENDMENT ENDPOINT, so after the clause you asked for, test-quality anchor 2
     is unreachable by any fixture. *** Your standing instruction named `an amendment read-back clause in
@@ -2998,9 +3060,17 @@ author_decisions:  # by the author, 2026-09-04, adopting the §9 validator's rec
     verdict is MEASURED, KEPT, NOT PROMOTED unless the quality gain is large; B8a`s CONTROL BATCH IS ALSO
     BE-005`s BASELINE and is registered as such BEFORE it runs (item 5). THE CENSUS (item 1) IS DONE AND
     RETURNED NO READING - all 54 kept BE-004 worktrees hold zero files, so the denominator is zero; it is
-    NOT re-run and `Reading A` IS NOT quoted as having fired, which means B8a`s three specialist ROLES come
-    from the trap`s shape (Reading A`s route) and not from a measured seam. RECORD THAT IN THE WORKBOOK AT
-    §4 STEP 2 - it is a design constraint, not a footnote."
+    NOT re-run and `Reading A` IS NOT quoted as having fired.
+    *** CORRECTED BY ME LATER THE SAME DAY, BEFORE §4 STEP 1 WAS WRITTEN, AND THE CORRECTION MATTERS. ***
+    The sentence that stood here said the three specialist ROLES therefore `come from the trap`s shape
+    (Reading A`s route) and not from a measured seam`. THAT IS WRONG, AND IT UNDERSOLD THEIR PROVENANCE: the
+    roles were decided BY THE AUTHOR, in a working session, and they are written down - B8A-BRAINSTORM.md at
+    the workspace root, Q1-Q8: `Claude Fable 5.1 with the author present for every answer` (Q1-Q5,
+    2026-09-16) and Q6-Q8 (2026-09-21, Opus 5 with the author). CUT B, BY PHASE: planner -> implementer ->
+    verifier, orchestrator ROUTE ONLY. I had not opened that file when I wrote the original sentence, which
+    is the whole error - it was an inference from decision 11`s two readings in a place where an author
+    decision already existed and was on disk. Corrected in place with this note rather than overwritten, and
+    the brainstorm is now the FIRST item of the workbook`s Required reading so no session repeats it."
   - "1. STOP 8 PREMISE CHECK BEFORE ANY FILE MOVES: run 5 nested-path runs with the REQUIRED description under a new experiment key before choosing between HANDOFF item 1 (a) and (b). The block proves absence from the /name registry at session start; E-004 measures mid-run activation, telemetry already carries a nested-skill trigger on run 899232bb, and the builder's own scratch test loaded a nested skill after a file read. n=1 per condition is not enough to halt on"
   - "2. IF THE PROBE IS ZERO ON 5 OF 5: option (b), the runner force-add (`git add -A -f -- <overlay paths>` in run-agent.sh section 5). NOT option (a): the benchmarks .gitignore is read by the evaluator's scope guard and changing it changes what the benchmark measures. Record (b) as a disclosed harness move, the second in the track after 2.1.251 -> 2.1.259"
   - "3. OLLAMA HOURLY LIMIT: the critic already runs on codex. Run reviews with -P codex -A and write `acceptance gate skipped: ollama rate limit <timestamp>` into the review provenance. Defer opencode second-reader sheets until the limit clears; never skip them, runs are kept. This is a control substitution, not a registered variable"
