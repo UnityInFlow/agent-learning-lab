@@ -225,3 +225,67 @@ before any telemetry-sourced number is trusted** (stop 11's rule). The observato
 To be filled from evidence, after the runs, in the main context and never from a subagent's summary
 alone. At least one scored cell is **re-read by hand off the kept worktree** with the hand reading
 written beside the sheet's value (§5).
+
+---
+
+## The F13 decision — control 07, decided at §4 step 7 with its reason, both populations reported
+
+*Belongs beside "Exclusions" above and is appended here rather than inserted, so that nothing registered
+before the batch moves. `Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-25.`*
+
+**The run:** `ed58787c-6529-42ce-a677-065d86945bc2`, control, pair 07.
+
+**What is different about it, re-derived by `evidence/b08a/rederive-f13.sh` and written to
+`evidence/b08a/batch-20260925T091510Z/f13-rederived.tsv`:**
+
+| | control 07 | every other run of the sixteen |
+|---|---|---|
+| HTTP 529 lines in its log | **47** | 0–10 |
+| duration | **3 751 s** | 198–1 307 s |
+| `modelCalls` | **11** | 23–222 |
+| files changed | **1** | 11–15 |
+| the one file | `api/ApiExceptions.kt`, **+4 lines** — an exception class and nothing else | order and shipment packages |
+
+**The decision, in four parts, each with the rule it follows:**
+
+1. **The run stays in the population.** `Exclusions` above admits exactly three grounds and this is none
+   of them; *"nothing is excluded for its result"*. Dropping a run because the network throttled it is
+   still choosing a population after seeing it. **Control `n` stays 8 for the registered rate.**
+2. **Its duration is excluded.** §4 step 6, verbatim: *"if a run's duration looks contaminated, say so
+   and exclude duration, not the run."* 3 751 s is 13× the control median and measures the 529s.
+3. **Its cost is excluded from the cost spread, and both spreads are printed.** $0.0934 is not what an
+   attempt at this ticket costs; it is what 11 throttled calls cost. Cost is a reported row that decides
+   nothing, so the honest form is both numbers: control cost median **$0.391 (0.093–0.504, n = 8)** and
+   **$0.399 (0.279–0.504, n = 7)**.
+4. **For shape it is `NO-ATTEMPT`**, which is not a judgement call but the classification rule's own
+   category — `evidence/gate-b2-decision-11/RULE.md` puts `NO-ATTEMPT` (no production edit) **in the
+   denominator only**. It touched no order, shipment or fulfilment logic.
+
+**Both populations, from `evidence/b08a/tally.py`:** evaluator pass rate treated **7 of 8** against
+control **3 of 8** → Fisher two-sided **p = 0.1189**; without control 07, treated **7 of 8** against
+**3 of 7** → **p = 0.1189**. **The decision costs the verdict nothing: the p-value is identical to four
+decimal places either way.** That is worth saying plainly, because it means no reader has to trust this
+decision in order to trust the result.
+
+## Observed telemetry
+
+**`events.jsonl` GREW, so telemetry-sourced numbers are admissible under stop 11's rule:**
+18 381 324 bytes at the batch's launch → **24 019 420 bytes** (re-measured 2026-09-25T13:53Z,
+`agent-observatory/infra/telemetry-out/events.jsonl`). Growth **+5 638 096 bytes** over the batch.
+
+**Delivery, all sixteen runs, from the manifest and re-tallied by `evidence/b08a/tally.py`:**
+row 0a fires on **0 of 8** treated runs — `cond_a`/`cond_b`/`cond_c` `ok` and `cond_d`
+`ok-stream-3of3` on every one; all **8 of 8** control runs carry `agentHash`, `instructionsHash` and
+`skillsHash` all `null`; `runtime.model` is `claude-haiku-4-5-20251001` on **16 of 16**. **Decision-rule
+row 1 (VOID) therefore does not fire.**
+
+**Delegation counts, and the two sources do not agree on two runs.** The agent stream and the telemetry
+query both answer P4, and the manifest carries both columns deliberately. They agree on **6 of 8**
+treated runs and disagree on exactly the two runs that are also outside `{3, 5}`: pair 03
+`stream = 12, telemetry = 15` and pair 07 `stream = 8, telemetry = 6`. **On the six runs inside `{3, 5}`
+the two sources agree exactly.** P4's own registered source is the stream (`cond_d = ok-stream-3of3`),
+so the stream is the number of record and the disagreement is reported beside it rather than averaged
+away. *That the two instruments diverge only on the runs that bounced more than once is itself a fact
+about the instruments, not about the treatment.*
+
+The observatory API is **`127.0.0.1:8081`**, probed this session; it answered every fetch.
