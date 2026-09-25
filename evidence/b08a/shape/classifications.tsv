@@ -1,0 +1,25 @@
+# B8a shape classification — two BLIND readers, adjudicated 2026-09-25, rule evidence/b08a/shape/SHAPE-RULE.md (sha 842b3433811e)
+# The rule is evidence/gate-b2-decision-11/RULE.md §2 verbatim and was committed (d8a64ae) BEFORE any diff was read for shape.
+# Reader A and Reader B are separate sonnet subagents, each given the rule text and the 16 worktree copies, neither shown the
+# other's answer, neither shown any evaluator exit code, evaluation.json or rubric sheet.
+# *** THE TWO READERS AGREE ON THE CLASS OF ALL 16 RUNS, AND ON ALL 48 PER-READ-PATH stored/recomputed VERDICTS. ***
+# The only differences are line citations wobbling by 1-6 lines on six runs (the same call, a different line of the same
+# function). No row needed adjudication; `adjudicated` therefore equals both readers' class on every row.
+# UNCONFIRMED BY THE AUTHOR: SHAPE-RULE.md §4 says the tally carries this label until the author confirms or overrules a row.
+seq	arm	run_id	reader_a	reader_b	adjudicated	evaluator_exit	field_decl	path_single	path_list	path_filter	what_decided_it
+01	control	4ec4cb7a-d266-4ba7-901c-27b97e52bfb3	WRONG	WRONG	WRONG	0	order/Order.kt:11	stored	stored	stored	getById returns repository.findById directly; findAll filters on the stored it.fulfilment.status at OrderRepository.kt:28 with no recompute anywhere
+01	treated	be4a6a94-eb20-4da6-8c8d-99f3dad3a3ac	RIGHT	RIGHT	RIGHT	0	order/Order.kt:17	recomputed	recomputed	recomputed	enrichOrderWithFulfillment recomputes from shipmentRepository at OrderController.kt:77 and :119; the filter at :122 runs over the already-enriched list
+02	control	747935c4-cbae-4a6a-8660-d8cf2296cf91	RIGHT	RIGHT	RIGHT	0	order/Order.kt:11	recomputed	recomputed	recomputed	computeFulfilment maps over every order at OrderController.kt:90 before the filter at :101; the stored field is never written by ShipmentController
+02	treated	c07b8f25-1fba-4274-aa33-375c8aa82a06	RIGHT	RIGHT	RIGHT	0	order/Order.kt:17	recomputed	recomputed	recomputed	calculateFulfilment maps over every order before the filter at OrderController.kt:119; the repository's stored-value filter is never called
+03	control	421067b2-3190-4a63-a252-d189aeccfed6	WRONG	WRONG	WRONG	12	order/Order.kt:11	recomputed	recomputed	stored	OrderRepository.findAllByFulfilment:32 selects on the persisted it.fulfilment?.status BEFORE OrderService maps withFulfilment over the result
+03	treated	f16197c4-8a0f-49ed-9790-7b80a3a04870	RIGHT	RIGHT	RIGHT	0	order/Order.kt:17	recomputed	recomputed	recomputed	the filter predicate at OrderController.kt:113 calls withComputedFulfilment per element before comparing; the repository's stored filter is unused
+04	control	4319e882-43a4-4dbd-9fe8-1424d30c13c5	RIGHT	RIGHT	RIGHT	12	order/Order.kt:24	recomputed	recomputed	recomputed	findAllPaged always receives the calculator and maps every order through it (OrderRepository.kt:33-35) before the status filter at :41
+04	treated	53af3571-f75b-4a2e-9a7c-57f8214b0da5	RIGHT	RIGHT	RIGHT	0	order/Order.kt:17	recomputed	recomputed	recomputed	OrderRepository.kt:16 strips fulfilment to null on every write, and addFulfilment recomputes on all three reads
+05	control	46064f65-7775-4a78-b9f7-befa46ea1d20	WRONG	WRONG	WRONG	12	order/Order.kt:24	recomputed	recomputed	stored	orderRepository.findAll:27 selects on the stored it.fulfilment.status INSIDE the repository, before the controller's later enrichment at :145
+05	treated	da7c45c9-b121-4aed-8b9e-41df157ea4c1	RIGHT	RIGHT	RIGHT	0	order/Order.kt:17	recomputed	recomputed	recomputed	the list is rebuilt through enrichOrder before the fulfilment filter at OrderController.kt:147
+06	control	4abf7f01-cd54-4c77-962c-8bd4f8752466	WRONG	WRONG	WRONG	12	order/Order.kt:30	recomputed	recomputed	stored	repository.findAll:29 selects on the stored it.fulfilment?.status before the controller's enrichment at :110
+06	treated	e3ca68c8-9af7-4f7b-a623-9b526bc1d99e	RIGHT	RIGHT	RIGHT	0	order/Order.kt:14	recomputed	recomputed	recomputed	allOrders is rebuilt with copy(fulfilment=computeFulfilment(...)) at OrderController.kt:117-119 before the filter at :125
+07	control	ed58787c-6529-42ce-a677-065d86945bc2	NO-ATTEMPT	NO-ATTEMPT	NO-ATTEMPT	12	none	absent	absent	absent	the only production edit is an unused exception class in api/ApiExceptions.kt; no order, shipment or fulfilment logic touched. Denominator only, per RULE.md
+07	treated	b755f13f-34fb-405c-8667-ba8affab13a6	RIGHT	RIGHT	RIGHT	12	order/Order.kt:17	recomputed	recomputed	recomputed	Order.withFulfilment recomputes inside findById, findAll AND findByFulfilment's own predicate (OrderRepository.kt:26,:32,:41)
+08	control	33b4c452-fc93-4c16-86af-a230ea26f25e	WRONG	WRONG	WRONG	0	order/Order.kt:17	stored	stored	stored	all three reads return the repository result unmodified; fulfilment is refreshed only by a WRITE-side updateOrderFulfilment called from ShipmentController
+08	treated	275d4cac-f43b-479d-bd46-ebb136e18e57	RIGHT	RIGHT	RIGHT	0	order/Order.kt:17	recomputed	recomputed	recomputed	the list is rebuilt through withFulfilment(shipmentRepository) before the status filter at OrderController.kt:114
