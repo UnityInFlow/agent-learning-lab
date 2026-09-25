@@ -272,6 +272,39 @@ stop's own finding rather than confirm it.
 **Arm D is a deliberate failure, not a comparison arm.** It enters no decision-rule row of the
 A-vs-B contrast, moves no registered variable, and is reported on its own.
 
+### Deliberate failure, extension — arms D2 and D3, registered BEFORE either exists
+
+`Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-25T18:53Z, after arm D was run
+and hand-verified, and before arms D2 and D3 existed. The author did not review before the
+run. Additive: nothing above is edited, and arm D's registered prediction stays refuted.`
+
+**Arm D refuted DF1 and DF2 at 5 of 5: the loader walks upward.** That turns the stop's
+finding from *"a file planted in the run's own worktree"* into *"a file planted somewhere
+above it"*, and **how far above** decides whether this project's actual runs are exposed.
+Every benchmark run happens in a **git worktree** nested under directories the operator
+controls, so there are exactly two questions worth one run each:
+
+- **DF3 — depth. Arm D2:** `.mcp.json` at the top of a throwaway tree, cwd **three plain
+  directories below it**, arm-A flags, no git anywhere. **Prediction: the probe tool is
+  PRESENT on 5 of 5.** *Mechanism:* arm D showed one level; a loader that walks at all has no
+  reason to stop at one, and the documented phrase is "project scope", not "parent scope".
+- **DF4 — the git boundary. Arm D3:** `.mcp.json` at the top of a throwaway tree, cwd a
+  directory **two levels below that is itself a `git init`-ed repository**, arm-A flags.
+  **Prediction: the probe tool is PRESENT on 5 of 5 — i.e. the git root does NOT stop the
+  walk.** *Mechanism:* the MCP loader and git's repository discovery are unrelated subsystems
+  and nothing in the docs ties one to the other.
+
+**DF4 is the one that matters, and it is written to be wrong in the direction that would be
+good news.** If the tool is **absent** on 5 of 5 in arm D3, the git root **is** the boundary,
+and this project's benchmark worktrees are protected by a property of git rather than by
+`--strict-mcp-config` — a materially smaller exposure and a different sentence in the extract.
+If it is **present**, then an operator's `.mcp.json` anywhere above the worktree reaches every
+`claude -p` run that does not pass `--strict-mcp-config`, and the flag at `run-agent.sh:776`
+is the single thing standing between this project's baseline and the operator's machine.
+
+`n = 5` per arm, ~$0.10 for both, inside the $0.50 ceiling (spent after arm D: $0.1838).
+Neither arm enters the A-vs-B decision rule; both are reported on their own.
+
 ---
 *Everything below is filled in AFTER the runs.*
 ---

@@ -1,0 +1,6 @@
+arm	i	cwd	started_at	finished_at	tool_present	server_present	mcp_tool_count	permission_denials	cost_usd	note
+D	1	/tmp/stop18-mcp-df-20260925T185104Z/parent/child	2026-09-25T18:51:05Z	2026-09-25T18:51:09Z	yes	yes	1	0	0.0131571	ok
+D	2	/tmp/stop18-mcp-df-20260925T185104Z/parent/child	2026-09-25T18:51:09Z	2026-09-25T18:51:14Z	yes	yes	22	0	0.007764699999999999	ok
+D	3	/tmp/stop18-mcp-df-20260925T185104Z/parent/child	2026-09-25T18:51:14Z	2026-09-25T18:51:20Z	yes	yes	22	0	0.0027023000000000004	ok
+D	4	/tmp/stop18-mcp-df-20260925T185104Z/parent/child	2026-09-25T18:51:20Z	2026-09-25T18:51:25Z	yes	yes	22	0	0.0027073	ok
+D	5	/tmp/stop18-mcp-df-20260925T185104Z/parent/child	2026-09-25T18:51:25Z	2026-09-25T18:51:30Z	yes	yes	22	0	0.0027023000000000004	ok
