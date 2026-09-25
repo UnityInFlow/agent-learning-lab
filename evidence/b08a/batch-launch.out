@@ -1,0 +1,74 @@
+
+======== BE-005 01 control  key=EXP-B8A-DECOMP-BE005  09:15:11Z ========
+  -> 4ec4cb7a-d266-4ba7-901c-27b97e52bfb3 rc=0 eval=0 model=claude-haiku-4-5-20251001 deleg=0(finding-0)/0 cond=ok-null-triple,na,na,na row0a=no cost=0.504154
+     worktree copied -> evidence.local/b08a-worktrees/4ec4cb7a-d266-4ba7-901c-27b97e52bfb3 ( 26M)
+
+======== BE-005 01 treated  key=EXP-B8A-DECOMP-BE005  09:20:27Z ========
+  -> be4a6a94-eb20-4da6-8c8d-99f3dad3a3ac rc=0 eval=0 model=claude-haiku-4-5-20251001 deleg=3(q8-ok-3)/3 cond=ok,ok,ok,ok-stream-3of3 row0a=no cost=0.567815
+     worktree copied -> evidence.local/b08a-worktrees/be4a6a94-eb20-4da6-8c8d-99f3dad3a3ac ( 26M)
+
+======== BE-005 02 control  key=EXP-B8A-DECOMP-BE005  09:29:45Z ========
+  -> 747935c4-cbae-4a6a-8660-d8cf2296cf91 rc=0 eval=0 model=claude-haiku-4-5-20251001 deleg=0(finding-0)/0 cond=ok-null-triple,na,na,na row0a=no cost=0.372149
+     worktree copied -> evidence.local/b08a-worktrees/747935c4-cbae-4a6a-8660-d8cf2296cf91 ( 26M)
+
+======== BE-005 02 treated  key=EXP-B8A-DECOMP-BE005  09:34:14Z ========
+  -> c07b8f25-1fba-4274-aa33-375c8aa82a06 rc=0 eval=0 model=claude-haiku-4-5-20251001 deleg=3(q8-ok-3)/3 cond=ok,ok,ok,ok-stream-3of3 row0a=no cost=0.750348
+     worktree copied -> evidence.local/b08a-worktrees/c07b8f25-1fba-4274-aa33-375c8aa82a06 ( 26M)
+
+======== BE-005 03 control  key=EXP-B8A-DECOMP-BE005  09:42:54Z ========
+  -> 421067b2-3190-4a63-a252-d189aeccfed6 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=0(finding-0)/0 cond=ok-null-triple,na,na,na row0a=no cost=0.431656
+     worktree copied -> evidence.local/b08a-worktrees/421067b2-3190-4a63-a252-d189aeccfed6 ( 26M)
+
+======== BE-005 03 treated  key=EXP-B8A-DECOMP-BE005  09:46:37Z ========
+  -> f16197c4-8a0f-49ed-9790-7b80a3a04870 rc=0 eval=0 model=claude-haiku-4-5-20251001 deleg=12(finding-12)/15 cond=ok,ok,ok,ok-stream-3of3 row0a=no cost=1.62291
+     worktree copied -> evidence.local/b08a-worktrees/f16197c4-8a0f-49ed-9790-7b80a3a04870 ( 26M)
+
+======== BE-005 04 control  key=EXP-B8A-DECOMP-BE005  09:58:24Z ========
+  -> 4319e882-43a4-4dbd-9fe8-1424d30c13c5 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=0(finding-0)/0 cond=ok-null-triple,na,na,na row0a=no cost=0.409701
+     worktree copied -> evidence.local/b08a-worktrees/4319e882-43a4-4dbd-9fe8-1424d30c13c5 ( 26M)
+
+======== BE-005 04 treated  key=EXP-B8A-DECOMP-BE005  10:02:19Z ========
+  -> 53af3571-f75b-4a2e-9a7c-57f8214b0da5 rc=0 eval=0 model=claude-haiku-4-5-20251001 deleg=3(q8-ok-3)/3 cond=ok,ok,ok,ok-stream-3of3 row0a=no cost=0.662894
+     worktree copied -> evidence.local/b08a-worktrees/53af3571-f75b-4a2e-9a7c-57f8214b0da5 ( 26M)
+
+======== BE-005 05 control  key=EXP-B8A-DECOMP-BE005  10:11:11Z ========
+  -> 46064f65-7775-4a78-b9f7-befa46ea1d20 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=0(finding-0)/0 cond=ok-null-triple,na,na,na row0a=no cost=0.278762
+     worktree copied -> evidence.local/b08a-worktrees/46064f65-7775-4a78-b9f7-befa46ea1d20 ( 26M)
+
+======== BE-005 05 treated  key=EXP-B8A-DECOMP-BE005  10:14:59Z ========
+  -> da7c45c9-b121-4aed-8b9e-41df157ea4c1 rc=0 eval=0 model=claude-haiku-4-5-20251001 deleg=3(q8-ok-3)/3 cond=ok,ok,ok,ok-stream-3of3 row0a=no cost=0.660814
+     worktree copied -> evidence.local/b08a-worktrees/da7c45c9-b121-4aed-8b9e-41df157ea4c1 ( 26M)
+
+======== BE-005 06 control  key=EXP-B8A-DECOMP-BE005  10:25:18Z ========
+  -> 4abf7f01-cd54-4c77-962c-8bd4f8752466 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=0(finding-0)/0 cond=ok-null-triple,na,na,na row0a=no cost=0.383495
+     worktree copied -> evidence.local/b08a-worktrees/4abf7f01-cd54-4c77-962c-8bd4f8752466 ( 26M)
+
+======== BE-005 06 treated  key=EXP-B8A-DECOMP-BE005  10:29:33Z ========
+  -> e3ca68c8-9af7-4f7b-a623-9b526bc1d99e rc=0 eval=0 model=claude-haiku-4-5-20251001 deleg=5(q8-ok-5)/5 cond=ok,ok,ok,ok-stream-3of3 row0a=no cost=0.679531
+     worktree copied -> evidence.local/b08a-worktrees/e3ca68c8-9af7-4f7b-a623-9b526bc1d99e ( 26M)
+
+======== BE-005 07 control  key=EXP-B8A-DECOMP-BE005  11:13:40Z ========
+  -> ed58787c-6529-42ce-a677-065d86945bc2 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=0(finding-0)/0 cond=ok-null-triple,na,na,na row0a=no cost=0.093386
+     worktree copied -> evidence.local/b08a-worktrees/ed58787c-6529-42ce-a677-065d86945bc2 ( 26M)
+
+======== BE-005 07 treated  key=EXP-B8A-DECOMP-BE005  12:40:58Z ========
+  -> b755f13f-34fb-405c-8667-ba8affab13a6 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=8(finding-8)/6 cond=ok,ok,ok,ok-stream-3of3 row0a=no cost=1.048758
+     worktree copied -> evidence.local/b08a-worktrees/b755f13f-34fb-405c-8667-ba8affab13a6 ( 26M)
+
+======== BE-005 08 control  key=EXP-B8A-DECOMP-BE005  12:55:58Z ========
+  -> 33b4c452-fc93-4c16-86af-a230ea26f25e rc=0 eval=0 model=claude-haiku-4-5-20251001 deleg=0(finding-0)/0 cond=ok-null-triple,na,na,na row0a=no cost=0.398996
+     worktree copied -> evidence.local/b08a-worktrees/33b4c452-fc93-4c16-86af-a230ea26f25e ( 26M)
+
+======== BE-005 08 treated  key=EXP-B8A-DECOMP-BE005  13:00:30Z ========
+  -> 275d4cac-f43b-479d-bd46-ebb136e18e57 rc=0 eval=0 model=claude-haiku-4-5-20251001 deleg=5(q8-ok-5)/5 cond=ok,ok,ok,ok-stream-3of3 row0a=no cost=0.929416
+     worktree copied -> evidence.local/b08a-worktrees/275d4cac-f43b-479d-bd46-ebb136e18e57 ( 26M)
+
+!! COST CEILING $9.70 REACHED at $9.7948 after pair 08.
+!! The batch stops and the population that occurred is reported (decision rule row 0b).
+batch 20260925T091510Z ended (UTC): 2026-09-25T13:14:13Z  exit 11
+cost total read from run records: $9.7948 over the runs that reported one
+runs whose estimatedCost read null: 0 -- with any of these the total above is a LOWER BOUND
+ceiling: $9.70
+treated runs classed row 0a: 0
+events.jsonl bytes before 18381324, after 24019420
+manifest: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b08a/batch-20260925T091510Z/manifest.tsv

@@ -1,0 +1,6 @@
+batch 20260925T091510Z ended (UTC): 2026-09-25T13:14:13Z  exit 11
+cost total read from run records: $9.7948 over the runs that reported one
+runs whose estimatedCost read null: 0 -- with any of these the total above is a LOWER BOUND
+ceiling: $9.70
+treated runs classed row 0a: 0
+events.jsonl bytes before 18381324, after 24019420
