@@ -1926,7 +1926,25 @@ process_violations_this_session_20260911:
     republished, and the incident is in HANDOFF.md because the first published version is not
     recoverable."
 
-process_violations_this_session:  # the first entry is THIS session's; the rest are carried from the previous one and kept, not tidied away
+process_violations_this_session:  # 2026-09-25 entries first, then the carried ones
+  - "MINE, 2026-09-25, AND IT HAPPENED TWICE IN A ROW BEFORE I CHANGED THE PATTERN. TWO COMMITS CARRY A
+    MESSAGE THAT NAMES AN EDIT THEY DO NOT CONTAIN.
+    86e1614 claims to add findings/track-b-2026-09-25.md and does not: the python heredoc that writes it
+    died on a literal brace in a URL path (`NameError: name 'orderId' is not defined`), the file was never
+    written, and the `git add -A && git commit` ON THE NEXT LINE ran anyway - a newline is not `&&`. What it
+    actually committed was 27 lines of the §4a review`s IN-FLIGHT output file.
+    434a618 then claims to record this violation in TRACK-B-STATE.md and does not: the same heredoc pattern,
+    this time an AssertionError because my search string wrote `session`s` with a backtick where the file has
+    a straight apostrophe. The findings file itself IS in 434a618 and is correct; only the state edit was
+    missing, and this entry is it.
+    NEITHER COMMIT IS AMENDED OR REWRITTEN even though both were unpushed and amending would have been
+    trivial: rewriting is the one habit this project has never allowed itself, and a corrected record of two
+    mislabelled commits is worth more than a tidy log that hides them.
+    THE FIX I ACTUALLY MADE, not just the lesson: stop chaining a file-writing heredoc and the commit that
+    claims it in one Bash call. Write, verify the write by reading the thing back, THEN commit. Also: do not
+    commit at all while a §4a review is running - §4a says not to EDIT an artifact mid-review and committing
+    one is the neighbouring mistake, which is how a review`s partial output ended up in 86e1614."
+  # SUPERSEDED heading, kept: the first entry is THIS session's; the rest are carried from the previous one and kept, not tidied away
   - "2026-09-16, THE THIRD TIME THIS SESSION I WENT STRAIGHT TO MAIN, AND THIS ONE LANDED.
     I committed the final state write on main and pushed it. The remote printed `- 2 of 2 required
     status checks are expected.` and I READ THAT AS A REJECTION - it is a WARNING, and the push had
