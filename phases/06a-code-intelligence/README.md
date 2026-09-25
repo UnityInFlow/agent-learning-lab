@@ -1,7 +1,8 @@
 # Phase 6 — Code intelligence: LSP first, MCP second
 
 **Guardrail layer: L2 — MCP policy; retrieved content is an L3 risk** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
-**Status:** 🟡 OPEN at spine stop 18, 2026-09-25 · **Depends on:** Phase 5 (closed) ·
+**Status:** 🟢 CLOSED at spine stop 18, 2026-09-25 — exit gate answered, one lab run, `n = 0`
+on the agent under test · **Depends on:** Phase 5 (closed) ·
 **Issue:** [`lab#8`](https://github.com/UnityInFlow/agent-learning-lab/issues/8) ·
 **Branch:** `stop18/06a-code-intelligence`
 
@@ -438,16 +439,185 @@ exclusions and the five-row decision rule are registered in `E-021` **before any
 `customization.mcpHash` cannot carry it: it is null by construction on every run ever
 recorded (extract §4).
 
-## Exit gate
+## Result — Lab 6.5, §4 steps 6–10
 
-- [ ] Why LSP is different from MCP
-- [ ] Why an MCP server is part of the supply chain
-- [ ] Why an MCP registry/allowlist is not automatically a hard security boundary
-- [ ] Why read-only MCP comes before write-capable MCP
+`Run and recorded by Opus 5 (claude-opus-5), autonomously, 2026-09-25T18:45–18:55Z.`
+
+**26 runs, $0.2393 of a $0.50 ceiling, `n = 0` on the agent under test.** Full write-up and
+every prediction in [`E-021`](../../experiments/E-021-print-mode-mcp-hole-06a.md).
+
+| | |
+|---|---|
+| **Registered contrast** | arm A (no `--strict-mcp-config`) **5 of 5** vs arm B (the harness as it runs) **0 of 5**, two-sided Fisher **`p = 0.0079`** — the exact value the MDE registered before the run |
+| **Positive control** | arm P, 1 of 1: a null in arm B is not a broken server |
+| **Decision-rule row** | **row 1 — HOLE REAL, CONTROL EXECUTES** |
+| **Deliberate failure** | **DF1 and DF2 REFUTED at 5 of 5.** The loader **walks upward** |
+| **Extension** | DF3 (three levels up) and DF4 (a git root does not stop it) both **held**, 5 of 5 each |
+| **Spend** | $0.2393; ceiling not reached |
+
+**The layer label is settled by measurement: `--strict-mcp-config` is L2.** It executes, and
+its rejection is visible in the run's own delivered tool set. **The documented approval prompt
+is L3 and absent** — 26 runs, `permission_denials: []` on every one, servers `connected` and
+their tools delivered without a prompt. **`mcpHash` stays L3.**
+
+**Three things the run found that nobody registered.**
+
+1. **The runner's comment at `:759-762` is now measured, both halves.** Without the flag the
+   agent inherited **five of the operator's own claude.ai MCP servers** — Claude Docs, Slack,
+   Google Drive, Gmail, Calendar — on 5 of 5 runs, delivering **53 tools against arm B's 28**,
+   including tools that send Slack messages and read Drive. Cost: **+15.7 % on the median for
+   a nine-word prompt that does no work**, which is a lower bound on the same inflation across
+   a benchmark run.
+2. **`--setting-sources project` does not close this channel.** Every arm-A run carried it.
+   Two flags, two channels; only `--strict-mcp-config` is the MCP one.
+3. **Arm A's delivered tool set is not deterministic** (37 on one run, 53 on four, because a
+   remote connector was still `pending` at `init`) while arm B's is (28, zero spread). Reported
+   as a **co-variate**, not a result — the registered outcome was 5 of 5 either way, so row 4
+   does not fire.
+
+**And the finding that outranks the registered one.** The deliberate failure put the
+`.mcp.json` **outside** the run's directory and it loaded anyway: one level up, three levels
+up, and **two levels above the cwd's own git root**. So the exposure this stop measured is not
+*"a file planted in the worktree"* but *"a file anywhere above it"*, and a benchmark worktree's
+own git boundary does not contain it. **The extract's §3 understated the hole rather than
+overstating it, and one flag at `run-agent.sh:776` is the entire boundary.** Nothing is broken
+today — the flag is passed on every run — and that is precisely what a later step must not
+quietly remove.
+
+## Learning block — `build/README.md`, "After every step"
+
+```yaml
+learning:
+  what_was_added: >
+    Nothing was added to the agent. A probe was added to the lab: a dependency-free stdio MCP
+    server, two drivers and three fixture sets (13 of 13, 9 of 9, 10 of 10) that measure what
+    MCP configuration a `claude -p` run is actually handed, read from the run's own init
+    record rather than from the flag on its command line.
+  why_it_exists: >
+    Because `--strict-mcp-config` sits under every benchmark run this project has ever made
+    and had never been observed doing anything. The documented safeguard beside it — the
+    interactive approval prompt for a project-scoped .mcp.json — is excluded by its own docs
+    from `claude -p`, which is the only mode this project runs. That is the
+    --disable-slash-commands shape, and position 8 built a halt on the wrong premise once
+    already.
+  observed_effect: >
+    Arm A 5 of 5, arm B 0 of 5, Fisher p = 0.0079, zero within-arm spread. Without the flag
+    the run also inherited five operator-scope claude.ai servers, 53 delivered tools against
+    28, and +15.7 % median cost on a prompt that does no work.
+  unexpected_effect: >
+    Two. (1) The deliberate failure was refuted: the loader walks upward, past three levels
+    and past the cwd's own git root, so the hole is wider than the extract said. (2) Arm A's
+    delivered tool set is nondeterministic — a function of the launch AND of whether a remote
+    connector finished connecting — which every delivery proof in Track B assumes it is not.
+  keep_or_remove: >
+    Keep --strict-mcp-config; the keep is now measured rather than assumed, and its measured
+    effect is 25 delivered tools and +15.7 % cost. Keep the probe as an instrument. Nothing is
+    removed: §4 step 10 removes a rule with no measured effect, and this one has one.
+  next_question: >
+    How far up does the walk go — to $HOME, or to /? And what does B9 (stop 20) have to write
+    so that an MCP treatment is provable, given that a hash of the delivered config still
+    would not say which directory it came from?
+```
+
+## Exit gate — answered from evidence, §4 step 11
+
+- [x] **Why LSP is different from MCP.** LSP is a *symbol service* with a fixed capability
+      list — definition, references, implementations, symbols, hover, rename (extract §1) —
+      answering questions about one codebase. MCP is a *protocol for exposing arbitrary
+      capabilities, resources and tools*, and what a server offers is whatever its author
+      wrote. The difference is observable in this stop's own runs: the probe server added
+      **one named tool to the model's delivered tool schema** (`mcp__stop18probe__
+      probe_marker`, `init.tools`), which an LSP server cannot do — LSP feeds a client, MCP
+      feeds the model.
+- [x] **Why an MCP server is part of the supply chain.** Because installing one is *starting
+      a local process the agent then trusts*. Extract §1: Copilot's `.github/lsp.json` starts
+      an arbitrary local binary with nothing validating the config. This stop's probe is the
+      same shape and was proved end-to-end: a four-line JSON file in a directory caused
+      `python3 <path>` to be spawned and its tool delivered into the model's schema on 20 of
+      20 runs across four arms. **And the file did not have to be in the run's directory** —
+      arms D, D2 and D3. A dependency you did not install, in a directory you did not look at,
+      is a supply chain.
+- [x] **Why an MCP registry/allowlist is not automatically a hard security boundary.** Two
+      independent reasons, one read and one measured. **Read** (extract §2, §5): the private
+      registry page enforces *where servers come from*, not what they do, and the specification
+      says in its own words that it cannot enforce the behaviour of a server once connected.
+      **Measured** (this lab): the control that *is* enforced here is enforced by a **flag on a
+      command line**, and a flag is one edit away from absent. The exact same launch with one
+      word removed moved the delivered tool set from 28 to 53 — an allowlist that lives in an
+      argv is a boundary exactly as long as nobody changes the argv.
+- [x] **Why read-only MCP comes before write-capable MCP.** Answered against the extract and
+      against this stop's own measurement rather than against Phase 9, which gates 6B's write
+      path. Arm A shows what "write-capable" means concretely: among the 22 MCP tools the
+      operator's connectors delivered were `slack_send_message`, `slack_schedule_message`,
+      Drive and Calendar writers — **delivered into a benchmark run's tool schema with no
+      approval prompt and no record anywhere in the observatory**, because `mcpHash` is null by
+      construction (extract §4). A read-only server that is wrongly trusted returns bad data
+      and Lab 6.3's hard controls can still catch the effect; a write-capable one that is
+      wrongly trusted has already acted by the time anyone reads the run. Read-only first is
+      not caution, it is the only ordering under which a mistake is still observable.
+
+**The gate is answered; `lab#8` still does not close.** Three of these four clauses were
+answerable from the extract alone and the fourth needed the lab. What remains open is not the
+gate but the phase's labs: **6.1, 6.2, 6.3 and 6.4 are deferred**, so under §4 step 14's rule
+a Phase issue stays open and its closing comment names them.
+
+## Validation — §5
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| "Why LSP is different from MCP" | `phases/06a-code-intelligence/README.md` extract §1 (capability list quoted verbatim from the Copilot page) + `evidence/p06a/batch-20260925T184656Z/init-A-1.json` | **L3** — the answer is prose; the *illustration* is L2 | Open the two Copilot LSP pages in *Verified reading*; then `jq -r '.tools[]' evidence/p06a/batch-20260925T184656Z/init-A-1.json \| grep stop18probe` and see a tool name in the model's schema |
+| "Why an MCP server is part of the supply chain" | `evidence/p06a/mcp.json.fixture`, `evidence/p06a/probe_server.py.fixture`, and all 20 delivering runs across `batch-20260925T184656Z` (A-1…A-5), `deliberate-failure-20260925T185104Z`, `walk-D2-20260925T185343Z`, `walk-D3-20260925T185343Z` | **L2** — a process was started and its tools delivered; the run records show it | Copy the two fixtures anywhere outside a tracked tree, run `PROBE_ARMS=A PROBE_N=1 evidence/p06a/run-mcp-hole-probe.sh`, read `tool_present` in the `RESULT.tsv` it writes |
+| "Why an MCP registry/allowlist is not automatically a hard security boundary" | extract §2 and §5 (registry page, MCP spec **2026-07-28**); and `batch-20260925T184656Z/RESULT.tsv` rows A-1…A-5 vs B-1…B-5, identical `.mcp.json` sha256 `078f9a41…` | **L3 for the read half, L2 for the measured half** | Read the two pages; then `diff <(cat evidence/p06a/batch-20260925T184656Z/argv-A-1.txt) <(cat evidence/p06a/batch-20260925T184656Z/argv-B-1.txt)` — the only difference is `--strict-mcp-config` — and compare the two `init-*.json` |
+| "Why read-only MCP comes before write-capable MCP" | `batch-20260925T184656Z/init-A-1.json` (`mcp__claude_ai_Slack__slack_send_message` and 21 others delivered); extract §4 for `mcpHash` null by construction at `runner/run-agent.sh:645` | **L2 for what was delivered; L3 for the ordering argument** | `jq -r '.tools[] \| select(startswith("mcp__"))' evidence/p06a/batch-20260925T184656Z/init-A-1.json`; then `sed -n '640,650p' ../agent-observatory/runner/run-agent.sh` and look for `mcpHash` — it is not there |
+| **Lab 6.5's own registered outcome** (E-021 predictions 1–3) | `evidence/p06a/preflight-20260925T184532Z/RESULT.tsv` (P 1/1) and `evidence/p06a/batch-20260925T184656Z/RESULT.tsv` (A 5/5, B 0/5) | **L2** — read from each run's own `init` record, not from the flag | Re-run the driver, or `for f in evidence/p06a/batch-20260925T184656Z/init-*.json; do echo "$f $(grep -c mcp__stop18probe__ "$f")"; done` |
+| **The deliberate failure** (E-021 DF1–DF4) | `evidence/p06a/deliberate-failure-20260925T185104Z/RESULT.tsv`, `walk-D2-20260925T185343Z/RESULT.tsv`, `walk-D3-20260925T185343Z/RESULT.tsv` | **L2** | Run `evidence/p06a/run-mcp-parent-dir-df.sh` and `run-mcp-walk-scope-df.sh`; their guards (exit 9, 10, 11) refuse to run an arm whose directory layout would make a null meaningless |
+| **Prediction-commit ordering** | commit `5f3f6913` at **2026-09-25T18:42:24Z**; first run `startedAt` **2026-09-25T18:45:33Z** | **L2** — both read from git and from the driver's TSV | `git log -1 --format=%cI 5f3f6913` and `awk -F'\t' 'NR==2{print $4}' evidence/p06a/preflight-20260925T184532Z/RESULT.tsv` |
+| **Every exit code of every tool built here is provoked** | `verify-mcp-hole-probe-guards.sh` **13 of 13**, `verify-mcp-parent-dir-df.sh` **9 of 9**, `verify-mcp-walk-scope-df.sh` **10 of 10**; all three ShellCheck-clean | **L2** | Run the three scripts. Each `check` runs the driver **unpiped** and reads `$?` directly — a piped exit code is tail's, which is how a failing verifier gets reported as passing (§0a, this session) |
+| **Independence: what else changed between arms?** | `argv-A-1.txt` vs `argv-B-1.txt`; `.mcp.json` sha256 identical across arms (`078f9a41…`); `init.model` = `claude-haiku-4-5-20251001` on every run; `claude --version` = `2.1.282` recorded in each `HASHES.txt` before and after | **L2** | `shasum -a 256 /tmp/stop18-mcp-probe-*/run-A-2/.mcp.json /tmp/stop18-mcp-probe-*/run-B-3/.mcp.json` while the throwaway trees survive; afterwards, the `HASHES.txt` in each evidence directory |
+
+**Hand re-read, §5's per-step requirement.** Two cells, both re-derived by me in the main
+context off the raw streams rather than off the driver's TSV, and both reproduced it exactly:
+
+| Cell | Sheet's value | My hand reading | Source |
+|---|---|---|---|
+| arm A run 2, probe tool present | `yes` | `True`, with `total tools 37`, `mcp tools 9`, `stop18probe status connected source project` | `batch-20260925T184656Z/stream-A-2.jsonl`, `init` record parsed directly |
+| arm B run 3, probe tool present | `no` | `False`, `mcp_servers []`, `total tools 28` | `batch-20260925T184656Z/stream-B-3.jsonl` |
+| arm D3 run 3, probe tool present | `yes` | `True`, cwd `/private/tmp/…/top/a/repo`, `git rev-parse --show-toplevel` returns that same cwd, and the `.mcp.json` is two levels above it | `walk-D3-20260925T185343Z/stream-D3-3.jsonl` + `find` over the tree |
+
+**Every number in this workbook carries its `n`.** Nothing is stated as a property from
+`n < 5`: arm P is `n = 1` and is stated only as "true of that run", and it is a positive
+control rather than a result. The registered contrast is `n = 5` per arm.
+
 
 ## Commit
+
+The workbook's original Commit block listed the artifacts of a stop that ran all four labs:
 
 ```
 .github/lsp.json · mcp/architecture-context/
 security/mcp-threat-model.md · experiments/B6-context.md
 ```
+
+**None of those was built, and that is the registered scope, not a shortfall.** The spine funds
+**one** lab per Track A stop (§3); `.github/lsp.json` belongs to Lab 6.1, `mcp/architecture-
+context/` to Lab 6.2, and `security/mcp-threat-model.md` to Lab 6.4 — all three deferred, all
+three named in `lab#8`'s closing comment. `experiments/B6-context.md` is a B-step artifact and
+**§6 forbids creating a future step's artifacts early**.
+
+What this stop actually committed:
+
+```
+phases/06a-code-intelligence/README.md          extract, design, result, exit gate, §5 table
+experiments/E-021-print-mode-mcp-hole-06a.md    the lab, predictions committed before the runs
+evidence/p06a/probe_server.py.fixture           the probe MCP server, inert
+evidence/p06a/mcp.json.fixture                  the probe config, inert — never a live .mcp.json
+evidence/p06a/run-mcp-hole-probe.sh             arms P, A, B (and A', unfired)
+evidence/p06a/run-mcp-parent-dir-df.sh          arm D, the deliberate failure
+evidence/p06a/run-mcp-walk-scope-df.sh          arms D2, D3
+evidence/p06a/verify-*.sh                       13 of 13, 9 of 9, 10 of 10
+evidence/p06a/preflight-* batch-* deliberate-failure-* walk-*   26 runs, streams and init records
+```
+
+**No `.mcp.json` exists anywhere in any of the three repositories.** Both probe fixtures carry
+a `.fixture` suffix and are inert; every run happened in a throwaway directory under `/tmp`,
+and the drivers refuse with exit 5 if asked to work inside a tracked tree.

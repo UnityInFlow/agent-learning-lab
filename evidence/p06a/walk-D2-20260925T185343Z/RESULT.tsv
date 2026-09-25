@@ -1,0 +1,6 @@
+arm	i	cwd	levels_up	cwd_is_git	tool_present	server_present	mcp_tool_count	permission_denials	cost_usd	note
+D2	1	/tmp/stop18-mcp-walk-D2-20260925T185343Z/top/a/b/c	3	no	yes	yes	22	0	0.0152341	ok
+D2	2	/tmp/stop18-mcp-walk-D2-20260925T185343Z/top/a/b/c	3	no	yes	yes	22	0	0.0026644000000000004	ok
+D2	3	/tmp/stop18-mcp-walk-D2-20260925T185343Z/top/a/b/c	3	no	yes	yes	22	0	0.0027194000000000003	ok
+D2	4	/tmp/stop18-mcp-walk-D2-20260925T185343Z/top/a/b/c	3	no	yes	yes	22	0	0.0027144000000000005	ok
+D2	5	/tmp/stop18-mcp-walk-D2-20260925T185343Z/top/a/b/c	3	no	yes	yes	22	0	0.0026994000000000002	ok

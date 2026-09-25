@@ -1,0 +1,8 @@
+arm        : D2
+claude     : 2.1.282 (Claude Code)
+file at    : /tmp/stop18-mcp-walk-D2-20260925T185343Z/top/.mcp.json
+cwd        : /tmp/stop18-mcp-walk-D2-20260925T185343Z/top/a/b/c
+levels up  : 3
+cwd is git : no
+sha256 top/.mcp.json : 85190aae1d2d3d8766dad4e784f3c9786126df41564c8c11aec7ab4767c67dfb
+spent_usd: 0.02603

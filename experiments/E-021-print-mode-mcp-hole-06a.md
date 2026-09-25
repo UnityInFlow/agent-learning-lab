@@ -313,44 +313,202 @@ Neither arm enters the A-vs-B decision rule; both are reported on their own.
 
 | | |
 |---|---|
-| Prediction commit sha | *(filled after the runs, from `git log`)* |
-| Prediction commit timestamp | *(filled after the runs)* |
-| First run's `startedAt` | *(filled after the runs, from the probe driver's log)* |
-| Ordering holds? | *(filled after the runs)* |
+| Prediction commit sha | `5f3f69139951a7ea303d6012bf9280b549fc28af` |
+| Prediction commit timestamp | **2026-09-25T18:42:24Z** (`git log -1 --format=%cI`, converted from +02:00) |
+| First run's `startedAt` | **2026-09-25T18:45:33Z** (arm P, `preflight-20260925T184532Z/RESULT.tsv`) |
+| Ordering holds? | **Yes — the prediction commit precedes the first run by 3 min 9 s.** Both values read from git and from the driver's own TSV, not from prose. |
+
+Arm D's prediction was committed at `054b0b8` (2026-09-25T18:50Z) before arm D's driver
+existed; arms D2 and D3's predictions at `2c27630` (2026-09-25T18:53Z) before theirs did.
+Neither is edited after its run.
 
 ## Observed telemetry
 
-*(filled after the runs)*
+None. This lab reads the CLI's own `system`/`init` stream-json record and the terminal
+`result` record, per run, on disk. **No observatory run record exists for any of these 26
+runs** — `run-agent.sh` was never invoked — and that is deliberate: `customization.mcpHash`
+is null by construction on every run the observatory has ever stored, so there is no field
+that could have carried the measurement. Cost comes from `result.total_cost_usd`, the CLI's
+own accounting, and is not a telemetry-sourced number.
 
 ## Results
 
-*(filled after the runs — raw, then summary; median and p25/p75, never an average alone)*
+**Evidence root:** `evidence/p06a/` · arm P in `preflight-20260925T184532Z/` · arms A and B in `batch-20260925T184656Z/` ·
+arm D in `deliberate-failure-20260925T185104Z/` · arms D2 and D3 in `walk-D2-20260925T185343Z/` and `walk-D3-20260925T185343Z/`.
+
+### Raw — the registered outcome, per run
+
+| Arm | flags, relative to `run-agent.sh`'s claude set | `.mcp.json` at | `mcp__stop18probe__probe_marker` in `init.tools` |
+|---|---|---|---|
+| **P** | + `--mcp-config` | cwd (ignored) | **yes — 1 of 1** |
+| **A** | **MINUS `--strict-mcp-config`** | cwd | **yes — 5 of 5** |
+| **B** | unchanged | cwd | **no — 0 of 5** |
+| **D** | as A | **one level above an empty cwd** | **yes — 5 of 5** |
+| **D2** | as A | **three levels above** | **yes — 5 of 5** |
+| **D3** | as A | **two levels above, cwd is a git repo** | **yes — 5 of 5** |
+
+`server_present` and `server_status` track `tool_present` exactly on all 26 runs: wherever the
+tool is delivered, `stop18probe` is in `init.mcp_servers` with `status: connected` and
+`source: project`; wherever it is not, `init.mcp_servers` is `[]`.
+
+**A vs B, the one registered contrast: 5 of 5 against 0 of 5, two-sided Fisher `p = 0.0079`**
+— the exact value the MDE table registered before the run for a complete separation at `n = 5`
+per arm. Zero within-arm spread in both arms, as the transferred E-005 spread predicted.
+
+### Summary — median and range, never an average alone
+
+| Metric | Arm A (no `--strict-mcp-config`) | Arm B (the harness as it runs) |
+|---|---|---|
+| probe tool delivered | 5 of 5 | 0 of 5 |
+| **total tools delivered** | **median 53, range 37–53** | **median 28, range 28–28** |
+| MCP tools delivered | median 22, range 9–22 | 0 on 5 of 5 |
+| `result.total_cost_usd` | median $0.015204, p25 $0.015081, p75 $0.015252 | median $0.013142, p25 $0.013140, p75 $0.013147 |
+| `permission_denials` | 0 on 5 of 5 | 0 on 5 of 5 |
+
+### Three things the run found that were not the registered outcome
+
+**(a) Arm A inherited five of the operator's own MCP servers, and that was never predicted
+here — only asserted in a comment.** `run-agent.sh:759-762` says `--strict-mcp-config` exists
+because otherwise *"the agent inherits whatever MCP servers the operator has configured at
+user scope, so the 'plain baseline' varies by machine and its tool schemas inflate the context
+of every request — which lands on cost, the primary metric."* **Both halves are now measured
+rather than reasoned.** Arm A's `init.mcp_servers` carries `claude.ai Claude Docs`, `claude.ai
+Slack`, `claude.ai Google Drive`, `claude.ai Gmail` and `claude.ai Google Calendar` with
+`source: claudeai` on 5 of 5 — including tools that send Slack messages and read Drive — and
+the delivered tool set is **53 against B's 28**. The cost half: **+15.7 % on the median
+($0.015204 vs $0.013142) for a nine-word prompt that does no work.** A schema-inflation cost
+measured on an empty task is a lower bound on the same cost across a benchmark run.
+
+**(b) `--setting-sources project` does not close this channel.** Every arm-A run carried it.
+It keeps the operator's *settings* and *plugin skills* out — measured at stop 8 — and it does
+**not** keep the operator's MCP servers out. Two flags, two different channels; only the
+second one is MCP.
+
+**(c) Arm A's delivered tool set is NOT deterministic, and arm B's is.** A-2 received 37 tools
+where A-1, A-3, A-4 and A-5 received 53, because `claude.ai Slack` was `status: pending` at
+`init` on that run and `connected` on the others. Arm B was 28 on 5 of 5 with zero spread.
+**This is a co-variate, not a result** — the registered outcome was 5 of 5 either way, so
+decision-rule row 4 does not fire and no property is claimed from it. It is worth the sentence
+because every delivery proof in Track B reads a set assumed to be a deterministic function of
+the launch, and in arm A it is a function of the launch **and of a network race**. E-004's
+`maintainability` is the precedent for reporting a co-variate as a co-variate.
+
+### The deliberate failure, and its extension
+
+| Prediction | Registered | Observed | Verdict |
+|---|---|---|---|
+| **DF1** probe tool ABSENT with the file one level up, 5 of 5 | `054b0b8`, 18:50Z | **present 5 of 5** | **REFUTED** |
+| **DF2** server absent from `init.mcp_servers`, 5 of 5 | `054b0b8`, 18:50Z | **present, `connected`, `source: project`, 5 of 5** | **REFUTED** |
+| **DF3** probe tool PRESENT three levels up, 5 of 5 | `2c27630`, 18:53Z | present 5 of 5 | **HELD** |
+| **DF4** a git root at the cwd does NOT stop the walk, 5 of 5 | `2c27630`, 18:53Z | present 5 of 5; the file sits two levels **above** the repository root | **HELD** |
+
+**The loader walks upward, and neither depth nor a git boundary stops it.** DF4 was written to
+be wrong in the direction that would have been good news, and it was not wrong. Hand re-read
+off the tree rather than off the driver: `find` reports exactly one `.mcp.json` in each
+throwaway tree and it is above the cwd; `git rev-parse --show-toplevel` in arm D3's cwd returns
+the cwd itself, two levels below the file that loaded.
+
+### Spend
+
+**$0.2393 of the registered $0.50 ceiling, over 26 runs.** The ceiling was not reached; the
+batch stopped at its registered `n`, not on budget.
 
 ## Which predictions held
 
 | # | Prediction | Held? | Actual |
 |---|---|---|---|
-| 1 | Arm P delivers the tool, 1 of 1 | | |
-| 2 | Arm A delivers it 5 of 5 | | |
-| 3 | Arm B delivers it 0 of 5 | | |
-| 4 | No approval event in either arm, 10 of 10 | | |
-| 5 | A′ delivers it 5 of 5 *(contingency)* | | |
+| 1 | Arm P delivers the tool, 1 of 1 | **held** | 1 of 1, `connected`, $0.0132 |
+| 2 | Arm A delivers it 5 of 5 | **held** | 5 of 5, `source: project` |
+| 3 | Arm B delivers it 0 of 5 | **held** | 0 of 5, `init.mcp_servers == []` |
+| 4 | No approval event in either arm, 10 of 10 | **held, on better evidence than the one registered** | `result.permission_denials == []` on 11 of 11, `terminal_reason: completed`. The grep this experiment registered is **not** what carries it — see Failure analysis. |
+| 5 | A′ delivers it 5 of 5 *(contingency)* | **not run** | Its trigger was "prediction 2 refuted with a null on all 5". Prediction 2 held, so A′ was never opened: registered and unfired, not skipped. |
+| DF1 | absent one level up, 5 of 5 | **REFUTED** | present 5 of 5 |
+| DF2 | server absent one level up, 5 of 5 | **REFUTED** | present 5 of 5 |
+| DF3 | present three levels up, 5 of 5 | held | present 5 of 5 |
+| DF4 | git root does not stop the walk, 5 of 5 | held | present 5 of 5 |
+
+**Four of the five main predictions held and both deliberate-failure predictions were
+refuted.** The refutations are the stop's finding; the confirmations are the control that makes
+them readable.
 
 ## Failure analysis
 
-*(filled after the runs. For each failure: was it the agent, or the harness? At this stop the
-honest prior is **the harness** — that is what the stop measures.)*
+**Was this the agent, or the harness? The harness, on every line.** No prediction here is about
+`claude-haiku-4-5-20251001`'s behaviour; the pinned model was used so nothing about the launch
+differed from a benchmark run, and the `init` record it reads is emitted before the model
+produces a token. The agent under test is `n = 0` at this stop.
+
+**Two instrument defects found, both before they could decide anything.**
+
+1. **The F13 detector was a false positive on every run.** The first version grepped
+   `rate.?limit` and matched the routine `{"type":"rate_limit_event","rate_limit_info":
+   {"status":"allowed",...}}` record every run of this CLI emits — a record that says the run
+   was **not** limited. E-021 registers F13 under Exclusions, so a detector firing on every run
+   would have emptied the population into the exclusion list. Corrected to a structural `jq`
+   test before the batch, with no run in flight; the preflight's `RESULT.tsv` is **not**
+   rewritten and `preflight-*/NOTE-f13-false-positive.md` carries the correction and the hand
+   re-derivation. `verify-mcp-hole-probe-guards.sh` re-run under the patched driver: 13 of 13.
+2. **Prediction 4's registered detector has never been shown to fire, so it is not what proves
+   prediction 4.** The driver greps for `can_use_tool`, `permission_request`,
+   `permission_denial` and two prose strings. None appears in this stream format on any of the
+   26 runs, so `approval_event: no` states that four strings were absent — *"a control that has
+   never been shown to reject anything is indistinguishable from one that rejects nothing"*,
+   §4 step 4, applied to my own instrument. **What actually carries prediction 4 is structural,
+   and was found by reading the stream rather than by trusting the column:** every `result`
+   record has `permission_denials: []` and `terminal_reason: completed`, and in arm A the
+   servers reached `status: connected` with their tools delivered inside a five-second
+   non-interactive run. A run that had waited for approval could not have delivered them. **The
+   registered prediction held; the registered detector is not the reason, and saying so is the
+   point.**
 
 ## Sanity checks
 
-- [ ] Did any dramatic number appear? Has it been explained *and* the explanation tested?
-- [ ] Did any **flattering** number appear? Has it been disbelieved twice?
-- [ ] If a fix motivated this run, did the original symptom actually disappear?
+- [x] **Did any dramatic number appear?** Yes — arm A delivering 22 MCP tools including Slack
+      send-message and Google Drive. Explained: the operator's claude.ai connectors at user
+      scope. **The explanation was tested**: arm B, same machine, same minute, same `.mcp.json`
+      bytes (sha256 `078f9a41…`, identical across arms by `shasum`), delivers 0. The only
+      difference on the command line is `--strict-mcp-config`.
+- [x] **Did any flattering number appear?** Yes — a clean 5-of-5 / 0-of-5. **Disbelieved
+      twice:** by arm P, which proves a null in arm B is not a broken server; and by hand
+      re-reading the raw `init` records of A-2 and B-3 straight from their streams, which
+      reproduced the driver's values exactly. A third, unplanned disbelief arrived on its own —
+      the deliberate failure refuted the containment claim I would otherwise have written around
+      that clean number.
+- [x] **If a fix motivated this run, did the original symptom disappear?** No fix motivated it.
+      The F13 fix made during it was re-derived by hand on the run it had mislabelled, and that
+      run's label changes from `f13-candidate` to `ok`.
 
 ## Decision
 
-*(filled after the runs)*
+**KEEP `--strict-mcp-config`, and the keep is now measured rather than assumed** —
+decision-rule **row 1**, from P ok · A 5 of 5 · B 0 of 5.
+
+- **The workbook's provisional layer label is settled: `--strict-mcp-config` is L2.** Something
+  executes and rejects the configuration, and the rejection is visible in the run's own
+  delivered tool set on 5 of 5 against a control that receives it on 5 of 5.
+- **The interactive approval prompt is L3 and absent**, confirmed rather than assumed: 26 runs,
+  zero permission denials, servers connected and tools delivered without one.
+- **`mcpHash` stays L3** and is untouched by this lab. **B9 (stop 20) still owes a writer** —
+  and after arm D it owes more than a hash, because what needs proving is not only *which* MCP
+  config a run received but *from how far above it*.
+- **No control is removed.** §4 step 10's default is that a rule with no measured effect is
+  removed; this one has a measured effect of 25 delivered tools and +15.7 % cost, so the default
+  does not apply.
+- **What this does NOT decide:** whether MCP-returned content is treated as untrusted (Lab 6.3,
+  deferred), anything about the codex or Copilot runtimes, and anything about the agent under
+  test.
 
 ## Follow-up
 
-*(filled after the runs)*
+1. **`author_notes`, this session:** an operator `.mcp.json` **anywhere above** a benchmark
+   worktree — not inside it, and not stopped by the worktree's own git root — reaches every
+   `claude -p` run that omits `--strict-mcp-config`. One flag at `run-agent.sh:776` is the whole
+   boundary. **Nothing to fix: the flag is passed on every run.** The exposure is what a future
+   step must not quietly remove.
+2. **Stop 20 (B9)** inherits the `mcpHash` gap and now also a provenance question: a hash of the
+   config a run received will not say whether it came from the worktree or from three
+   directories above it. `obs#88`'s `agentsHash` is the shape for the first half only.
+3. **Registered as open, not run here:** how far up the walk goes (`$HOME`? `/`?), and whether
+   `--add-dir` or a symlinked worktree changes it. Cheap, and out of scope at a stop the spine
+   funds one lab for.
+4. **Labs 6.1–6.4 stay deferred** and `lab#8` stays open naming them.
