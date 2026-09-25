@@ -27,6 +27,31 @@
 #   6  another probe holds the lock
 #   9  the child directory is NOT empty of .mcp.json — the arm would measure nothing
 #  10  the parent directory has NO .mcp.json — the arm would measure nothing
+#   1  an unexpected internal failure (mkdir). Added to this list at §4 step 13a from
+#      findings/opencode/review-run-mcp-parent-dir-df-20260925T192507Z.md (non-blocking, 2/2),
+#      which found `die 1` in use and absent from the header. It never fired.
+#
+# KNOWN SCOPE LIMITS, recorded rather than fixed — this file produced a measured arm.
+# From the §4a review of 2026-09-25.
+#
+#   (a) THE GUARDS NEVER VERIFY probe_server.py SURVIVED THE `cp`. (Blocking, 2/2.) The
+#       finding is correct as a design defect: a silent failed copy would make the server
+#       unreachable, and a null would then look like a confirmation of DF1/DF2.
+#       *** IT CANNOT HAVE OCCURRED IN THIS ARM, and the reason is the result itself: DF1 and
+#       DF2 were REFUTED — the tool was delivered on 5 of 5 — which is positive proof the
+#       server existed and answered. *** The defect is real for any FUTURE null; it is ruled
+#       out for the run on disk by the outcome. A post-cp existence check is the fix and is
+#       not applied here.
+#   (b) `jq ... | length` RETURNS 0 FOR A MISSING KEY, so `permission_denials` absent and
+#       `permission_denials: []` are indistinguishable in RESULT.tsv. (Non-blocking, 1/2.)
+#       Checked by hand on every run of this arm and of D2/D3:
+#       `jq 'select(.type=="result") | has("permission_denials")'` is `true` everywhere and the
+#       value is `[]`. The ambiguity is real in the code and did not bite.
+#   (c) DISPUTED — `awk '{print $1}'` on `claude --version`. (Non-blocking, 1/2, and the
+#       reviewer itself marked it unsubstantiated.) Measured on this binary:
+#       `claude --version` prints `2.1.282 (Claude Code)`, so `$1` is `2.1.282`. The
+#       binary-name-first format the finding hypothesises does not occur here, and a wrong
+#       parse fails CLOSED at exit 2 rather than running an unpinned version.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" || exit 1

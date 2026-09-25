@@ -23,6 +23,36 @@
 #   6  another probe holds the lock
 #   7  an unknown arm was requested
 #   8  the budget ceiling was reached; the population that occurred is reported
+#   1  an unexpected internal failure (mkdir of the evidence or work directory).
+#      Added to this list at §4 step 13a from
+#      findings/opencode/review-run-mcp-hole-probe-20260925T191443Z.md (blocking, 2/2), which
+#      found `die 1` in use and absent from the header. It never fired.
+#
+# KNOWN SCOPE LIMITS, recorded rather than fixed, because this file produced a measured batch
+# and editing it after the fact would mean the committed driver is not the one that ran.
+# All four are from the §4a review of 2026-09-25; none changes a recorded value.
+#
+#   (a) GUARD 3 CHECKS PRESENCE, NOT ABSENCE. It asserts six flag lines are still in
+#       run-agent.sh. It would NOT notice the runner ADDING a seventh, so arm B could drift
+#       from the real plain-run launch without the guard firing. Closed for THIS stop by hand:
+#       the runner's block at :774-792 adds exactly `--model` (which this driver passes) and
+#       `--agent` (added only when AGENT_NAME is set, i.e. never on a plain run, which is what
+#       arm B mirrors). A hash of the block would be the fix; it is not applied here.
+#   (b) THE APPROVAL DETECTOR HAS NEVER BEEN SHOWN TO FIRE. It greps four strings that do not
+#       appear in this stream format on any of the 26 runs, and under --permission-mode
+#       acceptEdits a `can_use_tool` would be an auto-approval rather than a prompt anyway. It
+#       is NOT what proves E-021's prediction 4; `result.permission_denials == []` and the
+#       servers reaching `connected` with their tools delivered are. E-021's Failure analysis
+#       says this at length. The column is kept because deleting a column changes a file that
+#       produced measured runs.
+#   (c) MULTIPLE init RECORDS WOULD SPLIT A TSV ROW. `jq -c` emits one line per matching
+#       record, so two init records would embed a newline in one logical row. Checked across
+#       all 26 init files: every one holds EXACTLY ONE record, so it did not occur.
+#   (d) WHY THIS RECONSTRUCTS THE RUNNER'S FLAGS INSTEAD OF CALLING run-agent.sh. The runner
+#       needs a benchmark id, a git worktree, an experiment key and an observatory it can post
+#       a run record to. This lab needs none of them and must run in a throwaway directory
+#       outside every tracked tree — and `customization.mcpHash` is null by construction, so
+#       there is no field in a run record that could have carried this measurement anyway.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" || exit 1

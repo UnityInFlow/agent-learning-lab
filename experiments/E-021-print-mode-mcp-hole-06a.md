@@ -305,6 +305,38 @@ is the single thing standing between this project's baseline and the operator's 
 `n = 5` per arm, ~$0.10 for both, inside the $0.50 ceiling (spent after arm D: $0.1838).
 Neither arm enters the A-vs-B decision rule; both are reported on their own.
 
+### Deliberate failure, second extension — arm E, registered BEFORE it exists
+
+`Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-25T19:40Z, at §4 step 13a, after the
+§4a review found the gap and before arm E existed. The author did not review before the run.
+Additive: nothing above is edited.`
+
+**The §4a review found a real hole in this experiment's own conclusion, and it is the sharpest
+finding of the four rounds.** `findings/opencode/review-E-021-print-mode-mcp-hole-06a-20260925T185923Z.md`,
+non-blocking 1/2: the Decision section labels `--strict-mcp-config` **L2** without qualification,
+**but every arm that put the `.mcp.json` above the cwd — D, D2 and D3 — ran with the flag OFF.**
+So the combination that actually matters operationally — *the flag ON, the file above the
+worktree* — **was never run.** Arm B tested the flag against a file in the cwd. That is a
+narrower claim than "L2" as written, and the reviewer is right that the artifact did not say so.
+
+**Arm E:** arm D's layout exactly — `.mcp.json` one level **above** an empty cwd — with
+`--strict-mcp-config` **ON**, i.e. the runner's plain-run flag set unmodified. `n = 5`, ~$0.05,
+inside the $0.50 ceiling (spent after D3: $0.2393).
+
+- **DF5 — the probe tool is ABSENT on 5 of 5**, and `stop18probe` is absent from
+  `init.mcp_servers`. *Mechanism:* `--strict-mcp-config`'s help text says *"ignoring all other MCP
+  configurations"* — **all**, without reference to where the configuration sits. Arm B showed it
+  ignores one in the cwd; a source filter that is about sources should not care about depth.
+- **If DF5 is refuted — if the tool appears with the flag ON — then `--strict-mcp-config` filters
+  the cwd's `.mcp.json` and NOT an ancestor's**, the L2 label is wrong as written, the stop's
+  registered Decision is wrong, and **every benchmark run this project has ever made was exposed
+  to any `.mcp.json` above its worktree.** That is the largest single thing this stop could find,
+  and it is being looked for only because a second model family read the artifact and asked what
+  the arms did not cover.
+
+Arm E is a deliberate failure, not a comparison arm: it enters no decision-rule row and is
+reported on its own.
+
 ---
 *Everything below is filled in AFTER the runs.*
 ---
@@ -497,6 +529,37 @@ decision-rule **row 1**, from P ok · A 5 of 5 · B 0 of 5.
 - **What this does NOT decide:** whether MCP-returned content is treated as untrusted (Lab 6.3,
   deferred), anything about the codex or Copilot runtimes, and anything about the agent under
   test.
+
+## §4a review — amendments, added at step 13a and editing nothing above
+
+`findings/opencode/review-E-021-print-mode-mcp-hole-06a-20260925T185923Z.md`, gate **ACCEPT**,
+four findings, none blocking. Each is dispositioned here; the registered predictions, the
+decision rule and the results are **not** edited (§4 step 12).
+
+1. **Decision-rule row 3 mislabels the combination `A = 0` with `B ≥ 1`.** *(1/2, the reviewer's
+   own gate marked it disputed.)* **Accepted as a real gap.** Row 3 keys only on `A = 0 of 5` and
+   calls the result "NO HOLE IN THIS CONFIGURATION"; if arm B had *also* delivered the server, the
+   flag would be **adding** a source rather than filtering one, and "no hole" would be exactly
+   wrong. **The combination did not occur** — A was 5 of 5 and B was 0 of 5, so row 1 fired
+   unambiguously. **The rule is not edited**: a decision rule is registered before data and stays
+   as registered, wrong rows included. Recorded here so the next experiment that copies this rule
+   copies the gap knowingly. The template's own warning — *"write them, then find the combination
+   that reaches no row"* — asks for exhaustiveness; this one is exhaustive but not sound on one
+   cell, which is a failure mode the template does not name and now has an example of.
+2. **Prediction 4's registered detector never fired.** *(1/2.)* **No change needed — the artifact
+   already says this**, at length, in *Failure analysis* item 2, written before the review ran.
+   The reviewer found independently what the experiment had disclosed, which is the outcome a
+   second reader is for. The driver's header now carries it too.
+3. **`--strict-mcp-config` labelled L2 without qualification.** *(1/2.)* **Accepted, and it is the
+   most valuable finding of the four rounds.** It is answered by **arm E**, registered above with
+   its prediction committed before the arm existed, rather than by softening a sentence.
+4. **The CLI version is not re-recorded for arms D, D2 and D3.** *(1/2.)* **Disputed, with
+   evidence.** It is recorded and it is also enforced. Every driver writes
+   `claude : $("$CLAUDE_BIN" --version)` into its evidence directory's `HASHES.txt` before the
+   first run of the arm — `evidence/p06a/deliberate-failure-20260925T185104Z/HASHES.txt`, `walk-D2-20260925T185343Z/HASHES.txt` and
+   `walk-D3-20260925T185343Z/HASHES.txt` each read `2.1.282 (Claude Code)` — and every driver **refuses to run at
+   exit 2** if the version is not the registered one, which `verify-*.sh` cases C/D and C/D prove
+   by provoking it. The version is not inferred from timing; it is a precondition that executes.
 
 ## Follow-up
 

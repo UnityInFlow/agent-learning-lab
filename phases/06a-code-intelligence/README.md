@@ -291,6 +291,15 @@ passes three times in seven will clear a preflight sooner or later and then be b
    write-capable — is answered partly against the extract and partly against Phase 9, which
    the spine gates 6B's write path behind.
 
+   > **Amended at §4 step 13a, 2026-09-25, from
+   > `findings/opencode/review-README-20260925T190755Z.md` (blocking, 1/2), which found this
+   > sentence contradicting the Exit gate section below.** It does. This item was written at §4
+   > step 1, before the lab existed, and it guessed that clause 4 would need Phase 9. **It did
+   > not.** Lab 6.5 delivered `slack_send_message`, Drive and Calendar writers into a run's tool
+   > schema with no approval prompt, which answers the clause against a measurement taken at
+   > *this* stop. **The guess is kept, not rewritten** — a wrong guess about which evidence a
+   > question would need is still a record of what was believed at step 1.
+
 ## Design — §4 step 2, spine stop 18, 2026-09-25
 
 `Designed by Opus 5 (claude-opus-5), autonomously, 2026-09-25T18:39Z; the author did not
@@ -420,7 +429,19 @@ secrets · audit · data returned · retention · version/provenance.
 ## Lab 6.5 — The print-mode MCP hole · **THE ONE LAB THE SPINE FUNDS AT THIS STOP**
 
 **Experiment:** [`E-021`](../../experiments/E-021-print-mode-mcp-hole-06a.md) · key
-`EXP-06A-MCP-PRINT-MODE` · `n = 11` runs minimum, 16 at most, budget `$0.50`.
+`EXP-06A-MCP-PRINT-MODE` · **arms P + A + B = 11 runs, 16 with the A′ contingency** · budget
+`$0.50`, which is the binding constraint.
+
+> **Amended at §4 step 13a, 2026-09-25, from
+> `findings/opencode/review-README-20260925T190755Z.md` (blocking, 2/2), which found "16 at most"
+> against a Result reporting 26 runs.** The reviewer is right that the two were never reconciled.
+> **The 11–16 figure covers the arms registered in E-021's *Runs* section — P, A, B and the unfired
+> A′ — and nothing else.** §4 step 9's deliberate failure is a required step of the loop with its
+> own predictions committed before its arms existed, and arms D (5), D2 (5) and D3 (5) are
+> additional by construction: a step-9 arm cannot sit inside a cap written at step 3, because at
+> step 3 nobody knows yet what the run will make worth breaking. **The registered ceiling that
+> actually binds is the $0.50 budget, and it was not reached — 26 runs, $0.2393.** The run count
+> was never the control; the money was.
 
 Labs **6.1, 6.2, 6.3 and 6.4 above are DEFERRED** — the spine funds one lab per Track A stop
 and this is it. `lab#8` stays open at the close naming those four (§4 step 14's rule for a
@@ -466,14 +487,22 @@ their tools delivered without a prompt. **`mcpHash` stays L3.**
    agent inherited **five of the operator's own claude.ai MCP servers** — Claude Docs, Slack,
    Google Drive, Gmail, Calendar — on 5 of 5 runs, delivering **53 tools against arm B's 28**,
    including tools that send Slack messages and read Drive. Cost: **+15.7 % on the median for
-   a nine-word prompt that does no work**, which is a lower bound on the same inflation across
-   a benchmark run.
+   a nine-word prompt that does no work** ($0.015204 against $0.013142). The **absolute** cost of
+   carrying 25 extra tool schemas is a lower bound here — a benchmark run makes many more requests
+   and each pays the same inflated prompt — but the **percentage is not**, and it may fall as real
+   task tokens grow. *(Disambiguated at §4 step 13a from `review-README-20260925T190755Z.md`,
+   non-blocking 1/2, which called the original "lower bound" directionally ambiguous. It was.)*
 2. **`--setting-sources project` does not close this channel.** Every arm-A run carried it.
    Two flags, two channels; only `--strict-mcp-config` is the MCP one.
 3. **Arm A's delivered tool set is not deterministic** (37 on one run, 53 on four, because a
    remote connector was still `pending` at `init`) while arm B's is (28, zero spread). Reported
    as a **co-variate**, not a result — the registered outcome was 5 of 5 either way, so row 4
-   does not fire.
+   does not fire. It is worth the sentence because **the two delivered-tool-set readings this
+   track has actually registered — E-005's arm F (`["Read","Bash"]`, 10 of 10) and stop 17a's
+   `init` read-back (`["Read","Grep","Glob"]`, 5 of 5) — both rest on zero within-arm spread, and
+   this stop's own MDE was transferred from them.** *(Narrowed from "every delivery proof in Track
+   B assumes it is not" at §4 step 13a, from `review-README-20260925T190755Z.md`, non-blocking
+   1/2, which called that universal unfalsifiable. It was.)*
 
 **And the finding that outranks the registered one.** The deliberate failure put the
 `.mcp.json` **outside** the run's directory and it loaded anyway: one level up, three levels
@@ -551,9 +580,13 @@ learning:
       operator's connectors delivered were `slack_send_message`, `slack_schedule_message`,
       Drive and Calendar writers — **delivered into a benchmark run's tool schema with no
       approval prompt and no record anywhere in the observatory**, because `mcpHash` is null by
-      construction (extract §4). A read-only server that is wrongly trusted returns bad data
-      and Lab 6.3's hard controls can still catch the effect; a write-capable one that is
-      wrongly trusted has already acted by the time anyone reads the run. Read-only first is
+      construction (extract §4). A read-only server that is wrongly trusted returns bad
+      data, and a hard control **of the kind Lab 6.3 is written to test** could still catch the
+      effect; a write-capable one that is wrongly trusted has already acted by the time anyone
+      reads the run. **That half is an argument, not a measurement — Lab 6.3 is deferred and no
+      hard control against MCP content has been tested here.** *(Qualified at §4 step 13a from
+      `review-README-20260925T190755Z.md`, non-blocking 1/2, which caught a deferred lab being
+      cited as if it had run.)* Read-only first is
       not caution, it is the only ordering under which a mistake is still observable.
 
 **The gate is answered; `lab#8` still does not close.** Three of these four clauses were
@@ -575,8 +608,11 @@ a Phase issue stays open and its closing comment names them.
 | **Every exit code of every tool built here is provoked** | `verify-mcp-hole-probe-guards.sh` **13 of 13**, `verify-mcp-parent-dir-df.sh` **9 of 9**, `verify-mcp-walk-scope-df.sh` **10 of 10**; all three ShellCheck-clean | **L2** | Run the three scripts. Each `check` runs the driver **unpiped** and reads `$?` directly — a piped exit code is tail's, which is how a failing verifier gets reported as passing (§0a, this session) |
 | **Independence: what else changed between arms?** | `argv-A-1.txt` vs `argv-B-1.txt`; `.mcp.json` sha256 identical across arms (`078f9a41…`); `init.model` = `claude-haiku-4-5-20251001` on every run; `claude --version` = `2.1.282` recorded in each `HASHES.txt` before and after | **L2** | `shasum -a 256 /tmp/stop18-mcp-probe-*/run-A-2/.mcp.json /tmp/stop18-mcp-probe-*/run-B-3/.mcp.json` while the throwaway trees survive; afterwards, the `HASHES.txt` in each evidence directory |
 
-**Hand re-read, §5's per-step requirement.** Two cells, both re-derived by me in the main
-context off the raw streams rather than off the driver's TSV, and both reproduced it exactly:
+**Hand re-read, §5's per-step requirement.** **Three cells**, each re-derived by me in the main
+context off the raw streams rather than off the driver's TSV, and all three reproduced it exactly.
+*(Read "two cells" until §4 step 13a, 2026-09-25, when
+`findings/opencode/review-README-20260925T190755Z.md` counted the rows — blocking, 2/2. The table
+below always had three; the prose miscounted.)*
 
 | Cell | Sheet's value | My hand reading | Source |
 |---|---|---|---|
