@@ -1,0 +1,16 @@
+# The registered batch driver refuses the deliberate-failure overlay — executed, not asserted
+# Recorded 2026-09-25 at §4 step 9, BEFORE any deliberate-failure run was made.
+#
+# Command (guards-only mode: exits before any directory is created and before run-agent.sh):
+#   B8A_GUARDS_ONLY=1 \
+#   B8A_OVERLAY_T=build/customizations/b8a-pipeline-v1.0-notask \
+#   B8A_EXPECT_AGENT_HASH=sha256:c0c5aab3e7d469ded7227b8f57280004 \
+#   evidence/b08a/run-b8a-batch.sh
+#
+# The guard is run-b8a-batch.sh:118-120, written before the registered batch and not edited since.
+
+exit code: 6
+ABORT: the orchestrator's tools: line does not contain Task -- nothing can be delegated
+
+# What this means: the overlay the deliberate failure is built from could NEVER have entered
+# the registered population by accident. The L2 control that was supposed to catch it, did.

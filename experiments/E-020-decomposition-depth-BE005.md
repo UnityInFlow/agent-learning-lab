@@ -214,6 +214,57 @@ delivery condition that is about **capability** rather than file presence, and E
 failure is easy to produce by accident. **If any run of it shows a delegation event, the delivery proof
 is not a proof** and that is a far more important result than the experiment it was built to check.
 
+### Budget, overlay and instrument — decided at §4 step 9, before a dollar was spent
+
+*The prediction above is unchanged. Nothing below rewrites it; it records what the prompt left to the
+builder (§4 step 9 registers no budget) and what was built to run it.*
+
+**`n = 5`, not 3.** §5 forbids stating an `n < 5` result as a property, and the prediction is stated as a
+property — *"5 of 5 runs are classed row 0a"*. At `n = 3` a clean sweep could only ever be reported as
+"true of these three runs", which does not answer the clause the deliberate failure exists to test.
+**Cost estimate:** the registered treated arm's median run is **$0.7149** (`evidence/b08a/REPORT.md`),
+and a run whose orchestrator cannot delegate opens **no subagent context at all**, so it should cost
+*less*, not more; five runs are estimated at **under $3.60** and expected nearer $2.
+**Ceiling: $4.00**, enforced by the driver (exit 11) over `efficiency.estimatedCost` read from the run
+record, by the same `awk` expression the registered batch used — not a number in a workbook.
+This changes no registered variable, no arm and no task, so it is not a §7 halt.
+`Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-25`
+
+**The overlay is new; the measured one was not touched.** `build/customizations/b8a-pipeline-v1.0-notask/`,
+four files. `diff -r` against `b8a-pipeline-v1.0` returns **exactly one changed line**:
+
+```
+4c4
+< tools: Read, Grep, Glob, Task
+---
+> tools: Read, Grep, Glob
+```
+
+`planner.md`, `implementer.md` and `verifier.md` are **byte-identical** (`7c78bf7fed65034ec418e3b0952a3e10`,
+`2c0ccfcd87ddfeee96e5a6d21b6343f1`, `d67594e21df41f6a1adc6d67f0630a57` in both). The orchestrator's sha
+moves `1f27323694e579ec11dbca026bfbb326` → `c0c5aab3e7d469ded7227b8f57280004`; the registered overlay
+still hashes to the first, which is the `EXPECT_AGENT_HASH` the registered batch enforced.
+
+**The registered batch driver refuses this overlay, and that was executed before any run.**
+`run-b8a-batch.sh:118-120` requires `Task` on the orchestrator's `tools:` line; pointed at the broken
+overlay in guards-only mode it returned **exit 6**, recorded verbatim at
+`evidence/b08a/deliberate-failure-guard-refusal.txt`. The deliberate-failure overlay could not have
+entered the registered population by accident. **That is an L2 result of this step in its own right**,
+and it is the reason the runs below need a separate driver rather than a flag.
+
+**The driver: `evidence/b08a/run-b8a-deliberate-failure.sh`**, single arm, probe key
+**`EXP-B8A-DF-NOTASK`** — never `EXP-B8A-DECOMP-BE005`, and excluded by name from both registered arms.
+Its Task guard is **inverted**: it refuses an overlay that *can* delegate (exit 6), because running the
+registered treatment under the probe key would read as a refutation of the deliberate failure and is the
+worst error available at this step. ShellCheck clean.
+**Fixture set `evidence/b08a/verify-b8a-deliberate-failure-guards.sh`, 12 of 12**, no run made and no
+money spent: A happy path 0, B missing specialist 6, C wrong orchestrator hash 6, **D the registered
+overlay refused 6**, E an edited specialist 6, F a `CLAUDE.md` 6, G a `SKILL.md` 6, H a pinned `model:` 6,
+I a dead API 7, J a held lock 8, K the ceiling at $4.00 → 11, L $3.99 → 0. **Case D was re-derived by
+hand** (§6: when a check goes green, re-verify one of its cases): the refusal line is
+`this orchestrator CAN delegate — that is the registered treatment, not the deliberate failure`, so it
+refuses on the inverted guard and not on a hash mismatch.
+
 ## Observed telemetry
 
 To be filled after the batch. **`OTLP_GRPC_PORT` is passed and `events.jsonl` is checked for growth
