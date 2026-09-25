@@ -186,7 +186,7 @@ EVENTS_BEFORE="$(events_bytes)"
   printf '# API %s  OTLP %s / %s  events.jsonl %s bytes at launch\n' \
     "$API" "$OTLP_HTTP_ENDPOINT" "$OTLP_GRPC_ENDPOINT" "$EVENTS_BEFORE"
   printf '# prediction commit a3acac7 at 2026-09-25T07:04:59Z, BEFORE any run here\n'
-  printf 'seq\tarm\trun_id\trc\tevaluator_exit\truntime_ver\tmodel\tagent_hash\tinstr_hash\tskills_hash\tcond_a\tcond_b\tcond_c\tcond_d\trow0a\tdeleg_stream\tdeleg_telemetry\tmodel_calls\ttool_calls\tcost\tduration_ms\tchanged\tinit_tools\tworktree\n'
+  printf 'seq\tarm\trun_id\trc\tevaluator_exit\truntime_ver\tmodel\tagent_hash\tinstr_hash\tskills_hash\tcond_a\tcond_b\tcond_c\tcond_d\trow0a\tdeleg_stream\tdeleg_q8\tdeleg_telemetry\tmodel_calls\ttool_calls\tcost\tduration_ms\tchanged\tinit_tools\tworktree\n'
 } > "$MANIFEST"
 
 api() { curl -s -m 15 "$API/api/runs/$1" 2>/dev/null; }
@@ -227,13 +227,29 @@ one() {  # one <arm> <seq>
   rm="$(printf '%s' "$rec"   | jq -r '.runtime.model // "null"')"
 
   # --- DELEGATIONS, TWO SOURCES, NEITHER STANDING IN FOR THE OTHER ---------------------
+  # *** THE WIRE TOOL NAME IS `Agent`, NOT `Task`. *** The frontmatter says `tools: ... Task`,
+  # `init.tools` reads back `Task`, and the model then emits `"name":"Agent"`. Measured at §4
+  # step 5: `"name":"Task"` appears ZERO times in a treated transcript with six real delegations.
+  # AND A LINE COUNT IS NOT A CALL COUNT: the old pattern returned 19 for a run that made 6
+  # delegations, because a streaming transcript repeats each call across several events. Count
+  # DISTINCT tool_use ids.
   local ds dt
-  ds="$(/usr/bin/grep -acE '"(name|tool_name)":"(Task|Agent)"' "$log" 2>/dev/null)"; ds="${ds:-0}"
+  ds="$(/usr/bin/grep -aoE '"type":"tool_use","id":"toolu_[A-Za-z0-9]+","name":"Agent"' "$log" 2>/dev/null | sort -u | wc -l | tr -d ' ')"
+  ds="${ds:-0}"
+  # Telemetry DOES carry the delegations (tool_name=Agent) even though it carries no
+  # subagent_type; it emits a pre/post pair per call, so this column is about twice ds.
   dt=0
   if [[ -n "$rid" && -f "$EVENTS" ]]; then
-    dt="$(/usr/bin/grep -a "$rid" "$EVENTS" 2>/dev/null | /usr/bin/grep -acE '"(name|tool_name)":"(Task|Agent)"')"
+    dt="$(/usr/bin/grep -a "$rid" "$EVENTS" 2>/dev/null | /usr/bin/grep -ac '"stringValue":"Agent"')"
     dt="${dt:-0}"
   fi
+  # Q8 fixes the expected count at 3 (no bounce) or 5 (one bounce) and says 4 or 6+ IS A FINDING.
+  # It is RECORDED, NOT VOIDED: decision 11 item 9 lists four delivery conditions and the count
+  # is not one of them, so a run with six delegations is a result about the orchestrator's
+  # discipline rather than a failed delivery. The §4 step 5 preflight made SIX -- four of them to
+  # the planner - so this column is expected to be a finding on most runs.
+  local dclass="finding-$ds"
+  { [[ "$ds" == "3" ]] || [[ "$ds" == "5" ]]; } && dclass="q8-ok-$ds"
 
   # --- THE FOUR DELIVERY CONDITIONS (decision 11 item 9). Treated arm only; on the control
   # they are recorded `n/a` because the control declares no overlay to deliver. ----------
@@ -263,16 +279,27 @@ one() {  # one <arm> <seq>
     if [[ -n "$itfile" && -r "$itfile" ]]; then
       /usr/bin/grep -q '"Task"' "$itfile" && cc=ok || cc=fail
     else cc=fail-nofile; fi
-    # (d) telemetry names each of the three specialists at least once. Falls back to the agent
-    #     stream ONLY with the source recorded, because events.jsonl may be stale for reasons
-    #     that are about the collector and not about the run.
-    local named=0 src=telemetry hay=""
-    if [[ -n "$rid" && -f "$EVENTS" ]]; then hay="$(/usr/bin/grep -a "$rid" "$EVENTS" 2>/dev/null)"; fi
-    if [[ -z "$hay" ]]; then hay="$(cat "$log" 2>/dev/null)"; src=stream; fi
+    # (d) EACH OF THE THREE SPECIALISTS IS NAMED IN AT LEAST ONE DELEGATION.
+    #
+    # *** THE SOURCE IS THE AGENT STREAM AND IT IS NOT A FALLBACK. Measured at §4 step 5 on run
+    # a390a301: events.jsonl DOES carry this run (70 lines, +807 kB across the pair) and DOES
+    # carry `tool_name: "Agent"` twelve times -- but it carries NO `subagent_type` attribute at
+    # all, so the three NAMES are not in telemetry and no query over it can find them. Decision
+    # 11 item 9(d) asks for a telemetry source; the telemetry schema does not have the field.
+    # Reading the names from the stream is therefore not a weaker substitute, it is the only
+    # place the fact exists -- and it is recorded as a SOURCE SUBSTITUTION in the workbook and
+    # in author_notes rather than taken silently. ***
+    #
+    # The first version of this block grepped events.jsonl for the run id, found 70 matching
+    # lines, and therefore NEVER fell back -- then failed to find the names and would have
+    # returned fail-0-of-3 on every treated run, voiding the batch at pair 2 on a wrong query.
+    # That is the same failure the B8 driver's header records for `.behavior.*`: a wrong path
+    # reads empty and looks exactly like a missing measurement.
+    local named=0
     for s in "${SPECIALISTS[@]}"; do
-      printf '%s' "$hay" | /usr/bin/grep -q "$s" && named=$((named+1))
+      /usr/bin/grep -aq "\"subagent_type\":\"$s\"" "$log" && named=$((named+1))
     done
-    [[ "$named" -eq 3 ]] && cd="ok-$src" || cd="fail-$named-of-3-$src"
+    [[ "$named" -eq 3 ]] && cd="ok-stream-3of3" || cd="fail-$named-of-3-stream"
     case "$ca$cb$cc$cd" in *fail*) r0a=yes; ROW0A=$((ROW0A+1));; esac
   else
     # THE CONTROL'S ASSERTION IS STRUCTURAL: three null hashes read from its own run record.
@@ -282,11 +309,11 @@ one() {  # one <arm> <seq>
     else ca="FAIL-control-carries-$ah/$ih/$sh_"; fi
   fi
 
-  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
     "$seq" "$arm" "${rid:-NONE}" "$rc" "$ev" "$rv" "$rm" "$ah" "$ih" "$sh_" \
-    "$ca" "$cb" "$cc" "$cd" "$r0a" "$ds" "$dt" "$mc" "$tc" "$cost" "$dur" "$chg" \
+    "$ca" "$cb" "$cc" "$cd" "$r0a" "$ds" "$dclass" "$dt" "$mc" "$tc" "$cost" "$dur" "$chg" \
     "$it" "${wt:-NONE}" >> "$MANIFEST"
-  echo "  -> ${rid:-NO RUN ID} rc=$rc eval=$ev model=$rm deleg=$ds/$dt cond=$ca,$cb,$cc,$cd row0a=$r0a cost=$cost"
+  echo "  -> ${rid:-NO RUN ID} rc=$rc eval=$ev model=$rm deleg=$ds($dclass)/$dt cond=$ca,$cb,$cc,$cd row0a=$r0a cost=$cost"
 
   # --- THE EVIDENCE COPY, THE DAY THE RUN IS MADE. --------------------------------------
   # The reaper on this machine empties a kept worktree in about three days and LEAVES THE

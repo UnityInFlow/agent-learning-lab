@@ -425,3 +425,79 @@ kept worktree and therefore already sees all four agent files, which is the whol
 would close. A schema field is not a control until a run record shows it written.
 
 *Built by Opus 5 (claude-opus-5), autonomously, 2026-09-25.*
+
+## Preflight — §4 step 5, 2026-09-25, and the layer table is amended by it
+
+Full write-up: [`evidence/b08a/preflight-20260925T085216Z/RESULT.md`](../../evidence/b08a/preflight-20260925T085216Z/RESULT.md).
+Two runs on probe key `EXP-B8A-PREFLIGHT`, control `8d8505d7` and treated `a390a301`, both
+`claude-haiku-4-5-20251001` on claude `2.1.282`. **`n = 1` per arm: nothing below is a result**,
+and §5 forbids stating anything from `n < 5` as a property.
+
+**All four delivery conditions are observed.** (a) all four agent files **TRACKED** by
+`git ls-files` in the kept worktree; (b) `agentHash` = the registered
+`sha256:1f27323694e579ec11dbca026bfbb326`; (c) `Task` present in the delivered set
+(`["Read","Task","Grep","Glob"]`, `verdict=order-differs` — same set, different order);
+(d) all three specialists named, **3 of 3, from the agent stream**.
+
+**The control's assertion holds structurally**: `agentHash`, `instructionsHash` and `skillsHash`
+all `null`, and **0 hook executions** — which also discharges the second half of the §0a
+isolation row, on a run this stop needed anyway.
+
+### Row 6 of the layer table was right, and one run proved it
+
+The table called **"one bounce" L3** and named it *the label most likely to be mistaken for a
+control*: **nothing counts delegations.** The treated preflight made **six** delegations against
+Q8's registered 3-or-5, and **not by bouncing** — the verifier ran once — but by the orchestrator
+**re-delegating to the planner three extra times**. An L3 rule is a sentence, and this is what a
+sentence is worth. Q8 calls 6+ *a finding*, and it is recorded as one: the batch manifest now
+carries a `deleg_q8` column classifying every run `q8-ok-3`, `q8-ok-5` or `finding-<n>`. It is
+**not** row 0a — decision 11 item 9's four conditions do not include the count.
+
+### Rows 1 and 2 are AMENDED: L2 → L3, on measurement, 2026-09-25
+
+The treated transcript holds **three `system`/`init` records and all three are the orchestrator's
+list**. `init.agents` names the agents and carries no tool sets. **There is no `init` record for a
+subagent**, so the planner's `Read, Grep, Glob` and the verifier's `Read, Grep, Glob, Bash`
+**cannot be read back by any instrument this project has.**
+
+| # | Artifact | Was | **Now** | Why |
+|---|---|---|---|---|
+| 1 | `planner.md` — `tools: Read, Grep, Glob` | L2 | **L3** | No subagent `init` record exists; author decision 8's read-back cannot be performed for it |
+| 2 | `verifier.md` — `tools: Read, Grep, Glob, Bash` | L2 | **L3** | Same. Its list is additionally the one E-005 says arrives rewritten — but that is not even observable here |
+
+The caveat section said these rows were **L2-pending** and would become L2 *"only when the
+preflight's `init` record shows the delivered set"*. The preflight has run and there is no such
+record, so the pending is **discharged downward**. A list that is never observed is not better off
+than one that arrives wrong. **The `tools:` lines are not edited** — they are the author's Q3, the
+labels are mine, and the label is what moves.
+
+**What this costs the step, stated plainly:** the treated arm's compound configuration was *a
+split, three `tools:` lists and two bodies of method prose*, of which the tool lists were the one
+part carrying an executed mechanism. **Only the orchestrator's list is now an observed control.**
+Seven of twelve rows of the layer table are L3 or part-L3, not six. That makes this step even more
+clearly a measurement of prose and structure than the design already said it was, and it is
+registered here **before** the batch rather than discovered after it.
+
+### Two instrument defects the preflight caught, either of which would have destroyed the batch
+
+1. **The wire tool name is `Agent`, not `Task`.** `"name":"Task"` appears **zero** times in a
+   transcript with six real delegations. The driver's first condition (d) grepped `events.jsonl`
+   for the run id, **found 70 lines**, never reached its stream fallback, and would have returned
+   `fail-0-of-3` on **every** treated run — row 0a each time, **batch dead at pair 2 with exit 10**,
+   reporting a delivery failure that had not happened.
+2. **A line count is not a call count.** The delegation column returned **19** for **six** calls.
+   It now counts distinct `tool_use` ids.
+
+Both are fixed and **re-derived by hand against this run's own transcript and the control's**:
+treated 6 delegations / 3 of 3 specialists, control 0 / 0 of 3. A query that cannot tell the arms
+apart is not a measurement. `verify-b8a-batch-guards.sh` still passes 17 of 17 after the fix.
+
+### Budget, transferred to the batch before it runs
+
+One interleaved pair cost **$1.2222** ($0.414733 + $0.807472). Against the registered **$9.70**
+ceiling that is **7.9 pairs**, so the batch is expected to stop at **n ≈ 8 per arm**, not 10, with
+the population that occurred reported — exactly as E-016 did at `n = 7`. The treated arm ran
+**1.95× the cost** and **2.7× the duration** of the control, inside decision 11 item 11's
+2–4× expectation.
+
+*Observed by Opus 5 (claude-opus-5), autonomously, 2026-09-25.*
