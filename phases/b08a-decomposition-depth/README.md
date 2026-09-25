@@ -335,3 +335,93 @@ decision-rule row; it is the thing that will say, after a null, which of the two
 author's, from `B8A-BRAINSTORM.md`; the rung, task, version boundary, delivery proof and budget are
 author decision 11; the `change-focus` carve-out and the registered outcome are the author's decision
 of 2026-09-25. The layer labels, the trap statement and the two limits above are mine.*
+
+## Build — §4 step 4, 2026-09-25
+
+The smallest thing, and nothing a later step owns. No deliberate-failure overlay exists yet: that
+is §4 step 9's, and §6 forbids a future step's artifacts early.
+
+### The four agent files
+
+`build/customizations/b8a-pipeline-v1.0/.claude/agents/{orchestrator,planner,implementer,verifier}.md`.
+A **new** overlay; no existing one is edited, because a measured version is never edited.
+
+| File | `tools:` | Where the body comes from |
+|---|---|---|
+| `orchestrator.md` | `Read, Grep, Glob, Task` | Q2 (route only, judge no code, run no check) + Q8 (one bounce, three or five delegations) |
+| `planner.md` | `Read, Grep, Glob` | Q3 + Q6's planner sentence |
+| `implementer.md` | *(none — the full default set)* | Q3 + Q6's implementer sentence |
+| `verifier.md` | `Read, Grep, Glob, Bash` | Q3 + Q6's verifier sentence |
+
+**No file sets `model:`.** `CLAUDE_CODE_SUBAGENT_MODEL` sits above a subagent's own `model` field
+(`SOURCES.md` row 220), so an explicit model there would be a **fifth variable** in a configuration
+that already compounds four. The four agents reach `claude-haiku-4-5-20251001` by inheriting the
+runner's `--model`, and `runtime.model` is read back per run rather than trusted from the flag. The
+batch driver refuses an overlay in which any agent file pins a model (exit 6, fixture case J).
+
+**The orchestrator's `tools:` line is the one thing Q1–Q8 left open**, and it is filled by
+precedent rather than by preference: `Read, Grep, Glob, Task` is the tool list of
+`orchestration-4b4-P1/.claude/agents/orchestrator.md` **verbatim** — a configuration that ran ten
+times at stop 11 and never failed for want of a tool. A narrower `Read, Task` would have been a
+better fit for "route only" as a sentence, and a worse fit for the evidence: matching a measured
+configuration removes a way for the treated arm to die of something other than its treatment.
+*Decided by Opus 5 (claude-opus-5), autonomously, 2026-09-25.*
+
+### The batch driver, and the ceiling that now executes
+
+`evidence/b08a/run-b8a-batch.sh`. ShellCheck clean, `cd … || exit`, pid lock.
+
+**Layer table row 11 is discharged.** It read: *"the cost ceiling of $9.70 — **L3 unless a script
+enforces it** … It becomes L2 if the batch driver reads it and stops; that is cheap and is done at
+§4 step 4."* It is done. The driver sums `efficiency.estimatedCost` **from each run record**, not
+from a log line, and exits 11 when the sum reaches $9.70. A run whose cost reads `null` contributes
+0 **and is counted separately**, and the batch's closing report calls the total a **lower bound**
+whenever that count is above zero — a ceiling that silently treated an unmeasured cost as free
+would be a control reporting success over a scope smaller than it claims, which is the failure this
+project keeps paying for.
+
+Row 0a on two treated runs exits 10, and **is evaluated before the ceiling** so that a broken
+delivery is never reported as a budget stop. Both checks run **after** each control/treated pair,
+never between them: stopping mid-pair would leave an unpaired run in a batch whose entire design is
+interleaving.
+
+### The fixture set — every reachable exit code, and the one that is not
+
+`evidence/b08a/verify-b8a-batch-guards.sh`: **17 of 17**, covering `0, 6, 7, 8, 10, 11`.
+
+| case | proves | exit |
+|---|---|---|
+| A | the registered configuration passes every guard and runs nothing | 0 |
+| B, C | a dead API / a dead OTLP endpoint is refused | 7 |
+| D | a **missing specialist** is refused — the three files no hash sees | 6 |
+| E | an orchestrator drifted from its registered sha is refused | 6 |
+| F | an orchestrator whose `tools:` has no `Task` is refused — the deliberate failure's own shape | 6 |
+| G, H, I | a stray `CLAUDE.md`, `SKILL.md` or `hooks/` in the overlay is refused | 6 |
+| J | an agent file that pins `model:` is refused | 6 |
+| K, K2 | a live lock refuses a second batch; a **stale** lock does not block one | 8, 0 |
+| L, M | row 0a at 2 ends the step; at 1 it does not | 10, 0 |
+| N, O | the ceiling fires **at** $9.70 and **not** at $9.69 | 11, 0 |
+| P | row 0a is evaluated **before** the ceiling | 10 |
+
+**Exit 9 — the claude-version drift abort — has no fixture**, because producing it needs the CLI to
+move between two real runs. The fixture file says so in its header rather than leaving a reader to
+discover the gap; `evidence/b08/verify-b8-batch-guards.sh` has the same gap for the same reason.
+
+**The two stop rules are proved through the driver's own functions.** `ceiling_reached()` and
+`row0a_ends_step()` are defined once and called both by the batch loop and by the fixture's
+stop-rule mode, so cases L–P exercise **the expression that runs**. A fixture that re-implemented
+the comparison would be testing a copy of the control — which is how a check comes to report over a
+scope smaller than it claims.
+
+**Three of the seventeen were re-derived by hand** in the main context before the green was
+believed (§6): the ceiling at exactly `9.70` → exit 11, at `9.69` → exit 0, and a real copy of the
+overlay missing `verifier.md` → exit 6.
+
+### Deferred, named, not dropped
+
+The **`agentsHash`** instrument PR (decision 11 item 9, *welcome*) is deferred to §4 step 14. The
+proof does not depend on it and **cannot**: delivery condition (a) reads `git ls-files` inside the
+kept worktree and therefore already sees all four agent files, which is the whole gap a set-hash
+would close. A schema field is not a control until a run record shows it written.
+
+*Built by Opus 5 (claude-opus-5), autonomously, 2026-09-25.*
