@@ -142,11 +142,26 @@ result** — which is exactly what item 2 registered in advance.
 | `modelCalls` | median **82.5** vs 43, against a predicted ≥ 90 |
 | delivery | **8 of 8** treated runs on all four hand-written conditions; `runtime.model` pinned on **21 of 21** runs of the stop |
 
-**Five of seven registered predictions are refuted, including the registered outcome**, and two of those
-refutations were predicted in the experiment file with their mechanism. **Promotion is refused by
-arithmetic:** B13's `tokens_per_accepted_task` allows **15 %** and the measured figure is **1.83×**, so
-the clause fails by about twelve times regardless of quality. **Measured, kept, not promoted** — which
-is what `build/README.md#b8a` wrote down before the run.
+**Five of seven registered predictions are refuted, including the registered outcome.** Exact
+partition: **held** P3; **refuted** P1, P4, P5, P6; **neither** P2 (does not separate, and its
+*mechanism* is measured and false) and P7 (below threshold, enters no row).
+
+**Promotion is refused on `quality_score`, and the first reason written down here was wrong.** The §4a
+review caught it and the correction is in `E-020 ## Amendment` and the workbook. In short: E-020
+registers `tokens_per_accepted_task` as *"`estimatedCost` **per evaluator-passing run** against the
+concurrent control"*, which is **treated $6.9225 / 7 = $0.9889 against control $2.8723 / 3 = $0.9574 =
+1.033×, +3.3 %, INSIDE the 15 % allowance — that clause PASSES.** The **1.83×** is the *median cost per
+run*, a real reported number that is not the clause. B13 needs **all seven** clauses, and the registered
+quality outcome moved by **0** with `change-focus` `unmeasured`, so **measured, kept, not promoted**
+stands — on quality, not on tokens. *(The withdrawn sentence read: "B13's `tokens_per_accepted_task`
+allows 15 % and the measured figure is 1.83×, so the clause fails by about twelve times regardless of
+quality." It divided a multiplier by a fraction and used the wrong metric.)*
+
+**And the way that clause passed is a finding in its own right:** it passed **because the control fails
+more often**, 3 of 8 against 7 of 8. A per-accepted-task metric divides by the pass count, so on a task
+this model usually fails, **B13's token clause rewards the arm with the higher pass rate rather than the
+cheaper one**, while every treated run still costs 1.83×. Not foreseen, and it will recur at every later
+stop on BE-005.
 
 ### P2's registered mechanism is measured and it is false
 
