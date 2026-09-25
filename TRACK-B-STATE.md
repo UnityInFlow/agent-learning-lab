@@ -348,6 +348,10 @@ loop_step: 8-DONE = §0 BOUNDARY 3   # §4 step 7 (score) and §4 step 8 (report
 branch: stop17a/b8a-decomposition-depth (agent-learning-lab), created 2026-09-24 off main at d4faa7e, which IS origin/main - fetched and compared, not assumed. NOTHING IS ON THIS BRANCH YET beyond this state write. The author's CONTINUE instruction forbids committing to ANY main outside a PR, state-file-only commits included, so every commit of this session lands here.
   # SUPERSEDED, kept not deleted: branch: stop17/b8-run-state-repair-limits (agent-learning-lab), created 2026-09-15 off main at 3a0f61f, which is origin/main - fetched and compared, not assumed. The census branch census/decision-11 and all stop-16 branches are MERGED, not deleted.  SUPERSEDED, kept not deleted: census/decision-11 (agent-learning-lab), off main at 5bd91d3 — the census PR. All stop-16 branches are merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab) - stop16/phase-5b-verification-selfhealing and stop16/handoff-and-boards are MERGED, not deleted; agent-observatory stop16/permission-block-classifier is MERGED, not deleted.  SUPERSEDED, kept not deleted: stop16/phase-5b-verification-selfhealing (agent-learning-lab), created 2026-09-11T10:24:52Z off main at 2d201a5. The stop-15 branch is merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab), clean, at 2d201a5. THE STOP-15 BRANCH stop15/b7-verification-policies IS MERGED, not deleted. Fifteen commits on it this session. SUPERSEDED, kept not deleted: stop15/b7-verification-policies (agent-learning-lab). SIX NEW COMMITS THIS SESSION on top of 96be718: 82685e1 the n=7 decision and the n=7 detection limits registered before any sheet; 0c5651a the two hand re-reads, committed while zero sheets existed for the batch; 8cf8942 P1-P6 measured into E-015 and E-016, P7 deferred; 493e1ba step 8 artefacts (verify-sh over 34 worktrees, gate from two sources, the baseline-report defect); plus the probe-file rename and this state write. branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, PUSHED. FIVE COMMITS: 32d99cc step 1 (workbook Goal/Required reading/Extract; lab#32 commented; card In Progress), a921443 the OTHER session`s state hunks + its §7 halt, 674d8a9 step 2 (design + the census + the feasibility probe), 344bc97 the halt discharge, ea7b1d2 THE PREDICTION COMMIT at 2026-09-10T11:51:08+02:00 = 09:51:08Z. SUPERSEDED, kept not deleted: branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, THREE COMMITS: 32d99cc (step 1), a921443 (the driver session`s state hunks + its §7 halt), 674d8a9 (step 2). NOT PUSHED YET. SUPERSEDED, kept not deleted: branch: NONE - stop14/phase-5a-guardrails IS MERGED (
 in_flight:
+  - "*** NOTHING IS RUNNING. *** The opencode SECOND READER IS COMPLETE and the entry below is discharged:
+    all 10 sheets exist, four first calls returned header-only artifacts and each was RETRIED ONCE (all four
+    retries returned four categories, both files kept), and `LC_ALL=C pgrep -fl opencode` is EMPTY - no
+    leftover process. Values in evidence/b08a/sheets-opencode.tsv. DO NOT RE-RUN ANY OF THEM."
   - "*** THE OPENCODE SECOND READER IS RUNNING - DO NOT LAUNCH A SECOND ONE. *** /tmp/oc-second-reader.sh,
     nohup, launched 2026-09-25T14:05Z, sequential over the 9 gate-passing run ids still owed, each call
     wrapped in `perl -e 'alarm 900'` because macOS has no timeout(1) and `opencode run` hangs on a fraction
@@ -1245,6 +1249,36 @@ validation_processed:
   - "findings/track-b-validation-2026-09-04-3.md - read in full 2026-09-04T14:30Z. Stops 4-7 CONFIRMED (unchanged), stop 8 CONFIRMED WITH CORRECTIONS. NO stop NOT CLOSED, so no stop reopened and stop 9 opens on schedule. The pass independently re-derived the stop-8 result rather than reading it: 15 runs in the API with evaluation.exitCode 0, an independent recount over events.jsonl giving matched 1,1,1,1,1 all projectSettings / misdescribed 0x5 / control 0x5, and THREE scored cells re-derived from the kept worktrees (45a70775 -> 2, d671d1b7 -> 0, 95f42409 -> 2), all three agreeing with the sheets. All five corrections applied additively, nothing rewritten: (a) the harness moved 2.1.259 -> 2.1.260 between stop 6 and stop 8 and NEITHER E-004 NOR the workbook said so - now disclosed in E-004 as the third harness move in the track, with the within-batch comparison explicitly untouched; (b) `--enable-skills on all three arms` relabelled L3/ASSERTED in E-004, because the runner guard that would enforce it is unreachable on arm A (no overlay, so no SKILL.md, so the guard never fires) and the run record still lacks the V6 surface fields - carried forward as a note against stop 9, the next stop that passes flags per arm; (c) two §5 rows in phases/03-skills/README.md relabelled L2 -> L3 with note (double-dagger) - git and the API WRITE timestamps, a HUMAN compares them, and nothing executes to reject a run that started before its prediction; this is the same correction the FIRST pass made to B2 and it recurred because it was not carried; (d) the SECOND pass's `the block is CONFIRMED by independent reproduction` is WITHDRAWN BY ITS OWN AUTHOR and the withdrawal is recorded in the workbook rather than by editing the second-pass file - that reproduction dropped --disable-slash-commands, the flag that decided the outcome, which is the house failure mode for the third time in this stop; (e) the report's stop 4 cell `n = 5 claude` corrected to `n = 9 claude runs, of which 5 were scored`. The closing finding is ADOPTED, not disputed, and carries a NEW deadline: the fourth arm should be decided BEFORE B6 at stop 13, because B6's gate is `runs with and without compared on quality`, which is exactly the reading the confound sits under"
   - "findings/track-b-validation-2026-09-04-2.md - read in full 2026-09-04. Stops 4-7 CONFIRMED; stop 8 NOT CLOSED and never claimed closed, with the block itself CONFIRMED by independent reproduction. All four corrections applied additively: (a) the E-004 registration citation moved from 5d14182 to the last pre-run edit 5a14711, with the full pre-run edit table and the SUPERSEDED text of prediction 2 preserved in E-004 rather than lost; (b) three citations quoting the round-2 field names installed_scope_activations / installed_scope 0 fixed in the workbook and the probe evidence, with the merged tool's real output pasted, and 0 project-scope activations relabelled as an inference from 0 in every bucket; (c) recorded in E-004 that customization.*Hash cannot separate treatment from control for any skill arm, so §5 independence rests on telemetry alone; (d) fixture count 11 -> 15 in the workbook learning block and in this file. Nothing rewritten: no prediction, result, sheet or run folder. The validator's closing finding is ADOPTED, not disputed - the block proves absence from the /name registry at session start and not absence of mid-run activation, which is what E-004 measures"
   - "findings/track-b-validation-2026-09-04.md - read in full, all four verdicts CONFIRMED WITH CORRECTIONS, none NOT CLOSED, so no stop reopened. Every correction applied as a dated amendment in the workbook it names; no prediction, result, sheet or run folder rewritten. The one process risk (squash-orphaned prediction commits) went to blocked_on_author because fixing it changes a repo convention"
+last_verified_addendum_second_reader: "2026-09-25, LATER THE SAME DAY, §4 STEP 7's LAST CLAUSE DISCHARGED.
+  All 10 opencode second-reader sheets exist (evidence/b08a/sheets-opencode.tsv); four first calls returned
+  HEADER-ONLY artifacts - a stall, not a finding (§6) - and each was retried ONCE, all four retries returning
+  four categories, both files kept, no leftover opencode process. 27 OF 30 MEASURED CELLS AGREE EXACTLY:
+  maintainability 10 of 10 at 0, test-quality 10 of 10 at 1, and all three disagreements on
+  architecture-consistency, all on treated runs, all codex-lower. *** EACH WAS TAKEN TO THE DIFF, WHICH IS
+  WHY THE `SYSTEMATIC` READING IS WRONG: the registered scorer is RIGHT ON TWO AND WRONG ON ONE. ***
+  53af3571 - codex 0, opencode 1, FACTS SUPPORT 1: order/OrderRepository.kt:17 is
+  `store[order.orderId] = order.copy(fulfilment = null)`, so EVERY save strips the field and there is no
+  write site at all; anchor 0 cannot fire and the declared field still defeats anchor 2 (ii), so the cell is
+  the residual. CODEX WAS WRONG HERE.
+  e3ca68c8 and 275d4cac - codex 0, opencode 1, FACTS SUPPORT 0 in both: the quantity-amendment path
+  (OrderController.kt:167-170 and :157-159) re-derives fulfilment AND SAVES IT, which is exactly the FOURTH
+  WRITE SITE anchor 0 (ii) names, and the anchor's own sentence `a copy written at only some of them is this
+  anchor, not the residual` forecloses the `but the shipment package never writes it` objection. OPENCODE WAS
+  WRONG ON BOTH.
+  THE DISCRIMINATING FACT IS ONE LINE IN ALL THREE CASES: does a repository save PERSIST the recomputed
+  fulfilment, or NULL it. Adjudication with the deciding lines: evidence/b08a/scorer-disagreements.md.
+  With the hand re-read's cell (be4a6a94, where the hand reading, codex AND the second reader all say 1),
+  CODEX IS CORRECT ON 3 OF THE 4 CELLS INDEPENDENTLY CHECKED - n = 4, true of those four cells, NOT a
+  property of the harness.
+  NO SHEET WAS EDITED AND NO REGISTERED NUMBER CHANGED (Decision C: the second reader is not a vote).
+  *** P1 IS REFUTED UNDER EVERY READING: registered 0 vs 0, second reader 1 vs 0, adjudicated-at-the-diff
+  1 vs 0, against a predicted 2 vs 0. The verdict on the registered outcome does not depend on which harness
+  is believed, and that robustness is worth more than any one of the three numbers. ***
+  AND A THIRD INSTRUMENT DIVERGENCE WITH NO CONTRADICTION IN IT: 275d4cac is RIGHT under the shape rule
+  (every read path recomputes) and anchor 0 under the rubric (a write site persists the copy). Both are
+  correct about the same code because they ask different questions - which is why the exit gate must name
+  which question it answers."
+
 last_verified: "2026-09-25, §4 STEPS 7 AND 8. EVERY NUMBER HERE WAS DERIVED BY A COMMAND I RAN IN THE MAIN
   CONTEXT, OR RE-DERIVED BY ME OFF THE FILE A SUBAGENT NAMED. Re-derivable by
   `python3 evidence/b08a/tally.py evidence/b08a/batch-20260925T091510Z/manifest.tsv
@@ -1368,6 +1402,54 @@ last_verified: "2026-09-25, §4 STEPS 7 AND 8. EVERY NUMBER HERE WAS DERIVED BY 
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
 next_action: "*** §4 STEP 9 - THE DELIBERATE FAILURE - FOR STOP 17a, then steps 10-14. NOTHING OF STEP 9
+  EXISTS YET AND §6 FORBIDS IT EXISTING EARLIER, SO CREATING IT IS THIS SESSION'S FIRST ACT. ***
+  ITEM (0) OF THE PREVIOUS next_action IS DISCHARGED - THE SECOND READER IS COMPLETE AND SO IS §4 STEP 7's
+  LAST CLAUSE. All 10 opencode sheets exist; 27 of 30 measured cells agree with codex exactly; all three
+  disagreements were TAKEN TO THE DIFF and are adjudicated in evidence/b08a/scorer-disagreements.md, with
+  the registered scorer right on two and wrong on one. NO SHEET WAS EDITED. DO NOT RE-SCORE ANYTHING.
+  (1) THE BUDGET DECISION IS YOURS AND COMES BEFORE THE RUNS. E-020 registers the deliberate failure as FIVE
+      runs of the four overlay files with `Task` REMOVED from the orchestrator's tools:, and registers NO
+      budget for them. The batch's $9.70 ceiling was reached ($9.7948) and the preflight pair cost $1.2222 on
+      top. A treated run's median is $0.7149, so five runs are about $3.60 - and a run with no Task should be
+      CHEAPER, having no subagent contexts. DECIDE, WRITE THE REASON AND THE ESTIMATE INTO E-020 BEFORE
+      SPENDING. §5 forbids stating an n < 5 result as a property, which argues for 5 rather than 3. NOT a §7
+      halt: it changes no registered variable, arm or task.
+  (2) THE PREDICTION IS ALREADY WRITTEN in E-020 `## Deliberate failure` - no `Task` in the init read-back,
+      ZERO delegation events, 5 of 5 row 0a. DO NOT REWRITE IT; add only the timestamp line and the budget
+      decision. *** ITS OWN REGISTERED CLAUSE IS THE ONE TO WATCH: `if any run of it shows a delegation
+      event, the delivery proof is not a proof` - a far bigger result than the experiment it checks. ***
+  (3) BUILD A NEW OVERLAY, NEVER EDIT b8a-pipeline-v1.0 (a measured version). Four files byte-identical to
+      the measured ones except `Task` removed from the orchestrator's tools:, proved with a diff and a hash
+      in the experiment file. Its OWN probe key, never EXP-B8A-DECOMP-BE005, and excluded by name from both
+      arms.
+  (4) THEN §4 STEP 10 AND §4 STEP 11, AND THE EXIT GATE HAS A PROBLEM ALREADY WRITTEN DOWN THAT MUST NOT BE
+      SMOOTHED OVER: *** NO DECISION-RULE ROW FIRES. *** Row 0a no (0 of 8), row 1 no (delivery 8 of 8,
+      model pinned 16 of 16), row 2 needs BOTH rates at p <= 0.05 and P2 is 0.1189, row 3 needs a LOWER
+      treated rate, row 4 fires only when NEITHER separates and P3 is 0.0070. The rule assumed the two
+      secondaries would agree; they disagree on 4 of 16 runs in both directions. DO NOT pick the row that
+      reads best and DO NOT treat row 4 as a default. Write the gap as the stop's result, say which row you
+      answer under and WHY, and record that the rule's composition - a registered outcome in a rubric
+      category, Decision D's gate filter, and a task the model usually fails - produced an instrument that
+      could not see its own registered outcome. E-020's MDE section PREDICTED that composition failure
+      before the batch and calls it a finding. THAT IS THE RESULT OF THIS STOP.
+      FOUR THINGS BELONG IN THE EXIT GATE AND ARE ALREADY EVIDENCED: (a) P1 refuted under EVERY reading
+      (registered 0 vs 0, second reader 1 vs 0, adjudicated 1 vs 0, predicted 2 vs 0) so the verdict does not
+      depend on which harness is believed; (b) P2's registered MECHANISM is measured and false - the exit
+      code is not a shape proxy on this ticket, in both directions; (c) P7 rules OUT `the prose was not
+      followed` as the explanation for the null, which is what a co-variate is for; (d) the treatment WAS
+      delivered on 8 of 8, so this is not a delivery failure.
+  (5) §4 step 13 (the §5 validation table - every row, evidence as a path or an id, LAYER OF THE PROOF not of
+      the artifact), then 13a (§4a review of E-020, the workbook, SHAPE-RULE.md, tally.py - four artifacts
+      max per invocation, -n 2 minimum), then step 14 (ONE PR, wait for every check, merge --admin; then
+      HANDOFF.md; then REPUBLISH BOTH BOARDS or CI stays red; then the closing comment on lab#34 and the card
+      to Done).
+  (6) OWED AT STEP 14: the `agentsHash` instrument PR (agentsHash over the SET of .claude/agents/*.md,
+      written as skills_hash() is at run-agent.sh:616-624, with a fixture set proving it tells a renamed file
+      from a changed one). Decision 11 item 9 calls it WELCOME; it is MINE to merge (§4 step 14).
+  DO NOT: re-run any of the 16 registered runs, re-score anything, edit any prediction or any sheet, change
+  the runner's F13 rule (author_notes carries it with its evidence), or build the Task-counting hook."
+
+# SUPERSEDED, kept not deleted: next_action: "*** §4 STEP 9 - THE DELIBERATE FAILURE - FOR STOP 17a, then steps 10-14. NOTHING OF STEP 9
   EXISTS YET AND §6 FORBIDS IT EXISTING EARLIER, SO CREATING IT IS THIS SESSION'S FIRST ACT. ***
   (0) FIRST, BEFORE ANYTHING ELSE: check whether the second reader finished.
       `tail -3 /tmp/oc-second-reader.log` and
