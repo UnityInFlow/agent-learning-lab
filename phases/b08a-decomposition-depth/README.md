@@ -195,3 +195,143 @@ theirs) and is in `author_notes`; **neither file was touched.**
    returned nothing"* from *"the prose was not followed"* — the same confound E-008/E-009 had to run a
    fourth cell to resolve at rung 2, and it is stated here **before** the run rather than discovered
    after it.
+
+## Design — spine stop 17a, 2026-09-25
+
+**None of the design choices below are mine.** Q1–Q8 of `B8A-BRAINSTORM.md` were decided in working
+sessions **with the author present for every answer** (Q1–Q5 2026-09-16, Q6–Q8 2026-09-21), and
+decision 11 fixed the rung, the task, the version boundary, the delivery proof and the budget before
+that. What *is* mine, and what this section is for: **the layer label on every artifact**, the trap
+this step claims to convert, and the honest statement of what a null here can and cannot mean.
+
+### The step's trap — and `build/README.md` has no `#b8a` section, which is a fact and not an omission
+
+§4 step 2 says to name the trap *from `build/README.md`*. **There is no `#b8a` block there**: checked
+rather than assumed — `grep -in 'b8a\|decomposition' build/README.md` returns nothing, because
+decision 11 inserted this step *after* that document's twelve B-step blocks were written, deliberately,
+so that no existing anchor would move. Citing a section that does not exist would be the house failure
+mode in miniature. So the trap comes from the two places that *do* define this step, and a pointer
+block is added to `build/README.md#b8a` quoting them rather than inventing a thirteenth gate.
+
+**The trap, from decision 11 item 4's §4.1 pattern and Gate B′'s five rows:**
+
+> An early structural choice the ticket makes tempting to get wrong, a later clause of the same ticket
+> that is cheap under the right shape and needs a rewrite under the wrong one, and a deterministic
+> gate that executes on that clause.
+
+On BE-005 ticket A′ that is exactly one decision: **filter and count a fulfilment value that is
+*stored*, or recompute it first and filter the derived value.** Gate B′ measured the pinned model
+choosing wrong on **4 of 5** plain runs. The later clause — an order's quantity amended with no
+shipment event — is cheap if the value is derived and needs a rewrite if it is stored, and the
+evaluator executes on it at exit 12.
+
+**Which layer converts it, and the answer is uncomfortable: at this step, none of them fully.**
+
+- The **evaluator** is **L2** and it *detects* the trap — it executes, and it returns 12. It does not
+  prevent it; it is the measuring instrument, present identically in both arms, and it is not the
+  treatment.
+- The **treatment** is a four-agent pipeline whose mechanism is that *a planner meets the fork before
+  anything is typed*. The planner's inability to type is **L2** (a `tools:` list the runtime
+  enforces). **What the planner does with that turn is L3** — prose asking for a stored-or-computed
+  table. So the treatment is an L2 shape wrapped around an L3 payload.
+- Nothing here makes the wrong shape **unwritable**. There is no L1 control at this step and this
+  workbook does not claim one.
+
+### Every artifact, labelled by the rule in the workspace `CLAUDE.md`, applied in order
+
+The rule, applied in order and stopping at the first yes: *(1) can the bad value still be written down
+after the fix? no → L1. (2) does something execute and reject it? name the thing that runs → L2.
+(3) otherwise → L3.*
+
+| # | Artifact | Layer | The thing that runs, or why nothing does |
+|---|---|---|---|
+| 1 | `…/b8a-pipeline-v1.0/.claude/agents/planner.md` — `tools: Read, Grep, Glob` | **L2** | The **claude runtime** filters the delivered tool set. A planner with no `Edit`/`Write` cannot type. **But see the caveat below: it is not L2 until the `init` read-back says so.** |
+| 2 | `…/verifier.md` — `tools: Read, Grep, Glob, Bash` | **L2** | Same mechanism. Can run `./mvnw test`, cannot write. |
+| 3 | `…/implementer.md` — the full default set | **L3** | Nothing is restricted, so nothing rejects anything. Its body is prose. |
+| 4 | `…/orchestrator.md` — `tools:` including `Task` | **L2** *for the capability*, **L3** *for the discipline* | `Task` present or absent is enforced by the runtime — that is what the deliberate failure attacks. *"Route only, judge no code, run no check"* is a **sentence**; nothing refuses an orchestrator that edits a file. |
+| 5 | The **method prose** in `planner.md` and `verifier.md` (Q6 option A) | **L3** | Words a model reads and may or may not follow. This is E-003's finding pointed at a subagent: a 57-word instruction file, proved delivered, moved nothing. |
+| 6 | **"One bounce"** (Q8) | **L3**, and this is the label most likely to be mistaken | **Nothing counts delegations.** B8's `repair-limit.sh` counts *one agent's repair attempts per failure fingerprint* — a different quantity. Q8's own first draft claimed the repair limit enforced this and was corrected in session. Making it L2 needs a new hook on the orchestrator's `Task` calls, with a fixture set proving it refuses; that hook is proposed below and is the author's call. |
+| 7 | `.agent/run-state.json`'s **`handoff`** field | **L1-shaped medium, L3 payload** | The field is present or absent — a schema-level fact. But nothing executes on the *content* of `from` / `to` / `delivered` / `remains`, so a handoff that says nothing useful passes everything. |
+| 8 | The **four delivery conditions** (decision 11 item 9) | **L2** | Each one executes and can refuse: `git ls-files` in the kept worktree; `customization.agentHash` against a registered sha; the `init` read-back showing `Task`; telemetry showing a delegation event per specialist. A run missing any is **row 0a, void before scoring**. |
+| 9 | The **evaluator** (BE-005, version `1.0.0`) | **L2** | Executes, returns exit 0 or 12, identical in both arms. The measuring instrument, not the treatment. |
+| 10 | The **registered rubric** at sha `945817b8c509` | **L2 as an instrument, L3 as a judgement** | `codex-score.sh` executes and asserts the sha on every sheet. The *score* is a model's reading of an anchor. |
+| 11 | The **cost ceiling** of $9.70 | **L3 unless a script enforces it** | A number in this workbook is a number a builder chooses to respect. It becomes L2 if the batch driver reads it and stops; that is cheap and is done at §4 step 4. |
+| 12 | The **deliberate failure** overlay — the same four files, `Task` removed | **L2** | The runtime is the thing that runs: no `Task`, no delegation, and the delivery proof's condition (c) refuses the run. It attacks the one proof condition that is about **capability** rather than file presence. |
+
+**Six of twelve are L3 or part-L3.** That is not a defect to be written away; it is the measurement
+this step is making. A pipeline is mostly prose, and this project has already found that prose,
+proved delivered, moves very little.
+
+### The caveat that voids an L2 label, and it is measured rather than feared
+
+**A `tools:` file is not the treatment until its `init` record says so.** E-005 found the runtime
+*rewrites* the list before the model sees it: `Read, Grep, Glob, Bash` was delivered as
+`["Read", "Bash"]` on **10 of 10** runs. Author decision 8 makes the `init` read-back **mandatory**
+before any B step registers an allowlist. So rows 1, 2, 4 and 12 above are **L2-pending**: each becomes
+L2 only when the preflight's `init` record shows the delivered set, and if a list arrives rewritten,
+**the label drops to L3 for that agent and the workbook says so** rather than the list being edited
+until the label fits.
+
+### Three decisions the design does not get to make freely
+
+1. **The roles are not chosen from the census.** Decision 11 item 1 made the census the thing that
+   would name the specialist roles under Reading B. **The census ran and returned no reading** — all 54
+   kept BE-004 worktrees hold zero files, so the denominator is zero. `Reading A` is therefore **not
+   quoted as having fired** either; nothing fired. The roles come from **the author's Q1**, which is a
+   stronger provenance than either reading, and the consequence is recorded rather than hidden: **this
+   step has no measured seam behind its role cut**, and a positive result cannot be attributed to
+   having picked the right three roles from evidence.
+2. **One variable, and it is a compound one.** The treated arm differs from the control by **four
+   agent files at once** — a split, three tool lists and two bodies of method prose. That is one
+   *configuration*, not one variable, and it is what decision 11 registered. So a positive result
+   names the configuration and **cannot apportion the effect** among split, restriction and prose.
+   E-007 → E-008/E-009 is the precedent: rung 2 looked null, and a fourth cell was needed to show the
+   one visible effect was **prose without any split at all**. The same ambiguity is live here and no
+   fourth cell is registered for it.
+3. **No path allowlists in prose.** The evaluator's scope guard is the only thing that executes on
+   paths, and it does so for both arms alike (Q3). A prose rule about which files a specialist may
+   touch would be an L3 control masquerading as a boundary — the exact demotion stop 7 found when
+   `allowed-tools` was mistaken for `tools:`.
+
+### What this step does not build, and why
+
+- **No shared skill.** Declined at Q7: activation depends on the description (E-004), telemetry
+  redacts project skill names to `custom_skill` so the instrument could not say *which* skill loaded,
+  and it would be a second variable beside the agents.
+- **No rung 10.** Decision 11 item 2: rung 10 is not registered, and a `NOT DETECTABLE`, `REJECT` or
+  `VOID` at rung 4 **closes the ladder** — that closure being the result.
+- **Nothing from `workbench.local/`.** Decision 11 item 12: the three bundles and their duplicate are
+  not ported in whole or in part. Their role *names* may be read as candidates with provenance
+  recorded; they are not, here, because Q1 already fixed the cut.
+- **No edit to any existing overlay.** `b8a-pipeline-v1.0/` is new. A measured version is never edited.
+
+### One instrument PR this step may merge itself, and one hook it may only propose
+
+- **May merge (§4 step 14, additive, moves no registered variable):** an `agentsHash` over the set of
+  `.claude/agents/*.md`, written exactly as `skills_hash()` already is (`run-agent.sh:616-624`) —
+  sorted, path included — with its own fixture set proving it distinguishes a renamed file from a
+  changed one. Decision 11 item 9 calls this *welcome* and says the proof does not depend on it. It
+  does not: **a schema field is not a control until a run record shows it written.**
+- **May only propose (the author's call):** the `Task`-counting hook that would make "one bounce" **L2**
+  by refusing a third implementer delegation. It is named here, costed as one hook plus a fixture set,
+  and **not built**, because building it would add a second executed control to the treated arm
+  mid-design and make the configuration differ by five things instead of four.
+
+### The honest limit on what a null here can mean, written before the run
+
+A null at this step **cannot distinguish** *"the split returned nothing"* from *"the method prose was
+not followed"*, because the prose is L3 and nothing observes compliance with it. What the instrument
+*can* see, per run, is: the delegation count (3 or 5), the `init` tool sets, the evaluator's exit code,
+and `architecture-consistency` on the registered rubric. What it cannot see is whether the planner
+actually produced a stored-or-computed table, or whether the implementer read it.
+
+**One cheap thing narrows that**, and it is registered at §4 step 3 rather than left as a wish: the
+`handoff` field's `delivered` string is the planner's own output, it is on disk in every kept worktree,
+and **counting the runs whose handoff contains a per-read-path table is a co-variate that costs
+nothing** — no extra run, no extra scoring call. It is **not** the registered outcome and enters no
+decision-rule row; it is the thing that will say, after a null, which of the two readings to believe.
+
+*Designed and layer-labelled by Opus 5 (claude-opus-5), autonomously, 2026-09-25. Q1–Q8 are the
+author's, from `B8A-BRAINSTORM.md`; the rung, task, version boundary, delivery proof and budget are
+author decision 11; the `change-focus` carve-out and the registered outcome are the author's decision
+of 2026-09-25. The layer labels, the trap statement and the two limits above are mine.*
