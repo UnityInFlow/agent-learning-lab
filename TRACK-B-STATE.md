@@ -1734,6 +1734,35 @@ last_verified: "2026-09-25, STOP 18 CLOSED. EVERY VALUE BELOW WAS EITHER PRODUCE
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
+next_action: "*** READ THIS BLOCK FIRST. STOP 18 IS SUBSTANTIVELY CLOSED BUT lab#122 IS NOT YET MERGED
+  AS OF THIS WRITE. THE BLOCK BELOW, WHICH BEGINS `STOP 18 IS CLOSED AND MERGED`, IS WHAT TO DO ONCE
+  THE FOUR ITEMS HERE ARE DONE - AND IT IS ALREADY WRITTEN SO NOTHING IS LOST IF CONTEXT CLEARS. ***
+  WHAT REMAINS OF §4 STEP 14, IN ORDER:
+  (i) THE §4a REVIEW IS RUNNING and is the last substantive item. Four invocations, -n 2 each, over
+      experiments/E-021-print-mode-mcp-hole-06a.md, phases/06a-code-intelligence/README.md,
+      evidence/p06a/run-mcp-hole-probe.sh and evidence/p06a/run-mcp-parent-dir-df.sh. *** DO NOT LAUNCH
+      A SECOND ONE - check `pgrep -f opencode-review.sh` first, and check
+      `ls -t findings/opencode/review-*.md | head` for what already landed. *** Exit 0/2/3/5 are
+      results; 1 and 4 are infrastructure to discard and re-run. A header-only findings file is a
+      STALL, not a clean review. NEVER pass the harness anything under .claude/, .github/ or findings/.
+  (ii) DISPOSITION EVERY FINDING in the PR body: the sha that fixed it, or the concrete reason its
+      failure scenario cannot occur. `Stylistic` is not a dispute. A finding at 1/2 recurrence is still
+      a finding. Then PATCH the lab#122 body via `gh api repos/UnityInFlow/agent-learning-lab/pulls/122
+      -X PATCH` - gh pr edit times out on this machine - replacing the `*(the final review file path
+      and the per-finding disposition are added to this body before the merge)*` placeholder.
+  (iii) MERGE lab#122 with --admin. NINE CHECKS ARE GREEN AND ONE IS RED: `a published board does not
+      outlive its source`. *** THAT RED IS EXPECTED AND IS NOT A BLOCKER *** - author decision 12 item
+      4 puts the republish in the author`s interactive session. DO NOT relabel a board marker to go
+      green; that is how one ends up PROVABLY CURRENT AND WRONG.
+  (iv) THEN lab#8 - VERIFIED VIA THE API THIS SESSION, it is `Phase 6A - Code intelligence: LSP first,
+      MCP second`, state OPEN - gets ONE closing comment carrying the §5 row from
+      findings/track-b-2026-09-25-3.md, AND NAMING LABS 6.1-6.4 AS DEFERRED. *** THE ISSUE STAYS OPEN.
+      A PHASE ISSUE STAYS OPEN WHILE ANY OF ITS LABS IS DEFERRED (§4 step 14). *** Only the CARD moves
+      to Done: project PVT_kwDOD-WaCM4Bhgoq, field PVTSSF_lADOD-WaCM4BhgoqzhgcH0g, option 98236657.
+      Read the card back after setting it.
+  (v) THEN write this file again with the merge sha, set loop_step to 14-COMPLETE = §0 BOUNDARY 2, and
+      END THE TURN with the state file as the only message.
+  ================ ONCE (i)-(v) ARE DONE, THE BLOCK BELOW IS THE NEXT SESSION`S INSTRUCTION ================
 next_action: "*** STOP 18 IS CLOSED AND MERGED. DO NOT REOPEN IT. THE NEXT STOP IS 19 (PHASE 6B -
   KNOWLEDGE RETRIEVAL, READ PATH ONLY) AND NOTHING OF IT EXISTS - §6 FORBIDS A FUTURE STEP`S ARTIFACTS
   EARLY. OPENING IT AT §4 STEP 1 IS THE NEXT SESSION`S FIRST ACT. ***
