@@ -772,3 +772,36 @@ $ instructionsHash / skillsHash, both manifests, all 21 runs
 $ ./evidence/b08a/verify-b8a-deliberate-failure-guards.sh
 verify-b8a-deliberate-failure-guards: 12 passed, 0 failed.
 ```
+
+## Amendment — §4a review corrections, 2026-09-25, same day
+
+The §4a review of E-020, this workbook, `SHAPE-RULE.md` and `tally.py` returned **`ACCEPT`** with
+**7 findings**: `findings/opencode/review-E-020-decomposition-depth-BE005-20260925T152315Z.md`,
+`-n 2` unioned. **Five fixed, two disputed**, per finding, in
+[`E-020 ## Amendment`](../../experiments/E-020-decomposition-depth-BE005.md). Nothing above is
+rewritten. **The stop's verdict is unchanged. One stated reason above is wrong**, and the correction
+is here rather than swapped into the sentence that carried it:
+
+> **The "Decide" and "exit gate" sections above refuse promotion on B13's `tokens_per_accepted_task`,
+> *"by about twelve times"*. That is wrong twice.** `1.83 ÷ 0.15` divides a multiplier by a fraction;
+> the excess over the allowance is about **5.5×**, not twelve. And **1.83× is the median cost per run,
+> which is not the registered clause.** E-020 registers `tokens_per_accepted_task` as *"`estimatedCost`
+> per evaluator-passing run against the concurrent control"*: treated **$6.9225 / 7 = $0.9889**,
+> control **$2.8723 / 3 = $0.9574**, ratio **1.033×** — **+3.3 %, INSIDE the 15 % allowance. That
+> clause PASSES.**
+>
+> **Promotion is still refused, on `quality_score`:** B13 needs all seven clauses and the registered
+> quality outcome moved by **0**, with `change-focus` `unmeasured`, so there is no quality gain to
+> weigh. **Measured, kept, not promoted** stands on that ground alone.
+>
+> **And the clause passed because the control fails more often** — 3 of 8 against 7 of 8. A
+> per-accepted-task metric divides by the pass count, so on a task this model usually fails **B13's
+> token clause rewards the arm with the higher pass rate rather than the cheaper one**, while every
+> individual treated run still costs 1.83×. Not foreseen, and it will recur at every later stop on
+> BE-005.
+
+Three smaller corrections that touch the rows above: **row 2 fails on its count as well as its
+p-value** (the pass rate is 7 of 8, below "≥ 8 of 10"), not on the p-value alone; **"five of seven
+refuted" is replaced by an exact partition** (held: P3; refuted: P1, P4, P5, P6; neither: P2, P7);
+and **every reading of P3 inherits `SHAPE-RULE.md`'s own "unconfirmed by the author" label**,
+including the `p = 0.0070` that is the strongest number at this stop.

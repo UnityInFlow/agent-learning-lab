@@ -446,3 +446,117 @@ away. *That the two instruments diverge only on the runs that bounced more than 
 about the instruments, not about the treatment.*
 
 The observatory API is **`127.0.0.1:8081`**, probed this session; it answered every fetch.
+
+---
+
+## Amendment — §4a review corrections, 2026-09-25, same day
+
+**Nothing above is rewritten.** No prediction, no measured value, no sheet and no run folder is
+touched (§4 step 12). The §4a review of this file, the workbook, `SHAPE-RULE.md` and `tally.py`
+returned **`ACCEPT`** with **7 line-level findings**
+(`findings/opencode/review-E-020-decomposition-depth-BE005-20260925T152315Z.md`, 2 runs unioned).
+**Five are fixed here, two are disputed.** The verdict of the stop is unchanged — `NO ROW FIRES`,
+the ladder closes — but **one stated reason was wrong and is corrected in full below rather than
+swapped out quietly.**
+
+### 1. FIXED, and it is the important one: the promotion clause was computed on the wrong metric *and* with the wrong arithmetic
+
+The text above says promotion fails B13's `tokens_per_accepted_task` *"by about twelve times"*.
+**Both halves of that are wrong.**
+
+**The arithmetic.** `1.83 ÷ 0.15 = 12.2` divides a **multiplier** by a **fraction**. The measured
+increase is **+83 %** against an allowed **+15 %**, which is about **5.5×** the allowed increase —
+never twelve.
+
+**The metric, which matters more.** This file registers `tokens_per_accepted_task` as
+***"`estimatedCost` per evaluator-passing run against the concurrent control"***. That is not the
+median cost of a run. Read as registered, off `evidence/b08a/batch-20260925T091510Z/manifest.tsv`:
+
+| | treated | control |
+|---|---|---|
+| runs | 8 | 8 |
+| total `estimatedCost` | **$6.9225** | **$2.8723** |
+| evaluator-passing runs | **7** | **3** |
+| **cost per evaluator-passing run** | **$0.9889** | **$0.9574** |
+| median cost per run (what was quoted above) | $0.7149 | $0.3912 |
+
+**`tokens_per_accepted_task` as registered is 1.033× — an increase of 3.3 %, INSIDE the 15 %
+allowance. That clause PASSES.** The 1.83× figure is the **median cost per run**, which is a real
+and reported number and is **not** the clause.
+
+**Promotion is still refused, and the correct reason is `quality_score`.** B13 requires **all seven**
+clauses; the registered quality outcome moved by **0** (treated median 0 vs control median 0 on
+`architecture-consistency`, `n = 7` / `n = 3`), and `change-focus` is `unmeasured`, so no quality gain
+exists to weigh. **Measured, kept, not promoted** stands; *"the token clause fails by twelve times"*
+does not, and is withdrawn.
+
+**And the way that clause passed is itself worth recording.** It passed **because the control fails
+more often** — 3 of 8 against 7 of 8. A per-accepted-task metric divides by the pass count, so an arm
+that passes more often looks cheaper per accepted task even while every individual run costs 1.83× as
+much. On a task the pinned model usually fails, **B13's token clause rewards the arm with the higher
+pass rate rather than the cheaper one.** That is a property of the clause meeting a low-pass-rate
+control, it was not foreseen here, and it will recur at every later stop on BE-005.
+
+### 2. FIXED: row 2 fails on two clauses, not one
+
+The text above rejects row 2 on `p = 0.1189` alone. Row 2 requires **both** rates at **≥ 8 of 10**
+against a control at **≤ 2 of 10**, *and* `p ≤ 0.05`. At the population that occurred: shape **8 of 8**
+(count met) with control **2 of 8** (met), but the evaluator pass rate is **7 of 8** — **below the
+count threshold as well as failing the p-value.** Row 2 therefore fails on the count *and* on the
+p-value, and saying only the second understates how far it is from firing.
+
+### 3. FIXED: the seven predictions, partitioned exactly instead of counted
+
+*"Two held and five are refuted"* cannot be partitioned cleanly and is replaced by the list:
+
+- **Held:** **P3** (shape separates, `p = 0.0070`) — **one**.
+- **Refuted:** **P1** (0 vs 0 against a predicted 2 vs 0), **P4** (6 of 8 against 10 of 10), **P5**
+  (1.83× against a predicted 2–4×), **P6** (median 82.5 against ≥ 90) — **four**.
+- **Neither:** **P2** does not separate (`p = 0.1189`) and is *not* credited as held — its own
+  registered threshold is `p ≤ 0.05` and it was not met; what is measured about P2 is that its
+  **mechanism** is false. **P7** falls below its threshold (5 of 8) and **enters no decision-rule row**.
+
+Where earlier committed text says *"five of seven refuted"* it is counting P2 and P7 among them; that
+text is **not edited**, and this list is the exact reading.
+
+### 4. FIXED: what was pre-registered about P1
+
+What this file registered in advance is that P1 would be **unmeasurable** — *"I predict this prediction
+cannot be measured"* — **not** that the measured value would be 0 vs 0. The 0-vs-0 magnitude is a
+refutation of P1's stated effect and was **not** foreseen; the unmeasurability was. Any sentence above
+that reads as though the outcome itself was predicted should be read against this paragraph.
+
+### 5. FIXED: the MDE section predicted an adjacent defect, not this one
+
+The Results section credits the MDE section with predicting *"the rule has no row for exactly one of
+two rates separating."* It does not. What it predicts, verbatim, is that decision 11 item 10, the
+author's category choice and Decision D's gate filter *"compose into an instrument that cannot see its
+own registered outcome on a task the model usually fails"*, and that **that** composition is the
+finding. **The rule gap is an adjacent consequence and was not foreseen.** The over-attribution is
+withdrawn; the composition claim, which was foreseen and is quoted exactly, stands.
+
+### 6. FIXED: P3 carries `SHAPE-RULE.md`'s own caveat wherever it is reported
+
+`evidence/b08a/shape/SHAPE-RULE.md:64,76-77` records that Gate B′ had the author confirm every row
+before its tally was called, that **no author was available here**, and that the tally is labelled
+**"unconfirmed by the author"** until one overrules or confirms it. **Every reading of P3 above —
+including "shape separates, `p = 0.0070`", the strongest number at this stop — inherits that label**,
+and it is an `author_notes` item, not a blocker.
+
+### 7. DISPUTED: *"`NO ROW FIRES` is not one of the four registered verdicts"*
+
+Correct, and **said so in the artifact itself**, twice, before the review ran: *"recorded as
+`NO ROW FIRES` rather than rounded to the nearest registered word"*. The finding describes the
+artifact's disclosed choice as though it were a concealed one. Inventing a fifth registered verdict is
+exactly what was refused; what is recorded is the **absence** of a verdict plus the one consequence a
+well-defined clause does decide (item 2's permissive rung-10 condition). **No change.**
+
+### 8. DISPUTED: row 2's *"≥ 8 of 10"* is unreachable at `n = 8`
+
+It is reachable: 8 of 8 satisfies "≥ 8", and the shape rate met it. The clause that was not met is the
+**pass rate's** count (7 of 8) and the p-value — see correction 2. The finding's premise, that a
+count-of-10 threshold cannot be satisfied by a population of 8, is false on this data, and the real
+defect it points at is fixed above. **No change beyond correction 2.**
+
+`Corrections applied by Opus 5 (claude-opus-5), autonomous, 2026-09-25, from the §4a review named
+above. The registered predictions, the measured values and every sheet are untouched.`
