@@ -350,9 +350,12 @@ reported on its own.
 | First run's `startedAt` | **2026-09-25T18:45:33Z** (arm P, `preflight-20260925T184532Z/RESULT.tsv`) |
 | Ordering holds? | **Yes — the prediction commit precedes the first run by 3 min 9 s.** Both values read from git and from the driver's own TSV, not from prose. |
 
-Arm D's prediction was committed at `054b0b8` (2026-09-25T18:50Z) before arm D's driver
-existed; arms D2 and D3's predictions at `2c27630` (2026-09-25T18:53Z) before theirs did.
-Neither is edited after its run.
+| Arm D's prediction commit | `054b0b8`, 2026-09-25T18:50Z — before arm D's driver existed |
+| Arms D2 and D3's prediction commit | `2c27630`, 2026-09-25T18:53Z — before their driver existed |
+| **Arm E's prediction commit (DF5)** | **`99313d2`, 2026-09-25T19:40Z — before `run-mcp-strict-above-e.sh` existed.** Arm E's first run `startedAt` is **2026-09-25T19:41:01Z**, from `arm-e-20260925T194100Z/RESULT.tsv` |
+
+None of them is edited after its run. *(The arm E row was added at §4 step 13a from
+`findings/opencode/review-E-021-…-195204Z.md`, which found the ordering table silent about it.)*
 
 ## Observed telemetry
 
@@ -378,6 +381,7 @@ arm D in `deliberate-failure-20260925T185104Z/` · arms D2 and D3 in `walk-D2-20
 | **D** | as A | **one level above an empty cwd** | **yes — 5 of 5** |
 | **D2** | as A | **three levels above** | **yes — 5 of 5** |
 | **D3** | as A | **two levels above, cwd is a git repo** | **yes — 5 of 5** |
+| **E** | **unchanged — the flag ON**, added at §4 step 13a | **one level above an empty cwd** | **no — 0 of 5** |
 
 `server_present` and `server_status` track `tool_present` exactly on all 26 runs: wherever the
 tool is delivered, `stop18probe` is in `init.mcp_servers` with `status: connected` and
@@ -433,6 +437,15 @@ the launch, and in arm A it is a function of the launch **and of a network race*
 | **DF2** server absent from `init.mcp_servers`, 5 of 5 | `054b0b8`, 18:50Z | **present, `connected`, `source: project`, 5 of 5** | **REFUTED** |
 | **DF3** probe tool PRESENT three levels up, 5 of 5 | `2c27630`, 18:53Z | present 5 of 5 | **HELD** |
 | **DF4** a git root at the cwd does NOT stop the walk, 5 of 5 | `2c27630`, 18:53Z | present 5 of 5; the file sits two levels **above** the repository root | **HELD** |
+| **DF5** with the flag **ON** and the file one level above, probe ABSENT, 5 of 5 | `99313d2`, 19:40Z, from the §4a review | **absent 5 of 5**, `mcp_servers == []`, 28 tools — the same as arm B | **HELD** |
+
+**Arm E is the one the §4a review asked for, and it changes the Decision from narrow to sound.**
+Arms D, D2 and D3 all ran with the flag **off**; arm B tested the flag against a file in the cwd.
+**Nothing had tested the flag against a file above the cwd** — the combination that decides whether
+"L2" is true as written. Arm E ran that combination and **DF5 held, 0 of 5**. The one-line contrast,
+re-derived from the two `RESULT.tsv` files rather than restated: **the same directory layout delivers
+the server 5 of 5 with the flag off (arm D) and 0 of 5 with it on (arm E).** So `--strict-mcp-config`
+filters an ancestor's `.mcp.json` as well as the cwd's.
 
 **The loader walks upward, and neither depth nor a git boundary stops it.** DF4 was written to
 be wrong in the direction that would have been good news, and it was not wrong. Hand re-read
@@ -442,8 +455,8 @@ the cwd itself, two levels below the file that loaded.
 
 ### Spend
 
-**$0.2393 of the registered $0.50 ceiling, over 26 runs.** The ceiling was not reached; the
-batch stopped at its registered `n`, not on budget.
+**$0.2629 of the registered $0.50 ceiling, over 31 runs** — 26 through §4 step 9, plus arm E's 5
+at §4 step 13a. The ceiling was not reached; every arm stopped at its registered `n`, not on budget.
 
 ## Which predictions held
 
@@ -458,6 +471,7 @@ batch stopped at its registered `n`, not on budget.
 | DF2 | server absent one level up, 5 of 5 | **REFUTED** | present 5 of 5 |
 | DF3 | present three levels up, 5 of 5 | held | present 5 of 5 |
 | DF4 | git root does not stop the walk, 5 of 5 | held | present 5 of 5 |
+| DF5 | flag ON + file one level above → absent, 5 of 5 | **held** | absent 5 of 5, `mcp_servers == []`, 28 tools |
 
 **Four of the five main predictions held and both deliberate-failure predictions were
 refuted.** The refutations are the stop's finding; the confirmations are the control that makes
@@ -515,9 +529,14 @@ produces a token. The agent under test is `n = 0` at this stop.
 **KEEP `--strict-mcp-config`, and the keep is now measured rather than assumed** —
 decision-rule **row 1**, from P ok · A 5 of 5 · B 0 of 5.
 
-- **The workbook's provisional layer label is settled: `--strict-mcp-config` is L2.** Something
-  executes and rejects the configuration, and the rejection is visible in the run's own
-  delivered tool set on 5 of 5 against a control that receives it on 5 of 5.
+- **The workbook's provisional layer label is settled: `--strict-mcp-config` is L2, and it is L2
+  on both placements rather than only the one first measured.** Something executes and rejects the
+  configuration, and the rejection is visible in the run's own delivered tool set: **0 of 5 against
+  a file in the cwd (arm B) and 0 of 5 against a file one level above it (arm E)**, while the same
+  two layouts deliver it 5 of 5 and 5 of 5 with the flag removed (arms A and D). *The second half of
+  that sentence exists because the §4a review noticed the Decision was claiming it without having
+  measured it (`review-E-021-…-185923Z.md`, non-blocking 1/2), and arm E answered it rather than a
+  qualifier being added to the prose.*
 - **The interactive approval prompt is L3 and absent**, confirmed rather than assumed: 26 runs,
   zero permission denials, servers connected and tools delivered without one.
 - **`mcpHash` stays L3** and is untouched by this lab. **B9 (stop 20) still owes a writer** —
@@ -551,8 +570,11 @@ decision rule and the results are **not** edited (§4 step 12).
    The reviewer found independently what the experiment had disclosed, which is the outcome a
    second reader is for. The driver's header now carries it too.
 3. **`--strict-mcp-config` labelled L2 without qualification.** *(1/2.)* **Accepted, and it is the
-   most valuable finding of the four rounds.** It is answered by **arm E**, registered above with
-   its prediction committed before the arm existed, rather than by softening a sentence.
+   most valuable finding of the four rounds.** Answered by **arm E**, registered above with its
+   prediction committed before the arm existed, rather than by softening a sentence. **DF5 held,
+   0 of 5** (`evidence/p06a/arm-e-20260925T194100Z/RESULT.tsv`), so the label is sound as written and is now
+   supported on both placements. **A review finding that produced a new measurement instead of a
+   hedge is the best thing §4a has done in this track.**
 4. **The CLI version is not re-recorded for arms D, D2 and D3.** *(1/2.)* **Disputed, with
    evidence.** It is recorded and it is also enforced. Every driver writes
    `claude : $("$CLAUDE_BIN" --version)` into its evidence directory's `HASHES.txt` before the
@@ -575,3 +597,8 @@ decision rule and the results are **not** edited (§4 step 12).
    `--add-dir` or a symlinked worktree changes it. Cheap, and out of scope at a stop the spine
    funds one lab for.
 4. **Labs 6.1–6.4 stay deferred** and `lab#8` stays open naming them.
+5. **Arm E is closed, not open.** DF5 held at 5 of 5 and its evidence is in
+   `evidence/p06a/arm-e-20260925T194100Z/`, together with `POST-COPY-VERIFICATION.md` — the five hand checks that
+   rule out a spurious null, written because arm E's result is the one *negative* conclusion in
+   this experiment that a broken probe could have manufactured. *(Listed here because
+   `review-E-021-…-195204Z.md` found the Follow-up silent on arm E's status.)*

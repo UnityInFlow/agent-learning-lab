@@ -429,8 +429,12 @@ secrets · audit · data returned · retention · version/provenance.
 ## Lab 6.5 — The print-mode MCP hole · **THE ONE LAB THE SPINE FUNDS AT THIS STOP**
 
 **Experiment:** [`E-021`](../../experiments/E-021-print-mode-mcp-hole-06a.md) · key
-`EXP-06A-MCP-PRINT-MODE` · **arms P + A + B = 11 runs, 16 with the A′ contingency** · budget
-`$0.50`, which is the binding constraint.
+`EXP-06A-MCP-PRINT-MODE` · **31 runs actually happened, for $0.2629 against a $0.50 ceiling that
+was never reached.** They break down as **11 registered at §4 step 3** (arms P, A and B; 16 had the
+A′ contingency fired, which it did not), **15 at §4 step 9** (the deliberate failure: arms D, D2,
+D3) and **5 at §4 step 13a** (arm E, which the §4a review asked for). *(Stated outright at §4 step
+13a after `review-README-20260925T194221Z.md` found the earlier amendment argued the point without
+settling it. The number is 31.)*
 
 > **Amended at §4 step 13a, 2026-09-25, from
 > `findings/opencode/review-README-20260925T190755Z.md` (blocking, 2/2), which found "16 at most"
@@ -464,7 +468,7 @@ recorded (extract §4).
 
 `Run and recorded by Opus 5 (claude-opus-5), autonomously, 2026-09-25T18:45–18:55Z.`
 
-**26 runs, $0.2393 of a $0.50 ceiling, `n = 0` on the agent under test.** Full write-up and
+**31 runs, $0.2629 of a $0.50 ceiling, `n = 0` on the agent under test.** Full write-up and
 every prediction in [`E-021`](../../experiments/E-021-print-mode-mcp-hole-06a.md).
 
 | | |
@@ -474,9 +478,12 @@ every prediction in [`E-021`](../../experiments/E-021-print-mode-mcp-hole-06a.md
 | **Decision-rule row** | **row 1 — HOLE REAL, CONTROL EXECUTES** |
 | **Deliberate failure** | **DF1 and DF2 REFUTED at 5 of 5.** The loader **walks upward** |
 | **Extension** | DF3 (three levels up) and DF4 (a git root does not stop it) both **held**, 5 of 5 each |
-| **Spend** | $0.2393; ceiling not reached |
+| **Arm E, from the §4a review** | **DF5 held, 0 of 5.** The flag filters an ancestor's `.mcp.json` too, so the L2 label is sound on **both** placements and not only the one first measured |
+| **Spend** | $0.2629 over 31 runs; ceiling not reached |
 
-**The layer label is settled by measurement: `--strict-mcp-config` is L2.** It executes, and
+**The layer label is settled by measurement: `--strict-mcp-config` is L2** — **0 of 5 against a
+file in the cwd (arm B) and 0 of 5 against a file one level above it (arm E)**, while the same two
+layouts deliver the server 5 of 5 and 5 of 5 with the flag removed (arms A and D). It executes, and
 its rejection is visible in the run's own delivered tool set. **The documented approval prompt
 is L3 and absent** — 26 runs, `permission_denials: []` on every one, servers `connected` and
 their tools delivered without a prompt. **`mcpHash` stays L3.**
@@ -503,6 +510,15 @@ their tools delivered without a prompt. **`mcpHash` stays L3.**
    this stop's own MDE was transferred from them.** *(Narrowed from "every delivery proof in Track
    B assumes it is not" at §4 step 13a, from `review-README-20260925T190755Z.md`, non-blocking
    1/2, which called that universal unfalsifiable. It was.)*
+
+**Arm E exists because the §4a review found the conclusion claiming more than the arms had
+measured.** Every arm that put the file above the cwd ran with the flag **off**; arm B tested the
+flag with the file **in** the cwd. Nothing had tested the combination that decides the label. Arm E
+did, DF5 held at 0 of 5, and its null is not an artefact: `POST-COPY-VERIFICATION.md` in its
+evidence directory records five hand checks, the decisive one being that **the post-copy
+`probe_server.py` the run was actually pointed at answers the MCP handshake**. A negative result is
+the one kind a broken probe can manufacture, and this is the only negative arm in the experiment
+that a `sed` could have faked.
 
 **And the finding that outranks the registered one.** The deliberate failure put the
 `.mcp.json` **outside** the run's directory and it loaded anyway: one level up, three levels
@@ -535,9 +551,13 @@ learning:
     28, and +15.7 % median cost on a prompt that does no work.
   unexpected_effect: >
     Two. (1) The deliberate failure was refuted: the loader walks upward, past three levels
-    and past the cwd's own git root, so the hole is wider than the extract said. (2) Arm A's
-    delivered tool set is nondeterministic — a function of the launch AND of whether a remote
-    connector finished connecting — which every delivery proof in Track B assumes it is not.
+    and past the cwd's own git root, so the hole is wider than the extract said — though arm E,
+    added after the §4a review, showed the flag still filters it, so the boundary holds. (2) Arm
+    A's delivered tool set is nondeterministic — a function of the launch AND of whether a remote
+    connector finished connecting. That matters because the two delivered-tool-set readings this
+    track has registered (E-005 arm F, 10 of 10; stop 17a's init read-back, 5 of 5) both rest on
+    zero within-arm spread, and this stop's MDE was transferred from them. The determinism holds
+    with the flag on and does not hold with it off.
   keep_or_remove: >
     Keep --strict-mcp-config; the keep is now measured rather than assumed, and its measured
     effect is 25 delivered tools and +15.7 % cost. Keep the probe as an instrument. Nothing is
@@ -603,9 +623,10 @@ a Phase issue stays open and its closing comment names them.
 | "Why an MCP registry/allowlist is not automatically a hard security boundary" | extract §2 and §5 (registry page, MCP spec **2026-07-28**); and `batch-20260925T184656Z/RESULT.tsv` rows A-1…A-5 vs B-1…B-5, identical `.mcp.json` sha256 `078f9a41…` | **L3 for the read half, L2 for the measured half** | Read the two pages; then `diff <(cat evidence/p06a/batch-20260925T184656Z/argv-A-1.txt) <(cat evidence/p06a/batch-20260925T184656Z/argv-B-1.txt)` — the only difference is `--strict-mcp-config` — and compare the two `init-*.json` |
 | "Why read-only MCP comes before write-capable MCP" | `batch-20260925T184656Z/init-A-1.json` (`mcp__claude_ai_Slack__slack_send_message` and 21 others delivered); extract §4 for `mcpHash` null by construction at `runner/run-agent.sh:645` | **L2 for what was delivered; L3 for the ordering argument** | `jq -r '.tools[] \| select(startswith("mcp__"))' evidence/p06a/batch-20260925T184656Z/init-A-1.json`; then `sed -n '640,650p' ../agent-observatory/runner/run-agent.sh` and look for `mcpHash` — it is not there |
 | **Lab 6.5's own registered outcome** (E-021 predictions 1–3) | `evidence/p06a/preflight-20260925T184532Z/RESULT.tsv` (P 1/1) and `evidence/p06a/batch-20260925T184656Z/RESULT.tsv` (A 5/5, B 0/5) | **L2** — read from each run's own `init` record, not from the flag | Re-run the driver, or `for f in evidence/p06a/batch-20260925T184656Z/init-*.json; do echo "$f $(grep -c mcp__stop18probe__ "$f")"; done` |
+| **Arm E — the flag ON with the file above the cwd** (E-021 DF5) | `evidence/p06a/arm-e-20260925T194100Z/RESULT.tsv` (0 of 5) and `arm-e-20260925T194100Z/POST-COPY-VERIFICATION.md` | **L2** — and the null is guarded: the post-copy server answers the handshake, so the absence is the flag's doing and not a broken probe | `PROBE_N=5 evidence/p06a/run-mcp-strict-above-e.sh`; its guard 12 refuses at exit 12 if `--strict-mcp-config` is missing from the argv, so an arm E that lost its flag cannot silently become arm D |
 | **The deliberate failure** (E-021 DF1–DF4) | `evidence/p06a/deliberate-failure-20260925T185104Z/RESULT.tsv`, `walk-D2-20260925T185343Z/RESULT.tsv`, `walk-D3-20260925T185343Z/RESULT.tsv` | **L2** | Run `evidence/p06a/run-mcp-parent-dir-df.sh` and `run-mcp-walk-scope-df.sh`; their guards (exit 9, 10, 11) refuse to run an arm whose directory layout would make a null meaningless |
 | **Prediction-commit ordering** | commit `5f3f6913` at **2026-09-25T18:42:24Z**; first run `startedAt` **2026-09-25T18:45:33Z** | **L2** — both read from git and from the driver's TSV | `git log -1 --format=%cI 5f3f6913` and `awk -F'\t' 'NR==2{print $4}' evidence/p06a/preflight-20260925T184532Z/RESULT.tsv` |
-| **Every exit code of every tool built here is provoked** | `verify-mcp-hole-probe-guards.sh` **13 of 13**, `verify-mcp-parent-dir-df.sh` **9 of 9**, `verify-mcp-walk-scope-df.sh` **10 of 10**; all three ShellCheck-clean | **L2** | Run the three scripts. Each `check` runs the driver **unpiped** and reads `$?` directly — a piped exit code is tail's, which is how a failing verifier gets reported as passing (§0a, this session) |
+| **Every exit code of every tool built here is provoked** | `verify-mcp-hole-probe-guards.sh` **13 of 13**, `verify-mcp-parent-dir-df.sh` **9 of 9**, `verify-mcp-walk-scope-df.sh` **10 of 10**, `verify-mcp-strict-above-e.sh` **10 of 10**; all four ShellCheck-clean | **L2** | Run the three scripts. Each `check` runs the driver **unpiped** and reads `$?` directly — a piped exit code is tail's, which is how a failing verifier gets reported as passing (§0a, this session) |
 | **Independence: what else changed between arms?** | `argv-A-1.txt` vs `argv-B-1.txt`; `.mcp.json` sha256 identical across arms (`078f9a41…`); `init.model` = `claude-haiku-4-5-20251001` on every run; `claude --version` = `2.1.282` recorded in each `HASHES.txt` before and after | **L2** | `shasum -a 256 /tmp/stop18-mcp-probe-*/run-A-2/.mcp.json /tmp/stop18-mcp-probe-*/run-B-3/.mcp.json` while the throwaway trees survive; afterwards, the `HASHES.txt` in each evidence directory |
 
 **Hand re-read, §5's per-step requirement.** **Three cells**, each re-derived by me in the main
