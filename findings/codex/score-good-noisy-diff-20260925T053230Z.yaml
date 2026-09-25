@@ -12,34 +12,34 @@ provenance:
   schema_pinned:  4 categories, names constrained to the rubric's
   rubric_path:    benchmark/rubrics/backend-quality-be005.yaml
   rubric_sha:     945817b8c509
-  target:         ../agent-observatory-benchmarks/tasks/BE-005-partial-fulfilment/fixtures/good-inline-envelope
+  target:         ../agent-observatory-benchmarks/tasks/BE-005-partial-fulfilment/fixtures/good-noisy-diff
   mode:           fixture
   baseline:       ../agent-observatory-benchmarks/tasks/BE-005-partial-fulfilment/fixtures/known-good
   baseline_state: attached
-  scored_utc:     20260925T053121Z
+  scored_utc:     20260925T053230Z
   session:        fresh    # --ephemeral; independence requires no memory
   isolation:      --ignore-user-config --ignore-rules --sandbox read-only
 ---
 scorer: lab-scorer
 categories:
   - name: "architecture-consistency"
-    score: 0
-    anchor_level: 0
-    reason: "Order creation constructs error envelopes on refusal paths"
-    evidence: "good-inline-envelope/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:40"
+    score: 2
+    anchor_level: 2
+    reason: "Refusals use API exceptions and one shipment-derived fulfilment function serves both order reads"
+    evidence: "good-noisy-diff/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:54"
   - name: "maintainability"
     score: 2
     anchor_level: 2
-    reason: "Status, transitions, and allocation guard each use the required single construct"
-    evidence: "good-inline-envelope/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:126; good-inline-envelope/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:79"
+    reason: "One status expression, one shared transition function, and one allocation comparison satisfy all clauses"
+    evidence: "good-noisy-diff/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:82"
   - name: "test-quality"
     score: null
     anchor_level: null
     reason: "nothing to grade"
     evidence: "No file under src/test/ among the attachments"
   - name: "change-focus"
-    score: 1
-    anchor_level: 1
-    reason: "Only order create contains a non-clause-required difference"
-    evidence: "known-good/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:35; good-inline-envelope/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:37"
+    score: 0
+    anchor_level: 0
+    reason: "Shipment create, getById, and list contain unnecessary rewrites"
+    evidence: "good-noisy-diff/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:35; known-good/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:35"
 ambiguous_categories: ["test-quality"]

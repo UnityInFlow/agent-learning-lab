@@ -12,11 +12,11 @@ provenance:
   schema_pinned:  4 categories, names constrained to the rubric's
   rubric_path:    benchmark/rubrics/backend-quality-be005.yaml
   rubric_sha:     945817b8c509
-  target:         ../agent-observatory-benchmarks/tasks/BE-005-partial-fulfilment/fixtures/good-inline-envelope
+  target:         ../agent-observatory-benchmarks/tasks/BE-005-partial-fulfilment/fixtures/good-stored-consistent
   mode:           fixture
   baseline:       ../agent-observatory-benchmarks/tasks/BE-005-partial-fulfilment/fixtures/known-good
   baseline_state: attached
-  scored_utc:     20260925T053121Z
+  scored_utc:     20260925T053141Z
   session:        fresh    # --ephemeral; independence requires no memory
   isolation:      --ignore-user-config --ignore-rules --sandbox read-only
 ---
@@ -25,21 +25,21 @@ categories:
   - name: "architecture-consistency"
     score: 0
     anchor_level: 0
-    reason: "Order creation constructs error envelopes on refusal paths"
-    evidence: "good-inline-envelope/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:40"
+    reason: "Stored fulfilment is maintained across shipment transitions and quantity amendment"
+    evidence: "order/Order.kt:16; shipment/ShipmentController.kt:68,88,98; order/OrderController.kt:91"
   - name: "maintainability"
     score: 2
     anchor_level: 2
-    reason: "Status, transitions, and allocation guard each use the required single construct"
-    evidence: "good-inline-envelope/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:126; good-inline-envelope/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:79"
+    reason: "One status expression, shared transition function, and one allocation comparison"
+    evidence: "order/Order.kt:39; shipment/ShipmentController.kt:80,84,94,111; shipment/ShipmentController.kt:51"
   - name: "test-quality"
     score: null
     anchor_level: null
     reason: "nothing to grade"
     evidence: "No file under src/test/ among the attachments"
   - name: "change-focus"
-    score: 1
-    anchor_level: 1
-    reason: "Only order create contains a non-clause-required difference"
-    evidence: "known-good/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:35; good-inline-envelope/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:37"
+    score: 0
+    anchor_level: 0
+    reason: "Shipment create, deliver, and cancel add unrequired stored-fulfilment writes"
+    evidence: "good-stored-consistent/shipment/ShipmentController.kt:68,88,98; known-good/shipment/ShipmentController.kt:61,84,88"
 ambiguous_categories: ["test-quality"]
