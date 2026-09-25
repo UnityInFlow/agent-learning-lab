@@ -389,6 +389,85 @@ produces a clear machine-readable result · **no regression against the v1.0 ben
 
 ---
 
+<a id="b8a"></a>
+
+## B8a — Decomposition depth · **version-neutral**
+
+**Track A: [4B](../phases/04b-orchestration/) is the primitive; [B8](#b8) is the state file a handoff
+is written into. · Layer 2 shape, Layer 3 payload**
+
+**This block is a POINTER, not a thirteenth gate.** B8a was registered by **author decision 11**
+(prompt §3, adopted 2026-09-14) *after* the twelve B-step blocks above were written — deliberately, so
+that no existing anchor would move. It therefore has no build spec of its own here, and one is **not
+invented**. The two documents that define it are:
+
+- **Prompt `§3`, author decision 11, items 1–13** — rung, spine position, task, version boundary,
+  decision rule, the four delivery conditions, the budget, the three early-end conditions, and what is
+  explicitly not adopted.
+- **`B8A-BRAINSTORM.md`** at the workspace root, Q1–Q8 — the cut, decided in working sessions **with
+  the author present for every answer**.
+
+**Build:** one orchestrator and three specialists — **planner → implementer → verifier**, cut **by
+phase**, the orchestrator **routing only**. A new overlay
+`build/customizations/b8a-pipeline-v1.0/.claude/agents/{orchestrator,planner,implementer,verifier}.md`;
+no existing overlay edited, no skill. All four agents on `claude-haiku-4-5-20251001`. Handoff medium is
+B8's `.agent/run-state.json` `handoff` field, written **reserved** at B8 and first used here.
+
+**Task: `BE-005` only** (decision 11 item 5, which amends decision 9 item 2 for this step alone).
+BE-005's reference population is **its own concurrent plain control at this stop, `n = 10`**, which is
+also BE-005's baseline measurement and is registered as such before it runs.
+
+**The trap** — decision 11 item 4's §4.1 pattern, measured on this ticket by Gate B′:
+
+```
+an early structural choice the ticket makes tempting to get wrong
++ a later clause of the same ticket that is cheap under the right shape and needs a rewrite
+  under the wrong one
++ a deterministic gate that executes on that clause
+```
+
+On ticket A′ it is one line: **filter and count a *stored* fulfilment value, or recompute it first.**
+The pinned model chose wrong on **4 of 5** plain runs (`evidence/gate-b2-decision-11/RESULT.md`).
+
+**Gate — quoted, not authored.** Decision 11 fixes it in two halves, and they answer different
+questions:
+
+1. **Did it do anything?** The experiment's own decision-rule rows, registered before the batch as at
+   every step: **`VOID` · `NOT DETECTABLE` · `REJECT` · `IMPROVED`.** The registered outcome is
+   **`architecture-consistency`** on rubric sha **`945817b8c509`**, scored by **codex**, hand re-read
+   before any sheet is opened. **`change-focus` is `unmeasured`** and enters no row, no MDE and no exit
+   gate (author's decision of 2026-09-25 item 1) — so BE-005's weighted total is **85 measured points
+   on a 100-point scale** and is **NOT comparable to BE-004's**.
+2. **Is it worth it?** **B13's seven clauses, verbatim, and nothing else** (item 6) — including
+   `tokens_per_accepted_task: { maximum_allowed_increase: 0.15 }`. A pipeline at several times the
+   model calls of one agent must clear a 15 % token ceiling, so the **expected verdict is *measured,
+   kept, not promoted*** unless the quality gain is large. That is a useful result and **B7 is its
+   precedent.**
+
+**Per-arm delivery proof, because no hash carries it** (item 9). Four conditions, per run, before
+scoring: the setup commit's tree lists every overlay file by `git ls-files` in the kept worktree ·
+`customization.agentHash` equals the orchestrator file's registered sha · the `init` read-back shows
+`Task` in the orchestrator's delivered tool set · telemetry shows one delegation event per specialist.
+**A run missing any is row 0a — void before scoring.** `run-agent.sh` hashes exactly one agent file,
+so **three of the four overlay files are files no hash sees.**
+
+**The ladder's stop rule** (item 2): rung 10 is **not** registered. It may be proposed as a separate
+author decision **only** if rung 4's own rule fires `IMPROVED`; a `NOT DETECTABLE`, `REJECT` or `VOID`
+**closes the ladder, and that closure is the result.**
+
+**Ends early**, with the negative recorded (item 11): Gate B failed twice · a preflight that cannot
+show all four delivery conditions · row 0a on 2 or more treated runs. **Cost ceiling $9.70** = 25 ×
+$0.388, ticket A′'s median plain-run cost.
+
+*Pointer block added 2026-09-25 by Opus 5 (claude-opus-5), autonomously, at §4 step 2 of stop 17a,
+because §4 step 2 says to name the step's trap from this file and this file had no `#b8a` section —
+`grep -in 'b8a\|decomposition' build/README.md` returned nothing. Every clause above is quoted or
+paraphrased from author decision 11, `B8A-BRAINSTORM.md` or the author's decision of 2026-09-25; none
+of it is a gate this builder wrote. The workbook is
+[`phases/b08a-decomposition-depth/`](../phases/b08a-decomposition-depth/README.md).*
+
+---
+
 <a id="b9"></a>
 ## B9 — Knowledge router and hit rate
 

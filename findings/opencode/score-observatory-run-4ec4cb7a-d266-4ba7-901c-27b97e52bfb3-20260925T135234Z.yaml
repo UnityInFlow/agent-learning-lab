@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be005.yaml
+  rubric_sha:    945817b8c509
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4ec4cb7a-d266-4ba7-901c-27b97e52bfb3
+  mode:          run
+  run_id:        4ec4cb7a-d266-4ba7-901c-27b97e52bfb3
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:8081/api/runs/4ec4cb7a-d266-4ba7-901c-27b97e52bfb3
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.Rn5O7cUq4b/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260925T135234Z
+  attachments:   13 file(s) under test, 13 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 0
+    anchor_level: 0
+    reason: Order stores a fulfilment copy written by the shipment package on four paths.
+    evidence: ShipmentController.kt:185; Order.kt:11
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: Three transitions each inline find-then-check-status logic, no shared function.
+    evidence: ShipmentController.kt:105-121; ShipmentController.kt:126-163
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: Clause (c) met via error envelope body; clauses (a)(b)(d)(e) all absent.
+    evidence: OrderControllerTest.kt:69; no cancel/amend re-read test
+  - name: change-focus
+    score: 1
+    anchor_level: 1
+    reason: Class KDocs removed across repositories and data classes, no clause requires it.
+    evidence: CustomerRepository.kt:6 vs baseline CustomerRepository.kt:6-9
+ambiguous_categories: []
+```

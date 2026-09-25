@@ -1,0 +1,18 @@
+# opencode sheets — the SECOND READER, Decision C, ollama-cloud/deepseek-v4-pro, NOT A VOTE.
+# Same rubric and sha as the codex sheets (945817b8c509); same 10 gate-passing run ids.
+# FOUR of the first ten calls came back HEADER-ONLY (exit 2, zero categories) — a stall, not a finding (§6).
+# Each was retried ONCE and all four retries returned four categories. BOTH files are kept; nothing was
+# overwritten. The stalled artifacts are the 20260925T141050Z / T1418xx / T1429xx / T1433xx files.
+# Values below are from the sheet that CARRIES CATEGORIES, and every one was re-derived by Opus 5 off the
+# sheet itself.
+run_id	arm	architecture_consistency	maintainability	test_quality	change_focus	first_call	retried
+4ec4cb7a-d266-4ba7-901c-27b97e52bfb3	control	0	0	1	1	ok	no
+747935c4-cbae-4a6a-8660-d8cf2296cf91	control	1	0	1	1	ok	no
+33b4c452-fc93-4c16-86af-a230ea26f25e	control	0	0	1	1	ok	no
+be4a6a94-eb20-4da6-8c8d-99f3dad3a3ac	treated	1	0	1	1	header-only	yes
+c07b8f25-1fba-4274-aa33-375c8aa82a06	treated	0	0	1	1	ok	no
+f16197c4-8a0f-49ed-9790-7b80a3a04870	treated	1	0	1	1	header-only	yes
+53af3571-f75b-4a2e-9a7c-57f8214b0da5	treated	1	0	1	1	ok	no
+da7c45c9-b121-4aed-8b9e-41df157ea4c1	treated	1	0	1	2	ok	no
+e3ca68c8-9af7-4f7b-a623-9b526bc1d99e	treated	1	0	1	2	header-only	yes
+275d4cac-f43b-479d-bd46-ebb136e18e57	treated	1	0	1	2	header-only	yes

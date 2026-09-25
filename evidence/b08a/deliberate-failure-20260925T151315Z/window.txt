@@ -1,0 +1,6 @@
+deliberate failure 20260925T151315Z ended (UTC): 2026-09-25T15:19:02Z  exit 0
+cost total read from run records: $0.1694
+runs whose estimatedCost read null: 0 — with any of these the total is a LOWER BOUND
+ceiling: $4.00
+runs classed row 0a: 5 of 5
+events.jsonl bytes before 24019420, after 24236836

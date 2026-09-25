@@ -1,0 +1,11 @@
+
+======== PREFLIGHT control  08:52:16Z ========
+  worktree copied -> evidence.local/b08a-worktrees/8d8505d7-aa82-41cf-9776-9e8d6d6c4335 ( 26M)
+  -> 8d8505d7-aa82-41cf-9776-9e8d6d6c4335 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=0/0 agentHash=null cost=0.414733
+
+======== PREFLIGHT treated  08:56:41Z ========
+  worktree copied -> evidence.local/b08a-worktrees/a390a301-eb67-45a5-b22d-d6e43a922e85 ( 26M)
+  -> a390a301-eb67-45a5-b22d-d6e43a922e85 rc=0 eval=0 model=claude-haiku-4-5-20251001 deleg=19/0 agentHash=sha256:1f27323694e579ec11dbca026bfbb326 cost=0.807472
+
+PREFLIGHT DONE 2026-09-25T09:07:57Z
+report: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b08a/preflight-20260925T085216Z/OBSERVED.md

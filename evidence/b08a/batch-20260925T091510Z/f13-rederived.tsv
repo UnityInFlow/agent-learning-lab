@@ -1,0 +1,17 @@
+seq	arm	run_id	http_529	api_error	rate_limit	dur_s	model_calls	changed
+01	control	4ec4cb7a	2	1	1	283	53	13
+01	treated	be4a6a94	9	4	3	526	61	13
+02	control	747935c4	2	1	1	241	34	11
+02	treated	c07b8f25	4	4	2	488	73	13
+03	control	421067b2	0	1	1	198	48	14
+03	treated	f16197c4	10	1	2	675	222	11
+04	control	4319e882	1	1	2	211	43	12
+04	treated	53af3571	4	4	2	502	83	13
+05	control	46064f65	1	1	1	201	23	12
+05	treated	da7c45c9	3	4	3	587	82	11
+06	control	4abf7f01	1	1	2	230	41	12
+06	treated	e3ca68c8	1	5	1	1307	87	14
+07	control	ed58787c	47	2	1	3751	11	1
+07	treated	b755f13f	10	9	2	874	107	15
+08	control	33b4c452	4	1	2	242	44	13
+08	treated	275d4cac	5	6	1	794	75	13

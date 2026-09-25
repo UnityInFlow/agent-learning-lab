@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be005.yaml
+  rubric_sha:     945817b8c509
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-747935c4-cbae-4a6a-8660-d8cf2296cf91
+  mode:           run
+  run_id:         747935c4-cbae-4a6a-8660-d8cf2296cf91
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:8081/api/runs/747935c4-cbae-4a6a-8660-d8cf2296cf91
+  attachments:    11 changed file(s), 11 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260925T135217Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 1
+    anchor_level: 1
+    reason: "stored fulfilment remains on Order while reads derive a separate copy"
+    evidence: "Order.kt:10; OrderController.kt:139"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "confirm, deliver, and cancel duplicate find-check-save logic"
+    evidence: "ShipmentController.kt:91; ShipmentController.kt:111; ShipmentController.kt:131"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "error bodies are asserted; cancellation, over-allocation, paging, and amendment clauses are absent"
+    evidence: "OrderControllerTest.kt:72"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "unrequired class KDoc removal differs outside permitted changes"
+    evidence: "baseline/Order.kt:5; Order.kt:5"
+ambiguous_categories: []

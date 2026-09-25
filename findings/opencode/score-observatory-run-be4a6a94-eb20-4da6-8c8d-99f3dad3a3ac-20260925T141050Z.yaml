@@ -1,0 +1,26 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be005.yaml
+  rubric_sha:    945817b8c509
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-be4a6a94-eb20-4da6-8c8d-99f3dad3a3ac
+  mode:          run
+  run_id:        be4a6a94-eb20-4da6-8c8d-99f3dad3a3ac
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:8081/api/runs/be4a6a94-eb20-4da6-8c8d-99f3dad3a3ac
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.4G5TgTbZgO/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260925T141050Z
+  attachments:   13 file(s) under test, 13 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+! permission requested: external_directory (/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-be4a6a94-eb20-4da6-8c8d-99f3dad3a3ac/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/*); auto-rejecting
+✗ Read /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-be4a6a94-eb20-4da6-8c8d-99f3dad3a3ac/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt failed [offset=113, limit=60]
+Error: The user rejected permission to use this specific tool call.

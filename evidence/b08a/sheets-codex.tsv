@@ -1,0 +1,15 @@
+# codex sheets, the REGISTERED scorer (Decision C), rubric benchmark/rubrics/backend-quality-be005.yaml sha 945817b8c509
+# 10 gate-passing runs only (Decision D, check-run-gate.sh:6). Every value below was re-derived by Opus 5
+# off the sheet itself, not taken from the scoring subagent's report; all 40 values and all 10 rubric shas matched.
+# change-focus is UNMEASURED by the author's decision of 2026-09-25 item 1 and enters no decision rule, MDE or exit gate.
+run_id	arm	architecture_consistency	maintainability	test_quality	change_focus	rubric_sha
+4ec4cb7a-d266-4ba7-901c-27b97e52bfb3	control	0	0	1	1	945817b8c509
+747935c4-cbae-4a6a-8660-d8cf2296cf91	control	1	0	1	1	945817b8c509
+33b4c452-fc93-4c16-86af-a230ea26f25e	control	0	0	1	2	945817b8c509
+be4a6a94-eb20-4da6-8c8d-99f3dad3a3ac	treated	1	0	1	1	945817b8c509
+c07b8f25-1fba-4274-aa33-375c8aa82a06	treated	0	0	1	1	945817b8c509
+f16197c4-8a0f-49ed-9790-7b80a3a04870	treated	1	0	1	1	945817b8c509
+53af3571-f75b-4a2e-9a7c-57f8214b0da5	treated	0	0	1	0	945817b8c509
+da7c45c9-b121-4aed-8b9e-41df157ea4c1	treated	1	0	1	2	945817b8c509
+e3ca68c8-9af7-4f7b-a623-9b526bc1d99e	treated	0	0	1	1	945817b8c509
+275d4cac-f43b-479d-bd46-ebb136e18e57	treated	0	0	1	2	945817b8c509

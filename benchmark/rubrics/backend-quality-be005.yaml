@@ -1,0 +1,133 @@
+# BE-005 backend quality rubric — PORTED, PROOF PENDING. Four categories, same weights as v2.
+#
+# STATUS. Ported into benchmark/rubrics/ at spine stop 17a (B8a) by Opus 5, autonomously,
+# 2026-09-25, from ../backend-quality-be005.DRAFT.yaml (sha a36508802670), which Claude
+# Fable 5.1 drafted on 2026-09-17 in the author decision 11 design session at the author's
+# direction (decision 11 step 5) as a port of backend-quality-be004.yaml (version 2-be004,
+# sha 6252778b8472, proved in E-011) from BE-004's constructs to BE-005's. Opus 5 contributed
+# nothing to the draft. The port is byte-identical to the draft apart from this STATUS
+# paragraph, the `version:` line, and THE TWO ADDITIONS THE AUTHOR NAMED — see PORT NOTE.
+#
+# It may NOT be used to score a run until it has been proved on BE-005's SEVEN gate-passing
+# fixtures (`known-good` plus the six in verify-evaluator.sh's QUALITY_VARIANTS) on codex and
+# on nothing else (author decision 10.2), the way E-011 proved the BE-004 rubric: every variant
+# scored under identical conditions with `known-good` attached as the baseline, and in each
+# dimension's column the variant that varies it scores strictly below every other cell in that
+# column — test-quality on its own pair, since `known-good` carries no test file and
+# structurally nulls, as on BE-003 and BE-004. The proof, its predicted directions written
+# before the first scoring call, and the sheet paths live in the lab's proof record, NOT here —
+# a file that records its own proof cannot have been the file that was proved.
+#
+# PORT NOTE — THE TWO ADDITIONS, AND WHAT EACH COSTS
+#
+# The author's standing instruction (AUTHOR-DECISION-11-CONTINUE.md, workspace root,
+# 2026-09-17, the `>= 3 WRONG` branch) names two additions to be made "at that moment": an
+# amendment read-back clause in test-quality, and the fourth write site in the architecture
+# anchor. Both trace to the ONE thing ticket A' added to ticket A — `PUT /orders/{orderId}/
+# quantity`, an order's quantity amended with NO shipment event (task.md:38-44). The draft
+# predates A' and carries neither. Added by Opus 5, autonomously, 2026-09-25, under that
+# instruction; each addition below names what it costs, because neither is free.
+#
+# ADDITION 1 — architecture-consistency, the FOURTH write site. The draft's anchor 0 (ii)
+# fires only when "a method in the SHIPMENT package writes" the stored fulfilment copy. Under
+# A' that misses a write site: `good-stored-consistent`'s own fixture note says the stored
+# field is updated "at create, deliver and cancel, so the release works — and, since the
+# amendment clause, at a FOURTH site in the order package: `PUT /orders/{orderId}/quantity`
+# re-derives the stored status against the new quantity", and `known-bad-stale-amend` "is this
+# fixture with that fourth site forgotten". So a submission storing a copy written ONLY from
+# the order package would fall through anchor 0 (ii) as drafted and land at the residual. The
+# anchor now counts the amendment path as a write site whatever package it sits in, and
+# anchor 2 (ii) now requires the amendment path to write the order's `quantity` only.
+# COST: none measurable. `good-stored-consistent` already fires anchor 0 (ii) on its three
+# shipment-side writes, so its predicted cell does not move; the addition widens what the
+# anchor catches without moving any fixture's score.
+#
+# ADDITION 2 — test-quality, the amendment read-back, AS A FIFTH REQUIRED CLAUSE (e), AND IT
+# COSTS SOMETHING. It is an AND, not an alternative inside clause (a), deliberately: a suite
+# that re-reads only after a cancel passes `known-bad-stale-amend` unchanged, which is A''s
+# new known-bad fixture and the reason the ticket was redesigned. An OR would name the
+# amendment and keep exactly the blindness the clause exists to remove.
+# WHAT IT COSTS, stated before the proof runs rather than discovered by it: NO FIXTURE'S TESTS
+# TOUCH THE AMENDMENT ENDPOINT. `good-strong-tests` covers allocation, over-allocation through
+# the envelope, the cancel release read-back, delivery, the customer refusal and the paged
+# list — and never calls `PUT /orders/{orderId}/quantity`; `good-weak-tests` asserts status
+# codes only (its `jsonPath` import is never used). So under five clauses `good-strong-tests`
+# is predicted at 1, not 2, and NO fixture reaches test-quality anchor 2. The registered
+# separation still holds — the pair is `good-strong-tests` strictly above `good-weak-tests`,
+# predicted 1 versus 0 — but an anchor no fixture reaches is an anchor never shown to be
+# reachable, which is the mirror of this project's house failure mode. THE FIXTURES ARE NOT
+# EDITED TO FIX THIS: they live in agent-observatory-benchmarks, a benchmark fixture is a
+# registered variable (§6) and BE-005 is the author's build, never the builder's. It is raised
+# in `author_notes` as a recommended eighth fixture instead, and the prediction above is
+# committed before the first scoring call so the proof can refute it.
+#
+# The scorer receives the changed files in full plus their pre-agent versions (Decision D),
+# and nothing else. Every anchor below is decidable from those files alone.
+
+version: 2-be005
+task: BE-005-partial-fulfilment
+scale: [0, 1, 2]
+
+categories:
+
+  - name: architecture-consistency
+    weight: 35
+    # Two conventions. (i) api/ApiError.kt: "Responses are produced centrally by
+    # [GlobalExceptionHandler]; controllers throw an [ApiException] rather than assembling
+    # bodies themselves." A refusal is any path that ends the request without the success
+    # response. (ii) Fulfilment is a VIEW over the order's shipments. The truth about how much
+    # of an order is allocated or delivered is the set of its shipments and their statuses;
+    # a second copy on the order, kept in step by the shipment package, is a second owner of
+    # the same fact. Since ticket A' the copy has FOUR write sites, not three: shipment create,
+    # deliver and cancel in the shipment package, and `PUT /orders/{orderId}/quantity` in the
+    # order package, which moves the DENOMINATOR with no shipment event at all. Anchor 0 fires
+    # on EITHER convention; anchor 2 needs BOTH.
+    precondition: none
+    anchors:
+      0: "EITHER (i) the order, shipment or customer package constructs an ERROR body itself — an `ApiError(...)` or `ApiErrorBody(...)` literal, or a map assembled ON A REFUSAL PATH, inside a controller method (a map on the SUCCESS path is not this anchor); cite the literal and the method — OR (ii) an order-side field, property or store (on `Order`, in the order repository, or any new order-package type) holds a fulfilment status, an allocated count or a delivered count, AND that value is WRITTEN on a path that changes what it should be: EITHER a method in the SHIPMENT package writes it — `orders.save(...)`, a setter, a `copy(...)` of an order, or a call into the order package — on a create, confirm, deliver or cancel path, OR the order's own quantity-amendment path (`PUT /orders/{orderId}/quantity`) re-derives it against the new quantity, which is a FOURTH write site and sits in the order package, not the shipment one. Cite the field and EVERY write site, the amendment one included; a copy written at only some of them is this anchor, not the residual. Storing and ALSO deriving is (ii) when the order's read path (`GET /orders/{id}` or the list) returns the stored value."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: refusals throw rather than assemble, but not through the declared hierarchy — a bare `ResponseStatusException`, an `IllegalStateException` from `check(...)`, or a new exception type outside `ApiException`; or fulfilment is derived but in more than one place (the order's read path and the shipment allocation guard each compute the allocated sum with their own loop rather than sharing one function); or the order stores a fulfilment value that the ORDER package alone writes and the read path derives anyway. Cite the throw site or the two computations."
+      2: "BOTH hold: (i) every refusal in the order, shipment AND customer packages throws an `ApiException` subclass — one that exists in the attached baseline (`ResourceNotFoundException`, `ConflictException`, `ValidationException`) or one added to `api/ApiExceptions.kt` beside them — and no `ApiError` or `ApiErrorBody` is constructed in any controller; cite each throw site and its class. (ii) `Order` and the order repository hold NO fulfilment status, allocated count or delivered count; fulfilment is computed from the shipment repository (`findByOrderId` or equivalent) at read time in ONE function that both `GET /orders/{id}` and the list call, and the shipment package's create, confirm, deliver and cancel paths write shipments only, and the quantity-amendment path writes the order's `quantity` and nothing derived from its shipments. Cite the one function, its two call sites, the transition method(s) showing no order write, and the amendment handler."
+
+  - name: maintainability
+    weight: 25
+    # Three decisions the ticket forces, each of which the reference makes exactly once:
+    # the four-way fulfilment status, the state check every transition shares, and the
+    # allocation guard. `good-nested-ifs` makes each of them more than once or with a branch
+    # that another branch already decided. Note the status decision compares counts to a
+    # quantity, so a subject-less `when { ... else -> }` is the exhaustive form here; the
+    # `else` is not the defect it was on BE-004's enum.
+    precondition: none
+    anchors:
+      0: "ANY of: the fulfilment-status decision is an `if`/`else` ladder nested THREE or more deep, or contains a branch whose condition is already decided by an earlier branch (e.g. testing `allocated > 0` after `allocated == 0` was excluded), or names one status in two branches; OR the three transitions (confirm, deliver, cancel) each carry their own copy of the find-then-check-status logic instead of calling one shared function; OR the allocation guard special-cases the empty shipment set (an `isEmpty()`/`isNotEmpty()` branch that duplicates the comparison). Cite the ladder depth, the redundant branch, the duplicated check, or the special case."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically: the status decision is one construct but not in expression position (a `var` assigned in branches, then read); or two of the three transitions share a function and the third re-implements it; or one shared transition function exists but splits the state conflict into two branches that throw the same code with different messages. Cite the construct."
+      2: "All three hold, each citable: (a) the fulfilment status is decided by ONE `when` (or one `if`/`else if` chain of depth one) in EXPRESSION position — its value returned, assigned, or passed — with each of the four statuses named exactly once and no branch whose condition an earlier branch already decided; (b) confirm, deliver and cancel each call ONE shared function that finds the shipment, checks it is in the transition's `from` status, and saves the copy — the transitions differ only in the `from`/`to` pair they pass; (c) the allocation guard is one comparison over the order's non-cancelled shipments with no special case for an order that has none. Cite the `when` and the line that uses its value, the shared function and its three callers, and the guard."
+
+  - name: test-quality
+    weight: 25
+    # DECISION A, E-001: no test file means `null`, never `0`. The submission may also have
+    # updated the baseline OrderControllerTest for part 2; that file counts as a test file
+    # among the attachments.
+    # FIVE clauses, not the draft's four: clause (e) is the ticket A' amendment read-back, and it
+    # is an AND rather than an alternative inside (a) because a suite that re-reads only after a
+    # cancel passes `known-bad-stale-amend` unchanged. See the PORT NOTE for what that costs —
+    # no fixture's tests call the amendment endpoint, so anchor 2 is predicted unreached.
+    precondition: "No file under src/test/ among the attachments, OR a test file that makes no assertion at all → score: null, reason: nothing to grade. Never 0. A file testing nothing is not worse than a file testing status codes; it is absent from this category."
+    anchors:
+      0: "Every assertion is a status code: none reads a response body or a header, none re-reads state through a second request. The precondition guarantees at least one assertion exists before this anchor is reached, so it is never vacuously true. Cite the assertion list."
+      1: "THE RESIDUAL — neither the 0 condition nor all five clauses of 2. Any assertion reads a body or a header, and at least one clause of 2 is absent. Cite what is asserted and name every clause that is absent."
+      2: "All five hold, each citable: (a) after a shipment is cancelled, the order's fulfilment is RE-READ through a separate `GET /orders/{id}` and its `allocated` or `status` is asserted to have moved back — the release clause the ticket states in bold; a status-only assertion on the cancel call itself does not meet this; (b) after a shipment creation refused with 409 for over-allocation, state is re-read through a separate request — the refused shipment fetched and asserted 404, or the order's fulfilment fetched and asserted unchanged; (c) at least one refusal asserts the error envelope BODY (`error.code`, `error.message` or `error.fields`), not only the status; (d) at least one list assertion reads the `X-Total-Count` header or a paging refusal's body naming the parameter; (e) after an order's quantity is AMENDED through `PUT /orders/{orderId}/quantity`, the order's fulfilment is RE-READ through a separate `GET /orders/{orderId}` and its `status` or the quantity it is computed against is asserted to have moved — the amendment clause the ticket states in bold, which moves fulfilment with NO shipment event; a status-only assertion on the amend call itself does not meet this, and neither does a re-read after a cancel, which is clause (a). A status-only assertion in any of (a)–(e) leaves that clause unmet."
+
+  - name: change-focus
+    weight: 15
+    # This ticket names nearly every method: order create/getById/list, shipment create,
+    # three new transitions, customer getById, and all three lists. Focus therefore cannot
+    # be "unnamed methods untouched"; it is "no difference a clause did not require". A
+    # difference is a change to an EXISTING statement that no clause asks for — a
+    # duplicate-id check condensed onto one line, a lookup rewritten as null-check-and-throw,
+    # a list rebuilt through locals — wherever it sits. Invisible whitespace — trailing
+    # spaces, line endings, EOF newline — is never a difference, at any anchor.
+    precondition: "No baseline tree among the attachments → score: null, reason: no baseline to read a change against. Never 2."
+    anchors:
+      0: "Two or more methods carry a difference from the baseline that NO clause of the ticket requires: an existing statement reformatted, restructured, condensed or re-expressed — a pre-existing check moved onto one line, `getById` rewritten from an elvis-throw into a null-check-and-throw, `list` rebuilt through locals, an expression body turned into a block, a KDoc changed — beyond invisible whitespace. A method that ALSO gained clause work still counts if it carries such a difference. Name each method and cite both trees."
+      1: "THE RESIDUAL — neither the 0 condition nor every clause of 2. Typically exactly one method carries a difference no clause requires; also the case where every method's differences are clause-required but something outside them — a reordered import no clause needs, a moved blank line, a class KDoc — differs. Name what differs and cite both trees."
+      2: "Every difference from the baseline is required by a clause, and every pre-existing statement that a clause did not touch is identical once invisible whitespace is normalised. The permitted differences are: `Order` and `Shipment` gaining `quantity` with a default, the fulfilment types and the order response view; the quantity validation and the customer check in order `create`; the quantity validation and the allocation guard in shipment `create`; the three transition endpoints and the function they share; a query method on the shipment repository; the fulfilment filter and paging parameters on the lists and the paging helper they call; the customer 404 through the envelope; a 422 exception type; `ErrorCode` constants; the imports those require BY SYMBOL; and the `OrderControllerTest` update part 2 asks for. Anything beyond that list is a difference. Cite the duplicate-id checks and `getById` in both trees for both controllers."

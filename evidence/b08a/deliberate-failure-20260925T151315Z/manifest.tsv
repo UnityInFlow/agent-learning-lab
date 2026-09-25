@@ -1,0 +1,13 @@
+# B8a DELIBERATE FAILURE 20260925T151315Z  n=5, ONE arm, task BE-005, key EXP-B8A-DF-NOTASK
+# overlay /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/b8a-pipeline-v1.0-notask — orchestrator tools: has NO Task; planner/implementer/verifier byte-identical to v1.0
+# expected agentHash sha256:c0c5aab3e7d469ded7227b8f57280004 (the BROKEN orchestrator, not the registered one)
+# registered batch driver REFUSED this overlay at exit 6 before any run — guard-refusal.txt
+# ceiling 4.00 USD (5 x 0.80, above the treated median 0.7149); exit 11 if reached
+# claude 2.1.282 at launch, model claude-haiku-4-5-20251001
+# API http://127.0.0.1:8081  OTLP http://localhost:4318 / http://localhost:4317  events.jsonl 24019420 bytes at launch
+seq	run_id	rc	evaluator_exit	runtime_ver	model	agent_hash	instr_hash	skills_hash	cond_a	cond_b	cond_c	cond_d	row0a	deleg_stream	deleg_telemetry	model_calls	tool_calls	cost	duration_ms	changed	init_tools	worktree
+01	d78ef2c8-dbf8-4f24-aab9-4d6a482f5ff3	12	12	2.1.282 (Claude Code)	claude-haiku-4-5-20251001	sha256:c0c5aab3e7d469ded7227b8f57280004	null	null	ok	ok	fail	fail-1-of-3-stream	yes	0	0	2	0	0.037918	42000	0	n=3 ["Read","Grep","Glob"]/match	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-d78ef2c8-dbf8-4f24-aab9-4d6a482f5ff3
+02	4cc95dd4-31b1-4934-a811-b78a71c01465	12	12	2.1.282 (Claude Code)	claude-haiku-4-5-20251001	sha256:c0c5aab3e7d469ded7227b8f57280004	null	null	ok	ok	fail	fail-0-of-3-stream	yes	0	0	4	4	0.042004	57000	0	n=3 ["Read","Grep","Glob"]/match	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4cc95dd4-31b1-4934-a811-b78a71c01465
+03	7d2d25a2-9c4b-4f5a-9eff-e564052b8b41	12	12	2.1.282 (Claude Code)	claude-haiku-4-5-20251001	sha256:c0c5aab3e7d469ded7227b8f57280004	null	null	ok	ok	fail	fail-0-of-3-stream	yes	0	0	1	0	0.018511	22000	0	n=3 ["Read","Grep","Glob"]/match	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-7d2d25a2-9c4b-4f5a-9eff-e564052b8b41
+04	cb594e60-5c32-4679-ba5e-1bfa0b7710d1	12	12	2.1.282 (Claude Code)	claude-haiku-4-5-20251001	sha256:c0c5aab3e7d469ded7227b8f57280004	null	null	ok	ok	fail	fail-0-of-3-stream	yes	0	0	2	1	0.02759	38000	0	n=3 ["Read","Grep","Glob"]/match	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-cb594e60-5c32-4679-ba5e-1bfa0b7710d1
+05	f8dbd843-e699-4841-b7c5-55c3441f4ac5	12	12	2.1.282 (Claude Code)	claude-haiku-4-5-20251001	sha256:c0c5aab3e7d469ded7227b8f57280004	null	null	ok	ok	fail	fail-0-of-3-stream	yes	0	0	3	5	0.043386	53000	0	n=3 ["Read","Grep","Glob"]/match	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f8dbd843-e699-4841-b7c5-55c3441f4ac5

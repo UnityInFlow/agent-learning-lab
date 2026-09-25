@@ -1,0 +1,27 @@
+
+======== BE-005 01 notask  key=EXP-B8A-DF-NOTASK  15:13:16Z ========
+  -> d78ef2c8-dbf8-4f24-aab9-4d6a482f5ff3 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=0/0 cond=ok,ok,fail,fail-1-of-3-stream row0a=yes cost=0.037918
+     worktree copied -> evidence.local/b08a-worktrees/d78ef2c8-dbf8-4f24-aab9-4d6a482f5ff3
+
+======== BE-005 02 notask  key=EXP-B8A-DF-NOTASK  15:14:27Z ========
+  -> 4cc95dd4-31b1-4934-a811-b78a71c01465 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=0/0 cond=ok,ok,fail,fail-0-of-3-stream row0a=yes cost=0.042004
+     worktree copied -> evidence.local/b08a-worktrees/4cc95dd4-31b1-4934-a811-b78a71c01465
+
+======== BE-005 03 notask  key=EXP-B8A-DF-NOTASK  15:15:51Z ========
+  -> 7d2d25a2-9c4b-4f5a-9eff-e564052b8b41 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=0/0 cond=ok,ok,fail,fail-0-of-3-stream row0a=yes cost=0.018511
+     worktree copied -> evidence.local/b08a-worktrees/7d2d25a2-9c4b-4f5a-9eff-e564052b8b41
+
+======== BE-005 04 notask  key=EXP-B8A-DF-NOTASK  15:16:38Z ========
+  -> cb594e60-5c32-4679-ba5e-1bfa0b7710d1 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=0/0 cond=ok,ok,fail,fail-0-of-3-stream row0a=yes cost=0.02759
+     worktree copied -> evidence.local/b08a-worktrees/cb594e60-5c32-4679-ba5e-1bfa0b7710d1
+
+======== BE-005 05 notask  key=EXP-B8A-DF-NOTASK  15:17:45Z ========
+  -> f8dbd843-e699-4841-b7c5-55c3441f4ac5 rc=12 eval=12 model=claude-haiku-4-5-20251001 deleg=0/0 cond=ok,ok,fail,fail-0-of-3-stream row0a=yes cost=0.043386
+     worktree copied -> evidence.local/b08a-worktrees/f8dbd843-e699-4841-b7c5-55c3441f4ac5
+deliberate failure 20260925T151315Z ended (UTC): 2026-09-25T15:19:02Z  exit 0
+cost total read from run records: $0.1694
+runs whose estimatedCost read null: 0 — with any of these the total is a LOWER BOUND
+ceiling: $4.00
+runs classed row 0a: 5 of 5
+events.jsonl bytes before 24019420, after 24236836
+manifest: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b08a/deliberate-failure-20260925T151315Z/manifest.tsv

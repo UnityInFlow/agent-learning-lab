@@ -1,0 +1,17 @@
+
+=== EXP-B8A-DECOMP-BE005 ===
+  14 measuring run(s)
+  2 discarded as harness failure (F13) — not agent behaviour, excluded from every number below
+
+  pass rate   10/14
+  failures    F03×4
+
+  outcome            n         min        p25     median        p75        max
+  ---------------- ---  ---------- ---------- ---------- ---------- ----------
+  duration (s)      14         198        241        495        653       1307
+  estimated cost    14      0.2788     0.4152     0.6143     0.7326     1.6229
+  total tokens      14       21199      23688      55198      63906     134727
+  tool calls        14          31         44         69         78        207
+  model calls       14          23         45         67         83        222
+  cache tokens      14      947614    1930358    2073368    2379973    5387419
+

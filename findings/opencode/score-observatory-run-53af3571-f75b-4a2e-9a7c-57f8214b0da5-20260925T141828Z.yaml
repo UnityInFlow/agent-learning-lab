@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be005.yaml
+  rubric_sha:    945817b8c509
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-53af3571-f75b-4a2e-9a7c-57f8214b0da5
+  mode:          run
+  run_id:        53af3571-f75b-4a2e-9a7c-57f8214b0da5
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:8081/api/runs/53af3571-f75b-4a2e-9a7c-57f8214b0da5
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.trVMDzynll/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260925T141828Z
+  attachments:   13 file(s) under test, 13 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 1
+    anchor_level: 1
+    reason: "Order holds a `fulfilment` field (allocated/delivered/status), failing anchor 2(ii); no stored copy written and no error body constructed."
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/order/Order.kt:17
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: "confirm, deliver, cancel each duplicate the find-then-check-status-then-save logic; no shared function."
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:86
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: "no re-read of order fulfilment after cancel, over-allocation, or amendment — clauses (a), (b), (e) absent."
+    evidence: sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:175
+  - name: change-focus
+    score: 1
+    anchor_level: 1
+    reason: "save strips fulfilment — a change to an existing statement beyond the permitted-difference list."
+    evidence: sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderRepository.kt:17
+ambiguous_categories: []
+```

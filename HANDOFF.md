@@ -3,9 +3,25 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "What is BLOCKED ON YOU" in the Stop 17 section below — that is the live halt as of
-2026-09-16, it names the one thing that has to happen before the run can move, and it outranks
-everything else in this file.**
+**Start at "Stop 17a — B8a CLOSED" immediately below the Position section. It is the newest
+section: stop 17a closed 2026-09-25 with the verdict `NO ROW FIRES` and the ladder shut, the next
+stop is 18 (Phase 6A) and nothing of it exists, and NOTHING is blocked on the author.**
+
+*(Superseded pointer, kept:)* "Start at 'The author's four decisions of 2026-09-25' immediately
+below the Position section — the Stop 17a halt is DISCHARGED, the author answered all four items,
+and NOTHING is blocked on the author as of 2026-09-25. Two things are OWED to the author's
+interactive session and are not blockers: both boards, and the prose: marker digest they must be
+set to." 
+
+*(Superseded pointer, kept:)* "Start at 'What is BLOCKED ON YOU' in the Stop 17a section below —
+that is the live halt as of 2026-09-25, it names the one decision that has to be made before the
+run can move, and it outranks everything else in this file." **That halt is discharged** by the
+author's four decisions of 2026-09-25, recorded verbatim below.
+
+*(Superseded pointer, kept:)* "Start at 'What is BLOCKED ON YOU' in the Stop 17 section below —
+that is the live halt as of 2026-09-16." **That halt is discharged**: BE-005 is on benchmarks
+`main`, its `verify-evaluator.sh` was re-run there at 17 of 17, and Gate B′ passed with all five
+rows author-confirmed. The run moved past it and then hit a different wall at the rubric proof.
 
 *(Superseded pointer, kept:)* "Start at 'What is BLOCKED ON YOU' item 000 below — it is the live
 halt … Then item 0, then 'Stop 11 is CLOSED'." That pointer is from the thirteenth session and the
@@ -21,7 +37,22 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 17 of 28. Positions 4–17 CLOSED.** Stop 17 (B8 — run state, repair limits, completion
+**Spine 17a of 28. Positions 4–17a CLOSED — 17a (B8a — decomposition depth) closed 2026-09-25 with
+the verdict `NO ROW FIRES` and the ladder shut. NOTHING is blocked on the author.** The next stop is
+**18 (Phase 6A)**, and nothing of it exists — §6 forbids a future step's artifacts early.
+
+*(Superseded, kept:)* "Spine 17a of 28. Positions 4–17 CLOSED; 17a (B8a — decomposition depth) is OPEN
+and RUNNING. NOTHING is blocked on the author as of 2026-09-25. Both §7 halts at this position are now
+discharged — the 2026-09-16 one on BE-005's merge, and the 2026-09-25 one on the rubric proof,
+which the author discharged by answering all four of its items in an interactive session. The
+author took **option 3**: the rubric is registered with `change-focus` marked **`unmeasured`** and
+B8a's registered outcome comes from **`architecture-consistency`**.
+
+*(Superseded, kept:)* "17a (B8a — decomposition depth) is OPEN and HALTED at its pre-step-1 rubric
+proof, 2026-09-25. … The rubric is ported but **not registered**, decision 11 is **not** recorded
+as adopted, and §4 step 1 is not opened."
+
+Stop 17 (B8 — run state, repair limits, completion
 contract) closed 2026-09-16 at **three of four gate clauses**, with clause 3 (*a blocked run
 produces a clear machine-readable result*) written **L3 and left open** rather than waved through.
 **v1.1 is kept and NOT promoted**; nothing in this track has been promoted. Both tasks land on
@@ -29,7 +60,11 @@ decision-rule **row 3** — `KEEP AS L2, WITH NO MEASURED EFFECT` — and BE-004
 is **`UNMEASURABLE`**, its IMPROVED row **declined**. `lab#33` is **CLOSED**: a B-step issue closes
 when its deliverable is decided, and "kept, not promoted, with one clause open" is a decision.
 
-**What is BLOCKED ON YOU: BE-005 is not merged, and B8a cannot open.** Author decision 11 registers
+***DISCHARGED 2026-09-17/24, kept verbatim:*** **What is BLOCKED ON YOU: BE-005 is not merged, and
+B8a cannot open.** *(BE-005 IS now on benchmarks `main` — PR #30 `a662c966` amended by #31
+`fac772d2` — `verify-evaluator.sh` re-run on a clean `main` at 17 of 17, and Gate B′ passed WRONG 4
+of 5 with every row author-confirmed. The paragraph below is the record of the halt, not a live
+one.)* Author decision 11 registers
 B8a — *Decomposition depth*, spine position **17a** — on a **new** task, **BE-005**, and requires a
 halt naming the missing PR if it is not on `agent-observatory-benchmarks` `main` with
 `verify-evaluator.sh` re-run there. Checked rather than assumed: `tasks/` on `origin/main` at
@@ -75,6 +110,300 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## Stop 17a — B8a CLOSED: the split moved nothing the registered outcome could see, and the decision rule had no row for what happened — 2026-09-25
+
+**Read this first; it is the newest section.** Nothing is blocked on the author. Spine position moves to
+**18 (Phase 6A)** and **nothing of stop 18 exists.**
+
+### The verdict, and why it is spelled the way it is
+
+**`NO ROW FIRES`.** The registered decision rule is evaluated in order and the first row to fire wins.
+Row 0b fired (the **$9.70** cost ceiling, at **$9.7948** after pair 08) and is discharged by reporting
+the population that occurred, **`n = 8` per arm**. Then row 0a no (0 of 8), row 1 no (delivery 8 of 8,
+model pinned 16 of 16), **row 2 no** — its conjunction needs *both* rates at `p ≤ 0.05` and P2 is
+**0.1189** — row 3 no (it needs a *lower* treated rate), **row 4 no** — it fires only when *neither*
+rate separates and P3 is **0.0070**. The rule was written assuming its two secondaries would agree.
+They disagree on **4 of 16 runs, in both directions.**
+
+**The verdict is recorded as the gap rather than rounded to the nearest registered word**, and what
+*is* decided comes from a clause that is well defined on this outcome: decision 11 item 2 makes rung 10
+proposable **only if `IMPROVED` fires**. It did not. **The ladder closes, and that closure is the
+result** — which is exactly what item 2 registered in advance.
+
+### What was measured
+
+| | |
+|---|---|
+| registered outcome — `architecture-consistency`, codex, rubric `945817b8c509` | treated median **0** (`n = 7`) vs control median **0** (`n = 3`); predicted 2 vs 0. **REFUTED under every reading** — registered, second reader and adjudicated |
+| shape the model reaches for | **8 of 8** vs **2 of 8**, Fisher **`p = 0.0070`**. **Separates** — and its proof is **L3** |
+| evaluator pass rate | **7 of 8** vs **3 of 8**, **`p = 0.1189`**. Does not separate |
+| cost | **1.83×** ($0.7149 vs $0.3912) against a predicted 2–4× — **below the band** |
+| `modelCalls` | median **82.5** vs 43, against a predicted ≥ 90 |
+| delivery | **8 of 8** treated runs on all four hand-written conditions; `runtime.model` pinned on **21 of 21** runs of the stop |
+
+**Five of seven registered predictions are refuted, including the registered outcome.** Exact
+partition: **held** P3; **refuted** P1, P4, P5, P6; **neither** P2 (does not separate, and its
+*mechanism* is measured and false) and P7 (below threshold, enters no row).
+
+**Promotion is refused on `quality_score`, and the first reason written down here was wrong.** The §4a
+review caught it and the correction is in `E-020 ## Amendment` and the workbook. In short: E-020
+registers `tokens_per_accepted_task` as *"`estimatedCost` **per evaluator-passing run** against the
+concurrent control"*, which is **treated $6.9225 / 7 = $0.9889 against control $2.8723 / 3 = $0.9574 =
+1.033×, +3.3 %, INSIDE the 15 % allowance — that clause PASSES.** The **1.83×** is the *median cost per
+run*, a real reported number that is not the clause. B13 needs **all seven** clauses, and the registered
+quality outcome moved by **0** with `change-focus` `unmeasured`, so **measured, kept, not promoted**
+stands — on quality, not on tokens. *(The withdrawn sentence read: "B13's `tokens_per_accepted_task`
+allows 15 % and the measured figure is 1.83×, so the clause fails by about twelve times regardless of
+quality." It divided a multiplier by a fraction and used the wrong metric.)*
+
+**And the way that clause passed is a finding in its own right:** it passed **because the control fails
+more often**, 3 of 8 against 7 of 8. A per-accepted-task metric divides by the pass count, so on a task
+this model usually fails, **B13's token clause rewards the arm with the higher pass rate rather than the
+cheaper one**, while every treated run still costs 1.83×. Not foreseen, and it will recur at every later
+stop on BE-005.
+
+### P2's registered mechanism is measured and it is false
+
+P2 read: *"the evaluator returns 12 on the wrong shape and 0 on the right one, so pass rate **is** shape
+on this ticket."* The evaluator **passes two wrong-shaped controls** and **fails two right-shaped
+submissions**. P2 was registered as *"the strongest thing the instrument will have"*; it is not
+measuring what it was registered to measure.
+
+### The deliberate failure — all three clauses held, and the near-miss is the finding
+
+Same four overlay files with **`Task` removed** from the orchestrator, `n = 5`, **$0.1694 total**
+against a $4.00 ceiling and a $3.60 estimate. The `init` read-back delivered `["Read","Grep","Glob"]`
+with verdict **`match`** on 5 of 5 — **the runtime did not rewrite the list**, as it did at stop 9 —
+zero delegation events on both sources, and **5 of 5 row 0a**.
+
+**The registered batch driver refused the broken overlay at exit 6 before any run was made**, so it
+could never have entered the registered population by accident.
+
+One run still **attempted** a delegation and the runtime refused it by name: *"No such tool available:
+Task. Task is disabled for this session, in subagents as well as here."* So **`tools:` withheld a
+capability here**, where E-005 at stop 9 concluded it *filters names, not capabilities* — that
+experiment **added** `Bash`; this one **removed** `Task`. Both stand. The list is not a boundary when
+it grants and is one when it withholds the dispatch tool.
+
+**The cheapness is the failure, not a saving.** Median **$0.0339** against the treated **$0.7149**,
+`modelCalls` **1–4** against **82.5**, `changedFiles` **0** and evaluator exit **12**, five times out of
+five. An orchestrator holding only `Read, Grep, Glob` cannot write a line of Kotlin.
+
+### Four instrument defects at one stop, one of them caught by CI in another repo
+
+1. **The decision rule** has no row for one of two rates separating. E-020's MDE section predicted that
+   composition failure **before** the batch.
+2. **Condition (d)'s grep counts an attempt, not a completion.** It matched the refused call's
+   `"subagent_type":"planner"` and returned `fail-1-of-3` where the truth is 0 of 3. No verdict moved,
+   and nothing in the registered arm changes; **as written it is not sound.** `author_notes`.
+3. **`baseline-report.py`'s `F13` rule discards `4abf7f01`, a complete control run.** The rule is **not**
+   changed and the run is **not** excluded; `REPORT.md` §7 carries the decision, its grounds and the
+   third population that shows what the rule costs. `author_notes`.
+4. **`agentHash` covers one file of four** — fixed by **obs#88**, an `agentsHash` over the set of
+   `.claude/agents/*.md`, written as `skills_hash()` is, with an 8-case fixture set proving a **rename**
+   and an **edit** produce different values. Its own first CI run failed on *"the live repository is not
+   covered"* because nothing ran the new check script — **the coverage control working.**
+
+### The honest limit
+
+**The strongest signal this stop produced carries the weakest proof.** The shape classification
+separates at `p = 0.0070`; nothing executes `evidence/b08a/shape/SHAPE-RULE.md`, and two blind readers
+plus a written adjudication stand in for the author confirmation Gate B′ had. The registered outcome, by
+contrast, sat in a rubric category that Decision D's gate filter left at **`n = 3`** on the control arm,
+on a task this model usually fails. **The composition chose an outcome the design could not populate**,
+and the answer was fixed before the batch ran.
+
+### What is BLOCKED ON YOU
+
+**Nothing.** Two items are `author_notes`, not blockers: the `F13` rule (a runner convention change is
+the author's), and condition (d)'s attempt-vs-completion grep.
+
+---
+
+## The author's four decisions of 2026-09-25 — the rubric-proof halt is DISCHARGED
+
+The §7 halt of 2026-09-25 at stop 17a's pre-step-1 rubric proof is **discharged by the author**, in
+an interactive session on **2026-09-25**. The author answered **all four** items the halt raised.
+They are recorded here **verbatim**, and they are not the builder's to re-open.
+
+> **DECISION 1 — change-focus.** Register the BE-005 rubric with change-focus marked `unmeasured`,
+> and take B8a's registered outcome from `architecture-consistency`. This is option 3 of
+> evidence/b08a/rubric-proof/RESULT.md. The author accepts its stated cost explicitly: the 15%
+> weight carries no measurement, so B8a's weighted total is NOT comparable to BE-004's, and the
+> registration must say so in those terms rather than leaving a reader to infer it. The precedent is
+> the author's own decision 10.3. Do NOT narrow the anchor and do NOT change the harness.
+
+> **DECISION 2 — the eighth fixture.** NO. Proceed with the seven fixtures already proved. Record in
+> the RESULT and in the registration that `test-quality` anchor 2 is UNREACHABLE in this proof,
+> because no fixture's tests call the amendment endpoint — recorded, not hidden, and not a reason to
+> weaken the dimension. test-quality still separates on 0 vs 1, which is what the dimension needs.
+
+> **DECISION 3 — the cost ceiling.** $9.70, which is 25 x $0.388, the median on ticket A prime — the
+> ticket that PASSED Gate B and is the registered task. NOT $8.53. Also correct
+> AUTHOR-DECISION-11-CONTINUE.md on both numbers you found wrong: the evaluator on benchmarks main
+> is 1.0.0, not 1.1.0; and $0.34 was Gate B ROUND 1's median, measured on ticket A, which failed 2
+> of 5 and was redesigned into A prime. Correct them in place with a dated note saying what they
+> were and why they were wrong; do not silently overwrite.
+
+> **DECISION 4 — the boards.** NOT YOURS THIS SESSION. The author's interactive session holds the
+> Artifact tool and will republish both boards and set their prose: markers once HANDOFF.md is
+> final. Write HANDOFF.md as you normally would, LEAVE the markers stale, and do NOT treat the red
+> check-board-freshness as a blocker on your own work. Record in the state file that the boards are
+> OWED to the interactive session and name the digest they must be set to.
+
+### What each decision costs, stated rather than left to be inferred (decision 1's own requirement)
+
+- **`change-focus` carries 15 % of the weight and no measurement.** So **B8a's weighted rubric total
+  is NOT comparable to BE-004's**, and any reader who compares them is comparing a 100-point scale
+  against an 85-point-measured one. B13 clause `quality_score` reads the weighted total; when B8a
+  reaches it, the total is reported **with `change-focus` excluded and the exclusion named in the
+  same sentence**, never as a bare number.
+- **The registered outcome moves to `architecture-consistency`**, which separated on **both** its
+  variants (`good-inline-envelope` 0 and `good-stored-consistent` 0 against five 2s) — and
+  `good-stored-consistent` is the one variant whose defect **every deterministic gate passes**, so
+  that anchor is the only instrument that can see B8a's trap. It sees it.
+- **`test-quality` anchor 2 is UNREACHABLE in this proof.** No fixture's tests call the amendment
+  endpoint `PUT /orders/{orderId}/quantity`, so clause (e) can never be satisfied by any of the
+  seven. This is **recorded, not hidden**, and it does not weaken the dimension: `test-quality`
+  separates 0 (`good-weak-tests`) against 1 (`good-strong-tests`), which is what a separation row
+  needs.
+- **The batch's cost ceiling is $9.70** = 25 × $0.388 (decision 11 item 11), the median plain-run
+  cost on **ticket A′**, from `evidence/gate-b2-decision-11/RESULT.md:38` (median $0.388, range
+  $0.330–$0.426, total $1.95 over five runs). **Not $8.53**, and not $0.34 × 25 — $0.34 was Gate B
+  round 1's median on **ticket A**, the ticket that FAILED 2 of 5 and was redesigned away.
+
+### The observatory endpoint — three documents were wrong and they misdirected a preflight
+
+**`127.0.0.1:18081` is GONE.** The live observatory is **`127.0.0.1:8081`**, and it returns **627
+run records**. The stack had been **down for 29 hours** — all containers exited 255 together — and
+was brought back with `make up`, after which **18 of 18 smoke checks pass**.
+
+This is recorded as a first-class correction because the stale claim **cost something**: this file,
+`TRACK-B-STATE.md` and the builder's own notes all asserted the colima SSH tunnel on `18081`, and a
+preflight subagent was sent there on that authority and came back with a dead endpoint. The older
+sections of this file that assert the tunnel are **not rewritten** — they record what was true when
+they were written, which is evidence — but **nothing forward-looking may cite `18081` again**. The
+standing rule, which has now been true in both directions, is: **probe the port, never inherit it**,
+and an open OTLP port is not proof that an export lands.
+
+*Recorded by Opus 5 (claude-opus-5), autonomously, 2026-09-25, from the author's decisions given in
+an interactive session the same day. The decisions are the author's; the costs restated under each
+are the builder's reading of them, and the numbers under decision 3 were each re-derived from the
+file cited before being written here.*
+
+## Stop 17a — B8a is open at the pre-step-1 rubric proof, and the proof FAILED on one dimension — 2026-09-25
+
+The 2026-09-16 halt is **discharged**, and by evidence re-derived in this session rather than
+carried from a note: `tasks/BE-005-partial-fulfilment` is on benchmarks `main` behind a two-parent
+merge (#31 → `fac772d2`, an ancestor of tip `2fc445d`), I re-ran
+`tasks/BE-005-partial-fulfilment/verify-evaluator.sh` on a clean `main` myself at **17 of 17,
+exit 0**, and Gate B′ passed at **WRONG 4 of 5 against a threshold of 3** with **all five rows
+author-confirmed on 2026-09-24** (`evidence/gate-b2-decision-11/RESULT.md`, lab `990cef4`, which is
+on `origin/main`). That put the run on the `>= 3 WRONG` branch of the author's standing instruction
+`AUTHOR-DECISION-11-CONTINUE.md`, whose three pre-step-1 acts are: port the rubric draft with two
+named additions, prove it on codex, register the sha and record decision 11 adopted.
+
+**Act (a) is done. Act (b) ran and did not pass. Act (c) has not happened.**
+
+The rubric is ported at `benchmark/rubrics/backend-quality-be005.yaml`, version `2-be005`, sha
+`945817b8c509`, and the port is **proved minimal** — diffing the draft's body against the port's
+gives only the version line, the `architecture-consistency` comment with its anchors 0 and 2, and
+the `test-quality` comment with its anchors 1 and 2; `maintainability` and `change-focus` are
+byte-identical. Both additions trace to the one thing ticket A′ added, `PUT /orders/{orderId}/quantity`.
+The `test-quality` addition is a **fifth required clause** rather than an alternative inside clause
+(a), because a suite that re-reads only after a cancel passes `known-bad-stale-amend` unchanged —
+and that costs something, stated before the proof rather than discovered by it: **no fixture's tests
+call the amendment endpoint**, so `good-strong-tests` was predicted at 1 and no fixture reaches
+anchor 2.
+
+All 28 predicted cells are committed at **`300b6ca`, 05:30:15Z**, before the first sheet
+(`scored_utc 20260925T053037Z`). Seven codex calls, exit 0 each, codex and nothing else per
+decision 10.2. Every cell was read twice — by the scoring subagent and by me over the same files —
+and **the two readings agree on all 28**.
+
+**Three dimensions separate; `change-focus` does not.**
+
+- `architecture-consistency` separates on **both** its variants, and the cell the predictions named
+  most consequential **held**: `good-stored-consistent` scores **0**, citing the three shipment-side
+  stored-fulfilment writes. That variant is the one whose defect **every gate passes** — the
+  evaluator cannot see it and must not try — so this anchor is the only instrument that can, and it
+  can. B8a's registered outcome can live here.
+- `maintainability` separates, `good-nested-ifs` 0 against six 2s.
+- `test-quality` separates at **1 versus 0**, and the at-risk prediction held exactly: the scorer
+  applied clause (e).
+- `change-focus` **fails**. `good-noisy-diff` scores 0 — and so do `good-stored-consistent` and
+  `good-nested-ifs`, **neither of which varies that dimension**. Three registered predictions are
+  refuted in that one column; they are not edited.
+
+**It is not a scorer error, and the diagnosis is worth more than the halt.** Both 0-cells cite
+`known-good` as the tree they compared against, which is exactly what `tools/codex-score.sh:161`
+attaches when the target is a fixture — while the `--run-id` path instead attaches the **pre-agent
+HEAD** (`:158-159`, Decision D). `change-focus` is the one dimension whose meaning turns on which
+reference is attached: against the pre-agent tree it asks *did the agent touch what no clause
+required*, which is the construct; against `known-good` it asks *does this differ from the reference
+solution*, which **every quality variant does by construction, being `known-good` plus one defect**.
+BE-004's anchor fired only on *"two or more **unnamed** methods"*, and the variants' defects sit in
+methods the ticket names, so they never tripped it. The draft had to drop that qualifier — BE-005's
+ticket names nearly every method — and the qualifier was the only thing keeping the dimension
+orthogonal. **BE-004's `change-focus` row passed for a reason unrelated to what it claimed to
+prove**, which is this project's house failure mode aimed at its own instrument.
+
+Author decision 9 makes a non-separating dimension a §7 halt and *"not something to edit past"*, so:
+the anchor was **not** narrowed until it separated, the harness was **not** changed, **no fixture was
+touched**, the sha is **not** registered, and decision 11 is **not** recorded as adopted. §4 step 1
+is not opened and `phases/b08a-decomposition-depth/` does not exist.
+
+### What is BLOCKED ON YOU — ***DISCHARGED 2026-09-25, the author answered all four items***
+
+> **DISCHARGED.** The author took **option 3** and answered the other three items in the same
+> session. The four decisions are recorded verbatim in *"The author's four decisions of
+> 2026-09-25"* above this section. **Nothing below this line is blocking any more**; it is kept
+> verbatim as the record of what was asked and why, because a halt that is deleted once answered
+> teaches nothing. Two items are **OWED to the author's interactive session** and are explicitly
+> *not* blockers on the builder: republishing both boards, and setting their `prose:` markers.
+
+**HALT (§7: a gate that cannot be closed without moving a registered variable) — the BE-005
+`change-focus` dimension does not separate, and every fix moves something that is yours.**
+
+Everything is on branch `stop17a/b8a-decomposition-depth` and nothing is merged. The full result,
+all 28 cells with their predictions beside them, the scorer's own reasons and line citations, and
+the three ways forward are in **`evidence/b08a/rubric-proof/RESULT.md`**; the predictions are in
+`PREDICTIONS.md` at `300b6ca` and are untouched.
+
+The three options, shortest form — the long form with costs is in `RESULT.md`:
+
+1. **Narrow `change-focus` and re-prove.** Cheapest in money, most dangerous epistemically: any
+   narrowing chosen after seeing these cells is fitted to them. If taken, the honest form is to
+   write the new anchor and its 28 predicted cells **before** re-scoring.
+2. **Score `change-focus` against the pre-agent tree in fixture mode.** Arguably a correction, not a
+   fit — it makes the fixture proof ask the question a run is scored on. Costs a change to
+   `codex-score.sh` and `opencode-score.sh`, a fixture set proving the new branch, and a re-score of
+   **BE-004's** proof to see whether its `change-focus` row survives the same treatment.
+3. **Register the rubric with `change-focus` marked `unmeasured`** and take B8a's registered outcome
+   from `architecture-consistency`, which separated. Costs nothing, needs no instrument, narrows what
+   B8a can claim — the 15 % weight carries no measurement, so the weighted total is not comparable to
+   BE-004's — and has a precedent in **your own decision 10.3**, which carved `change-focus` out of
+   the Decision H fallback and made such a cell *"unmeasured"* rather than computed.
+
+Option 3 is the only one needing no new instrument and no re-score. It is still not the builder's:
+it changes what the registered rubric measures, and B13's `quality_score` clause reads the weighted
+total.
+
+**Two smaller things for you, neither a halt, both in `TRACK-B-STATE.md` `author_notes`:**
+`AUTHOR-DECISION-11-CONTINUE.md` says *evaluator 1.1.0* where `main` carries `1.0.0`
+(`evaluator.sh:58`; the verifier passes either way, but 1.0.0 is the string a run record will
+register), and its budget line *"25× the median plain-run cost, $0.34"* uses **Gate B round 1's**
+median, on the ticket that **failed** its gate. Gate B′'s median on the registered ticket is
+**$0.388** — re-derived by me from `manifest.tsv`, not read from the prose — so the ceiling is
+registered as **25 × $0.388 = $9.70**; your reading gives $8.53 and lowering it needs no halt.
+
+**One thing this session could not do, disclosed rather than papered over.** Editing this file makes
+`./tools/check-board-freshness.sh` demand a republish, and **this session has no Artifact tool**, so
+the two boards cannot be republished from here. The markers are therefore **left stale on purpose**
+and the board check is **red** — relabelling a marker for a board that cannot be shown to have been
+published is how one ends up provably current and wrong, which has happened here once. Nothing is
+merged, so nothing red reaches `main`.
 
 ## Stop 17 — B8 closed at three of four clauses: the treatment was provably delivered and moved nothing, and the one thing it bought is a way to see a command fail — 2026-09-16
 
@@ -1895,8 +2224,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 93d6ff3 prose: c32edff33e62 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 93d6ff3 prose: c32edff33e62 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: a0ccff3 prose: 1119de805984 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: a0ccff3 prose: 1119de805984 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The

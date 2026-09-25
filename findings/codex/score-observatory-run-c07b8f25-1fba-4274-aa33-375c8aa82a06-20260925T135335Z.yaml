@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be005.yaml
+  rubric_sha:     945817b8c509
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c07b8f25-1fba-4274-aa33-375c8aa82a06
+  mode:           run
+  run_id:         c07b8f25-1fba-4274-aa33-375c8aa82a06
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:8081/api/runs/c07b8f25-1fba-4274-aa33-375c8aa82a06
+  attachments:    13 changed file(s), 13 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260925T135335Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 0
+    anchor_level: 0
+    reason: "stored fulfilment is rewritten by cancellation and quantity amendment"
+    evidence: "Order.kt:17; OrderController.kt:156; ShipmentController.kt:190"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "confirm, deliver, and cancel duplicate find-and-check logic"
+    evidence: "ShipmentController.kt:112; ShipmentController.kt:131; ShipmentController.kt:150"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "body assertions exist, but over-allocation and amendment read-backs are absent"
+    evidence: "ShipmentControllerTest.kt:153; OrderControllerTest.kt:183"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "unused order-repository status query exceeds permitted differences"
+    evidence: "OrderRepository.kt:25; baseline/OrderRepository.kt:21"
+ambiguous_categories: []
