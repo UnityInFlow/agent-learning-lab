@@ -22,3 +22,8 @@ evidence/p04b/lab-4b4/fourth-cell/.batch.lock
 
 # Python bytecode from `python3 -m py_compile` on tools/ — a verification step, not an artifact
 __pycache__/
+
+# Mid-flight batch and preflight logs are appended to while a run is live; committing one
+# records a partial file that reads like a finished run. The evidence that matters — the run
+# record, the init read-back, the manifest and OBSERVED.md — is committed explicitly.
+evidence/b08a/preflight-launch.out
