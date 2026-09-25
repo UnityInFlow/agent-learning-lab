@@ -501,3 +501,59 @@ the population that occurred reported — exactly as E-016 did at `n = 7`. The t
 2–4× expectation.
 
 *Observed by Opus 5 (claude-opus-5), autonomously, 2026-09-25.*
+
+## Score and report — §4 steps 7 and 8, 2026-09-25
+
+Full numbers, with every exclusion decision and its reason, are in **`evidence/b08a/REPORT.md`**;
+the arithmetic is re-derivable by `evidence/b08a/tally.py` and its output is kept at
+`evidence/b08a/tally-20260925.txt`. This section carries only what a reader of the workbook needs.
+
+**The population is `n = 8` per arm, 16 runs, because the batch stopped on its registered cost ceiling**
+(decision-rule row 0b, $9.70, at $9.7948 after pair 08). Registered behaviour, not a shortfall.
+
+| registered row | prediction | measured | verdict |
+|---|---|---|---|
+| **P1 — `architecture-consistency`**, the registered outcome | treated median **2** vs control **0** | treated **0** (n = 7) vs control **0** (n = 3) | **REFUTED** |
+| **P2 — evaluator pass rate** | treated ≥ **8 of 10** vs control **2 of 10** | **7 of 8** vs **3 of 8**, Fisher **p = 0.1189** | **does not separate** |
+| **P3 — shape classification** | treated ≥ **8 of 10** vs control **2 of 10** | **8 of 8** vs **2 of 8**, Fisher **p = 0.0070** | **separates** |
+| **P4 — delegations in {3,5}** | **10 of 10** | **6 of 8**; 12 and 8 on the two outliers | **REFUTED** (registered as the one most likely to be wrong) |
+| **P5 — cost 2–4×** | 2–4× | **1.83×** ($0.7149 vs $0.3912) | **REFUTED, below the band** |
+| **P6 — `modelCalls` ≥ 90** | ≥ 90 | median **82.5** (control 43) | **REFUTED** |
+| **P7 — handoff table ≥ 8 of 10** | ≥ 8 of 10 | **5 of 8** fully per-path, 8 of 8 planner delegations | below threshold; **enters no decision-rule row** |
+
+**Five of seven registered predictions are refuted, including the registered outcome.** Two of those
+refutations were predicted in the experiment file itself, with the mechanism: P1 (*"I predict this
+prediction cannot be measured"* — the control's rubric population is `n = 3`) and P4 (*"this is the
+prediction I expect to be wrong"* — "one bounce" is L3 and nothing counts delegations).
+
+### The result of this stop, so far, is about the instrument and not about the split
+
+**P2's mechanism is measured and it is false.** It read: *"the evaluator returns 12 on the wrong shape and
+0 on the right one, so pass rate* is *shape on this ticket."* The two rows disagree on **4 of 16 runs, in
+both directions** — the evaluator passes two wrong-shaped controls (`4ec4cb7a`, `33b4c452`) and fails two
+right-shaped submissions (`4319e882`, `b755f13f`). P2 was registered as *"the strongest thing the
+instrument will have"*; it is not measuring what it was registered to measure.
+
+**And `baseline-report.py` — the command §4 step 8 names — discards a complete control run.** The runner
+marks `F13` when a run failed *and* `tail -3` of its log matches an infrastructure signature. It fired on
+two controls; `ed58787c` deserves it (47 HTTP 529s, one changed file) and **`4abf7f01` does not** (12
+changed files, 41 model calls against a control median of 43, 230 s against a median of 230 s, a complete
+submission both blind readers classified on all three read paths — and a log tail reading `API error`). The
+rule is **not changed** and the run is **not excluded**; `REPORT.md` §7 records the decision, its three
+grounds, and the third population that shows what the rule costs (P2 → 0.2448, P3 → 0.0150). It is an
+`author_notes` item, not a halt.
+
+### Layer table, amended again by measurement
+
+| row | artifact | label before | label now | what moved it |
+|---|---|---|---|---|
+| the shape classification | `evidence/b08a/shape/SHAPE-RULE.md` | — | **L3, said in the file** | nothing executes it; two blind readers plus written adjudication replace the author confirmation Gate B′ had, and they are weaker. 16 of 16 class agreement and 48 of 48 per-path agreement is the error bar |
+| the `$9.70` ceiling | L2 at §4 step 4 | **L2, confirmed by firing** | exit 11 fired at $9.7948 and stopped the batch. A number in a workbook is L3; this one executed |
+| P7's medium (`handoff.delivered`) | assumed present | **does not exist in this arm** | the overlay installs four agent files and no `CLAUDE.md` or hook, so nothing writes a handoff. Answered from the planner's plan in the stream, with the source recorded |
+
+### The exit gate is not answered here
+
+§4 step 11 answers it, and it has a problem to resolve first that is written down rather than smoothed
+over: **no decision-rule row fires.** Row 2 requires *both* rates at p ≤ 0.05 (P2 is 0.1189); row 3
+requires a *lower* treated rate; row 4 fires only when *neither* rate separates (P3 is 0.0070). The rule
+was written assuming the two secondaries would agree. They did not.
