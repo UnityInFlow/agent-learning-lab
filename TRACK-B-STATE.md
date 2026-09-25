@@ -4,7 +4,44 @@ Owned by the autonomous run. `run-track-b.sh` reads `status: running   # STOP 12
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running   # *** §4 STEP 4 IS COMPLETE AND PROVED FOR STOP 17a; THE SESSION CONTINUES TO §4 STEP 5. ***
+status: running   # *** §4 STEPS 4 AND 5 ARE COMPLETE FOR STOP 17a. THE REGISTERED BATCH (§4 STEP 6) IS
+                  # STARTING AT THIS WRITE. *** blocked_on_author IS EMPTY, NO §7 BULLET IS MATCHED, and
+                  # prompt_sha a47590a1e61d is UNCHANGED (re-derived by my own shasum). All 22 validator
+                  # files are in validation_processed and NO NEW ONE EXISTS.
+                  # *** TWO BENCHMARK RUNS WERE MADE THIS SESSION AND NEITHER MAY BE RE-RUN: the §4 step 5
+                  # PREFLIGHT PAIR on probe key EXP-B8A-PREFLIGHT - control 8d8505d7-aa82-41cf-9776-
+                  # 9e8d6d6c4335 and treated a390a301-eb67-45a5-b22d-d6e43a922e85. Both worktrees are
+                  # COPIED OFF $TMPDIR ALREADY (evidence.local/b08a-worktrees/, 26 MB each). ***
+                  # ALL FOUR DELIVERY CONDITIONS ARE OBSERVED. The control shows the NULL TRIPLE and 0 HOOK
+                  # EXECUTIONS, which DISCHARGES THE SECOND HALF OF THE §0a ISOLATION ROW on a run this stop
+                  # needed anyway. NOTHING EARLY-ENDED: decision 11 item 11`s condition is `a preflight that
+                  # cannot show all four`, and all four are shown.
+                  # *** THE PREFLIGHT CAUGHT TWO INSTRUMENT DEFECTS THAT WOULD EACH HAVE DESTROYED THE
+                  # BATCH, AND THAT IS THE STEP`S REAL RESULT. *** (1) THE WIRE TOOL NAME IS `Agent`, NOT
+                  # `Task` - `"name":"Task"` appears ZERO times in a transcript with SIX real delegations -
+                  # and the driver`s first condition (d) grepped events.jsonl for the run id, FOUND 70
+                  # LINES, never reached its stream fallback, and would have returned fail-0-of-3 on EVERY
+                  # treated run: row 0a each time, BATCH DEAD AT PAIR 2 with exit 10, reporting a delivery
+                  # failure that had not happened. (2) A LINE COUNT IS NOT A CALL COUNT - the delegation
+                  # column read 19 for six calls. BOTH FIXED AND RE-DERIVED BY MY OWN HAND against this
+                  # run`s transcript AND THE CONTROL`S: treated 6 delegations / 3 of 3 specialists, control
+                  # 0 / 0 of 3. A query that cannot tell the arms apart is not a measurement.
+                  # *** LAYER TABLE ROWS 1 AND 2 ARE AMENDED L2 -> L3 ON MEASUREMENT. *** The transcript
+                  # holds THREE init records and ALL THREE ARE THE ORCHESTRATOR`S LIST; there is NO init
+                  # record for a subagent, so the planner`s and verifier`s tools: lists CANNOT BE READ BACK
+                  # BY ANY INSTRUMENT THIS PROJECT HAS. The caveat said they were L2-PENDING until the
+                  # preflight`s init record showed the delivered set; it has run and there is no such
+                  # record, so the pending is DISCHARGED DOWNWARD. The tools: lines are the author`s Q3 and
+                  # ARE NOT EDITED - the label is mine and the label is what moves.
+                  # *** SIX DELEGATIONS AGAINST Q8`S REGISTERED 3-OR-5, AND NOT BY BOUNCING *** - the
+                  # verifier ran once; the orchestrator RE-DELEGATED TO THE PLANNER THREE EXTRA TIMES.
+                  # Recorded as a FINDING with a new `deleg_q8` manifest column, NOT voided: decision 11
+                  # item 9`s four conditions do not include the count. Layer table row 6 called `one bounce`
+                  # L3 and named it the label most likely to be mistaken for a control; ONE RUN PROVED IT.
+                  # BUDGET, TRANSFERRED BEFORE THE BATCH: one interleaved pair cost $1.2222 ($0.414733 +
+                  # $0.807472), so the $9.70 ceiling is 7.9 PAIRS and THE BATCH IS EXPECTED TO STOP AT
+                  # n ~= 8 PER ARM, not 10, with the population that occurred reported as E-016 did at n = 7.
+  # SUPERSEDED, kept not deleted: *** §4 STEP 4 IS COMPLETE AND PROVED FOR STOP 17a; THE SESSION CONTINUES TO §4 STEP 5. ***
                   # NOTHING IS RUNNING. NO BENCHMARK RUN HAS BEEN MADE THIS SESSION. blocked_on_author IS
                   # EMPTY AND NO §7 BULLET IS MATCHED. prompt_sha a47590a1e61d UNCHANGED (re-derived by my
                   # own shasum this session), so no `prompt changed` line is owed; the prompt was still
@@ -108,7 +145,11 @@ prompt_read_at: 2026-09-25T05:1xZ   # READ IN FULL AGAIN before any other action
   # SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-15T16:1xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8. Sha UNCHANGED at 76a83fb7f604, so no `prompt changed` line is owed under §0.  SUPERSEDED, kept not deleted: 2026-09-14T13:4xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8. Sha CHANGED BY MY OWN ADOPTION EDIT (see prompt_sha), so the `prompt changed` line §0 owes is in in_flight below.  SUPERSEDED, kept not deleted: 2026-09-13T10:0xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed.  SUPERSEDED, kept not deleted: 2026-09-11T10:1xZ   # RE-READ IN FULL this session, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed; it was re-read anyway because the author`s instruction named the §0a preflight as the first act.  SUPERSEDED, kept not deleted: 2026-09-11T07:5xZ   # RE-READ IN FULL AGAIN this session, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed. SUPERSEDED, kept not deleted: 2026-09-11T06:5xZ   # WHOLE PROMPT RE-READ IN FULL before any other action this session, sections 0-8 (§9 excluded again on the author`s explicit instruction "Ignore section 9"). The sha was UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed; it was re-read anyway because the author`s instruction named the §0a preflight as the first act and §0a is only reachable by reading it. prompt_read_at: 2026-09-10T09:2xZ   # RE-READ IN FULL this session because the sha CHANGED (ba62c35dbbd2 -> 16ec79abbf55). §9 excluded on the author`s explicit instruction, as before. SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-09T07:0xZ
 stop: 17a          # B8a - DECOMPOSITION DEPTH, on BE-005 ONLY (author decision 11 items 2-5), version-neutral, measured against v1.1. Spine position 17a, inserted after B8 and before 6A so no stop number moves. Prereqs 4B (stop 11) and B8 (stop 17) are both CLOSED AND MERGED. OPENED 2026-09-24 on branch stop17a/b8a-decomposition-depth, created off main at d4faa7e which IS origin/main (fetched and compared, not assumed).
   # SUPERSEDED, kept not deleted: stop: 17           # B8 - run state, repair limits, completion contract - v1.1. OPENED 2026-09-15 on branch stop17/b8-run-state-repair-limits. Track A prerequisite Phase 5B (stop 16) IS CLOSED AND MERGED. The B-step issue is **lab#33** - CHECKED AGAINST THE ISSUE LIST VIA THE API, NOT GUESSED (27=B2 ... 33=B8, 33 is open). Both tasks per author decision 9: BE-003 and BE-004.  SUPERSEDED, kept not deleted: 16           # Phase 5B - verification loops, bounded self-healing, completion. OPEN as of 2026-09-11T10:2xZ on branch stop16/phase-5b-verification-selfhealing. The spine`s closing condition is EVIDENCE ON DISK for Lab 5B.5 (obs#47, BLOCKED != FAILED). The Phase issue is lab#15 - CHECKED AGAINST THE ISSUE LIST, NOT GUESSED.  SUPERSEDED, kept not deleted: 16           # Phase 5B: reading, extract, Lab 5B.5 (obs#47, BLOCKED != FAILED). NOT YET OPENED - no stop-16 artifact exists and §6 forbids creating one early. STOP 15 IS CLOSED AND MERGED: PR lab#84 -> 2d201a5, nine checks green, lab#32 commented and CLOSED, card Done, both boards republished, check-board-freshness 2 board(s) current at 865f553b9c12. SUPERSEDED, kept not deleted: 15           # B7 - deterministic verification and policies. OPEN, at §4 steps 7-8. NOT CLOSED and NOT CLOSEABLE this session: the exit gate needs P7 (rubric quality) and P7 needs codex, which is refusing on auth. Steps 1-6 were done in earlier sessions; steps 7 and 8 are done in this one EXCEPT the registered sheets. stop: 15           # B7 - deterministic verification and policies. v1.0 CLOSES HERE, measured against B2 on BE-003 and against BE-004`s own B5 control on BE-004 (author decision 9); NEVER across tasks. NOT YET OPENED. Stop 14 CLOSED AND MERGED: PR lab#82 -> 259c996, nine checks green, lab#7 COMMENTED AND LEFT OPEN (5A.2-5A.7 deferred), card Done, both boards republished, check-board-freshness 2 board(s) current at 32590f81db10. SUPERSEDED, kept not deleted: 14           # Phase 5A - guardrails: reading, extract, Lab 5A.1 (remove a capability before policing it). NOT YET OPENED. STOP 13 IS CLOSED AND MERGED: PR lab#80 -> 4b21650 (nine checks green) plus the follow-up lab#81 -> 4eb5a59; lab#31 commented and CLOSED, card moved to Done, both boards republished and check-board-freshness reports 2 board(s) current at cd59aacd084f. SUPERSEDED, kept not deleted: 13           # B6 - ONE specialist skill, chosen from a failure MEASURED in B2-B5, on BOTH tasks (author decision 9). NOT YET OPENED. Stop 12 CLOSED and MERGED: PR lab#79 -> 2e32f214, nine checks green, lab#30 commented and closed, card Done. SUPERSEDED, kept not deleted: 12           # B5 - workflow phases, on BOTH BE-003 and BE-004 (author decision 9). OPEN. Steps 1-3 done: workbook opened and issue lab#30 commented at 05:19:39Z, extract and layer labels at 1031a99, and the two prediction registrations at 5777b07 (E-010, BE-003) and ccd5c0c (E-011, BE-004).
-loop_step: 4-DONE, now at 5   # *** §4 STEP 4 IS COMPLETE. THE NEXT ACT IS §4 STEP 5, THE PREFLIGHT
+loop_step: 6-RUNNING   # *** §4 STEPS 1-5 ARE COMPLETE AND COMMITTED. THE REGISTERED BATCH IS THE
+                  # CURRENT STEP AND §0 BOUNDARY 2 IS ITS END. *** Step 5`s two runs are recorded above and
+                  # MUST NOT BE RE-RUN. Step 9`s deliberate-failure overlay DOES NOT EXIST and must not be
+                  # built before step 9 (§6). The agentsHash instrument PR is deferred to step 14.
+  # SUPERSEDED, kept not deleted: loop_step: 4-DONE, now at 5   # *** §4 STEP 4 IS COMPLETE. THE NEXT ACT IS §4 STEP 5, THE PREFLIGHT
                   # PAIR, WHICH IS THE FIRST TIME THIS STOP SPENDS MONEY. *** Step 4 built exactly what
                   # next_action named and nothing a later step owns (§6): the four agent files, the batch
                   # driver with an L2 ceiling and a pid lock, and the guard fixture set. NO deliberate-
@@ -1168,7 +1209,37 @@ last_verified: "2026-09-25. EVERY NUMBER BELOW WAS DERIVED BY MY OWN COMMAND IN 
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "*** §4 STEP 5 - THE PREFLIGHT PAIR - FOR STOP 17a, on stop17a/b8a-decomposition-depth.
+next_action: "*** §4 STEP 6 - THE REGISTERED BATCH - IS RUNNING AT THIS WRITE. DO NOT START A SECOND
+  ONE. *** `evidence/b08a/run-b8a-batch.sh 10`, launched from agent-learning-lab/, holding a pid lock at
+  evidence/b08a/.batch.lock which refuses a second batch with exit 8 (fixture case K). Key
+  EXP-B8A-DECOMP-BE005, task BE-005, n = 10 per arm interleaved control-then-treated.
+  *** NEVER RE-RUN AN ID THAT IS IN THE MANIFEST. A duplicate benchmark run is evidence that cannot be
+  deleted. *** The manifest is written PER RUN, BEFORE the next starts, at
+  evidence/b08a/batch-<TAG>/manifest.tsv - so a session that opens cold reads it to learn exactly what
+  already ran. Each run`s record, init read-back and kept worktree are copied off $TMPDIR THE SAME DAY,
+  because the reaper empties a kept worktree in about three days and leaves the directory standing.
+  IF THE BATCH IS STILL RUNNING WHEN YOU READ THIS: leave it alone, watch the manifest, and do NOT edit
+  run-b8a-batch.sh (§4 step 4: never edit a tool while a run of it is in flight).
+  *** READ MANIFEST ROW 1 AND ROW 2 BEFORE TRUSTING THE REST. *** The driver`s per-run measurement path
+  has never executed against a real registered batch - only its GUARDS are fixture-proved (17 of 17) and
+  only its two novel queries are hand-derived, on the preflight`s logs rather than through this script.
+  Row 1 is a control and row 2 a treated run: row 2 must show cond_a=ok, cond_b=ok, cond_c=ok,
+  cond_d=ok-stream-3of3, row0a=no and a non-zero deleg_stream; row 1 must show cond_a=ok-null-triple and
+  deleg_stream=0. IF ROW 2 SHOWS row0a=yes, STOP THE BATCH AND DIAGNOSE THE QUERY BEFORE SPENDING MORE -
+  the preflight already proved the underlying delivery works, so a row 0a there is the instrument, not
+  the treatment. That is the whole lesson of this step so far.
+  EXPECT IT TO STOP EARLY AND THAT IS REGISTERED BEHAVIOUR, NOT A FAILURE: one preflight pair cost
+  $1.2222, the ceiling is $9.70, so exit 11 is expected after PAIR 8 at about $9.78 with n = 8 per arm.
+  Report the population that occurred, as E-016 did at n = 7. Exit 10 = row 0a on 2+ treated runs and
+  ENDS THE STEP with the negative recorded.
+  THEN §4 STEP 7 - SCORE. check-run-gate.sh per run, then codex-score.sh (THE REGISTERED SCORER, Decision
+  C; codex is UP and Decision H is unfired) on rubric benchmark/rubrics/backend-quality-be005.yaml at sha
+  945817b8c509, and opencode-score.sh as the SECOND READER. Registered outcome is
+  architecture-consistency; change-focus is UNMEASURED by the author`s decision of 2026-09-25 and enters
+  no decision rule, no MDE and no exit gate; test-quality anchor 2 is UNREACHABLE and no claim may be
+  made about it. *** WRITE YOUR OWN EXPECTED SCORE FOR AT LEAST ONE RUN BY HAND, OFF THE KEPT WORKTREE,
+  BEFORE OPENING ANY SHEET (§4 step 7, §5). ***
+  SUPERSEDED, kept not deleted: next_action: "*** §4 STEP 5 - THE PREFLIGHT PAIR - FOR STOP 17a, on stop17a/b8a-decomposition-depth.
   THIS IS THE FIRST TIME THIS STOP SPENDS MONEY. Two runs, about $0.80-$1.60 and 8-20 minutes. ***
   ONE TREATED RUN AND ONE CONTROL RUN, EACH UNDER ITS OWN PROBE KEY (never the batch key
   EXP-B8A-DECOMP-BE005 - a preflight run inside the registered population would contaminate it):
@@ -2450,6 +2521,26 @@ blocked_on_author: []   # *** EMPTY as of 2026-09-25. *** The single item that w
   # SUPERSEDED, kept not deleted: blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:
+  - "2026-09-25, §4 STEP 5, *** A PROOF-SOURCE SUBSTITUTION ON A REGISTERED DELIVERY CONDITION, DECLARED
+    RATHER THAN TAKEN SILENTLY, AND REVERSIBLE BY THE AUTHOR. *** Decision 11 item 9(d) registers the
+    proof as `telemetry shows at least one delegation event naming each of the three specialists`. THE
+    TELEMETRY SCHEMA DOES NOT HAVE THE FIELD. Measured on treated preflight run a390a301, not assumed:
+    events.jsonl GREW 806 953 bytes across the pair, carries 70 lines for this run, and DOES record the
+    delegations as tool_name=`Agent` - but its attribute keys for this run are observatory.run.id,
+    experiment.variant, benchmark.id, session.id, event.*, prompt.id, tool_use_id, tool_name, duration_ms,
+    model, request_id, query_source, tool_source, tool_input_size_bytes, success, source, decision,
+    tool_result_size_bytes, AND NOTHING NAMING WHICH SUBAGENT WAS CALLED. So the three names are not in
+    telemetry and NO QUERY OVER IT CAN FIND THEM. I read them from the AGENT STREAM, where
+    `\"subagent_type\":\"planner\"` and its two siblings appear - which is not a weaker substitute but the
+    ONLY PLACE THE FACT EXISTS, and the source telemetry is derived from. Condition (d) is recorded
+    `ok-stream-3of3` with the source in the column value itself, so no later reader can mistake which
+    source answered. I DID NOT treat this as decision 11 item 11`s early-end condition, because that
+    condition is `a preflight that CANNOT SHOW all four` and all four ARE shown. THE ADDITIVE FIX I DID
+    NOT BUILD, and it is the author`s call whether it is wanted before the batch or after: emit
+    subagent_type as an OTLP attribute on Agent tool events, which would make (d) satisfiable exactly as
+    registered - one runner change plus a fixture. I did not build it because it would have delayed the
+    batch behind an instrument the preflight had already shown is not needed to observe the fact.
+    Raised by Opus 5 (claude-opus-5), autonomously, 2026-09-25."
   - "2026-09-25, §0a ROW 6. *** verify-codex-isolation.sh IS NOT A RELIABLE CONTROL AND ITS GREEN IS THE
     DANGEROUS DIRECTION. *** It exited 0 `ALL THREE checks hold` at 06:53:03Z and exit 2 `ISOLATION LEAKS`
     at ~08:4xZ, same machine, same codex 0.154.0, no change to run-agent.sh between them. CAUSE, read off
