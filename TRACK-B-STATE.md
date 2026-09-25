@@ -1,6 +1,52 @@
 # Track B — state
 
-Owned by the autonomous run. `run-track-b.sh` reads `status: running   # *** §4 STEPS 9-13a ARE COMPLETE FOR STOP 17a. THE TWO PRs ARE OPEN AND WAITING ON
+Owned by the autonomous run. `run-track-b.sh` reads `status: running   # *** §0 BOUNDARY 4 FOR STOP 17a. THE STOP IS CLOSED AND MERGED. §4 STEP 14 IS
+                  # COMPLETE EXCEPT THE BOARD REPUBLISH, WHICH IS THE AUTHOR`S BY DECISION 12 ITEM 4. ***
+                  # THE SESSION ENDS ON THAT BOUNDARY, NOT ON A HALT. blocked_on_author IS EMPTY and NO §7
+                  # BULLET IS MATCHED. prompt_sha a47590a1e61d UNCHANGED (re-computed this session). All
+                  # 22 validator files are in validation_processed and NO NEW ONE EXISTS.
+                  # *** THE NEXT STOP IS 18 (PHASE 6A) AND NOTHING OF IT EXISTS - §6 FORBIDS A FUTURE
+                  # STEP`S ARTIFACTS EARLY. OPENING IT AT §4 STEP 1 IS THE NEXT SESSION`S FIRST ACT. ***
+                  #
+                  # MERGED THIS SESSION, ALL THREE WITH --admin AFTER EVERY CHECK REPORTED:
+                  #   lab#117  -> 955e05c1b3198656b273c8ea6ccb5614d9d2f176   the stop
+                  #   obs#88   -> 5ba0719a5983af0fe7fbf0b38fd37433b5b521af   the agentsHash instrument
+                  #   lab#119  -> 71b78ce51d5b1fc583a065137fa39727ae5ba959   the two review files
+                  # lab#118 (B8a - CHECKED VIA THE API; THE PREVIOUS next_action SAID lab#34 AND lab#34 IS
+                  # B9) HAS TWO COMMENTS AND IS CLOSED `completed`; ITS CARD IS `Done`, READ BACK.
+                  #
+                  # *** VERDICT: NO ROW FIRES. *** Row 0b fired ($9.70 reached at $9.7948) and is
+                  # discharged at n = 8 per arm. Rows 0a, 1, 2, 3 and 4 each evaluated and NONE fires - the
+                  # rule was written assuming its two secondaries would agree and they disagree on 4 of 16
+                  # runs IN BOTH DIRECTIONS. What IS decided comes from the permissive clause that is well
+                  # defined on this outcome: decision 11 item 2 makes rung 10 proposable ONLY IF IMPROVED
+                  # fires, and it did not. THE LADDER CLOSES AND THAT CLOSURE IS THE REGISTERED RESULT.
+                  #
+                  # *** §4 STEP 9 RAN AT n = 5 FOR $0.1694 AND ALL THREE REGISTERED CLAUSES HELD *** - the
+                  # only registered predictions at this stop that did. init read-back ["Read","Grep","Glob"]
+                  # verdict MATCH 5 of 5 (the runtime did NOT rewrite the list, unlike E-005), zero
+                  # delegation events on both sources, 5 of 5 row 0a. The registered batch driver REFUSED
+                  # the broken overlay at exit 6 BEFORE any run. One run ATTEMPTED a delegation and the
+                  # runtime refused it by name: "No such tool available: Task. Task is disabled for this
+                  # session, in subagents as well as here." SO `tools:` WITHHELD A CAPABILITY, where E-005
+                  # concluded it filters names and not capabilities - that experiment ADDED Bash, this one
+                  # REMOVED Task, and BOTH STAND.
+                  #
+                  # *** THE §4a REVIEW CORRECTED A STATED REASON AND THE CORRECTION IS THE THING TO CARRY.
+                  # *** Promotion was refused on B13`s tokens_per_accepted_task "by about twelve times".
+                  # WRONG TWICE: 1.83/0.15 divides a multiplier by a fraction, AND 1.83x is the MEDIAN COST
+                  # PER RUN, not the registered clause. Read as registered - estimatedCost per
+                  # EVALUATOR-PASSING run - it is $6.9225/7 = $0.9889 against $2.8723/3 = $0.9574 = 1.033x,
+                  # +3.3%, INSIDE the 15% allowance. THAT CLAUSE PASSES. Promotion is still refused on
+                  # quality_score, which moved by 0. AND IT PASSED BECAUSE THE CONTROL FAILS MORE OFTEN
+                  # (3 of 8 vs 7 of 8) - author_notes carries what that means for every later BE-005 stop.
+                  #
+                  # *** THE BOARD CHECK IS RED AND IS THE ONLY RED ANYWHERE. THE DIGEST BOTH MARKERS MUST
+                  # BE SET TO AFTER THE REPUBLISH IS 91344292d8ed, RE-DERIVED AFTER THE LAST HANDOFF.md
+                  # EDIT AND RE-CONFIRMED ON MERGED main. DO NOT EDIT HANDOFF.md WITHOUT RE-DERIVING IT. ***
+                  # NOTHING IS RUNNING: no run-agent.sh, no opencode, no batch driver, no lock file.
+
+# SUPERSEDED, kept not deleted: status: running   # *** §4 STEPS 9-13a ARE COMPLETE FOR STOP 17a. THE TWO PRs ARE OPEN AND WAITING ON
                   # THEIR LAST CHECKS; THE MERGES, HANDOFF-SIDE CLOSURE ITEMS AND lab#34 ARE WHAT REMAIN
                   # OF §0 BOUNDARY 4. *** blocked_on_author IS EMPTY, NO §7 BULLET IS MATCHED, prompt_sha
                   # a47590a1e61d UNCHANGED (re-computed this session). All 22 validator files are in
@@ -254,7 +300,15 @@ prompt_read_at: 2026-09-25T05:1xZ   # READ IN FULL AGAIN before any other action
   # SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-15T16:1xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8. Sha UNCHANGED at 76a83fb7f604, so no `prompt changed` line is owed under §0.  SUPERSEDED, kept not deleted: 2026-09-14T13:4xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8. Sha CHANGED BY MY OWN ADOPTION EDIT (see prompt_sha), so the `prompt changed` line §0 owes is in in_flight below.  SUPERSEDED, kept not deleted: 2026-09-13T10:0xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed.  SUPERSEDED, kept not deleted: 2026-09-11T10:1xZ   # RE-READ IN FULL this session, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed; it was re-read anyway because the author`s instruction named the §0a preflight as the first act.  SUPERSEDED, kept not deleted: 2026-09-11T07:5xZ   # RE-READ IN FULL AGAIN this session, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed. SUPERSEDED, kept not deleted: 2026-09-11T06:5xZ   # WHOLE PROMPT RE-READ IN FULL before any other action this session, sections 0-8 (§9 excluded again on the author`s explicit instruction "Ignore section 9"). The sha was UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed; it was re-read anyway because the author`s instruction named the §0a preflight as the first act and §0a is only reachable by reading it. prompt_read_at: 2026-09-10T09:2xZ   # RE-READ IN FULL this session because the sha CHANGED (ba62c35dbbd2 -> 16ec79abbf55). §9 excluded on the author`s explicit instruction, as before. SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-09T07:0xZ
 stop: 17a          # B8a - DECOMPOSITION DEPTH, on BE-005 ONLY (author decision 11 items 2-5), version-neutral, measured against v1.1. Spine position 17a, inserted after B8 and before 6A so no stop number moves. Prereqs 4B (stop 11) and B8 (stop 17) are both CLOSED AND MERGED. OPENED 2026-09-24 on branch stop17a/b8a-decomposition-depth, created off main at d4faa7e which IS origin/main (fetched and compared, not assumed).
   # SUPERSEDED, kept not deleted: stop: 17           # B8 - run state, repair limits, completion contract - v1.1. OPENED 2026-09-15 on branch stop17/b8-run-state-repair-limits. Track A prerequisite Phase 5B (stop 16) IS CLOSED AND MERGED. The B-step issue is **lab#33** - CHECKED AGAINST THE ISSUE LIST VIA THE API, NOT GUESSED (27=B2 ... 33=B8, 33 is open). Both tasks per author decision 9: BE-003 and BE-004.  SUPERSEDED, kept not deleted: 16           # Phase 5B - verification loops, bounded self-healing, completion. OPEN as of 2026-09-11T10:2xZ on branch stop16/phase-5b-verification-selfhealing. The spine`s closing condition is EVIDENCE ON DISK for Lab 5B.5 (obs#47, BLOCKED != FAILED). The Phase issue is lab#15 - CHECKED AGAINST THE ISSUE LIST, NOT GUESSED.  SUPERSEDED, kept not deleted: 16           # Phase 5B: reading, extract, Lab 5B.5 (obs#47, BLOCKED != FAILED). NOT YET OPENED - no stop-16 artifact exists and §6 forbids creating one early. STOP 15 IS CLOSED AND MERGED: PR lab#84 -> 2d201a5, nine checks green, lab#32 commented and CLOSED, card Done, both boards republished, check-board-freshness 2 board(s) current at 865f553b9c12. SUPERSEDED, kept not deleted: 15           # B7 - deterministic verification and policies. OPEN, at §4 steps 7-8. NOT CLOSED and NOT CLOSEABLE this session: the exit gate needs P7 (rubric quality) and P7 needs codex, which is refusing on auth. Steps 1-6 were done in earlier sessions; steps 7 and 8 are done in this one EXCEPT the registered sheets. stop: 15           # B7 - deterministic verification and policies. v1.0 CLOSES HERE, measured against B2 on BE-003 and against BE-004`s own B5 control on BE-004 (author decision 9); NEVER across tasks. NOT YET OPENED. Stop 14 CLOSED AND MERGED: PR lab#82 -> 259c996, nine checks green, lab#7 COMMENTED AND LEFT OPEN (5A.2-5A.7 deferred), card Done, both boards republished, check-board-freshness 2 board(s) current at 32590f81db10. SUPERSEDED, kept not deleted: 14           # Phase 5A - guardrails: reading, extract, Lab 5A.1 (remove a capability before policing it). NOT YET OPENED. STOP 13 IS CLOSED AND MERGED: PR lab#80 -> 4b21650 (nine checks green) plus the follow-up lab#81 -> 4eb5a59; lab#31 commented and CLOSED, card moved to Done, both boards republished and check-board-freshness reports 2 board(s) current at cd59aacd084f. SUPERSEDED, kept not deleted: 13           # B6 - ONE specialist skill, chosen from a failure MEASURED in B2-B5, on BOTH tasks (author decision 9). NOT YET OPENED. Stop 12 CLOSED and MERGED: PR lab#79 -> 2e32f214, nine checks green, lab#30 commented and closed, card Done. SUPERSEDED, kept not deleted: 12           # B5 - workflow phases, on BOTH BE-003 and BE-004 (author decision 9). OPEN. Steps 1-3 done: workbook opened and issue lab#30 commented at 05:19:39Z, extract and layer labels at 1031a99, and the two prediction registrations at 5777b07 (E-010, BE-003) and ccd5c0c (E-011, BE-004).
-loop_step: 13a-DONE   # §4 steps 9 (deliberate failure, n = 5, all three clauses held), 10 (keep as a
+loop_step: 14-COMPLETE = §0 BOUNDARY 4   # Every step of §4 is done for stop 17a: 1-8 in earlier
+                  # sessions, and 9 (deliberate failure), 10 (keep, NOT promoted, NOT carried forward),
+                  # 11 (learning block + the exit gate answered with its own failure stated), 12 (nothing
+                  # edited), 13 (the §5 table, thirteen clauses, one recorded NOT MET), 13a (§4a ACCEPT,
+                  # 7 findings, five fixed two disputed) and 14 (three PRs merged, HANDOFF, findings file,
+                  # lab#118 commented twice and CLOSED, card Done) in this one. THE ONE ITEM OF STEP 14
+                  # NOT DONE IS THE BOARD REPUBLISH, WHICH IS THE AUTHOR`S BY DECISION 12 ITEM 4.
+                  # STOP 18 IS NOT OPENED and no stop-18 artifact exists.
+  # SUPERSEDED, kept not deleted: loop_step: 13a-DONE   # §4 steps 9 (deliberate failure, n = 5, all three clauses held), 10 (keep as a
                   # measured configuration, NOT promoted, NOT carried forward, NOT edited), 11 (learning
                   # block + the exit gate answered with its own failure stated), 12 (nothing edited), 13
                   # (the §5 table, thirteen clauses, one recorded NOT MET) and 13a (§4a review ACCEPT,
@@ -1451,7 +1505,30 @@ last_verified: "2026-09-25, §4 STEPS 7 AND 8. EVERY NUMBER HERE WAS DERIVED BY 
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "*** FINISH §4 STEP 14 FOR STOP 17a, THEN END THE TURN AT §0 BOUNDARY 4. NOTHING OF STOP
+next_action: "*** OPEN STOP 18 - PHASE 6A - AT §4 STEP 1. NOTHING OF IT EXISTS AND §6 FORBIDS
+  CREATING ANY OF IT BEFORE STEP 1. STOP 17a IS CLOSED AND MERGED; DO NOT REOPEN IT. ***
+  (0) FIRST, AS ALWAYS: re-compute shasum -a 256 ../PROMPT-opus5-track-b.md | cut -c1-12 against
+      prompt_sha a47590a1e61d, and list findings/track-b-validation-*.md against validation_processed
+      (22 files, none new as of this write). Then §0a if and only if its own trigger fires - this is
+      neither a first session nor a halt, so it does not.
+  (1) §4 step 1 for stop 18: fill Goal, Required reading and Extract in a NEW workbook under
+      phases/06a-.../, run ./tools/check-links.sh on anything new in SOURCES.md, comment
+      `opened at spine stop 18, branch <name>, <ISO date>` on the PHASE issue - LOOK THE NUMBER UP
+      VIA THE API, DO NOT GUESS IT; the previous next_action guessed lab#34 for B8a and lab#34 is B9 -
+      and move its card to In Progress on project #2.
+  (2) The spine says stops 18-19 are Phases 6A and 6B: reading, extract, ONE LAB EACH, 6B READ PATH
+      ONLY. §0 boundary rules for a Track A stop with no runs: two boundaries, after the extract and
+      after the PR.
+  (3) CARRY FORWARD INTO ANY LATER BE-005 STOP, from author_notes: B13`s tokens_per_accepted_task
+      divides by the PASS COUNT, so on a task this model usually fails it rewards the arm with the
+      higher pass rate rather than the cheaper one. Stop 17a measured 1.033x on that clause while the
+      median cost per run was 1.83x. Whether the clause should be read per-run or per-accepted-task is
+      the AUTHOR`S - B13 is the author`s gate - and I applied it exactly as E-020 registered it.
+  DO NOT: re-run, re-score or edit anything of stop 17a; republish or relabel a board; change the
+  runner`s F13 rule; or fix condition (d)`s attempt-vs-completion grep inside a driver that produced
+  a measured batch."
+
+# SUPERSEDED, kept not deleted: next_action: "*** FINISH §4 STEP 14 FOR STOP 17a, THEN END THE TURN AT §0 BOUNDARY 4. NOTHING OF STOP
   18 (PHASE 6A) MAY EXIST - §6 FORBIDS A FUTURE STEP`S ARTIFACTS EARLY. ***
   (1) MERGE obs#88 (agent-observatory, branch instrument/agents-hash, head 66a6931). Six checks GREEN.
       Its §4a review is running at /tmp/obs-review.out over runner/verify-agents-hash.sh and
@@ -2833,7 +2910,26 @@ observatory_endpoint: "*** 127.0.0.1:8081 — AND 127.0.0.1:18081 IS GONE. *** T
   directions - the tunnel was once the only live route and is now the dead one: PROBE THE PORT, NEVER
   INHERIT IT. And an open OTLP port is not proof that an export lands; check that events.jsonl GROWS."
 
-board_state: "*** GREEN. BOTH BOARDS ARE REPUBLISHED, BOTH MARKERS ARE SET, AND THE ITEM OWED TO THE
+board_state: "*** RED, LEFT RED ON THE AUTHOR`S OWN STANDING DECISION, AND OWED TO THE AUTHOR`S
+  INTERACTIVE SESSION. *** ./tools/check-board-freshness.sh exits 1: `2 of 2 board(s) describe an older
+  HANDOFF.md than the one on disk`. *** THE DIGEST BOTH MARKERS MUST BE SET TO AFTER THE REPUBLISH IS
+  91344292d8ed. *** It was RE-DERIVED AFTER THE LAST HANDOFF.md EDIT OF THIS SESSION and RE-CONFIRMED on
+  merged main, so it is the digest of the text the author will actually publish against; IF HANDOFF.md IS
+  EDITED AGAIN BEFORE THE REPUBLISH, RE-RUN THE CHECK, BECAUSE THE DIGEST MOVES WITH EVERY BYTE.
+  THE TWO BOARDS: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc and
+  https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3.
+  WHY IT IS RED AND WHY THAT IS CORRECT: author decision 12 item 4 - `NOT YOURS THIS SESSION. The
+  author`s interactive session holds the Artifact tool and will republish both boards and set their
+  prose: markers once HANDOFF.md is final. Write HANDOFF.md as you normally would, LEAVE the markers
+  stale, and do NOT treat the red check-board-freshness as a blocker on your own work.` I have NO
+  Artifact tool in print mode, and RELABELLING A MARKER FOR A PUBLISH THAT DID NOT HAPPEN IS HOW ONE ENDS
+  UP PROVABLY CURRENT AND WRONG - the failure this check exists to PREVENT, not to perform. It is the ONLY
+  red check on any of the three PRs merged this session, and each merge commit says so in its body.
+  WHAT THE BOARDS NEED TO SAY AFTER THE REPUBLISH: 17a CLOSED with verdict NO ROW FIRES and the ladder
+  shut; next stop 18 (Phase 6A); runs on record moved 627 -> 648 (16 registered + 5 deliberate failure);
+  stops closed 17 -> 17a of 28; and the promotion correction (the token clause PASSES at 1.033x, quality
+  is what refuses promotion).
+  SUPERSEDED, kept not deleted: board_state: "*** GREEN. BOTH BOARDS ARE REPUBLISHED, BOTH MARKERS ARE SET, AND THE ITEM OWED TO THE
   AUTHOR`S INTERACTIVE SESSION IS DISCHARGED. *** ./tools/check-board-freshness.sh exits 0:
   `2 board(s) current at 1119de805984`, both markers `built-from: a0ccff3 prose: 1119de805984`.
   DONE 2026-09-25 IN THE AUTHOR`S INTERACTIVE SESSION (Opus 5, 1M context) ON THE AUTHOR`S INSTRUCTION,
