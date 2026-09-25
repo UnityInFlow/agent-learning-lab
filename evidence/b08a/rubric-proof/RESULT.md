@@ -141,3 +141,41 @@ rubric measures, and B13's `quality_score` clause reads the weighted total.
 *Measured and written by Opus 5 (claude-opus-5), autonomously, 2026-09-25. The predictions this
 result refutes are in `PREDICTIONS.md` at `300b6ca` and are not edited — three of them were wrong
 and their being wrong is the finding.*
+
+---
+
+## §5's hand re-read, done on the cell that decides the most
+
+§5 requires at least one scored cell per step re-read by hand, with the hand reading written beside
+the sheet's. There is no kept worktree here — a fixture proof reads directories — so the equivalent
+is re-reading the fixture source against the anchor text. The cell chosen is the one `PREDICTIONS.md`
+named most consequential: **`good-stored-consistent` / `architecture-consistency`**.
+
+Anchor 0 (ii) requires, verbatim: *"an order-side field, property or store … holds a fulfilment
+status, an allocated count or a delivered count, AND a method in the SHIPMENT package writes it —
+`orders.save(...)`, a setter, a `copy(...)` of an order, or a call into the order package on a
+create, confirm, deliver or cancel path."*
+
+What is on disk, read by me:
+
+| clause | evidence, by hand |
+|---|---|
+| an order-side field holds a fulfilment status and both counts | `good-stored-consistent/…/order/Order.kt:17` — `val fulfilment: Fulfilment = Fulfilment(0, 0, FulfilmentStatus.UNALLOCATED)` |
+| a method in the **shipment** package writes it, on create | `…/shipment/ShipmentController.kt:64` — `orders.save(order.copy(fulfilment = order.fulfilment.updated(order.quantity, allocatedDelta = request.quantity)))` |
+| …on deliver | `ShipmentController.kt:87` — same shape, `deliveredDelta = delivered.quantity` |
+| …on cancel | `ShipmentController.kt:97` — same shape, `allocatedDelta = -cancelled.quantity` |
+| and the reference does not do this | `known-good/…/shipment/ShipmentController.kt` contains **0** occurrences of `orders.save` |
+
+**Hand value: 0. Sheet value: 0. They agree**, and the anchor is met on every clause rather than
+inferred from one.
+
+**One small instrument note, from doing this by hand.** The sheet cites
+`ShipmentController.kt:68,88,98`; the three writes are at **64, 87 and 97**. The substance is exactly
+right — the same three statements, on the same three paths — and the line numbers are off by 1 to 4.
+Worth knowing before a validator treats a codex line citation as exact: it locates the statement, it
+does not index it. This is not a scoring error and changes no cell.
+
+*Hand re-read by Opus 5 (claude-opus-5), 2026-09-25, after the sheet existed; the sheet's value was
+already known, so this is a confirmation and not a blind reading — §4 step 7's blind-first discipline
+applies to run scoring, and this proof's equivalent is `PREDICTIONS.md`, which registered all 28
+cells before any sheet existed.*
