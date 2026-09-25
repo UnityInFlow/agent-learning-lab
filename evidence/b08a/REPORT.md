@@ -169,3 +169,28 @@ that produced the registered number.
   only when **neither** rate separates — and P3 separates at 0.0070. **No row fires.** The rule was written
   assuming P2 and P3 would agree; they did not, and the rule has no row for exactly one of them separating.
   Resolving it is **§4 step 11's** work and is deliberately not done here.
+
+---
+
+## 10. AMENDMENT, same day — the second reader completed, and §4 step 7's last clause is discharged
+
+Written after §9 above, which recorded 1 of 10 second-reader sheets as owed. **All 10 now exist**
+(`evidence/b08a/sheets-opencode.tsv`); four first calls returned header-only artifacts and were retried once
+each, all four retries returning four categories, both files kept.
+
+**27 of 30 measured cells agree exactly.** `maintainability` 10 of 10 at 0, `test-quality` 10 of 10 at 1,
+all three disagreements on `architecture-consistency` and all on treated runs. **Each was taken to the
+diff** as §4 step 7 requires, and the full adjudication with the deciding lines is
+`evidence/b08a/scorer-disagreements.md`.
+
+**They do not all go one way.** The discriminating fact is a single line in every case — *does a repository
+save persist the recomputed fulfilment, or null it?* — and the registered scorer is **right on two of the
+three** (`e3ca68c8`, `275d4cac`: the quantity-amendment path persists a re-derived fulfilment, which is the
+fourth write site anchor 0 (ii) names) and **wrong on one** (`53af3571`: `order/OrderRepository.kt:17` nulls
+fulfilment on every save, so no write site exists and the cell is the residual, 1). With the hand re-read's
+cell, **codex is correct on 3 of the 4 cells independently checked — `n = 4`, true of those four cells.**
+
+**No sheet is edited and no registered number is changed** (Decision C: the second reader is not a vote).
+**P1 is refuted under every reading**: registered 0 vs 0, second reader 1 vs 0, adjudicated-at-the-diff
+**1 vs 0**, against a prediction of **2 vs 0**. The verdict on the registered outcome does not depend on
+which harness is believed.
