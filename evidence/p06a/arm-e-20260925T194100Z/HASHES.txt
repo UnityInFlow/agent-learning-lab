@@ -1,0 +1,8 @@
+arm        : E
+claude     : 2.1.282 (Claude Code)
+model      : claude-haiku-4-5-20251001
+file at    : /tmp/stop18-mcp-strict-above-20260925T194100Z/parent/.mcp.json   (one level ABOVE the cwd)
+cwd        : /tmp/stop18-mcp-strict-above-20260925T194100Z/parent/child   (empty)
+strict flag: PRESENT — asserted by guard 12, not assumed
+sha256 parent/.mcp.json : 6878df4266cd7e4d83ba68554f92ff9e435c557944ab5aa5855ff8744a2d2f9e
+spent_usd: 0.023584
