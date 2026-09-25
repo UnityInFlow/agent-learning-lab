@@ -32,6 +32,10 @@ def spread(vals):
 
 # F13, registered in E-020 §"The F13 decision": control 07 is the only truncated run.
 F13 = "ed58787c-6529-42ce-a677-065d86945bc2"
+# The RUNNER's own failureClass marks TWO controls F13, not one. ed58787c is a correct label;
+# 4abf7f01 is not (12 changed files, 41 model calls, 230 s - the control medians exactly). Both
+# are reported as a third population so the reader can see what baseline-report.py's own rule costs.
+RUNNER_F13 = {"ed58787c-6529-42ce-a677-065d86945bc2", "4abf7f01-cd54-4c77-962c-8bd4f8752466"}
 
 man = sys.argv[1] if len(sys.argv) > 1 else "evidence/b08a/batch-20260925T091510Z/manifest.tsv"
 shapefile = sys.argv[2] if len(sys.argv) > 2 else None
@@ -56,8 +60,9 @@ print(f"manifest: {man}   runs: {len(rows)}   arms: "
       + ", ".join(f"{a}={len(v)}" for a, v in sorted(arms.items())))
 print()
 
-for label, drop in (("WITH control 07 (the truncated run)", set()),
-                    ("WITHOUT control 07", {F13})):
+for label, drop in (("WITH control 07 (the truncated run) - THE REGISTERED POPULATION", set()),
+                    ("WITHOUT control 07 (the F13 decision)", {F13}),
+                    ("WITHOUT BOTH runner-labelled F13 controls - what baseline-report.py does", RUNNER_F13)):
     print(f"=== {label} ===")
     tbl = {}
     for arm in ("treated", "control"):
@@ -117,3 +122,30 @@ print("  control runs with all three hashes null: "
       f" of {len(arms['control'])}")
 mods = {r["model"] for r in rows}
 print(f"  runtime.model over all {len(rows)} runs: {mods}")
+
+
+print()
+print("=== the rubric sheets, codex, gate-passing runs only (Decision D) ===")
+try:
+    with open("evidence/b08a/sheets-codex.tsv", encoding="utf-8") as fh:
+        sheets = [r for r in csv.DictReader((l for l in fh if not l.startswith("#")), delimiter="\t")]
+except FileNotFoundError:
+    sheets = []
+if sheets:
+    cats = ("architecture_consistency", "maintainability", "test_quality")
+    for arm in ("treated", "control"):
+        rs = [r for r in sheets if r["arm"] == arm]
+        print(f"  {arm} (n={len(rs)}):")
+        for c in cats:
+            vals = [int(r[c]) for r in rs if r[c] != "null"]
+            nulls = sum(1 for r in rs if r[c] == "null")
+            print(f"    {c:26s} {spread(vals)}   nulls={nulls}   values={[int(r[c]) for r in rs]}")
+        print(f"    {'change_focus':26s} UNMEASURED - author decision 2026-09-25 item 1, "
+              f"reported not computed: {[r['change_focus'] for r in rs]}")
+    t = [int(r["architecture_consistency"]) for r in sheets if r["arm"] == "treated"]
+    c = [int(r["architecture_consistency"]) for r in sheets if r["arm"] == "control"]
+    print(f"  P1 registered outcome: treated median {median(t):g} (n={len(t)}) "
+          f"vs control median {median(c):g} (n={len(c)}); P1 predicted 2 vs 0")
+    print(f"  rubric shas all 945817b8c509: "
+          f"{all(r['rubric_sha'] == '945817b8c509' for r in sheets)}")
+
