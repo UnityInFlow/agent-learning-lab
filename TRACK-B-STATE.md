@@ -2958,6 +2958,62 @@ blocked_on_author: []   # *** EMPTY as of 2026-09-25. *** The single item that w
   # SUPERSEDED, kept not deleted: blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:
+  - "*** 2026-09-25, §0a. THE PREFLIGHT TABLE'S ISOLATION ROW ASKS FOR A FIELD THE RUN RECORD DOES NOT
+    HAVE. *** PROMPT §0a row 6 requires `one claude run with ISOLATE_USER_SETTINGS=1 whose record shows
+    0 hook executions and customization.*Hash all null`. The second half is observable and WAS observed:
+    all five customization.*Hash are null on run 8d8505d7-aa82-41cf-9776-9e8d6d6c4335. THE FIRST HALF IS
+    NOT OBSERVABLE AT ALL. The API record's top-level keys are behavior, benchmarkId, customization,
+    efficiency, evaluation, experimentId, experimentKey, finishedAt, humanReviews, repository, result,
+    runId, runtime, startedAt, telemetryQueryKey, traceId, traceUrl, variant - there is NO hook-execution
+    count anywhere, and grepping the whole JSON for a hook-ish key returns exactly one: `hooksHash`,
+    which is null. So any past `ok` on that half of the row was INFERRED FROM THE FLAG, which is the one
+    thing the row's own wording forbids (`observed, not inferred from the flag`). The row should either
+    name a field that exists or be split; the runner would have to emit a hook-execution count for it to
+    be answerable. NOT A HALT and nothing depends on it - the isolation itself is proved by the null
+    hashes and by verify-codex-isolation.sh (exit 0, with its own documented scope caveat that check B
+    closes DISCOVERABILITY and not reachability)."
+  - "*** 2026-09-25, §4 step 9. CONDITION (d)'s DELEGATION GREP COUNTS AN ATTEMPT, NOT A COMPLETION. ***
+    Decision 11 item 9(d) asks that each of the three specialists be named in a delegation. Both batch
+    drivers implement it as `grep -aq '\"subagent_type\":\"<name>\"'` over the agent log. On
+    deliberate-failure run d78ef2c8 - an orchestrator with NO Task tool - that grep MATCHED, and the
+    condition reported `fail-1-of-3-stream` where the truth is 0 of 3. The match is a `tool_use` block
+    named `Task` for `subagent_type: planner` that the RUNTIME REFUSED: `Error: No such tool available:
+    Task. Task is disabled for this session, in subagents as well as here.` NOTHING MOVED: the run was
+    row 0a on conditions (c) and (d) either way, and every treated run of the registered arm carried real
+    `Agent` calls, so no registered number depends on it. BUT AS WRITTEN IT IS NOT SOUND - an arm in
+    which all three attempts were refused would be reported as FULLY DELIVERED. The fix is to require the
+    subagent_type AND a successful tool_use_result on the SAME toolu_ id. I DID NOT MAKE IT: editing a
+    driver that produced a measured batch, after the batch, is exactly what §4 step 4 and §6 forbid."
+  - "*** 2026-09-25, §4a. B13'S TOKEN CLAUSE REWARDS THE ARM WITH THE HIGHER PASS RATE, NOT THE CHEAPER
+    ONE, AND THAT WILL RECUR ON BE-005. *** `tokens_per_accepted_task` is registered as estimatedCost PER
+    EVALUATOR-PASSING RUN. At stop 17a that is treated $6.9225/7 = $0.9889 against control $2.8723/3 =
+    $0.9574 - 1.033x, +3.3%, INSIDE the 15% allowance - while the MEDIAN COST PER RUN is 1.83x. The
+    clause passed BECAUSE THE CONTROL FAILS MORE OFTEN (3 of 8 against 7 of 8): dividing by the pass
+    count makes a more-often-passing arm look cheaper per accepted task even when every one of its runs
+    costs nearly twice as much. On a task the pinned model usually fails this is not an edge case, it is
+    the normal case, and EVERY later stop on BE-005 inherits it. Not foreseen by anyone. Whether the
+    clause should be read per-run or per-accepted-task is the AUTHOR'S, because B13 is the author's gate;
+    I applied it exactly as E-020 registered it and recorded both numbers side by side."
+  - "*** 2026-09-25, §4 step 7/13. SHAPE-RULE.md's TALLY IS LABELLED `unconfirmed by the author` AND THE
+    STOP'S STRONGEST NUMBER SITS UNDER THAT LABEL. *** evidence/b08a/shape/SHAPE-RULE.md:64,76-77 records
+    that Gate B' had the author confirm every row before its tally was called, that no author was
+    available here, and that the tally stands unconfirmed until one overrules or confirms it. P3 - the
+    shape classification, 8 of 8 vs 2 of 8, Fisher p = 0.0070 - is the only thing at this stop that
+    separated, and it is the reading that carries that label and an L3 proof. The two blind readers
+    agreed 16 of 16 on class and 48 of 48 per read path, which is the error bar, not a substitute. An
+    author pass over the 16 rows would convert the stop's one positive from L3 to something better."
+  - "*** 2026-09-25, §4 step 14. obs#88 MERGED THE agentsHash INSTRUMENT, AND ITS OWN CI CAUGHT THAT
+    NOTHING RAN THE NEW CHECK SCRIPT. *** Decision 11 item 9 called it WELCOME and said the proof does
+    not depend on it; it does not, and the four hand-written delivery conditions stand unchanged. What is
+    new: agents_hash() over the SET of .claude/agents/*.md, written as skills_hash() already is; a V7
+    nullable column; and runner/verify-agents-hash.sh at 8 of 8 proving a RENAME and an EDIT produce
+    DIFFERENT values, which is item 9's clause verbatim. The first CI run FAILED on verify-ci-coverage's
+    `the live repository is not covered` because the new script was run by neither ci.yml nor the exempt
+    table - the coverage control working exactly as designed - and the fix is an exempt row stating what
+    the script actually needs (a running API; no model, no money). FORWARD COMPATIBILITY WAS OBSERVED
+    RATHER THAN INFERRED: a record carrying agentsHash POSTed to the PRE-V7 API returned HTTP 201 with
+    the field ignored, so a runner updated ahead of an API restart records null rather than failing the
+    POST."
   - "*** 2026-09-25, §4 step 7/8 of stop 17a. THE RUNNER MARKS F13 ON A COMPLETE RUN, AND THE COMMAND §4
     STEP 8 NAMES THEN DISCARDS IT. *** run-agent.sh:1352-1357 records failureClass F13 when a run FAILED
     and `tail -3` of its agent log matches the infrastructure signature. On this batch it fired on TWO
