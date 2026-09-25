@@ -107,7 +107,72 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running   # *** §0 BOUNDARY 2 FOR STOP 18 - `after the PR`, the SECOND and LAST of the two boundaries
+status: running   # *** §0 BOUNDARY 2 FOR STOP 18 - `after the PR`, the SECOND AND LAST of the two
+                  # boundaries §0 gives a Track A stop with no runs. THE SESSION ENDS ON THAT BOUNDARY,
+                  # NOT ON A HALT. blocked_on_author IS EMPTY and NO §7 BULLET IS MATCHED. ***
+                  # prompt_sha a47590a1e61d UNCHANGED (re-computed this session). All 22 validator files
+                  # are in validation_processed, checked BY NAME, and NO NEW ONE EXISTS.
+                  #
+                  # *** STOP 18 (PHASE 6A) IS CLOSED AND MERGED. lab#122 -> 55ea0c058b72c02533426569e9f
+                  # 0c3ca841e0cab *** (merge commit, not squash). Nine checks green, one red and the red
+                  # is the board, which is the author`s by decision 12 item 4. §4 steps 1-14 are complete
+                  # except the board republish.
+                  # lab#8 HAS ITS CLOSING COMMENT (issuecomment-5839003109) AND ITS CARD IS `Done`, READ
+                  # BACK - *** AND THE ISSUE IS STILL OPEN, WHICH IS THE CORRECT OUTCOME AND WAS VERIFIED
+                  # AFTER THE CARD MOVE, NOT ASSUMED. *** Labs 6.1-6.4 are DEFERRED and the comment names
+                  # all four; §4 step 14 keeps a Phase issue open while any lab is deferred. Closing one
+                  # in error has already happened three times here (lab#5, lab#6, lab#14).
+                  #
+                  # *** n = 0 ON THE AGENT UNDER TEST. *** 31 runs of claude-haiku-4-5-20251001 at claude
+                  # 2.1.282 for $0.2629 against a $0.50 ceiling, and NOT ONE performed a task. Every
+                  # number is a property of the HARNESS, read from each run`s own system/init record
+                  # before the model produced a token. Nothing here enters any B step.
+                  #
+                  # *** REGISTERED CONTRAST: arm A 5 of 5, arm B 0 of 5, Fisher p = 0.0079 - the EXACT
+                  # value the MDE registered before the run. DECISION RULE ROW 1. *** The workbook`s
+                  # PROVISIONAL layer label is settled BY MEASUREMENT: --strict-mcp-config is L2. The
+                  # documented approval prompt is L3 AND ABSENT in claude -p.
+                  #
+                  # *** THE DELIBERATE FAILURE IS REFUTED AND OUTRANKS THE REGISTERED RESULT. *** DF1 and
+                  # DF2 predicted the probe ABSENT with the .mcp.json one directory ABOVE an empty cwd.
+                  # It loaded 5 of 5. DF3 (three levels up) and DF4 (two levels above the cwd`s OWN GIT
+                  # ROOT) both HELD 5 of 5. THE LOADER WALKS UPWARD AND A GIT BOUNDARY DOES NOT STOP IT.
+                  # The extract`s §3 UNDERSTATED the hole. NOTHING IS BROKEN TODAY - the flag is passed
+                  # on every run - and that is what a later step must not remove.
+                  #
+                  # *** THE §4a REVIEW CHANGED THE RESULT, NOT JUST THE PROSE, AND THAT IS THE FIRST TIME
+                  # IN THIS TRACK. *** Eight invocations over two rounds, 21 findings, all dispositioned
+                  # in lab#122`s body. The sharpest: EVERY arm placing the file ABOVE the cwd ran with the
+                  # flag OFF, and arm B tested the flag with the file IN the cwd, so the combination that
+                  # DECIDES THE L2 LABEL had never been run. ARM E was registered (DF5 at 99313d2, before
+                  # its driver existed) and run: *** 0 of 5. *** The label is sound on BOTH placements.
+                  # ROUND 2 then found arm E`s sed was UNVERIFIED AND COULD HAVE FAKED THAT NULL - arm E
+                  # is the ONLY arm here whose conclusion is negative, and a negative is the one kind a
+                  # broken probe can manufacture. Closed by five hand checks in
+                  # evidence/p06a/arm-e-*/POST-COPY-VERIFICATION.md, the decisive one being that THE
+                  # POST-COPY probe_server.py THE RUN WAS POINTED AT ANSWERS THE MCP HANDSHAKE.
+                  # *** §4a STOPPED AT ROUND 2 ON THE `every finding disputed in writing` CLAUSE, NOT ON
+                  # AN ACCEPT: three of four round-2 gates read REJECT. *** lab#122`s body says so plainly.
+                  #
+                  # *** THREE CO-VARIATES NOBODY REGISTERED. *** (1) Without the flag the agent inherited
+                  # FIVE operator-scope claude.ai MCP servers including slack_send_message and Drive: 53
+                  # delivered tools against 28, and +15.7% median cost on a NINE-WORD prompt that does no
+                  # work. The runner`s comment at :759-762 is now measured on both halves. (2)
+                  # --setting-sources project does NOT close that channel. (3) Arm A`s delivered tool set
+                  # is NONDETERMINISTIC (37 on one run, 53 on four) while arm B`s has ZERO spread.
+                  # Reported as co-variates, NOT results: the registered outcome was 5 of 5 either way.
+                  #
+                  # *** §0a RAN IN FULL AT THE AUTHOR`S INSTRUCTION. FIVE ROWS PASS, TWO FAIL, NEITHER IS
+                  # A §7 HALT. *** Row 6 (isolation) fails NONDETERMINISTICALLY again: SIX LEAKS AND FOUR
+                  # OK ACROSS TEN INVOCATIONS over two sessions. It guards the CODEX ARM, which stop 21
+                  # opens and stop 18 never ran. Row 7 (board) is RED by decision 12 item 4.
+                  #
+                  # *** THE BOARD DIGEST MOVED TWICE THIS SESSION AND IS NOW 18e79034918e. ***
+                  # 91344292d8ed -> a43a03ee7e2c (the §4 step 14 HANDOFF.md edit) -> 18e79034918e (the
+                  # §4 step 13a edit that wrote arm E in). RE-DERIVED after each edit by re-running
+                  # check-board-freshness.sh, never carried. DO NOT EDIT HANDOFF.md WITHOUT RE-DERIVING.
+                  # NOTHING IS RUNNING: no run-agent.sh, no opencode, no codex, no probe, no lock.
+# SUPERSEDED, kept not deleted: status: running   # *** §0 BOUNDARY 2 FOR STOP 18 - `after the PR`, the SECOND and LAST of the two boundaries
                   # §0 gives a Track A stop with no runs. THE SESSION ENDS ON THAT BOUNDARY, NOT ON A
                   # HALT. blocked_on_author IS EMPTY and NO §7 BULLET IS MATCHED. ***
                   # prompt_sha a47590a1e61d UNCHANGED (re-computed this session: shasum -a 256 of
@@ -604,7 +669,14 @@ branch: stop18/06a-code-intelligence (agent-learning-lab), created 2026-09-25 of
         commit of this session lands here. NO PR IS OPEN YET - a PR is §4 step 14, at boundary 2.
 # SUPERSEDED, kept not deleted: branch: stop17a/b8a-decomposition-depth (agent-learning-lab), created 2026-09-24 off main at d4faa7e, which IS origin/main - fetched and compared, not assumed. NOTHING IS ON THIS BRANCH YET beyond this state write. The author's CONTINUE instruction forbids committing to ANY main outside a PR, state-file-only commits included, so every commit of this session lands here.
   # SUPERSEDED, kept not deleted: branch: stop17/b8-run-state-repair-limits (agent-learning-lab), created 2026-09-15 off main at 3a0f61f, which is origin/main - fetched and compared, not assumed. The census branch census/decision-11 and all stop-16 branches are MERGED, not deleted.  SUPERSEDED, kept not deleted: census/decision-11 (agent-learning-lab), off main at 5bd91d3 — the census PR. All stop-16 branches are merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab) - stop16/phase-5b-verification-selfhealing and stop16/handoff-and-boards are MERGED, not deleted; agent-observatory stop16/permission-block-classifier is MERGED, not deleted.  SUPERSEDED, kept not deleted: stop16/phase-5b-verification-selfhealing (agent-learning-lab), created 2026-09-11T10:24:52Z off main at 2d201a5. The stop-15 branch is merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab), clean, at 2d201a5. THE STOP-15 BRANCH stop15/b7-verification-policies IS MERGED, not deleted. Fifteen commits on it this session. SUPERSEDED, kept not deleted: stop15/b7-verification-policies (agent-learning-lab). SIX NEW COMMITS THIS SESSION on top of 96be718: 82685e1 the n=7 decision and the n=7 detection limits registered before any sheet; 0c5651a the two hand re-reads, committed while zero sheets existed for the batch; 8cf8942 P1-P6 measured into E-015 and E-016, P7 deferred; 493e1ba step 8 artefacts (verify-sh over 34 worktrees, gate from two sources, the baseline-report defect); plus the probe-file rename and this state write. branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, PUSHED. FIVE COMMITS: 32d99cc step 1 (workbook Goal/Required reading/Extract; lab#32 commented; card In Progress), a921443 the OTHER session`s state hunks + its §7 halt, 674d8a9 step 2 (design + the census + the feasibility probe), 344bc97 the halt discharge, ea7b1d2 THE PREDICTION COMMIT at 2026-09-10T11:51:08+02:00 = 09:51:08Z. SUPERSEDED, kept not deleted: branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, THREE COMMITS: 32d99cc (step 1), a921443 (the driver session`s state hunks + its §7 halt), 674d8a9 (step 2). NOT PUSHED YET. SUPERSEDED, kept not deleted: branch: NONE - stop14/phase-5a-guardrails IS MERGED (
-in_flight:
+in_flight: []   # *** EMPTY. lab#122 IS MERGED (55ea0c058b72c02533426569e9f0c3ca841e0cab) and the
+                # branch stop18/06a-code-intelligence is fully merged into main. Nothing is open in any
+                # of the three repositories, no process is running, no lock directory exists at
+                # /tmp/stop18-mcp-probe.lock, and the 31 probe runs are complete with their evidence
+                # committed under evidence/p06a/. The throwaway trees under /tmp/stop18-mcp-* are
+                # disposable by design - $TMPDIR reaping them costs nothing, because every init record,
+                # stream and RESULT.tsv is in the repository.
+# SUPERSEDED, kept not deleted: in_flight:
   - "PR lab#122 (stop 18, Phase 6A) - OPEN. Nine checks GREEN, one RED and the red is EXPECTED:
      `a published board does not outlive its source`, author decision 12 item 4. The §4a review is the
      last item before the merge; its findings file path and the per-finding disposition go into the PR
@@ -1738,7 +1810,53 @@ last_verified: "2026-09-25, STOP 18 CLOSED. EVERY VALUE BELOW WAS EITHER PRODUCE
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "*** READ THIS BLOCK FIRST. STOP 18 IS SUBSTANTIVELY CLOSED BUT lab#122 IS NOT YET MERGED
+next_action: "*** STOP 18 IS CLOSED AND MERGED (lab#122 -> 55ea0c058b72c02533426569e9f0c3ca841e0cab).
+  DO NOT REOPEN IT. THE NEXT STOP IS 19 (PHASE 6B - KNOWLEDGE RETRIEVAL, READ PATH ONLY) AND NOTHING
+  OF IT EXISTS - §6 FORBIDS A FUTURE STEP`S ARTIFACTS EARLY. OPENING IT AT §4 STEP 1 IS THE NEXT
+  SESSION`S FIRST ACT. ***
+  (0) FIRST, AS ALWAYS: re-compute shasum -a 256 ../PROMPT-opus5-track-b.md | cut -c1-12 against
+      prompt_sha a47590a1e61d, and list findings/track-b-validation-*.md against validation_processed
+      (22 files, none new as of this write). §0a does NOT fire - this is neither a first session nor a
+      halt - UNLESS the author`s instruction for that session says to run it, as it has for the last
+      three sessions.
+  (1) §4 step 1 for stop 19: a NEW workbook under phases/06b-knowledge-retrieval/, Goal + Required
+      reading + Extract filled from sources actually opened, ./tools/check-links.sh on anything new in
+      SOURCES.md, then ONE comment `opened at spine stop 19, branch <name>, <ISO date>` on the PHASE
+      issue - *** LOOK THE NUMBER UP VIA THE API, DO NOT GUESS IT. *** A previous next_action guessed
+      lab#34 for B8a and lab#34 is B9; stop 18`s issue was lab#8, looked up, not guessed.
+      Then move its card to In Progress AND READ IT BACK.
+      Project #2: PVT_kwDOD-WaCM4Bhgoq  Status field: PVTSSF_lADOD-WaCM4BhgoqzhgcH0g
+      options: Todo f75ad846 | In Progress 47fc9ee4 | Done 98236657
+      *** NOTE FOR THE CLOSE: moving a card to Done did NOT auto-close lab#8 - verified by reading the
+      issue state back immediately afterwards. Verify it again rather than trusting this line. ***
+  (2) §3 gives stop 19 `reading, extract, ONE LAB. 6B READ PATH ONLY.` §0 gives a Track A stop with no
+      runs TWO boundaries: after the extract, and after the PR. *** DO NOT OPEN 6B`S WRITE PATH - §6
+      forbids it before Phase 9 (stop 24). ***
+  (3) CARRY FORWARD, all author_notes items and none of them blockers:
+      (a) STOP 20 (B9) owes an mcpHash writer AND provenance with it - stop 18 measured that a
+          .mcp.json ABOVE the worktree loads, so a digest of the delivered config would still not say
+          which directory it came from. obs#88`s agentsHash is the shape for the hash half only.
+      (b) STOP 21 (B10) CANNOT OPEN ON THE CODEX ARM until verify-codex-isolation.sh is deterministic:
+          six leaks and four ok across ten invocations over two sessions. Fixing it is ITS OWN PR,
+          reviewed - not a side edit during a stop.
+      (c) THE BOARD DIGEST IS NOW 18e79034918e. It moved TWICE at stop 18. DO NOT EDIT HANDOFF.md
+          WITHOUT RE-DERIVING IT by re-running ./tools/check-board-freshness.sh. The republish is the
+          AUTHOR`S (decision 12 item 4) and its red check is EXPECTED on every PR until they do it.
+      (d) lab#8 IS OPEN ON PURPOSE. Labs 6.1-6.4 are deferred. Do NOT close it as tidying.
+  (4) LEFT OPEN BY STOP 18 AND NOT OWED BY STOP 19: how far up the .mcp.json walk goes ($HOME? /?), and
+      whether --add-dir or a symlinked worktree changes it. One run answers it. Left open under §6
+      because the spine funds ONE lab per Track A stop, not because it is uninteresting.
+  (5) AND THE METHOD LESSON WORTH REUSING: at stop 18 the §4a review found a hole in the stop`s own
+      CONCLUSION - a label claimed on a combination no arm had run - and it was answered with A NEW
+      REGISTERED ARM rather than a softened sentence. Round 2 then found that the new arm`s instrument
+      could have FAKED its own null, because that arm was the only one whose conclusion was NEGATIVE.
+      *** A NEGATIVE RESULT IS THE ONE KIND A BROKEN PROBE CAN MANUFACTURE. *** Whenever an arm`s
+      finding is `it did not appear`, verify the probe end-to-end on disk afterwards.
+  DO NOT: re-run, re-score or edit anything of stop 18; create any artifact of stop 20 (B9), the mcpHash
+  writer included; edit verify-codex-isolation.sh as a side edit; republish or relabel a board; or write
+  a .mcp.json into any tracked tree - stop 18`s probe fixtures are INERT (.fixture suffix) and its
+  drivers refuse with exit 5 if pointed inside one."
+# SUPERSEDED, kept not deleted: next_action: "*** READ THIS BLOCK FIRST. STOP 18 IS SUBSTANTIVELY CLOSED BUT lab#122 IS NOT YET MERGED
   AS OF THIS WRITE. THE BLOCK BELOW, WHICH BEGINS `STOP 18 IS CLOSED AND MERGED`, IS WHAT TO DO ONCE
   THE FOUR ITEMS HERE ARE DONE - AND IT IS ALREADY WRITTEN SO NOTHING IS LOST IF CONTEXT CLEARS. ***
   WHAT REMAINS OF §4 STEP 14, IN ORDER:
