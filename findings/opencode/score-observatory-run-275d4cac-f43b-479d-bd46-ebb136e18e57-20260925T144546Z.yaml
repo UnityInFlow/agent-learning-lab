@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be005.yaml
+  rubric_sha:    945817b8c509
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-275d4cac-f43b-479d-bd46-ebb136e18e57
+  mode:          run
+  run_id:        275d4cac-f43b-479d-bd46-ebb136e18e57
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:8081/api/runs/275d4cac-f43b-479d-bd46-ebb136e18e57
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.CSkwnbPLwM/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260925T144546Z
+  attachments:   13 file(s) under test, 13 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 1
+    anchor_level: 1
+    reason: Order stores a fulfilment value the order package alone writes, read path derives anyway.
+    evidence: order/Order.kt:17
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: confirm/deliver/cancel each carry their own find-check-save copy, no shared function.
+    evidence: shipment/ShipmentController.kt:115
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: clause (b) absent; over-allocation 409 asserts status only, no re-read.
+    evidence: shipment/ShipmentControllerTest.kt:134
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: every difference traces to a permitted clause; duplicate-id checks and getById unchanged.
+    evidence: order/OrderController.kt:33
+ambiguous_categories: []
+```

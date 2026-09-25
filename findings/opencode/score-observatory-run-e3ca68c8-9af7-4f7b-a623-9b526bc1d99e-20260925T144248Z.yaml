@@ -1,0 +1,48 @@
+# provenance — this block is data, not decoration.
+# An unpinned scorer model is an unregistered variable. That is the Phase 0A lesson.
+provenance:
+  scorer:        lab-scorer
+  model:         ollama-cloud/deepseek-v4-pro
+  opencode:      1.18.27
+  agent_sha:     b181a9bc5df0
+  rubric_path:   benchmark/rubrics/backend-quality-be005.yaml
+  rubric_sha:    945817b8c509
+  target:        /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e3ca68c8-9af7-4f7b-a623-9b526bc1d99e
+  mode:          run
+  run_id:        e3ca68c8-9af7-4f7b-a623-9b526bc1d99e
+  evaluator_exit: 0
+  observatory:   http://127.0.0.1:8081/api/runs/e3ca68c8-9af7-4f7b-a623-9b526bc1d99e
+  baseline:      /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.3HMADpJBIN/baseline
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:    20260925T144248Z
+  attachments:   14 file(s) under test, 13 with a baseline side
+  session:       fresh    # never --continue; independence requires no memory
+---
+
+> lab-scorer · deepseek-v4-pro
+
+```yaml
+scorer: lab-scorer
+categories:
+  - name: architecture-consistency
+    score: 1
+    anchor_level: 1
+    reason: order stores fulfilment field, order package alone writes it, read path derives anyway
+    evidence: Order.kt:14, OrderController.kt:77, OrderController.kt:117
+  - name: maintainability
+    score: 0
+    anchor_level: 0
+    reason: confirm, deliver, cancel each re-implement find-then-check-status instead of one shared function
+    evidence: ShipmentController.kt:108, ShipmentController.kt:128, ShipmentController.kt:148
+  - name: test-quality
+    score: 1
+    anchor_level: 1
+    reason: clauses a,c,d,e met but over-allocation 409 is never re-read, so clause b absent
+    evidence: OrderFulfilmentTest.kt:113, OrderFulfilmentTest.kt:124, OrderFulfilmentTest.kt:150
+  - name: change-focus
+    score: 2
+    anchor_level: 2
+    reason: every difference from baseline is clause-required; no gratuitous restructuring of existing statements
+    evidence: OrderController.kt:33, ShipmentController.kt:28, CustomerController.kt:28
+ambiguous_categories: []
+```

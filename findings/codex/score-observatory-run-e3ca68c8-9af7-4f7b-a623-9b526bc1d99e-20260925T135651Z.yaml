@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be005.yaml
+  rubric_sha:     945817b8c509
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e3ca68c8-9af7-4f7b-a623-9b526bc1d99e
+  mode:           run
+  run_id:         e3ca68c8-9af7-4f7b-a623-9b526bc1d99e
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:8081/api/runs/e3ca68c8-9af7-4f7b-a623-9b526bc1d99e
+  attachments:    14 changed file(s), 13 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260925T135651Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 0
+    anchor_level: 0
+    reason: "Stored fulfilment is re-derived and persisted on quantity amendment"
+    evidence: "Order.kt:14, OrderController.kt:62, OrderController.kt:169, OrderController.kt:170"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "Confirm, deliver, and cancel duplicate find-check-save logic"
+    evidence: "ShipmentController.kt:109, ShipmentController.kt:130, ShipmentController.kt:151"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Body and header assertions exist, but clause (b) lacks post-refusal state read-back"
+    evidence: "OrderFulfilmentTest.kt:120"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Order class KDoc changed beyond permitted differences"
+    evidence: "baseline/Order.kt:5, work-under-test/Order.kt:5"
+ambiguous_categories: []

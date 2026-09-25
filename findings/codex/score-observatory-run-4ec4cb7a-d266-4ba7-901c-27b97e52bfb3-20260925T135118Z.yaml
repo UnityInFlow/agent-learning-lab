@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be005.yaml
+  rubric_sha:     945817b8c509
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4ec4cb7a-d266-4ba7-901c-27b97e52bfb3
+  mode:           run
+  run_id:         4ec4cb7a-d266-4ba7-901c-27b97e52bfb3
+  evaluator_exit: 0
+  observatory:    http://127.0.0.1:8081/api/runs/4ec4cb7a-d266-4ba7-901c-27b97e52bfb3
+  attachments:    13 changed file(s), 13 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260925T135118Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 0
+    anchor_level: 0
+    reason: "Order stores fulfilment, rewritten by shipment transitions and quantity amendment"
+    evidence: "Order.kt:11; ShipmentController.kt:66,120,141,162,185; OrderController.kt:143-147"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "Confirm, deliver, and cancel duplicate find-check-save logic"
+    evidence: "ShipmentController.kt:104-121,125-142,146-163"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Body assertions exist; cancellation, over-allocation read-back, pagination, and amendment clauses are absent"
+    evidence: "OrderControllerTest.kt:47-82; ShipmentControllerTest.kt:42-84"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Existing class KDocs were removed outside clause-required method changes"
+    evidence: "baseline/CustomerRepository.kt:5; work-under-test/CustomerRepository.kt:5"
+ambiguous_categories: []
