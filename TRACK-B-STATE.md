@@ -174,7 +174,7 @@ status: running   # *** §0 BOUNDARY 2 FOR STOP 18 - `after the PR`, the SECOND 
                   #
                   # *** THE BOARD DIGEST MOVED. *** I EDITED HANDOFF.md this session, so the digest the
                   # two markers must be set to is NO LONGER 91344292d8ed. RE-DERIVED IMMEDIATELY AFTER
-                  # THE EDIT by running check-board-freshness.sh: *** a43a03ee7e2c ***. DO NOT EDIT
+                  # THE EDIT by running check-board-freshness.sh: *** 18e79034918e ***. DO NOT EDIT
                   # HANDOFF.md WITHOUT RE-DERIVING IT AGAIN.
                   # NOTHING IS RUNNING: no run-agent.sh, no opencode, no codex, no probe, no lock.
 # SUPERSEDED, kept not deleted: status: running   # *** §0 BOUNDARY 1 FOR STOP 18 (PHASE 6A) - `after the extract`, which is the first
@@ -609,7 +609,11 @@ in_flight:
      `a published board does not outlive its source`, author decision 12 item 4. The §4a review is the
      last item before the merge; its findings file path and the per-finding disposition go into the PR
      BODY before it is merged (§4 step 14)."
-  - "THE BOARD DIGEST MOVED TO a43a03ee7e2c. I edited HANDOFF.md this session. The two markers must be
+  - "THE BOARD DIGEST MOVED TO 18e79034918e, AND IT MOVED TWICE IN ONE SESSION. The §4 step 14 edit
+     took it from 91344292d8ed to a43a03ee7e2c, and the §4 step 13a edit that wrote the §4a review's
+     arm E into HANDOFF.md took it from a43a03ee7e2c to *** 18e79034918e ***, which is the value the
+     two markers must be set to. Commit messages earlier in this branch name a43a03ee7e2c and were
+     correct when written; this line supersedes them. I edited HANDOFF.md this session. The two markers must be
      set to that value AFTER the author republishes; the previous session`s 91344292d8ed is now WRONG.
      Re-derived by running check-board-freshness.sh immediately after the HANDOFF.md edit, not computed
      by hand."
@@ -1789,7 +1793,7 @@ next_action: "*** STOP 18 IS CLOSED AND MERGED. DO NOT REOPEN IT. THE NEXT STOP 
       (b) STOP 21 (B10) CANNOT OPEN ON THE CODEX ARM until verify-codex-isolation.sh is deterministic:
           six leaks and four ok across ten invocations over two sessions. Fixing it is ITS OWN PR,
           reviewed - not a side edit during a stop.
-      (c) THE BOARD DIGEST IS NOW a43a03ee7e2c, NOT 91344292d8ed. HANDOFF.md was edited at stop 18`s
+      (c) THE BOARD DIGEST IS NOW 18e79034918e, NOT 91344292d8ed. HANDOFF.md was edited at stop 18`s
           §4 step 14. DO NOT EDIT HANDOFF.md WITHOUT RE-DERIVING IT AGAIN by re-running
           ./tools/check-board-freshness.sh. The republish is the AUTHOR`S (decision 12 item 4) and its
           red check is EXPECTED on every PR until they do it.
@@ -3419,7 +3423,7 @@ author_notes:
   - "2026-09-25, STOP 18 CLOSED, item D - *** A CORRECTION TO THE PREVIOUS SESSION`S preflight: BLOCK,
      KEPT ADDITIVELY. *** It recorded check-board-freshness.sh`s board_check row as `exit 0`. It exits 1
      when boards are stale. Re-derived by me in the main context this session. AND THE DIGEST HAS MOVED:
-     I edited HANDOFF.md at §4 step 14, so the two board markers must be set to a43a03ee7e2c, not the
+     I edited HANDOFF.md at §4 step 14, so the two board markers must be set to 18e79034918e, not the
      91344292d8ed the previous session recorded. The republish stays the author`s (decision 12 item 4)."
   - "2026-09-25, STOP 18 CLOSED, item E - *** THE §0a ISOLATION ROW`S TALLY NOW SPANS TWO SESSIONS: SIX
      LEAKS AND FOUR OK ACROSS TEN INVOCATIONS *** of verify-codex-isolation.sh, same script, same
@@ -5166,7 +5170,7 @@ preflight:  # *** §0a RUN IN FULL 2026-09-25T18:37-18:47Z *** at the AUTHOR`S E
     which puts the republish in the author`s interactive session; I have no Artifact tool in print mode
     and relabelling a marker for a publish that did not happen is how one ends up PROVABLY CURRENT AND
     WRONG. *** I DID EDIT HANDOFF.md THIS SESSION, SO THE DIGEST MOVED: the markers must be set to
-    a43a03ee7e2c, NOT 91344292d8ed. Re-derived by re-running the check after the edit. ***
+    18e79034918e, NOT 91344292d8ed. Re-derived by re-running the check after the edit. ***
     NOT a §7 halt and NOT in blocked_on_author: it is a decision the author already made."
   hook_wiring: "still `unproven in print mode`, and deliberately so for the seventh stop running. §0a
     itself permits it: `treat §4a`s synchronous review as the only review control for the rest of the

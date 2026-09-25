@@ -128,8 +128,8 @@ the close.`
 Workbook: `phases/06a-code-intelligence/README.md`. Experiment:
 `experiments/E-021-print-mode-mcp-hole-06a.md`. Row file: `findings/track-b-2026-09-25-3.md`.
 
-**`n = 0` on the agent under test.** 26 runs of `claude-haiku-4-5-20251001` at `claude 2.1.282`,
-$0.2393 against a $0.50 ceiling, and not one of them performed a task. Every number here is a
+**`n = 0` on the agent under test.** 31 runs of `claude-haiku-4-5-20251001` at `claude 2.1.282`,
+$0.2629 against a $0.50 ceiling, and not one of them performed a task. Every number here is a
 property of the harness, read from each run's own `system`/`init` record before the model produced
 a token. Nothing at this stop enters any B step's comparison.
 
@@ -156,6 +156,25 @@ Bash` delivered as `["Read","Bash"]` on 10 of 10 runs.
 **Two-sided Fisher `p = 0.0079`** — the exact value the MDE registered before the run for a
 complete separation at `n = 5` per arm, transferred from E-005's zero-spread delivered-tool-set
 measurement. **Decision-rule row 1. `--strict-mcp-config` is L2, by measurement.**
+
+### The §4a review found a hole in that conclusion, and it was answered with a run
+
+Eight review invocations over two rounds, four artifacts each. **Arms D, D2 and D3 all ran with the
+flag OFF, and arm B tested the flag with the file IN the cwd — so the combination that decides the
+L2 label, the flag ON against a file ABOVE the worktree, had never been run.** The review said so.
+**Arm E ran it: DF5 registered at `99313d2` before the driver existed, predicted absent, and held at
+0 of 5.** The flag filters an ancestor's `.mcp.json` too, so the label is sound on both placements.
+
+Round 2 then found that arm E's `sed` substitution was unverified and **could have faked that null**
+— arm E is the only arm here whose conclusion is negative, and a negative is the one kind a broken
+probe can manufacture. Five hand checks closed it
+(`evidence/p06a/arm-e-*/POST-COPY-VERIFICATION.md`), the decisive one being that **the post-copy
+`probe_server.py` the run was actually pointed at answers the MCP handshake**. The driver still does
+not perform those checks itself; that is disclosed rather than fixed, because it produced a measured
+arm.
+
+**This is the first time in this track a review finding produced a new measurement rather than a
+correction**, and it is the argument for §4a that no amount of ShellCheck makes.
 
 ### The deliberate failure was refuted, and it is the larger half of the stop
 
