@@ -1965,6 +1965,33 @@ blocked_on_author: []   # EMPTY as of 2026-09-24T23:1xZ. The single item below w
   # SUPERSEDED, kept not deleted: blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:
+  - "NEW 2026-09-25, AND IT IS A RECOMMENDATION ABOUT YOUR REPO, NOT A HALT. *** BE-005 HAS NO FIXTURE
+    WHOSE TESTS EXERCISE THE AMENDMENT ENDPOINT, so after the clause you asked for, test-quality anchor 2
+    is unreachable by any fixture. *** Your standing instruction named `an amendment read-back clause in
+    test-quality`. I made it a fifth REQUIRED clause (e) rather than an OR inside clause (a), because a
+    suite that re-reads only after a cancel passes known-bad-stale-amend unchanged and that fixture is why
+    ticket A` exists. The consequence: good-strong-tests covers allocation, over-allocation through the
+    envelope, the cancel release read-back, delivery, the customer refusal and the paged list - and never
+    calls PUT /orders/{orderId}/quantity. So it is predicted at 1, the separation still holds (1 vs
+    good-weak-tests at 0), and the TOP ANCHOR IS NEVER SHOWN TO BE REACHABLE, which is the mirror of the
+    house failure mode this project keeps meeting. THE FIX IS YOURS AND I DID NOT TAKE IT: an eighth
+    gate-passing fixture - good-strong-tests plus one amendment read-back test - would make anchor 2
+    reachable and would let the rubric distinguish a suite that catches known-bad-stale-amend from one that
+    does not. A benchmark fixture is a registered variable (§6) and BE-005 is your build. Until then the
+    rubric is strictly stronger than the draft and the proof stands on the pair."
+  - "NEW 2026-09-25. TWO NUMBERS IN AUTHOR-DECISION-11-CONTINUE.md TRACE TO THE WRONG ROUND. Neither is
+    used silently and neither is a halt. (a) The document says `evaluator 1.1.0`; the evaluator ON
+    benchmarks main carries EVALUATOR_VERSION=\'1.0.0\'
+    (tasks/BE-005-partial-fulfilment/evaluator.sh:58). verify-evaluator.sh passes 17 of 17 either way so
+    nothing measured moves, but 1.0.0 is the string every B8a run record will register and E-0xx must cite
+    it, not 1.1.0. (b) The document sets the budget line at `25x the median plain-run cost, $0.34`. $0.341
+    is GATE B ROUND 1`s median, on ticket A, the ticket that FAILED its gate
+    (evidence/gate-b-decision-11/RESULT.md:36). The registered ticket is A` and its gate is B`, whose
+    median is $0.388, range 0.330-0.426 (evidence/gate-b2-decision-11/RESULT.md). Decision 11 item 11 sets
+    a FORMULA - 25x the Gate B median plain-run cost - not a number, and the gate that passed on the
+    registered ticket is B`. I WILL REGISTER THE CEILING AT 25 x $0.388 = $9.70 at §4 step 3, stated as
+    such in the prediction commit; your reading gives $8.53. Say the word and it becomes $8.53 - lowering a
+    cost ceiling needs no halt and moves no registered variable."
   - "MOVED HERE VERBATIM FROM blocked_on_author 2026-09-24, DISCHARGED, kept not deleted. It was written
     2026-09-16 and every one of its conditions is now met: BE-005 merged (#30 a662c966, amended by #31
     fac772d2), verify-evaluator.sh re-run on main 17 of 17 (lab ed1deb0), Gate B′ WRONG 4 of 5 with every

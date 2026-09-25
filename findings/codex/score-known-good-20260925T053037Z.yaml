@@ -20,3 +20,26 @@ provenance:
   session:        fresh    # --ephemeral; independence requires no memory
   isolation:      --ignore-user-config --ignore-rules --sandbox read-only
 ---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "Refusals use ApiException subclasses, while one shipment-derived function serves both order reads"
+    evidence: "OrderController.kt:62,77,89,124; ShipmentController.kt:80,84,88,105"
+  - name: "maintainability"
+    score: 2
+    anchor_level: 2
+    reason: "Single expression status decision, shared transitions, and one allocation comparison satisfy all clauses"
+    evidence: "OrderController.kt:128; ShipmentController.kt:48,80,84,88,105"
+  - name: "test-quality"
+    score: null
+    anchor_level: null
+    reason: "nothing to grade"
+    evidence: "No file under src/test/ among the attachments"
+  - name: "change-focus"
+    score: null
+    anchor_level: null
+    reason: "ambiguous: cannot separate 0, 1, and 2 without a baseline"
+    evidence: "No baseline tree among the attachments"
+ambiguous_categories: ["test-quality", "change-focus"]
