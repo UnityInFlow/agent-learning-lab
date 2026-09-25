@@ -179,3 +179,84 @@ does not index it. This is not a scoring error and changes no cell.
 already known, so this is a confirmation and not a blind reading — §4 step 7's blind-first discipline
 applies to run scoring, and this proof's equivalent is `PREDICTIONS.md`, which registered all 28
 cells before any sheet existed.*
+
+---
+
+## THE AUTHOR DECIDED, 2026-09-25: **option 3.** The rubric IS registered, at this same sha.
+
+The §7 halt this file raised is **discharged**. The author answered it, and the other three items
+raised with it, in an interactive session on **2026-09-25**. The decisions are recorded verbatim in
+`TRACK-B-STATE.md` `author_decisions` item 12 and in `HANDOFF.md`; the two that bear on this file:
+
+> **DECISION 1 — change-focus.** Register the BE-005 rubric with change-focus marked `unmeasured`,
+> and take B8a's registered outcome from `architecture-consistency`. This is option 3 of
+> evidence/b08a/rubric-proof/RESULT.md. The author accepts its stated cost explicitly: the 15%
+> weight carries no measurement, so B8a's weighted total is NOT comparable to BE-004's, and the
+> registration must say so in those terms rather than leaving a reader to infer it. The precedent is
+> the author's own decision 10.3. Do NOT narrow the anchor and do NOT change the harness.
+
+> **DECISION 2 — the eighth fixture.** NO. Proceed with the seven fixtures already proved. Record in
+> the RESULT and in the registration that `test-quality` anchor 2 is UNREACHABLE in this proof,
+> because no fixture's tests call the amendment endpoint — recorded, not hidden, and not a reason to
+> weaken the dimension. test-quality still separates on 0 vs 1, which is what the dimension needs.
+
+### Nothing in this file above this line is edited, and the rubric is not edited either
+
+**The registered sha is `945817b8c509` — the same sha the seven sheets were scored under**, on the
+same seven fixtures, by codex and nothing else. Re-derived immediately before this section was
+written: `shasum -a 256 benchmark/rubrics/backend-quality-be005.yaml | cut -c1-12` → `945817b8c509`,
+the file committed at `300b6ca` with no working-tree diff.
+
+**The `unmeasured` mark is NOT written into the YAML, deliberately.** Adding even a comment to the
+rubric would change the sha that all seven sheets assert, and the proof would then be a proof of a
+file that no longer exists. That is why the mark lives in the registration instead — which is
+exactly the form the author's own **decision 10.3** took when it carved `change-focus` out of the
+Decision H fallback: 10.3 is recorded in `build/README.md` and changes no rubric byte. The author
+named 10.3 as the precedent and named the two prohibitions — *do NOT narrow the anchor* and *do NOT
+change the harness* — so options 1 and 2 of this file are both refused and neither is attempted.
+
+### What is registered, in the terms decision 1 requires
+
+| dimension | weight | status | what may read it |
+|---|---|---|---|
+| `architecture-consistency` | 35 | **MEASURED, separates on both variants** | **B8a's registered outcome lives here.** Decision-rule rows, the MDE, the exit gate |
+| `maintainability` | 25 | MEASURED, separates (`good-nested-ifs` 0 vs six 2s) | reported; a co-variate, not the registered outcome |
+| `test-quality` | 25 | MEASURED, separates 0 vs 1 — **anchor 2 UNREACHABLE in this proof** (below) | reported; a co-variate |
+| `change-focus` | 15 | ***UNMEASURED*** | **nothing.** No decision-rule row, no MDE, no exit-gate answer |
+
+**The cost, stated in the author's own terms rather than left for a reader to infer:** the 15 %
+weight carries **no measurement**, therefore **B8a's weighted rubric total is NOT comparable to
+BE-004's.** BE-004's total is 100 points of measured scale; BE-005's is **85 measured out of a
+100-point scale**. Any row that reads `change-focus` on BE-005 is recorded *"unmeasured — author
+decision 2026-09-25 item 1"* rather than computed, in the same words decision 10.3 uses. When B13's
+`quality_score` clause is reached, the weighted total is reported **with the exclusion named in the
+same sentence as the number**, never as a bare total, and never against BE-004's.
+
+### `test-quality` anchor 2 is UNREACHABLE in this proof — recorded, not hidden
+
+No fixture's tests call the amendment endpoint `PUT /orders/{orderId}/quantity`, so clause **(e)** of
+the `test-quality` anchor — the amendment read-back — **cannot be satisfied by any of the seven
+fixtures**. The proof therefore contains **no cell at anchor 2 on this dimension**, and the highest
+observed value is `good-strong-tests` = 1. This was predicted before the run (the port note and
+`PREDICTIONS.md` both say so) and it held exactly; it is the registered prediction that was named
+most likely to be wrong, and it was not wrong.
+
+**The author refused the eighth fixture that would have reached it.** This is not a weakening of the
+dimension: `test-quality` **separates on 0 (`good-weak-tests`) versus 1 (`good-strong-tests`)**, and
+a separation row asks for a strict ordering between the varying fixture and the reference, not for
+the top anchor to be occupied. What it does mean, and what a validator should hold this file to:
+**no claim may be made about anchor 2 on BE-005**, in either direction, from this proof.
+
+### What this unblocks, and what it does not
+
+- The rubric **is registered** at sha `945817b8c509`. Decision 11 is recorded **ADOPTED**.
+- §4 step 1 for stop 17a may open. `phases/b08a-decomposition-depth/` may now exist.
+- The batch's cost ceiling is **$9.70** = 25 × $0.388, ticket A′'s median plain-run cost
+  (`evidence/gate-b2-decision-11/RESULT.md:38`), per author decision 2026-09-25 item 3 — **not**
+  $8.53, and **not** 25 × $0.34, which was ticket A's median and ticket A failed Gate B.
+- It does **not** license a re-score, a harness change, a narrowed anchor, an eighth fixture, or any
+  edit to the seven sheets or to `PREDICTIONS.md`. Three predictions in this file are refuted and
+  **stay refuted**.
+
+*Author's decision, 2026-09-25, given in an interactive session and recorded verbatim. Recorded, and
+the sha re-derived before recording, by Opus 5 (claude-opus-5), autonomously, 2026-09-25.*

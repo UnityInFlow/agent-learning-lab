@@ -3,9 +3,15 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "What is BLOCKED ON YOU" in the Stop 17a section below — that is the live halt as of
-2026-09-25, it names the one decision that has to be made before the run can move, and it outranks
-everything else in this file.**
+**Start at "The author's four decisions of 2026-09-25" immediately below the Position section —
+the Stop 17a halt is DISCHARGED, the author answered all four items, and NOTHING is blocked on
+the author as of 2026-09-25. Two things are OWED to the author's interactive session and are not
+blockers: both boards, and the prose: marker digest they must be set to.**
+
+*(Superseded pointer, kept:)* "Start at 'What is BLOCKED ON YOU' in the Stop 17a section below —
+that is the live halt as of 2026-09-25, it names the one decision that has to be made before the
+run can move, and it outranks everything else in this file." **That halt is discharged** by the
+author's four decisions of 2026-09-25, recorded verbatim below.
 
 *(Superseded pointer, kept:)* "Start at 'What is BLOCKED ON YOU' in the Stop 17 section below —
 that is the live halt as of 2026-09-16." **That halt is discharged**: BE-005 is on benchmarks
@@ -26,12 +32,16 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 17a of 28. Positions 4–17 CLOSED; 17a (B8a — decomposition depth) is OPEN and HALTED at
-its pre-step-1 rubric proof, 2026-09-25.** The 2026-09-16 BE-005 halt is discharged; the live halt
-is the one in the Stop 17a section — BE-005's `change-focus` rubric dimension does not separate on
-the fixtures, three of four do, and every available fix moves something that is the author's. The
-rubric is ported but **not registered**, decision 11 is **not** recorded as adopted, and §4 step 1
-is not opened.
+**Spine 17a of 28. Positions 4–17 CLOSED; 17a (B8a — decomposition depth) is OPEN and RUNNING.
+NOTHING is blocked on the author as of 2026-09-25.** Both §7 halts at this position are now
+discharged — the 2026-09-16 one on BE-005's merge, and the 2026-09-25 one on the rubric proof,
+which the author discharged by answering all four of its items in an interactive session. The
+author took **option 3**: the rubric is registered with `change-focus` marked **`unmeasured`** and
+B8a's registered outcome comes from **`architecture-consistency`**.
+
+*(Superseded, kept:)* "17a (B8a — decomposition depth) is OPEN and HALTED at its pre-step-1 rubric
+proof, 2026-09-25. … The rubric is ported but **not registered**, decision 11 is **not** recorded
+as adopted, and §4 step 1 is not opened."
 
 Stop 17 (B8 — run state, repair limits, completion
 contract) closed 2026-09-16 at **three of four gate clauses**, with clause 3 (*a blocked run
@@ -41,7 +51,11 @@ decision-rule **row 3** — `KEEP AS L2, WITH NO MEASURED EFFECT` — and BE-004
 is **`UNMEASURABLE`**, its IMPROVED row **declined**. `lab#33` is **CLOSED**: a B-step issue closes
 when its deliverable is decided, and "kept, not promoted, with one clause open" is a decision.
 
-**What is BLOCKED ON YOU: BE-005 is not merged, and B8a cannot open.** Author decision 11 registers
+***DISCHARGED 2026-09-17/24, kept verbatim:*** **What is BLOCKED ON YOU: BE-005 is not merged, and
+B8a cannot open.** *(BE-005 IS now on benchmarks `main` — PR #30 `a662c966` amended by #31
+`fac772d2` — `verify-evaluator.sh` re-run on a clean `main` at 17 of 17, and Gate B′ passed WRONG 4
+of 5 with every row author-confirmed. The paragraph below is the record of the halt, not a live
+one.)* Author decision 11 registers
 B8a — *Decomposition depth*, spine position **17a** — on a **new** task, **BE-005**, and requires a
 halt naming the missing PR if it is not on `agent-observatory-benchmarks` `main` with
 `verify-evaluator.sh` re-run there. Checked rather than assumed: `tasks/` on `origin/main` at
@@ -87,6 +101,77 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## The author's four decisions of 2026-09-25 — the rubric-proof halt is DISCHARGED
+
+The §7 halt of 2026-09-25 at stop 17a's pre-step-1 rubric proof is **discharged by the author**, in
+an interactive session on **2026-09-25**. The author answered **all four** items the halt raised.
+They are recorded here **verbatim**, and they are not the builder's to re-open.
+
+> **DECISION 1 — change-focus.** Register the BE-005 rubric with change-focus marked `unmeasured`,
+> and take B8a's registered outcome from `architecture-consistency`. This is option 3 of
+> evidence/b08a/rubric-proof/RESULT.md. The author accepts its stated cost explicitly: the 15%
+> weight carries no measurement, so B8a's weighted total is NOT comparable to BE-004's, and the
+> registration must say so in those terms rather than leaving a reader to infer it. The precedent is
+> the author's own decision 10.3. Do NOT narrow the anchor and do NOT change the harness.
+
+> **DECISION 2 — the eighth fixture.** NO. Proceed with the seven fixtures already proved. Record in
+> the RESULT and in the registration that `test-quality` anchor 2 is UNREACHABLE in this proof,
+> because no fixture's tests call the amendment endpoint — recorded, not hidden, and not a reason to
+> weaken the dimension. test-quality still separates on 0 vs 1, which is what the dimension needs.
+
+> **DECISION 3 — the cost ceiling.** $9.70, which is 25 x $0.388, the median on ticket A prime — the
+> ticket that PASSED Gate B and is the registered task. NOT $8.53. Also correct
+> AUTHOR-DECISION-11-CONTINUE.md on both numbers you found wrong: the evaluator on benchmarks main
+> is 1.0.0, not 1.1.0; and $0.34 was Gate B ROUND 1's median, measured on ticket A, which failed 2
+> of 5 and was redesigned into A prime. Correct them in place with a dated note saying what they
+> were and why they were wrong; do not silently overwrite.
+
+> **DECISION 4 — the boards.** NOT YOURS THIS SESSION. The author's interactive session holds the
+> Artifact tool and will republish both boards and set their prose: markers once HANDOFF.md is
+> final. Write HANDOFF.md as you normally would, LEAVE the markers stale, and do NOT treat the red
+> check-board-freshness as a blocker on your own work. Record in the state file that the boards are
+> OWED to the interactive session and name the digest they must be set to.
+
+### What each decision costs, stated rather than left to be inferred (decision 1's own requirement)
+
+- **`change-focus` carries 15 % of the weight and no measurement.** So **B8a's weighted rubric total
+  is NOT comparable to BE-004's**, and any reader who compares them is comparing a 100-point scale
+  against an 85-point-measured one. B13 clause `quality_score` reads the weighted total; when B8a
+  reaches it, the total is reported **with `change-focus` excluded and the exclusion named in the
+  same sentence**, never as a bare number.
+- **The registered outcome moves to `architecture-consistency`**, which separated on **both** its
+  variants (`good-inline-envelope` 0 and `good-stored-consistent` 0 against five 2s) — and
+  `good-stored-consistent` is the one variant whose defect **every deterministic gate passes**, so
+  that anchor is the only instrument that can see B8a's trap. It sees it.
+- **`test-quality` anchor 2 is UNREACHABLE in this proof.** No fixture's tests call the amendment
+  endpoint `PUT /orders/{orderId}/quantity`, so clause (e) can never be satisfied by any of the
+  seven. This is **recorded, not hidden**, and it does not weaken the dimension: `test-quality`
+  separates 0 (`good-weak-tests`) against 1 (`good-strong-tests`), which is what a separation row
+  needs.
+- **The batch's cost ceiling is $9.70** = 25 × $0.388 (decision 11 item 11), the median plain-run
+  cost on **ticket A′**, from `evidence/gate-b2-decision-11/RESULT.md:38` (median $0.388, range
+  $0.330–$0.426, total $1.95 over five runs). **Not $8.53**, and not $0.34 × 25 — $0.34 was Gate B
+  round 1's median on **ticket A**, the ticket that FAILED 2 of 5 and was redesigned away.
+
+### The observatory endpoint — three documents were wrong and they misdirected a preflight
+
+**`127.0.0.1:18081` is GONE.** The live observatory is **`127.0.0.1:8081`**, and it returns **627
+run records**. The stack had been **down for 29 hours** — all containers exited 255 together — and
+was brought back with `make up`, after which **18 of 18 smoke checks pass**.
+
+This is recorded as a first-class correction because the stale claim **cost something**: this file,
+`TRACK-B-STATE.md` and the builder's own notes all asserted the colima SSH tunnel on `18081`, and a
+preflight subagent was sent there on that authority and came back with a dead endpoint. The older
+sections of this file that assert the tunnel are **not rewritten** — they record what was true when
+they were written, which is evidence — but **nothing forward-looking may cite `18081` again**. The
+standing rule, which has now been true in both directions, is: **probe the port, never inherit it**,
+and an open OTLP port is not proof that an export lands.
+
+*Recorded by Opus 5 (claude-opus-5), autonomously, 2026-09-25, from the author's decisions given in
+an interactive session the same day. The decisions are the author's; the costs restated under each
+are the builder's reading of them, and the numbers under decision 3 were each re-derived from the
+file cited before being written here.*
 
 ## Stop 17a — B8a is open at the pre-step-1 rubric proof, and the proof FAILED on one dimension — 2026-09-25
 
@@ -150,7 +235,14 @@ the anchor was **not** narrowed until it separated, the harness was **not** chan
 touched**, the sha is **not** registered, and decision 11 is **not** recorded as adopted. §4 step 1
 is not opened and `phases/b08a-decomposition-depth/` does not exist.
 
-### What is BLOCKED ON YOU
+### What is BLOCKED ON YOU — ***DISCHARGED 2026-09-25, the author answered all four items***
+
+> **DISCHARGED.** The author took **option 3** and answered the other three items in the same
+> session. The four decisions are recorded verbatim in *"The author's four decisions of
+> 2026-09-25"* above this section. **Nothing below this line is blocking any more**; it is kept
+> verbatim as the record of what was asked and why, because a halt that is deleted once answered
+> teaches nothing. Two items are **OWED to the author's interactive session** and are explicitly
+> *not* blockers on the builder: republishing both boards, and setting their `prose:` markers.
 
 **HALT (§7: a gate that cannot be closed without moving a registered variable) — the BE-005
 `change-focus` dimension does not separate, and every fix moves something that is yours.**
