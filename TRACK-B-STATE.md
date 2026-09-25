@@ -3510,7 +3510,51 @@ preflight_20260911:  # §0a RUN IN FULL 2026-09-11T10:1x-10:2xZ at the AUTHOR`S 
     harness is proven on `-P codex`, with the opencode-only acceptance gate recorded as unavailable
     rather than assumed green."
 
-preflight:  # §0a RUN IN FULL 2026-09-25T05:1x-05:3xZ, at the AUTHOR`S EXPLICIT INSTRUCTION for this
+preflight_20260925_post_discharge:  # §0a RUN IN FULL AGAIN 2026-09-25T06:4x-06:5xZ, as the FIRST ACT of
+  # this session, because §0a says `run this on the first session and AFTER ANY HALT` and a halt had just
+  # been discharged. Delegated to a haiku subagent per §4b with the exact commands and the exact answer
+  # shape; the two rows below that a mistake would have hidden were RE-DERIVED BY ME in the main context.
+  # *** SEVEN ROWS. SIX PASS. ROW 7 IS RED, EXPECTED, AND THE AUTHOR`S. ***
+  review_hook_script: "ok - 87 passed, 0 failed, 0 skipped, exit 0, 2026-09-25T06:43:09Z. RE-DERIVED BY MY
+    OWN RUN in the main context, not taken from the subagent`s table: `all 87 cases ran and behaved as
+    specified`. *** THE PROMPT`S §0a ROW SAYS `16 of 16 cases pass` AND IT IS STALE: THE FIXTURE SET HAS
+    GROWN FROM 16 TO 87. *** That is the set getting better, not the row failing - but it means the pass
+    condition as written cannot be matched literally by any current run, so a future session reading §0a
+    alone would score this row `failed`. Recorded in author_notes as a prompt-text correction, not a halt."
+  review_harness_live: "ok - findings/opencode/review-run-record-20260925T064447Z.md, 15 589 BYTES, FOUR
+    finding sections, exit 0, NO leftover opencode process. A header-only file is about 900 bytes, so 15 589
+    with four sections is a real review and not the stall this row exists to catch. 2026-09-25T06:48:16Z"
+  codex_harness_live: "ok - *** CODEX IS UP AND IS THE REGISTERED SCORER; DECISION H STAYS UNFIRED. *** Dry
+    run printed the prompt; codex-cli 0.154.0; the REAL run wrote
+    findings/codex/score-good-nested-ifs-20260925T064821Z.yaml with ALL FOUR CATEGORIES -
+    architecture-consistency 2, maintainability 0, test-quality null, change-focus 2. On the BE-003 rubric
+    and the BE-003 good-nested-ifs fixture, so maintainability 0 is the expected separation and the row is a
+    working-harness proof rather than a measurement. 2026-09-25T06:48:46Z"
+  gate_and_validators: "ok - all four verifiers exit 0: verify-run-gate-checker 13 cases,
+    verify-sheet-category-checker 11, verify-run-record-validator 12, verify-model-output-classifier 16.
+    2026-09-25T06:49:10Z"
+  stack: "ok - *** AND THIS ROW IS THE ONE THE AUTHOR CORRECTED ME ON, CONFIRMED INDEPENDENTLY. *** `make
+    smoke` 18 of 18, exit 0, against 127.0.0.1:8081 - NOT a tunnel, NOT 18081. `GET /api/runs?limit=1`
+    returns HTTP 200 and the full collection returns *** 627 RUN RECORDS ***, which matches the author`s
+    number exactly and was derived by the subagent`s own curl rather than copied from the instruction.
+    18081 WAS NOT PROBED BECAUSE IT NO LONGER EXISTS. 2026-09-25T06:49:28Z"
+  isolation: "ok on the part that can be observed without spending a run - verify-codex-isolation.sh exit 0,
+    all three checks pass, 2026-09-25T06:53:03Z. *** THE SECOND HALF IS DEFERRED AND SAYS SO: no claude run
+    with ISOLATE_USER_SETTINGS=1 was made, so `0 hook executions and customization.*Hash all null` is
+    UNPROVEN THIS SESSION, not ok. *** It is deferred rather than skipped because §4 step 5`s B8a preflight
+    pair is two boundaries away and will observe exactly that on a run this stop needs anyway - spending a
+    separate run to prove it now would buy nothing and cost money. The §0a rule stands: a row not run is
+    unproven."
+  board_check: "*** RED, LEFT RED, AND ON THE AUTHOR`S OWN INSTRUCTION - NOT A BLOCKER. *** `2 of 2
+    board(s) describe an older HANDOFF.md than the one on disk`, exit 1, 2026-09-25T06:53:08Z. This is NOT
+    the `UNVERIFIABLE with the squash-orphan message` form the §0a row admits; it is a genuine staleness
+    report, and it is genuine because I edited HANDOFF.md this session, which §4 step 14 says demands a
+    republish. Author decision 12 item 4 assigns the republish to the author`s interactive session and says
+    in terms `do NOT treat the red check-board-freshness as a blocker on your own work`. The digest the
+    markers must be set to is in board_state: *** 1119de805984 ***."
+  hook_wiring: "unproven in print mode, unchanged, and no push this session tested it. The §4a synchronous
+    review remains the review control for this run."
+  # SUPERSEDED, kept not deleted: preflight:  # §0a RUN IN FULL 2026-09-25T05:1x-05:3xZ, at the AUTHOR`S EXPLICIT INSTRUCTION for this
             # session ("starting with the section 0a preflight"). Seven rows delegated to a haiku subagent
             # with exact commands and an instruction to CAPTURE every exit code. ONE ROW CAME BACK AS A
             # FAILURE AND I RE-DERIVED IT MYSELF - AND MY RE-DERIVATION REFUTED THE PORTS THE PROMPT`S OWN
