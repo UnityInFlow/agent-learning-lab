@@ -2286,23 +2286,42 @@ observatory_endpoint: "*** 127.0.0.1:8081 — AND 127.0.0.1:18081 IS GONE. *** T
   directions - the tunnel was once the only live route and is now the dead one: PROBE THE PORT, NEVER
   INHERIT IT. And an open OTLP port is not proof that an export lands; check that events.jsonl GROWS."
 
-board_state: "*** RED, LEFT RED ON THE AUTHOR`S OWN INSTRUCTION, AND OWED TO THE AUTHOR`S INTERACTIVE
-  SESSION. *** ./tools/check-board-freshness.sh exits 1: `2 of 2 board(s) describe an older HANDOFF.md
-  than the one on disk`. Both markers say prose c32edff33e62; HANDOFF.md now hashes to
-  *** 1119de805984 ***, WHICH IS THE DIGEST BOTH BOARDS` `prose:` MARKERS MUST BE SET TO after they are
-  republished from the current HANDOFF.md.
-  THE TWO BOARDS: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc and
-  https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3.
-  WHY IT IS RED AND WHY THAT IS CORRECT THIS SESSION: author decision 12 item 4 - `NOT YOURS THIS SESSION.
-  The author`s interactive session holds the Artifact tool and will republish both boards and set their
-  prose: markers once HANDOFF.md is final. Write HANDOFF.md as you normally would, LEAVE the markers stale,
-  and do NOT treat the red check-board-freshness as a blocker on your own work.` I have NO Artifact tool in
-  print mode, and relabelling a marker for a publish that did not happen is how one ends up PROVABLY
-  CURRENT AND WRONG - the failure this check exists to PREVENT, not to perform.
-  THE DIGEST WAS RE-DERIVED AFTER THE LAST HANDOFF.md EDIT OF THIS SESSION, NOT BEFORE IT, so it is the
-  digest of the text the author will actually publish against. IF HANDOFF.md IS EDITED AGAIN BEFORE THE
-  REPUBLISH, RE-RUN THE CHECK - THE DIGEST MOVES WITH EVERY BYTE. I did not edit HANDOFF.md after taking it.
-  SUPERSEDED, kept not deleted: board_state: "GREEN, and it was RED in between - both states are mine and both are recorded rather than only the final one. `./tools/check-board-freshness.sh` exits 0: `2 board(s) current at 12716f4646e1`, both markers `built-from: d14d1ec`. IT WENT RED BECAUSE I EDITED HANDOFF.md (item 000, the pass-16 section), which is exactly what §4 step 14 says editing HANDOFF.md does. BOTH BOARDS WERE REPUBLISHED WITH REAL CONTENT, NOT RELABELLED: runs on record 325 -> 335 re-derived from the API, position 12 marked HALTED on benchmarks#29, and a new pass-16 section on each. Relabelling alone would ALSO have gone green and would have left both boards lying, which is the failure this check exists to prevent rather than to perform. ALL HANDOFF EDITS WERE FINISHED BEFORE PUBLISHING so the digest was final and one republish sufficed; publishing first would have needed a second pass. RE-DERIVED BY HAND after the republish, not taken from the preflight subagent`s table - its board row said `current at 0bc526aa09d3` and was stale by the time I read it."
+board_state: "*** GREEN. BOTH BOARDS ARE REPUBLISHED, BOTH MARKERS ARE SET, AND THE ITEM OWED TO THE
+  AUTHOR`S INTERACTIVE SESSION IS DISCHARGED. *** ./tools/check-board-freshness.sh exits 0:
+  `2 board(s) current at 1119de805984`, both markers `built-from: a0ccff3 prose: 1119de805984`.
+  DONE 2026-09-25 IN THE AUTHOR`S INTERACTIVE SESSION (Opus 5, 1M context) ON THE AUTHOR`S INSTRUCTION,
+  which is exactly where decision 12 item 4 put it - NOT by the print-mode builder, which has no Artifact
+  tool. Nothing about this was the builder`s to do and nothing here changes a registered number.
+  BOARD 2 (f2294fb0-ca98-4681-a42a-a51a8b5afad3, `Road to the First Agent`) WAS REPUBLISHED WITH REAL
+  CONTENT, NOT RELABELLED - version 30, built from the CURRENT HANDOFF.md: the masthead rewritten to
+  17a OPEN AND RUNNING with the four author decisions of 2026-09-25, the registration at sha 945817b8c509,
+  E-020`s registered expectation that its own primary is unmeasurable, and the 8081/18081 correction;
+  EIGHTEEN new stamp spans ahead of a `superseded stamps below, kept` marker; SEVEN new 17a readouts;
+  runs on record 617 -> 627; stops closed 15 -> 17 of 28.
+  EVERY `BE-005 is not merged` CLAIM IS LABELLED SUPERSEDED RATHER THAN DELETED - the two halt paragraphs
+  carry a DISCHARGED 2026-09-17/24 label above them, the old `HALTED at position 17a` stamp is prefixed
+  SUPERSEDED, and the blocked-on-author readout now records what it said and for how long. §6 and §7 forbid
+  rewriting evidence; a false claim that a reader would take as live is not evidence, so it is LABELLED.
+  VERIFIED AFTER PUBLISHING RATHER THAN ASSUMED: the live page file was re-fetched from the artifact service
+  and its body diffs CLEAN against boards.local/road-to-agent.html, and the HTML was checked tag-balanced.
+  BOARD 1 (e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) had already been republished by that session, so its marker
+  was RELABELLED ONLY - AND ITS CONTENT WAS CHECKED FIRST RATHER THAN TRUSTED: the live page declares
+  `built from HANDOFF.md prose 1119de805984`, says 17a is OPEN, cites a662c96 and fac772d2, reads 627 runs,
+  and its two `not merged` strings are explicitly labelled as discharged records. Relabelling a marker
+  without that check is how one ends up PROVABLY CURRENT AND WRONG, which is the failure this check exists
+  to PREVENT, not to perform.
+  ONLY THE TWO MARKER LINES OF HANDOFF.md CHANGED, so the prose digest did NOT move: checked by diffing
+  `sed '/board:/d'` over the file before and after, which comes out EMPTY. The digest is still 1119de805984,
+  which is the digest board_state owed.
+  NOT DONE, DISCLOSED, AND NOT A BLOCKER: board 2`s spine SVG still draws `16 <- here, next B8`. It was
+  ALREADY two stops stale before this session, and 17a inserts between two nodes whose bottom labels already
+  overlap, so it was LABELLED - the aria-label and the figcaption now say the figure is a record of
+  2026-09-16 and name 17a as the live position - rather than redrawn badly under time pressure. A redraw is
+  the author`s to ask for. ALSO STILL OWED, BENCHMARKS-SIDE AND NOT MINE: the one evaluator carrying two
+  version strings (evaluator.sh 1.0.0 against benchmark.yaml 1.1.0).
+  IF HANDOFF.md IS EDITED AGAIN, THE DIGEST MOVES WITH EVERY BYTE AND BOTH BOARDS GO STALE AGAIN - re-run
+  ./tools/check-board-freshness.sh after any edit and republish rather than relabel."
+  SUPERSEDED, kept not deleted: board_state: "*** RED, LEFT RED ON THE AUTHOR`S OWN INSTRUCTION, AND OWED TO THE AUTHOR`S INTERACTIVE SESSION. *** ./tools/check-board-freshness.sh exits 1: `2 of 2 board(s) describe an older HANDOFF.md than the one on disk`. Both markers say prose c32edff33e62; HANDOFF.md now hashes to *** 1119de805984 ***, WHICH IS THE DIGEST BOTH BOARDS` `prose:` MARKERS MUST BE SET TO after they are republished from the current HANDOFF.md. THE TWO BOARDS: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc and https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3. WHY IT IS RED AND WHY THAT IS CORRECT THIS SESSION: author decision 12 item 4 - `NOT YOURS THIS SESSION. The author`s interactive session holds the Artifact tool and will republish both boards and set their prose: markers once HANDOFF.md is final. Write HANDOFF.md as you normally would, LEAVE the markers stale, and do NOT treat the red check-board-freshness as a blocker on your own work.` I have NO Artifact tool in print mode, and relabelling a marker for a publish that did not happen is how one ends up PROVABLY CURRENT AND WRONG - the failure this check exists to PREVENT, not to perform. THE DIGEST WAS RE-DERIVED AFTER THE LAST HANDOFF.md EDIT OF THIS SESSION, NOT BEFORE IT, so it is the digest of the text the author will actually publish against. IF HANDOFF.md IS EDITED AGAIN BEFORE THE REPUBLISH, RE-RUN THE CHECK - THE DIGEST MOVES WITH EVERY BYTE. I did not edit HANDOFF.md after taking it. SUPERSEDED, kept not deleted: board_state: "GREEN, and it was RED in between - both states are mine and both are recorded rather than only the final one. `./tools/check-board-freshness.sh` exits 0: `2 board(s) current at 12716f4646e1`, both markers `built-from: d14d1ec`. IT WENT RED BECAUSE I EDITED HANDOFF.md (item 000, the pass-16 section), which is exactly what §4 step 14 says editing HANDOFF.md does. BOTH BOARDS WERE REPUBLISHED WITH REAL CONTENT, NOT RELABELLED: runs on record 325 -> 335 re-derived from the API, position 12 marked HALTED on benchmarks#29, and a new pass-16 section on each. Relabelling alone would ALSO have gone green and would have left both boards lying, which is the failure this check exists to prevent rather than to perform. ALL HANDOFF EDITS WERE FINISHED BEFORE PUBLISHING so the digest was final and one republish sufficed; publishing first would have needed a second pass. RE-DERIVED BY HAND after the republish, not taken from the preflight subagent`s table - its board row said `current at 0bc526aa09d3` and was stale by the time I read it."
 blocked_on_author: []   # *** EMPTY as of 2026-09-25. *** The single item that was here was the §7
   # HALT of 2026-09-25T05:5xZ on the BE-005 rubric proof`s `change-focus` dimension. IT IS DISCHARGED
   # BY THE AUTHOR, who answered it and the three items raised with it in an interactive session on
