@@ -557,3 +557,218 @@ grounds, and the third population that shows what the rule costs (P2 → 0.2448,
 over: **no decision-rule row fires.** Row 2 requires *both* rates at p ≤ 0.05 (P2 is 0.1189); row 3
 requires a *lower* treated rate; row 4 fires only when *neither* rate separates (P3 is 0.0070). The rule
 was written assuming the two secondaries would agree. They did not.
+
+---
+
+## Deliberate failure — §4 step 9, 2026-09-25, `n = 5`
+
+Full table, run ids, the refusal text and the cost arithmetic are in
+[`experiments/E-020-decomposition-depth-BE005.md`](../../experiments/E-020-decomposition-depth-BE005.md)
+`## Deliberate failure — the result`. This section carries only what a reader of the workbook needs.
+
+**The same four overlay files with `Task` removed from the orchestrator's `tools:` line.** New overlay
+`build/customizations/b8a-pipeline-v1.0-notask/`; `diff -r` against the measured `b8a-pipeline-v1.0`
+returns **exactly one changed line** and the three specialists are byte-identical. **The measured overlay
+was not touched.** Own probe key `EXP-B8A-DF-NOTASK`, excluded by name from both registered arms.
+`n = 5` rather than 3 because the prediction is stated as a property and §5 forbids that below 5.
+
+**Before a dollar was spent, the registered batch driver was pointed at the broken overlay and refused
+it: exit 6**, `evidence/b08a/deliberate-failure-guard-refusal.txt`. The deliberate failure could not have
+entered the registered population by accident. That is an **L2** result of this step in its own right,
+and it is why the runs needed a separate driver
+(`evidence/b08a/run-b8a-deliberate-failure.sh`, ShellCheck clean, fixture set **12 of 12**, its own Task
+guard **inverted** so it refuses the *registered* overlay — case D, re-derived by hand).
+
+**All three registered clauses held, and they are the only registered predictions at this stop that did.**
+
+| clause | measured | verdict |
+|---|---|---|
+| the `init` read-back shows no `Task` | `n=3 ["Read","Grep","Glob"]`, verdict `match`, **5 of 5** | **held** |
+| telemetry shows zero delegation events | `0 / 0` both sources, **5 of 5** | **held** |
+| 5 of 5 runs classed row 0a | **5 of 5**, on conditions (c) and (d), with (a) and (b) `ok` every run | **held** |
+
+**The watch clause did not fire, and the near-miss is the finding.** Run 01 emitted one `tool_use` named
+`"Task"` for `subagent_type: "planner"`; the runtime **refused** it —
+`Error: No such tool available: Task. Task is disabled for this session, in subagents as well as here.`
+No delegation happened, so the delivery proof stands. Two consequences:
+
+1. **`tools:` withheld a capability here.** E-005 (stop 9) concluded *"`tools:` filters names, not
+   capabilities"* from an experiment that **added** `Bash`. Removing `Task` produced a named runtime
+   refusal that extends to subagents. Both results are true; the list is not a boundary when it grants
+   and is one when it withholds the dispatch tool.
+2. **Condition (d)'s grep counts an attempt, not a completion.** It matched the refused call's
+   `"subagent_type":"planner"` and returned `fail-1-of-3-stream` where the truth is 0 of 3. It changed no
+   verdict here and nothing in the registered arm, but **as written it is not sound** — `author_notes`.
+
+**Cost: $0.1694 for five runs against a $4.00 ceiling and a $3.60 estimate.** The estimate was **21×
+too high**. Median **$0.0339** against the treated arm's **$0.7149**; `modelCalls` **1–4** against a
+treated median of **82.5**; `changedFiles` **0** and evaluator exit **12**, five times out of five. An
+orchestrator holding only `Read, Grep, Glob` cannot write a line of Kotlin. **The cheapness is the
+failure, not a saving** — and it is the clearest single number available for what the three specialists
+were doing.
+
+## Decide — §4 step 10, 2026-09-25
+
+**Kept as a measured configuration, not promoted, not carried forward.** `b8a-pipeline-v1.0/` stays on
+disk because §6 forbids editing a measured version; **nothing installs it after this stop**.
+
+It is **not removed**. §4 step 10's *"a rule with no measured effect is removed"* governs rules this
+project **carries** — B3's `instructions-v0.1` was removed under it because it was installed on every
+run. The pipeline was never carried: it is a candidate configuration, tested once, answered.
+
+**Promotion is refused on its own terms, and by arithmetic rather than by judgement.** B13's
+`tokens_per_accepted_task: { maximum_allowed_increase: 0.15 }` allows **15 %**; the measured figure is
+**1.83×**, so the clause fails by a factor of about twelve **regardless of quality** — and the registered
+quality outcome showed no effect at all (P1: treated median **0**, control median **0**). The expected
+verdict written into `build/README.md#b8a` before the run was *"measured, kept, not promoted"*. That is
+what happened.
+
+**The ladder closes.** Decision 11 item 2 makes rung 10 proposable **only if** rung 4's rule fires
+`IMPROVED`. It did not. The closure follows from the permissive clause, which is well defined on this
+outcome — not from row 4, which is not.
+
+## The learning block and the exit gate — §4 step 11, 2026-09-25
+
+```yaml
+learning:
+  what_was_added: >
+    A four-file agent overlay — one routing orchestrator and three phase specialists
+    (planner, implementer, verifier) — installed by --customization and dispatched by
+    --agent orchestrator, on BE-005, at n = 8 per arm against a concurrent plain control
+    that is also BE-005's baseline measurement.
+  why_it_exists: >
+    Author decision 11. The nearest rung (one orchestrator, one implementer, stop 11)
+    was measured NOT DETECTABLE and its one visible effect was then reattributed to the
+    implementer's prose delivered with no split at all. Rung 4 was registered as a ladder
+    with a stop rule so that a null would close it rather than invite a bigger proposal.
+  observed_effect: >
+    On the registered outcome, none. architecture-consistency treated median 0 (n = 7)
+    against control median 0 (n = 3), predicted 2 vs 0. Shape classification separates
+    (8/8 vs 2/8, p = 0.0070); the evaluator pass rate does not (7/8 vs 3/8, p = 0.1189);
+    and the two disagree on 4 of 16 runs in BOTH directions, which measures P2's
+    registered mechanism and finds it false. Cost 1.83x, modelCalls median 82.5 vs 43.
+  unexpected_effect: >
+    The decision rule does not resolve. It has no row for exactly one of its two rates
+    separating, because it was written assuming they would agree. This file's own MDE
+    section predicted that composition failure before the batch. Separately, the $9.70
+    ceiling fired at $9.7948 and stopped the batch at n = 8 — an L2 control confirmed by
+    firing — and baseline-report.py's F13 rule discards a complete control run.
+  keep_or_remove: >
+    Kept as a measured configuration, not promoted (B13's 15% token clause fails by ~12x),
+    not carried forward, not edited. The ladder closes: rung 10 is not proposable, because
+    decision 11 item 2 makes that conditional on IMPROVED firing and it did not.
+  next_question: >
+    Not "does a deeper pipeline help". That question is closed at this rung by its own
+    stop rule. The open question is instrumental: this stop composed a registered outcome
+    in a rubric category, Decision D's gate filter, and a task the model usually fails,
+    and got an instrument that could not see its own registered outcome. What is the
+    smallest change to that composition — outcome, filter or task — that would let the
+    next B step's rule resolve?
+```
+
+### The exit gate, answered
+
+**`build/README.md#b8a` is a pointer, not a thirteenth gate**, and it fixes the gate in two halves that
+answer different questions. Both are answered here from evidence, and the first one is answered with its
+own failure stated rather than smoothed over.
+
+**Half 1 — *did it do anything?*** The registered decision rule's rows are evaluated in order, first to
+fire wins. **Row 0b fired** ($9.70 reached at $9.7948) and is discharged by reporting the population that
+occurred, `n = 8` per arm. Then **row 0a** no (0 of 8), **row 1** no (delivery 8 of 8, model pinned
+16 of 16), **row 2** no (its conjunction requires *both* rates at `p ≤ 0.05`; P2 is 0.1189), **row 3** no
+(it requires a *lower* treated rate), **row 4** no (it fires only when *neither* rate separates; P3 is
+0.0070). **No substantive row fires, and the verdict is recorded as `NO ROW FIRES`** rather than rounded
+to the nearest registered word. What *is* decided, and by a clause that is well defined on this outcome:
+**`IMPROVED` is unavailable, so under item 2 the ladder closes.**
+
+**Half 2 — *is it worth it?*** **No**, and not marginally. B13's
+`tokens_per_accepted_task: { maximum_allowed_increase: 0.15 }` against a measured **1.83×** fails by
+about twelve times, and `quality_score` on the registered outcome moved by **0**. Clauses 6 and 7 (a
+human reviewed the qualitative diff; rollback is defined) are satisfied in shape — the PR is the author's
+to read and the overlay is a directory not on `main`'s default path — but nothing reaches them, because
+the token clause is dispositive on its own. **Measured, kept, not promoted.**
+
+### Was this the agent, or the harness?
+
+**Mostly the harness, and that is the finding.** Four things at this stop were properties of the
+instrument rather than of the agent under test: the decision rule that cannot resolve; `agentHash`
+covering one file of four, so the delivery proof had to be four hand-written conditions; condition (d)'s
+grep counting an attempt as a completion; and `baseline-report.py`'s `F13` rule discarding a complete
+control run. The one clean agent-level reading — the shape classification, 8/8 vs 2/8 at `p = 0.0070` —
+sits under an **L3** proof (`evidence/b08a/shape/SHAPE-RULE.md`, nothing executes it; two blind readers
+and a written adjudication stand in for the author confirmation Gate B′ had). **So the strongest signal
+this stop produced is the one with the weakest proof**, and saying so is the honest exit.
+
+### The registered outcome could not see the thing that moved
+
+Worth stating plainly, because it is the transferable lesson and not a complaint. The registered outcome
+was `architecture-consistency` on codex, filtered by Decision D to gate-passing runs. On a task the
+pinned model usually fails, that filter left the **control at `n = 3`**. The thing that did move — the
+*shape* the model reaches for — is not a rubric category, and the rubric's own `change-focus`, the
+category nearest to it, is `unmeasured` by the author's decision of 2026-09-25. **The composition chose
+an outcome the design could not populate, and the answer was fixed before the batch ran.**
+
+## §5 validation table — §4 step 13, 2026-09-25
+
+Clauses are quoted from [`build/README.md#b8a`](../../build/README.md#b8a), which quotes author decision
+11; that block is a **pointer, not a thirteenth gate**, so the clauses below are the step's design
+commitments and its two-half gate. **The layer column is about the proof, not the artifact** (§5). Every
+command in the "re-derives" column was re-run immediately before this table was written; the three whose
+output decides a row are pasted under it.
+
+| Gate clause (verbatim) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| "one orchestrator and three specialists — **planner → implementer → verifier**, cut **by phase**, the orchestrator **routing only**" | `build/customizations/b8a-pipeline-v1.0/.claude/agents/{orchestrator,planner,implementer,verifier}.md`; orchestrator `tools: Read, Grep, Glob, Task` and no write tool | **L1** — the orchestrator holds no write tool, so "routing only" cannot be violated by it; the cut itself is prose, **L3** | `ls build/customizations/b8a-pipeline-v1.0/.claude/agents/` and `sed -n 4p` of each |
+| "A new overlay …; **no existing overlay edited, no skill**" | `git log --diff-filter=M --name-only -- build/customizations/` shows no modification to any prior overlay on this branch; driver guards refuse a `SKILL.md`/`CLAUDE.md`/`hooks/` in the overlay | **L2** — `run-b8a-batch.sh:122-133`, proved refusing by `verify-b8a-batch-guards.sh` and (for the deliberate-failure driver) cases F and G of `verify-b8a-deliberate-failure-guards.sh` | run either `verify-*-guards.sh`; both are guards-only and spend nothing |
+| "All four agents on `claude-haiku-4-5-20251001`" | `runtime.model` on **21 of 21** run records (16 registered + 5 deliberate failure); driver aborts if any agent file sets `model:` | **L2** — the guard executes (`verify-b8a-deliberate-failure-guards.sh` case H, exit 6) and the read-back is from the record, not the flag | `awk -F'\t' 'NR>7{print $7}' evidence/b08a/batch-*/manifest.tsv` and `$6` of the deliberate-failure manifest |
+| "Handoff medium is B8's `.agent/run-state.json` `handoff` field, written **reserved** at B8 and **first used here**" | **NOT MET, and measured so.** `evidence/b08a/REPORT.md` §6: the `handoff` block is written by agent-v1.1's `CLAUDE.md` and `.ai/hooks/repair-limit.sh`; this overlay installs four agent files and nothing else, so **no handoff artifact exists on disk in either arm**. P7 was answered from the planner's returned plan in the stream, with the substitution recorded | **L3** — a stream read, not an artifact; the clause's own medium is absent | `find evidence.local/b08a-worktrees/<treated id> -name run-state.json` returns nothing; `.claude/agents/*.md` are the only non-`sample-service` files |
+| "**Task: `BE-005` only** … reference population is **its own concurrent plain control at this stop, `n = 10`**, which is also BE-005's baseline" | `benchmarkId` `BE-005` on all 21 runs; control arm registered as the baseline before the batch in `E-020 ## Runs`; the population that occurred is **`n = 8`**, by row 0b | **L2** for the task (the driver passes `--benchmark BE-005` and the record carries it); **L3** for "is also the baseline", which is a registration in prose | `jq -r .benchmarkId` over `evidence/b08a/worktrees/*/run-record.json` |
+| Gate half 1 — "**Did it do anything?** The experiment's own decision-rule rows … `VOID` · `NOT DETECTABLE` · `REJECT` · `IMPROVED`" | **`NO ROW FIRES`.** Row 0b fired and is discharged at `n = 8` per arm; rows 0a/1/2/3/4 each evaluated against `evidence/b08a/REPORT.md` §§1–4 and none fires. Recorded in E-020 `## Results` and above | **L3** — the rows are applied by a reader; nothing executes them. The *inputs* are L2 (`tally.py`, the manifests, the sheets) | re-run `evidence/b08a/tally.py`; compare its P2 `p = 0.1189` and P3 `p = 0.0070` against the rows in `E-020 ## Decision rule` |
+| Gate half 2 — "**Is it worth it?** B13's seven clauses, verbatim … `tokens_per_accepted_task: { maximum_allowed_increase: 0.15 }`" | **Failed.** `1.83×` ($0.7149 treated median vs $0.3912 control), `evidence/b08a/REPORT.md` §5. `quality_score` on the registered outcome moved by **0** (§2). **Measured, kept, not promoted** | **L3** — the clause is read and applied by a person; the numbers under it are **L2** | `awk` the `cost` column of `evidence/b08a/batch-*/manifest.tsv` by arm and take medians |
+| "Per-arm delivery proof … four conditions, per run, before scoring … **A run missing any is row 0a**" | Registered arm: `cond_a`…`cond_d` all `ok` on **8 of 8** treated (`evidence/b08a/batch-20260925T091510Z/manifest.tsv`). Deliberate failure: **5 of 5** row 0a on (c) and (d) | **L2** — the conditions are evaluated by the driver per run and written to the manifest before any sheet exists. **Caveat, measured:** condition (d)'s grep counts an *attempt*, not a completion — run `d78ef2c8` | `awk -F'\t' 'NR>7{print $11,$12,$13,$14,$15}'` on either manifest |
+| "The ladder's stop rule … rung 10 … **only** if rung 4's own rule fires `IMPROVED`" | `IMPROVED` unavailable — row 2's conjunction requires both rates at `p ≤ 0.05` and P2 is `0.1189`. **Ladder closed** | **L3** — a reading of a written clause | the same `tally.py` output |
+| "**Cost ceiling $9.70** = 25 × $0.388" | Fired: exit **11** at **$9.7948** after pair 08, `evidence/b08a/batch-20260925T091510Z/window.txt` | **L2, confirmed by firing** — the same `awk` expression the fixture set proves (`verify-b8a-batch-guards.sh`, stop-rule-only mode) | `tail window.txt`; `B8A_STOPRULE_ONLY=1 B8A_TEST_COST=9.70 evidence/b08a/run-b8a-batch.sh` → exit 11 |
+| "The registered outcome is **`architecture-consistency`** on rubric sha **`945817b8c509`**, scored by **codex**, **hand re-read before any sheet is opened**" | 10 codex sheets, `evidence/b08a/sheets-codex.tsv`; hand reading committed **before** any sheet was opened, `evidence/b08a/hand-reading/` and `REPORT.md` §8 — **and it agreed** | **L2** — the sheets are produced by a harness against a pinned rubric sha; the hand re-read is **L3** and is the check on it | `grep rubric_sha findings/codex/score-observatory-run-*.yaml \| sort -u`; open the hand reading and the sheet for the same run id |
+| "**`change-focus` is `unmeasured`** and enters no row, no MDE and no exit gate" | Excluded everywhere: `E-020 ## Decision rule`, `REPORT.md` §2, and the weighted total stated as **85 measured points on a 100-point scale** and **not comparable to BE-004's** | **L3** — an exclusion honoured by the writer; nothing refuses a reader who ignores it | `grep -n 'change-focus' experiments/E-020-decomposition-depth-BE005.md evidence/b08a/REPORT.md` |
+| "**Ends early** … a preflight that cannot show all four delivery conditions · row 0a on 2 or more treated runs" | Neither fired: preflight showed all four (`evidence/b08a/preflight-20260925T085216Z/`), row 0a `0 of 8` | **L2** — `row0a_ends_step()` is one expression, proved firing at 2 by `verify-b8a-batch-guards.sh` in stop-rule-only mode | `B8A_STOPRULE_ONLY=1 B8A_TEST_ROW0A=2 evidence/b08a/run-b8a-batch.sh` → exit 10 |
+| §4 step 9 — the deliberate failure | `evidence/b08a/deliberate-failure-20260925T151315Z/manifest.tsv`, 5 runs, exit 0; guard refusal `evidence/b08a/deliberate-failure-guard-refusal.txt` (exit 6); prediction commit `2514c7f` **15:13:08Z** vs run 01 `startedAt` **15:13:16Z** | **L2** — both the refusal and the five row-0a classifications are produced by executing code and written before any interpretation | `git show -s --format=%cI 2514c7f`; `jq -r .startedAt` on run `d78ef2c8-dbf8-4f24-aab9-4d6a482f5ff3` |
+
+**At least one scored cell re-read by hand** (§5): `REPORT.md` §8 — the hand reading was committed before
+any sheet was opened, and agreed with the registered sheet.
+
+**Independence check** (§5): what else changed between arms? `instructionsHash` **null on all 16
+registered and all 5 deliberate-failure runs**; `skillsHash` **null on all 21**; `runtime.model` the pinned
+id on all 21; rubric sha `945817b8c509` unchanged throughout; benchmark `BE-005` at one commit. The
+registered treated arm carries `agentHash` `1f27323694e5…` and the deliberate-failure arm `c0c5aab3e7d4…`;
+**neither value appears in the other's manifest**. Read from the run records, not from the flags.
+
+**Every number quoted above has its `n`** (§5): the registered arms are `n = 8` each, the rubric-scored
+control population is `n = 3` (Decision D's gate filter) and is stated as such wherever P1 appears, and
+the deliberate failure is `n = 5`.
+
+**Re-run immediately before this table was written, output pasted** (§5: *"Run every verification command
+again immediately before writing 'done', and paste the output"*). The two header rows of each manifest and
+one trailing blank line appear in the `uniq -c` counts and are labelled here rather than filtered away:
+
+```
+$ B8A_STOPRULE_ONLY=1 B8A_TEST_COST=9.70 evidence/b08a/run-b8a-batch.sh
+stop-rule: COST CEILING $9.70 REACHED at $9.70 (exit 11)
+exit=11
+
+$ B8A_STOPRULE_ONLY=1 B8A_TEST_ROW0A=2 evidence/b08a/run-b8a-batch.sh
+stop-rule: ROW 0a on 2 treated runs — the step ends (exit 10)
+exit=10
+
+$ model column, both manifests, all 21 runs
+  21 claude-haiku-4-5-20251001
+   2 model            <- the two manifest header rows
+   1                  <- one trailing blank line
+
+$ instructionsHash / skillsHash, both manifests, all 21 runs
+  21 instr=null skills=null
+   2 instr=instr_hash skills=skills_hash    <- the two manifest header rows
+   1 instr= skills=                         <- one trailing blank line
+
+$ ./evidence/b08a/verify-b8a-deliberate-failure-guards.sh
+verify-b8a-deliberate-failure-guards: 12 passed, 0 failed.
+```

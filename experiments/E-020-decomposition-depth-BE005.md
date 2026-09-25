@@ -271,11 +271,117 @@ To be filled after the batch. **`OTLP_GRPC_PORT` is passed and `events.jsonl` is
 before any telemetry-sourced number is trusted** (stop 11's rule). The observatory API is
 **`127.0.0.1:8081`** — *not* `18081`, which no longer exists.
 
+## Deliberate failure — the result, 2026-09-25, `n = 5`
+
+Batch `evidence/b08a/deliberate-failure-20260925T151315Z/`, key **`EXP-B8A-DF-NOTASK`**, exit **0**.
+Prediction commit **`2514c7f`** at **2026-09-25T15:13:08Z**; run 01 `startedAt` **2026-09-25T15:13:16Z**
+— the commit precedes the first run by **8 seconds**, read from `git show -s --format=%cI` and from the
+run record, not from prose.
+
+| seq | run id | eval exit | `agentHash` | `init` delivered | deleg stream / telemetry | row 0a | cost |
+|---|---|---|---|---|---|---|---|
+| 01 | `d78ef2c8` | 12 | `c0c5aab3e7d4…` | `["Read","Grep","Glob"]` | 0 / 0 | **yes** | $0.0379 |
+| 02 | `4cc95dd4` | 12 | `c0c5aab3e7d4…` | `["Read","Grep","Glob"]` | 0 / 0 | **yes** | $0.0420 |
+| 03 | `7d2d25a2` | 12 | `c0c5aab3e7d4…` | `["Read","Grep","Glob"]` | 0 / 0 | **yes** | $0.0185 |
+| 04 | `cb594e60` | 12 | `c0c5aab3e7d4…` | `["Read","Grep","Glob"]` | 0 / 0 | **yes** | $0.0276 |
+| 05 | `f8dbd843` | 12 | `c0c5aab3e7d4…` | `["Read","Grep","Glob"]` | 0 / 0 | **yes** | $0.0434 |
+
+`instructionsHash` and `skillsHash` are **`null` on all five** — one variable moved.
+`runtime.model` is `claude-haiku-4-5-20251001` on all five. `changedFiles` is **0 on all five**.
+
+**Every clause of the registered prediction held, and they are the only registered predictions at this
+stop that did.**
+
+1. **"the `init` read-back shows no `Task`"** — held **5 of 5**. Delivered set `n=3 ["Read","Grep","Glob"]`,
+   and the read-back's own verdict is **`match`**: declared equals delivered. *This is worth its own
+   sentence.* E-005 at stop 9 measured the runtime **rewriting** a `tools:` list before the model saw it
+   (`Read, Grep, Glob, Bash` delivered as `["Read","Bash"]` on 10 of 10). Here it did not. The read-back is
+   why that is a measurement rather than an assumption.
+2. **"telemetry shows zero delegation events"** — held **5 of 5**, both sources, `0 / 0` every run.
+3. **"5 of 5 runs are classed row 0a"** — held **exactly 5 of 5**, on conditions (c) and (d), with (a)
+   and (b) `ok` on every run. The overlay was *delivered* and was *incapable*, which is precisely the
+   distinction condition (c) exists to draw.
+
+**The watch clause — *"if any run of it shows a delegation event, the delivery proof is not a proof"* —
+did not fire, and the near-miss is the finding.** Run 01 emitted **one `tool_use` block named `"Task"`**
+with `subagent_type: "planner"`. It was **refused by the runtime**, in its own words:
+
+```
+"tool_use_result":"Error: No such tool available: Task. Task is disabled for this session,
+ in subagents as well as here."
+```
+
+So no delegation occurred, `deleg_stream` (distinct `"name":"Agent"` ids) correctly read **0**, and the
+delivery proof stands. Two things follow, and neither is cosmetic:
+
+- **`tools:` removed a capability here, and E-005 said it does not.** Stop 9's headline is *"`tools:`
+  filters names, not capabilities"* — it was measured by *adding* `Bash`, which restored the capability.
+  Removing `Task` produced a runtime refusal naming the tool and extending to subagents. **Both are true
+  and they are not in tension:** the list is not a capability boundary when it *grants*, and it is one
+  when it *withholds* the dispatch tool. Read `experiments/E-005-agent-tool-boundary.md` beside this.
+- **Condition (d)'s grep counts an *attempt*, not a *completion*, and on run 01 it said so.** It searches
+  the stream for `"subagent_type":"<name>"`, which the refused call contains, and returned
+  `fail-1-of-3-stream` where the truth is 0 of 3. It changed no verdict — the run was row 0a on both (c)
+  and (d) — and it changes nothing in the registered arm, whose eight runs carried real `Agent` calls.
+  **But as written it is not sound**, and a future arm where an attempt is refused on all three
+  specialists would be reported as fully delivered. Recorded in `author_notes`; the fix is to require the
+  `subagent_type` and a *successful* `tool_use_result` on the same `toolu_` id.
+
+**Cost: $0.1694 for five runs, against a $4.00 ceiling and a $3.60 estimate written before the run.**
+The estimate was **21× too high** and the reasoning behind it was right in direction and hopeless in
+magnitude: *"a run with no `Task` should cost less, having no subagent contexts."* It costs **$0.0339
+median against the treated arm's $0.7149** — a **21× collapse**, not a discount. `modelCalls` is **1–4**
+against the treated median of **82.5**. An orchestrator that cannot delegate and holds only
+`Read, Grep, Glob` cannot write a line of Kotlin, so it stops almost immediately: `changedFiles` 0,
+evaluator exit 12, five times out of five. **The cheapness is the failure, not a saving**, and it is the
+clearest single number in this experiment for what the three specialists were actually doing.
+
+`Run and recorded by Opus 5 (claude-opus-5), autonomous, 2026-09-25.`
+
 ## Results · Which predictions held · Failure analysis · Sanity checks · Decision · Follow-up
 
-To be filled from evidence, after the runs, in the main context and never from a subagent's summary
-alone. At least one scored cell is **re-read by hand off the kept worktree** with the hand reading
-written beside the sheet's value (§5).
+**Which predictions held.** Of the seven registered predictions, **two held and five are refuted** — the
+table is in `evidence/b08a/REPORT.md` §§2–6 and in the workbook, and nothing in it is restated here.
+Of the **three** clauses of the deliberate failure, **three held**. Taken together: *the instrument's
+predictions about itself held; the experiment's predictions about the treatment did not.*
+
+**Failure analysis — the decision rule does not resolve, and the reason is in its own composition.**
+Rows are evaluated in order and the first that fires is the verdict. **Row 0b fired** (the $9.70 ceiling,
+at $9.7948 after pair 08) and is discharged by reporting the population that occurred, `n = 8` per arm.
+Then: **row 0a** no (0 of 8), **row 1** no (delivery 8 of 8, model pinned 16 of 16), **row 2** requires
+*both* rates at `p ≤ 0.05` and P2 is **0.1189**, **row 3** requires a *lower* treated rate, **row 4**
+fires only when *neither* rate separates and P3 is **0.0070**. **No substantive row fires.** The rule was
+written on the assumption that P2 and P3 would agree; they disagree on **4 of 16 runs, in both
+directions**, and the rule has no row for exactly one of two rates separating. *That gap was predicted in
+this file's own MDE section before the batch and registered as a finding.*
+
+**What is decided anyway, and by which clause.** Author decision 11 item 2 and `build/README.md#b8a` make
+the ladder's continuation conditional in the **permissive** direction: *rung 10 may be proposed only if
+rung 4's own rule fires `IMPROVED`.* Row 2 did **not** fire — its conjunction is unambiguous and unmet.
+**So the ladder closes**, and it closes on the clause that is well defined on this outcome rather than on
+row 4, which is not. **`IMPROVED` is unavailable; `NOT DETECTABLE`, `REJECT` and `VOID` are each
+unfired.** The verdict recorded for this experiment is therefore **`NO ROW FIRES`** — written as such,
+not rounded to the nearest registered word.
+
+**Sanity checks.** Prediction commit `a3acac7` at 2026-09-25T07:04:59Z precedes the registered batch;
+`2514c7f` at 15:13:08Z precedes the deliberate failure by 8 s. `runtime.model` is the pinned id on all
+**21** runs of this stop (16 registered + 5 deliberate failure). Rubric sha `945817b8c509` unchanged
+throughout. The registered treated arm carries `agentHash` `1f27323694e5…`; the deliberate-failure arm
+carries `c0c5aab3e7d4…`; neither appears in the other's manifest. The hand re-read agreed with the
+registered sheet (`REPORT.md` §8).
+
+**Decision — keep, modify, remove (§4 step 10).** **Kept as a measured configuration, not promoted, and
+not carried forward into any later stop.** `build/customizations/b8a-pipeline-v1.0/` stays on disk because
+it is a measured version and §6 forbids editing one; nothing installs it after this stop. It is **not**
+removed, because §4 step 10's "a rule with no measured effect is removed" applies to rules this project
+*carries*, and the pipeline was never a carried rule — it was a candidate configuration tested once and
+answered. **Promotion is refused on its own terms:** B13 clause `tokens_per_accepted_task` allows a 15 %
+increase and the measured figure is **1.83×**, so the gate is failed by a factor of twelve regardless of
+quality, and the registered quality outcome showed **no** effect (P1 treated median 0 vs control 0).
+
+**Follow-up.** One instrument defect to fix before any arm relies on condition (d) (the attempt-vs-
+completion grep, above). One `author_notes` item already standing: `baseline-report.py`'s `F13` rule
+discards `4abf7f01`, a complete control run, and the rule is **not** changed here. Nothing else is owed.
 
 ---
 
