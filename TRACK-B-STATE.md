@@ -8,10 +8,13 @@ Owned by the autonomous run. `run-track-b.sh` reads `status: running   # *** §0
                   # *** THE NEXT STOP IS 18 (PHASE 6A) AND NOTHING OF IT EXISTS - §6 FORBIDS A FUTURE
                   # STEP`S ARTIFACTS EARLY. OPENING IT AT §4 STEP 1 IS THE NEXT SESSION`S FIRST ACT. ***
                   #
-                  # MERGED THIS SESSION, ALL THREE WITH --admin AFTER EVERY CHECK REPORTED:
+                  # MERGED THIS SESSION, ALL FOUR, AFTER EVERY CHECK REPORTED:
                   #   lab#117  -> 955e05c1b3198656b273c8ea6ccb5614d9d2f176   the stop
                   #   obs#88   -> 5ba0719a5983af0fe7fbf0b38fd37433b5b521af   the agentsHash instrument
                   #   lab#119  -> 71b78ce51d5b1fc583a065137fa39727ae5ba959   the two review files
+                  #   lab#120  -> 8068fb4057b72e46a9ccea5654834fe5b27b0a6f   this file, at boundary 4
+                  # (lab#120 could not carry its own merge sha, so this line was added by lab#121, which
+                  #  is the last commit of the session and whose own sha is in git log and nowhere else.)
                   # lab#118 (B8a - CHECKED VIA THE API; THE PREVIOUS next_action SAID lab#34 AND lab#34 IS
                   # B9) HAS TWO COMMENTS AND IS CLOSED `completed`; ITS CARD IS `Done`, READ BACK.
                   #
