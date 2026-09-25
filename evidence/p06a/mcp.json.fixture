@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "stop18probe": {
+      "command": "python3",
+      "args": ["__PROBE_SERVER_PATH__"]
+    }
+  }
+}

@@ -232,6 +232,46 @@ unmeasured**; **row 4 → keep, and the finding is about the instrument, not the
 removes it: removing a control on the strength of one lab is how this project would lose its
 baseline isolation, and §6 forbids editing a registered variable of every past run.
 
+## Deliberate failure — §4 step 9, registered BEFORE it runs
+
+`Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-25T18:52Z, after arms P, A and B
+were run and read, and before arm D existed. The author did not review before the run.`
+
+**What is being broken is the containment claim, not the flag.** Arms A and B settle that
+`--strict-mcp-config` filters a `.mcp.json` **in the run's own working directory**. The way
+that finding could still be wrong in practice is if the hole reaches this harness through a
+path arm A never tested — and there is exactly one such path with a name: **a `.mcp.json`
+above the run's cwd.** Every benchmark run this project makes happens in a git worktree
+nested inside a directory tree the operator controls, so "project scope" meaning *cwd only*
+versus *anywhere at or above cwd* is the difference between a hole that needs a file planted
+in the worktree and a hole that needs one planted anywhere above it.
+
+**Arm D:** the arm-A flag set exactly, cwd **empty**, and the `.mcp.json` one directory
+**above** it. `n = 5`. Budget ~$0.08, inside the $0.50 ceiling (spent so far: $0.1548).
+
+**Predictions, both falsifiable, neither edited after the run:**
+
+- **DF1 — `mcp__stop18probe__` is ABSENT on 5 of 5.** *Mechanism:* "project scope" in Claude
+  Code means the file in the directory the session starts in, and nothing walks upward. If
+  this holds, the hole measured in arm A requires a file **inside** the run's own worktree,
+  which is a materially narrower exposure than an operator's home directory.
+- **DF2 — `stop18probe` is absent from `init.mcp_servers` on 5 of 5**, for the same reason.
+
+**The clause to watch, and it is bigger than the experiment that checks it:** *if DF1 is
+refuted — if the tool appears — then any benchmark worktree nested under a directory that
+carries a `.mcp.json` inherits it silently under `claude -p`, `--strict-mcp-config` is the
+only thing standing between this project's every baseline run and an operator's file it never
+looks at, and the extract's §3 understates the hole rather than overstating it.* That is a
+`author_notes` item the same session and a direct input to **B9 (stop 20)**.
+
+**Why this and not "remove `--strict-mcp-config` and watch it break":** that is arm A, already
+run. A deliberate failure that re-runs an arm measures nothing. This one asks a question whose
+answer is not implied by any run already on disk, and whose refutation would enlarge the
+stop's own finding rather than confirm it.
+
+**Arm D is a deliberate failure, not a comparison arm.** It enters no decision-rule row of the
+A-vs-B contrast, moves no registered variable, and is reported on its own.
+
 ---
 *Everything below is filled in AFTER the runs.*
 ---

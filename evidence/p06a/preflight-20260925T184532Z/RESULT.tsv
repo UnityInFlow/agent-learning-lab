@@ -1,0 +1,2 @@
+arm	i	run_dir	started_at	finished_at	tool_present	server_present	server_status	approval_event	cost_usd	note
+P	1	/tmp/stop18-mcp-probe-20260925T184532Z/run-P-1	2026-09-25T18:45:33Z	2026-09-25T18:45:37Z	yes	yes	connected	no	0.0132041	f13-candidate
