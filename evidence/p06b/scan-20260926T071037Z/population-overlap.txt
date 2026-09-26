@@ -1,0 +1,7 @@
+telemetry files: events-2026-09-05T08-34-36.268.jsonl, events-2026-09-08T13-05-27.487.jsonl, events.jsonl
+records: 652
+telemetry run ids: 638
+intersection: 618
+records with NO telemetry on disk: 34
+telemetry run ids with NO record: 20
+naive difference of sizes (a NET, not a count): 14
