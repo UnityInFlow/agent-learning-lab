@@ -6913,7 +6913,117 @@ preflight_20260925_post_discharge:  # §0a RUN IN FULL AGAIN 2026-09-25T06:4x-06
   board_check: "ok - exit 0, `2 board(s) current at c32edff33e62`. Current against origin/main, and this
     branch has not touched HANDOFF.md yet. §4 step 14 is where a republish belongs."
   hook_wiring: "STILL unproven in print mode, unchanged, and deliberately not claimed."
-preflight:  # *** §0a RE-RUN IN FULL 2026-09-26T08:41-08:47Z *** at the AUTHOR'S EXPLICIT INSTRUCTION
+preflight:  # *** §0a RE-RUN 2026-09-26T18:29-18:36Z *** at the AUTHOR'S EXPLICIT INSTRUCTION for this
+            # session (`starting with the section 0a preflight`). §0a's own trigger did NOT fire -
+            # neither a first session nor a halt; status was `running` with a REGISTERED BATCH IN
+            # FLIGHT, and that constrains which rows may be run at all (row 6b below).
+            # FIVE ok, ONE partial, ONE red. NEITHER the partial NOR the red is a §7 halt and
+            # blocked_on_author STAYS EMPTY.
+            # *** THE ONE THING IN THIS BLOCK THAT CHANGES WHAT THE NEXT SESSION DOES: CODEX IS
+            # BACK, FOUR DAYS BEFORE THE RECORDED RESET. *** Row 3c wrote a real sheet at 18:31Z.
+            # Every `cannot score until 2026-09-30T16:29Z` line above and below is SUPERSEDED BY
+            # THIS OBSERVATION. §4 STEP 7 IS UNBLOCKED THE MOMENT THE BATCH ENDS.
+            # I RAN EVERY ROW MYSELF rather than delegate to a haiku subagent (§4b): each row is one
+            # short command, the whole table cost under seven minutes, and the two rows that changed
+            # verdict since 08:4xZ (3 and 7) are precisely the ones a subagent's label could have
+            # inverted.
+  row1_review_hook_script: "ok 2026-09-26T18:29:57Z. .claude/hooks/opencode-review.test.sh -> `87
+     passed, 0 failed, 0 skipped`, `all 87 cases ran and behaved as specified`. §0a's table still
+     says `16 of 16` and is STALE BY 71 CASES - fifth session carrying it, author_notes item (g).
+     The row passes on what the script reports, not on the prompt's number."
+  row2_review_harness_live: "*** PARTIAL, STRUCTURALLY, AND IT REPRODUCES 08:41Z EXACTLY. ***
+     (2a) THE DEFAULT PANEL IS STILL REFUSED: ./tools/opencode-review.sh -n 1 templates/run-record
+     .yaml at 18:32:05Z -> `Error: you (hermannjirka15) have reached your weekly usage limit`,
+     `opencode exited 1 - dropping ollama-cloud/glm-5.2 from the panel`, `every family failed`,
+     findings/opencode/review-run-record-20260926T183205Z.md. ollama-cloud is on a WEEKLY limit and
+     it has not reset while codex's did.
+     (2b) `-P codex` WORKS AND THE FINDINGS ROUTE IS PROVEN: 18:34:05-18:36:17Z,
+     findings/opencode/review-run-record-20260926T183405Z.md, 7 090 bytes, 4 `## ` sections, panel
+     table `| codex | ok | 46s |`. So the control §4a actually needs - a second model family reading
+     the work and returning findings - is available again at this stop.
+     (2c) THE ACCEPTANCE GATE IS STILL UNREACHABLE, and the cause is in the tool, not the quota:
+     that file's Acceptance section reads `The gate failed to run (opencode exit 1)` because the
+     panel dispatches codex through tools/codex-critic.sh (tools/opencode-review.sh:264) while the
+     acceptance pass always calls `opencode run --agent lab-acceptance -m $ACCEPT_MODEL` (:490), so
+     LAB_ACCEPT_MODEL=codex cannot reach it. §4a step 13a at this stop can therefore reach `every
+     finding fixed or disputed in writing` and CANNOT reach ACCEPT. Recorded, never claimed as an
+     ACCEPT. author_notes item (M) carries the ~15-line instrument fix I did NOT make - and the
+     reason I still did not make it is §4 step 4: a registered batch is in flight and this tool's
+     sibling is what the batch's own driver was built beside.
+     No stray process at either end: LC_ALL=C pgrep -fl opencode (never bare pgrep - blind on this
+     machine) found nothing of ours."
+  row3_codex_harness_live: "*** ok, AND IT IS THE FINDING OF THIS PREFLIGHT. CODEX IS BACK. ***
+     (3a) LAB_SCORE_DRY_RUN=1 at 18:31:06Z -> exit 3, one line, `DRY RUN - prompt written, nothing
+     scored. 2 file(s) under test, 2 baseline.` The prompt IS written, which is what the row asks
+     for. THIS EXIT CODE IS NOW ON ITS FOURTH READING ON AN UNCHANGED MACHINE (3, then 0, then 0 at
+     08:43Z today, now 3 again) - author_notes item (h), still unreconciled, still gates nothing.
+     (3b) codex-cli 0.154.0.
+     (3c) *** A REAL SHEET, WRITTEN 18:31:19-18:31:42Z, TWENTY-THREE SECONDS, EXIT 0: ***
+     findings/codex/score-good-nested-ifs-20260926T183119Z.yaml, 2 062 bytes, four categories -
+     architecture-consistency 2, maintainability 0, test-quality null (`nothing to grade`),
+     change-focus 2. CELL-FOR-CELL IDENTICAL to the 08:43Z sheet on the same fixture, which is the
+     concordance check the row cannot ask for but a reader should want.
+     *** CONSEQUENCE: the `codex refused until 2026-09-30T~16:29Z` finding of the previous session
+     is TRUE OF ITS OWN PROBES AND NO LONGER TRUE OF THE MACHINE. *** §4 step 7 is NOT blocked at
+     boundary 3. DECISION H IS NOT FIRED, HAS NEVER BEEN FIRED, AND MUST NOT BE FIRED NOW - it
+     promotes deepseek, and deepseek is the one that is still refused. The registered scorer is
+     available; the second reader is not, and §4 step 7's second-harness reading is what will have
+     to wait or be recorded as deferred."
+  row4_gate_and_validators: "ok 2026-09-26T18:30:20Z, run ONE AT A TIME in a loop that prints each
+     exit code separately so a failure could not hide behind a later pass:
+     verify-run-gate-checker.sh exit 0 `all 13 cases behaved as specified`;
+     verify-sheet-category-checker.sh exit 0 `all 11 cases behaved as specified`;
+     verify-run-record-validator.sh exit 0 (12 fixtures); verify-model-output-classifier.sh exit 0
+     (16 fixtures)."
+  row5_observatory_stack: "ok 2026-09-26T18:30:35Z. cd ../agent-observatory && make smoke -> `All 18
+     checks passed.` against API 127.0.0.1:8081. `make smoke` was read before it was run
+     (Makefile:158-160 - it execs runner/smoke-test.sh against a RUNNING stack and starts, stops or
+     restarts nothing), because restarting the stack under a live batch would have destroyed the
+     runs in flight. That reading is the reason this row was allowed to run at all."
+  row6_isolation: "*** 6a RED FOR THE EIGHTEENTH TIME, 6b NOT RUN AND DELIBERATELY SO. NEITHER GATES
+     STOP 20. ***
+     6a: ../agent-observatory/runner/verify-codex-isolation.sh at 18:32:15-18:33:52Z returned
+     `ISOLATION LEAKS: the agent reached the operator's instruction files with HOME redirected`,
+     exit 2 - the same verdict as 08:43Z today. Across five sessions this script has returned ok,
+     leak AND INCONCLUSIVE on an unchanged machine; the blocker is THE NONDETERMINISM OF THE
+     VERDICT, not any one reading. author_notes item (b). It gates STOP 21's codex arm. Stop 20 is
+     single-arm claude, so it gates nothing here, and its fix is its own reviewed PR, never a side
+     edit made in passing.
+     6b: *** REFUSED THIS SESSION ON PURPOSE, and the refusal is a measurement decision, not a
+     skipped row. *** The row asks for one claude run with ISOLATE_USER_SETTINGS=1. A REGISTERED
+     BATCH OF claude RUNS IS IN FLIGHT ON A RATE-LIMITED ACCOUNT - the same account whose five-hour
+     window paced run 01 treated to 90 minutes earlier today. An extra claude run now would contend
+     with the registered batch for that window and would be an unregistered run interleaved into a
+     registered batch's wall clock. Neither is worth a row that ALSO CANNOT PASS AS WRITTEN: §0a
+     asks for a record that `shows 0 hook executions` and THE RUN RECORD HAS NO SUCH FIELD (keys:
+     behavior, benchmarkId, customization, efficiency, evaluation, experimentId, experimentKey,
+     finishedAt, humanReviews, repository, result, runId, runtime, startedAt, telemetryQueryKey,
+     traceId, traceUrl, variant; the only hook-ish key anywhere is hooksHash, null on every run ever
+     recorded). The observable half is observed CONTINUOUSLY BY THE BATCH ITSELF: every one of its
+     16 rows so far ran --isolate-user-settings and every control row records knowledgeHash null
+     against the treated arm's sha256:0770219ae7f4281a80071d78dadea285, which is the isolation
+     property this row exists to check, measured 16 times instead of once.
+     *Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-26.*"
+  row7_board_check: "*** ok - AND IT WAS RED AT 08:45Z THIS MORNING. THE RED IS DISCHARGED. ***
+     ./tools/check-board-freshness.sh at 18:30:40Z, exit 0 (re-run a second time capturing the exit
+     code on its own line, because `${PIPESTATUS[0]}` IS EMPTY IN zsh and the first reading printed
+     nothing - a status check that silently reports nothing is this project's house failure mode in
+     miniature): `2 board(s) current at 4a67c593ada2`, both artifact ids listed `current (prose
+     4a67c593ada2, built from 74e0965)`. The republish happened on THIS branch at commit 2e5bcaa
+     `boards: both republished with real content at prose 4a67c593ada2`, after the HANDOFF.md edit
+     at 74e0965. SO THE DIGEST TO RE-DERIVE AFTER ANY FURTHER HANDOFF.md EDIT IS NO LONGER
+     1325ac3fae8c; IT IS 4a67c593ada2 AS OF 74e0965, and stop 20's PR will be GREEN on this check
+     rather than red as the previous block predicted."
+  processes_at_start_and_end: "Checked with LC_ALL=C pgrep -fl (bare pgrep is BLIND on this machine
+     and prints nothing on an illegal-byte-sequence error, which is byte-for-byte what `no stall`
+     looks like). Nothing of OURS in the review/score family at either end. WHAT IS RUNNING, AND
+     MUST BE: the registered batch - pid 81129 run-b9-batch.sh --resume, pid 81126 detach.py, and
+     one run-agent.sh child - untouched by every row above."
+  hook_wiring_this_session: "STILL unproven in print mode. No push this session has changed a
+     contract glob, and the two review invocations above were run BY HAND, synchronously, which is
+     what §0a says the proof has to be when the hook cannot be observed. §4a's synchronous review
+     remains the review control for this run."
+# SUPERSEDED, kept not deleted: preflight:  # *** §0a RE-RUN IN FULL 2026-09-26T08:41-08:47Z *** at the AUTHOR'S EXPLICIT INSTRUCTION
             # for this session (`starting with the section 0a preflight`). §0a's own trigger did NOT
             # fire - neither a first session nor a halt. Rows delegated to a haiku subagent per §4b,
             # and the THREE rows that decided anything were RE-RUN OR RE-DERIVED BY ME.
