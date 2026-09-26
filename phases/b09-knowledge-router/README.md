@@ -481,6 +481,77 @@ read 13 where twelve invocations precede the check. Counted rather than summed �
 J K L, with `A order` re-reading A's stdout and case N running after the check. That is stop 19's
 method lesson landing on its own author inside the same session.
 
+## §4 step 5 — the preflight refused the batch, and the refusal is the finding
+
+*Written by Opus 5 (claude-opus-5), autonomously, 2026-09-26. The full record, with every path and
+number, is **Amendment 2** in `experiments/E-022-knowledge-router-BE003.md` and
+`experiments/E-023-knowledge-router-BE004.md`. This section is the short version and the layer
+reading.*
+
+Four runs, `evidence/b09/preflight-20260926T124800Z/`, exit **2**. All four solved their task.
+Conditions (i) and (iii) **held** — `knowledgeHash` set on treated and `null` on control, the corpus
+in each treated worktree hashing to the overlay's registered value, and the `init.tools` read-back
+returning `["Read","Edit","Write","Bash"]` with verdict `match` on all four. Condition (ii) — the
+router's own log — was **ABSENT on both treated runs**, so no batch was started.
+
+**The cause was the harness.** On BE-003's treated run `fbdebf75` the agent called
+`.ai/knowledge/router.sh "state transition validation error codes"` at its first opportunity and the
+call is in the run's `permission_denials` array. `repair-limit.sh` recorded nine allows and zero
+blocks, so the treatment's own hooks did not refuse it; `run-agent.sh`'s allowlist did — with
+`--permission-mode acceptEdits` and `--allowedTools "Bash(./mvnw:*)" "Bash(mvn:*)"`, every Bash
+command that is not mvn is denied and `claude -p` has nobody to ask.
+
+**Had the batch run, it would have reported this stop's registered VOID row about an agent that
+followed the instruction immediately.** That is the design section's own *"the assumption that gets
+proved at preflight rather than asserted here"*, and it is the reason that paragraph exists — but it
+named the wrong failure. It anticipated an agent that ignores an L3 instruction. What happened is an
+**L2 control in the harness forbidding the treatment's only mechanism**, which no amount of L3
+uptake could have overcome.
+
+### The layer correction this forces, and it belongs in the §5 table
+
+The design table calls `.ai/knowledge/router.sh` **L2 for "a lookup was recorded"** and **L3 for "a
+lookup happened at the right point"**. Both still hold. What the table did not say is that the
+*ability to record a lookup at all* sits behind an **L2 control the treatment does not own**: the
+runner's Bash allowlist. A treatment whose mechanism is a command is only deliverable if something
+outside the overlay permits that command — and the probe below shows the overlay **cannot** permit it
+itself.
+
+| what | who owns it | layer | observed |
+|---|---|---|---|
+| the corpus reaching the worktree | the overlay | **L2** — `knowledgeHash`, `git`-committed setup commit | held, 2 of 2 treated runs |
+| permission to execute the router | **the runner, not the overlay** | **L2** | **refused**, 1 of 1 attempts, until obs#90 |
+| the agent choosing to call the router | nobody — it is a sentence | **L3** | attempted unprompted on BE-003; not attempted on BE-004 (`n = 1` each) |
+
+### The fix was chosen by probe, and the probe's negative result is the transferable finding
+
+`evidence/b09/router-permission-probe-20260926T130051Z/`, three arms, one model call each. Settings
+as shipped: **denied**. A `permissions.allow` entry in the overlay's own `.claude/settings.json`:
+**denied, and the entry ignored** — *"this workspace has not been trusted"*. The runner's
+`--allowedTools`: **`permission_denials":[]`** and the router wrote
+`{"status":"hit","topic":"kotlin-exhaustive-when",...}`.
+
+The overlay route was tried first because a treatment's precondition belongs in the treatment. It
+does not work, and the reason generalises past this stop: **every benchmark worktree is a new temp
+directory, untrusted by construction, and the runtime's own remedy is a user-scope mutation that
+`--isolate-user-settings` exists to prevent. A treatment in this harness cannot grant itself a Bash
+permission.** Any later step whose treatment is a command inherits that constraint.
+
+### What the instrument learned, and it is one line in two drivers
+
+An absent log had **two** causes and the first version of the check conflated them: BE-003 treated
+attempted the router and was refused; BE-004 treated never attempted it. Same `ABSENT`, opposite
+meanings, and only the second is what the VOID row is about. Both drivers now record
+`router_mentions` and `router_denied` per run — hand-checked against these four logs — and a treated
+denial prints *"do NOT report this as the decision rule's VOID row"*.
+
+Its own counting expression was wrong twice before it was right, both times in ways this repository
+already records: `grep -c` counts **lines** with a match, so two calls on one stream-json line count
+once (the b08 driver's note says exactly this), and `grep -c … || echo 0` prints grep's `0` **and**
+the fallback `0`, putting a newline inside a manifest field. Corrected to `grep -o … | wc -l`, and
+the column is named `router_mentions` rather than `router_calls` because one call appears in the
+stream three times.
+
 ## Predict before you run
 
 Registered in two experiment files, one per task (author decision 9), each committed before its

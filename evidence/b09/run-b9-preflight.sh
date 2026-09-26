@@ -123,7 +123,7 @@ EVENTS_BEFORE="$(events_bytes)"
   printf '# API %s  OTLP %s / %s  events.jsonl %s bytes at launch\n' \
     "$API" "$OTLP_HTTP_ENDPOINT" "$OTLP_GRPC_ENDPOINT" "$EVENTS_BEFORE"
   printf '# prediction commit ef2c6c0, BEFORE any run here\n'
-  printf 'task\tarm\trun_id\trc\teval\tknowledge_hash\tinstr_hash\tagent_hash\tlog_state\tlog_lines\tlog_hits\tcorpus_match\tcost\tmodel_calls\ttool_calls\tduration_ms\tchanged\tinit_tools\tworktree\n'
+  printf 'task\tarm\trun_id\trc\teval\tknowledge_hash\tinstr_hash\tagent_hash\tlog_state\tlog_lines\tlog_hits\trouter_mentions\trouter_denied\tcorpus_match\tcost\tmodel_calls\ttool_calls\tduration_ms\tchanged\tinit_tools\tworktree\n'
 } > "$MANIFEST"
 
 api() { curl -s -m 20 "$API/api/runs/$1" 2>/dev/null; }
@@ -162,6 +162,31 @@ one() {  # one <task> <arm>
     lines="$(grep -c . "$lf" 2>/dev/null || echo 0)"
     hits="$(grep -c '"status":"hit"' "$lf" 2>/dev/null || echo 0)"
   fi
+  # ===== WAS THE ROUTER ATTEMPTED, AND WAS THE ATTEMPT REFUSED? *** AN ABSENT LOG HAS TWO
+  # CAUSES AND CONFLATING THEM NEARLY TURNED A HARNESS REFUSAL INTO A NULL RESULT. *** On the
+  # 2026-09-26T12:48Z preflight, BE-003 treated fbdebf75 CALLED the router at its first
+  # opportunity and the call was in `permission_denials`, because the runner allowed only mvn
+  # Bash commands; BE-004 treated 5a16fd3e never mentioned it at all. Same ABSENT, opposite
+  # meanings. `router_mentions` counts the attempts in the run log; `router_denied` is yes when a
+  # denial entry names the router. An EMPTY denial array on a run that made the call is the
+  # thing that proves the permission took effect — a flag echoed into a log proves only that it
+  # was passed.
+  local rmentions rdenied
+  # -o PIPED TO wc -l, NOT grep -c, AND NO `|| echo 0`. Two defects in the first version of this
+  # line, both of which the b08 driver already records: `grep -c` counts LINES WITH A MATCH, so two
+  # router calls on one stream-json line count once; and `grep -c ... || echo 0` prints grep's own
+  # "0" AND the fallback "0", putting a NEWLINE inside a manifest field. Hand-checked against the
+  # 12:48Z logs: BE-003 treated 2 calls / denied yes, the other three 0 / no.
+  rmentions="$(/usr/bin/grep -ao 'router\.sh' "$log" 2>/dev/null | /usr/bin/wc -l | tr -d ' ')"
+  rmentions="${rmentions:-0}"
+  # NAMED `mentions`, NOT `calls`, AND THE DIFFERENCE IS NOT PEDANTRY: one tool call appears in the
+  # stream-json more than once — the `tool_use` input, the cwd-prefixed form the harness records,
+  # and the `permission_denials` entry if it was refused. On fbdebf75 that is 3 for ONE call. The
+  # column is a presence indicator, and the thing that decides anything is `router_denied` beside
+  # it and the log's own line count.
+  rdenied=no
+  /usr/bin/grep -ao 'permission_denials":\[[^]]\{0,240\}' "$log" 2>/dev/null | /usr/bin/grep -q 'router\.sh' && rdenied=yes
+
   # ===== CONDITION (iii): the corpus in the kept worktree hashes to the overlay's value.
   local cmatch="n/a"
   if [[ -n "$wt" && -d "$wt/.ai/knowledge" ]]; then
@@ -178,10 +203,10 @@ one() {  # one <task> <arm>
     [[ "$it" == "/" ]] && it="UNPARSED"
   else it="NOFILE"; fi
 
-  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
     "$task" "$arm" "${rid:-NONE}" "$rc" "$ev" "$kn" "$ih" "$ah" "$lstate" "$lines" "$hits" \
-    "$cmatch" "$cost" "$mc" "$tc" "$dur" "$chg" "$it" "${wt:-NONE}" >> "$MANIFEST"
-  echo "  -> ${rid:-NO RUN ID} rc=$rc eval=$ev knowledgeHash=$kn log=$lstate(${lines} lines, ${hits} hits) corpus=$cmatch cost=$cost"
+    "$rmentions" "$rdenied" "$cmatch" "$cost" "$mc" "$tc" "$dur" "$chg" "$it" "${wt:-NONE}" >> "$MANIFEST"
+  echo "  -> ${rid:-NO RUN ID} rc=$rc eval=$ev knowledgeHash=$kn log=$lstate(${lines} lines, ${hits} hits) router_mentions=$rmentions denied=$rdenied corpus=$cmatch cost=$cost"
 
   # ===== THE EVIDENCE COPY, THE DAY THE RUN IS MADE. The reaper empties a kept worktree in
   # about three days and LEAVES THE DIRECTORY STANDING, so a copy made later is a copy of nothing.
@@ -205,7 +230,14 @@ one() {  # one <task> <arm>
     [[ "$kn" == "$EXPECT_KNOWLEDGE_HASH" ]] || { echo "  !! (i) FAILED: treated knowledgeHash is $kn" >&2; FAIL_I_III=$((FAIL_I_III+1)); }
     [[ "$cmatch" == "MATCH" ]]              || { echo "  !! (iii) FAILED: corpus in the worktree is $cmatch" >&2; FAIL_I_III=$((FAIL_I_III+1)); }
     if [[ "$lstate" != "PRESENT" || "$lines" -lt 1 ]]; then
-      echo "  !! (ii) FAILED: the router was never called on a treated run — THE BATCH MUST NOT START." >&2
+      if [[ "$rdenied" == yes ]]; then
+        echo "  !! (ii) FAILED **BY REFUSAL**: the agent CALLED the router ($rmentions attempt(s)) and the" >&2
+        echo "  !!      harness DENIED it. This is NOT the VOID row and must never be reported as one —" >&2
+        echo "  !!      the instruction was acted on. Fix the permission, then re-run this preflight." >&2
+      else
+        echo "  !! (ii) FAILED: the router was NOT ATTEMPTED on a treated run ($rmentions mentions in the" >&2
+        echo "  !!      log, no denial naming it). THE BATCH MUST NOT START." >&2
+      fi
       FAIL_II=$((FAIL_II+1))
     fi
   else

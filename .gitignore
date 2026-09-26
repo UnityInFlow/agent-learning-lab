@@ -25,6 +25,13 @@ evidence/p04b/lab-4b4/fourth-cell/.batch.lock
 # exists so a `git add -A` cannot turn a live lock into a tracked file mid-batch.
 evidence/b09/.batch.lock
 
+# The B9 router-permission probe's three ARENAS are throwaway git repos the probe itself inits, so
+# a gitlink is not evidence — the same reason stop 11's wt-*/ entry exists above. The probe's
+# EVIDENCE is its logs, its RESULT.tsv and the router log it produced, and those ARE tracked.
+evidence/b09/router-permission-probe-*/baseline/
+evidence/b09/router-permission-probe-*/overlay-permission/
+evidence/b09/router-permission-probe-*/cli-allowlist/
+
 # Python bytecode from `python3 -m py_compile` on tools/ — a verification step, not an artifact
 __pycache__/
 

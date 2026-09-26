@@ -348,3 +348,94 @@ retrieval record an artifact of the run rather than of `$TMPDIR` — is not avai
 stop. Phase 6B's finding 3 named that as one of the two routes to a retrieval record the
 harness does not have; **neither route is built here**, and the workbook's §5 layer column says
 so in the row it applies to.
+
+---
+
+## Amendment 2 — the preflight refused the batch, and the cause was the harness, not the instruction
+
+*Amended by Opus 5 (claude-opus-5), autonomously, 2026-09-26, at §4 step 5. The four preflight runs
+below are kept as evidence and are **not** part of any population. Nothing above is rewritten.*
+
+### What the preflight found
+
+`evidence/b09/preflight-20260926T124800Z/` — four runs, one per arm per task, exit **2**.
+
+| task | arm | run id | eval | `knowledgeHash` | corpus in worktree | router log | cost |
+|---|---|---|---|---|---|---|---|
+| BE-003 | treated | `fbdebf75` | **0** | `sha256:0770219ae7f4281a80071d78dadea285` | MATCH | **ABSENT** | $0.1499 |
+| BE-003 | control | `ff1f8d03` | **0** | `null` | absent as registered | absent as registered | $0.110291 |
+| BE-004 | treated | `5a16fd3e` | **0** | `sha256:0770219ae7f4281a80071d78dadea285` | MATCH | **ABSENT** | $0.227893 |
+| BE-004 | control | `5ea203ac` | **0** | `null` | absent as registered | absent as registered | $0.289222 |
+
+**Conditions (i) and (iii) held on every run.** The corpus was delivered, hashed, and proved present
+in the treated worktrees and absent in the controls. The `init.tools` read-back author decision 8
+requires returned `n=4 ["Read","Edit","Write","Bash"]` with verdict `match` on **all four** runs — so
+unlike E-005's arm F, the runtime did not rewrite the tool list. All four runs **solved their task**.
+
+**Condition (ii) failed on both treated arms**, and that is why no batch was started.
+
+### The cause, and it is not what an absent log looks like
+
+On `fbdebf75` the agent called the router **on its own initiative, at its first opportunity**:
+
+```
+.ai/knowledge/router.sh "state transition validation error codes"
+```
+
+and that call is in the run's **`permission_denials`** array. The treatment's own hooks did not
+refuse it — `repair-limit.sh` recorded **nine allows and zero blocks** on the same run, and its
+run-state file carries them. What refused it was `run-agent.sh`'s own allowlist: with
+`--permission-mode acceptEdits` and `--allowedTools "Bash(./mvnw:*)" "Bash(mvn:*)"`, **every Bash
+command that is not mvn is denied**, and in `claude -p` there is no human to approve one.
+
+**So the batch, had it run, would have recorded `H = 0`, fired decision-rule row 0 (E-022) / row 1
+(E-023), and reported `VOID — an L3 instruction nobody acted on` about an agent that acted on it
+immediately.** That is a harness refusal read as a null result, which is this project's house
+failure mode, and it is the same shape as stop 8's `--disable-slash-commands`.
+
+**The two absences are not the same absence, and the instrument now separates them.** On
+`5a16fd3e` (BE-004) the agent never mentioned the router at all — no attempt, no denial. Same
+`ABSENT`, opposite meanings: one is a refused instruction, the other is an unfollowed one, and only
+the second is what the VOID row is about. Both drivers now record `router_mentions` and
+`router_denied` per run, hand-checked against these four logs (BE-003 treated 3 mentions / denied
+`yes`; the other three 0 / `no`), and a treated denial now prints *"do NOT report this as the
+decision rule's VOID row"*. **`n = 1` per arm per task: the BE-004 non-attempt is true of that run
+and is not a property of the task** (§5).
+
+### The fix, chosen by probe rather than by reasoning
+
+Three arms, one model call each, `evidence/b09/router-permission-probe-20260926T130051Z/`:
+
+| arm | `permission_denials` | router log |
+|---|---|---|
+| overlay settings as shipped | non-empty, names the router | none |
+| **overlay `permissions.allow`** for the router | non-empty — **the entry was ignored** | none |
+| **runner `--allowedTools` entry** | **`[]`** | **`{"status":"hit","topic":"kotlin-exhaustive-when",…}`** |
+
+The overlay route was tried **first**, because a treatment's precondition belongs in the treatment.
+The runtime refuses it and says why: *"Ignoring 1 permissions.allow entry from
+.claude/settings.json: this workspace has not been trusted … or set
+`projects[...].hasTrustDialogAccepted: true` in `~/.claude.json`."* Every benchmark worktree is a new
+temp directory, untrusted by construction, and the remedy offered is a user-scope mutation that
+`--isolate-user-settings` exists to prevent. **A treatment in this harness cannot grant itself a Bash
+permission** — a finding worth more than this stop.
+
+So the fix is in the runner (obs#90): `Bash(.ai/knowledge/router.sh:*)` added to `--allowedTools`,
+**unconditionally, on every claude run of every arm**, for the reason the runner's own stream-json
+comment gives about itself — a flag passed to the treatment arm only makes the launch a between-arm
+difference. An allow rule for a path that does not exist cannot change a control run's behaviour.
+
+### What it costs this experiment, stated rather than left to be inferred
+
+- **Every run of this stop executes under a three-entry allowlist where every earlier stop's runs
+  had two.** Both arms move together and the registered comparison is against a **concurrent**
+  control, so the change is inside the comparison, not across it.
+- **Every number transferred from a stored run was measured under the two-entry list.** That is the
+  MDE inputs, the historical `maintainability` anchor-2 rates (BE-003 pooled 29 of 80; BE-004's
+  floor 0 of 36) and B8's cost baseline. They are still the registered MDE — they are what was on
+  record before this batch — and every place they appear now carries this sentence.
+- The four preflight runs above were made under the **two**-entry list. They are the evidence of the
+  defect. They are not a population, they set no MDE, and the decision-13 pair cost is taken from
+  the **re-run** preflight under the fixed runner, not from them.
+- Nothing else moved: model, rubric sha, evaluator, benchmark sha (`2fc445d`), overlays, corpus,
+  decision rules and every prediction are exactly as committed at `ef2c6c0`.

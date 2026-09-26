@@ -183,7 +183,7 @@ EVENTS_BEFORE="$(events_bytes)"
   printf '# API %s  OTLP %s / %s  events.jsonl %s bytes at launch\n' \
     "$API" "$OTLP_HTTP_ENDPOINT" "$OTLP_GRPC_ENDPOINT" "$EVENTS_BEFORE"
   printf '# prediction commit ef2c6c0 at 2026-09-26, BEFORE any run here\n'
-  printf 'task\tseq\tarm\trun_id\trc\teval\tf13\tedits\truntime_ver\tmodel\tknowledge_hash\tinstr_hash\tagent_hash\tlog_state\tlog_lines\tlog_hits\tfirst_status\tcorpus_match\tmodel_calls\ttool_calls\tcost\tduration_ms\tchanged\tinit_tools\tworktree\n'
+  printf 'task\tseq\tarm\trun_id\trc\teval\tf13\tedits\truntime_ver\tmodel\tknowledge_hash\tinstr_hash\tagent_hash\tlog_state\tlog_lines\tlog_hits\tfirst_status\trouter_mentions\trouter_denied\tcorpus_match\tmodel_calls\ttool_calls\tcost\tduration_ms\tchanged\tinit_tools\tworktree\n'
 } > "$MANIFEST"
 
 api() { curl -s -m 20 "$API/api/runs/$1" 2>/dev/null; }
@@ -228,6 +228,34 @@ one() {  # one <task> <arm> <seq>
     first="$(head -1 "$lf" | jq -r '.status // "unparsed"' 2>/dev/null || echo unparsed)"
     [[ "$arm" == treated && "$lines" -ge 1 ]] && H_COUNT=$((H_COUNT+1))
   fi
+  # *** AN ABSENT LOG HAS TWO CAUSES AND CONFLATING THEM NEARLY TURNED A HARNESS REFUSAL INTO A
+  # NULL RESULT. *** The 2026-09-26T12:48Z preflight: BE-003 treated fbdebf75 CALLED the router at
+  # its first opportunity and the call landed in `permission_denials` (the runner allowed only mvn
+  # Bash commands); BE-004 treated 5a16fd3e never mentioned it. Same ABSENT, opposite meanings, and
+  # the decision rule's VOID row is only about the second. `router_denied=yes` on any treated run
+  # means the population is measuring the harness, not the instruction.
+  local rmentions rdenied
+  # -o PIPED TO wc -l, NOT grep -c, AND NO `|| echo 0`. Two defects in the first version of this
+  # line, both of which the b08 driver already records: `grep -c` counts LINES WITH A MATCH, so two
+  # router calls on one stream-json line count once; and `grep -c ... || echo 0` prints grep's own
+  # "0" AND the fallback "0", putting a NEWLINE inside a manifest field. Hand-checked against the
+  # 12:48Z logs: BE-003 treated 2 calls / denied yes, the other three 0 / no.
+  rmentions="$(/usr/bin/grep -ao 'router\.sh' "$log" 2>/dev/null | /usr/bin/wc -l | tr -d ' ')"
+  rmentions="${rmentions:-0}"
+  # NAMED `mentions`, NOT `calls`, AND THE DIFFERENCE IS NOT PEDANTRY: one tool call appears in the
+  # stream-json more than once — the `tool_use` input, the cwd-prefixed form the harness records,
+  # and the `permission_denials` entry if it was refused. On fbdebf75 that is 3 for ONE call. The
+  # column is a presence indicator, and the thing that decides anything is `router_denied` beside
+  # it and the log's own line count.
+  rdenied=no
+  /usr/bin/grep -ao 'permission_denials":\[[^]]\{0,240\}' "$log" 2>/dev/null | /usr/bin/grep -q 'router\.sh' && rdenied=yes
+  if [[ "$arm" == treated && "$rdenied" == yes ]]; then
+    echo "  !! THE HARNESS DENIED THE ROUTER ON A TREATED RUN. Every treated run of this batch is" >&2
+    echo "  !! measuring a permission, not a treatment. STOP, fix the permission, re-run the" >&2
+    echo "  !! preflight. Do NOT report this as the decision rule's VOID row." >&2
+    DENIED_TREATED=$((${DENIED_TREATED:-0}+1))
+  fi
+
   local cmatch="n/a"
   if [[ -n "$wt" && -d "$wt/.ai/knowledge" ]]; then
     local wkh
@@ -243,11 +271,11 @@ one() {  # one <task> <arm> <seq>
     [[ "$it" == "/" ]] && it="UNPARSED"
   else it="NOFILE"; fi
 
-  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
     "$task" "$seq" "$arm" "${rid:-NONE}" "$rc" "$ev" "$f13" "$edits" "$rv" "$rm" "$kn" "$ih" "$ah" \
-    "$lstate" "$lines" "$hits" "$first" "$cmatch" "$mc" "$tc" "$cost" "$dur" "$chg" "$it" "${wt:-NONE}" \
-    >> "$MANIFEST"
-  echo "  -> ${rid:-NO RUN ID} rc=$rc eval=$ev edits=$edits kn=$kn log=$lstate(${lines}L/${hits}hit first=$first) corpus=$cmatch calls=$mc cost=$cost"
+    "$lstate" "$lines" "$hits" "$first" "$rmentions" "$rdenied" "$cmatch" "$mc" "$tc" "$cost" "$dur" \
+    "$chg" "$it" "${wt:-NONE}" >> "$MANIFEST"
+  echo "  -> ${rid:-NO RUN ID} rc=$rc eval=$ev edits=$edits kn=$kn log=$lstate(${lines}L/${hits}hit first=$first) rmentions=$rmentions denied=$rdenied corpus=$cmatch calls=$mc cost=$cost"
 
   if [[ -n "$rid" ]]; then
     mkdir -p "$SMALLDIR/$rid"
@@ -283,6 +311,8 @@ finish() {
     done
     printf 'runs whose estimatedCost read null: %s — with any of these every total is a LOWER BOUND\n' "${NULL_COST:-0}"
     printf 'treated runs with a non-empty router log (H, the decision rules first partition): %s\n' "$H_COUNT"
+    printf 'treated runs whose ROUTER CALL THE HARNESS DENIED: %s — any of these and the batch is\n' "${DENIED_TREATED:-0}"
+    printf '  measuring a permission rather than a treatment, and is NOT the VOID row\n'
     printf 'events.jsonl bytes before %s, after %s\n' "$EVENTS_BEFORE" "$(events_bytes)"
   } | tee -a "$EVID/window.txt"
   echo "manifest: $MANIFEST"

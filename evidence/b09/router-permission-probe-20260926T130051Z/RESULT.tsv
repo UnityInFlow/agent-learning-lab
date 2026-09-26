@@ -1,0 +1,5 @@
+arm	rc	denial_array_nonempty	router_log	lines
+baseline	rc=0	denial_array_nonempty=1	router_log=no	lines=0
+overlay-permission	rc=0	denial_array_nonempty=1	router_log=no	lines=0
+cli-allowlist	rc=0	denial_array_nonempty=0
+0	router_log=yes	lines=1
