@@ -618,3 +618,46 @@ Hand re-verification of a green check, as §6 requires: the driver seeded BE-003
 session (`python3 -c "os.setsid()"` — macOS has no `setsid`), so ending a claude session no longer
 signals it. The script does not do this for itself: a driver that detached itself would also be a
 driver no fixture could run in the foreground.
+
+## Hand re-read — written 2026-09-26, BEFORE any scoring sheet for this batch exists
+
+*§5: "At least one scored cell per step is re-read by hand off the kept worktree and the hand reading
+is written down next to the sheet's value." Codex is refused until ~2026-09-30T16:29Z and
+ollama-cloud is at its weekly limit, so no sheet for this batch exists yet — which makes this the
+cleanest possible version of that rule: the hand value cannot have been anchored by a sheet, because
+there is none. §4 step 7's ordering ("read the sheets only after you have written your own expected
+score for at least one run by hand") is satisfied in advance rather than in retrospect.
+Written by Opus 5 (claude-opus-5), autonomously, 2026-09-26.*
+
+| field | value |
+|---|---|
+| run | `c49eec44-10fe-4996-ba2b-edd31e3a79e8` — BE-003, **treated**, seq 01, eval exit 0 |
+| worktree read | `evidence.local/b09-worktrees/c49eec44-10fe-4996-ba2b-edd31e3a79e8` |
+| rubric | `benchmark/rubrics/backend-quality.yaml`, `shasum -a 256 | cut -c1-12` = **`396e1799eb2b`** — the registered sha |
+| cell | `maintainability`, the registered outcome of this stop |
+| **hand value** | **2** |
+| sheet value | *no sheet exists yet; this row is filled when codex returns* |
+
+Anchor 2 reads (`backend-quality.yaml:160`): *"One `when (shipment.status)` in EXPRESSION position,
+carrying no `else`. Expression position means its value is USED … Cite the `when`, the construct that
+consumes its value, and the absence of `else`."* All three citations, from the changed files the run
+record lists (`ApiError.kt`, `ShipmentController.kt`, `ShipmentControllerTest.kt`):
+
+- the `when`, in expression position with its value assigned — `ShipmentController.kt:65`
+  (`val updated = when (shipment.status) {`)
+- three arms, `CREATED` / `CONFIRMED` / `CANCELLED`, and **no `else` anywhere in the file** —
+  `ShipmentController.kt:66-71`, and `grep -n 'else'` over the whole file returns nothing
+- the value consumed, not discarded — `ShipmentController.kt:74` (`val saved = repository.save(updated)`)
+
+No ambiguity: no clause of anchor 0 holds and every clause of anchor 2 does.
+
+**The reading was produced by a `sonnet` subagent (§4b) and then re-derived in the orchestrator's own
+context off the same file**, because §4b requires exactly that of any delegated value that decides a
+gate — a subagent misreading a sheet is the same failure as a control reporting over a smaller scope
+than it claims. The `sed -n '60,78p'` and the `grep -n 'else'` were run by hand and agree.
+
+**What this cell does and does not establish.** It is `n = 1` and it is stated as true of this run,
+never as a property (§5). Its job is to be the fixed point the codex sheet is compared against when
+codex returns: if the registered sheet scores this cell anything but 2, the disagreement is a fact
+about the harness on a run whose diff has already been read, and §4 step 7 says to go to the diff
+and say which fact was wrong.
