@@ -1,0 +1,94 @@
+# FINAL re-run r5, after round 3's VERIFIER findings (check_line/check_field ignored the
+# exit code of the invocation whose output they asserted). Produced 2026-09-26T08:26:57Z.
+
+$ shellcheck <all three>
+exit=0  (no output = clean)
+
+$ ./evidence/p06b/verify-retrieval-trace-probe.sh
+ok    path in a Read attribute                       exit 3
+ok    path in a log record body                      exit 3
+ok    path in resource attributes                    exit 3
+ok    bare filename, LOOSE only                      exit 3
+ok    path in a non-Read event                       exit 3
+ok    paths in result.changedFiles                   exit 3
+ok    an extensionless path is seen at all           exit 3
+ok    and it fires PATHY only                        exit 3, line == hits:\ strict=0\ loose_only=0
+ok    with exactly one PATHY hit                     exit 3, line == pathy:\ total=1\ distinct_keys=1
+ok    a root-relative path matches STRICT            exit 3, line == hits:\ strict=1\ loose_only=0
+ok    a null inside the attributes array             exit 0
+ok    and the Read event is still seen               exit 0, read_events == 1
+ok    empty first key, runs under the second         exit 0
+ok    and that run is counted                        exit 0, records == 1
+ok    STRICT stays silent where LOOSE fires          exit 3, line == hits:\ strict=0\ loose_only=1
+ok    STRICT fires on a separator path               exit 3, line == hits:\ strict=1\ loose_only=0
+ok    a path in a Read ATTRIBUTE is attributed       exit 3, line == read_scoped_attr:\ strict=1\ loose_only=0
+ok    a path in a Read BODY is any-scoped only       exit 3, line == read_scoped_attr:\ strict=0\ loose_only=0
+ok    a path in a Read BODY is any-scoped            exit 3, line == read_scoped_any:\ strict=1\ loose_only=0
+ok    a hit on a non-Read event is neither           exit 3, line == read_scoped_any:\ strict=0\ loose_only=0
+ok    a real telemetry excerpt is recognised         exit 0
+ok    the real excerpt yields 3 Read events          exit 0, read_events == 3
+ok    and names no file, as the result says          exit 0, line == hits:\ strict=0\ loose_only=0
+ok    attribute values as flat strings               exit 0
+ok    the flat branch yields a Read event            exit 0, read_events == 1
+ok    attributes under a different key               exit 6
+ok    resourceLogs renamed                           exit 6
+ok    the run array moved                            exit 6
+ok    Read events, no file named                     exit 0
+ok    a record naming no file                        exit 0
+ok    zero Read events                               exit 4
+ok    zero run records                               exit 4
+ok    telemetry, not JSON                            exit 5
+ok    telemetry, empty file                          exit 5
+ok    telemetry, blank lines only                    exit 5
+ok    a valid JSON line that is not object           exit 5
+ok    records, not JSON                              exit 5
+ok    malformed first, hit second                    exit 3
+ok    hit first, malformed second                    exit 3
+ok    hit in the second input only                   exit 3
+ok    no arguments                                   exit 2
+ok    mode with no file                              exit 2
+ok    unknown mode                                   exit 2
+ok    input file does not exist                      exit 2
+ok    records mode, two inputs                       exit 2
+
+registered exit codes declared by the probe: 0 2 3 4 5 6 
+exit codes exercised by this script:        0 2 3 4 5 6 
+ok    every declared exit code is exercised, and no undeclared code is
+
+verify-retrieval-trace-probe.sh: 46 passed, 0 failed
+exit=0
+
+$ retrieval-trace-probe.sh telemetry <all three events files>
+mode: telemetry
+  events.jsonl  sha256:3156b7521c968ede  batches=3216 unparsable_lines=0 nonobject_lines=0 strings=698879 read_events=3616 strict=0 loose=0 pathy=0
+  events-2026-09-05T08-34-36.268.jsonl  sha256:e59223998a8ea89a  batches=3925 unparsable_lines=0 nonobject_lines=0 strings=996693 read_events=3966 strict=0 loose=0 pathy=0
+  events-2026-09-08T13-05-27.487.jsonl  sha256:ac4387208ed77e23  batches=4455 unparsable_lines=0 nonobject_lines=0 strings=962728 read_events=5312 strict=0 loose=0 pathy=0
+population: run_ids=638 read_events=12894 log_records=71353 tool_name_attrs=25817
+scanned: string_values=2658300 parsed_documents=11596 unparsable=0
+hits: strict=0 loose_only=0
+pathy: total=0 distinct_keys=0
+read_scoped_any: strict=0 loose_only=0
+read_scoped_attr: strict=0 loose_only=0
+read_scoped_pathy: total=0
+note: a non-zero read_scoped count means a value in a Read event LOOKS like a path. It does not assert that value IS the file read.
+verdict: NO FILE-NAMING VALUE FOUND over a non-empty population, at ANY of the three sensitivities — including PATHY, which needs no extension.
+exit=0
+
+$ retrieval-trace-probe.sh records <snapshot>
+mode: records
+  runs-snapshot.json  sha256:6d1aa161b76c9d33  records=652 unparsable=0 strings=13754 strict=2246 loose=28 pathy=2915
+population: run_ids=652 records=652
+scanned: string_values=13754 parsed_documents=1 unparsable=0
+hits: strict=2246 loose_only=28
+pathy: total=2915 distinct_keys=3
+hits by JSON key: 3 distinct key(s); showing up to 10 per sensitivity
+  strict    2246  result.changedFiles[]   e.g. sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+  loose       27  result.changedFiles[]
+  loose        1  humanReviews[].notes
+verdict: DETECTOR FIRED — at least one value names a file. Read the `hits by JSON key` breakdown before attributing it: in records mode `result.changedFiles[]` is git diff output, i.e. WRITES.
+exit=3
+
+$ ./tools/verify-shellcheck-coverage.sh
+
+verify-shellcheck-coverage: 14 passed, 0 failed, of 14 registered cases
+exit=0

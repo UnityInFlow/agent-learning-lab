@@ -23,6 +23,11 @@
 #   THE DETECTOR FIRES, and where:  "path in a Read attribute", "path in a log record
 #       body", "path in resource attributes", "bare filename, LOOSE only", "path in a
 #       non-Read event", "paths in result.changedFiles"
+#   EVERY COUNTER ASSERTION ALSO PINS THE EXIT CODE OF THE SAME INVOCATION. §4a round 3
+#       found that check_line and check_field ignored `$?`, so a probe printing the right
+#       counters while exiting 5 passed them — output and exit code were asserted by
+#       SEPARATE cases on the same fixture, and nothing tied them to one run. They are now
+#       checked together.
 #   THE THREE SENSITIVITIES ARE DISTINGUISHABLE:  "STRICT stays silent where LOOSE fires",
 #       "STRICT fires on a separator path" and "a root-relative path matches STRICT" assert
 #       the whole printed `hits:` line. Without them a probe whose STRICT regex had
@@ -84,14 +89,25 @@ check() {
   fi
 }
 
-# EXACT whole-line assertion. grep -Fx: fixed string, full line. No substring, no prefix.
+# EXACT whole-line assertion, WITH the exit code of the same invocation.
+# §4a round 3: these helpers used to ignore $?, so a probe that printed the right counters
+# and then exited 5 passed them — the exit code and the output were asserted by SEPARATE
+# cases on the same fixture and nothing tied them to one invocation. Both are now checked
+# together, against one run.
 check_line() {
-  local desc=$1 expect=$2
-  shift 2
-  local out
+  local desc=$1 want_exit=$2 expect=$3
+  shift 3
+  local out got
   out=$("$@" 2>&1)
+  got=$?
+  exercised="$exercised $want_exit"
+  if [[ "$got" != "$want_exit" ]]; then
+    printf 'FAIL  %-46s exit: want %s got %s (output not examined)\n' "$desc" "$want_exit" "$got"
+    fail=$((fail + 1))
+    return
+  fi
   if grep -Fxq -- "$expect" <<<"$out"; then
-    printf 'ok    %-46s line == %q\n' "$desc" "$expect"
+    printf 'ok    %-46s exit %s, line == %q\n' "$desc" "$got" "$expect"
     pass=$((pass + 1))
   else
     printf 'FAIL  %-46s no line equals %q\n' "$desc" "$expect"
@@ -102,15 +118,22 @@ check_line() {
   fi
 }
 
-# EXACT field assertion: pull `key=value` out of the output and compare the value.
+# EXACT field assertion, WITH the exit code of the same invocation. Same round-3 fix.
 check_field() {
-  local desc=$1 key=$2 expect=$3
-  shift 3
-  local out got
+  local desc=$1 want_exit=$2 key=$3 expect=$4
+  shift 4
+  local out got rc
   out=$("$@" 2>&1)
+  rc=$?
+  exercised="$exercised $want_exit"
+  if [[ "$rc" != "$want_exit" ]]; then
+    printf 'FAIL  %-46s exit: want %s got %s (field not examined)\n' "$desc" "$want_exit" "$rc"
+    fail=$((fail + 1))
+    return
+  fi
   got=$(sed -n "s/.*[[:space:]]${key}=\([^[:space:]]*\).*/\1/p" <<<"$out" | head -1)
   if [[ "$got" == "$expect" ]]; then
-    printf 'ok    %-46s %s == %s\n' "$desc" "$key" "$got"
+    printf 'ok    %-46s exit %s, %s == %s\n' "$desc" "$rc" "$key" "$got"
     pass=$((pass + 1))
   else
     printf 'FAIL  %-46s %s: want %q got %q\n' "$desc" "$key" "$expect" "$got"
@@ -128,51 +151,51 @@ check 3 "paths in result.changedFiles"        "$PROBE" records   "$FIX/r-changed
 
 # --- an extensionless target must not be invisible (§4a round 3) ---
 check 3 "an extensionless path is seen at all"  "$PROBE" telemetry "$FIX/t-extensionless-path.jsonl"
-check_line "and it fires PATHY only"           "hits: strict=0 loose_only=0" \
+check_line "and it fires PATHY only"           3 "hits: strict=0 loose_only=0" \
   "$PROBE" telemetry "$FIX/t-extensionless-path.jsonl"
-check_line "with exactly one PATHY hit"        "pathy: total=1 distinct_keys=1" \
+check_line "with exactly one PATHY hit"        3 "pathy: total=1 distinct_keys=1" \
   "$PROBE" telemetry "$FIX/t-extensionless-path.jsonl"
 
 # --- a root-relative single-component path must match STRICT, as the header says ---
-check_line "a root-relative path matches STRICT" "hits: strict=1 loose_only=0" \
+check_line "a root-relative path matches STRICT" 3 "hits: strict=1 loose_only=0" \
   "$PROBE" telemetry "$FIX/t-root-relative-path.jsonl"
 
 # --- a None inside the attributes array must not CRASH (it used to exit 1) ---
 check 0 "a null inside the attributes array"   "$PROBE" telemetry "$FIX/t-null-attribute.jsonl"
-check_field "and the Read event is still seen" read_events 1 \
+check_field "and the Read event is still seen" 0 read_events 1 \
   "$PROBE" telemetry "$FIX/t-null-attribute.jsonl"
 
 # --- an EMPTY list under the first known key must not hide runs under the second ---
 check 0 "empty first key, runs under the second" "$PROBE" records "$FIX/r-empty-first-key.json"
-check_field "and that run is counted"          records 1 \
+check_field "and that run is counted"          0 records 1 \
   "$PROBE" records "$FIX/r-empty-first-key.json"
 
 # --- the two sensitivities must be DISTINGUISHABLE, by exact line ---
-check_line "STRICT stays silent where LOOSE fires" "hits: strict=0 loose_only=1" \
+check_line "STRICT stays silent where LOOSE fires" 3 "hits: strict=0 loose_only=1" \
   "$PROBE" telemetry "$FIX/t-bare-filename.jsonl"
-check_line "STRICT fires on a separator path"      "hits: strict=1 loose_only=0" \
+check_line "STRICT fires on a separator path"      3 "hits: strict=1 loose_only=0" \
   "$PROBE" telemetry "$FIX/t-path-body.jsonl"
 
 # --- a hit must be LOCATED within a Read event, at both scopes, by exact line ---
-check_line "a path in a Read ATTRIBUTE is attributed" \
+check_line "a path in a Read ATTRIBUTE is attributed" 3 \
   "read_scoped_attr: strict=1 loose_only=0" "$PROBE" telemetry "$FIX/t-path-attr.jsonl"
-check_line "a path in a Read BODY is any-scoped only" \
+check_line "a path in a Read BODY is any-scoped only" 3 \
   "read_scoped_attr: strict=0 loose_only=0" "$PROBE" telemetry "$FIX/t-path-body.jsonl"
-check_line "a path in a Read BODY is any-scoped" \
+check_line "a path in a Read BODY is any-scoped" 3 \
   "read_scoped_any: strict=1 loose_only=0" "$PROBE" telemetry "$FIX/t-path-body.jsonl"
-check_line "a hit on a non-Read event is neither" \
+check_line "a hit on a non-Read event is neither" 3 \
   "read_scoped_any: strict=0 loose_only=0" "$PROBE" telemetry "$FIX/t-path-in-bash-event.jsonl"
 
 # --- the parser must match the REAL schema, not only the one its author invented ---
 check 0 "a real telemetry excerpt is recognised" "$PROBE" telemetry "$FIX/t-real-sample.jsonl"
-check_field "the real excerpt yields 3 Read events" read_events 3 \
+check_field "the real excerpt yields 3 Read events" 0 read_events 3 \
   "$PROBE" telemetry "$FIX/t-real-sample.jsonl"
-check_line "and names no file, as the result says" "hits: strict=0 loose_only=0" \
+check_line "and names no file, as the result says" 0 "hits: strict=0 loose_only=0" \
   "$PROBE" telemetry "$FIX/t-real-sample.jsonl"
 
 # --- the flat-attribute branch must be exercised, not merely present ---
 check 0 "attribute values as flat strings"    "$PROBE" telemetry "$FIX/t-flat-attrs.jsonl"
-check_field "the flat branch yields a Read event" read_events 1 \
+check_field "the flat branch yields a Read event" 0 read_events 1 \
   "$PROBE" telemetry "$FIX/t-flat-attrs.jsonl"
 
 # --- a moved schema must NEVER read as an empty population. Three shapes. ---

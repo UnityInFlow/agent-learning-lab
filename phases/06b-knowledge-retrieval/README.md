@@ -691,11 +691,40 @@ the observed data suggests this matters — `tool_input_size_bytes` is a byte co
 attribute set carries no target field at all — but it is the floor, and it is written here rather
 than left implicit.
 
+#### Round 3 on the verifier — one root cause under five findings, and no gate verdict
+
+The verifier's own round 3 (`review-verify-retrieval-trace-probe-20260926T082141Z.md`) returned
+**five line-level findings and no acceptance verdict**, because `opencode` **exited 1 on the
+acceptance pass** — which §4a classifies as infrastructure, not a result. The same thing happened
+on a second probe invocation the same hour (`…-20260926T081229Z.md`). Recorded rather than
+re-rolled until it produced a verdict, which would be choosing the review one likes.
+
+**All five findings are one defect, and it is a good one.** `check_line` and `check_field`
+**never examined `$?`**. So a probe that printed exactly the expected counter line and *then
+exited 5* passed them: the exit code and the output were asserted by **separate cases on the same
+fixture**, and nothing tied them to a single invocation. Every one of the five findings is an
+instance — "make the probe print the right `hits:` line and exit 5 and both checks pass".
+
+**FIXED at the root:** both helpers now take the expected exit code, check it **first**, and
+examine the output only if it matches, so each case verifies one invocation's code *and* its
+output. **Proved able to fail:** a throwaway copy asserting the wrong code returns
+`45 passed, 1 failed`, `exit: want 5 got 3 (output not examined)`. 46 cases still pass, and the
+measurement is unchanged again (`verify-rerun-r5.txt`).
+
+**This is the fourth round-level finding of the same family at this stop** — P2 (synthetic
+fixtures cannot catch a schema assumption), V2 (the sensitivities were never distinguished),
+V6–V10 (assertions that were prefix tests), and now these five. Every one is *a control whose
+scope is narrower than its claim*. The workspace `CLAUDE.md` calls that the house failure mode;
+this stop is a demonstration that **writing a design section about it does not confer immunity
+from it** — all four were in artifacts whose author had just written that section.
+
 #### Where §4a ended, stated as §4a requires rather than rounded up
 
-**Round 3 returned REJECT on the probe, its four findings were fixed, and §4a's budget of three
-rounds per artifact is spent — so the final state of these two scripts is revised and
-unreviewed.** §4a's own words: *"`UNDECIDED` after round three is recorded as such and is not a
+**Round 3 returned REJECT on the probe and five line-level findings with no verdict on the
+verifier, all nine were fixed, and §4a's budget of three rounds per artifact is spent — so the
+final state of these two scripts is revised and unreviewed.** Two acceptance passes in that round
+ended with `opencode` exit 1, which is infrastructure and not a verdict, and no attempt was made
+to re-roll them into one. §4a's own words: *"`UNDECIDED` after round three is recorded as such and is not a
 pass."* This is that, recorded. It is not claimed as an acceptance.
 
 **What that does and does not put at risk.** These two scripts are **instruments, not registered
@@ -708,9 +737,10 @@ one thing three review rounds never moved:
 | original | 12 894 | 0 | *(not yet defined)* | exit 0 |
 | after round 1 | 12 894 | 0 | *(not yet defined)* | exit 0 |
 | after round 2 | 12 894 | 0 | *(not yet defined)* | exit 0 |
-| **after round 3** | **12 894** | **0** | **0** | **exit 0** |
+| after round 3, probe fixes | 12 894 | 0 | 0 | exit 0 |
+| **after round 3, verifier fixes** | **12 894** | **0** | **0** | **exit 0** |
 
-**Nineteen findings across three rounds, every one a real defect, and not one of them changed
+**Twenty-four findings across three rounds, every one a real defect, and not one of them changed
 what the instrument found.** They changed what it would have found on inputs this data does not
 contain: an empty API response, a moved schema, a `[]` line, a `None` attribute, an extensionless
 target, a prefix-matching assertion. That is the honest summary of what §4a bought at this stop —
