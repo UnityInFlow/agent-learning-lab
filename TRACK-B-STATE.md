@@ -107,7 +107,71 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running   # *** CONTEXT-GUARD STOP AT 50 % OF THE WINDOW, MID §4 STEP 6. NOT A BOUNDARY AND NOT A
+status: running   # *** THE BATCH IS RUNNING AGAIN, AND THIS TIME IT IS DETACHED FROM THIS SESSION. ***
+                  # Not a boundary and not a halt: blocked_on_author IS EMPTY, no §7 bullet is
+                  # matched, prompt_sha a47590a1e61d re-computed and UNCHANGED, all 22 validator
+                  # files re-checked BY NAME with one grep each and none is new (newest 2026-09-08).
+                  #
+                  # *** THE BATCH HAD DIED, AND IT DIED BECAUSE IT WAS A CHILD OF THE CLAUDE
+                  # SESSION. *** batch-20260926T151319Z was signalled at 17:45:01Z: no
+                  # run-b9-batch/run-agent process alive, the pid lock GONE (so its EXIT trap fired
+                  # - a catchable signal, not a SIGKILL and not a crash: `set -uo pipefail` has no
+                  # -e and the same code path had just completed four times), BE-003-03-treated.log
+                  # ending in `worktree kept at ...observatory-run-413bcf23...` and NOT growing over
+                  # three samples. THE PREVIOUS SESSION'S OWN COMMIT WAS AT 17:36:11Z. That is the
+                  # second death today; the first (batch-20260926T133740Z, 13:40Z) was the `rv:
+                  # unbound variable` defect. *** A BATCH LAUNCHED FROM A SESSION THAT §0 OBLIGES
+                  # YOU TO END IS A BATCH §0 OBLIGES YOU TO KILL. That is a harness property every
+                  # later step with a long §4 step 6 inherits. ***
+                  #
+                  # *** THE THROUGHPUT DECISION IS MADE: OPTION (a), n STAYS 10 PER ARM PER TASK. ***
+                  # Recorded in the workbook and E-022 Amendment 4 WITH THE PROVENANCE LINE BEFORE it
+                  # was acted on, as the previous next_action required. The evidence came out of the
+                  # run logs and was not available when the options were written: the five-hour
+                  # window RESET at 16:30:00Z (`resetsAt":1790440200`) and the newest
+                  # rate_limit_event reads `"five_hour":{"utilization":0.02,...}` with seven_day at
+                  # 0.1. Measured effect: 01 treated durationMs 5 420 000 (~90 min, inside the
+                  # saturated window) against 02 treated 118 000 and 02 control 123 000 - back to the
+                  # 127 s the 12:48Z preflight measured. Reducing n would forfeit E-022 prediction 1
+                  # (one-arm binomial at >= 8 of 10) and E-023 row 0 (`n_t<7 or n_c<7` => NOT
+                  # COMPUTED) TO BUY TIME THE ACCOUNT HAD ALREADY GIVEN BACK. Nothing was ever
+                  # refused - every event `status":"allowed"` - so §7's claude bullet (exhaustion
+                  # that does not clear after one retry past its published reset) is NOT matched and
+                  # this is author_notes material.
+                  #
+                  # *** WHAT WAS BUILT SO THE BATCH COULD CONTINUE RATHER THAN RESTART: ***
+                  #  (1) run-b9-batch.sh --resume <TAG> re-enters the SAME manifest, SKIPS every
+                  #      (task,seq,arm) cell already recorded in it, and SEEDS the per-task cost so
+                  #      author decision 13's ceiling bounds the WHOLE batch and not its tail. Three
+                  #      refusals at exit 13, all before the endpoints and before the lock: no
+                  #      manifest at that tag; a manifest not registering this driver's corpus /
+                  #      agent / two CLAUDE.md shas; a manifest registering a different n.
+                  #      ShellCheck clean. RESTARTING instead would have re-run runs that already
+                  #      happened, which §0 forbids ("a duplicate run is evidence you then cannot
+                  #      delete").
+                  #  (2) verify-b9-batch-guards.sh 13 -> 17 cases, ALL PASSING. TWO OF THE FOUR NEW
+                  #      ONES FAILED FIRST AND BOTH FAILURES ARE THE HOUSE FAILURE MODE: case O
+                  #      changed the corpus hash only in a header COMMENT and left the real hash in
+                  #      the data rows, so it passed for the wrong reason; case Q caught the
+                  #      plan-only dry run APPENDING ITS BANNER TO A REAL MANIFEST before exiting.
+                  #      Those three lines are KEPT in batch-20260926T151319Z/manifest.tsv with a
+                  #      correction beneath them, not deleted (§6). Hand re-verification of a green
+                  #      check, as §6 demands: seeded $0.5830 = 0.141425+0.149739+0.151752+0.140060.
+                  #  (3) evidence/b09/detach.py - macOS has no setsid(1); os.setsid() is the same
+                  #      call. ITS LOG'S FIRST LINES ARE THE PROOF, NOT A CLAIM: the resumed batch
+                  #      printed `pid=81126 pgid=81126 sid=81126`, and sid == pid means the detach
+                  #      happened. Smoke-tested first on /bin/sh before a benchmark run touched it.
+                  #
+                  # DECIDED ABOUT THE RUNS ALREADY ON DISK, and nothing about their scores:
+                  # durationMs EXCLUDED for the runs paced inside the saturated window, RUNS KEPT
+                  # (E-022's Exclusions already register that treatment for a sleep-split batch, and
+                  # NO registered outcome reads duration); run 413bcf23-65f4-49d3-a789-c29b3dcf1b48
+                  # (BE-003 03 treated, complete, eval 0, unrowed) EXCLUDED AND REPLACED under the
+                  # registered infrastructure rule on the precedent ORPHAN.md set four hours earlier
+                  # - its log, worktree and API record stay. Decision 13's multiplier of ELEVEN
+                  # against a population of TEN is what pays for both replacements, and this is the
+                  # first time that choice has been load-bearing.
+# SUPERSEDED, kept not deleted: status: running   # *** CONTEXT-GUARD STOP AT 50 % OF THE WINDOW, MID §4 STEP 6. NOT A BOUNDARY AND NOT A
                   # HALT. *** hooks/context-guard.py fired and this write is what it demands.
                   # blocked_on_author IS EMPTY, no §7 bullet is matched, prompt_sha a47590a1e61d
                   # re-computed and unchanged, all 22 validator files processed and none new.
@@ -866,7 +930,15 @@ stop: 20           # B9 - KNOWLEDGE ROUTER AND HIT RATE. A *B STEP*, so the loop
                    # which IS origin/main - FETCHED AND COMPARED, NOT ASSUMED.
 # SUPERSEDED, kept not deleted: stop: 17a          # B8a - DECOMPOSITION DEPTH, on BE-005 ONLY (author decision 11 items 2-5), version-neutral, measured against v1.1. Spine position 17a, inserted after B8 and before 6A so no stop number moves. Prereqs 4B (stop 11) and B8 (stop 17) are both CLOSED AND MERGED. OPENED 2026-09-24 on branch stop17a/b8a-decomposition-depth, created off main at d4faa7e which IS origin/main (fetched and compared, not assumed).
   # SUPERSEDED, kept not deleted: stop: 17           # B8 - run state, repair limits, completion contract - v1.1. OPENED 2026-09-15 on branch stop17/b8-run-state-repair-limits. Track A prerequisite Phase 5B (stop 16) IS CLOSED AND MERGED. The B-step issue is **lab#33** - CHECKED AGAINST THE ISSUE LIST VIA THE API, NOT GUESSED (27=B2 ... 33=B8, 33 is open). Both tasks per author decision 9: BE-003 and BE-004.  SUPERSEDED, kept not deleted: 16           # Phase 5B - verification loops, bounded self-healing, completion. OPEN as of 2026-09-11T10:2xZ on branch stop16/phase-5b-verification-selfhealing. The spine`s closing condition is EVIDENCE ON DISK for Lab 5B.5 (obs#47, BLOCKED != FAILED). The Phase issue is lab#15 - CHECKED AGAINST THE ISSUE LIST, NOT GUESSED.  SUPERSEDED, kept not deleted: 16           # Phase 5B: reading, extract, Lab 5B.5 (obs#47, BLOCKED != FAILED). NOT YET OPENED - no stop-16 artifact exists and §6 forbids creating one early. STOP 15 IS CLOSED AND MERGED: PR lab#84 -> 2d201a5, nine checks green, lab#32 commented and CLOSED, card Done, both boards republished, check-board-freshness 2 board(s) current at 865f553b9c12. SUPERSEDED, kept not deleted: 15           # B7 - deterministic verification and policies. OPEN, at §4 steps 7-8. NOT CLOSED and NOT CLOSEABLE this session: the exit gate needs P7 (rubric quality) and P7 needs codex, which is refusing on auth. Steps 1-6 were done in earlier sessions; steps 7 and 8 are done in this one EXCEPT the registered sheets. stop: 15           # B7 - deterministic verification and policies. v1.0 CLOSES HERE, measured against B2 on BE-003 and against BE-004`s own B5 control on BE-004 (author decision 9); NEVER across tasks. NOT YET OPENED. Stop 14 CLOSED AND MERGED: PR lab#82 -> 259c996, nine checks green, lab#7 COMMENTED AND LEFT OPEN (5A.2-5A.7 deferred), card Done, both boards republished, check-board-freshness 2 board(s) current at 32590f81db10. SUPERSEDED, kept not deleted: 14           # Phase 5A - guardrails: reading, extract, Lab 5A.1 (remove a capability before policing it). NOT YET OPENED. STOP 13 IS CLOSED AND MERGED: PR lab#80 -> 4b21650 (nine checks green) plus the follow-up lab#81 -> 4eb5a59; lab#31 commented and CLOSED, card moved to Done, both boards republished and check-board-freshness reports 2 board(s) current at cd59aacd084f. SUPERSEDED, kept not deleted: 13           # B6 - ONE specialist skill, chosen from a failure MEASURED in B2-B5, on BOTH tasks (author decision 9). NOT YET OPENED. Stop 12 CLOSED and MERGED: PR lab#79 -> 2e32f214, nine checks green, lab#30 commented and closed, card Done. SUPERSEDED, kept not deleted: 12           # B5 - workflow phases, on BOTH BE-003 and BE-004 (author decision 9). OPEN. Steps 1-3 done: workbook opened and issue lab#30 commented at 05:19:39Z, extract and layer labels at 1031a99, and the two prediction registrations at 5777b07 (E-010, BE-003) and ccd5c0c (E-011, BE-004).
-loop_step: 6-IN-FLIGHT   # §4 steps 1-5 are COMPLETE for stop 20. Step 6, the registered batch, is
+loop_step: 6-IN-FLIGHT   # §4 steps 1-5 COMPLETE for stop 20. Step 6, the registered batch, is
+                  # RUNNING AGAIN AND DETACHED: relaunched 2026-09-26T18:05:00Z as
+                  # `run-b9-batch.sh --resume 20260926T151319Z 10 BE-003 BE-004` under
+                  # evidence/b09/detach.py, log evidence/b09/batch-20260926T151319Z/resume-1.out.
+                  # It SKIPPED the four recorded cells and started at BE-003 03 treated. 36 cells
+                  # remain (BE-003 03-10, BE-004 01-10). §0 BOUNDARY 2 is `after §4 step 6 - every
+                  # run of the batch recorded, run ids and worktree paths in the state file` and is
+                  # NOT reached by this write.
+# SUPERSEDED, kept not deleted: loop_step: 6-IN-FLIGHT   # §4 steps 1-5 are COMPLETE for stop 20. Step 6, the registered batch, is
                   # RUNNING (evidence/b09/batch-20260926T151319Z) and is being rate-limited to roughly
                   # one run per 80 minutes. §0 BOUNDARY 2 is `after §4 step 6 - every run of the batch
                   # recorded, run ids and worktree paths in the state file`, and it is NOT reached:
@@ -1127,11 +1199,26 @@ branch: stop20/b9-knowledge-router (agent-learning-lab), created 2026-09-26 off 
 # SUPERSEDED, kept not deleted: branch: stop17a/b8a-decomposition-depth (agent-learning-lab), created 2026-09-24 off main at d4faa7e, which IS origin/main - fetched and compared, not assumed. NOTHING IS ON THIS BRANCH YET beyond this state write. The author's CONTINUE instruction forbids committing to ANY main outside a PR, state-file-only commits included, so every commit of this session lands here.
   # SUPERSEDED, kept not deleted: branch: stop17/b8-run-state-repair-limits (agent-learning-lab), created 2026-09-15 off main at 3a0f61f, which is origin/main - fetched and compared, not assumed. The census branch census/decision-11 and all stop-16 branches are MERGED, not deleted.  SUPERSEDED, kept not deleted: census/decision-11 (agent-learning-lab), off main at 5bd91d3 — the census PR. All stop-16 branches are merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab) - stop16/phase-5b-verification-selfhealing and stop16/handoff-and-boards are MERGED, not deleted; agent-observatory stop16/permission-block-classifier is MERGED, not deleted.  SUPERSEDED, kept not deleted: stop16/phase-5b-verification-selfhealing (agent-learning-lab), created 2026-09-11T10:24:52Z off main at 2d201a5. The stop-15 branch is merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab), clean, at 2d201a5. THE STOP-15 BRANCH stop15/b7-verification-policies IS MERGED, not deleted. Fifteen commits on it this session. SUPERSEDED, kept not deleted: stop15/b7-verification-policies (agent-learning-lab). SIX NEW COMMITS THIS SESSION on top of 96be718: 82685e1 the n=7 decision and the n=7 detection limits registered before any sheet; 0c5651a the two hand re-reads, committed while zero sheets existed for the batch; 8cf8942 P1-P6 measured into E-015 and E-016, P7 deferred; 493e1ba step 8 artefacts (verify-sh over 34 worktrees, gate from two sources, the baseline-report defect); plus the probe-file rename and this state write. branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, PUSHED. FIVE COMMITS: 32d99cc step 1 (workbook Goal/Required reading/Extract; lab#32 commented; card In Progress), a921443 the OTHER session`s state hunks + its §7 halt, 674d8a9 step 2 (design + the census + the feasibility probe), 344bc97 the halt discharge, ea7b1d2 THE PREDICTION COMMIT at 2026-09-10T11:51:08+02:00 = 09:51:08Z. SUPERSEDED, kept not deleted: branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, THREE COMMITS: 32d99cc (step 1), a921443 (the driver session`s state hunks + its §7 halt), 674d8a9 (step 2). NOT PUSHED YET. SUPERSEDED, kept not deleted: branch: NONE - stop14/phase-5a-guardrails IS MERGED (
 in_flight:
-  - "*** §4 STEP 6 REGISTERED BATCH, RUNNING: evidence/b09/batch-20260926T151319Z, launched
-     2026-09-26T15:13:19Z, pid lock evidence/b09/.batch.lock. At 16:34Z it was still inside its FIRST
-     run (BE-003 seq 01 treated) because the account is inside a five-hour rate window - see status.
-     COMPUTED ceilings in its manifest header: BE-003 pair $0.2810 x 11 = $3.0910, BE-004 pair
-     $0.4294 x 11 = $4.7234. Read manifest.tsv AND run-ids.tsv before touching anything.***"
+  - "*** §4 STEP 6 REGISTERED BATCH, RUNNING AND DETACHED: evidence/b09/batch-20260926T151319Z,
+     originally launched 2026-09-26T15:13:19Z, SIGNALLED DEAD at 17:45:01Z when the session that
+     owned it ended, RESUMED 2026-09-26T18:05:00Z as `run-b9-batch.sh --resume 20260926T151319Z 10
+     BE-003 BE-004` through evidence/b09/detach.py (pid=81126 pgid=81126 sid=81126 in
+     batch-20260926T151319Z/resume-1.out - sid==pid IS the detach proof). It skipped the four
+     recorded cells and began at BE-003 03 treated; 36 cells remain. COMPUTED ceilings: BE-003 pair
+     $0.2810 x 11 = $3.0910 with $0.5830 already seeded from the four recorded rows, BE-004 pair
+     $0.4294 x 11 = $4.7234 with $0 seeded. Read manifest.tsv AND run-ids.tsv before touching
+     anything.***"
+  - "SECOND ORPHAN RUN, EXCLUDED AND REPLACED under E-022's registered infrastructure rule:
+     413bcf23-65f4-49d3-a789-c29b3dcf1b48, BE-003 03 treated, COMPLETE (its log ends `worktree kept
+     at /var/folders/.../observatory-run-413bcf23-65f4-49d3-a789-c29b3dcf1b48`), no manifest row and
+     no run-ids.tsv row because the batch was signalled in exactly that window. Log kept at
+     evidence/b09/batch-20260926T151319Z/BE-003-03-treated.log. NOT hand-rowed; replaced by the
+     resumed batch's own BE-003 03 treated. Same class as 6d728d76 and the same rule."
+  - "INSTRUMENT, NOT YET IN A PR (it goes in the stop's own lab PR at §4 step 14, boundary 4):
+     892d64e on stop20/b9-knowledge-router - run-b9-batch.sh --resume with three exit-13 refusals,
+     verify-b9-batch-guards.sh 13 -> 17 cases all passing, evidence/b09/detach.py, E-022 Amendment 4,
+     E-023 Amendment 4 (a pointer, not a copy) and the workbook's §4 step 6 section with its layer
+     table." 
   - "lab branch stop20/b9-knowledge-router, PUSHED through 5ca9b3f. Commits this session beyond the
      prediction commit ef2c6c0: 83ea073 (overlay v1.2-knowledge + verify-knowledge-router 18 of 18 +
      Amendment 1 + the workbook`s As-built section), d4c5765 (preflight driver + 11 of 11 guards),
@@ -2654,7 +2741,41 @@ last_verified: "2026-09-26, STOP 20 §4 STEPS 4 AND 5 COMPLETE, STEP 6 IN FLIGHT
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "*** THE BATCH IS RUNNING. DO NOT START A SECOND ONE. DO NOT KILL IT BEFORE READING ITS
+next_action: "*** THE BATCH IS RUNNING, DETACHED, AND MUST NOT BE RESTARTED OR KILLED. ***
+  evidence/b09/batch-20260926T151319Z, RESUMED 2026-09-26T18:05:00Z, pid lock
+  evidence/b09/.batch.lock, launch log evidence/b09/batch-20260926T151319Z/resume-1.out (its first
+  three lines carry pid/pgid/sid and `sid == pid` is the proof it is detached from any claude
+  session). manifest.tsv and run-ids.tsv both append BEFORE the next run starts, so both are
+  progress records: read them to see what already ran and NEVER re-run an id in either.
+  (0) FIRST, ALWAYS: `LC_ALL=C pgrep -fl 'run-b9-batch|run-agent.sh'` (a BARE pgrep is blind on this
+      machine) and `ls evidence/b09/.batch.lock`. Alive => leave it alone and read the manifest.
+      Dead => the sidecar names every run that happened, including any whose row is missing, and
+      `evidence/b09/run-b9-batch.sh --resume 20260926T151319Z 10 BE-003 BE-004` continues it
+      WITHOUT re-running a recorded cell. ALWAYS relaunch it through
+      `python3 evidence/b09/detach.py <logfile> <cmd...>` and CHECK the sid==pid line; a batch
+      launched as a child of this session dies at the next boundary, which happened twice today.
+  (1) A DEAD BATCH WITH A COMPLETE-BUT-UNROWED RUN: read its run id off the tail of the last
+      task-seq-arm log (`worktree kept at .../observatory-run-<id>`), record it, and treat it as
+      EXCLUDED AND REPLACED under E-022's registered infrastructure rule - the precedent is
+      evidence/b09/batch-20260926T133740Z/ORPHAN.md, and 413bcf23-65f4-49d3-a789-c29b3dcf1b48 is the
+      second one. Do NOT hand-build a manifest row for it.
+  (2) WHEN THE BATCH ENDS: record EVERY run id, worktree path, eval exit code, log_lines/log_hits,
+      router_denied and cost into this file. THAT IS BOUNDARY 2 and the turn ends there.
+      *** IF ANY TREATED ROW HAS router_denied=yes, STOP AND DO NOT SCORE: *** that batch measured a
+      permission, not a treatment, and it is NOT the decision rule's VOID row. Zero so far, 4 of 4.
+  (3) §4 STEP 7 (SCORING) IS BOUNDARY 3 AND CANNOT RUN UNTIL CODEX RETURNS ~2026-09-30T16:29Z. Both
+      harnesses are refused, proved by probe; §4c step 3 is what is being done instead. Runs are kept
+      with --keep. DO NOT substitute a scorer and DO NOT fire Decision H - it promotes deepseek,
+      which is also refused.
+  (4) READ AMENDMENTS 1-4 IN E-022 BEFORE INTERPRETING ANY NUMBER. Amendment 4 is new this session:
+      the two batch deaths, the throughput decision with its evidence, the duration exclusion, the
+      orphan replacement and the --resume instrument.
+  (5) DO NOT: rewrite the overlay CLAUDE.md clause to raise uptake (that is tuning the treatment
+      against an observed outcome after the prediction commit; its sha stays
+      sha256:ebf489800a60a156986f98ea4f127848 and both drivers assert it); add a third arm (§7); move
+      a rubric sha; reduce n (decided against, with reasons, in E-022 Amendment 4); report a §4a
+      ACCEPT; open the lab PR before boundary 4; or commit to any main outside a PR." 
+# SUPERSEDED, kept not deleted: next_action: "*** THE BATCH IS RUNNING. DO NOT START A SECOND ONE. DO NOT KILL IT BEFORE READING ITS
   MANIFEST. *** evidence/b09/batch-20260926T151319Z, launched 15:13:19Z, lock held at
   evidence/b09/.batch.lock. Its manifest appends a row BEFORE each next run starts and its NEW
   sidecar run-ids.tsv is written BEFORE each row, so both are progress records: read them to see what
@@ -4794,6 +4915,25 @@ blocked_on_author: []   # *** EMPTY as of 2026-09-25. *** The single item that w
   # SUPERSEDED, kept not deleted: blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:   # 2026-09-26 items first, then the carried ones. NONE of these gates anything (§7).
+  - "2026-09-26, THE RATE WINDOW, AND IT GATES NOTHING. Between ~15:13Z and 16:30:00Z this account
+     was inside a SATURATED five-hour window: every call served (`status":"allowed"`), none refused,
+     `overageStatus":"rejected"` with `overageDisabledReason":"org_level_disabled"`, and 11-17
+     minute gaps between events. One treated BE-003 run took 5 420 000 ms where the preflight
+     measured 127 s. The window reset at 16:30:00Z and utilization came back at 0.02 (seven_day 0.1),
+     after which runs took ~2 minutes again. NOT a §7 halt - that bullet is about exhaustion that
+     does not clear after one retry past its published reset - and the run continued at n = 10.
+     THE THING THE AUTHOR MIGHT WANT: a 40-run batch launched late in a five-hour window can cost
+     days of wall clock while costing the registered dollars exactly as budgeted, and nothing in the
+     drivers notices. A pre-batch `utilization` read would be a cheap L2 gate and does not exist."
+  - "2026-09-26, AND IT IS THE SESSION-BOUNDARY DEFECT, NOT A B9 FINDING. The §0 rule that a session
+     ends at each phase boundary and the fact that run-b9-batch.sh is a CHILD of that session are
+     jointly fatal to any §4 step 6 longer than one session: two B9 batches died today, the second
+     after 2 h 32 min with four pairs recorded. evidence/b09/detach.py fixes it for B9 and is generic
+     (`detach.py <log> <cmd...>`, os.setsid, sid==pid printed as proof). IT IS NOT WIRED INTO ANY
+     OTHER DRIVER. b08's, b08a's and every later batch driver are launched the same way and inherit
+     the same death. Promoting detach.py to tools/ and using it in every driver's documented launch
+     line is a one-line change per driver that this session did not make, because §6 forbids building
+     a future step's artifacts early." 
   - "(M) *** THE §4a ACCEPTANCE GATE CANNOT RETURN `ACCEPT` WHILE OLLAMA-CLOUD IS OUT OF QUOTA, AND
      THIS IS STRUCTURAL RATHER THAN A QUOTA WAIT. *** Found by §0a row 2 this session: the default
      panel failed on every family with an ollama quota message, and the re-run with `-P codex`
