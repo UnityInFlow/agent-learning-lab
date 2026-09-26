@@ -3,9 +3,16 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "Stop 17a — B8a CLOSED" immediately below the Position section. It is the newest
-section: stop 17a closed 2026-09-25 with the verdict `NO ROW FIRES` and the ladder shut, the next
-stop is 18 (Phase 6A) and nothing of it exists, and NOTHING is blocked on the author.**
+**Start at "The author's decision of 2026-09-26" immediately below the Position section. It is the
+newest section: the batch ceiling is now a RULE rather than a flat number, which is the thing that
+bit stop 17a. Positions 4–19 are CLOSED, stop 20 (B9) is OPEN with its prediction commit on the
+branch and nothing run, and NOTHING is blocked on the author.**
+
+*(Superseded pointer, kept:)* "Start at \"Stop 17a — B8a CLOSED\" immediately below the Position
+section. It is the newest section: stop 17a closed 2026-09-25 with the verdict `NO ROW FIRES` and
+the ladder shut, the next stop is 18 (Phase 6A) and nothing of it exists, and NOTHING is blocked on
+the author." **Two stops have closed since** — 18 and 19 — each with its own section above 17a's,
+so that pointer named neither the newest section nor the live stop.
 
 *(Superseded pointer, kept:)* "Start at 'The author's four decisions of 2026-09-25' immediately
 below the Position section — the Stop 17a halt is DISCHARGED, the author answered all four items,
@@ -43,9 +50,20 @@ labelled L3, one recorded UNANSWERABLE with its reason, and one lab run at `n = 
 under test and $0 spent. NOTHING is blocked on the author.** `lab#16` **stays open**: all five of
 the author's stub labs are deferred and one gate clause cannot be met from measurement here, and
 §4 step 14 closes a Phase issue only when its gate is met. `lab#8` also **stays open** from stop
-18, for the same reason. The next stop is **20 (B9 — knowledge router)**, and nothing of it exists
-— §6 forbids a future step's artifacts early. **B9 owes an instrument that can record a retrieval
-before its prediction commit, and stop 19 measured that the harness cannot record one at all.**
+18, for the same reason. **Stop 20 (B9 — knowledge router) is OPEN**, not pending: §4 steps 1–3 are complete on
+`stop20/b9-knowledge-router`, the prediction commit is **`ef2c6c0`** (E-022 on BE-003, E-023 on
+BE-004), and **nothing has run**. **B9 owes an instrument that can record a retrieval before its
+prediction commit, and stop 19 measured that the harness cannot record one at all.**
+
+> *(Superseded in the same session that wrote it, kept:)* "The next stop is **20 (B9 — knowledge
+> router)**, and nothing of it exists — §6 forbids a future step's artifacts early." **That was true
+> when written and was false within the same driver session**, which opened stop 20 three steps deep
+> immediately afterwards. **This is the FIFTH time this file's status line has been found stale**,
+> and the fourth time it was caught by someone doing something else — this time by the author's
+> interactive session while republishing the boards. The argument has not changed and is still not
+> acted on: **this paragraph should be GENERATED from `TRACK-B-STATE.md`, not maintained by hand.**
+> Until it is, `TRACK-B-STATE.md` is the fact and this is a hint.
+> *Corrected by Claude Opus 5 (1M context), 2026-09-26, at the author's direction.*
 
 *(Superseded, kept:)* "Spine 18 of 28. Positions 4–18 CLOSED — 18 (Phase 6A — code intelligence)
 closed 2026-09-25 with its exit gate answered on all four clauses and one lab run, `n = 0` on the
@@ -125,6 +143,44 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## The author's decision of 2026-09-26 — the batch ceiling is a RULE, not a flat number
+
+**Provenance, recorded rather than left implicit.** The rule below was **proposed by Claude Opus 5
+(1M context)** in an interactive session on **2026-09-26** and **adopted by the author in that
+session**, on the author's instruction to resolve it. The reasoning is the builder's; the adoption is
+the author's. This project's own working style says a decision adopted from someone else measures
+nothing unless its provenance is recorded, so it is recorded.
+
+> **DECISION 13 — the batch ceiling.** A B-step's cost ceiling is no longer a flat dollar figure
+> computed from the plain-run median. It is **11 × the measured preflight-pair cost, per task**, read
+> from the preflight pair the step already runs before its batch. Decision 3's `$9.70 = 25 × $0.388`
+> **stands as the record of what stop 17a ran under** and is not rewritten.
+
+**Why, and it is arithmetic on the wrong unit rather than a wrong number.** Stop 17a's ceiling was
+25 × the **plain-run** median of `$0.388`. Its preflight then measured a treated-plus-control pair at
+**`$1.2222`** — 1.57× two plain runs, because the treated arm ran **1.95×** the control's cost. So
+`$9.70` funded **7.9 pairs**, the batch stopped at **n = 8 per arm** on exit 11, and E-020's
+registered threshold of **8 of 10** could not be evaluated as written. **A pair is not two plain
+runs**, and every B-step from here pays a treated arm that costs more than the arm the median came
+from.
+
+**What the rule costs, stated rather than left to be inferred:**
+
+- **The budget stops being known in advance.** It becomes known one pair into the step — early enough
+  to stop a batch, not early enough to promise a figure beforehand. A step that needs a number in
+  advance multiplies the previous stop's pair cost and **says it is transferred**, exactly as an MDE
+  does.
+- **It does not rescue a threshold written as k-of-10 at an n the money cannot buy.** It funds
+  **n = 10 per arm plus one pair of margin**, which is what a 10-run threshold assumes. If a
+  treatment turns out dearer than its own preflight pair, the ceiling still stops the batch and **the
+  population that occurred is still what gets reported** — decision-rule row 0b, on E-016's
+  precedent.
+- **It is per task.** Author decision 9 gives a B-step one batch per task, so **stop 20 carries two
+  ceilings**, one from BE-003's preflight pair and one from BE-004's.
+- **The ceiling only stays L2 if the driver computes it.** Stop 17a made a flat number executable in
+  the batch driver, and it fired. A multiplication living in this file is **L3 again**: B9's driver
+  must read the preflight pair cost and multiply, or this decision is prose and not a control.
 
 ## Stop 19 — Phase 6B CLOSED: the instrument cannot name what a run read, and the detector that says so survived being widened twice — 2026-09-26
 

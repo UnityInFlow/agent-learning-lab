@@ -2392,7 +2392,15 @@ last_verified: "2026-09-26, STOP 20 OPENED TO §0 BOUNDARY 1. Every number below
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "*** STOP 20 (B9) IS OPEN AT §0 BOUNDARY 1. §4 STEPS 1-3 ARE COMPLETE AND COMMITTED
+next_action: "*** AUTHOR INSERT, 2026-09-26, NOT THE BUILDER`S TEXT: AUTHOR DECISION 13 IS ADOPTED
+  AND IT CHANGES STOP 20`s BUDGET BEFORE ANY BATCH. The ceiling is NO LONGER A FLAT NUMBER: it is
+  11 x THE MEASURED PREFLIGHT-PAIR COST, PER TASK, so stop 20 carries TWO ceilings, one from
+  BE-003`s preflight pair and one from BE-004`s. IT ONLY STAYS L2 IF THE DRIVER COMPUTES IT - a
+  multiplication in prose is L3, so the batch driver must READ the preflight pair cost and multiply
+  rather than carry a hard-coded dollar figure. Full text and its stated costs: author_decisions
+  item 13, and HANDOFF.md `The author`s decision of 2026-09-26`. Do not re-derive it and do not
+  re-open it. ***
+  *** STOP 20 (B9) IS OPEN AT §0 BOUNDARY 1. §4 STEPS 1-3 ARE COMPLETE AND COMMITTED
   (c90b157, ef2c6c0) AND PUSHED. DO NOT REDO THEM. DO NOT REOPEN STOP 19. NOTHING HAS RUN - no
   preflight run, no batch, no run id, no worktree - so there is no evidence to check a repeat
   against, and there is nothing that could be duplicated by starting step 4. ***
@@ -5477,6 +5485,34 @@ author_notes:   # 2026-09-26 items first, then the carried ones. NONE of these g
   - "NEW, from the workbook`s own §4a review: run-e005.sh CANNOT DISTINGUISH `no write` from `wrote, then committed`. It decides with `git diff --quiet HEAD` plus `git status --porcelain`; if an agent wrote AND committed, HEAD advances, the tree matches HEAD, and both record 0 despite a persisted change. EXCLUDED EMPIRICALLY on these 45 runs - `grep -l 'git commit|git add'` across all 45 transcripts returns ZERO files - so the pathway exists and did not fire. The one-line fix (capture pre-agent HEAD) is OWED BEFORE ANY RERUN of this harness and was deliberately not applied now, because §6 forbids editing a tool whose runs are the evidence a stop is closing on"
 
 author_decisions:  # by the author, 2026-09-04, adopting the §9 validator's recommendation of the same day; provenance recorded so adoption measures something
+  - "*** 13. THE BATCH CEILING IS A RULE, NOT A FLAT NUMBER. Given by the author in an interactive
+    session on 2026-09-26. *** THE RULE: a B-step`s cost ceiling is 11 x THE MEASURED PREFLIGHT-PAIR
+    COST, PER TASK, read from the preflight pair the step already runs before its batch. Decision 3`s
+    $9.70 = 25 x $0.388 STANDS as the record of what stop 17a ran under and IS NOT REWRITTEN.
+    PROVENANCE, AND IT IS NOT DECORATION: the rule was PROPOSED BY THE BUILDER (Claude Opus 5, 1M
+    context) in that interactive session and ADOPTED BY THE AUTHOR there, on the author`s instruction
+    to resolve it. The reasoning is the builder`s; the adoption is the author`s. Recorded because this
+    project`s working style says a decision adopted from someone else measures nothing unless its
+    provenance is recorded - so a later session must NOT read this as the author`s own unprompted
+    design.
+    WHY: stop 17a`s ceiling was 25 x the PLAIN-RUN median $0.388. Its preflight then measured a
+    treated-plus-control pair at $1.2222 - 1.57x two plain runs, because the treated arm ran 1.95x the
+    control`s cost. So $9.70 funded 7.9 PAIRS, the batch stopped at n = 8 PER ARM on exit 11, and
+    E-020`s registered threshold of 8 OF 10 COULD NOT BE EVALUATED AS WRITTEN. Arithmetic on the wrong
+    unit: A PAIR IS NOT TWO PLAIN RUNS, and every B-step pays a treated arm dearer than the arm the
+    median came from.
+    WHAT IT COSTS, STATED RATHER THAN LEFT TO BE INFERRED: (i) the budget STOPS BEING KNOWN IN ADVANCE
+    - it is known one pair in, early enough to stop a batch and not early enough to promise a figure
+    beforehand; a step needing a number in advance multiplies the PREVIOUS stop`s pair cost and SAYS IT
+    IS TRANSFERRED, exactly as an MDE does. (ii) it does NOT rescue a k-of-10 threshold at an n the
+    money cannot buy - it funds n = 10 PER ARM PLUS ONE PAIR OF MARGIN, and if a treatment is dearer
+    than its own preflight pair the ceiling still stops the batch and THE POPULATION THAT OCCURRED IS
+    STILL WHAT GETS REPORTED (row 0b, E-016`s precedent). (iii) IT IS PER TASK - author decision 9
+    gives a B-step one batch per task, so STOP 20 CARRIES TWO CEILINGS, one from BE-003`s preflight
+    pair and one from BE-004`s. (iv) THE CEILING ONLY STAYS L2 IF THE DRIVER COMPUTES IT: stop 17a made
+    a flat number executable and it FIRED; a multiplication living in prose is L3 again, so B9`s batch
+    driver MUST read the preflight pair cost and multiply, or this decision is not a control.
+    RECORDED IN HANDOFF.md under `The author`s decision of 2026-09-26` with the same words."
   - "*** 12. THE FOUR DECISIONS OF 2026-09-25, WHICH DISCHARGE THE §7 HALT AT STOP 17a`s RUBRIC PROOF. ***
     Given by the author in an interactive session on 2026-09-25, in the session that launched this one, with
     the instruction: `THE §7 HALT OF 2026-09-25 AT STOP 17a IS DISCHARGED. THE AUTHOR HAS ANSWERED ALL FOUR
