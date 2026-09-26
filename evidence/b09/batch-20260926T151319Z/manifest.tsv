@@ -1,0 +1,19 @@
+# B9 REGISTERED BATCH 20260926T151319Z  n=10 per arm per task, interleaved (author decision 9)
+# treated /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/agent-v1.2-knowledge / control /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/agent-v1.1
+# expected knowledgeHash treated sha256:0770219ae7f4281a80071d78dadea285 / control null
+# expected agentHash BOTH arms sha256:b3450564b6f32d6193e8580db766210e; instructionsHash treated sha256:ebf489800a60a156986f98ea4f127848 / control sha256:a94237242e8c1308fb1d434a06a03463
+# COMPUTED ceiling BE-003: pair $0.2810 x 11 = $3.0910 (author decision 13, from /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/preflight-20260926T131746Z/manifest.tsv)
+# COMPUTED ceiling BE-004: pair $0.4294 x 11 = $4.7234 (author decision 13, from /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/preflight-20260926T131746Z/manifest.tsv)
+# claude 2.1.283 at launch, model claude-haiku-4-5-20251001, benchmarks 2fc445d
+# API http://127.0.0.1:8081  OTLP http://localhost:4318 / http://localhost:4317  events.jsonl 26115724 bytes at launch
+# prediction commit ef2c6c0 at 2026-09-26, BEFORE any run here
+task	seq	arm	run_id	rc	eval	f13	edits	runtime_ver	model	knowledge_hash	instr_hash	agent_hash	log_state	log_lines	log_hits	first_status	router_mentions	router_denied	corpus_match	model_calls	tool_calls	cost	duration_ms	changed	init_tools	worktree
+BE-003	01	treated	c49eec44-10fe-4996-ba2b-edd31e3a79e8	0	0	no	3	2.1.283 (Claude Code)	claude-haiku-4-5-20251001	sha256:0770219ae7f4281a80071d78dadea285	sha256:ebf489800a60a156986f98ea4f127848	sha256:b3450564b6f32d6193e8580db766210e	ABSENT	0	0	n/a	0	no	MATCH	26	21	0.141425	5420000	3	n=4 ["Read","Edit","Write","Bash"]/match	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c49eec44-10fe-4996-ba2b-edd31e3a79e8
+BE-003	01	control	3d56a5bf-9da8-4bf2-9e80-42e7bbfd27f1	0	0	no	3	2.1.283 (Claude Code)	claude-haiku-4-5-20251001	null	sha256:a94237242e8c1308fb1d434a06a03463	sha256:b3450564b6f32d6193e8580db766210e	ABSENT	0	0	n/a	0	no	ABSENT-as-registered	24	23	0.149739	160000	3	n=4 ["Read","Edit","Write","Bash"]/match	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3d56a5bf-9da8-4bf2-9e80-42e7bbfd27f1
+BE-003	02	treated	ab8b2398-8195-4bbf-a25f-fb7f8752ed82	0	0	no	3	2.1.283 (Claude Code)	claude-haiku-4-5-20251001	sha256:0770219ae7f4281a80071d78dadea285	sha256:ebf489800a60a156986f98ea4f127848	sha256:b3450564b6f32d6193e8580db766210e	PRESENT	1	1	hit	2	no	MATCH	24	21	0.151752	118000	3	n=4 ["Read","Edit","Write","Bash"]/match	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-ab8b2398-8195-4bbf-a25f-fb7f8752ed82
+BE-003	02	control	1108e1e5-c360-4b15-8f06-dd9d3101fde7	0	0	no	5	2.1.283 (Claude Code)	claude-haiku-4-5-20251001	null	sha256:a94237242e8c1308fb1d434a06a03463	sha256:b3450564b6f32d6193e8580db766210e	ABSENT	0	0	n/a	0	no	ABSENT-as-registered	21	20	0.14006	123000	3	n=4 ["Read","Edit","Write","Bash"]/match	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1108e1e5-c360-4b15-8f06-dd9d3101fde7
+# RESUMED 2026-09-26T17:56:12Z by run-b9-batch.sh --resume: 4 rows already recorded, 4 cells skipped
+# seeded into the ceiling: BE-003=$0.5830 BE-004=$0
+# claude 2.1.283 at resume; the rows below this line were run after it
+# ^^^ THOSE THREE LINES WERE WRITTEN AT 17:56:12Z BY A B9_RESUME_PLAN_ONLY=1 DRY RUN, WHICH RAN
+#     NOTHING. The dry run appended before it exited; the driver was reordered so a plan-only run can never write to a manifest again. The lines are kept, not deleted (§6), and are corrected here. — Opus 5 (claude-opus-5), autonomously, 2026-09-26

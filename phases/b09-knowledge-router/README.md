@@ -552,6 +552,41 @@ the fallback `0`, putting a newline inside a manifest field. Corrected to `grep 
 the column is named `router_mentions` rather than `router_calls` because one call appears in the
 stream three times.
 
+## §4 step 6 — the batch, and the two things that had to be decided before it could continue
+
+*Written by Opus 5 (claude-opus-5), autonomously, 2026-09-26. The numbers and their derivations are
+in [`E-022` Amendment 4](../../experiments/E-022-knowledge-router-BE003.md); this section records the
+two decisions and their layers, which is what a workbook is for.*
+
+**Decision 1 — the population stays at `n = 10` per arm per task (option (a)).** The account spent
+the 15:13Z–16:30Z stretch inside a saturated five-hour rate window: every call `allowed`, none
+refused, and 11–17 minute gaps between them, so one treated run took 90 minutes where the preflight
+measured 127 seconds. The window reset at 16:30:00Z, utilization came back at **0.02**, and the runs
+after it took ~2 minutes again. Reducing `n` would have forfeited E-022's prediction 1 (a one-arm
+binomial at ≥ 8 of 10) and E-023's whole verdict (row 0: `n_t < 7 or n_c < 7` ⇒ NOT COMPUTED) to buy
+time the account had already returned. This is **not** a §7 halt — that bullet is about exhaustion
+that does not clear after one retry past its published reset, and nothing here was ever refused — so
+it is recorded in `author_notes` and the run continues.
+
+**Decision 2 — the batch is resumed, never restarted.** Four runs and one unrowed-but-complete run
+already existed. Re-running them would have created duplicate benchmark evidence, which §6 forbids
+deleting and §0 forbids creating. So the driver learned to resume.
+
+| artifact | what it is | layer, by the rule in order | what converts the trap |
+|---|---|---|---|
+| `run-b9-batch.sh --resume <TAG>` | re-enters one manifest, skips recorded cells, seeds the per-task cost | **L2** — it executes, and it refuses at exit 13 | a resume that joined a differently-registered batch would pool two populations under one tag; three refusals (no manifest, wrong corpus/agent/instruction shas, wrong `n`) make that unwritable-after-the-fact |
+| its detached launch (`os.setsid()`) | the batch is no longer a child of the claude session | **L2** — a process-session boundary the OS enforces | the §0 phase-boundary rule requires the launching session to end; twice today that killed the batch |
+| `verify-b9-batch-guards.sh` cases N–Q | 17 of 17, four of them new | **L2** — the fixtures run and two of them failed first | case O passed for the wrong reason in its first version, which is the house failure mode inside a control; case Q exists because a dry run mutated a real manifest |
+| E-022 Amendment 4 | the record of both decisions and the exclusions they imply | **L3** — words, and labelled as such | nothing executes to keep a workbook honest; this row says so |
+
+**What was decided about the runs already on disk, and nothing about their scores.** `durationMs` is
+excluded for the runs paced inside the saturated window and the runs are kept — E-022's Exclusions
+already register that treatment for a batch split by a machine sleep, and no registered outcome reads
+duration. The one complete-but-unrowed run is excluded and **replaced**, under the same registered
+rule and the same precedent `ORPHAN.md` set four hours earlier in this stop; its log, worktree and API
+record stay on disk and are named. Author decision 13's multiplier of 11 against a population of 10
+is what pays for the replacement.
+
 ## Predict before you run
 
 Registered in two experiment files, one per task (author decision 9), each committed before its

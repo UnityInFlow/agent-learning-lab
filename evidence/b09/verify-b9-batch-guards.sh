@@ -12,7 +12,10 @@
 #
 # NO CASE STARTS A BENCHMARK RUN. A–D and H exit inside guards-only mode or before it; E–G use
 # stop-rule-only mode, which evaluates the single comparison the batch loop uses and runs nothing;
-# I is refused by the pid lock, the first thing the script does.
+# I is refused by the pid lock, the first thing the script does. N–Q cover --resume and exit inside
+# resume-validate-only or resume-plan-only mode, both of which run nothing and — case Q — must not
+# write to the manifest they read. Q exists because the first version of the resume code appended
+# its banner BEFORE the plan-only exit, so a dry run mutated a real batch's manifest.
 #
 # Usage: evidence/b09/verify-b9-batch-guards.sh
 set -uo pipefail
@@ -20,7 +23,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit 1
 LAB="$PWD"
 DRIVER="$LAB/evidence/b09/run-b9-batch.sh"
 C="$LAB/build/customizations/agent-v1.1"
-EXPECTED_CASES=13
+EXPECTED_CASES=17
 
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT
 pass=0; fail=0
@@ -161,6 +164,82 @@ NUM="$WORK/nonnumeric.tsv"
 out="$(env B9_LOCK="$FREELOCK" B9_PREFLIGHT_MANIFEST="$NUM" "$DRIVER" 10 BE-003 2>&1)"; rc=$?
 if [[ $rc -eq 12 ]]; then ok "M a NON-NUMERIC cost refuses the batch (exit 12) rather than summing it as 0"
 else bad "M non-numeric cost — wanted 12, got $rc"; fi
+
+# --- N–Q: --resume. A resume that joined the wrong batch would pool two populations under one tag.
+
+# A synthetic BATCH manifest (not a preflight manifest — different header), with the four registered
+# hash strings the driver greps for. Written from the driver's own defaults so a hash change breaks
+# this fixture rather than silently passing it.
+KH='sha256:0770219ae7f4281a80071d78dadea285'
+AH='sha256:b3450564b6f32d6193e8580db766210e'
+IT='sha256:ebf489800a60a156986f98ea4f127848'
+IC='sha256:a94237242e8c1308fb1d434a06a03463'
+BATCH_HDR='task\tseq\tarm\trun_id\trc\teval\tf13\tedits\truntime_ver\tmodel\tknowledge_hash\tinstr_hash\tagent_hash\tlog_state\tlog_lines\tlog_hits\tfirst_status\trouter_mentions\trouter_denied\tcorpus_match\tmodel_calls\ttool_calls\tcost\tduration_ms\tchanged\tinit_tools\tworktree'
+mkbatch() {  # mkbatch <TAG> <n> [omit-hash]
+  local tag="$1" n="$2" omit="${3:-}" d="$WORK/evidence/b09/batch-$1" kh="$KH"
+  # *** THE WRONG-POPULATION CASE HAS TO CHANGE THE HASH EVERYWHERE, not only in the header comment.
+  # The first version of case O changed the comment and left the real hash in the data rows, the
+  # driver's grep found it there, and the case passed for the wrong reason — a fixture reporting over
+  # a scope smaller than it claims, which is the house failure mode arriving inside its own control.
+  [[ "$omit" == knowledge ]] && kh='sha256:ffffffffffffffffffffffffffffffff'
+  mkdir -p "$d"
+  { printf '# B9 REGISTERED BATCH %s  n=%s per arm per task, interleaved (author decision 9)\n' "$tag" "$n"
+    printf '# expected knowledgeHash treated %s / control null\n' "$kh"
+    printf '# expected agentHash BOTH arms %s; instructionsHash treated %s / control %s\n' "$AH" "$IT" "$IC"
+    printf '%b\n' "$BATCH_HDR"
+    printf 'BE-003\t01\ttreated\tr-t1\t0\t0\tno\t3\t2.1.283\tclaude-haiku-4-5-20251001\t%s\t%s\t%s\tPRESENT\t2\t1\thit\t2\tno\tMATCH\t24\t21\t0.2000\t118000\t3\tx/match\t/tmp/wt1\n' "$kh" "$IT" "$AH"
+    printf 'BE-003\t01\tcontrol\tr-c1\t0\t0\tno\t3\t2.1.283\tclaude-haiku-4-5-20251001\tnull\t%s\t%s\tABSENT\t0\t0\tn/a\t0\tno\tABSENT-as-registered\t21\t20\t0.1000\t123000\t3\tx/match\t/tmp/wt2\n' "$IC" "$AH"
+    printf 'BE-003\t02\ttreated\tr-t2\t0\t0\tno\t3\t2.1.283\tclaude-haiku-4-5-20251001\t%s\t%s\t%s\tABSENT\t0\t0\tn/a\t0\tno\tMATCH\t26\t21\tnull\t5420000\t3\tx/match\t/tmp/wt3\n' "$kh" "$IT" "$AH"
+  } > "$d/manifest.tsv"
+  echo "$d/manifest.tsv"
+}
+# The resume paths read $B9_EVID_ROOT/batch-<TAG>; the sandbox moves ONLY that root, so the
+# one-variable guards still run against the REAL overlays under $LAB.
+RESUME_ENV=(B9_LOCK="$FREELOCK")
+
+# N — A TAG WITH NO MANIFEST. Nothing to join, so nothing is joined.
+out="$(env "${RESUME_ENV[@]}" B9_EVID_ROOT="$WORK/evidence/b09" B9_RESUME_VALIDATE_ONLY=1 B9_PREFLIGHT_MANIFEST="$(mkmanifest N 0.2000 0.1000)" \
+        "$DRIVER" --resume 20990101T000000Z 10 BE-003 2>&1)"; rc=$?
+if [[ $rc -eq 13 ]]; then ok "N --resume on a TAG with no manifest refuses (exit 13)"
+else bad "N missing manifest — wanted 13, got $rc"; fi
+
+# O — A DIFFERENTLY-REGISTERED POPULATION. The corpus hash in the joined manifest is not the one
+#     this driver would deliver, so the two are not one population and the resume is refused.
+mkbatch 20260101T000000Z 10 knowledge >/dev/null
+out="$(env "${RESUME_ENV[@]}" B9_EVID_ROOT="$WORK/evidence/b09" B9_RESUME_VALIDATE_ONLY=1 B9_PREFLIGHT_MANIFEST="$(mkmanifest O 0.2000 0.1000)" \
+        "$DRIVER" --resume 20260101T000000Z 10 BE-003 2>&1)"; rc=$?
+if [[ $rc -eq 13 ]]; then ok "O --resume onto a manifest registering a DIFFERENT corpus refuses (exit 13)"
+else bad "O wrong population — wanted 13, got $rc"; fi
+
+# P — A DIFFERENT n. A resume may not change the registered population size; E-022's prediction 1 is
+#     a one-arm binomial at >= 8 of 10 and is not evaluable at another n.
+mkbatch 20260202T000000Z 10 >/dev/null
+out="$(env "${RESUME_ENV[@]}" B9_EVID_ROOT="$WORK/evidence/b09" B9_RESUME_VALIDATE_ONLY=1 B9_PREFLIGHT_MANIFEST="$(mkmanifest P 0.2000 0.1000)" \
+        "$DRIVER" --resume 20260202T000000Z 5 BE-003 2>&1)"; rc=$?
+if [[ $rc -eq 13 ]]; then ok "P --resume with n=5 onto a manifest registering n=10 refuses (exit 13)"
+else bad "P n mismatch — wanted 13, got $rc"; fi
+
+# Q — THE SKIP SET, THE SEEDED COST, AND THE NULL COST — and the manifest is NOT written to. Three
+#     recorded rows: 01 treated, 01 control, 02 treated. So 02 control must be RUN, 01 both SKIP,
+#     the seeded BE-003 cost must be $0.3000 (0.2000 + 0.1000, with the third row's `null` NOT
+#     summed as zero), and the file must come out byte-identical.
+BM="$(mkbatch 20260303T000000Z 10)"
+cp "$BM" "$WORK/q-before.tsv"
+out="$(env "${RESUME_ENV[@]}" B9_EVID_ROOT="$WORK/evidence/b09" B9_RESUME_PLAN_ONLY=1 B9_PREFLIGHT_MANIFEST="$(mkmanifest Q 0.2000 0.1000)" \
+        "$DRIVER" --resume 20260303T000000Z 10 BE-003 2>&1)"; rc=$?
+q_ok=1
+grep -qF 'SKIP BE-003 01 treated' <<<"$out" || q_ok=0
+grep -qF 'SKIP BE-003 01 control' <<<"$out" || q_ok=0
+grep -qF 'SKIP BE-003 02 treated' <<<"$out" || q_ok=0
+grep -qF 'RUN  BE-003 02 control' <<<"$out" || q_ok=0
+grep -qF 'RUN  BE-003 10 control' <<<"$out" || q_ok=0
+grep -qF "BE-003 already spent ${DOL}0.3000" <<<"$out" || q_ok=0
+cmp -s "$WORK/q-before.tsv" "$BM" || q_ok=0
+if [[ $rc -eq 0 && $q_ok -eq 1 ]]; then
+  ok "Q the skip set and the seeded cost ${DOL}0.3000 are right, a null cost is NOT summed as 0, and the manifest is untouched"
+else
+  bad "Q resume plan — exit $rc, q_ok=$q_ok: $(grep -m1 'already spent' <<<"$out" || echo 'no spend line'); manifest $(cmp -s "$WORK/q-before.tsv" "$BM" && echo identical || echo MUTATED)"
+fi
 
 echo
 ran=$((pass + fail))

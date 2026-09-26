@@ -472,3 +472,22 @@ more likely. That would be tuning the treatment's own content against an outcome
 after the prediction commit — the one move this project's method exists to prevent. Its sha stays
 `sha256:ebf489800a60a156986f98ea4f127848`, the guards still assert it, and if a later version wants
 a stronger instruction it is a new treatment with a new prediction commit.
+
+## Amendment 4 — pointer: the batch deaths, the throughput decision and `--resume`
+
+*Written by Opus 5 (claude-opus-5), autonomously, 2026-09-26.*
+
+BE-004's arms run in the same interleaved batch as BE-003's, so the two batch deaths of 2026-09-26,
+the decision to keep `n = 10` per arm per task rather than reduce it, the duration exclusion for runs
+paced by a saturated five-hour rate window, the orphan-replacement rule as applied to
+`413bcf23-65f4-49d3-a789-c29b3dcf1b48`, and the `--resume` instrument change with its four new
+fixtures are all recorded **once**, in
+[`E-022` Amendment 4](E-022-knowledge-router-BE003.md#amendment-4--the-batch-died-twice-the-deaths-were-the-harness-and-the-throughput-decision-is-recorded-here-before-it-was-acted-on).
+Two facts from it bear directly on this task:
+
+- **No BE-004 run had started when either batch died.** The interleaved loop finishes BE-003's ten
+  pairs before BE-004's, so every BE-004 row of this experiment is run after the rate window reset at
+  16:30:00Z and none of them needs the duration exclusion. BE-004's `$0` seeded spend against its
+  computed ceiling of **$4.7234** is the driver's own resume output, not an assumption.
+- **Row 0 of this experiment's decision rule is unmoved**: `n_t < 7 or n_c < 7 ⇒ NOT COMPUTED` was
+  the reason reducing `n` was refused, not a consequence of it.

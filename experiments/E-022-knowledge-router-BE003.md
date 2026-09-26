@@ -527,3 +527,94 @@ more likely. That would be tuning the treatment's own content against an outcome
 after the prediction commit — the one move this project's method exists to prevent. Its sha stays
 `sha256:ebf489800a60a156986f98ea4f127848`, the guards still assert it, and if a later version wants
 a stronger instruction it is a new treatment with a new prediction commit.
+
+## Amendment 4 — the batch died twice, the deaths were the harness, and the throughput decision is recorded here before it was acted on
+
+*Written by Opus 5 (claude-opus-5), autonomously, 2026-09-26, at the re-entry after the
+context-guard stop. Nothing above this line is edited. This amendment covers both tasks; E-023
+carries a pointer to it rather than a second copy.*
+
+### Two deaths, two different causes, one shape
+
+| batch | launched | died | cause | runs recorded | runs unrowed |
+|---|---|---|---|---|---|
+| `batch-20260926T133740Z` | 13:37:40Z | ~13:40Z, inside run 1 | `line 303: rv: unbound variable` — two manifest columns carried over from the b08 driver without their two `jq` reads, and `set -u` is fatal at the `printf` **after** the run | 0 | 1 (`6d728d76-5b1d-4b56-8e1f-154ea27ae82b`, documented in that batch's `ORPHAN.md`) |
+| `batch-20260926T151319Z` | 15:13:19Z | 17:45:01Z, between a run and its row | the driver is a **child of the claude session that launched it**, and §0's phase-boundary rule requires that session to end | 4 (BE-003 pairs 01, 02) | 1 (`413bcf23-65f4-49d3-a789-c29b3dcf1b48`, BE-003 03 treated, eval 0, log complete) |
+
+The second cause is the one worth carrying out of this stop. The `EXIT` trap fired — the pid lock
+was gone — so the driver was terminated by a catchable signal, not by a crash: `set -uo pipefail`
+has no `-e`, no unassigned local is read in that window, and the same code path had just completed
+four times. **A batch launched from a session that the prompt obliges you to end is a batch the
+prompt obliges you to kill.** That is a harness property, not a B9 property, and it applies to every
+later stop whose §4 step 6 is longer than one session.
+
+### The throughput decision — option (a), let it run at n = 10, and the reason is not stubbornness
+
+The previous session recorded the choice as open, with three options and their costs. The evidence
+that settles it arrived inside the run logs and was not available when the options were written:
+
+- the paced window has **reset**. `rate_limit_event` in `BE-003-03-treated.log` at 17:45:01Z reads
+  `"five_hour":{"utilization":0.02,"resetsAt":1790458200}` (= 2026-09-26T21:30Z) and
+  `"seven_day":{"utilization":0.1}`. The window that produced 11–17 minute gaps reset at
+  **16:30:00Z** (`resetsAt":1790440200`).
+- the measured effect of that reset is in the manifest: BE-003 01 treated `durationMs` **5 420 000**
+  (≈ 90 min, inside the saturated window), 01 control **160 000**, 02 treated **118 000**,
+  02 control **123 000**. Runs after the reset are back to the 127 s the 12:48Z preflight measured.
+- so option (b), reducing `n`, would forfeit prediction 1 (a one-arm binomial registered at ≥ 8 of
+  10, unevaluable below n = 10, exactly as stop 17a's E-020 was) and E-023 row 0's verdict
+  (`n_t < 7 or n_c < 7` ⇒ NOT COMPUTED) **to buy time the account has already given back**.
+- and option (c) is not available: §7's claude bullet is *exhaustion that does not clear within one
+  retry after its published reset time*. Nothing was ever refused — `status":"allowed"` on every
+  event. This is `author_notes` material, and it is recorded there.
+
+**Decided: (a). n stays 10 per arm per task.** *Decided by Opus 5 (claude-opus-5), autonomous,
+2026-09-26.*
+
+### What the pacing costs the experiment, stated rather than left to be inferred
+
+`durationMs` is **excluded for every run that executed inside the saturated window**, and the run is
+kept — the Exclusions section already registers exactly this treatment for a batch split by a
+machine sleep, and a five-hour rate window is the same class of contamination: wall clock moves,
+the model's work does not. Concretely that is BE-003 01 treated (5 420 000 ms) and, conservatively,
+its pair partner 01 control. **No registered outcome reads duration**, so this removes nothing the
+decision rule needs; it removes a number that would otherwise be quoted and be wrong. `cost`,
+`modelCalls`, `toolCalls` and the router log are unaffected by pacing and are kept for all four.
+
+### The orphan, and why it is replaced rather than recovered
+
+`413bcf23-65f4-49d3-a789-c29b3dcf1b48` completed — evaluator ran, worktree kept, log complete — and
+its manifest row was never written. Its data is all still readable from the API and the log, so a
+row *could* be reconstructed by hand. It is not. The Exclusions section registers *"infrastructure
+failures … → excluded, and a run excluded for infrastructure is replaced, so the scored `n` stays 10
+per arm"*, `ORPHAN.md` applied that rule to `6d728d76` four hours earlier in the same stop, and a
+hand-built row in a manifest whose every other row was written by the driver is a different kind of
+evidence wearing the same clothes. **Excluded and replaced; the log, the worktree and the API record
+are kept and are named here.** The cost it spent (~$0.14) is absorbed by author decision 13's
+multiplier of **11** against a population of 10 — one pair of headroom is exactly what a replacement
+needs, which is the first time that choice has been load-bearing.
+
+### The instrument change, and what proves it
+
+`run-b9-batch.sh` gained `--resume <TAG>`: it re-enters the **same** manifest, skips every
+`(task, seq, arm)` cell already recorded in it, and **seeds the per-task cost** so decision 13's
+ceiling still bounds the whole batch rather than its tail. Three refusals, all at **exit 13** and all
+before the endpoints and the lock: no manifest at that tag; a manifest that does not register this
+driver's corpus / agent / two `CLAUDE.md` shas; a manifest registering a different `n`.
+
+`verify-b9-batch-guards.sh` goes 13 cases → **17, all passing**: N (no manifest), O (a different
+registered corpus), P (`n` mismatch), Q (the skip set, the seeded cost, a `null` cost **not** summed
+as zero, and the manifest byte-identical after a dry run). Q exists because the first version of the
+resume code appended its banner *before* the plan-only exit and a dry run mutated a real manifest;
+those three lines are kept in `batch-20260926T151319Z/manifest.tsv` with a correction beneath them
+rather than deleted (§6). Case O's first version changed the hash only in the header comment, left
+the real hash in the data rows, and **passed for the wrong reason** — a fixture reporting over a
+scope smaller than it claims, the house failure mode arriving inside its own control; it is fixed
+and the reason is a comment in the file.
+
+Hand re-verification of a green check, as §6 requires: the driver seeded BE-003 at **$0.5830**;
+`0.141425 + 0.149739 + 0.151752 + 0.140060 = 0.582976`, by hand, from the four manifest rows.
+
+**The launcher, not the script, fixes the deaths.** The resumed batch is started in its own process
+session (`python3 -c "os.setsid()"` — macOS has no `setsid`), so ending a claude session no longer
+signals it. The script does not do this for itself: a driver that detached itself would also be a
+driver no fixture could run in the foreground.

@@ -44,8 +44,23 @@
 #  11  a task's computed cost ceiling was reached before n per arm — the population that occurred
 #      is reported, as E-016 did at n = 7
 #  12  the preflight pair cost could not be read, so the ceiling cannot be computed (decision 13)
+#  13  --resume names a batch this driver may not join (no manifest, a different registered
+#      population, or a different n) — a resume that joined the wrong batch would pool two
+#      populations under one tag, which is the one thing a manifest exists to prevent
 #
-# Usage: evidence/b09/run-b9-batch.sh [N] [BE-003|BE-004 ...]      (N defaults to 10)
+# Usage: evidence/b09/run-b9-batch.sh [--resume <TAG>] [N] [BE-003|BE-004 ...]   (N defaults to 10)
+#
+# *** WHY --resume EXISTS, AND IT IS NOT A CONVENIENCE. *** This driver's runs are children of the
+# shell that launches it, and this project launches it from a claude session that the §0 phase-
+# boundary rule REQUIRES to end. Batch 20260926T151319Z was killed that way at 17:45:01Z with four
+# pairs' worth of runs recorded and a fifth run complete but unrowed; batch 20260926T133740Z died
+# three minutes in on the `rv` defect. Without resume the only ways forward are to re-run runs that
+# already happened — duplicate evidence that cannot be deleted (§6) — or to pool two batch tags by
+# hand. --resume re-enters the SAME manifest, skips every (task,seq,arm) cell already recorded in
+# it, and SEEDS the per-task cost so author decision 13's ceiling still bounds the whole batch and
+# not just the tail. The launcher must also detach the driver from the session's process group
+# (`setsid`-equivalent), or the next boundary kills it again; that is the launcher's job, not this
+# script's, and it is recorded in this stop's workbook.
 set -uo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit 1
@@ -68,6 +83,16 @@ export TEMPO_URL="http://localhost:3200"
 export OTLP_HTTP_ENDPOINT="${B9_OTLP:-http://localhost:4318}"
 export OTLP_GRPC_ENDPOINT="${B9_OTLP_GRPC:-http://localhost:4317}"
 EVENTS="$OBS/infra/telemetry-out/events.jsonl"
+
+RESUME_TAG="${B9_RESUME_TAG:-}"
+while [[ "${1:-}" == --* ]]; do
+  case "$1" in
+    --resume) RESUME_TAG="${2:-}"; shift 2 || true ;;
+    *) echo "run-b9-batch: unknown flag $1 (only --resume <TAG>)" >&2; exit 2 ;;
+  esac
+done
+[[ -n "$RESUME_TAG" && ! "$RESUME_TAG" =~ ^[0-9]{8}T[0-9]{6}Z$ ]] && {
+  echo "run-b9-batch: --resume wants a batch TAG like 20260926T151319Z, got '$RESUME_TAG'" >&2; exit 13; }
 
 N=10
 if [[ "${1:-}" =~ ^[0-9]+$ ]]; then N="$1"; shift; fi
@@ -175,6 +200,29 @@ done
 
 if [[ -n "${B9_GUARDS_ONLY:-}" ]]; then echo "guards-only: every guard passed and NOTHING was run"; exit 0; fi
 
+# --- RESUME VALIDATION, BEFORE THE ENDPOINTS AND BEFORE THE LOCK IS TAKEN. --------------------
+# These three refusals need no network and no run, so the fixture set can prove them. A resume is
+# only safe if the batch it joins is the SAME REGISTERED POPULATION — same corpus, same agent file,
+# same two CLAUDE.md shas, same n. Joining a differently-registered batch would put two populations
+# under one tag and no later reader could separate them.
+if [[ -n "$RESUME_TAG" ]]; then TAG="$RESUME_TAG"; else TAG="$(date -u +%Y%m%dT%H%M%SZ)"; fi
+EVID="${B9_EVID_ROOT:-$LAB/evidence/b09}/batch-$TAG"   # B9_EVID_ROOT is the fixture set's only
+MANIFEST="$EVID/manifest.tsv"                          # hook; the overlays stay real under $LAB.
+if [[ -n "$RESUME_TAG" ]]; then
+  [[ -f "$MANIFEST" ]] || { echo "ABORT: --resume $TAG names no manifest at $MANIFEST (exit 13)" >&2; exit 13; }
+  for pat in "$EXPECT_KNOWLEDGE_HASH" "$EXPECT_AGENT_HASH" "$EXPECT_INSTR_T" "$EXPECT_INSTR_C"; do
+    /usr/bin/grep -qF "$pat" "$MANIFEST" || {
+      echo "ABORT: $MANIFEST does not register $pat — this is not the same population (exit 13)" >&2; exit 13; }
+  done
+  mn="$(sed -n 's/^# B9 REGISTERED BATCH [0-9TZ]* *n=\([0-9]*\) .*/\1/p' "$MANIFEST" | head -1)"
+  [[ -n "$mn" ]] || { echo "ABORT: $MANIFEST has no 'n=' in its header line (exit 13)" >&2; exit 13; }
+  [[ "$mn" == "$N" ]] || {
+    echo "ABORT: $MANIFEST registers n=$mn and this invocation says n=$N. A resume may not change" >&2
+    echo "  the registered population size; pass the same N or start a new batch. (exit 13)" >&2; exit 13; }
+  echo "resume: $MANIFEST validated — same corpus, same agent file, same two CLAUDE.md shas, n=$mn"
+  if [[ -n "${B9_RESUME_VALIDATE_ONLY:-}" ]]; then echo "resume-validate-only: NOTHING was run"; exit 0; fi
+fi
+
 ac="$(curl -s -o /dev/null -w '%{http_code}' -m 10 "$API/api/runs?limit=1")"
 [[ "$ac" == "200" ]] || { echo "ABORT: API $API answered $ac, not 200" >&2; exit 7; }
 oc="$(curl -s -o /dev/null -w '%{http_code}' -m 10 -X POST -H 'Content-Type: application/json' \
@@ -183,15 +231,73 @@ oc="$(curl -s -o /dev/null -w '%{http_code}' -m 10 -X POST -H 'Content-Type: app
 
 echo $$ > "$LOCK"
 trap 'rm -f "$LOCK"' EXIT
-TAG="$(date -u +%Y%m%dT%H%M%SZ)"
-EVID="$LAB/evidence/b09/batch-$TAG"
 KEEPDIR="$LAB/evidence.local/b09-worktrees"
 SMALLDIR="$LAB/evidence/b09/worktrees"
-mkdir -p "$EVID/init-schema" "$KEEPDIR" "$SMALLDIR"
-MANIFEST="$EVID/manifest.tsv"
+mkdir -p "$EVID/init-schema" "$KEEPDIR" "$SMALLDIR"   # TAG, EVID and MANIFEST are set above, with
+                                                      # the resume validation that needs them.
 LAUNCH_CLAUDE="$(claude --version 2>/dev/null | awk '{print $1}')"
 events_bytes() { [[ -f "$EVENTS" ]] && wc -c < "$EVENTS" | tr -d ' ' || echo 0; }
 EVENTS_BEFORE="$(events_bytes)"
+
+# --- RESUME: JOIN THE SAME MANIFEST, OR REFUSE. ----------------------------------------------
+# The three refusals below are the whole point. A resume is only safe if the batch it joins is the
+# SAME REGISTERED POPULATION: same corpus, same agent file, same two CLAUDE.md shas, same n. A
+# resume that joined a differently-registered batch would put two populations under one tag, and no
+# later reader could separate them — the same defect as a control reporting over a scope smaller
+# than it claims, applied to a population instead of a check.
+declare -A SEEN=() TASK_COST_SEED=()
+H_SEED=0; DEN_SEED=0; NULLC_SEED=0
+RESUMED_ROWS=0
+if [[ -n "$RESUME_TAG" ]]; then
+  # Read EVERY seeded value BY COLUMN NAME. The b09 preflight reader was hard-coded to $13 for cost
+  # once already, two columns were inserted ahead of it, and the ceiling silently read $0.0000.
+  while IFS=$'\t' read -r k a b; do
+    case "$k" in
+      CELL)  SEEN["$a"]=1; RESUMED_ROWS=$((RESUMED_ROWS+1)) ;;
+      COST)  TASK_COST_SEED["$a"]="$b" ;;
+      H)     H_SEED="$a" ;;
+      DEN)   DEN_SEED="$a" ;;
+      NULLC) NULLC_SEED="$a" ;;
+    esac
+  done < <(awk -F'\t' '
+      !hdr && $1=="task" { for (i=1;i<=NF;i++) col[$i]=i; hdr=1; next }
+      hdr && $1 ~ /^BE-/ {
+        print "CELL\t" $1 "/" $(col["seq"]) "/" $(col["arm"]) "\t";
+        c = $(col["cost"]);
+        if (c ~ /^[0-9]+(\.[0-9]+)?$/) { cost[$1] += c } else { nullc++ }
+        if ($(col["arm"]) == "treated") {
+          if ($(col["log_lines"]) + 0 >= 1) h++;
+          if ($(col["router_denied"]) == "yes") den++;
+        }
+      }
+      END { for (t in cost) printf "COST\t%s\t%.4f\n", t, cost[t];
+            printf "H\t%d\t\n", h+0; printf "DEN\t%d\t\n", den+0; printf "NULLC\t%d\t\n", nullc+0 }
+    ' "$MANIFEST")
+  echo "resume: joining $MANIFEST — $RESUMED_ROWS rows already recorded"
+  for t in "${TASKS[@]}"; do
+    printf 'resume: %s already spent $%s of its ceiling\n' "$t" "${TASK_COST_SEED[$t]:-0}"
+  done
+  if [[ -n "${B9_RESUME_PLAN_ONLY:-}" ]]; then
+    echo "resume-plan:"
+    for t in "${TASKS[@]}"; do
+      for ((i=1;i<=N;i++)); do
+        s2="$(printf '%02d' "$i")"
+        for a in treated control; do
+          if [[ -n "${SEEN["$t/$s2/$a"]:-}" ]]; then echo "  SKIP $t $s2 $a"; else echo "  RUN  $t $s2 $a"; fi
+        done
+      done
+    done
+    echo "resume-plan: nothing was run"; exit 0
+  fi
+  {
+    printf '# RESUMED %s by run-b9-batch.sh --resume: %s rows already recorded, %s cells skipped\n' \
+      "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$RESUMED_ROWS" "$RESUMED_ROWS"
+    printf '# seeded into the ceiling:'
+    for t in "${TASKS[@]}"; do printf ' %s=$%s' "$t" "${TASK_COST_SEED[$t]:-0}"; done
+    printf '\n# claude %s at resume; the rows below this line were run after it\n' "$LAUNCH_CLAUDE"
+  } >> "$MANIFEST"
+fi
+if [[ -z "$RESUME_TAG" ]]; then
 {
   printf '# B9 REGISTERED BATCH %s  n=%s per arm per task, interleaved (author decision 9)\n' "$TAG" "$N"
   printf '# treated %s / control %s\n' "$OVERLAY_T" "$OVERLAY_C"
@@ -209,10 +315,14 @@ EVENTS_BEFORE="$(events_bytes)"
   printf '# prediction commit ef2c6c0 at 2026-09-26, BEFORE any run here\n'
   printf 'task\tseq\tarm\trun_id\trc\teval\tf13\tedits\truntime_ver\tmodel\tknowledge_hash\tinstr_hash\tagent_hash\tlog_state\tlog_lines\tlog_hits\tfirst_status\trouter_mentions\trouter_denied\tcorpus_match\tmodel_calls\ttool_calls\tcost\tduration_ms\tchanged\tinit_tools\tworktree\n'
 } > "$MANIFEST"
+fi
 
 api() { curl -s -m 20 "$API/api/runs/$1" 2>/dev/null; }
 declare -A TASK_COST=()
-H_COUNT=0
+for t in "${TASKS[@]}"; do TASK_COST["$t"]="${TASK_COST_SEED[$t]:-0}"; done
+H_COUNT="${H_SEED:-0}"
+DENIED_TREATED="${DEN_SEED:-0}"
+NULL_COST="${NULLC_SEED:-0}"
 
 one() {  # one <task> <arm> <seq>
   local task="$1" arm="$2" seq="$3" key log rc rid wt rec
@@ -363,12 +473,21 @@ finish() {
   exit "$code"
 }
 
+# A CELL ALREADY IN THIS BATCH'S MANIFEST IS NEVER RE-RUN. §0: "never re-run a benchmark run you
+# cannot prove failed to start, because a duplicate run is evidence you then cannot delete."
+cell() {  # cell <task> <arm> <seq>
+  if [[ -n "${SEEN["$1/$3/$2"]:-}" ]]; then
+    echo "  resume: SKIP $1 $3 $2 — already recorded in this batch's manifest"; return 0
+  fi
+  one "$1" "$2" "$3"
+}
+
 for idx in "${!CEIL_TASK[@]}"; do
   t="${CEIL_TASK[$idx]}"; cl="${CEIL_VAL[$idx]}"
   for ((i=1;i<=N;i++)); do
     s2="$(printf '%02d' "$i")"
-    one "$t" treated "$s2"
-    one "$t" control "$s2"
+    cell "$t" treated "$s2"
+    cell "$t" control "$s2"
     # Checked AFTER the pair so the arms stay balanced: stopping between a control and its treated
     # partner would leave an unpaired run in a batch whose whole design is interleaving.
     if ceiling_reached "${TASK_COST[$t]:-0}" "$cl"; then
