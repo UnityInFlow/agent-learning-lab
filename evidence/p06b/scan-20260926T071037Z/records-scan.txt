@@ -1,0 +1,11 @@
+mode: records
+  runs-snapshot.json  sha256:6d1aa161b76c9d33  records=652 unparsable=0 strings=13754 strict=2246 loose=28
+population: run_ids=652 records=652
+scanned: string_values=13754
+hits: strict=2246 loose_only=28
+hits by JSON key:
+  strict    2246  result.changedFiles[]   e.g. sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+  loose       27  result.changedFiles[]
+  loose        1  humanReviews[].notes
+verdict: DETECTOR FIRED — at least one value names a file.
+records-half TRUE EXIT=3

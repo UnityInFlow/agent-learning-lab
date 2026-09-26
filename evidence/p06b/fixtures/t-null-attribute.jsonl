@@ -1,0 +1,1 @@
+{"resourceLogs": [{"scopeLogs": [{"logRecords": [{"body": {"stringValue": "x"}, "attributes": [null, {"key": "tool_name", "value": {"stringValue": "Read"}}, {"key": "observatory.run.id", "value": {"stringValue": "run-null"}}]}]}]}]}

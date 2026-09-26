@@ -1,0 +1,54 @@
+# verify-rerun.txt — §5's 'run every verification command again immediately before writing done'
+# Re-run by Opus 5 (claude-opus-5), autonomously, 2026-09-26T07:15:04Z, spine stop 19, Lab 6B.6.
+
+$ shellcheck evidence/p06b/retrieval-trace-probe.sh evidence/p06b/verify-retrieval-trace-probe.sh
+exit=0  (no output above = clean)
+
+$ ./evidence/p06b/verify-retrieval-trace-probe.sh
+ok    path in a Read attribute           exit 3  ./retrieval-trace-probe.sh telemetry ./fixtures/t-path-attr.jsonl
+ok    path in a log record body          exit 3  ./retrieval-trace-probe.sh telemetry ./fixtures/t-path-body.jsonl
+ok    path in resource attributes        exit 3  ./retrieval-trace-probe.sh telemetry ./fixtures/t-path-resource.jsonl
+ok    bare filename, LOOSE only          exit 3  ./retrieval-trace-probe.sh telemetry ./fixtures/t-bare-filename.jsonl
+ok    path in a non-Read event           exit 3  ./retrieval-trace-probe.sh telemetry ./fixtures/t-path-in-bash-event.jsonl
+ok    paths in result.changedFiles       exit 3  ./retrieval-trace-probe.sh records ./fixtures/r-changed-files.json
+ok    Read events, no file named         exit 0  ./retrieval-trace-probe.sh telemetry ./fixtures/t-no-path.jsonl
+ok    a record naming no file            exit 0  ./retrieval-trace-probe.sh records ./fixtures/r-no-paths.json
+ok    zero Read events                   exit 4  ./retrieval-trace-probe.sh telemetry ./fixtures/t-no-read-events.jsonl
+ok    zero run records                   exit 4  ./retrieval-trace-probe.sh records ./fixtures/r-empty.json
+ok    telemetry, not JSON                exit 5  ./retrieval-trace-probe.sh telemetry ./fixtures/t-malformed.jsonl
+ok    telemetry, empty file              exit 5  ./retrieval-trace-probe.sh telemetry ./fixtures/t-empty.jsonl
+ok    telemetry, blank lines only        exit 5  ./retrieval-trace-probe.sh telemetry ./fixtures/t-blank-lines.jsonl
+ok    records, not JSON                  exit 5  ./retrieval-trace-probe.sh records ./fixtures/r-malformed.json
+ok    no arguments                       exit 2  ./retrieval-trace-probe.sh
+ok    mode with no file                  exit 2  ./retrieval-trace-probe.sh telemetry
+ok    unknown mode                       exit 2  ./retrieval-trace-probe.sh corpus ./fixtures/t-no-path.jsonl
+ok    input file does not exist          exit 2  ./retrieval-trace-probe.sh telemetry ./fixtures/does-not-exist.jsonl
+ok    records mode, two inputs           exit 2  ./retrieval-trace-probe.sh records ./fixtures/r-no-paths.json ./fixtures/r-empty.json
+ok    hit in the second input only       exit 3  ./retrieval-trace-probe.sh telemetry ./fixtures/t-no-path.jsonl ./fixtures/t-path-body.jsonl
+
+verify-retrieval-trace-probe.sh: 20 passed, 0 failed
+exit=0
+
+$ ./evidence/p06b/retrieval-trace-probe.sh records evidence/p06b/scan-20260926T071037Z/runs-snapshot.json
+mode: records
+  runs-snapshot.json  sha256:6d1aa161b76c9d33  records=652 unparsable=0 strings=13754 strict=2246 loose=28
+population: run_ids=652 records=652
+scanned: string_values=13754
+hits: strict=2246 loose_only=28
+hits by JSON key:
+  strict    2246  result.changedFiles[]   e.g. sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+  loose       27  result.changedFiles[]
+  loose        1  humanReviews[].notes
+verdict: DETECTOR FIRED — at least one value names a file.
+exit=3
+
+$ ./evidence/p06b/retrieval-trace-probe.sh telemetry <all three events files>
+mode: telemetry
+  events.jsonl  sha256:3156b7521c968ede  batches=3216 unparsable=0 strings=698879 read_events=3616 strict=0 loose=0
+  events-2026-09-05T08-34-36.268.jsonl  sha256:e59223998a8ea89a  batches=3925 unparsable=0 strings=996693 read_events=3966 strict=0 loose=0
+  events-2026-09-08T13-05-27.487.jsonl  sha256:ac4387208ed77e23  batches=4455 unparsable=0 strings=962728 read_events=5312 strict=0 loose=0
+population: run_ids=638 read_events=12894
+scanned: string_values=2658300
+hits: strict=0 loose_only=0
+verdict: NO FILE-NAMING VALUE FOUND over a non-empty population.
+exit=0

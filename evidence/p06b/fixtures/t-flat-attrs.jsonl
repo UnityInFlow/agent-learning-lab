@@ -1,0 +1,1 @@
+{"resourceLogs": [{"resource": {"attributes": [{"key": "service.name", "value": "claude-code"}]}, "scopeLogs": [{"logRecords": [{"body": {"stringValue": "claude_code.tool_decision"}, "attributes": [{"key": "tool_name", "value": "Read"}, {"key": "observatory.run.id", "value": "run-flat"}]}]}]}]}

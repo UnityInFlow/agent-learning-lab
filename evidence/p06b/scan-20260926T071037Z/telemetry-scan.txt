@@ -1,0 +1,9 @@
+mode: telemetry
+  events.jsonl  sha256:3156b7521c968ede  batches=3216 unparsable=0 strings=698879 read_events=3616 strict=0 loose=0
+  events-2026-09-05T08-34-36.268.jsonl  sha256:e59223998a8ea89a  batches=3925 unparsable=0 strings=996693 read_events=3966 strict=0 loose=0
+  events-2026-09-08T13-05-27.487.jsonl  sha256:ac4387208ed77e23  batches=4455 unparsable=0 strings=962728 read_events=5312 strict=0 loose=0
+population: run_ids=638 read_events=12894
+scanned: string_values=2658300
+hits: strict=0 loose_only=0
+verdict: NO FILE-NAMING VALUE FOUND over a non-empty population.
+telemetry-half TRUE EXIT=0

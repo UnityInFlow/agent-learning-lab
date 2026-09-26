@@ -37,12 +37,20 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
-**Spine 18 of 28. Positions 4–18 CLOSED — 18 (Phase 6A — code intelligence) closed 2026-09-25 with
-its exit gate answered on all four clauses and one lab run, `n = 0` on the agent under test. NOTHING
-is blocked on the author.** `lab#8` **stays open**: the spine funds one lab per Track A stop and
-labs 6.1–6.4 are deferred, which §4 step 14 says keeps a Phase issue open. The next stop is
-**19 (Phase 6B — knowledge retrieval, READ PATH ONLY)**, and nothing of it exists — §6 forbids a
-future step's artifacts early.
+**Spine 19 of 28. Positions 4–19 CLOSED — 19 (Phase 6B — knowledge retrieval, read path) closed
+2026-09-26 with four of six exit-gate clauses answered from measurement, one from reading and
+labelled L3, one recorded UNANSWERABLE with its reason, and one lab run at `n = 0` on the agent
+under test and $0 spent. NOTHING is blocked on the author.** `lab#16` **stays open**: all five of
+the author's stub labs are deferred and one gate clause cannot be met from measurement here, and
+§4 step 14 closes a Phase issue only when its gate is met. `lab#8` also **stays open** from stop
+18, for the same reason. The next stop is **20 (B9 — knowledge router)**, and nothing of it exists
+— §6 forbids a future step's artifacts early. **B9 owes an instrument that can record a retrieval
+before its prediction commit, and stop 19 measured that the harness cannot record one at all.**
+
+*(Superseded, kept:)* "Spine 18 of 28. Positions 4–18 CLOSED — 18 (Phase 6A — code intelligence)
+closed 2026-09-25 with its exit gate answered on all four clauses and one lab run, `n = 0` on the
+agent under test. NOTHING is blocked on the author. `lab#8` stays open. The next stop is 19 (Phase
+6B — knowledge retrieval, READ PATH ONLY), and nothing of it exists."
 
 *(Superseded, kept:)* "Spine 17a of 28. Positions 4–17a CLOSED — 17a (B8a — decomposition depth)
 closed 2026-09-25 with the verdict `NO ROW FIRES` and the ladder shut. NOTHING is blocked on the
@@ -117,6 +125,135 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## Stop 19 — Phase 6B CLOSED: the instrument cannot name what a run read, and the detector that says so survived being widened twice — 2026-09-26
+
+`Written by Opus 5 (claude-opus-5), autonomously, 2026-09-26. The author did not review before
+the close.`
+
+**Closed at §4 step 14. Exit gate answered on four of six clauses from measurement, one from
+reading and labelled L3, one recorded UNANSWERABLE with its reason. `lab#16` stays OPEN** — all
+five of the author's stub labs (6B.1–6B.5) are deferred, and one exit-gate clause cannot be met
+from measurement at this stop, and §4 step 14 closes a Phase issue only when its gate is met.
+Workbook: `phases/06b-knowledge-retrieval/README.md`. Row file: `findings/track-b-2026-09-26.md`.
+No experiment file: this stop registered a **census with a disclosed pilot**, not an experiment,
+and says so in a named subsection.
+
+**`n = 0` on the agent under test, and $0 spent.** No model was invoked at this stop. Every byte
+read was written by runs that finished before it opened. Nothing here enters any B step's
+comparison.
+
+### What was measured
+
+Extract finding 3 concluded — from three source files and one `grep` — that *"given a run, this
+instrument cannot say which file it read"*. **B9's gate at stop 20 rests entirely on that being
+true**, and a negative finding about an instrument is the one kind a single `grep` can
+manufacture: a scan that finds nothing and a scan that looks at nothing print the same thing.
+
+Lab 6B.6 replaced the reading with a probe proved able to fire, over two stages of the same
+pipeline with the stage as the only variable.
+
+| Half | Population | Hits | Exit |
+|---|---|---|---|
+| **Telemetry** — all three `events*.jsonl`, pinned by sha256 | **638 run ids, 12 894 `Read` events**, 71 353 log records, 25 817 recognised `tool_name` attributes, 2 658 300 string values | **0**, at all three sensitivities: `strict=0 loose_only=0`, **`pathy=0`**, `read_scoped_pathy=0` | 0 |
+| **Records** — 652 run records from the API | 652 records, 13 754 string values | **2 246 path-shaped**, and **every single one under `result.changedFiles[]`** — git diff output, i.e. **writes** | 3 |
+
+**The instrument records what a run changed. It cannot record what a run read.** The positive
+control is not a fixture: it is the 2 246 real paths in the same runs' records, which prove the
+detector sees paths in this pipeline wherever paths survive. The only leakage about a read
+*target* anywhere is an `error_type` on 94 of 3 616 Read events — 92 `Error:EISDIR`, 2
+`TelemetrySafeError` — disclosing that the target was a **directory** and never which one.
+
+Three causes, only one of which is a defect: a **deliberate** scrub of `tool.arguments` at
+`infra/otel-collector/config.yaml:48`, which is **L1 against recording** and therefore wins;
+`toolBreakdown` computed at `claude-telemetry.sh:136-138` and then not a member of `Behavior`; and
+no run-record key that can carry a read.
+
+### What §4a did to it, in three rounds
+
+**19 findings, every one a real defect, all fixed, none disputed.** Two were crashes on exit codes
+the probe does not register (`[]` as a JSONL line; a `None` inside an attributes array). Five were
+unanchored `grep -E` assertions in the verifier that accepted `loose_only=10` where `1` was
+expected — five assertions that looked like measurements and were prefix tests. Four were schema
+guards that reported a moved schema as an *empty population*, which is the exact conflation the
+guard existed to prevent.
+
+**And one bounded the result.** Round 3 found that an extensionless target — `/repo/README`,
+`Makefile` — scored **zero** under both detector sensitivities. A third, **`PATHY`**, was added
+with no extension requirement at all, deliberately over-inclusive enough that `2026/09/26`
+matches it, and **the population was re-scanned: `pathy: total=0`.** The null survived a detector
+that would have fired on a date, which makes it stronger than it was before the review.
+
+**Not one of the 19 changed what the probe found.** `12 894 Read events, 0 hits` held across all
+four versions. They changed what it would have found on inputs this data does not contain.
+
+**Where §4a ended, recorded as §4a requires and not rounded up:** round 3 returned **REJECT** on
+the probe, its findings were fixed, and the three-round budget is spent — so the final state of
+the two gate scripts is **revised and unreviewed**, which §4a says is *"recorded as such and is
+not a pass."* They are instruments, not registered variables; no arm, rubric or gate answer
+depends on their acceptance.
+
+### What stop 20 (B9) inherits
+
+1. **Build a retrieval record; do not tune one.** The clause *"retrieval order recorded per run"*
+   is not closable at any fidelity by this harness. The two routes that are **not** the author's:
+   promote the already-computed `toolBreakdown` into the `Run` type, or have the router write its
+   log inside the run's own tree. **Loosening the scrub is a repo-convention change and is
+   yours** (author note H).
+2. **Register an outcome that is a property of the run, not a hit rate.** Finding 6: retrieval's
+   payload is prose placed into context, and this instrument has measured that as null twice —
+   E-003 `REJECT` at `n = 10` per arm, E-009 at 0 of 10 with the words verbatim. **B9 can pass
+   every clause of its gate and have changed nothing.** The workbook now also names the limit of
+   that transfer: both nulls were *unconditional* delivery and retrieval is *conditional*, and
+   finding 7 says just-in-time has never been a treatment here. It is a strong prior, not a result.
+3. **No baseline exists.** There is no router and no stored hit rate. B9's first number is a first
+   measurement.
+4. **A per-file telemetry count is not a per-run count across a rotation boundary** — one run id
+   spans two of the three files on disk.
+
+### Four false readings in one stop, every one killed by looking a second way
+
+This is the stop's methodological result and it is recorded in the learning block rather than
+smoothed out. One query showed `SendMessage`/`ListAgents`/`Monitor` events carrying a
+`benchmark.id` and I concluded the run stream was **contaminated by my own session**; the second
+query showed fifteen single-session `claude-haiku-4-5-20251001` runs of `b8a-pipeline-v1.0` and
+`blocked-deny-5b5` using the pipeline arm's **own** delegation tools. A flat `pgrep` showed two
+`opencode-review.sh` processes on one artifact — this machine's known stall mode — and
+`ps -o pid,ppid` showed the second is a **child** of the first. And **twice my own prose
+arithmetic was the defect**: `639` distinct telemetry run ids is a **sum** of three per-file
+counts where the union is **638**, and *"14 records have no telemetry"* is a **difference of two
+population sizes** where the computed answer is 34 without telemetry, 20 telemetry ids with no
+record at all, intersection 618. The orchestrator's prose arithmetic is the one surface in this
+project with no verifier, and `evidence/p06b/population-overlap.sh` exists because of it.
+
+**A fifth, about the harness, and it cost a re-run.** §4a says a header-only findings file is a
+stall. I read one at 776 bytes with 0 sections and called it a stall; it is 23 063 bytes with an
+**ACCEPT**. A subagent called another a stall at 895 bytes; it is 15 570 with four blocking
+findings. **Both were still being written.** The documented stall signature and a mid-write read
+are byte-for-byte identical, and the precondition that separates them — the process has exited —
+is the easy thing to skip, on a machine where `pgrep` is locale-blind and a wait loop containing
+the word `opencode` matches its own shell forever.
+
+### What is BLOCKED ON YOU
+
+**Nothing is blocked.** Two author notes were added and neither gates anything:
+
+- **Item J — 20 telemetry run ids have no run record at all** (and 34 records have no telemetry
+  left, explainable by log rotation; the 20 are not explained by anything measured). Computed, not
+  inferred. Same *shape* as the retracted 2026-09-06 "database loss", flagged because B9 will read
+  telemetry per run. Not diagnosed here.
+- **Item K — the workspace-root `CLAUDE.md` status paragraph is stale by seven stops**, reading
+  *"position 12 (B5), NOT OPENED"*. **Not edited**, and not out of timidity: that root is not a git
+  repository, so an edit there is untracked, unreviewable and outside §4a. The paragraph already
+  records its own lesson twice — *"should be generated from `TRACK-B-STATE.md`, not maintained by
+  hand"* — and it has now gone stale four times the same way. The fix is a generator; which of the
+  three repos it lives in is yours.
+- **Still expected and still yours:** the board republish (decision 12 item 4), so
+  `check-board-freshness.sh` stays red on this PR; and `verify-codex-isolation.sh`'s
+  nondeterminism, which blocks stop 21's codex arm — sixteen invocations over four sessions have
+  now returned `ok`, `leak` and `INCONCLUSIVE` on an unchanged machine, and this session the leak
+  exited **2** where last session all three exited **0**, so *"the exit code is not the verdict"*
+  does not generalise.
 
 ## Stop 18 — Phase 6A CLOSED: the documented MCP safeguard does not exist in the mode this project runs, and the flag that replaces it walks further than anyone wrote down — 2026-09-25
 

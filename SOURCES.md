@@ -201,6 +201,7 @@ Added from labs and extracts. None of these are in `CURRICULUM.md`. All verified
 |---|---|---|
 | ✅ | [Anthropic — Effective context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) | **Context rot**, and the four strategies. The theory Phase 1 tests. Extracted in [0A](phases/00a-agent-mechanics/) |
 | ↪️ | [Model Context Protocol spec](https://modelcontextprotocol.io/specification/latest) → `/specification/2026-07-28` | The protocol itself, not a vendor's wrapper. **`latest` is a moving target** — cite the dated revision in anything you intend to reproduce |
+| ✅ | [MCP spec — Resources, `2026-07-28`](https://modelcontextprotocol.io/specification/2026-07-28/server/resources) | MCP's **read path** — `resources/list`, `resources/read`, `annotations.priority`. **Its five Security Considerations are all server-side and none is about the content.** Extracted in [6B](phases/06b-knowledge-retrieval/#extract) |
 | ✅ | [LSP 3.17 specification](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/) | Why symbol intelligence differs from text search, at the wire level |
 
 ### Security and trust
@@ -237,8 +238,18 @@ Added from labs and extracts. None of these are in `CURRICULUM.md`. All verified
 | [4A](phases/04a-agents-permissions/#extract) | Claude Code subagents |
 | [4B](phases/04b-orchestration/#extract) | Multi-agent research system |
 | [5A](phases/05a-guardrails/#extract) | Claude Code hooks |
+| [5B](phases/05b-verification-selfhealing/#extract) | `permissions.deny` and where BLOCKED is recorded |
+| [6A](phases/06a-code-intelligence/#extract) | LSP 3.17 · Claude Code MCP · the MCP spec's enforcement clauses |
+| [6B](phases/06b-knowledge-retrieval/#extract) | Context engineering · the lethal trifecta · the MCP spec's resources page |
 | [8](phases/08-agentic-workflows/#extract) | gh-aw safe outputs |
 | [9](phases/09-memory/#extract) | Claude Code memory |
 | [10](phases/10-production-observability/#extract) | Claude Code monitoring usage |
 
-**Still without an extract:** 5B, 6A, 6B, 7 — tracked in issue #17.
+**Still without an extract:** 7 — tracked in issue #17.
+
+*(Corrected 2026-09-25 by Opus 5 (claude-opus-5), autonomously, at spine stop 19. This line read
+**"5B, 6A, 6B, 7"** and three of those four had extracts: 5B was written at stop 16, 6A at stop 18,
+6B at this stop. The three missing rows are added to the table above. Nothing executes to catch a
+stale line here — `check-links.sh` verifies URLs, not claims about this repository — so this is
+**L3**, and it went stale for the same reason the workspace `CLAUDE.md` position line has gone
+stale three times: a hand-maintained summary of state that lives somewhere other than the state.)*
