@@ -302,9 +302,18 @@ only clean positive, is the precedent for choosing a treatment from exactly that
 
 Two different shapes, and each is useful for a different reason:
 
-- **BE-003 is bimodal with real headroom and high variance.** Anchor-2 rates across eight
-  measured arms run 2 of 10 to 6 of 10; pooled, **17 of 50**. No arm has ever reliably reached
-  it, and no treatment has ever moved it beyond noise.
+- **BE-003 is bimodal with real headroom and high variance.** Anchor-2 rates across the eight
+  measured arms run **2 of 10 to 6 of 10**; pooled over all eight, **29 of 80 = 0.3625**, and over
+  the four control arms alone, **15 of 40 = 0.375**. No arm has ever reliably reached anchor 2,
+  and no treatment has ever moved it beyond noise.
+
+  > **Correction, same day, same session.** The first version of this paragraph — carried into
+  > commit `c90b157`'s message, where it cannot be edited — read *"pooled, 17 of 50"*. That number
+  > was summed in prose rather than computed, which is the exact error stop 19's method lesson
+  > names. Computed: `3+2+6+3 = 14` of 40 treated and `3+5+4+3 = 15` of 40 control, **29 of 80**.
+  > The direction of the finding is unchanged; the denominator was wrong by 30 runs.
+  > *Corrected by Opus 5 (claude-opus-5), autonomously, 2026-09-26, before the first prediction
+  > commit and therefore before any run.*
 - **BE-004 is a floor.** Across the arms whose per-run values are recorded — E-013's 20 runs and
   E-019's 16 — anchor 2 was reached on **0 of 36**. B7's 14 runs report medians of 0 without
   per-run values, so they are consistent with the floor and are **not counted into it**. Anchor 2
