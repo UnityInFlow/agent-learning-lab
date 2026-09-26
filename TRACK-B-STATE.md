@@ -1860,8 +1860,10 @@ last_verified: "2026-09-26, STOP 19 §4 STEPS 2-13. EVERY NUMBER BELOW WAS PRODU
       place paths survive.
   (5) SO EXTRACT FINDING 3 IS UPHELD AND ITS LAYER RISES FROM L3 TO L2, and B9's gate clause
       `retrieval order recorded per run` is NOT closable by this harness at any fidelity. Zero. The
-      only leakage about a read TARGET anywhere is error_type=Error:EISDIR on 94 of the 3 616 Read
-      events in the newest file, which discloses that the target was a DIRECTORY and never which one.
+      only leakage about a read TARGET anywhere is an error_type on 94 of the 3 616 Read events in the
+      newest file - 92 Error:EISDIR and 2 TelemetrySafeError, RE-DERIVED SEPARATELY because my first
+      write said `Error:EISDIR on 94` and the 94 is the count with ANY error_type - which discloses
+      that the target was a DIRECTORY and never which one.
   (6) THE REGISTERED PREDICTION IS REFUTED, on one number of six. The only thing registered before
       the probe ran was a REPLICATION - `the probe re-derives all six pilot numbers exactly`. The
       pilot said 639 distinct telemetry run ids; the probe says 638. *** THE PROBE IS RIGHT. ***
@@ -3968,7 +3970,31 @@ blocked_on_author: []   # *** EMPTY as of 2026-09-25. *** The single item that w
     #29 merged at eea144ef and its verifier re-run on main at 12 of 12). Plus Gate B before any of it
   # SUPERSEDED, kept not deleted: blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
-author_notes:
+author_notes:   # 2026-09-26 items first, then the carried ones. NONE of these gates anything (§7).
+  - "ITEM J, NEW 2026-09-26 — *** 20 TELEMETRY run ids HAVE NO RUN RECORD AT ALL, AND 34 RECORDS HAVE
+     NO TELEMETRY LEFT ON DISK. *** Computed, not inferred, by evidence/p06b/population-overlap.sh:
+     652 records, 638 telemetry run ids, intersection 618. The 34 are explainable by log rotation -
+     two of the three events*.jsonl files are rotations and older runs' events are gone. THE 20 ARE
+     NOT EXPLAINED BY ANYTHING I MEASURED: telemetry exists for twenty runs the API does not serve.
+     Candidate explanations I did NOT test, listed so nobody reads this as a diagnosis: probe or
+     preflight runs that emitted telemetry and never POSTed a record; runs whose POST failed
+     (run-agent.sh:1177 POSTs and archives no copy - HANDOFF item 00b, the exposure that survived the
+     retracted 2026-09-06 `database loss`); or records trimmed by a limit=1000 that 652 does not
+     reach. NOT a §7 halt, NOT a blocker, and NOT acted on at this stop - §6 forbids a future step's
+     artifacts and this is stop 20's territory if it is anyone's. Flagged because it is the same
+     SHAPE as the 2026-09-06 scare and because B9 will be reading telemetry per run."
+  - "ITEM K, NEW 2026-09-26 — THE WORKSPACE-ROOT CLAUDE.md STATUS PARAGRAPH IS STALE AGAIN, now by
+     SEVEN stops: it reads `position 12 (B5), NOT OPENED` and the state file says stop 19, §4 steps
+     2-13 complete. *** I DID NOT EDIT IT, AND THE REASON IS NOT TIMIDITY. *** The workspace root is
+     NOT A GIT REPOSITORY (its own CLAUDE.md says so), so an edit there is untracked, unreviewable
+     and unattributable - there is no PR for it and §4a cannot read it. The two previous corrections
+     were made AT THE AUTHOR'S DIRECTION, and the paragraph itself already records its own lesson
+     twice over: `a status line a reader trusts without checking should be GENERATED from
+     TRACK-B-STATE.md, not maintained by hand. Until it is, treat this paragraph as a hint and the
+     state file as the fact.` It has now gone stale FOUR times in the same way. The fix is a
+     generator, it belongs in a tracked repo, and choosing where is the author's - it spans all
+     three."
+# SUPERSEDED HEADER LINE, kept not deleted (its items follow below and are unchanged): author_notes:
   - "H - 2026-09-25, STOP 19, AND IT IS A REPO-CONVENTION QUESTION, NOT A DEFECT. Recording what an
     agent RETRIEVED requires the tool argument, and the OTel collector DELIBERATELY deletes it:
     infra/otel-collector/config.yaml:48,50,52 remove tool.arguments, tool.result, code.content and

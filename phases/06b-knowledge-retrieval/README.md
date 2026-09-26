@@ -516,8 +516,8 @@ measured, not read off a config file.**
 - In **12 894 `Read` events across 638 runs**, not one value at either sensitivity names a file.
   The only argument-derived attribute that survives the collector's scrub is
   `tool_input_size_bytes` — a byte count. The only leakage of the *target* observed at all is
-  `error_type = Error:EISDIR` on 94 of the 3 616 Read events in the newest file, which discloses
-  that the target was a **directory** and never which one.
+  an `error_type` on **94 of the 3 616** Read events in the newest file — **92 `Error:EISDIR`** and
+  2 `TelemetrySafeError` — which discloses that the target was a **directory** and never which one.
 - In the **same runs' records**, 2 246 path-shaped values exist. Every single one is a write.
   **That is the positive control, and it comes from the real data rather than from a fixture:**
   the detector demonstrably sees paths in this pipeline, in the place where paths survive.
@@ -559,8 +559,9 @@ has no verifier.
    spans two of the three files on disk today. Any B9 number computed per-file and summed
    double-counts it. This is latent rather than actual — §4b's telemetry route names one file —
    and it is recorded so B9 does not meet it late.
-3. **`error_type` is the one channel that leaks anything about a read target** (94 of 3 616
-   events, and only its *kind*). If B9 ever wants a zero-cost partial signal, that is where the
+3. **`error_type` is the one channel that leaks anything about a read target** — 94 of 3 616
+   events carry one at all, 92 of them `Error:EISDIR` and 2 `TelemetrySafeError`, and it discloses
+   only the target's *kind*. If B9 ever wants a zero-cost partial signal, that is where the
    only one is, and it is not enough to close the clause.
 
 ## Exit gate — answered from evidence, §4 step 11
@@ -666,7 +667,16 @@ learning:
     records with no telemetry on disk and 20 telemetry run ids with NO record at all. A
     difference of two population sizes is a net, never a count of the missing members — and
     twice now in one stop, the orchestrator's prose arithmetic was the defect. Both were caught
-    by choosing to compute instead of argue, which is the only control this surface has.
+    by choosing to compute instead of argue, which is the only control this surface has. (5) A
+    THIRD IMPRECISION IN THE SAME PROSE, caught by re-deriving a number already written into three
+    files: `error_type = Error:EISDIR on 94 of 3 616` conflates two counts — 94 Read events carry
+    an error_type AT ALL, of which 92 are Error:EISDIR and 2 are TelemetrySafeError. Corrected in
+    every place it had been written. (6) AND THE SAME PATTERN ON A PROCESS LISTING: a flat
+    LC_ALL=C pgrep during §4a showed two opencode-review.sh processes on one artifact, which is
+    this machine's known stall mode, and I read it as a duplicate review. `ps -o pid,ppid` settled
+    it in one command — the second process is a CHILD of the first, the same script re-entering for
+    its acceptance-gate stage. Nothing was killed. FOUR false readings in one stop, every one
+    killed by looking a second way, and none of them reached a gate answer.
   keep_or_remove: >
     KEEP the probe and its fixtures — they are the evidence for a claim stop 20 must act on,
     they are re-runnable by a stranger in one command, and they cost nothing to keep. KEEP the
