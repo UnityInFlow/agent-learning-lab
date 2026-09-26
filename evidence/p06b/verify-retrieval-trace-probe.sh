@@ -23,9 +23,14 @@
 #   THE DETECTOR FIRES, and where:  "path in a Read attribute", "path in a log record
 #       body", "path in resource attributes", "bare filename, LOOSE only", "path in a
 #       non-Read event", "paths in result.changedFiles"
-#   THE TWO SENSITIVITIES ARE DISTINGUISHABLE:  "STRICT stays silent where LOOSE fires"
-#       and "STRICT fires on a separator path" assert the whole printed `hits:` line.
-#       Without them a probe whose STRICT regex had collapsed into LOOSE would pass.
+#   THE THREE SENSITIVITIES ARE DISTINGUISHABLE:  "STRICT stays silent where LOOSE fires",
+#       "STRICT fires on a separator path" and "a root-relative path matches STRICT" assert
+#       the whole printed `hits:` line. Without them a probe whose STRICT regex had
+#       collapsed into LOOSE would pass.
+#   AN EXTENSIONLESS TARGET CANNOT HIDE:  "an extensionless path fires PATHY only" — a Read
+#       of `/repo/README` scores zero under STRICT and LOOSE, which §4a round 3 found would
+#       have made the null narrower than the header claimed. PATHY closes it, and this case
+#       is what proves PATHY is wired in rather than merely defined.
 #   A HIT IS LOCATED WITHIN A READ EVENT, AT TWO SCOPES:  "a path in a Read ATTRIBUTE is
 #       attributed", "a path in a Read BODY is any-scoped but not attributed", and "a hit
 #       on a non-Read event is neither". The probe LOCATES; it does not claim the hit IS
@@ -91,7 +96,8 @@ check_line() {
   else
     printf 'FAIL  %-46s no line equals %q\n' "$desc" "$expect"
     printf '      counter lines were: %s\n' \
-      "$(grep -E '^(hits|read_scoped_any|read_scoped_attr|population):' <<<"$out" | tr '\n' '|')"
+      "$(grep -E '^(hits|pathy|read_scoped_any|read_scoped_attr|read_scoped_pathy|population):' \
+          <<<"$out" | tr '\n' '|')"
     fail=$((fail + 1))
   fi
 }
@@ -119,6 +125,27 @@ check 3 "path in resource attributes"         "$PROBE" telemetry "$FIX/t-path-re
 check 3 "bare filename, LOOSE only"           "$PROBE" telemetry "$FIX/t-bare-filename.jsonl"
 check 3 "path in a non-Read event"            "$PROBE" telemetry "$FIX/t-path-in-bash-event.jsonl"
 check 3 "paths in result.changedFiles"        "$PROBE" records   "$FIX/r-changed-files.json"
+
+# --- an extensionless target must not be invisible (§4a round 3) ---
+check 3 "an extensionless path is seen at all"  "$PROBE" telemetry "$FIX/t-extensionless-path.jsonl"
+check_line "and it fires PATHY only"           "hits: strict=0 loose_only=0" \
+  "$PROBE" telemetry "$FIX/t-extensionless-path.jsonl"
+check_line "with exactly one PATHY hit"        "pathy: total=1 distinct_keys=1" \
+  "$PROBE" telemetry "$FIX/t-extensionless-path.jsonl"
+
+# --- a root-relative single-component path must match STRICT, as the header says ---
+check_line "a root-relative path matches STRICT" "hits: strict=1 loose_only=0" \
+  "$PROBE" telemetry "$FIX/t-root-relative-path.jsonl"
+
+# --- a None inside the attributes array must not CRASH (it used to exit 1) ---
+check 0 "a null inside the attributes array"   "$PROBE" telemetry "$FIX/t-null-attribute.jsonl"
+check_field "and the Read event is still seen" read_events 1 \
+  "$PROBE" telemetry "$FIX/t-null-attribute.jsonl"
+
+# --- an EMPTY list under the first known key must not hide runs under the second ---
+check 0 "empty first key, runs under the second" "$PROBE" records "$FIX/r-empty-first-key.json"
+check_field "and that run is counted"          records 1 \
+  "$PROBE" records "$FIX/r-empty-first-key.json"
 
 # --- the two sensitivities must be DISTINGUISHABLE, by exact line ---
 check_line "STRICT stays silent where LOOSE fires" "hits: strict=0 loose_only=1" \
