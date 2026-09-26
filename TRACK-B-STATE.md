@@ -107,7 +107,53 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running   # *** THE BATCH IS RUNNING AGAIN, AND THIS TIME IT IS DETACHED FROM THIS SESSION. ***
+status: running   # *** §0 BOUNDARY 2 FOR STOP 20. THE BATCH IS FINISHED, ALL 40 RUNS ARE RECORDED,
+                  # AND THE TURN ENDS HERE BECAUSE §0 SAYS IT DOES. *** Not a halt:
+                  # blocked_on_author IS EMPTY, no §7 bullet is matched, prompt_sha a47590a1e61d
+                  # re-computed at the top of this session and UNCHANGED, all 22 validator files
+                  # re-checked BY NAME and none is new (newest still 2026-09-08).
+                  #
+                  # *** BATCH DONE 2026-09-26T19:57:07Z, EXIT 0, 40 OF 40 CELLS. *** tag
+                  # 20260926T151319Z. The detach held: the batch outlived the session that resumed
+                  # it, which is what the previous session built detach.py to prove. Lock released
+                  # (evidence/b09/.batch.lock is GONE), and LC_ALL=C pgrep finds nothing of ours.
+                  #
+                  # *** THE REGISTERED DECISION RULE IS DECIDED BY UPTAKE ALONE, AND UPTAKE IS
+                  # 3 OF 20 TREATED RUNS. *** H = 2 of 10 on BE-003 and 1 of 10 on BE-004.
+                  # E-022 row 0 is `H <= 2` -> VOID - THE TREATMENT WAS NOT TESTED, AT ANY M.
+                  # E-023 row 1 is the same condition and fires too (its row 0, the population
+                  # floor, does NOT fire: n_t = n_c = 10). PREDICTION 3 IS REFUTED AND IT IS THE
+                  # PREDICTION THAT SAID WHAT REFUTING IT WOULD MEAN: `>= 7 of 10 non-empty, and on
+                  # >= 5 of 10 the first line is the index lookup`, with the mechanism written as
+                  # `the instruction is L3 ... an L3 disposition can produce zero uptake, and if it
+                  # does here the batch has measured an instruction nobody followed`. IT DID.
+                  # *** THE VERDICT IS NOT WRITTEN HERE. *** §4 step 8 writes it, at boundary 3,
+                  # from the scored population - the rule says `at any M`, but the rule is answered
+                  # in the experiment file at the step that answers it, not in a state file.
+                  #
+                  # *** EVERY RUN PASSED THE EVALUATOR: 40 of 40 at exit 0, both tasks, both arms.
+                  # *** BE-004 has still never failed the evaluator on this model - 20 more runs on
+                  # top of the 9+20+20+14 already on record.
+                  # *** ZERO ROUTER DENIALS ON 20 OF 20 TREATED RUNS. *** The obs#90 harness move
+                  # (Bash(.ai/knowledge/router.sh:*) unconditional on both arms) held for the whole
+                  # batch, so this batch measured a treatment and not a permission - which is
+                  # exactly what the previous session's preflight refusal was about.
+                  #
+                  # *** THE TELEMETRY FILE ROTATED MID-BATCH AND THE DRIVER'S OWN SUMMARY LINE MAKES
+                  # THAT LOOK LIKE DATA LOSS. IT IS NOT. *** The driver printed `events.jsonl bytes
+                  # before 27044499, after 566483`. The collector rotated at 19:46:35Z into
+                  # ../agent-observatory/infra/telemetry-out/events-2026-09-26T19-46-35.355.jsonl
+                  # (33 551 767 bytes). Verified by grep, not assumed: c49eec44 has 32 lines there
+                  # and 0 in the current file, ad15a0f7 19 and 0, 3fc93ff4 19 and 0. *** ANY jq OR
+                  # grep AT §4 STEP 7/8 MUST READ BOTH FILES OR IT WILL SILENTLY SEE THREE RUNS. ***
+                  #
+                  # *** CODEX IS BACK - see the preflight block, row 3c, a real sheet at 18:31Z in
+                  # 23 seconds. *** Every `scoring cannot run until 2026-09-30T16:29Z` line in this
+                  # file is superseded. §4 STEP 7 IS UNBLOCKED AT BOUNDARY 3. ollama-cloud is still
+                  # refused (weekly limit), so the SECOND READER is what waits now, not the
+                  # registered scorer, and DECISION H MUST NOT FIRE - it promotes deepseek, which is
+                  # the one still refused.
+# SUPERSEDED, kept not deleted: status: running   # *** THE BATCH IS RUNNING AGAIN, AND THIS TIME IT IS DETACHED FROM THIS SESSION. ***
                   # Not a boundary and not a halt: blocked_on_author IS EMPTY, no §7 bullet is
                   # matched, prompt_sha a47590a1e61d re-computed and UNCHANGED, all 22 validator
                   # files re-checked BY NAME with one grep each and none is new (newest 2026-09-08).
@@ -930,7 +976,13 @@ stop: 20           # B9 - KNOWLEDGE ROUTER AND HIT RATE. A *B STEP*, so the loop
                    # which IS origin/main - FETCHED AND COMPARED, NOT ASSUMED.
 # SUPERSEDED, kept not deleted: stop: 17a          # B8a - DECOMPOSITION DEPTH, on BE-005 ONLY (author decision 11 items 2-5), version-neutral, measured against v1.1. Spine position 17a, inserted after B8 and before 6A so no stop number moves. Prereqs 4B (stop 11) and B8 (stop 17) are both CLOSED AND MERGED. OPENED 2026-09-24 on branch stop17a/b8a-decomposition-depth, created off main at d4faa7e which IS origin/main (fetched and compared, not assumed).
   # SUPERSEDED, kept not deleted: stop: 17           # B8 - run state, repair limits, completion contract - v1.1. OPENED 2026-09-15 on branch stop17/b8-run-state-repair-limits. Track A prerequisite Phase 5B (stop 16) IS CLOSED AND MERGED. The B-step issue is **lab#33** - CHECKED AGAINST THE ISSUE LIST VIA THE API, NOT GUESSED (27=B2 ... 33=B8, 33 is open). Both tasks per author decision 9: BE-003 and BE-004.  SUPERSEDED, kept not deleted: 16           # Phase 5B - verification loops, bounded self-healing, completion. OPEN as of 2026-09-11T10:2xZ on branch stop16/phase-5b-verification-selfhealing. The spine`s closing condition is EVIDENCE ON DISK for Lab 5B.5 (obs#47, BLOCKED != FAILED). The Phase issue is lab#15 - CHECKED AGAINST THE ISSUE LIST, NOT GUESSED.  SUPERSEDED, kept not deleted: 16           # Phase 5B: reading, extract, Lab 5B.5 (obs#47, BLOCKED != FAILED). NOT YET OPENED - no stop-16 artifact exists and §6 forbids creating one early. STOP 15 IS CLOSED AND MERGED: PR lab#84 -> 2d201a5, nine checks green, lab#32 commented and CLOSED, card Done, both boards republished, check-board-freshness 2 board(s) current at 865f553b9c12. SUPERSEDED, kept not deleted: 15           # B7 - deterministic verification and policies. OPEN, at §4 steps 7-8. NOT CLOSED and NOT CLOSEABLE this session: the exit gate needs P7 (rubric quality) and P7 needs codex, which is refusing on auth. Steps 1-6 were done in earlier sessions; steps 7 and 8 are done in this one EXCEPT the registered sheets. stop: 15           # B7 - deterministic verification and policies. v1.0 CLOSES HERE, measured against B2 on BE-003 and against BE-004`s own B5 control on BE-004 (author decision 9); NEVER across tasks. NOT YET OPENED. Stop 14 CLOSED AND MERGED: PR lab#82 -> 259c996, nine checks green, lab#7 COMMENTED AND LEFT OPEN (5A.2-5A.7 deferred), card Done, both boards republished, check-board-freshness 2 board(s) current at 32590f81db10. SUPERSEDED, kept not deleted: 14           # Phase 5A - guardrails: reading, extract, Lab 5A.1 (remove a capability before policing it). NOT YET OPENED. STOP 13 IS CLOSED AND MERGED: PR lab#80 -> 4b21650 (nine checks green) plus the follow-up lab#81 -> 4eb5a59; lab#31 commented and CLOSED, card moved to Done, both boards republished and check-board-freshness reports 2 board(s) current at cd59aacd084f. SUPERSEDED, kept not deleted: 13           # B6 - ONE specialist skill, chosen from a failure MEASURED in B2-B5, on BOTH tasks (author decision 9). NOT YET OPENED. Stop 12 CLOSED and MERGED: PR lab#79 -> 2e32f214, nine checks green, lab#30 commented and closed, card Done. SUPERSEDED, kept not deleted: 12           # B5 - workflow phases, on BOTH BE-003 and BE-004 (author decision 9). OPEN. Steps 1-3 done: workbook opened and issue lab#30 commented at 05:19:39Z, extract and layer labels at 1031a99, and the two prediction registrations at 5777b07 (E-010, BE-003) and ccd5c0c (E-011, BE-004).
-loop_step: 6-IN-FLIGHT-DETACHED   # *** THE TURN ENDS HERE DELIBERATELY, MID §4 STEP 6, AND THAT IS
+loop_step: 6-COMPLETE   # *** §4 STEP 6 IS DONE AND THIS IS §0 BOUNDARY 2 ("every run of the batch
+                  # recorded, run ids and worktree paths in the state file"). *** The next session
+                  # opens at §4 STEP 7 (scoring), which is boundary 3.
+                  # Steps 1-5 were closed in earlier sessions of this stop; step 6 spanned four
+                  # sessions and three launches (two deaths, one resume) and is now closed with a
+                  # complete manifest and no re-run of any recorded cell.
+# SUPERSEDED, kept not deleted: loop_step: 6-IN-FLIGHT-DETACHED   # *** THE TURN ENDS HERE DELIBERATELY, MID §4 STEP 6, AND THAT IS
                   # NOW SAFE FOR THE FIRST TIME. *** The batch is no longer a child of this session:
                   # it was relaunched 2026-09-26T18:05:00Z through evidence/b09/detach.py and its own
                   # log proves the detach (`pid=81126 pgid=81126 sid=81126`; sid == pid). Ending the
@@ -1211,6 +1263,23 @@ branch: stop20/b9-knowledge-router (agent-learning-lab), created 2026-09-26 off 
 # SUPERSEDED, kept not deleted: branch: stop17a/b8a-decomposition-depth (agent-learning-lab), created 2026-09-24 off main at d4faa7e, which IS origin/main - fetched and compared, not assumed. NOTHING IS ON THIS BRANCH YET beyond this state write. The author's CONTINUE instruction forbids committing to ANY main outside a PR, state-file-only commits included, so every commit of this session lands here.
   # SUPERSEDED, kept not deleted: branch: stop17/b8-run-state-repair-limits (agent-learning-lab), created 2026-09-15 off main at 3a0f61f, which is origin/main - fetched and compared, not assumed. The census branch census/decision-11 and all stop-16 branches are MERGED, not deleted.  SUPERSEDED, kept not deleted: census/decision-11 (agent-learning-lab), off main at 5bd91d3 — the census PR. All stop-16 branches are merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab) - stop16/phase-5b-verification-selfhealing and stop16/handoff-and-boards are MERGED, not deleted; agent-observatory stop16/permission-block-classifier is MERGED, not deleted.  SUPERSEDED, kept not deleted: stop16/phase-5b-verification-selfhealing (agent-learning-lab), created 2026-09-11T10:24:52Z off main at 2d201a5. The stop-15 branch is merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab), clean, at 2d201a5. THE STOP-15 BRANCH stop15/b7-verification-policies IS MERGED, not deleted. Fifteen commits on it this session. SUPERSEDED, kept not deleted: stop15/b7-verification-policies (agent-learning-lab). SIX NEW COMMITS THIS SESSION on top of 96be718: 82685e1 the n=7 decision and the n=7 detection limits registered before any sheet; 0c5651a the two hand re-reads, committed while zero sheets existed for the batch; 8cf8942 P1-P6 measured into E-015 and E-016, P7 deferred; 493e1ba step 8 artefacts (verify-sh over 34 worktrees, gate from two sources, the baseline-report defect); plus the probe-file rename and this state write. branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, PUSHED. FIVE COMMITS: 32d99cc step 1 (workbook Goal/Required reading/Extract; lab#32 commented; card In Progress), a921443 the OTHER session`s state hunks + its §7 halt, 674d8a9 step 2 (design + the census + the feasibility probe), 344bc97 the halt discharge, ea7b1d2 THE PREDICTION COMMIT at 2026-09-10T11:51:08+02:00 = 09:51:08Z. SUPERSEDED, kept not deleted: branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, THREE COMMITS: 32d99cc (step 1), a921443 (the driver session`s state hunks + its §7 halt), 674d8a9 (step 2). NOT PUSHED YET. SUPERSEDED, kept not deleted: branch: NONE - stop14/phase-5a-guardrails IS MERGED (
 in_flight:
+  - "NOTHING IS RUNNING. Checked with LC_ALL=C pgrep -fl 'run-b9-batch|run-agent.sh|detach.py' at
+    20:09Z: no match. evidence/b09/.batch.lock IS GONE, which is the driver's EXIT trap firing on a
+    clean end rather than a signal. The batch's last line is `=== exit 0 at 2026-09-26T19:57:07Z`."
+  - "A TRAP THIS SESSION WALKED INTO AND SHOULD BE WRITTEN DOWN ONCE: a wait loop of the form
+    `until ! LC_ALL=C pgrep -f 'run-b9-batch.sh'; do sleep 30; done` NEVER EXITS, because pgrep -f
+    matches the loop's OWN command line. It reported ALIVE for twelve minutes after the batch had
+    finished at 19:57:07Z, and the thing that caught it was the lock file being gone, not the
+    process check. Two such loops were left behind and were killed by pid. *** A liveness check
+    that matches itself is a control reporting success over a scope it is not measuring - the house
+    failure mode, in a one-line shell idiom. *** Use `pgrep -f <pat> | grep -v $$` or match on the
+    lock file, which is what actually decided it here."
+  - "prompt_sha a47590a1e61d re-computed 2026-09-26T18:28Z, UNCHANGED. No prompt-change line is
+    owed."
+  - "PRs: none open for stop 20. The lab PR is §4 step 14 at boundary 4 and does not exist yet -
+    §0 and §6 both forbid it here. obs#90 (the fifth harness move, Bash(.ai/knowledge/router.sh:*))
+    is already merged and its effect is measured above: 0 denials on 20 of 20 treated runs."
+# SUPERSEDED, kept not deleted: in_flight:
   - "*** THE DETACH IS NOW OBSERVED, NOT ONLY ASSERTED, AND THAT DISTINCTION IS THE WHOLE POINT OF
      THIS PROJECT. *** At 18:17Z this session ended its turn and printed the state file. At 18:23:13Z
      the batch was STILL RUNNING: `evidence/b09/.batch.lock` present, pid 81126 (detach.py), pid 81129
@@ -2358,7 +2427,104 @@ last_verified_addendum_second_reader: "2026-09-25, LATER THE SAME DAY, §4 STEP 
   correct about the same code because they ask different questions - which is why the exit gate must name
   which question it answers."
 
-last_verified: "2026-09-26T18:1xZ, STOP 20 §4 STEP 6 RUNNING DETACHED, AND THREE THINGS VERIFIED BY
+last_verified: "2026-09-26T19:57:07Z, STOP 20 §4 STEP 6 COMPLETE - THE WHOLE BATCH, 40 OF 40 CELLS,
+  RECORDED BELOW FROM evidence/b09/batch-20260926T151319Z/manifest.tsv AND CROSS-CHECKED AGAINST THE
+  API FOR TWO ROWS. Counts first, because a table nobody totals is a table nobody checked:
+  manifest data rows 40, run-ids.tsv rows 40, UNIQUE run ids 40, worktree copies under
+  evidence.local/b09-worktrees 40 of 40 present (checked one directory test per id, 1.2 G total; the
+  /var/folders originals are all 73 still there and $TMPDIR reaps them files-first in about three
+  days, which is why the copies are what a later reader should use).
+  BATCH DONE line, verbatim from evidence/b09/batch-20260926T151319Z/resume-1.out:
+  `BATCH DONE 2026-09-26T19:57:07Z` / `batch 20260926T151319Z ended (UTC): 2026-09-26T19:57:07Z
+  exit 0` / `task BE-003: spent $2.5696 of a COMPUTED ceiling $3.0910 (pair $0.2810 x 11)` /
+  `task BE-004: spent $4.2252 of a COMPUTED ceiling $4.7234 (pair $0.4294 x 11)` / `runs whose
+  estimatedCost read null: 0` / `treated runs with a non-empty router log (H, the decision rule's
+  first partition): 3` / `treated runs whose ROUTER CALL THE HARNESS DENIED: 0`. BOTH CEILINGS HELD,
+  neither was reached, and the ceiling is author decision 13's rule rather than a flat number.
+  *** THE 40 RUNS, IN MANIFEST ORDER (task seq arm run_id eval log(lines/hits) router-mentions
+  denied corpus model-calls cost durationMs changed-files). Worktree for run <id> is
+  /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-<id> AND the kept copy is
+  evidence.local/b09-worktrees/<id>; both are in run-ids.tsv, so no path is retyped here: ***
+     BE-003 01 treated c49eec44-10fe-4996-ba2b-edd31e3a79e8 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=26 cost=0.141425 durationMs=5420000 changed=3
+     BE-003 01 control 3d56a5bf-9da8-4bf2-9e80-42e7bbfd27f1 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=24 cost=0.149739 durationMs=160000 changed=3
+     BE-003 02 treated ab8b2398-8195-4bbf-a25f-fb7f8752ed82 eval=0 log=PRESENT(1L/1hit) rmentions=2 denied=no corpus=MATCH calls=24 cost=0.151752 durationMs=118000 changed=3
+     BE-003 02 control 1108e1e5-c360-4b15-8f06-dd9d3101fde7 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=21 cost=0.14006 durationMs=123000 changed=3
+     BE-003 03 treated 4bf8abf5-9242-4e41-8fce-29c7d3bb4824 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=18 cost=0.120992 durationMs=114000 changed=3
+     BE-003 03 control af960f77-1b49-4085-a23b-9c3865631dd3 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=28 cost=0.14512 durationMs=175000 changed=3
+     BE-003 04 treated 60ec2a97-daae-4b03-9497-a9df535683d6 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=19 cost=0.115424 durationMs=111000 changed=3
+     BE-003 04 control 86e25d53-b7ac-4546-9d20-52ff7cef7715 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=19 cost=0.113948 durationMs=101000 changed=3
+     BE-003 05 treated 18a276be-16bf-45ff-9caf-5503a9f9f971 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=20 cost=0.109736 durationMs=98000 changed=3
+     BE-003 05 control e376a5d7-23a4-4f84-9215-7c4ece6dc9c5 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=22 cost=0.131332 durationMs=126000 changed=3
+     BE-003 06 treated 85f2d3b8-d00a-433e-a8b9-84dd661f1ec2 eval=0 log=ABSENT(0L/0hit) rmentions=6 denied=no corpus=MATCH calls=25 cost=0.133958 durationMs=98000 changed=3
+     BE-003 06 control 25ed633c-be52-422f-85b3-f33b38af27f0 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=15 cost=0.101541 durationMs=103000 changed=3
+     BE-003 07 treated d7805a76-b8fa-42c5-9402-23e73cc166f1 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=24 cost=0.126174 durationMs=129000 changed=3
+     BE-003 07 control 4045cf63-2bba-48db-a69d-f473c987a4a8 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=20 cost=0.112865 durationMs=113000 changed=3
+     BE-003 08 treated 58317ec2-045b-458f-89f7-be55b4069f35 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=18 cost=0.12816 durationMs=127000 changed=3
+     BE-003 08 control ffa216ed-2705-46a1-b5a2-95f1e01e2e62 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=23 cost=0.128371 durationMs=107000 changed=3
+     BE-003 09 treated dcdce8bb-390f-40fa-8647-b4ec39901bdb eval=0 log=PRESENT(1L/1hit) rmentions=2 denied=no corpus=MATCH calls=27 cost=0.149318 durationMs=119000 changed=3
+     BE-003 09 control 97346556-e26c-46e8-b3f1-97e5bd7f22e2 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=21 cost=0.119595 durationMs=106000 changed=3
+     BE-003 10 treated cde81ea1-0a60-4c43-9311-56a85f74adf3 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=21 cost=0.126515 durationMs=125000 changed=3
+     BE-003 10 control 5e613fd7-29b2-42c2-94dc-8c68cc93cc80 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=20 cost=0.123564 durationMs=101000 changed=3
+     BE-004 01 treated 3fc93ff4-4b85-4f3c-9d97-360c3853c056 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=25 cost=0.199978 durationMs=178000 changed=7
+     BE-004 01 control 53749b37-adaf-4acd-921f-74012f2c7f9c eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=24 cost=0.185837 durationMs=171000 changed=7
+     BE-004 02 treated 1f2f995f-4033-4735-a4e6-ad307d8247da eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=23 cost=0.188098 durationMs=150000 changed=7
+     BE-004 02 control 68d7c043-79c2-4485-9aba-3e1e9f507d79 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=29 cost=0.220326 durationMs=163000 changed=7
+     BE-004 03 treated 9e5cefbb-6f4e-4764-9d83-ff1eacc27dc8 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=23 cost=0.191836 durationMs=183000 changed=6
+     BE-004 03 control 6660f57b-fb0e-4f1c-bdff-55c8a6ffcba9 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=32 cost=0.245727 durationMs=233000 changed=7
+     BE-004 04 treated 8e5913e9-ff7f-4059-953a-9ec73c28d7be eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=24 cost=0.175922 durationMs=158000 changed=6
+     BE-004 04 control f9468acb-0f07-4804-bea8-a2e353864257 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=33 cost=0.25921 durationMs=216000 changed=6
+     BE-004 05 treated 3e552393-2a3a-4886-ab2e-883ab87dea9a eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=26 cost=0.207352 durationMs=191000 changed=7
+     BE-004 05 control c8e2974a-83c2-466d-b3e3-b7e30011e810 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=27 cost=0.196903 durationMs=167000 changed=7
+     BE-004 06 treated 4a6a16a1-91bc-430b-ba90-9a1e2865e47b eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=25 cost=0.213975 durationMs=198000 changed=7
+     BE-004 06 control bca40f15-886e-4a7f-9012-8d3e5623ff64 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=23 cost=0.178571 durationMs=136000 changed=7
+     BE-004 07 treated 03342809-cdb2-4ce6-a4f8-9e41f0ee5d07 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=27 cost=0.218585 durationMs=192000 changed=7
+     BE-004 07 control 70ab2d52-4f35-46b0-951b-3d1ad042ec2e eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=34 cost=0.222762 durationMs=179000 changed=7
+     BE-004 08 treated ad15a0f7-722a-43be-b307-f9690f7afe6d eval=0 log=PRESENT(1L/1hit) rmentions=2 denied=no corpus=MATCH calls=26 cost=0.208485 durationMs=153000 changed=7
+     BE-004 08 control ae03ad42-b651-4d57-acd0-6b579b6010e0 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=27 cost=0.206936 durationMs=192000 changed=7
+     BE-004 09 treated 88d79db1-3f5b-49b8-8a3a-034173196e4e eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=28 cost=0.218041 durationMs=144000 changed=7
+     BE-004 09 control 603bdf4c-f673-45a1-b951-958ab0d94e85 eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=15 cost=0.156216 durationMs=178000 changed=7
+     BE-004 10 treated 5bc8b735-6d49-4fed-89e6-194fafc4350f eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=MATCH calls=41 cost=0.326321 durationMs=223000 changed=7
+     BE-004 10 control 0f163eb9-256c-4482-a919-41dd170f8b5e eval=0 log=ABSENT(0L/0hit) rmentions=0 denied=no corpus=ABSENT-as-registered calls=26 cost=0.204229 durationMs=175000 changed=7
+  AGGREGATES, computed from those rows and nothing else:
+     BE-003 treated n=10 eval0=10 PRESENT=2 cost_sum=1.3035 cost_median=0.127337 range 0.109736-0.151752 calls_median=22.5 duration_median=118500
+     BE-003 control n=10 eval0=10 PRESENT=0 cost_sum=1.2661 cost_median=0.125968 range 0.101541-0.149739 calls_median=21.0 duration_median=110000
+     BE-004 treated n=10 eval0=10 PRESENT=1 cost_sum=2.1486 cost_median=0.207919 range 0.175922-0.326321 calls_median=25.5 duration_median=180500
+     BE-004 control n=10 eval0=10 PRESENT=0 cost_sum=2.0767 cost_median=0.205583 range 0.156216-0.259210 calls_median=27.0 duration_median=176500
+  Cost median delta treated vs its own concurrent control: BE-003 +1.09 %, BE-004 +1.14 %. Both are
+  FAR inside prediction 4's `<= +10 %` and nowhere near decision-rule row 5's +25 % cost objection.
+  THIS IS A RAW READING, NOT THE STEP 8 REPORT: `make baseline-report` has not run, and the report
+  is boundary 3's, not this boundary's.
+  DURATION CARRIES ONE REGISTERED EXCLUSION AND IT IS THE FIRST ROW: c49eec44 durationMs 5 420 000
+  (90 minutes) was paced inside the saturated five-hour window; E-022 Amendment 4 already registers
+  duration as excluded for that run and NO registered outcome reads duration. The medians above
+  include it and it does not move a median at n = 10 (it is the max). Reported, not hidden.
+  *** UPTAKE, WHICH IS WHAT THE REGISTERED DECISION RULE TURNS ON: H = 3 of 20 TREATED RUNS. ***
+  BE-003: 02 (ab8b2398) and 09 (dcdce8bb). BE-004: 08 (ad15a0f7). EVERY ONE OF THE THREE HAS EXACTLY
+  1 LINE AND 1 HIT - no treated run consulted the router twice. Router MENTIONS without a log:
+  BE-003 06 (85f2d3b8) rmentions=6 with log ABSENT, which is the one run that talked about the
+  router at length and never called it; the three logging runs each mention it twice. All other 16
+  treated runs: 0 mentions, 0 log.
+  INDEPENDENCE, re-derived from the API rather than from the driver that wrote the manifest (§5's
+  `confirm with the run records, not by trusting a flag`): GET /api/runs/18a276be (BE-003 05
+  treated) -> variant agent-v1.2-knowledge, eval 0, model claude-haiku-4-5-20251001,
+  knowledgeHash sha256:0770219ae7f4281a80071d78dadea285, instructionsHash
+  sha256:ebf489800a60a156986f98ea4f127848, agentHash sha256:b3450564b6f32d6193e8580db766210e,
+  estimatedCost 0.109736 - every field equal to its manifest cell. GET /api/runs/25ed633c (BE-003 06
+  control) -> variant agent-v1.1, eval 0, same model, knowledgeHash NULL, instructionsHash
+  sha256:a94237242e8c1308fb1d434a06a03463, SAME agentHash, estimatedCost 0.101541 - likewise. So
+  across the arms exactly two things differ, knowledgeHash and instructionsHash, and the manifest's
+  own 40 rows carry the same two columns for every run: treated 20 of 20 at
+  sha256:0770219ae7f4281a80071d78dadea285 with corpus MATCH, control 20 of 20 NULL with
+  ABSENT-as-registered.
+  *** TELEMETRY: THE COLLECTOR ROTATED MID-BATCH AND THE DRIVER'S SUMMARY LINE LOOKS LIKE LOSS. ***
+  `events.jsonl bytes before 27044499, after 566483` is a ROTATION, not a truncation:
+  ../agent-observatory/infra/telemetry-out/events-2026-09-26T19-46-35.355.jsonl (33 551 767 bytes,
+  written 19:46:35Z) holds the batch, and events.jsonl now holds only the last three runs. PROVED BY
+  grep AND NOT BY THE FILENAME: c49eec44 32 lines in the rotated file / 0 in the current one,
+  ad15a0f7 19 / 0, 3fc93ff4 19 / 0, and the only ids in the current file are 5bc8b735, 0f163eb9 and
+  603bdf4c. *** A §4 STEP 7/8 QUERY THAT READS ONLY events.jsonl WILL SEE THREE RUNS AND REPORT A
+  NUMBER. READ BOTH FILES. ***"
+# SUPERSEDED, kept not deleted: last_verified: "2026-09-26T18:1xZ, STOP 20 §4 STEP 6 RUNNING DETACHED, AND THREE THINGS VERIFIED BY
   HAND RATHER THAN BY TRUSTING A GREEN CHECK.
   (1) THE §5 HAND RE-READ IS ON DISK AND NO SHEET EXISTS TO HAVE ANCHORED IT (codex refused until
       ~2026-09-30T16:29Z). `maintainability` = 2 by hand on BE-003 01 treated
@@ -2807,7 +2973,60 @@ last_verified: "2026-09-26T18:1xZ, STOP 20 §4 STEP 6 RUNNING DETACHED, AND THRE
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "*** THE BATCH IS RUNNING, DETACHED, AND MUST NOT BE RESTARTED OR KILLED. IT SURVIVES
+next_action: "*** BOUNDARY 3 = §4 STEP 7 (SCORING) THEN §4 STEP 8 (REPORT). THE BATCH IS FINISHED -
+  DO NOT RE-RUN, RESUME OR RESTART ANYTHING. *** Every cell of 20260926T151319Z is recorded in
+  last_verified above and in evidence/b09/batch-20260926T151319Z/manifest.tsv; re-running a recorded
+  cell is the one thing §0 forbids outright, because a duplicate run is evidence you cannot delete.
+  (0) FIRST: confirm nothing is running (LC_ALL=C pgrep -fl 'run-b9-batch|run-agent.sh|detach.py' -
+      AND read evidence/b09/.batch.lock, which is the check that actually worked; a pgrep -f wait
+      loop matches ITSELF, see in_flight). Then re-compute prompt_sha and re-check the validator
+      files by name.
+  (1) *** SCORING IS UNBLOCKED: CODEX CAME BACK FOUR DAYS EARLY. *** Proved this session, preflight
+      row 3c: findings/codex/score-good-nested-ifs-20260926T183119Z.yaml, exit 0, 23 seconds, four
+      categories, cell-for-cell identical to the 08:43Z sheet on the same fixture. Score with
+      ./tools/check-run-gate.sh per run FIRST, then
+      ./tools/codex-score.sh benchmark/rubrics/backend-quality.yaml --run-id <id> for the 20 BE-003
+      runs (registered sha 396e1799eb2b, RE-CONFIRMED ON DISK THIS SESSION) and
+      ./tools/codex-score.sh benchmark/rubrics/backend-quality-be004.yaml --run-id <id> for the 20
+      BE-004 runs (registered sha 6252778b8472, likewise re-confirmed). NEITHER SHA HAS MOVED.
+      Delegate the sheet-reading to a sonnet subagent per §4b and re-derive any cell that decides a
+      row yourself.
+  (2) THE SECOND READER IS WHAT IS REFUSED NOW, NOT THE SCORER. opencode-score.sh's default is
+      ollama-cloud/deepseek-v4-pro and ollama-cloud is on a WEEKLY limit that had not reset at
+      18:32Z (preflight row 2a, verbatim quota message). Record the second reading as DEFERRED, in
+      the workbook, per run, and produce it when the weekly limit resets. *** DO NOT FIRE DECISION
+      H. *** H promotes deepseek to registered scorer, and deepseek is the one that is refused;
+      firing it now would swap the registered scorer FOR THE UNAVAILABLE ONE. It has never fired.
+  (3) §4 STEP 7's ORDERING REQUIREMENT IS ALREADY SATISFIED - the §5 hand re-read was done and
+      committed at 78d5af5 BEFORE any sheet existed: maintainability = 2 on c49eec44 (BE-003 01
+      treated). Do not redo it to feel thorough; do re-read a SECOND cell by hand if a sheet's value
+      decides a decision-rule row.
+  (4) *** THE REGISTERED RULE IS ALREADY DECIDED BY UPTAKE, AND M CANNOT CHANGE IT. *** H = 2 of 10
+      (BE-003) and 1 of 10 (BE-004). E-022 row 0 (`H <= 2`) and E-023 row 1 (same condition) both
+      read VOID - THE TREATMENT WAS NOT TESTED, AT ANY M. E-023's row 0 (population floor) does NOT
+      fire: n_t = n_c = 10. SCORE ANYWAY - the sheets are what let a later reader see that M was not
+      the reason, prediction 1 was registered as most likely to be wrong and deserves its number on
+      record, and predictions 4 and 5 are answered from data already in hand (cost median +1.09 % /
+      +1.14 %, both inside P4's +10 % and far under row 5's +25 %). WRITE THE VERDICT IN E-022 AND
+      E-023 AT STEP 8, NOT BEFORE, AND NOT IN THIS FILE.
+  (5) *** ANY TELEMETRY QUERY MUST READ TWO FILES. *** The collector rotated at 19:46:35Z: the batch
+      is in ../agent-observatory/infra/telemetry-out/events-2026-09-26T19-46-35.355.jsonl and only
+      the last three runs are in events.jsonl. A jq over events.jsonl alone SEES THREE RUNS AND
+      RETURNS A NUMBER. Proved by grep this session, per run id.
+  (6) §4 STEP 9 (DELIBERATE FAILURE) IS NOW WRITABLE AND ITS SUBJECT IS DECIDED BY THE BATCH, WHICH
+      IS WHY IT WAS DEFERRED RATHER THAN OMITTED. The previous session deferred it because `which
+      mechanism is worth breaking depends on what the batch shows is load-bearing`. The batch shows
+      UPTAKE is load-bearing and nothing else got the chance to be: 3 of 20 treated runs called the
+      router, each exactly once, with zero harness denials - so the thing to break is the
+      INSTRUCTION-TO-CALL path, not the router or the corpus, and the prediction must be written and
+      committed BEFORE the run as always.
+  (7) DO NOT: rewrite the overlay CLAUDE.md clause to raise uptake (tuning a treatment against an
+      observed outcome after the prediction commit; its sha stays
+      sha256:ebf489800a60a156986f98ea4f127848 and both drivers assert it); add a third arm (§7); move
+      a rubric sha; re-run a recorded cell; report a §4a ACCEPT (the acceptance gate is structurally
+      unreachable - preflight row 2c); open the lab PR before boundary 4; or commit to any main
+      outside a PR."
+# SUPERSEDED, kept not deleted: next_action: "*** THE BATCH IS RUNNING, DETACHED, AND MUST NOT BE RESTARTED OR KILLED. IT SURVIVES
   A SESSION END - THAT IS WHAT THIS SESSION FIXED. *** evidence/b09/batch-20260926T151319Z, resumed
   2026-09-26T18:05:00Z, pid lock evidence/b09/.batch.lock (pid 81129), launch log
   evidence/b09/batch-20260926T151319Z/resume-1.out. manifest.tsv and run-ids.tsv both append BEFORE
@@ -5021,7 +5240,36 @@ blocked_on_author: []   # *** EMPTY as of 2026-09-25. *** The single item that w
     #29 merged at eea144ef and its verifier re-run on main at 12 of 12). Plus Gate B before any of it
   # SUPERSEDED, kept not deleted: blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
-author_notes:   # 2026-09-26 items first, then the carried ones. NONE of these gates anything (§7).
+author_notes:   # 2026-09-26 boundary-2 items first, then the earlier 2026-09-26 ones, then the
+                # carried ones. NONE of these gates anything (§7).
+  - "2026-09-26 20:0xZ, CODEX CAME BACK FOUR DAYS BEFORE THE TIME IT ITSELF PUBLISHED, AND FOUR
+     SESSIONS OF THIS FILE SAY SCORING IS BLOCKED UNTIL 2026-09-30T16:29Z. It is not: preflight row
+     3c wrote a real four-category sheet at 18:31Z in 23 seconds. THE LESSON IS NOT ABOUT CODEX -
+     it is that a reset time a tool reports was written into this file as a FACT ABOUT THE FUTURE
+     and then read four times as one. The probe that disproved it cost 23 seconds. §4c's `wait, do
+     the parts that need no number` is right; `and re-probe cheaply before believing your own
+     recorded deadline` is the part that was missing. ollama-cloud's WEEKLY limit is still in
+     force, so the second reader, not the registered scorer, is what waits now."
+  - "2026-09-26 20:0xZ, A LIVENESS CHECK THAT MATCHES ITSELF. `until ! pgrep -f 'run-b9-batch.sh';
+     do sleep 30; done` never exits: pgrep -f matches the waiting loop's own command line. It
+     reported the batch ALIVE for twelve minutes after it had finished at 19:57:07Z, and what
+     actually caught the end was the lock file being gone. This is the house failure mode in one
+     line of shell - a control reporting over a scope that includes itself - and every later stop
+     with a long §4 step 6 will want to wait on a batch. The durable fix is to watch
+     evidence/b09/.batch.lock (the driver's EXIT trap removes it) rather than a process pattern."
+  - "2026-09-26 20:0xZ, THE TELEMETRY COLLECTOR ROTATES AND THE BATCH DRIVER'S SUMMARY LINE DOES NOT
+     KNOW IT. The driver prints `events.jsonl bytes before N, after M` as its telemetry sanity check
+     - the rule inherited from stop 11 (`check events.jsonl grows before trusting a
+     telemetry-sourced number`). It rotated mid-batch at 19:46:35Z, so the line read `before
+     27044499, after 566483` and the registered check REPORTED SHRINKAGE ON A HEALTHY COLLECTOR.
+     Nothing was lost - the batch is in events-2026-09-26T19-46-35.355.jsonl, proved per run id by
+     grep - but the check as written cannot tell rotation from loss, and a future session reading
+     only that line could either panic or, worse, run a jq over events.jsonl alone and quietly
+     measure three runs. A ~5-line driver change (sum the directory, or record the inode) would fix
+     it; I did not make it, because the driver was the thing that had just run and §4 step 4 says
+     never edit a tool while a run of it is in flight - the run had ended, but the next session's
+     scoring reads the same directory, and an instrument change belongs in its own reviewed PR."
+# SUPERSEDED HEADER LINE, kept not deleted (the items below it are NOT superseded and continue this list): author_notes:   # 2026-09-26 items first, then the carried ones. NONE of these gates anything (§7).
   - "2026-09-26, THE RATE WINDOW, AND IT GATES NOTHING. Between ~15:13Z and 16:30:00Z this account
      was inside a SATURATED five-hour window: every call served (`status":"allowed"`), none refused,
      `overageStatus":"rejected"` with `overageDisabledReason":"org_level_disabled"`, and 11-17

@@ -1,0 +1,8 @@
+batch 20260926T151319Z ended (UTC): 2026-09-26T19:57:07Z  exit 0
+task BE-003: spent $2.5696 of a COMPUTED ceiling $3.0910 (pair $0.2810 x 11)
+task BE-004: spent $4.2252 of a COMPUTED ceiling $4.7234 (pair $0.4294 x 11)
+runs whose estimatedCost read null: 0 — with any of these every total is a LOWER BOUND
+treated runs with a non-empty router log (H, the decision rules first partition): 3
+treated runs whose ROUTER CALL THE HARNESS DENIED: 0 — any of these and the batch is
+  measuring a permission rather than a treatment, and is NOT the VOID row
+events.jsonl bytes before 27044499, after 566483

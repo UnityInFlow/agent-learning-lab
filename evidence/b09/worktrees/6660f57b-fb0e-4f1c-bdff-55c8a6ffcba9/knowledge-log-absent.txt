@@ -1,0 +1,1 @@
+condition: knowledge log ABSENT at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//knowledge-log-observatory-run-6660f57b-fb0e-4f1c-bdff-55c8a6ffcba9.jsonl
