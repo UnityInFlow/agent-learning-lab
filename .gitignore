@@ -20,6 +20,11 @@ evidence/p04b/lab-4b4/.batch.lock
 # The E-008 fourth-cell batch driver's PID lockfile: runtime state, never evidence.
 evidence/p04b/lab-4b4/fourth-cell/.batch.lock
 
+# The B9 preflight/batch PID lockfile, shared by both drivers on purpose: runtime state, never
+# evidence. The b08 and b08a locks were never added here and never committed either; this entry
+# exists so a `git add -A` cannot turn a live lock into a tracked file mid-batch.
+evidence/b09/.batch.lock
+
 # Python bytecode from `python3 -m py_compile` on tools/ — a verification step, not an artifact
 __pycache__/
 
