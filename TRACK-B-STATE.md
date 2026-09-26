@@ -2516,7 +2516,35 @@ last_verified: "2026-09-26, STOP 20 OPENED TO §0 BOUNDARY 1. Every number below
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "*** §4 STEP 5 IS BEING RE-RUN under the FIXED runner (obs#90 -> dfe5f02, merged, and the
+next_action: "*** §4 STEP 6, THE REGISTERED BATCH, IS IN FLIGHT: evidence/b09/run-b9-batch.sh, launched
+  2026-09-26T~13:4xZ, n=10 per arm per task interleaved, up to 40 runs and up to ~3 hours, under the
+  pid lock evidence/b09/.batch.lock. DO NOT START A SECOND ONE. *** Its manifest
+  evidence/b09/batch-<TAG>/manifest.tsv appends BEFORE each next run starts, so it is the progress
+  record: read it to see what already ran and NEVER re-run an id that appears in it.
+  COMPUTED CEILINGS (author decision 13, derived by the driver from the 13:17Z preflight pairs and
+  printed with their inputs): BE-003 $0.2810 x 11 = $3.0910, BE-004 $0.4294 x 11 = $4.7234. Exit 11
+  means a task hit its own ceiling and the population that occurred is what gets reported (row 0b
+  precedent, E-016 at n = 7). Exit 12 means the pair cost was unreadable and NOTHING ran.
+  (1) WHEN IT ENDS: record every run id, its worktree path, eval exit code, log_lines/log_hits,
+      router_denied and cost into this file. THAT IS §0 BOUNDARY 2 — `every run of the batch
+      recorded, run ids and worktree paths in the state file` — AND THE TURN ENDS THERE.
+  (2) *** IF ANY TREATED ROW HAS router_denied=yes, STOP AND DO NOT SCORE: *** that batch is
+      measuring a permission, not a treatment, and it is NOT the decision rule's VOID row. The
+      driver prints so per run.
+  (3) §4 STEP 7 (SCORING) IS BOUNDARY 3 AND CANNOT RUN UNTIL CODEX RETURNS ~2026-09-30T16:29Z. Both
+      harnesses are refused (codex quota; ollama-cloud weekly), proved by my own probes, and §4c
+      makes that a deferral and not a §7 halt. The runs are kept with --keep. DO NOT substitute a
+      scorer and DO NOT fire Decision H — it promotes deepseek, which is also refused.
+  (4) READ AMENDMENTS 1, 2 AND 3 in E-022/E-023 BEFORE INTERPRETING ANYTHING: the log path moved
+      out of the worktree (or every treated run scores exit 21); the runner gained one allowlist
+      entry (obs#90) so every number transferred from a stored run was measured under the old
+      two-entry list; and the decision to run this batch past a failed preflight condition (ii) is
+      recorded there with its reasons AND with the argument against it.
+  (5) DO NOT: rewrite the overlay CLAUDE.md clause to raise uptake (that is tuning the treatment
+      against an observed outcome after the prediction commit — its sha stays
+      sha256:ebf489800a60a156986f98ea4f127848); add a third arm (§7); edit a registered variable;
+      report a §4a ACCEPT (the gate cannot run); or commit to any main outside a PR."
+# SUPERSEDED, kept not deleted: next_action: "*** §4 STEP 5 IS BEING RE-RUN under the FIXED runner (obs#90 -> dfe5f02, merged, and the
   local agent-observatory checkout is ON main AT dfe5f02 — `grep -c \'router.sh:\*\' runner/run-agent.sh`
   returns 2). The first preflight`s four runs are KEPT EVIDENCE OF THE DEFECT and are NOT a
   population: they set no MDE, and decision 13`s pair cost comes from the RE-RUN. ***
