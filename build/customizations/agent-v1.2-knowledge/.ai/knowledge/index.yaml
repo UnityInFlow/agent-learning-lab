@@ -1,0 +1,40 @@
+# The knowledge index — spine stop 20 (B9), v1.2.
+#
+# SHAPE: §10.9 of businesscase/BACKEND-AI-AGENT-BUSINESS-REQUIREMENTS.md:491-505, verbatim —
+# `topics: <topic>: triggers: […] · summary: … · details: …`. Nothing else is added to it,
+# because a field this file invents is a field no reader of the requirement expects.
+#
+# LAYER 3. Nothing executes to reject a wrong trigger list, a summary path that does not
+# exist, or a summary whose contents are false. `.ai/knowledge/router.sh` reads this file and
+# records what it did; it does not validate what is written here beyond the two structural
+# conditions it must have to answer at all (a `topics:` key, and both paths present on the
+# topic it matched). What a retrieved document SAYS is untrusted by construction — see the
+# workbook's Layer 3 row.
+#
+# ONE TOPIC. The corpus is deliberately one language construct, not a knowledge base: this
+# step measures whether routed knowledge reaches the model and gets used, and a second topic
+# would add a second variable to that question. The router's multi-topic behaviour — an
+# ambiguous trigger — is proved by tools/verify-knowledge-router.sh against synthetic
+# indexes, not by shipping topics this experiment does not measure.
+#
+# CONTENT PROVENANCE, AND IT IS A REGISTERED CONSTRAINT: nothing here or in the two documents
+# derives from any benchmark task's tests, fixtures or evaluator. The source is the Kotlin
+# language rule for `when` in expression position, plus the wording of the `maintainability`
+# category in benchmark/rubrics/backend-quality.yaml — the measuring instrument, cited as such
+# in both experiment files as a limit on the claim. The corpus names no ticket, no endpoint,
+# no domain type and no verb from any task.
+topics:
+  kotlin-exhaustive-when:
+    triggers:
+      - status
+      - state
+      - enum
+      - when
+      - if else
+      - branch
+      - transition
+      - exhaustive
+      - dispatch
+      - sealed
+    summary: summaries/kotlin-exhaustive-when.md
+    details: documents/kotlin-exhaustive-when.md

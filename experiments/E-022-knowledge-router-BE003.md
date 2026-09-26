@@ -291,3 +291,60 @@ additive by construction and sit outside the partition the script checks.
 ## Decision
 
 ## Follow-up
+
+---
+
+## Amendment 1 — the log path, changed before any run, because the registered one would have scored every treated run a scope violation
+
+*Amended by Opus 5 (claude-opus-5), autonomously, 2026-09-26, at §4 step 4 — **after the
+prediction commit `ef2c6c0` and before any run of this experiment exists.** Nothing above is
+rewritten; this section is the whole change.*
+
+**What was registered.** The delivery proof and prediction 3 name
+`.agent/knowledge-log.jsonl` — a file the router writes **inside the worktree under test**.
+
+**Why it could not be that, read off the evaluator rather than remembered.** BE-003's
+evaluator computes its changed-file set as `git diff --name-only "$BASELINE_SHA"` **plus**
+`git ls-files --others --exclude-standard`
+(`agent-observatory-benchmarks/tasks/BE-003-confirm-shipment/evaluator.sh:110-127`), and its
+only ignore pattern is
+`(^|/)(target/|\.mvn/|\.git/)|\.(log|class|jar)$|^(run|evaluation)\.json$`. Anything outside
+`…/shipment/`, `…/api/` and `src/test/` is an AC7 scope violation and the run is scored
+**exit 21** (`:279-296`). A `.jsonl` under `.agent/` matches no ignore rule, is untracked, and
+would therefore be counted as an unrelated production file **on every treated run**. Making it
+tracked in the overlay changes nothing: it would then appear in the `git diff` half instead.
+
+**This is not a new discovery; it is a repeat.** B7's preflight pair `2077432c` (BE-003) and
+`88b861f3` (BE-004) **solved their tasks** — build, existing tests, functional suite, error
+contract and dependency guard all passed — and were both scored exit 21 because the single
+unrelated file was the guardrail's own log (`E-016-verification-policies-BE004.md:227-237`).
+v1.1 carries the consequence in its own source: `policy-gate.sh:27-47` and
+`repair-limit.sh:30-37` both write **outside** the worktree, under
+`${TMPDIR}/…-$(basename "$CLAUDE_PROJECT_DIR")`, and both say why in the file. **The treatment
+this stop adds inherits that convention rather than re-learning it at the cost of a batch.**
+
+**What changes, and what deliberately does not.**
+
+| | registered at `ef2c6c0` | as built |
+|---|---|---|
+| log path | `.agent/knowledge-log.jsonl`, inside the worktree | `${KNOWLEDGE_EVENT_LOG:-${TMPDIR:-/tmp}/knowledge-log-$(basename "$ROOT").jsonl}`, outside it, with the run id in the file's own name — the worktree basename is `observatory-run-<runId>` |
+| what the log contains | one JSON line per lookup, on a hit **and** a miss | unchanged |
+| `H` in the decision rule | treated runs whose log is non-empty | unchanged in every respect but where the file is read from |
+| prediction 3's thresholds | ≥ 7 of 10 non-empty; ≥ 5 of 10 with the index lookup first | unchanged |
+| preflight assertion (b) | present with ≥ 1 line on treated, absent on control | unchanged, read at the new path |
+
+**Why this is not a §7 halt and not a registered-variable edit.** §6 forbids editing a
+registered variable *mid-experiment*; this experiment has no runs, no run ids and no sheets —
+`TRACK-B-STATE.md` records `NOTHING HAS RUN` at the boundary this amendment is written on. The
+independent variable (corpus + router + instruction, present or absent), the outcome
+(`maintainability` anchor 2), the rubric sha, the model, the evaluator and the decision rule are
+all untouched. What moved is the filesystem location of the treatment's own bookkeeping, in the
+direction that stops the instrument from measuring itself. Had it been found *after* the batch,
+the batch would have been the finding.
+
+**The claim this amendment gives up.** Preflight condition (b) no longer proves anything about
+the worktree's contents, so *"the log is in the run's own tree"* — which would have made the
+retrieval record an artifact of the run rather than of `$TMPDIR` — is not available at this
+stop. Phase 6B's finding 3 named that as one of the two routes to a retrieval record the
+harness does not have; **neither route is built here**, and the workbook's §5 layer column says
+so in the row it applies to.

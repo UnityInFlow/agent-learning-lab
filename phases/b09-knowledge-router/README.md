@@ -405,6 +405,82 @@ A preflight that fails (2) is reported and the batch is **not** started until th
 the thing being tested rather than the thing being hoped for — B8's stop-17 preflight and B6's
 stop-13 preflight both stopped a batch on exactly that check.
 
+## As built — §4 step 4, 2026-09-26, and the one thing the design got wrong
+
+*Built by Opus 5 (claude-opus-5), autonomously, 2026-09-26. Nothing above is rewritten. Two
+corrections are recorded here rather than by editing the design table, because a design that is
+quietly corrected teaches nothing.*
+
+### The files, with the shas the batch driver asserts
+
+| path | sha256 (first 32) | note |
+|---|---|---|
+| `build/customizations/agent-v1.2-knowledge/CLAUDE.md` | `ebf489800a60a156986f98ea4f127848` | v1.1's 59 lines **byte-identical**, verified by `diff <(head -59 …) agent-v1.1/CLAUDE.md`, plus one appended section naming the router |
+| `.claude/agents/backend-feature-phases.md` | `b3450564b6f32d61…` | byte-identical to v1.1 — the same value B8's driver asserts as `EXPECT_AGENT_HASH` |
+| `.claude/settings.json` | `925a382322daada4…` | byte-identical to v1.1 |
+| `.ai/policies/protected-paths.yaml` | `76c4c34c0f4ca5eb…` | byte-identical to v1.1 |
+| `.ai/hooks/policy-gate.sh` | `f432abbcbf1f3b90…` | byte-identical to v1.1 |
+| `.ai/hooks/repair-limit.sh` | `fa38193a5093c09b…` | byte-identical to v1.1 |
+| `.ai/hooks/repair-record.sh` | `7339e63045fa4e2a…` | byte-identical to v1.1 |
+| `.ai/knowledge/index.yaml` | new | §10.9's shape, one topic, ten triggers |
+| `.ai/knowledge/summaries/kotlin-exhaustive-when.md` | new | 30 lines |
+| `.ai/knowledge/documents/kotlin-exhaustive-when.md` | new | 117 lines |
+| `.ai/knowledge/router.sh` | new | ShellCheck clean, `cd … || exit`, six exit codes |
+
+A measured version is never edited (§3), so v1.1 was **copied** and the six files above are
+proved identical rather than assumed to be. The corpus names **no** task word: `grep -ci
+'confirm\|cancel\|shipment\|order'` returns `0` on all three corpus files.
+
+### Correction 1 — the design table named the router in the wrong place
+
+The artifact table above reads `.agent/knowledge-router.sh`. The registered experiment file reads
+`.ai/knowledge/router.sh` (`E-022:89`, in the independent-variable table); `E-023` names the
+same set as *"under `.ai/knowledge/`"* (`E-023:88`, `:97`) without naming the script, and
+`TRACK-B-STATE.md`'s `next_action` reads `.ai/knowledge/router.sh` too. **The experiment file is the registered contract and it wins**: the router is at
+`.ai/knowledge/router.sh`, inside the set `knowledgeHash` covers. The design table's cell is left
+as written.
+
+### Correction 2 — the log could not go where it was registered, and this is the load-bearing one
+
+The registered delivery proof was `.agent/knowledge-log.jsonl`, **inside the worktree**. It is
+now written **outside** it, at
+`${KNOWLEDGE_EVENT_LOG:-${TMPDIR:-/tmp}/knowledge-log-$(basename "$ROOT").jsonl}`, with the run
+id in the file's own name. The full reasoning, the evaluator lines it was read off, and what the
+change gives up are recorded as **Amendment 1** in both `experiments/E-022-knowledge-router-BE003.md`
+and `experiments/E-023-knowledge-router-BE004.md`. In one line: both evaluators count untracked
+files outside the allowed prefixes as an AC7 scope violation and score **exit 21**
+(`BE-003 evaluator.sh:110-127,279-296`; `BE-004 evaluator.sh:119-127,296-302`), `.jsonl` matches
+no ignore rule, and B7 already lost two correct runs to exactly this
+(`E-016:227-237`) — which is why v1.1's own two hooks write under `$TMPDIR` and say so in their
+headers (`policy-gate.sh:27-47`, `repair-limit.sh:30-37`).
+
+**The layer consequence, stated rather than buried:** preflight condition (b) still proves *a
+lookup was recorded* (L2), and no longer proves anything at all about the run's own tree. Phase
+6B finding 3's second route — a retrieval record that is an artifact of the run rather than of
+`$TMPDIR` — is **not built at this stop**, and the §5 table's layer column says so in the row it
+applies to.
+
+### The control that was shown to refuse
+
+`tools/verify-knowledge-router.sh` — 15 cases, **18 assertions, 18 passed, exit 0**, ShellCheck
+clean. It drives every documented exit code on the real script against synthetic indexes: hit
+(0), an upper-case query, a multi-word trigger, miss (2), no query (1), index missing (3), no
+`topics:` key (3), zero topics parsed (3), a topic with no `details:` (3), an absent summary file
+(4), an absent details file (4), two topics matching one query (5), the log carrying one line per
+invocation with all six statuses present, and the **shipped** index answering the query the
+overlay's own `CLAUDE.md` tells the agent to ask.
+
+Two things make it more than a green tick. **Case O mutates the router** — makes a miss exit 0 —
+and asserts that case D would then fail; a fixture set that cannot fail is indistinguishable from
+one that tests nothing. And **case L was re-derived by hand** outside the verifier, at
+`/tmp/b9hand`, returning `rc=5`, stderr `2 topics match (alpha, beta)` and a log line with
+`"matches":2`.
+
+**Case M's expected count was wrong on its first run and the failure is kept in this record**: it
+read 13 where twelve invocations precede the check. Counted rather than summed — A B C D E F G H I
+J K L, with `A order` re-reading A's stdout and case N running after the check. That is stop 19's
+method lesson landing on its own author inside the same session.
+
 ## Predict before you run
 
 Registered in two experiment files, one per task (author decision 9), each committed before its
