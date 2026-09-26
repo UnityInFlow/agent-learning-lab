@@ -81,12 +81,36 @@ if [[ -z "$PREFLIGHT_MANIFEST" ]]; then
   PREFLIGHT_MANIFEST="$(find "$LAB/evidence/b09" -name manifest.tsv -path '*preflight-*' 2>/dev/null \
                         | LC_ALL=C sort | tail -1)"
 fi
+# *** THE COLUMNS ARE FOUND BY NAME, AND THE FIRST VERSION OF THIS FUNCTION READ THEM BY POSITION.
+# *** It hard-coded `$13` for cost. Two columns (`router_mentions`, `router_denied`) were then added
+# to the preflight manifest ahead of it, so `$13` became `router_denied`, whose value is the string
+# `no` — which awk sums as 0 while counting two rows. The ceiling came out as **$0.0000**, it did NOT
+# refuse, and a $0 ceiling fires on the first pair. A control that answers confidently with the wrong
+# number is worse than one that refuses, and author decision 13 item (iv) is precisely about the
+# ceiling being computed rather than carried.
+# THE FIXTURE SET MISSED IT because `mkmanifest` writes its own header with cost at column 13 — a
+# fixture testing a copy of the format instead of the format. Case L below now shifts the columns on
+# purpose, and case M puts a non-numeric value in the cost column.
 pair_cost() {  # pair_cost <task>
   local task="$1" c
   [[ -r "$PREFLIGHT_MANIFEST" ]] || { echo unreadable; return; }
   c="$(awk -F'\t' -v t="$task" '
-        $1==t && ($2=="treated" || $2=="control") && $13!="null" && $13!="" { s+=$13; n++ }
-        END { if (n==2) printf "%.4f", s; else print "unreadable" }' "$PREFLIGHT_MANIFEST")"
+        # The header is the row whose first field is literally `task`. Everything after it is data.
+        !hdr && $1=="task" {
+          for (i=1;i<=NF;i++) { if ($i=="arm") a=i; else if ($i=="cost") c=i }
+          hdr=1; next
+        }
+        hdr && $1==t && (a && c) && ($a=="treated" || $a=="control") {
+          v=$c
+          # A cost must be a number. `null`, an empty field, or a string that happens to sit in the
+          # column is NOT zero — it is unreadable, and saying so is the whole point of this function.
+          if (v ~ /^[0-9]+(\.[0-9]+)?$/) { s+=v; n++ } else { bad++ }
+        }
+        END {
+          if (!hdr || !a || !c) { print "unreadable"; exit }
+          if (bad>0 || n!=2)    { print "unreadable"; exit }
+          printf "%.4f", s
+        }' "$PREFLIGHT_MANIFEST")"
   [[ -n "$c" ]] && echo "$c" || echo unreadable
 }
 ceiling_for() {  # ceiling_for <task>

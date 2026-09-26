@@ -20,33 +20,37 @@ cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit 1
 LAB="$PWD"
 DRIVER="$LAB/evidence/b09/run-b9-batch.sh"
 C="$LAB/build/customizations/agent-v1.1"
-EXPECTED_CASES=11
+EXPECTED_CASES=13
 
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT
 pass=0; fail=0
 ok()  { echo "  ok   — $1"; pass=$((pass + 1)); }
 bad() { echo "  FAIL — $1"; fail=$((fail + 1)); }
 
-# A synthetic preflight manifest. Column 13 is `cost`, columns 1 and 2 are task and arm — the same
-# positions run-b9-preflight.sh writes, which is the coupling this fixture has to keep.
+# A synthetic preflight manifest. *** THE COLUMN ORDER HERE IS DELIBERATELY NOT THE REAL ONE IN
+# CASE L. *** The first version of this helper wrote its own header with `cost` at column 13 and the
+# driver read `$13` by position; when two columns were later inserted ahead of cost in the REAL
+# manifest, the driver summed the string `no` as 0, produced a $0.0000 ceiling, did not refuse, and
+# this fixture set passed. A fixture that writes its own format is testing a copy of the format.
+# The header below is the real preflight manifest's, and case L shifts it on purpose.
+REAL_HDR='task\tarm\trun_id\trc\teval\tknowledge_hash\tinstr_hash\tagent_hash\tlog_state\tlog_lines\tlog_hits\trouter_mentions\trouter_denied\tcorpus_match\tcost\tmodel_calls\ttool_calls\tduration_ms\tchanged\tinit_tools\tworktree'
 mkmanifest() {  # mkmanifest <name> <treated-cost> <control-cost> [task]
   local f="$WORK/$1.tsv" task="${4:-BE-003}"
-  printf '# synthetic\ntask\tarm\trun_id\trc\teval\tknowledge_hash\tinstr_hash\tagent_hash\tlog_state\tlog_lines\tlog_hits\tcorpus_match\tcost\tmodel_calls\ttool_calls\tduration_ms\tchanged\tinit_tools\tworktree\n' > "$f"
-  printf '%s\ttreated\tr1\t0\t0\tsha256:x\tsha256:y\tsha256:z\tPRESENT\t3\t2\tMATCH\t%s\t9\t20\t1000\t3\tx/ok\t/tmp/w1\n' "$task" "$2" >> "$f"
-  printf '%s\tcontrol\tr2\t0\t0\tnull\tsha256:y\tsha256:z\tABSENT\t0\t0\tABSENT-as-registered\t%s\t9\t20\t1000\t3\tx/ok\t/tmp/w2\n' "$task" "$3" >> "$f"
+  { printf '# synthetic\n'; printf '%b\n' "$REAL_HDR"
+    printf '%s\ttreated\tr1\t0\t0\tsha256:x\tsha256:y\tsha256:z\tPRESENT\t3\t2\t3\tno\tMATCH\t%s\t9\t20\t1000\t3\tx/ok\t/tmp/w1\n' "$task" "$2"
+    printf '%s\tcontrol\tr2\t0\t0\tnull\tsha256:y\tsha256:z\tABSENT\t0\t0\t0\tno\tABSENT-as-registered\t%s\t9\t20\t1000\t3\tx/ok\t/tmp/w2\n' "$task" "$3"
+  } > "$f"
   echo "$f"
 }
+
+# EVERY CASE BUT K PASSES ITS OWN LOCK PATH, and the first run of this file is why: the registered
+# lock at evidence/b09/.batch.lock is SHARED with run-b9-preflight.sh on purpose, so with a
+# preflight in flight all cases exited 8 and only K was reading what it thought it was.
+FREELOCK="$WORK/free.lock"
 
 # The expected ceiling line, BUILT from the numbers rather than typed, with the dollar sign held in
 # a variable: ShellCheck reads a literal `$0.3000` inside quotes as an expansion, and a test whose
 # assertion is a typo passes for the wrong reason.
-# EVERY CASE BUT K PASSES ITS OWN LOCK PATH, and the first run of this file is why: the registered
-# lock at evidence/b09/.batch.lock is SHARED with run-b9-preflight.sh on purpose, so with a
-# preflight in flight all eleven cases exited 8 and only K was reading what it thought it was.
-# A fixture set that cannot be run while the thing it guards is running is a fixture set nobody
-# runs at the moment it matters.
-FREELOCK="$WORK/free.lock"
-
 DOL='$'
 ceil_line() {  # ceil_line <task> <pair> <multiplier> <ceiling>
   printf 'ceiling %s: pair %s%s x %s = %s%s' "$1" "$DOL" "$2" "$3" "$DOL" "$4"
@@ -129,6 +133,34 @@ M="$(mkmanifest K 0.2000 0.1000)"
 out="$(env B9_LOCK="$WORK/held.lock" B9_PREFLIGHT_MANIFEST="$M" "$DRIVER" 2>&1)"; rc=$?
 if [[ $rc -eq 8 ]]; then ok "K a held pid lock refuses a second batch (exit 8)"
 else bad "K held lock — wanted 8, got $rc"; fi
+
+# L — THE COLUMN SHIFT THAT ACTUALLY HAPPENED. `cost` is moved to a different position with its
+#     NAME intact; a driver reading by position gets whatever now sits at the old index, and the
+#     value put there is the literal string `no`, which awk sums as 0. The ceiling must still be
+#     $3.3000 — read by name — and must NOT be $0.0000.
+SHIFT="$WORK/shifted.tsv"
+{ printf '# synthetic, columns reordered\n'
+  printf 'task\tarm\tcost\trouter_denied\trun_id\n'
+  printf 'BE-003\ttreated\t0.2000\tno\tr1\n'
+  printf 'BE-003\tcontrol\t0.1000\tno\tr2\n'
+} > "$SHIFT"
+out="$(env B9_LOCK="$FREELOCK" B9_GUARDS_ONLY=1 B9_PREFLIGHT_MANIFEST="$SHIFT" "$DRIVER" 10 BE-003 2>&1)"; rc=$?
+if [[ $rc -eq 0 ]] && grep -qF "$(ceil_line BE-003 0.3000 11 3.3000)" <<<"$out"; then
+  ok "L a REORDERED manifest still computes \$3.3000 — the cost column is found by NAME"
+else
+  bad "L column shift — exit $rc, line: $(grep -m1 'ceiling BE-003' <<<"$out" || echo none)"
+fi
+
+# M — A NON-NUMERIC COST. `no`, `null`, an empty field or any string in the cost column is NOT zero;
+#     it is unreadable, and a ceiling that treats an unmeasured cost as free is a control reporting
+#     over a smaller scope than it claims.
+NUM="$WORK/nonnumeric.tsv"
+{ printf '# synthetic\n'; printf 'task\tarm\tcost\n'
+  printf 'BE-003\ttreated\tno\n'; printf 'BE-003\tcontrol\t0.1000\n'
+} > "$NUM"
+out="$(env B9_LOCK="$FREELOCK" B9_PREFLIGHT_MANIFEST="$NUM" "$DRIVER" 10 BE-003 2>&1)"; rc=$?
+if [[ $rc -eq 12 ]]; then ok "M a NON-NUMERIC cost refuses the batch (exit 12) rather than summing it as 0"
+else bad "M non-numeric cost — wanted 12, got $rc"; fi
 
 echo
 ran=$((pass + fail))
