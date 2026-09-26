@@ -1,0 +1,16 @@
+# Re-run after the §4a revision (round 1 REJECT on both scripts). The probe gained
+# read-scoped hit counting and exit 6; the numbers below must match the first scan.
+# Produced 2026-09-26T07:31:57Z by Opus 5, autonomously.
+
+$ retrieval-trace-probe.sh records <snapshot>
+mode: records
+  runs-snapshot.json  sha256:6d1aa161b76c9d33  records=652 unparsable=0 strings=13754 strict=2246 loose=28
+population: run_ids=652 records=652
+scanned: string_values=13754 parsed_documents=1 unparsable=0
+hits: strict=2246 loose_only=28
+hits by JSON key: 3 distinct key(s); showing up to 10 per sensitivity
+  strict    2246  result.changedFiles[]   e.g. sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+  loose       27  result.changedFiles[]
+  loose        1  humanReviews[].notes
+verdict: DETECTOR FIRED — at least one value names a file. Read the `hits by JSON key` breakdown before attributing it: in records mode `result.changedFiles[]` is git diff output, i.e. WRITES.
+exit=3

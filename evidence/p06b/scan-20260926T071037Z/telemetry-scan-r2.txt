@@ -1,0 +1,13 @@
+# Re-run after the §4a revision. Produced 2026-09-26T07:31:57Z.
+
+$ retrieval-trace-probe.sh telemetry <all three events files>
+mode: telemetry
+  events.jsonl  sha256:3156b7521c968ede  batches=3216 unparsable_lines=0 strings=698879 read_events=3616 strict=0 loose=0
+  events-2026-09-05T08-34-36.268.jsonl  sha256:e59223998a8ea89a  batches=3925 unparsable_lines=0 strings=996693 read_events=3966 strict=0 loose=0
+  events-2026-09-08T13-05-27.487.jsonl  sha256:ac4387208ed77e23  batches=4455 unparsable_lines=0 strings=962728 read_events=5312 strict=0 loose=0
+population: run_ids=638 read_events=12894 log_records=71353 tool_name_attrs=25817
+scanned: string_values=2658300 parsed_documents=11596 unparsable=0
+hits: strict=0 loose_only=0
+read_scoped: strict=0 loose_only=0   <- ONLY a non-zero value here means a READ was identified
+verdict: NO FILE-NAMING VALUE FOUND over a non-empty population.
+exit=0
