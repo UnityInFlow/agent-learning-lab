@@ -107,7 +107,59 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running   # *** §0 BOUNDARY 1 FOR STOP 20 (B9) - `after §4 step 3: experiment file written and
+status: running   # *** MID-PHASE CHECKPOINT FOR STOP 20, NOT A BOUNDARY AND NOT A HALT. *** §4 step 4 is
+                  # COMPLETE in both repositories, §4 step 5 (the four preflight runs) is IN FLIGHT,
+                  # §4 step 6's driver and its guards are BUILT AND COMMITTED but the batch HAS NOT
+                  # STARTED. Written so a context clear cannot cause step 4 to be redone.
+                  # blocked_on_author IS EMPTY and NO §7 BULLET IS MATCHED. prompt_sha a47590a1e61d
+                  # RE-COMPUTED THIS SESSION AND UNCHANGED. All 22 validator files are in
+                  # validation_processed, CHECKED WITH ONE GREP PER NAME AGAINST THE BLOCK ITSELF
+                  # (not against the whole file), and NO NEW ONE EXISTS.
+                  #
+                  # *** BOTH SCORING HARNESSES ARE REFUSED, BY MY OWN PROBES, AND NEITHER IS A §7
+                  # HALT (§4c: a codex exhaustion follows §4c, never §7). ***
+                  #   codex:  `You've hit your usage limit ... try again at Sep 30th, 2026 6:29 PM`,
+                  #           first refusal 2026-09-26T12:11Z, re-derived by my own `codex exec` at
+                  #           12:13:34Z. codex-cli 0.154.0 is installed and answers; the QUOTA is out.
+                  #   opencode/ollama-cloud: `you (hermannjirka15) have reached your weekly usage
+                  #           limit`, probed directly at 12:14Z on deepseek-v4-pro.
+                  # SO THE FALLBACK IS OUT TOO. §4c step 2 (score the waiting runs with opencode now)
+                  # CANNOT RUN. Decision H's 12-hour clock starts at 12:11Z, i.e. it would fire at
+                  # 2026-09-27T00:11Z — and H promotes deepseek, which is also refused, so firing it
+                  # would change the registered scorer to something that cannot score. NOT FIRED.
+                  # §4c step 3 IS what this session does: everything that needs no registered number.
+                  # Scoring is §4 step 7, which is BOUNDARY 3 and not this phase.
+                  #
+                  # *** THE ONE FINDING OF THIS PHASE, AND IT WOULD HAVE VOIDED THE BATCH. *** The
+                  # registered delivery proof was `.agent/knowledge-log.jsonl` INSIDE the worktree.
+                  # Read off both evaluators rather than remembered: changed files are
+                  # `git diff --name-only $BASELINE_SHA` PLUS `git ls-files --others
+                  # --exclude-standard`, the ignore pattern covers only target/ .mvn/ .git/ *.log
+                  # *.class *.jar run.json evaluation.json, and anything outside the allowed prefixes
+                  # is an AC7 scope violation scored EXIT 21 (BE-003 evaluator.sh:110-127,279-296;
+                  # BE-004 evaluator.sh:119-127,296-302, checked on BE-004's OWN file, same IGNORE_RE
+                  # byte for byte). A `.jsonl` under `.agent/` matches no ignore rule. EVERY TREATED
+                  # RUN WOULD HAVE BEEN SCORED A SCOPE VIOLATION CAUSED BY THE TREATMENT'S OWN
+                  # BOOKKEEPING. B7 already paid for this once: preflight pair 2077432c / 88b861f3
+                  # SOLVED their tasks and were both scored 21 for a guardrail's log (E-016:227-237).
+                  # The log now lives at ${TMPDIR}/knowledge-log-observatory-run-<runId>.jsonl, which
+                  # is what v1.1's own two hooks already do and say why. Recorded as AMENDMENT 1 in
+                  # E-022 and E-023, additively, with what it GIVES UP: 6B finding 3's second route
+                  # (a retrieval record that is an artifact of the run, not of $TMPDIR) is NOT built.
+                  #
+                  # *** obs#89 IS MERGED: ed9586f0433a40344f7ff7ad39fdaea26b2cea7a *** (merge, not
+                  # squash), six of six checks green. knowledgeHash over the SET of files under
+                  # .ai/knowledge/, five sites, V8 migration APPLIED AND READ BACK
+                  # (flyway_schema_history version 8, success = t). Its fixture set is 13 of 13.
+                  # *** THAT PR ALSO FIXED A DEFECT THE FIXTURE SET FOUND RATHER THAN IMAGINED: one
+                  # record with no efficiency values made GET /api/runs answer 500 TO EVERY CALLER ***
+                  # (JPA materializes an all-null embeddable as null; toResponse:291 dereferenced it).
+                  # That is the list the batch driver's endpoint check, baseline-report and the web UI
+                  # all read. Fixed with the `behaviorOrNull` pattern this entity already documents.
+                  # THE §4a REVIEW COULD NOT RUN AND THE PR BODY SAYS SO RATHER THAN CLAIMING AN
+                  # ACCEPT (author_notes item M).
+                  # NOTHING ELSE IS RUNNING: no batch, no opencode, no codex of ours.
+# SUPERSEDED, kept not deleted: status: running   # *** §0 BOUNDARY 1 FOR STOP 20 (B9) - `after §4 step 3: experiment file written and
                   # its prediction commit on the branch`. THE FIRST of the FOUR boundaries §0 gives a
                   # B STEP. THE SESSION ENDS ON THIS BOUNDARY, NOT ON A HALT: blocked_on_author IS
                   # EMPTY and NO §7 BULLET IS MATCHED. ***
@@ -936,6 +988,19 @@ branch: stop20/b9-knowledge-router (agent-learning-lab), created 2026-09-26 off 
 # SUPERSEDED, kept not deleted: branch: stop17a/b8a-decomposition-depth (agent-learning-lab), created 2026-09-24 off main at d4faa7e, which IS origin/main - fetched and compared, not assumed. NOTHING IS ON THIS BRANCH YET beyond this state write. The author's CONTINUE instruction forbids committing to ANY main outside a PR, state-file-only commits included, so every commit of this session lands here.
   # SUPERSEDED, kept not deleted: branch: stop17/b8-run-state-repair-limits (agent-learning-lab), created 2026-09-15 off main at 3a0f61f, which is origin/main - fetched and compared, not assumed. The census branch census/decision-11 and all stop-16 branches are MERGED, not deleted.  SUPERSEDED, kept not deleted: census/decision-11 (agent-learning-lab), off main at 5bd91d3 — the census PR. All stop-16 branches are merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab) - stop16/phase-5b-verification-selfhealing and stop16/handoff-and-boards are MERGED, not deleted; agent-observatory stop16/permission-block-classifier is MERGED, not deleted.  SUPERSEDED, kept not deleted: stop16/phase-5b-verification-selfhealing (agent-learning-lab), created 2026-09-11T10:24:52Z off main at 2d201a5. The stop-15 branch is merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab), clean, at 2d201a5. THE STOP-15 BRANCH stop15/b7-verification-policies IS MERGED, not deleted. Fifteen commits on it this session. SUPERSEDED, kept not deleted: stop15/b7-verification-policies (agent-learning-lab). SIX NEW COMMITS THIS SESSION on top of 96be718: 82685e1 the n=7 decision and the n=7 detection limits registered before any sheet; 0c5651a the two hand re-reads, committed while zero sheets existed for the batch; 8cf8942 P1-P6 measured into E-015 and E-016, P7 deferred; 493e1ba step 8 artefacts (verify-sh over 34 worktrees, gate from two sources, the baseline-report defect); plus the probe-file rename and this state write. branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, PUSHED. FIVE COMMITS: 32d99cc step 1 (workbook Goal/Required reading/Extract; lab#32 commented; card In Progress), a921443 the OTHER session`s state hunks + its §7 halt, 674d8a9 step 2 (design + the census + the feasibility probe), 344bc97 the halt discharge, ea7b1d2 THE PREDICTION COMMIT at 2026-09-10T11:51:08+02:00 = 09:51:08Z. SUPERSEDED, kept not deleted: branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, THREE COMMITS: 32d99cc (step 1), a921443 (the driver session`s state hunks + its §7 halt), 674d8a9 (step 2). NOT PUSHED YET. SUPERSEDED, kept not deleted: branch: NONE - stop14/phase-5a-guardrails IS MERGED (
 in_flight:
+  - "§4 step 5 PREFLIGHT, FOUR RUNS, launched 2026-09-26T~12:5xZ by evidence/b09/run-b9-preflight.sh
+     under the pid lock evidence/b09/.batch.lock. Manifest evidence/b09/preflight-<TAG>/manifest.tsv
+     is the progress record: every run appends before the next starts. Run ids are NOT yet known to
+     this file — read them from the manifest, never re-run one that is in it."
+  - "lab branch stop20/b9-knowledge-router: FOUR NEW COMMITS beyond the prediction commit —
+     83ea073 (the v1.2-knowledge overlay + tools/verify-knowledge-router.sh 18 of 18 + Amendment 1
+     in E-022/E-023 + the workbook's As-built section), d4c5765 (the preflight driver + 11 of 11
+     guards), 7a75596 (the batch driver + 11 of 11 guards including the computed ceiling). NOT yet
+     pushed at the time of this write."
+  - "obs#89 MERGED to main at ed9586f0433a40344f7ff7ad39fdaea26b2cea7a, six checks green. The local
+     agent-observatory checkout is STILL ON stop20/knowledge-hash and must NOT be switched or pulled
+     while runs are in flight — the runner executing the preflight is that working tree."
+# SUPERSEDED, kept not deleted: in_flight:
   - "2026-09-26T09:2xZ, §0 BOUNDARY 1 FOR STOP 20. NOTHING IS RUNNING AND NOTHING IS
      UNMERGED-BUT-OWED. No run-agent.sh, no batch driver, no lock file, no codex, no opencode.
      *** NO BENCHMARK RUN HAS BEEN LAUNCHED AT THIS STOP AT ALL *** - §4 step 5's preflight and
@@ -2392,7 +2457,28 @@ last_verified: "2026-09-26, STOP 20 OPENED TO §0 BOUNDARY 1. Every number below
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "*** AUTHOR INSERT, 2026-09-26, NOT THE BUILDER`S TEXT: AUTHOR DECISION 13 IS ADOPTED
+next_action: "*** §4 STEP 5 IS IN FLIGHT: evidence/b09/run-b9-preflight.sh, FOUR RUNS, launched
+  2026-09-26T~12:5xZ under a pid lock at evidence/b09/.batch.lock. DO NOT START A SECOND ONE. ***
+  Check evidence/b09/preflight-<TAG>/manifest.tsv and window.txt for what already ran BEFORE
+  deciding anything is dead; never re-run an id that is in a manifest.
+  (1) WHEN IT FINISHES, read its exit code: 0 = the batch may start; 2 = CONDITION (ii) FAILED,
+      the router was never called on a treated run, and THE BATCH DOES NOT START — that is the
+      decision rule's VOID row arriving before the money, and it is a RESULT to write up, not a
+      thing to fix by editing the instruction; 3 = (i) or (iii) failed, the treatment was not
+      delivered as registered; 6/7/8 = a guard, an endpoint or the lock refused before any run.
+  (2) THEN §4 STEP 6, and ONLY if the preflight exited 0: evidence/b09/run-b9-batch.sh, n=10 per
+      arm per task, interleaved. *** ITS CEILING IS COMPUTED FROM THE PREFLIGHT PAIR x 11, PER
+      TASK (author decision 13), AND IT REFUSES TO START AT ALL IF THE PAIR COST IS NOT READABLE
+      (exit 12). *** Do not pass it a dollar figure; there is no knob for one. Guards: 11 of 11.
+  (3) BOUNDARY 2 IS `after §4 step 6 — every run of the batch recorded, run ids and worktree paths
+      in the state file`. END THE TURN THERE. Step 7 (scoring) is boundary 3 and CANNOT RUN AT ALL
+      until codex returns on 2026-09-30T~16:29Z — the runs are kept with --keep and scoring waits
+      (§4c step 3). Do NOT substitute a scorer: ollama-cloud is refused too.
+  (4) DO NOT: re-run §4 step 4 (both builds are committed — lab 83ea073/d4c5765/7a75596, obs
+      ed9586f merged); write the router's log inside a worktree; add a third arm (§7); edit a
+      registered variable; start a batch while the preflight lock is held; report a §4a review as
+      ACCEPTed when the gate did not run; or commit to any main outside a PR."
+# SUPERSEDED, kept not deleted: next_action: "*** AUTHOR INSERT, 2026-09-26, NOT THE BUILDER`S TEXT: AUTHOR DECISION 13 IS ADOPTED
   AND IT CHANGES STOP 20`s BUDGET BEFORE ANY BATCH. The ceiling is NO LONGER A FLAT NUMBER: it is
   11 x THE MEASURED PREFLIGHT-PAIR COST, PER TASK, so stop 20 carries TWO ceilings, one from
   BE-003`s preflight pair and one from BE-004`s. IT ONLY STAYS L2 IF THE DRIVER COMPUTES IT - a
