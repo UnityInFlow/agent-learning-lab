@@ -238,6 +238,15 @@ one() {  # one <task> <arm> <seq>
   dur="$(printf '%s' "$rec"  | jq -r '.efficiency.durationMs // "null"')"
   chg="$(printf '%s' "$rec"  | jq -r 'if .result.changedFiles then (.result.changedFiles|length) else "null" end')"
   ev="$(printf '%s' "$rec"   | jq -r '.evaluation.exitCode // "null"')"
+  # *** rv AND rm WERE DECLARED AND NEVER ASSIGNED, AND set -u KILLED THE BATCH AT THE PRINTF —
+  # AFTER THE FIRST RUN HAD ALREADY COST $0.140948. *** The columns were carried over from the b08
+  # driver and the two jq reads were not. Run 6d728d76-5b1d-4b56-8e1f-154ea27ae82b is on record in
+  # the API with no manifest row; it is documented as an orphan in this stop's evidence and is
+  # excluded-and-replaced under E-022's registered infrastructure rule. ShellCheck cannot see this
+  # (they are declared locals) and the guard fixture set cannot either (it never enters one()), so
+  # the sidecar below exists to make the NEXT omission of this class cost a row rather than a batch.
+  rv="$(printf '%s' "$rec"   | jq -r '.runtime.version // "null"')"
+  rm="$(printf '%s' "$rec"   | jq -r '.runtime.model // "null"')"
   local f13=no; /usr/bin/grep -aq '"terminal_reason":"api_error"' "$log" && f13=yes
   local edits; edits="$(/usr/bin/grep -aoE '"name":"(Edit|Write|NotebookEdit)"' "$log" 2>/dev/null | /usr/bin/wc -l | tr -d ' ')"
   edits="${edits:-0}"
@@ -300,6 +309,12 @@ one() {  # one <task> <arm> <seq>
     [[ "$it" == "/" ]] && it="UNPARSED"
   else it="NOFILE"; fi
 
+  # THE SIDECAR, WRITTEN BEFORE THE ROW. A run id and a worktree path are the two things that cannot
+  # be recovered if this function dies between the run and the manifest: the money is spent, the
+  # evidence is on disk under a name nothing records, and the only safe reading afterwards is "a run
+  # happened and we do not know which". Two lines, written first, so a crash costs a row and not a
+  # run.
+  printf '%s\t%s\t%s\t%s\t%s\n' "$task" "$seq" "$arm" "${rid:-NONE}" "${wt:-NONE}" >> "$EVID/run-ids.tsv"
   printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
     "$task" "$seq" "$arm" "${rid:-NONE}" "$rc" "$ev" "$f13" "$edits" "$rv" "$rm" "$kn" "$ih" "$ah" \
     "$lstate" "$lines" "$hits" "$first" "$rmentions" "$rdenied" "$cmatch" "$mc" "$tc" "$cost" "$dur" \

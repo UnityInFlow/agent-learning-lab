@@ -208,6 +208,9 @@ one() {  # one <task> <arm>
     [[ "$it" == "/" ]] && it="UNPARSED"
   else it="NOFILE"; fi
 
+  # The sidecar, written before the row — see run-b9-batch.sh's note: a crash between the run and
+  # the manifest must cost a row, never a run id.
+  printf '%s\t%s\t%s\t%s\t%s\n' "$task" "$arm" "${rid:-NONE}" "${wt:-NONE}" "$(date -u +%H:%M:%SZ)" >> "$EVID/run-ids.tsv"
   printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
     "$task" "$arm" "${rid:-NONE}" "$rc" "$ev" "$kn" "$ih" "$ah" "$lstate" "$lines" "$hits" \
     "$rmentions" "$rdenied" "$cmatch" "$cost" "$mc" "$tc" "$dur" "$chg" "$it" "${wt:-NONE}" >> "$MANIFEST"
