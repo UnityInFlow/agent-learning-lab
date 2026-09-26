@@ -2320,7 +2320,35 @@ last_verified_addendum_second_reader: "2026-09-25, LATER THE SAME DAY, §4 STEP 
   correct about the same code because they ask different questions - which is why the exit gate must name
   which question it answers."
 
-last_verified: "2026-09-26, STOP 20 §4 STEPS 4 AND 5 COMPLETE, STEP 6 IN FLIGHT. Every number here was
+last_verified: "2026-09-26T18:1xZ, STOP 20 §4 STEP 6 RUNNING DETACHED, AND THREE THINGS VERIFIED BY
+  HAND RATHER THAN BY TRUSTING A GREEN CHECK.
+  (1) THE §5 HAND RE-READ IS ON DISK AND NO SHEET EXISTS TO HAVE ANCHORED IT (codex refused until
+      ~2026-09-30T16:29Z). `maintainability` = 2 by hand on BE-003 01 treated
+      c49eec44-10fe-4996-ba2b-edd31e3a79e8, rubric benchmark/rubrics/backend-quality.yaml at
+      396e1799eb2b (the registered sha, re-shasummed). All three of anchor 2`s required citations:
+      the `when (shipment.status)` in EXPRESSION position with its value assigned at
+      ShipmentController.kt:65, three arms and NO `else` ANYWHERE IN THE FILE at 66-71 (grep -n
+      else returns nothing), the value consumed at 74 (repository.save(updated)). Produced by a
+      sonnet subagent under §4b AND THEN RE-DERIVED IN MY OWN CONTEXT off the same file with
+      `sed -n 60,78p` and `grep -n else`, because §4b requires that of any delegated value that
+      decides a gate. Committed 78d5af5. n = 1 and stated as true of that run, not as a property.
+  (2) THE §5 INDEPENDENCE CHECK, on every row the batch has written (7 of 7 at 18:14Z), from the
+      run records and not from a flag: knowledgeHash sha256:0770219ae7f4281a80071d78dadea285 on
+      EVERY treated row and `null` on EVERY control row; instructionsHash the two registered values
+      and never crossed; agentHash sha256:b3450564b6f32d6193e8580db766210e IDENTICAL in both arms;
+      author-decision-8 init.tools read-back n=4 [\"Read\",\"Edit\",\"Write\",\"Bash\"] verdict MATCH on
+      7 of 7. corpus_match MATCH on treated, ABSENT-as-registered on control.
+      *** router_denied = no ON EVERY TREATED ROW. *** The batch is not measuring a permission.
+  (3) THE DETACH IS PROVED, NOT ASSERTED: resume-1.out line 2 reads `pid=81126 pgid=81126 sid=81126`
+      and sid == pid is the proof. detach.py was smoke-tested on /bin/sh first
+      (/tmp/detach-smoke.log) before a benchmark run was put through it.
+  ALSO: telemetry is GROWING, which the stop-11 rule requires before any telemetry-sourced number is
+  trusted - events.jsonl 26 115 724 bytes at launch, 27 451 394 at 18:11Z. Disk: 59 GiB free,
+  evidence.local at 2.3 G with ~2 G of worktree copies still to come. UPTAKE so far, and it is
+  prediction 3`s partition: 1 of 4 treated runs has a non-empty router log (seq 02, 1 line, 1 hit);
+  seq 01, 03 and 04 ABSENT with 0 router mentions. n = 4, so TRUE OF THOSE RUNS and NOT a property
+  (§5). Prediction 3 registered >= 7 of 10."
+# SUPERSEDED, kept not deleted: last_verified: "2026-09-26, STOP 20 §4 STEPS 4 AND 5 COMPLETE, STEP 6 IN FLIGHT. Every number here was
   read from the file or the API named beside it, and the three that decide anything were re-derived by
   me rather than taken from a subagent.
   - PREFLIGHT 1, evidence/b09/preflight-20260926T124800Z, exit 2, $0.7773: BE-003 treated fbdebf75
