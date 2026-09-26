@@ -238,6 +238,18 @@ behaviour of the agent under test unmoved, because *delivering the right prose i
 the operation this instrument has twice failed to detect an effect from. **B9's gate contains no
 clause that would catch this**, because it measures the retrieval and not the consequence.
 
+> **The limit of that transfer, named here rather than left for a reader to assemble from this
+> finding and the next.** *(Added 2026-09-26 after the §4a review of this workbook flagged it; the
+> review ACCEPTed the artifact and raised this as non-blocking, and it is right.)* E-003 and E-009
+> both delivered prose **unconditionally** — the same words in every treated run, whether or not
+> the run needed them. Retrieval delivers **conditionally**, selected by the query. Those are not
+> the same treatment, and [finding 7](#7-just-in-time-is-what-this-harness-already-does-and-the-documented-hybrids-other-half-is-the-half-measured-null-here)
+> says in its own words that just-in-time delivery **has never been a treatment in this track**.
+> So the honest form of this finding is: **the nearest two measurements are null, and neither
+> measured conditional delivery.** That is a strong prior and not a result. What it justifies is
+> unchanged and is the practical half — **register an outcome the retrieval could plausibly
+> change, not a retrieval statistic** — because that recommendation holds under either reading.
+
 What that obliges, again before stop 20's prediction commit: **register an outcome the retrieval
 could plausibly change, not a retrieval statistic.** A hit rate is a property of the router. The
 gate needs a property of the run. On the evidence above the honest prior is that it will not move,
@@ -475,7 +487,7 @@ with a detector that has been **proved able to fire**.
 | File | What it is | Proof |
 |---|---|---|
 | [`evidence/p06b/retrieval-trace-probe.sh`](../../evidence/p06b/retrieval-trace-probe.sh) | Read-only scanner. Two modes (`records`, `telemetry`), two detector sensitivities (**STRICT** = a path with a separator and a source extension; **LOOSE** = a bare filename with a source extension), **six** registered exit codes, and a **read-scoped** hit count so a positive result can be attributed to a `Read` event or explicitly not | ShellCheck clean |
-| [`evidence/p06b/verify-retrieval-trace-probe.sh`](../../evidence/p06b/verify-retrieval-trace-probe.sh) | **29 cases** — one per registered outcome, four asserting printed counters rather than exit codes, one running unmodified lines captured from the live telemetry, and one comparing the probe's **declared** exit-code set against the set the cases exercise | **29 of 29**, exit 0 |
+| [`evidence/p06b/verify-retrieval-trace-probe.sh`](../../evidence/p06b/verify-retrieval-trace-probe.sh) | **38 cases** — one per registered outcome, **seven asserting printed counter lines by exact whole-line or exact field match** rather than exit codes, one running unmodified lines captured from the live telemetry, one exercising the flat-attribute branch, three proving a moved schema is never reported as an empty population, and one comparing the probe's **declared** exit-code set against the set the cases exercise | **38 of 38**, exit 0 |
 | [`evidence/p06b/population-overlap.sh`](../../evidence/p06b/population-overlap.sh) | Intersects the two populations, because a difference of two sizes is a net and not a count | ShellCheck clean, 2 usage guards |
 
 **Exit codes 4 and 6 are the point of the design.** **4** fires when the population is empty —
@@ -560,6 +572,8 @@ has no verifier.
 
 ### §4a — what the second model family found, and what changed because of it
 
+#### Round 1 — both gate scripts REJECT, eight findings
+
 Round 1, 2026-09-26T07:16–07:26Z. Three artifacts, the two gate scripts with
 `-P codex,deepseek-v4-pro` per §4a (*"use `-P` for anything that will be a registered
 variable … because different families find different classes of defect"*), the workbook with
@@ -600,6 +614,56 @@ control reporting success over a scope smaller than it claims*, found by a secon
 in artifacts whose author had just written a design section warning about exactly that. The
 house failure mode is not something one notices in one's own work by resolving to.
 
+#### Round 2 — both gate scripts REJECT again, eleven more findings, and one of them was a crash
+
+Round 2, 2026-09-26T07:32–07:44Z, after the round-1 revision. The workbook **ACCEPTed** (its
+round-1 review also ACCEPTed once it had finished writing — see the note on stalls below). Both
+gate scripts came back **REJECT** with findings that did not repeat round 1's.
+
+| Artifact | Findings file | Panel | Verdict |
+|---|---|---|---|
+| `retrieval-trace-probe.sh` | `review-retrieval-trace-probe-20260926T073240Z.md` | codex ok 24 s · deepseek-v4-pro ok 106 s | **REJECT**, 4 blocking, 1 non-blocking, 1 disputed *by the acceptance gate itself* |
+| `verify-retrieval-trace-probe.sh` | `review-verify-retrieval-trace-probe-20260926T073649Z.md` | codex ok 40 s · deepseek-v4-pro ok 313 s | **REJECT**, 6 blocking, 1 non-blocking, 2 disputed by the gate |
+| `phases/06b-knowledge-retrieval/README.md` | `review-README-20260926T074359Z.md` | glm-5.2 ×2 (`-n 2`, one family) | **ACCEPT**, 0 blocking, 3 non-blocking |
+
+**Again nothing was disputed by me and everything was fixed.** Two of the eleven were defects I
+could confirm in one command each, and I did before fixing them.
+
+| # | Finding | Disposition |
+|---|---|---|
+| P5 | **A JSONL line whose value is `[]` parses as valid JSON and then raises an uncaught `AttributeError`** at `doc.get("resourceLogs")`, because the `try/except` wraps only `json.loads`. The probe exits **1** — a code it does not register, and the one §4a calls "infrastructure to discard" | **CONFIRMED BY HAND AND FIXED.** `printf '[]\n' > f; probe telemetry f` gave a traceback and exit 1; `"hello"` did the same. Non-object lines are now counted and reported, and the verdict is **exit 5, `WRONG SHAPE`**. A crash is the worst possible answer here: it returns no verdict at all while looking like a tooling problem |
+| P6 | `read_scoped` re-scanned **every** string in a Read record, so a non-zero count could fire on `working_directory`, a message body or prompt context rather than on the attribute naming the target — the counter **over-claimed** what it measured | **FIXED, at two scopes.** `read_scoped_any` (any string in the record — conservative, and the strong form of the null) and `read_scoped_attr` (**attribute values only**, printing the **keys** that carried the hits). The verdict lines were split three ways, and the probe now says in its own header: *it locates, it does not attribute*. No wording anywhere claims a hit **is** the file read |
+| P7 | The schema guard existed for **one mode only**: if the records array moved off `runs`/`content`/`items`/`data`, the file parsed, `records == 0`, and the probe returned **4, "population empty"** — exactly the conflation exit 6 was added to prevent | **FIXED.** Records mode tracks whether a run array was found at all, and returns **6** when none was |
+| P8 | Telemetry's guard required `log_records > 0`, so **renaming `resourceLogs` also returned 4 instead of 6** — the guard could not fire in the very case it was for | **FIXED.** Zero log records from a parsed document is now **6**. A valid OTLP log export always has them, so zero means the shape moved |
+| P9 *(non-blocking)* | An empty input was reported as *"INPUT UNPARSABLE"*, which misnames the diagnosis | **FIXED.** Exit 5 now distinguishes `NO CONTENT`, `WRONG SHAPE` and `NOT JSON`, with counts |
+| V6–V10 | **Five counter assertions were unanchored `grep -E` substrings.** The pattern for `loose_only=1` also accepted `loose_only=10`; `strict=1 loose_only=0` accepted `loose_only=00`; `read_events=[1-9]` accepted `read_events=199`. The header claimed these asserted the **printed counts** | **CONFIRMED BY HAND AND FIXED.** `echo "hits: strict=0 loose_only=10" \| grep -Eq 'hits: strict=0 loose_only=1'` matches. Every assertion is now either `grep -Fxq` (fixed string, **whole line**) or exact field extraction and string comparison, and failures print the counters they actually saw. **The probe's output was changed to make this possible**: the read-scoped explanation moved off the counter line onto its own line, because a counter line with trailing prose *forces* substring matching. **Proved able to fail:** a throwaway copy asserting `loose_only=10` and `read_events=30` returns `36 passed, 2 failed` |
+| V11 | The precedence cases **both put the unparsable file first**, so order-independence was claimed and not tested | **FIXED.** Both orders now have a case: *"malformed first, hit second"* and *"hit first, malformed second"*, both registered **3** |
+| V12 *(non-blocking)* | The failure diagnostic grepped `^(hits\|read_scoped):` and omitted `read_events`, so the real-schema case printed nothing useful on failure | **FIXED** — the diagnostic covers `population:` too, and `check_field` prints want-vs-got |
+| V13 *(gate-disputed)* | The line-level critic said the real-telemetry fixture contains **no file paths**, "undermining the claim that real data validates path extraction". The acceptance gate could not substantiate it from its slice | **THE CRITIC'S OBSERVATION IS TRUE AND IS NOT A DEFECT — and the wording that invited it was.** Real telemetry containing no paths **is the lab's result**. The fixture's job is to prove the **parser reads the real shape** (`read_events=3`), never to prove path extraction. The header now says exactly that, and a third case asserts the real excerpt's `hits: strict=0 loose_only=0` — so the fixture now carries the null too |
+| V14 *(gate-disputed)* | `attrs_of` accepts flat-string attribute values and **no fixture exercised that branch** | **TRUE, AND FIXED rather than argued.** `t-flat-attrs.jsonl` uses flat string values; it returns 0 with `read_events=1`, so the branch is live and a regression in it would now fail |
+
+**29 cases became 38, all passing, and the numbers still did not move** — `telemetry-scan-r3.txt`
+and `records-scan-r3.txt` reproduce every value for the third time across three revisions of the
+probe. That stability is worth more than any single review round: the thing being measured did not
+depend on the defects.
+
+#### A note on stalls, because I got it wrong and so did a subagent
+
+§4a says a header-only findings file is a stall and to check for a live `opencode` process before
+opening one. I grepped `review-README-20260926T072624Z.md` at **776 bytes with 0 sections** and
+recorded it as a stall; it is **23 063 bytes with an ACCEPT**. A subagent recorded
+`review-retrieval-trace-probe-20260926T073240Z.md` as *"a stalled duplicate, 895 bytes, 0
+sections"*; it is **15 570 bytes with four blocking findings**. Both files were **still being
+written**.
+
+**So the documented stall signature and a mid-write read are byte-for-byte identical, and the
+precondition that separates them — the process has exited — is the easy thing to skip.** On this
+machine the standard way to check it is `pgrep`, which `agent-learning-lab/CLAUDE.md` records as
+**blind** under the default locale, and a wait loop whose own command line contains the word
+`opencode` matches itself and never terminates. That happened too, to a subagent, today.
+**A re-run caused by a false stall is not free**: it is what produced the concurrent `opencode`
+calls this machine is known to wedge on. Nothing was lost this time.
+
 ### What this hands to stop 20 (B9), unchanged in substance and now stronger in layer
 
 1. **B9 must build its own retrieval record.** Not tune one — build one. The two routes finding 3
@@ -630,8 +694,16 @@ only when its exit gate is met from measurement).
       no `index.yaml`, no `knowledge/`, no `summaries/`, no `documents/` (finding 4).
 - [x] **Why vector search over my own repo duplicates what grep and LSP already do.** Because
       retrieval over code is dominated by **exact identifiers** — `@Version`, `MockK`, `-Dtest=`
-      — which embeddings blur, and the harness already resolves them exactly, 13 016 times over
-      638 runs. Stop 18 measured the symbol half of the same answer: LSP is a symbol service with
+      — which embeddings blur and which `grep` and `Glob` match exactly.
+      **The honest count is smaller than the one this clause first quoted, and the §4a review was
+      right to say so.** 13 016 tool events is `Read` + `Glob` + `Grep`, and **12 894 of them are
+      `Read`** — opening a path the agent already knew. Only **80 `Glob` + 42 `Grep` = 122** are
+      *lookups by query*, i.e. the operation a retriever would compete with: about **0.19 per run
+      across 638 runs**. So the measured claim is narrower: on this workload the agent barely
+      searches at all, it mostly opens paths it was told about — which argues against a retriever
+      even more directly than a large search count would, but it is a **different** argument and
+      the first framing borrowed weight from `Read` that `Read` does not carry.
+      Stop 18 measured the symbol half of the same answer: LSP is a symbol service with
       a fixed capability list, and it is a *different question* from similarity.
 - [ ] **My router's hit rate as a number, and the corpus size where it degrades.**
       **UNANSWERABLE AT THIS STOP, AND RECORDED AS SUCH RATHER THAN ESTIMATED.** There is no
@@ -681,7 +753,7 @@ learning:
   what_was_added: >
     Nothing to the agent, and nothing to any registered variable. Two read-only instruments —
     evidence/p06b/retrieval-trace-probe.sh, ShellCheck clean, SIX registered exit codes, with a
-    29-case fixture set at 29 of 29, and evidence/p06b/population-overlap.sh, which exists only
+    38-case fixture set at 38 of 38, and evidence/p06b/population-overlap.sh, which exists only
     because a sentence of my own prose subtracted two population sizes and called the result a
     count. Plus this workbook's design section, Lab 6B.6 and its result. No corpus, no router, no write
     path, no customization overlay, no benchmark run, no money.
@@ -756,13 +828,16 @@ learning:
 |---|---|---|---|
 | §3 stop 19: *"reading, extract, one lab. 6B read path only"* — **reading** | `phases/06b-knowledge-retrieval/README.md` §*Verified reading*, 4 sources all `[x]`; `SOURCES.md` entry for MCP resources rev `2026-07-28` added at this stop; `./tools/check-links.sh` run at §4 step 1 | **L2** for the links (the script executes and fails on a dead one), **L3** for the reading itself | `./tools/check-links.sh`; then read the four bullets and follow each URL |
 | §3 stop 19: **extract** | Same file, §*Extract — spine stop 19*, findings 1–7, committed `880bf41` | **L3** — a document | `git show 880bf41 --stat` |
-| §3 stop 19: **one lab** | §*Lab 6B.6*, this file; instrument `evidence/p06b/retrieval-trace-probe.sh`; fixtures `evidence/p06b/verify-retrieval-trace-probe.sh` | **L2** | `./evidence/p06b/verify-retrieval-trace-probe.sh` → `29 passed, 0 failed`, exit 0 |
+| §3 stop 19: **one lab** | §*Lab 6B.6*, this file; instrument `evidence/p06b/retrieval-trace-probe.sh`; fixtures `evidence/p06b/verify-retrieval-trace-probe.sh` | **L2** | `./evidence/p06b/verify-retrieval-trace-probe.sh` → `38 passed, 0 failed`, exit 0 |
 | §3 stop 19: **6B read path only** — the write path stays shut | No corpus, no `knowledge/`, no `index.yaml` and no write path created at this stop. `git diff --stat main...HEAD` lists only this workbook, `SOURCES.md`, `evidence/p06b/**` and `TRACK-B-STATE.md` | **L1 on the consequence** — a write path that does not exist cannot be exercised; nothing was added that could be | `git diff --name-only main...HEAD` and look for any corpus file. There is none |
 | The detector fires when a path is present (the lab's own integrity) | 6 positive-control fixtures under `evidence/p06b/fixtures/`: `t-path-attr`, `t-path-body`, `t-path-resource`, `t-bare-filename`, `t-path-in-bash-event`, `r-changed-files` — each registered **exit 3** | **L2** | `./evidence/p06b/retrieval-trace-probe.sh telemetry evidence/p06b/fixtures/t-path-attr.jsonl; echo $?` → `3` |
-| The two sensitivities are **distinguishable**, not merely both reachable — a STRICT regex collapsed into LOOSE would otherwise pass | Cases *"STRICT stays silent where LOOSE fires"* and *"STRICT fires on a separator path"*, which assert the **printed counters** `hits: strict=0 loose_only=1` and `strict=1 loose_only=0` | **L2** | `./evidence/p06b/retrieval-trace-probe.sh telemetry evidence/p06b/fixtures/t-bare-filename.jsonl \| grep '^hits:'` |
-| A hit is attributed to a `Read` or explicitly not | Cases *"a hit ON a Read event is read-scoped"* and *"a hit on a non-Read event is NOT read-scoped"*, asserting the printed `read_scoped:` line in both directions | **L2** | Same two fixtures, `\| grep '^read_scoped:'` |
+| The two sensitivities are **distinguishable**, not merely both reachable — a STRICT regex collapsed into LOOSE would otherwise pass the whole suite | Cases *"STRICT stays silent where LOOSE fires"* and *"STRICT fires on a separator path"*, asserting the **whole printed line** `hits: strict=0 loose_only=1` and `hits: strict=1 loose_only=0` | **L2** | `./evidence/p06b/retrieval-trace-probe.sh telemetry evidence/p06b/fixtures/t-bare-filename.jsonl \| grep '^hits:'` |
+| A hit is **located** within a Read event, at two scopes — and the probe never claims the hit **is** the file read | Cases *"a path in a Read ATTRIBUTE is attributed"* (`read_scoped_attr: strict=1 loose_only=0`), *"a path in a Read BODY is any-scoped only"* (`read_scoped_attr: strict=0 loose_only=0` with `read_scoped_any: strict=1 loose_only=0`), and *"a hit on a non-Read event is neither"* | **L2** | Same fixtures, `\| grep '^read_scoped'` |
 | The parser matches the **real** schema, not only the one its author invented | `evidence/p06b/fixtures/t-real-sample.jsonl` — three **unmodified** lines captured from the live `events.jsonl`; registered **exit 0** with `read_events` non-zero | **L2** | `./evidence/p06b/retrieval-trace-probe.sh telemetry evidence/p06b/fixtures/t-real-sample.jsonl; echo $?` → `0` |
-| A moved schema is not reported as an empty population | `t-schema-moved.jsonl` — log records whose attributes use `toolName` instead of `tool_name`; registered **exit 6** | **L2** | `./evidence/p06b/retrieval-trace-probe.sh telemetry evidence/p06b/fixtures/t-schema-moved.jsonl; echo $?` → `6` |
+| A moved schema is **never** reported as an empty population — three shapes, all of which returned a misleading `4` before §4a round 2 | `t-schema-moved.jsonl` (attributes under `toolName`), `t-no-log-records.jsonl` (`resourceLogs` renamed), `r-array-moved.json` (the run array moved off every known key) — each registered **exit 6** | **L2** | `for f in t-schema-moved t-no-log-records; do ./evidence/p06b/retrieval-trace-probe.sh telemetry evidence/p06b/fixtures/$f.jsonl; echo $?; done` → `6`, `6` |
+| A valid JSON line that is not an object does not **crash** | `t-nonobject-line.jsonl` (`[]`), registered **exit 5** with verdict `WRONG SHAPE`. Before §4a round 2 this raised an uncaught `AttributeError` and exited **1**, a code the probe does not register | **L2** | `./evidence/p06b/retrieval-trace-probe.sh telemetry evidence/p06b/fixtures/t-nonobject-line.jsonl; echo $?` → `5` |
+| The counter assertions are **exact**, not substring — the defect §4a round 2 found is closed | Every counter case uses `grep -Fxq` (fixed string, whole line) or exact field extraction. **Proved able to fail**: a throwaway copy asserting `loose_only=10` and `read_events=30` returns `36 passed, 2 failed` | **L2** | Copy `evidence/p06b/` to a temp dir, change one expected counter, run the verifier there |
+| The flat-attribute branch of `attrs_of` is exercised, not merely present | `t-flat-attrs.jsonl` — attribute values as flat strings rather than the nested OTLP `{stringValue: …}`; registered **exit 0** with `read_events=1` | **L2** | `./evidence/p06b/retrieval-trace-probe.sh telemetry evidence/p06b/fixtures/t-flat-attrs.jsonl` |
 | *"Every registered exit code"* is a complete claim, not a remembered one | The probe declares `# REGISTERED-EXIT-CODES: 0 2 3 4 5 6`; the verifier reads that line and fails if it differs from the set its cases exercise. **Proved able to fail**: a throwaway copy declaring a `7` returns `28 passed, 1 failed` | **L2** | Copy `evidence/p06b/` to a temp dir, add a code to the declared line, run the verifier there |
 | An empty population does not read as a clean negative | `t-no-read-events.jsonl` and `r-empty.json`, registered **exit 4**; `t-malformed`, `t-empty`, `t-blank-lines`, `r-malformed`, registered **exit 5**; and a **partially** unparsable input is registered as **3, not 5** (*"malformed input beside a real hit"*) | **L2** | `./evidence/p06b/retrieval-trace-probe.sh records evidence/p06b/fixtures/r-empty.json; echo $?` → `4` |
 | **Records half:** 652 records, 13 754 strings, 2 246 STRICT hits, all under `result.changedFiles[]`, exit 3 | `evidence/p06b/scan-20260926T071037Z/runs-snapshot.json` `sha256:6d1aa161b76c9d33`; output `records-scan.txt` | **L2** | `./evidence/p06b/retrieval-trace-probe.sh records evidence/p06b/scan-20260926T071037Z/runs-snapshot.json` |
@@ -783,7 +858,24 @@ write path until Phase 9 exists.
 
 ## Commit
 
+**The author's stub block is kept verbatim below and NONE of it was produced at this stop.**
+*(Marked 2026-09-26 after the §4a review pointed out that a reader following this block alone
+would search for four files that do not exist, and is corrected only if they reach the validation
+table. Correct, and the block is annotated rather than rewritten — it is the author's text and it
+is the record of what the stub planned.)*
+
 ```
 knowledge/index.yaml · retrieval eval set · hit-rate instrumentation
 findings/B6b-retrieval.md
 ```
+
+| Planned above | Status at stop 19 |
+|---|---|
+| `knowledge/index.yaml` | **NOT BUILT.** There is no router and no corpus — [finding 4](#4-lab-6b1-has-nothing-to-measure-and-that-is-the-finding). Building one is stop 20's (B9), and §6 forbids a future step's artifacts early |
+| retrieval eval set | **NOT BUILT**, same reason |
+| hit-rate instrumentation | **NOT BUILT**, and [finding 3](#3-b9s-gate-clause-retrieval-order-recorded-per-run-cannot-be-closed-by-this-instrument-and-the-reason-is-a-deliberate-scrub-plus-a-field-that-is-computed-and-dropped) plus [Lab 6B.6](#lab-6b6--can-this-instrument-name-what-a-run-read--the-one-lab-the-spine-funds-at-this-stop) are why: the pipeline cannot record a retrieval at all, so the instrument has to come before the metric |
+| `findings/B6b-retrieval.md` | **Not written under that name.** This stop's findings are in this workbook's extract and Lab 6B.6, and its row is `findings/track-b-2026-09-26.md` |
+
+**What this stop actually committed**, per `git diff --name-only main...HEAD`: this workbook,
+`SOURCES.md`, `evidence/p06b/**` (the probe, its verifier, the overlap script, 18 fixtures and the
+scan outputs), `findings/track-b-2026-09-26.md`, the §0a evidence files, and `TRACK-B-STATE.md`.

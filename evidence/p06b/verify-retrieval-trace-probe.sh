@@ -1,42 +1,59 @@
 #!/usr/bin/env bash
 # verify-retrieval-trace-probe.sh — prove every exit code retrieval-trace-probe.sh
-# REGISTERS actually fires, on a fixture written to force it, and prove the two detector
-# sensitivities are distinguishable from each other rather than merely both present.
+# REGISTERS actually fires, on a fixture written to force it; prove the two detector
+# sensitivities are distinguishable from each other rather than merely both present; and
+# assert printed counters by EXACT FULL-LINE match, never by substring.
 #
 # §4 step 4: "a control that has never been shown to reject anything is indistinguishable
 # from one that rejects nothing." The probe's whole claim is a NEGATIVE — that nothing in
 # the telemetry names a file a run read — and a scanner that scans nothing returns exactly
 # that.
 #
-# WHICH CASES CARRY WHICH CLAIM (named, not numbered — an earlier version of this header
-# cited "Cases 2-5, 7 and 11" against a script that has no numbered cases, which the §4a
-# review called materially false, and it was):
+# WHY EXACT MATCHING, in this script's own history: round 2 of the §4a review found that
+# every counter assertion here was an unanchored `grep -E` substring, so the pattern for
+# `loose_only=1` also accepted `loose_only=10`, and `read_events=[1-9]` accepted
+# `read_events=199`. Five assertions that looked like measurements were prefix tests. They
+# are now `grep -Fxq` whole-line comparisons (check_line) or exact field extraction
+# (check_field), and the failure output prints what it actually got.
+#
+# WHICH CASES CARRY WHICH CLAIM (named, not numbered — an earlier header cited "Cases 2-5,
+# 7 and 11" against a script that has no numbered cases, which round 1 called materially
+# false, and it was):
 #
 #   THE DETECTOR FIRES, and where:  "path in a Read attribute", "path in a log record
 #       body", "path in resource attributes", "bare filename, LOOSE only", "path in a
 #       non-Read event", "paths in result.changedFiles"
 #   THE TWO SENSITIVITIES ARE DISTINGUISHABLE:  "STRICT stays silent where LOOSE fires"
-#       and "STRICT fires on a separator path" assert the PRINTED strict/loose counts, not
-#       just the exit code. Without them a probe whose STRICT regex had collapsed into
-#       LOOSE would pass this entire suite.
-#   A HIT IS ATTRIBUTED TO A READ OR NOT:  "a hit ON a Read event is read-scoped" and
-#       "a hit on a non-Read event is NOT read-scoped" assert the printed read_scoped line.
+#       and "STRICT fires on a separator path" assert the whole printed `hits:` line.
+#       Without them a probe whose STRICT regex had collapsed into LOOSE would pass.
+#   A HIT IS LOCATED WITHIN A READ EVENT, AT TWO SCOPES:  "a path in a Read ATTRIBUTE is
+#       attributed", "a path in a Read BODY is any-scoped but not attributed", and "a hit
+#       on a non-Read event is neither". The probe LOCATES; it does not claim the hit IS
+#       the file read, and no case here asserts that it does.
 #   THE PARSER MATCHES THE REAL SCHEMA:  "a real telemetry excerpt is recognised" runs
-#       against three unmodified lines captured from the live events.jsonl. No synthetic
-#       fixture can catch a wrong schema assumption, because I wrote both the fixture and
-#       the parser from the same belief.
-#   A SCHEMA CHANGE IS NOT AN EMPTY POPULATION:  "attributes under a different key"
+#       against three unmodified lines captured from the live events.jsonl. Its job is to
+#       prove the PARSER reads the real shape — `read_events` non-zero — and NOT to prove
+#       path extraction: real telemetry contains no paths, which is the lab's whole result.
+#   THE FLAT-ATTRIBUTE BRANCH IS EXERCISED:  "attribute values as flat strings". The probe
+#       accepts both the nested OTLP shape and a flat one; round 2 noted the flat branch
+#       had no fixture, so a regression there would have been invisible.
+#   A SCHEMA CHANGE IS NEVER AN EMPTY POPULATION:  "attributes under a different key",
+#       "resourceLogs renamed", "the run array moved" — all three previously returned a
+#       misleading exit 4.
 #   AN EMPTY POPULATION IS NOT A CLEAN NEGATIVE:  "zero Read events", "zero run records"
-#   UNPARSABLE IS NOT A CLEAN NEGATIVE EITHER:  the four "not JSON" / "empty" cases
-#   PRECEDENCE IS REGISTERED, NOT ACCIDENTAL:  "malformed input beside a real hit" pins
-#       detection above partial parse failure, so two implementations cannot both pass.
+#   MALFORMED INPUT IS NOT A CLEAN NEGATIVE, AND NEVER A CRASH:  the "not JSON" / "empty"
+#       cases, plus "a valid JSON line that is not an object" — which used to raise an
+#       uncaught AttributeError and exit 1, a code the probe does not register.
+#   PRECEDENCE IS REGISTERED, NOT ACCIDENTAL, IN BOTH ORDERS:  "malformed first, hit
+#       second" and "hit first, malformed second" both pin detection above partial parse
+#       failure, so the result cannot depend on argument order.
 #
 # OUT OF SCOPE, stated so the title cannot be read as more: this script asserts exit codes
-# and the specific printed counters named above. It does NOT assert that the probe reports
-# the RIGHT path — only that it reports a hit where one exists and none where it does not.
+# and the specific printed counter lines named above. It does NOT assert that a reported
+# path is the file that was actually read — the probe does not claim that either.
 #
-# Exit 0 when every case returns its registered code AND the declared code set is fully
-# exercised; 1 otherwise.
+# Exit 0 when every case returns its registered code, every asserted line matches exactly,
+# and the probe's DECLARED exit-code set equals the set these cases exercise; 1 otherwise.
 set -uo pipefail
 
 cd "$(dirname "$0")" || exit 2
@@ -54,84 +71,117 @@ check() {
   got=$?
   exercised="$exercised $want"
   if [[ "$got" == "$want" ]]; then
-    printf 'ok    %-40s exit %s\n' "$desc" "$got"
+    printf 'ok    %-46s exit %s\n' "$desc" "$got"
     pass=$((pass + 1))
   else
-    printf 'FAIL  %-40s want %s got %s  %s\n' "$desc" "$want" "$got" "$*"
+    printf 'FAIL  %-46s want %s got %s  %s\n' "$desc" "$want" "$got" "$*"
     fail=$((fail + 1))
   fi
 }
 
-# assert a printed line matches a regex — the counters, not only the exit code
-check_out() {
-  local desc=$1 pattern=$2
+# EXACT whole-line assertion. grep -Fx: fixed string, full line. No substring, no prefix.
+check_line() {
+  local desc=$1 expect=$2
   shift 2
   local out
   out=$("$@" 2>&1)
-  if grep -Eq -- "$pattern" <<<"$out"; then
-    printf 'ok    %-40s output matches /%s/\n' "$desc" "$pattern"
+  if grep -Fxq -- "$expect" <<<"$out"; then
+    printf 'ok    %-46s line == %q\n' "$desc" "$expect"
     pass=$((pass + 1))
   else
-    printf 'FAIL  %-40s output does NOT match /%s/\n' "$desc" "$pattern"
-    printf '      got: %s\n' "$(grep -E '^(hits|read_scoped):' <<<"$out" | tr '\n' ' ')"
+    printf 'FAIL  %-46s no line equals %q\n' "$desc" "$expect"
+    printf '      counter lines were: %s\n' \
+      "$(grep -E '^(hits|read_scoped_any|read_scoped_attr|population):' <<<"$out" | tr '\n' '|')"
+    fail=$((fail + 1))
+  fi
+}
+
+# EXACT field assertion: pull `key=value` out of the output and compare the value.
+check_field() {
+  local desc=$1 key=$2 expect=$3
+  shift 3
+  local out got
+  out=$("$@" 2>&1)
+  got=$(sed -n "s/.*[[:space:]]${key}=\([^[:space:]]*\).*/\1/p" <<<"$out" | head -1)
+  if [[ "$got" == "$expect" ]]; then
+    printf 'ok    %-46s %s == %s\n' "$desc" "$key" "$got"
+    pass=$((pass + 1))
+  else
+    printf 'FAIL  %-46s %s: want %q got %q\n' "$desc" "$key" "$expect" "$got"
     fail=$((fail + 1))
   fi
 }
 
 # --- the detector must FIRE. These are the positive controls. ---
-check 3 "path in a Read attribute"          "$PROBE" telemetry "$FIX/t-path-attr.jsonl"
-check 3 "path in a log record body"         "$PROBE" telemetry "$FIX/t-path-body.jsonl"
-check 3 "path in resource attributes"       "$PROBE" telemetry "$FIX/t-path-resource.jsonl"
-check 3 "bare filename, LOOSE only"         "$PROBE" telemetry "$FIX/t-bare-filename.jsonl"
-check 3 "path in a non-Read event"          "$PROBE" telemetry "$FIX/t-path-in-bash-event.jsonl"
-check 3 "paths in result.changedFiles"      "$PROBE" records   "$FIX/r-changed-files.json"
+check 3 "path in a Read attribute"            "$PROBE" telemetry "$FIX/t-path-attr.jsonl"
+check 3 "path in a log record body"           "$PROBE" telemetry "$FIX/t-path-body.jsonl"
+check 3 "path in resource attributes"         "$PROBE" telemetry "$FIX/t-path-resource.jsonl"
+check 3 "bare filename, LOOSE only"           "$PROBE" telemetry "$FIX/t-bare-filename.jsonl"
+check 3 "path in a non-Read event"            "$PROBE" telemetry "$FIX/t-path-in-bash-event.jsonl"
+check 3 "paths in result.changedFiles"        "$PROBE" records   "$FIX/r-changed-files.json"
 
-# --- the two sensitivities must be DISTINGUISHABLE, not merely both reachable ---
-check_out "STRICT stays silent where LOOSE fires" 'hits: strict=0 loose_only=1' \
+# --- the two sensitivities must be DISTINGUISHABLE, by exact line ---
+check_line "STRICT stays silent where LOOSE fires" "hits: strict=0 loose_only=1" \
   "$PROBE" telemetry "$FIX/t-bare-filename.jsonl"
-check_out "STRICT fires on a separator path"      'hits: strict=1 loose_only=0' \
+check_line "STRICT fires on a separator path"      "hits: strict=1 loose_only=0" \
   "$PROBE" telemetry "$FIX/t-path-body.jsonl"
 
-# --- a hit must be attributable to a Read, or explicitly not ---
-check_out "a hit ON a Read event is read-scoped"  'read_scoped: strict=1 loose_only=0' \
-  "$PROBE" telemetry "$FIX/t-path-attr.jsonl"
-check_out "a hit on a non-Read event is NOT read-scoped" 'read_scoped: strict=0 loose_only=0' \
-  "$PROBE" telemetry "$FIX/t-path-in-bash-event.jsonl"
+# --- a hit must be LOCATED within a Read event, at both scopes, by exact line ---
+check_line "a path in a Read ATTRIBUTE is attributed" \
+  "read_scoped_attr: strict=1 loose_only=0" "$PROBE" telemetry "$FIX/t-path-attr.jsonl"
+check_line "a path in a Read BODY is any-scoped only" \
+  "read_scoped_attr: strict=0 loose_only=0" "$PROBE" telemetry "$FIX/t-path-body.jsonl"
+check_line "a path in a Read BODY is any-scoped" \
+  "read_scoped_any: strict=1 loose_only=0" "$PROBE" telemetry "$FIX/t-path-body.jsonl"
+check_line "a hit on a non-Read event is neither" \
+  "read_scoped_any: strict=0 loose_only=0" "$PROBE" telemetry "$FIX/t-path-in-bash-event.jsonl"
 
-# --- the parser must match the REAL schema, not only the one I invented ---
+# --- the parser must match the REAL schema, not only the one its author invented ---
 check 0 "a real telemetry excerpt is recognised" "$PROBE" telemetry "$FIX/t-real-sample.jsonl"
-check_out "the real excerpt yields real Read events" 'read_events=[1-9]' \
+check_field "the real excerpt yields 3 Read events" read_events 3 \
+  "$PROBE" telemetry "$FIX/t-real-sample.jsonl"
+check_line "and names no file, as the result says" "hits: strict=0 loose_only=0" \
   "$PROBE" telemetry "$FIX/t-real-sample.jsonl"
 
-# --- a moved schema must NOT read as an empty population ---
-check 6 "attributes under a different key"   "$PROBE" telemetry "$FIX/t-schema-moved.jsonl"
+# --- the flat-attribute branch must be exercised, not merely present ---
+check 0 "attribute values as flat strings"    "$PROBE" telemetry "$FIX/t-flat-attrs.jsonl"
+check_field "the flat branch yields a Read event" read_events 1 \
+  "$PROBE" telemetry "$FIX/t-flat-attrs.jsonl"
+
+# --- a moved schema must NEVER read as an empty population. Three shapes. ---
+check 6 "attributes under a different key"    "$PROBE" telemetry "$FIX/t-schema-moved.jsonl"
+check 6 "resourceLogs renamed"                "$PROBE" telemetry "$FIX/t-no-log-records.jsonl"
+check 6 "the run array moved"                 "$PROBE" records   "$FIX/r-array-moved.json"
 
 # --- the detector must stay SILENT only over a non-empty population ---
-check 0 "Read events, no file named"        "$PROBE" telemetry "$FIX/t-no-path.jsonl"
-check 0 "a record naming no file"           "$PROBE" records   "$FIX/r-no-paths.json"
+check 0 "Read events, no file named"          "$PROBE" telemetry "$FIX/t-no-path.jsonl"
+check 0 "a record naming no file"             "$PROBE" records   "$FIX/r-no-paths.json"
 
 # --- an empty population must NOT read as a clean negative ---
-check 4 "zero Read events"                  "$PROBE" telemetry "$FIX/t-no-read-events.jsonl"
-check 4 "zero run records"                  "$PROBE" records   "$FIX/r-empty.json"
+check 4 "zero Read events"                    "$PROBE" telemetry "$FIX/t-no-read-events.jsonl"
+check 4 "zero run records"                    "$PROBE" records   "$FIX/r-empty.json"
 
-# --- unparsable input must NOT read as a clean negative either ---
-check 5 "telemetry, not JSON"               "$PROBE" telemetry "$FIX/t-malformed.jsonl"
-check 5 "telemetry, empty file"             "$PROBE" telemetry "$FIX/t-empty.jsonl"
-check 5 "telemetry, blank lines only"       "$PROBE" telemetry "$FIX/t-blank-lines.jsonl"
-check 5 "records, not JSON"                 "$PROBE" records   "$FIX/r-malformed.json"
+# --- unparsable input must NOT read as a clean negative, and must NEVER crash ---
+check 5 "telemetry, not JSON"                 "$PROBE" telemetry "$FIX/t-malformed.jsonl"
+check 5 "telemetry, empty file"               "$PROBE" telemetry "$FIX/t-empty.jsonl"
+check 5 "telemetry, blank lines only"         "$PROBE" telemetry "$FIX/t-blank-lines.jsonl"
+check 5 "a valid JSON line that is not object" "$PROBE" telemetry "$FIX/t-nonobject-line.jsonl"
+check 5 "records, not JSON"                   "$PROBE" records   "$FIX/r-malformed.json"
 
-# --- PRECEDENCE: a partially unparsable input is not 5 ---
-check 3 "malformed input beside a real hit" \
+# --- PRECEDENCE: a partially unparsable input is not 5, in EITHER argument order ---
+check 3 "malformed first, hit second" \
   "$PROBE" telemetry "$FIX/t-malformed.jsonl" "$FIX/t-path-body.jsonl"
-check 3 "hit in the second input only"      \
+check 3 "hit first, malformed second" \
+  "$PROBE" telemetry "$FIX/t-path-body.jsonl" "$FIX/t-malformed.jsonl"
+check 3 "hit in the second input only" \
   "$PROBE" telemetry "$FIX/t-no-path.jsonl" "$FIX/t-path-body.jsonl"
 
 # --- usage errors ---
-check 2 "no arguments"                      "$PROBE"
-check 2 "mode with no file"                 "$PROBE" telemetry
-check 2 "unknown mode"                      "$PROBE" corpus "$FIX/t-no-path.jsonl"
-check 2 "input file does not exist"         "$PROBE" telemetry "$FIX/does-not-exist.jsonl"
-check 2 "records mode, two inputs"          "$PROBE" records "$FIX/r-no-paths.json" "$FIX/r-empty.json"
+check 2 "no arguments"                        "$PROBE"
+check 2 "mode with no file"                   "$PROBE" telemetry
+check 2 "unknown mode"                        "$PROBE" corpus "$FIX/t-no-path.jsonl"
+check 2 "input file does not exist"           "$PROBE" telemetry "$FIX/does-not-exist.jsonl"
+check 2 "records mode, two inputs"            "$PROBE" records "$FIX/r-no-paths.json" "$FIX/r-empty.json"
 
 # --- and the claim in this script's own title, made executable ---
 # "every registered exit code" is meaningless unless the registered SET is read from the

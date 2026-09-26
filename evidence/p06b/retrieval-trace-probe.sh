@@ -20,10 +20,18 @@
 # the document, in any event, not only on a Read event. That direction is the safe one for
 # the NEGATIVE result this lab exists to establish — zero hits anywhere implies zero hits
 # on Read events. It is NOT safe for a positive result, because a hit may sit on a Write,
-# a Grep, or a resource attribute. So telemetry mode additionally counts
-# READ-SCOPED hits — hits on strings belonging to a log record whose `tool_name` is
-# `Read` — and prints them on their own line. An exit 3 means "something in this document
-# names a file"; only a non-zero read_scoped count means "a READ was identified".
+# a Grep, or a resource attribute. So telemetry mode additionally counts READ-SCOPED hits,
+# at TWO scopes, printed on their own lines:
+#   read_scoped_any   — any string belonging to a log record whose `tool_name` is `Read`.
+#                       Conservative. A zero here is the strong form of the null.
+#   read_scoped_attr  — only ATTRIBUTE VALUES of such a record, which is where a recorded
+#                       target would live. When non-zero, the attribute KEYS carrying the
+#                       hits are printed, because "something in the record looks like a
+#                       path" and "the attribute naming the file survived" are different
+#                       claims and the second is the one that would refute finding 3.
+# NEITHER counter asserts that the hit IS the file that was read: a `working_directory`, a
+# message body or a prompt fragment can be path-shaped. An exit 3 means "something names a
+# file"; the keys tell you what to go and look at. This probe locates, it does not attribute.
 #
 # SCHEMA THIS PROBE ASSUMES, stated because nothing in a synthetic fixture can catch a
 # wrong assumption (this is why exit 6 exists):
@@ -54,12 +62,19 @@
 #      events; records: zero records). A scan of nothing proves nothing, and this code
 #      exists so that "found no path" can never be returned by a run that looked at
 #      nothing.
-#   5  input present but unparsable: NOT ONE JSON document could be read from any input.
+#   5  nothing could be read: every input was empty, blank, or not JSON — NOT ONE JSON
+#      document parsed. The message distinguishes "no content at all" from "content that
+#      is not JSON", because the two send a reader to different places.
 #      PRECEDENCE, registered: a partially unparsable input is NOT 5. Lines that fail to
 #      parse are counted and reported, and the verdict is taken from what did parse — so
 #      one malformed file beside one containing a hit is 3, not 5.
-#   6  telemetry input parsed and holds log records, but no `tool_name` attribute was
-#      recognised in any of them: a SCHEMA MISMATCH, not an empty population.
+#   6  the input parsed but its SHAPE was not recognised — a SCHEMA MISMATCH, never an
+#      empty population. Three cases, all of which previously returned a misleading 4:
+#        • telemetry: documents parsed but NOT ONE log record was found (e.g. the
+#          `resourceLogs` key was renamed)
+#        • telemetry: log records found but NOT ONE `tool_name` attribute recognised
+#        • records: a JSON object parsed but none of `runs`/`content`/`items`/`data` held
+#          an array (the run array moved)
 #   2  usage error, unknown mode, or an input file that does not exist
 set -uo pipefail
 
@@ -166,18 +181,24 @@ strict_by_key = Counter()
 loose_by_key = Counter()
 examples = defaultdict(list)
 read_events = 0
-read_scoped_strict = 0
-read_scoped_loose = 0
+read_scoped_any_strict = 0
+read_scoped_any_loose = 0
+read_scoped_attr_strict = 0
+read_scoped_attr_loose = 0
+read_scoped_keys = Counter()
 tool_name_attrs = 0
 log_records = 0
 run_ids = set()
 records = 0
 parsed_docs = 0
 unparsable = 0
+nonobject_lines = 0
+records_shape_ok = False
+total_bytes = 0
 per_file = []
 
 for path in sys.argv[1:]:
-    f_batches = f_bad = f_strings = f_reads = f_records = 0
+    f_batches = f_bad = f_strings = f_reads = f_records = f_nonobj = 0
     f_strict = f_loose = 0
     with open(path) as fh:
         if MODE == "records":
@@ -189,10 +210,12 @@ for path in sys.argv[1:]:
             items = []
             if isinstance(doc, list):
                 items = doc
+                records_shape_ok = True
             elif isinstance(doc, dict):
                 for key in ("runs", "content", "items", "data"):
                     if isinstance(doc.get(key), list):
                         items = doc[key]
+                        records_shape_ok = True
                         break
             for rec in items:
                 f_records += 1
@@ -222,6 +245,12 @@ for path in sys.argv[1:]:
                 except Exception:
                     f_bad += 1
                     continue
+                if not isinstance(doc, dict):
+                    # A valid JSON line that is not an object — `[]`, `"x"`, `3`. Before
+                    # this guard the next line raised AttributeError and the probe exited
+                    # 1, a code it does not register. Counted as a shape failure.
+                    f_nonobj += 1
+                    continue
                 f_batches += 1
                 parsed_docs += 1
                 for key, val in strings(doc):
@@ -248,23 +277,39 @@ for path in sys.argv[1:]:
                             if at.get("tool_name") == "Read":
                                 f_reads += 1
                                 read_events += 1
-                                # READ-SCOPED: only strings belonging to THIS record
+                                # READ-SCOPED, conservative: any string in THIS record
                                 for _k, val in strings(lr):
                                     hs, hl = classify(val)
                                     if hs:
-                                        read_scoped_strict += 1
+                                        read_scoped_any_strict += 1
                                     elif hl:
-                                        read_scoped_loose += 1
+                                        read_scoped_any_loose += 1
+                                # READ-SCOPED, attributed: attribute VALUES only, with the
+                                # key that carried the hit, because that is the claim that
+                                # would refute finding 3
+                                for akey, aval in at.items():
+                                    if not isinstance(aval, str):
+                                        continue
+                                    hs, hl = classify(aval)
+                                    if hs:
+                                        read_scoped_attr_strict += 1
+                                        read_scoped_keys[akey] += 1
+                                    elif hl:
+                                        read_scoped_attr_loose += 1
+                                        read_scoped_keys[akey] += 1
     unparsable += f_bad
+    nonobject_lines += f_nonobj
+    total_bytes += os.path.getsize(path)
     per_file.append((path, sha256(path), f_batches, f_bad, f_strings,
-                     f_reads, f_records, f_strict, f_loose))
+                     f_reads, f_records, f_strict, f_loose, f_nonobj))
 
 print(f"mode: {MODE}")
-for (path, digest, b, bad, st, rd, rc, hs, hl) in per_file:
+for (path, digest, b, bad, st, rd, rc, hs, hl, nonobj) in per_file:
     name = os.path.basename(path)
     if MODE == "telemetry":
         print(f"  {name}  sha256:{digest}  batches={b} unparsable_lines={bad} "
-              f"strings={st} read_events={rd} strict={hs} loose={hl}")
+              f"nonobject_lines={nonobj} strings={st} read_events={rd} "
+              f"strict={hs} loose={hl}")
     else:
         print(f"  {name}  sha256:{digest}  records={rc} unparsable={bad} "
               f"strings={st} strict={hs} loose={hl}")
@@ -277,8 +322,18 @@ print(f"scanned: string_values={total_strings} parsed_documents={parsed_docs} "
       f"unparsable={unparsable}")
 print(f"hits: strict={sum(strict_by_key.values())} loose_only={sum(loose_by_key.values())}")
 if MODE == "telemetry":
-    print(f"read_scoped: strict={read_scoped_strict} loose_only={read_scoped_loose}"
-          "   <- ONLY a non-zero value here means a READ was identified")
+    # These two lines carry ONLY counters and end after them, so an automated check can
+    # match the whole line exactly. The explanation is a separate line on purpose — an
+    # earlier version appended it here, which forced the verifier into substring matching.
+    print(f"read_scoped_any: strict={read_scoped_any_strict} "
+          f"loose_only={read_scoped_any_loose}")
+    print(f"read_scoped_attr: strict={read_scoped_attr_strict} "
+          f"loose_only={read_scoped_attr_loose}")
+    if read_scoped_keys:
+        print("read_scoped_attr keys: "
+              + ", ".join(f"{k}={n}" for k, n in read_scoped_keys.most_common(10)))
+    print("note: a non-zero read_scoped count means a value in a Read event LOOKS like a "
+          "path. It does not assert that value IS the file read.")
 
 distinct = len(strict_by_key) + len(loose_by_key)
 if strict_by_key or loose_by_key:
@@ -294,13 +349,34 @@ if strict_by_key or loose_by_key:
 # --- verdict. Precedence is registered in the header and is: unparsable-everything,
 # --- then schema mismatch, then empty population, then detection, then clean.
 if parsed_docs == 0:
-    print("verdict: INPUT UNPARSABLE — not one JSON document read from any input")
+    if total_bytes == 0 or (unparsable == 0 and nonobject_lines == 0):
+        print("verdict: NO CONTENT — every input was empty or blank; nothing was read. "
+              "This is not a measurement.")
+    elif nonobject_lines and not unparsable:
+        print(f"verdict: WRONG SHAPE — {nonobject_lines} line(s) were valid JSON but not "
+              "JSON objects, and no object was found. Nothing was scanned.")
+    else:
+        print(f"verdict: NOT JSON — {unparsable} unparsable line(s), "
+              f"{nonobject_lines} non-object line(s), and not one JSON object read.")
     sys.exit(EX_UNPARSABLE)
 
-if MODE == "telemetry" and log_records > 0 and tool_name_attrs == 0:
+if MODE == "telemetry" and log_records == 0:
+    print("verdict: SCHEMA NOT RECOGNISED — documents parsed but NOT ONE log record was "
+          "found under resourceLogs[].scopeLogs[].logRecords[]. This is NOT an empty "
+          "population: the probe's schema assumptions are in its header and one of them "
+          "no longer holds.")
+    sys.exit(EX_SCHEMA)
+
+if MODE == "telemetry" and tool_name_attrs == 0:
     print("verdict: SCHEMA NOT RECOGNISED — log records parsed but no `tool_name` "
           "attribute found in any of them. This is NOT an empty population; the probe's "
           "schema assumptions are in its header and one of them no longer holds.")
+    sys.exit(EX_SCHEMA)
+
+if MODE == "records" and not records_shape_ok:
+    print("verdict: SCHEMA NOT RECOGNISED — a JSON document parsed, but it is not an "
+          "array and none of `runs`/`content`/`items`/`data` holds one. The run array "
+          "has moved. This is NOT an empty population.")
     sys.exit(EX_SCHEMA)
 
 population = read_events if MODE == "telemetry" else records
@@ -310,13 +386,18 @@ if population == 0:
     sys.exit(EX_EMPTY)
 
 if strict_by_key or loose_by_key:
-    if MODE == "telemetry" and (read_scoped_strict or read_scoped_loose):
-        print("verdict: DETECTOR FIRED, AND ON A READ — a value on a Read event names a "
-              "file. This would refute extract finding 3.")
+    if MODE == "telemetry" and (read_scoped_attr_strict or read_scoped_attr_loose):
+        print("verdict: DETECTOR FIRED ON A READ EVENT'S ATTRIBUTE — go and read the "
+              "`read_scoped_attr keys` line. If one of those keys names the file read, "
+              "extract finding 3 is refuted; the probe cannot decide that for you.")
+    elif MODE == "telemetry" and (read_scoped_any_strict or read_scoped_any_loose):
+        print("verdict: DETECTOR FIRED SOMEWHERE IN A READ EVENT, BUT NOT IN AN "
+              "ATTRIBUTE VALUE — a body or nested field looks path-shaped. Weaker than "
+              "the case above and not evidence that a target was recorded.")
     elif MODE == "telemetry":
         print("verdict: DETECTOR FIRED, BUT NOT ON ANY READ — something in this document "
-              "names a file and no Read event does. Read the read_scoped line above; this "
-              "is NOT evidence that a read was identified.")
+              "names a file and nothing in any Read event does. This is NOT evidence "
+              "that a read was identified.")
     else:
         print("verdict: DETECTOR FIRED — at least one value names a file. Read the `hits "
               "by JSON key` breakdown before attributing it: in records mode "
