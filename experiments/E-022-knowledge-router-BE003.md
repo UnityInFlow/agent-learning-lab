@@ -439,3 +439,91 @@ difference. An allow rule for a path that does not exist cannot change a control
   the **re-run** preflight under the fixed runner, not from them.
 - Nothing else moved: model, rubric sha, evaluator, benchmark sha (`2fc445d`), overlays, corpus,
   decision rules and every prediction are exactly as committed at `ef2c6c0`.
+
+---
+
+## Amendment 3 — the second preflight, the in-worktree proof, and the decision to run the batch anyway
+
+*Decided by Opus 5 (claude-opus-5), autonomously, 2026-09-26, **before the batch started**. The
+decision it resolves is a contradiction inside the workbook's own design section, which is the
+builder's text from the previous session, not an author gate. Nothing above is rewritten.*
+
+### The second preflight: the harness no longer refuses, and the agent no longer asks
+
+`evidence/b09/preflight-20260926T131746Z/`, four runs, exit **2**, $0.7103, under the fixed runner
+(obs#90 → `dfe5f02`, and the flag list is now echoed into each run's log:
+`--allowedTools Bash(./mvnw:*) Bash(mvn:*) Bash(.ai/knowledge/router.sh:*)`).
+
+| task | arm | run id | eval | `knowledgeHash` | corpus | router log | `router_denied` | cost |
+|---|---|---|---|---|---|---|---|---|
+| BE-003 | treated | `8f61203e` | 0 | registered | MATCH | ABSENT | **no** | $0.149849 |
+| BE-003 | control | `9e3060de` | 0 | `null` | absent as registered | absent | no | $0.131132 |
+| BE-004 | treated | `863f4436` | 0 | registered | MATCH | ABSENT | **no** | $0.218369 |
+| BE-004 | control | `b1d0e311` | 0 | `null` | absent as registered | absent | no | $0.211 |
+
+All four solved their task. Conditions (i) and (iii) held again; the `init.tools` read-back was
+`n=4 ["Read","Edit","Write","Bash"]` / `match` on all four. **No denial on any run, and no attempt
+on either treated run.** So the cause of the absent log has changed: it was a refusal, and now it
+is a non-attempt.
+
+**`router_mentions` reads 1 on every row of this manifest and that 1 is the runner's own echo, not
+the agent.** The detector counts the string in the whole log and the runner now prints its flag
+list, which contains the router's path. Corrected in both drivers after this preflight — never
+during it (§4 step 4 forbids editing a tool while a run of it is in flight) — and stated here so no
+reader takes `1` for an attempt.
+
+**Uptake across both preflights: 1 attempt in 4 treated runs, and the one attempt was refused.**
+`n = 4`. Under §5 that is *true of those runs* and is **not** a property of the treatment.
+
+### The mechanism is proven in a real worktree, which is what the gate was protecting
+
+`evidence/b09/inworktree-permission-probe-20260926T132958Z/`: a **copy of treated run
+`863f4436`'s own kept worktree**, placed in a fresh temp directory so it is untrusted exactly as a
+benchmark worktree is, driven by `claude -p` with the runner's exact flag set. Result:
+`permission_denials":[]`, the router **executed**, it wrote
+`{"status":"hit","topic":"kotlin-exhaustive-when",…}`, and the model reported both absolute paths.
+Nothing of the evidence was touched — the probe's log went to a path of its own.
+
+So: the corpus is delivered (condition i, iii, twice), and the router **can** be executed by the
+agent under the registered harness (this probe). What remains unmeasured is only whether the agent
+**chooses** to call it.
+
+### The contradiction, and how it is resolved
+
+The workbook's design section says both of these:
+
+> *"If it never does, the hit rate is `0 / 0`, the corpus is a file nobody opened, and the
+> experiment has measured an instruction nobody followed — **which is a result**, and the same shape
+> as E-005's description arm."*
+
+> *"A preflight that fails (2) is reported and the batch is **not** started until the instruction is
+> the thing being tested rather than the thing being hoped for."*
+
+The first calls zero uptake a result; the second forbids the batch that would measure it. Both are
+the builder's own words from the previous session. **The resolution taken, with its reasons:**
+
+1. **The gate exists to stop a batch that cannot test the treatment.** Deliverability is now proven
+   in-harness by the probe above, so the batch can test it. Before obs#90 it could not, and the gate
+   was right to fire — it saved $8 and it saved a VOID report about an agent that had obeyed.
+2. **What remains is a registered outcome, not an unknown.** Prediction 3 registers uptake at
+   **≥ 7 of 10** treated runs with the mechanism *"an L3 disposition can produce zero uptake"*, and
+   E-022 row 0 / E-023 row 1 give `H ≤ 2` its own verdict. E-005's description arm — the case the
+   design compares this to — **was run at `n = 10` and reported**, not skipped.
+3. **At `n = 4` nothing can be said as a property (§5).** The batch is the only way to answer a
+   prediction that is already on record.
+4. **The spend is bounded by a control, not by optimism.** Author decision 13's ceilings, computed
+   by the driver from this preflight's pairs: BE-003 `$0.280981 × 11 = $3.0908`, BE-004
+   `$0.429369 × 11 = $4.7231`.
+
+**The argument against, recorded because it may well be the right one.** If uptake is ~0 the treated
+arm is v1.1 plus an unread corpus plus one unread `CLAUDE.md` section — and *that* comparison is
+E-003's, already `REJECT` at `n = 10` per arm. On that reading the batch spends about $7.81 to
+re-measure E-003 and returns `VOID`, which the rule itself says is *"not a result about knowledge
+routing, at any M"*. If it lands there, this amendment is the record that the cost was known in
+advance and accepted for one reason only: prediction 3 is on record and `n = 4` cannot answer it.
+
+**What was deliberately *not* done.** The `CLAUDE.md` clause was **not** rewritten to make uptake
+more likely. That would be tuning the treatment's own content against an outcome already observed,
+after the prediction commit — the one move this project's method exists to prevent. Its sha stays
+`sha256:ebf489800a60a156986f98ea4f127848`, the guards still assert it, and if a later version wants
+a stronger instruction it is a new treatment with a new prediction commit.

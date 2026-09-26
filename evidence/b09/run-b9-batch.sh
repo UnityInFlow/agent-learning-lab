@@ -240,7 +240,12 @@ one() {  # one <task> <arm> <seq>
   # router calls on one stream-json line count once; and `grep -c ... || echo 0` prints grep's own
   # "0" AND the fallback "0", putting a NEWLINE inside a manifest field. Hand-checked against the
   # 12:48Z logs: BE-003 treated 2 calls / denied yes, the other three 0 / no.
-  rmentions="$(/usr/bin/grep -ao 'router\.sh' "$log" 2>/dev/null | /usr/bin/wc -l | tr -d ' ')"
+  # *** THE RUNNER'S OWN ECHO IS NOT AN ATTEMPT. *** obs#90 added `echo "  claude args: ..."`, and
+  # the flag list contains Bash(.ai/knowledge/router.sh:*) — so every row of the 13:17Z preflight
+  # read `router_mentions=1` with no agent involvement at all. A detector that counts its own
+  # harness is the same defect as a control reporting over a scope smaller than it claims, three
+  # versions in a row on one line. The `claude args:` line is excluded here BY NAME.
+  rmentions="$(/usr/bin/grep -av 'claude args:' "$log" 2>/dev/null | /usr/bin/grep -ao 'router\.sh' | /usr/bin/wc -l | tr -d ' ')"
   rmentions="${rmentions:-0}"
   # NAMED `mentions`, NOT `calls`, AND THE DIFFERENCE IS NOT PEDANTRY: one tool call appears in the
   # stream-json more than once — the `tool_use` input, the cwd-prefixed form the harness records,
