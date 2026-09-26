@@ -107,7 +107,66 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running   # *** MID-PHASE CHECKPOINT FOR STOP 20, NOT A BOUNDARY AND NOT A HALT. *** §4 step 4 is
+status: running   # *** MID-PHASE FOR STOP 20. §4 STEP 5 RAN, REFUSED THE BATCH, AND THE REFUSAL IS THE
+                  # FINDING OF THE PHASE. THE CAUSE WAS FIXED AND THE PREFLIGHT IS BEING RE-RUN. ***
+                  # Not a boundary and not a halt: blocked_on_author IS EMPTY, no §7 bullet matched,
+                  # prompt_sha a47590a1e61d re-computed and unchanged, all 22 validator files
+                  # processed and none new.
+                  #
+                  # *** THE AGENT CALLED THE ROUTER AND THE HARNESS DENIED IT. *** Preflight
+                  # evidence/b09/preflight-20260926T124800Z, four runs, exit 2, $0.7773. ALL FOUR
+                  # SOLVED THEIR TASK (eval 0). Conditions (i) and (iii) HELD on every run:
+                  # knowledgeHash sha256:0770219ae7f4281a80071d78dadea285 on both treated and NULL on
+                  # both controls, corpus MATCH in both treated worktrees, and the author-decision-8
+                  # init.tools read-back n=4 ["Read","Edit","Write","Bash"] verdict MATCH 4 of 4 — so
+                  # unlike E-005 arm F the runtime did NOT rewrite the tool list. Condition (ii), the
+                  # router log, ABSENT on both treated arms.
+                  # On BE-003 treated fbdebf75 the FIRST thing the agent did with the instruction was
+                  # run `.ai/knowledge/router.sh "state transition validation error codes"` and THAT
+                  # CALL IS IN THE RUN`S permission_denials ARRAY. repair-limit.sh recorded NINE
+                  # allows and ZERO blocks on the same run, so the treatment`s own hooks did not
+                  # refuse it: run-agent.sh`s `--allowedTools "Bash(./mvnw:*)" "Bash(mvn:*)"` with
+                  # --permission-mode acceptEdits denies EVERY non-mvn Bash command, and claude -p
+                  # has nobody to ask. HAD THE BATCH RUN IT WOULD HAVE REPORTED THE REGISTERED VOID
+                  # ROW - "an L3 instruction nobody acted on" - ABOUT AN AGENT THAT ACTED ON IT
+                  # IMMEDIATELY. The preflight gate stopped that one run in, for $0.78 instead of $8.
+                  # *** AND THE TWO ABSENCES ARE NOT THE SAME ABSENCE: *** BE-004 treated 5a16fd3e
+                  # never mentioned the router at all. n = 1 per arm per task, so the BE-004
+                  # non-attempt is TRUE OF THAT RUN and is NOT a property of the task (§5).
+                  #
+                  # *** THE FIX WAS CHOSEN BY PROBE AND THE PROBE`S NEGATIVE ARM IS THE TRANSFERABLE
+                  # FINDING. *** evidence/b09/router-permission-probe-20260926T130051Z, three arms,
+                  # one model call each, ~$0.07: settings as shipped DENIED; a permissions.allow
+                  # entry in the OVERLAY`s own .claude/settings.json DENIED AND THE ENTRY IGNORED
+                  # ("this workspace has not been trusted ... or set hasTrustDialogAccepted: true in
+                  # ~/.claude.json"); the runner`s --allowedTools `permission_denials":[]` AND THE
+                  # ROUTER WROTE {"status":"hit","topic":"kotlin-exhaustive-when",...}.
+                  # *** A TREATMENT IN THIS HARNESS CANNOT GRANT ITSELF A BASH PERMISSION *** - every
+                  # benchmark worktree is a new temp dir, untrusted by construction, and the remedy
+                  # the runtime offers is a user-scope mutation --isolate-user-settings exists to
+                  # prevent. ANY LATER STEP WHOSE TREATMENT IS A COMMAND INHERITS THAT.
+                  #
+                  # *** TWO obs PRs MERGED THIS SESSION, both mine under §4 step 14, both with six of
+                  # six checks green, both merge commits and not squashes: ***
+                  #   obs#89 -> ed9586f0433a40344f7ff7ad39fdaea26b2cea7a  knowledgeHash, five sites,
+                  #             V8 applied and read back (flyway version 8, success = t), fixture set
+                  #             13 of 13. It ALSO fixed a defect its own fixture set found: ONE record
+                  #             with no efficiency values made GET /api/runs answer 500 TO EVERY
+                  #             CALLER (JPA materializes an all-null embeddable as null).
+                  #   obs#90 -> dfe5f02739bf1f308f2f75205b3a05f1a1529b8c  THE FIFTH HARNESS MOVE OF
+                  #             TRACK B: Bash(.ai/knowledge/router.sh:*) added to --allowedTools,
+                  #             UNCONDITIONALLY ON BOTH ARMS, so the launch is not itself a
+                  #             between-arm difference. COST, recorded in both experiment files as
+                  #             AMENDMENT 2: every run of this stop has a three-entry allowlist where
+                  #             every earlier run had two, and every number TRANSFERRED from a stored
+                  #             run (the MDE inputs, the anchor-2 history, B8`s cost baseline) was
+                  #             measured under the two-entry list.
+                  # THE §4a GATE COULD NOT RUN FOR EITHER PR AND NEITHER PR BODY CLAIMS AN ACCEPT.
+                  # *** CODEX AND OLLAMA-CLOUD ARE BOTH REFUSED, BY MY OWN PROBES: *** codex `try
+                  # again at Sep 30th, 2026 6:29 PM` (first refusal 12:11Z, re-derived 12:13:34Z);
+                  # ollama-cloud `weekly usage limit`. Neither is a §7 halt (§4c). Decision H is NOT
+                  # fired: it promotes deepseek, which is also refused.
+# SUPERSEDED, kept not deleted: status: running   # *** MID-PHASE CHECKPOINT FOR STOP 20, NOT A BOUNDARY AND NOT A HALT. *** §4 step 4 is
                   # COMPLETE in both repositories, §4 step 5 (the four preflight runs) is IN FLIGHT,
                   # §4 step 6's driver and its guards are BUILT AND COMMITTED but the batch HAS NOT
                   # STARTED. Written so a context clear cannot cause step 4 to be redone.
@@ -2457,7 +2516,27 @@ last_verified: "2026-09-26, STOP 20 OPENED TO §0 BOUNDARY 1. Every number below
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "*** §4 STEP 5 IS IN FLIGHT: evidence/b09/run-b9-preflight.sh, FOUR RUNS, launched
+next_action: "*** §4 STEP 5 IS BEING RE-RUN under the FIXED runner (obs#90 -> dfe5f02, merged, and the
+  local agent-observatory checkout is ON main AT dfe5f02 — `grep -c \'router.sh:\*\' runner/run-agent.sh`
+  returns 2). The first preflight`s four runs are KEPT EVIDENCE OF THE DEFECT and are NOT a
+  population: they set no MDE, and decision 13`s pair cost comes from the RE-RUN. ***
+  (1) evidence/b09/run-b9-preflight.sh — four runs, ~$0.78, under the pid lock. READ ITS EXIT CODE:
+      0 = the batch may start; 2 = condition (ii) failed again, and the driver now SAYS WHICH KIND —
+      `FAILED **BY REFUSAL**` (the agent called it, the harness denied it: NOT the VOID row, fix the
+      permission) versus `NOT ATTEMPTED` (the instruction was not followed: that IS the VOID row and
+      is a result to write up, never something to fix by editing the instruction).
+  (2) THEN §4 STEP 6, only on exit 0: evidence/b09/run-b9-batch.sh, n=10 per arm per task,
+      interleaved. Its ceiling is COMPUTED from the re-run preflight pair x 11 PER TASK (author
+      decision 13) and it exits 12 rather than start if the pair cost is unreadable. Guards 11 of 11.
+  (3) BOUNDARY 2 IS `after §4 step 6 — every run of the batch recorded, run ids and worktree paths in
+      the state file`. END THE TURN THERE. §4 step 7 (scoring) is boundary 3 and CANNOT RUN until
+      codex returns 2026-09-30T~16:29Z; the runs are kept with --keep and scoring waits (§4c step 3).
+      Do NOT substitute a scorer — ollama-cloud is refused too.
+  (4) DO NOT: re-run §4 step 4 (lab 83ea073 d4c5765 7a75596 40357c3, obs ed9586f + dfe5f02, all
+      merged or pushed); try to make the OVERLAY grant a Bash permission (PROVED IMPOSSIBLE — the
+      workspace is untrusted by construction); report a denial as the VOID row; add a third arm (§7);
+      edit a registered variable; start a batch while the lock is held; or claim a §4a ACCEPT."
+# SUPERSEDED, kept not deleted: next_action: "*** §4 STEP 5 IS IN FLIGHT: evidence/b09/run-b9-preflight.sh, FOUR RUNS, launched
   2026-09-26T~12:5xZ under a pid lock at evidence/b09/.batch.lock. DO NOT START A SECOND ONE. ***
   Check evidence/b09/preflight-<TAG>/manifest.tsv and window.txt for what already ran BEFORE
   deciding anything is dead; never re-run an id that is in a manifest.
