@@ -26,8 +26,14 @@ BATCH="${1:-}"
 DIR="$BATCH"; [[ -d "$DIR" ]] || DIR="evidence/b09/batch-$BATCH"
 [[ -d "$DIR" ]] || { echo "census: no such batch directory: $DIR" >&2; exit 2; }
 shopt -s nullglob
+# TWO NAMING CONVENTIONS, because a single-arm batch has no `-treated` in its log names: the
+# registered batch writes `<task>-<seq>-<arm>.log` and the stop-20 deliberate-failure driver writes
+# `<task>-<seq>.log`. The first version of this line matched only the former and answered
+# `exit 3, holds no *-treated.log` on a batch that held five logs — a tool refusing correct input,
+# which is the mirror of the defect this census exists to find.
 LOGS=("$DIR"/*-treated.log)
-[[ ${#LOGS[@]} -gt 0 ]] || { echo "census: $DIR holds no *-treated.log" >&2; exit 3; }
+[[ ${#LOGS[@]} -gt 0 ]] || LOGS=("$DIR"/*-[0-9][0-9].log)
+[[ ${#LOGS[@]} -gt 0 ]] || { echo "census: $DIR holds no *-treated.log and no <task>-<seq>.log" >&2; exit 3; }
 
 # One tool_use envelope per count. `-o | wc -l` and never `grep -c`: two tool calls can share one
 # stream-json line, and grep -c would count that line once.

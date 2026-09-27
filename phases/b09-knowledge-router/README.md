@@ -716,15 +716,218 @@ discovered after it.
 *Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-27T09:2xZ; the author did not review
 before the run.*
 
-## Exit gate
+### The result — `n = 5`, batch `20260927T090320Z`, 09:03:20Z → 09:19:37Z, `$0.658351`
 
-**From the build track:** retrieval order recorded per run (index → summary → full) · hit rate
-measured · context metrics compared against B8.
+Runs `14fd7ef4`, `f6602243`, `61a677b5`, `93fa27f1`, `d5231fd3`. Driver
+`evidence/b09/run-b9-deliberate-failure.sh`, ShellCheck clean, fixture set
+`evidence/b09/verify-b9-df-guards.sh` at **16 of 16** with case A — the inverted guard refusing the
+measured overlay — re-derived by hand. Manifest
+`evidence/b09/deliberate-failure/batch-20260927T090320Z/manifest.tsv`.
 
-**Plus, for this to count as a learned phase:**
+| # | prediction | measured | verdict |
+|---|---|---|---|
+| 1 | the registered driver does **not** refuse the broken overlay | **exit 0**, output **identical** to the measured overlay, both files kept | **HELD** |
+| 2 | `knowledgeHash` = `sha256:0770219ae7f4281a80071d78dadea285` | **5 of 5** | **HELD** |
+| 3 | `instructionsHash` = `sha256:ebf489800a60a156986f98ea4f127848` | **5 of 5**; `agentHash` `sha256:b3450564b6f32d6193e8580db766210e` 5 of 5 too | **HELD** |
+| 4 | unexecutable router → **0** log lines; index removed → **1** | **exit 126, 0 lines** / **exit 3, 1 line `status=malformed`** / **exit 0, 1 line `status=hit`** | **HELD** |
+| 5 | evaluator exit **0** on 5 of 5 | **5 of 5**, `changedFiles = 3` every run | **HELD** |
+| 6 | reported only: attempts expected **0–2 of 5** | **3 of 5** (runs 02, 03, 05) | **the expectation was WRONG** |
 
-<!-- TODO -->
+**Clause 1 is the one to carry, and it is the inverse of stop 17a.** There the registered driver
+refused the broken overlay at exit 6, so the deliberate failure could not enter the registered
+population by accident. Here it **accepts** it, with byte-identical output to the measured overlay,
+because `run-b9-batch.sh:181` and `run-agent.sh:knowledge_hash()` both digest **(path, content)**
+pairs and a mode bit is neither, while `cp -R` (`run-agent.sh:338`) preserves modes. **So
+`knowledgeHash` is not a delivery proof for an *executable* artifact** — it proves a script's text
+arrived, not that it can run. Every later step that ships a script inside an overlay inherits that.
+The separation had to be built here instead, as an inverted guard.
 
-## Commit
+**Clause 6's expectation was wrong and the honest reading is that it decides nothing.** 3 of 5
+against the registered arm's 2 of 10 is **two-sided Fisher `p = 0.2507`** — not separable, and there
+is no mechanism by which an unreadable mode bit could raise an attempt rate, since nothing reveals it
+until the call is made. It is registered as reported-only for exactly this reason and it stays that
+way. What matters is the other half of clause 6, and it held: **`router_exec` separates an attempt
+from an abstention where `H` does not.** Runs 02, 03 and 05 read `rx = 1, log = ABSENT/0`; runs 01
+and 04 read `rx = 0, log = ABSENT/0`. **E-022 computed its verdict from `H` and the column that
+would have separated them was already in its own manifest, unused.**
 
-<!-- TODO -->
+### Three things nobody predicted, and the first is the L3-untrusted demonstration in a stronger form
+
+**(a) The agent's own defensive idiom turned a permission failure into the answer "No match found",
+and then it looked straight at the cause and drew no conclusion.** Runs 02 and 03 both wrote:
+
+```bash
+.ai/knowledge/router.sh "error code for state conflict" 2>/dev/null || echo "No match found"
+```
+
+and received exactly `"No match found"`, `is_error: false`. Run 02 then ran
+`ls -la .../.ai/knowledge/` and its own tool result came back reading
+`.rw-r--r--@ 7.4k … router.sh` — **the missing executable bit, in its context** — and it moved on to
+`pom.xml` without a word. **The idiom was invited by the overlay's own clause**, which reassures the
+reader that the router *"exits 2 and prints nothing when no topic matches — that is an answer, not a
+broken command."* A clause written to stop the agent treating an empty answer as a fault taught it to
+treat a fault as an empty answer.
+
+**This is what §4 step 9 was for, and it is a sharper result than the registered wrong-summary
+version would have produced.** That version asked *does the agent trust a retrieved document that is
+wrong?* This one answered *does the agent trust a retrieval that never happened?* — **yes**, on 2 of
+the 3 runs that tried, with the evidence of the failure visible in the transcript. **Layer 3 —
+untrusted** is the workbook header's own label for this stop and it is now demonstrated rather than
+asserted.
+
+**(b) Run 05 called the router by absolute path and the harness denied it — `router_denied = yes`,
+1 of 5.** The runner's allowlist is `Bash(.ai/knowledge/router.sh:*)` (`run-agent.sh:840`), which a
+`/private/var/folders/…/observatory-run-…/.ai/knowledge/router.sh` invocation does not match.
+**The registered batch recorded `router_denied = no` on 20 of 20, and that is now shown not to mean
+the allowlist is adequate** — only that no agent in those twenty runs happened to reach for the
+absolute form. So the treated arm's uptake of 2 of 10 sits above a latent denial path the batch
+never observed firing, and **`H = 2` is a floor rather than a point estimate**. The mechanism was
+found by the deliberate failure, at `n = 5`, for $0.66.
+
+*The driver's `router_denied` detector was checked and is sound: run 03 also had one denial and the
+detector correctly said `no`, because that denial was `./mvnw test … | tee test-output.log`, not the
+router. A detector defect was suspected here and is not one.*
+
+**(c) Every `estimatedCost`, `modelCalls` and `toolCalls` in all five records is `null`, and the
+control built to prevent exactly that certified the broken path.** The cause is one missing scheme:
+this driver exported `OTLP_GRPC_ENDPOINT=localhost:4317` where the registered driver exports
+`http://localhost:4317` (`run-b9-batch.sh:84`). The runner's OTLP preflight printed
+`otlp preflight grpc localhost:4317 answered 200` — and the registered batch's log reads
+`grpc http://localhost:4317 answered 200`. **The same 200, opposite outcomes**, because `curl`
+normalises a scheme-less `host:port` and the Claude Code OTLP exporter does not; probed directly,
+both forms return 200 from the same command the preflight uses. `otlp-preflight.sh`'s own header says
+it exists because *"a collector that never answers produces a record with null modelCalls, toolCalls,
+tokens and cost … That has happened to two batches"*. **It is now three, and this time the preflight
+was green.** An additive fix is owed in `agent-observatory` and is recorded in `author_notes`.
+
+**The costs are recoverable, and from the runtime rather than from the collector:** `total_cost_usd`
+in the stream-json `result` line. `$0.114885 · 0.145589 · 0.143896 · 0.124188 · 0.129793` — median
+**`$0.129793`**, total **`$0.658351`**, **65.5 %** of the `$1.0047` ceiling. Against the registered
+treated median of `$0.127337` that is **+1.93 %**, which says only that a mode bit costs nothing.
+
+**(d) The cost ceiling could not have fired, and that is a defect in this driver.** `SPENT`
+accumulates from the record's `estimatedCost`, which was `null` on all five, so `SPENT` stayed `$0`
+and the stop rule was inert. It did not matter — `$0.658` against `$1.0047` — and **a stop rule that
+reads a field the run did not populate is not a control.** Recorded rather than patched after the
+fact; the fix belongs with (c), because a populated record is what makes it work.
+
+### What the deliberate failure does **not** do
+
+It does not move E-022's or E-023's verdict, touch a registered prediction, or enter either
+experiment's population: its key is `EXP-B9-DF-NOEXEC` and its overlay variant is
+`agent-v1.2-knowledge-noexec`. It does not license a claim about trust rates — 2 of 3 is `n = 3` and
+§5 forbids stating that as a property; it is true of those runs, and the *mechanism* it exhibits is
+what transfers. And the registered wrong-summary demonstration **is still owed**, at the `n ≈ 17`
+its arithmetic requires.
+
+*Run and recorded by Opus 5 (claude-opus-5), autonomously, 2026-09-27.*
+
+## Exit gate — §4 step 11, 2026-09-27
+
+**From the build track, verbatim:** *retrieval order recorded per run (index → summary → full) · hit
+rate measured · context metrics compared against B8.*
+
+| clause | answered | with what |
+|---|---|---|
+| retrieval order recorded per run | **yes, and the order was index-first on every lookup that happened** — 3 of 3, one lookup each | `knowledge-log.jsonl` per run, `first_status = hit` on all three; `log_hits` column of `manifest.tsv` |
+| hit rate measured | **yes: 2 of 10 on BE-003, 1 of 10 on BE-004 — a *router* hit rate, at that scope** | `manifest.tsv` `log_lines`; scope fixed by Amendment 5 in both experiments |
+| context metrics compared against B8 | **yes, on the four counters that exist**; the fifth is null by construction | Lab B9.1 above, `evidence/b09/reports/context-metrics.txt` |
+
+**`hit rate measured` is a measurement, not a gap, and its `n` travels with it.** 2 of 10 and 1 of 10
+are numbers the batch produced; the decision rule's `VOID` row is what they fire, not a failure to
+measure. What Amendment 5 changes is the *scope*: it is the rate at which the **router** was
+invoked, and on BE-003 corpus **contact** was 3 of 10 because one run read the summary by hand.
+
+### Plus, for this to count as a learned phase
+
+**Was this the agent, or the harness?** **The agent, and the answer is stronger than "zero
+denials".** `router_denied = no` on 20 of 20 treated runs, so nothing in the registered batch was
+refused a permission. **But the deliberate failure then showed the denial path exists** — run 05
+called the router by absolute path and was denied, 1 of 5 — so 20 of 20 means *no agent in those
+twenty reached for the form the allowlist misses*, not *the allowlist cannot bite*. `H = 2` is
+therefore a **floor**. That is a harness caveat on an agent result, and it was found by breaking
+something rather than by reading the column.
+
+**What was learned that a file existing would not have shown.**
+
+1. **An L3 instruction delivered by hash to 20 of 20 runs was followed by 3 of them.** The corpus
+   arrived — `knowledgeHash` set on 20 of 20 treated and `null` on 20 of 20 controls — and the
+   sentence telling the agent to use it did not carry. That is E-005's description arm again, at
+   `n = 20`, on a different mechanism: **delivery is not uptake, and only the first of the two has a
+   hash.**
+2. **The instrument could not tell "consulted" from "invoked the router", and the verdict turned on
+   the difference.** One run on one task. Amendment 5 carries it; the registered `VOID` stands
+   because `H` was defined before the data, and the `REJECT` the other definition would have given —
+   which *removes* the corpus — is written down beside it.
+3. **A retrieval that never happened was trusted.** Two of the three runs that called a broken
+   router received `"No match found"` from their own `|| echo` fallback and proceeded; one of them
+   had the non-executable mode bit in its context and said nothing. **Retrieved text is input and
+   input can be wrong** is the header's Layer 3 label, and the strong form is that *retrieved
+   nothing* is also input.
+4. **`knowledgeHash` is not a delivery proof for an executable artifact.** It hashes text. The
+   registered driver's own guard passed a corpus whose router could not run, at exit 0, with output
+   identical to the measured overlay.
+5. **The noise floor of this instrument at `n = 10` on this model was measured by accident** — every
+   token counter within 7 %, every rubric delta at or near 0, in a comparison where the treatment was
+   used once or twice in ten runs. Every later step's MDE has to clear that.
+
+**Nothing here justifies embeddings, and that was the build spec's whole point.** *"Without it you
+can prove RAG ran, not that it helped."* This stop cannot prove either: it proved the corpus
+**arrived** and that the agent **did not ask for it**. The next question is delivery, not retrieval
+quality, and E-004 already showed which mechanism decides selection.
+
+## Commit — §4 step 14, 2026-09-27
+
+| what | where |
+|---|---|
+| version | **v1.2 candidate, NOT promoted.** `build/customizations/agent-v1.2-knowledge/` stays on disk; nothing installs it after this stop |
+| experiments | [`E-022`](../../experiments/E-022-knowledge-router-BE003.md) `EXP-B9-ROUTER-BE003` · [`E-023`](../../experiments/E-023-knowledge-router-BE004.md) `EXP-B9-ROUTER-BE004` |
+| verdict | **`VOID — THE TREATMENT WAS NOT TESTED`** on both tasks. E-022 row 0 (`H = 2 of 10`), E-023 row 1 (`H = 1 of 10`). Row 4 also fires on both: `Fisher = 1.0000`, `NOT DETECTABLE` on the two-arm reading. Row 5 does not fire: cost `+1.09 %` / `+1.14 %` |
+| disposition (§4 step 10) | **corpus KEPT in the repository, NOT promoted, NOT removed.** The `REJECT` rows that remove it need `H ≥ 3`; removing an artifact nothing consulted would record a measurement nobody made |
+| deliberate failure | `EXP-B9-DF-NOEXEC`, `n = 5`, `$0.658351`. Five of six clauses held; clause 6 was registered as reported-only and its expectation was wrong |
+| predictions refuted | **three of five on each task**, including — on both — the one registered in advance as most likely to be wrong (prediction 3, uptake) |
+| instrument PRs merged with this stop | the preflight's own experiment key (`-PF`) · `LAB_SCORE_TIMEOUT` in `tools/codex-score.sh` · `LAB_SCORE_OUTDIR` |
+| still owed | the wrong-summary demonstration at `n ≈ 17`; the OTLP-preflight scheme fix in `agent-observatory`; a retrieval record that is an artifact of the run rather than of `$TMPDIR` |
+
+## §5 validation table — spine stop 20
+
+Written before the PR. **The layer column is about the proof, not the artifact.**
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| *retrieval order recorded per run (index → summary → full)* | `evidence/b09/batch-20260926T151319Z/manifest.tsv`, columns `log_state / log_lines / log_hits / first_status`; `first_status = hit` on runs `ab8b2398`, `e0e4bb0e`-row BE-003 09, and BE-004 08 | **L2** for the three lookups that happened — the router writes the line before it returns (`router.sh:156`) — and **L3** for "at the right point", which nothing executes to check | `awk -F'\t'` the four columns out of the manifest; or re-run `.ai/knowledge/router.sh "state transitions"` in a kept worktree and read the new line |
+| *hit rate measured* | `2 of 10` BE-003, `1 of 10` BE-004, from the same four columns, `n = 10` per arm per task | **L2** at the scope *router invocations*; **L3** for *corpus consultations*, per Amendment 5 | `./evidence/b09/corpus-access-census.sh 20260926T151319Z` — 17-case fixture set, `tools/verify-corpus-access-census.sh` |
+| *context metrics compared against B8* | `evidence/b09/reports/context-metrics.txt`, four counters, `n = 10` per arm per task, off the **archived** records | **L2** — the numbers come from `evidence/b09/batch-20260926T151319Z/run-records/*.json`, which do not move | `python3 evidence/b09/context-metrics-b9-vs-b8.py evidence/b09/batch-20260926T151319Z/manifest.tsv evidence/b09/batch-20260926T151319Z/run-records` |
+| the treatment reached the model | `customization.knowledgeHash = sha256:0770219ae7f4281a80071d78dadea285` on **20 of 20** treated records | **L2** — `knowledge_hash()` runs on every run and differs when the corpus differs (`run-agent.sh:653-662`) | `jq -r '.customization.knowledgeHash' evidence/b09/batch-20260926T151319Z/run-records/*.json \| sort \| uniq -c` |
+| …and not the control | `knowledgeHash = null` on **20 of 20** control records; `run-b9-batch.sh:178` refuses a control overlay that has `.ai/knowledge` | **L2** both halves, and the refusal is in the guard fixture set | the same `jq`; then `B9_GUARDS_ONLY=1 B9_OVERLAY_C=<a copy with .ai/knowledge> ./evidence/b09/run-b9-batch.sh` → exit 6 |
+| …but **not** that it can *run* | `evidence/b09/deliberate-failure/clause1-guards-broken-overlay.txt` exit **0**, byte-comparable to `clause1-guards-measured-overlay.txt` | **L2 negative** — the guard was executed against the break and did not refuse | `B9_GUARDS_ONLY=1 B9_OVERLAY_T=$PWD/build/customizations/agent-v1.2-knowledge-noexec ./evidence/b09/run-b9-batch.sh BE-003; echo $?` |
+| one variable moved | `instructionsHash` `ebf489800a60…` treated / `a94237242e8c…` control; `agentHash b3450564b6f3…` **both** arms; `runtime.model claude-haiku-4-5-20251001` on 40 of 40; benchmarks `2fc445d` | **L2** — asserted by the driver before any run (`run-b9-batch.sh:165-183`), and independently readable in every record | `jq -r '[.customization.instructionsHash,.customization.agentHash,.runtime.model]\|@tsv' …/run-records/*.json \| sort \| uniq -c` |
+| the rubric did not move | BE-003 `396e1799eb2b`, BE-004 `6252778b8472`, asserted per sheet by the scoring driver, which refuses a moved sha | **L2** — proved by mutant, recorded at `evidence/b09/verify-score-driver-guards.sh` 13 of 13 | `./evidence/b09/verify-score-driver-guards.sh` |
+| a scored cell re-read by hand | **two**, both written before their sheet existed: `maintainability = 2` on `c49eec44` (commit `78d5af5`) and `maintainability = 0` on `3fc93ff4` (commit `597dceb`); both agree with the sheet | **L2** for the ordering — the commit predates the sheet's mtime — and **L3** for the reading itself, which is a human judgement | `git show 78d5af5` and `git show 597dceb`, then `stat -f '%Sm'` the two sheets |
+| the prediction preceded the run | prediction commit `ef2c6c0` (2026-09-26) vs first `startedAt` in `manifest.tsv`; deliberate-failure prediction commit **`fd5dcae`** vs batch tag `20260927T090320Z` | **L2** — two timestamps, neither written by hand | `git show -s --format=%cI ef2c6c0 fd5dcae`; `head -6 evidence/b09/deliberate-failure/batch-20260927T090320Z/manifest.tsv` |
+| the decision rule is exhaustive | `evidence/b09/verify-decision-rule-exhaustive.py` — 121 pairs, 0 gaps, **shown to refuse by three mutants** | **L2** | `python3 evidence/b09/verify-decision-rule-exhaustive.py` |
+| the router's exit codes | `tools/verify-knowledge-router.sh` — 15 cases, 18 assertions, exit 0 | **L2** | `./tools/verify-knowledge-router.sh` |
+| the deliberate failure could not enter the registered population | key `EXP-B9-DF-NOEXEC`, variant `agent-v1.2-knowledge-noexec`; the DF driver **refuses an executable router at exit 6** (case A, re-derived by hand) | **L2** — and it had to be built, because the registered guard was shown not to help | `B9DF_OVERLAY=$PWD/build/customizations/agent-v1.2-knowledge ./evidence/b09/run-b9-deliberate-failure.sh --guards-only; echo $?` → 6 |
+| the break is one mode bit | `diff -r` between the two overlays returns **nothing**; both corpora hash to `sha256:0770219ae7f4281a80071d78dadea285` | **L2** | `diff -r build/customizations/agent-v1.2-knowledge build/customizations/agent-v1.2-knowledge-noexec; stat -f '%Sp %N' both routers` |
+| `H` cannot see a router that cannot execute | `evidence/b09/deliberate-failure/clause4-log-blindness.txt` — exit **126** / 0 lines, exit **3** / 1 line, exit **0** / 1 line | **L2** — three executed calls, three recorded outcomes | copy either overlay to a scratch dir, `KNOWLEDGE_EVENT_LOG=… .ai/knowledge/router.sh "status transitions enum when"`, count the lines |
+| the cost of the stop | **`$0.658351`** DF (from `total_cost_usd` in the stream-json) + the registered batch's recorded costs; ceiling `$1.0047`, **65.5 %** used | **L3 for the DF arm**, and that is the honest label: `estimatedCost` is `null` on 5 of 5 records, so the number comes from the runtime's own log and not from the instrument | `python3 -c` over `"total_cost_usd"` in each `BE-003-0N.log` |
+| *nothing in the record proves the collector received anything* | `no telemetry found — behaviour metrics stay empty rather than guessed`, `BE-003-01.log:173`, on all five DF runs, **after** `otlp preflight grpc localhost:4317 answered 200` at `:22` | **L2 negative, and it is a finding about the control** — the preflight executed, returned 200, and certified a path the exporter could not use | compare `:22` and `:171-173` of any DF log against the same lines of `evidence/b09/batch-20260926T151319Z/BE-003-02-treated.log` |
+
+**Every number quoted in prose above carries its `n`.** The only `n < 5` statements are about the
+deliberate failure's three attempting runs, and they are written as *true of those runs*.
+
+**Independence check, re-run immediately before this table was written**, not trusted from a flag:
+`instructionsHash`, `agentHash`, `knowledgeHash`, `runtime.model` and the benchmarks sha were read
+back out of the archived records; `agentHash` and `runtime.model` are identical across all 40 runs,
+`instructionsHash` takes exactly two values and they are the two registered ones, and `knowledgeHash`
+takes exactly two: the registered corpus sha on the 20 treated, `null` on the 20 controls. Pasted
+rather than described:
+
+```
+$ jq -r '[.customization.instructionsHash,.customization.agentHash,.customization.knowledgeHash,.runtime.model]|@tsv' \
+    evidence/b09/batch-20260926T151319Z/run-records/*.json | sort | uniq -c
+  20 sha256:a94237242e8c1308fb1d434a06a03463  sha256:b3450564b6f32d6193e8580db766210e                                    claude-haiku-4-5-20251001
+  20 sha256:ebf489800a60a156986f98ea4f127848  sha256:b3450564b6f32d6193e8580db766210e  sha256:0770219ae7f4281a80071d78dadea285  claude-haiku-4-5-20251001
+```
+
+Two rows, twenty each. Nothing else moved.

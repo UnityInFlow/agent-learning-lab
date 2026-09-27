@@ -14,3 +14,10 @@ ceiling: $1.0047 = 5 x $0.133958 x 1.5
   recorded: eval=0 log=ABSENT/0 router_exec=1 mentions=2 cost=null  spent=$0
 
 ======== BE-003 04  key=EXP-B9-DF-NOEXEC  09:13:08Z ========
+  recorded: eval=0 log=ABSENT/0 router_exec=0 mentions=0 cost=null  spent=$0
+
+======== BE-003 05  key=EXP-B9-DF-NOEXEC  09:16:22Z ========
+  recorded: eval=0 log=ABSENT/0 router_exec=1 mentions=3 cost=null  spent=$0
+
+done: 5 runs, spent $0 of $1.0047, manifest /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/deliberate-failure/batch-20260927T090320Z/manifest.tsv
+=== exit 0 at 2026-09-27T09:19:37Z

@@ -74,6 +74,11 @@ expect_exit "M a batch directory that is absent -> exit 2" 2 "$SCRATCH/nope"
 mkdir -p "$SCRATCH/empty"
 expect_exit "N a directory with no treated logs -> exit 3" 3 "$SCRATCH/empty"
 expect_exit "O the real stop-20 batch, by tag -> exit 0" 0 20260926T151319Z
+# P: a SINGLE-ARM batch, whose logs have no `-treated` in the name, must be read and not refused.
+expect_exit "P a single-arm batch (<task>-<seq>.log) -> exit 0" 0 \
+  "$PWD/evidence/b09/deliberate-failure/batch-20260927T090320Z"
+mkdir -p "$SCRATCH/wrongname"; : > "$SCRATCH/wrongname/notes.txt"
+expect_exit "Q a directory of non-logs is still exit 3" 3 "$SCRATCH/wrongname"
 
 echo ""
 echo "$PASS passed, $FAIL failed"

@@ -182,3 +182,37 @@ verify your work before finishing.
 ---------------------------------------------------------------
 
 ==> reading telemetry back from the collector's event log
+claude-telemetry: no events found for run 93fa27f1-185a-4472-89cb-c62e6ff60d6b in /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-observatory/infra/telemetry-out/events.jsonl
+    no telemetry found — behaviour metrics stay empty rather than guessed
+
+BE-003 evaluator 1.0.0
+  repo      /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-93fa27f1-185a-4472-89cb-c62e6ff60d6b
+  service   sample-service
+  baseline  0ca26c268807
+
+Changed files (3):
+  - sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+  - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+  - sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+
+  AC1 build                          PASS
+  AC2 existing tests                 PASS
+      agent's own tests              pass (recorded, not an AC)
+  AC3/AC5 functional suite           PASS
+  AC4 error contract                 PASS
+  AC6 no new dependencies            PASS
+  AC0 task attempted                 yes (2 production file(s))
+  AC7 scope discipline               PASS
+
+  acceptance 7/7   exit 0
+  evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-93fa27f1-185a-4472-89cb-c62e6ff60d6b/evaluation.json
+evaluator exit code: 0
+
+==> registering benchmark and run with the Observatory
+
+  run recorded:  http://127.0.0.1:8081/api/runs/93fa27f1-185a-4472-89cb-c62e6ff60d6b
+  UI:            http://localhost:5174/runs/93fa27f1-185a-4472-89cb-c62e6ff60d6b
+  trace search:  { resource.observatory.run.id = "93fa27f1-185a-4472-89cb-c62e6ff60d6b" }
+
+  schema policy: decision=proceed-match reason=declared-equals-delivered-or-nothing-asserted schema_rc=0
+  worktree kept at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-93fa27f1-185a-4472-89cb-c62e6ff60d6b
