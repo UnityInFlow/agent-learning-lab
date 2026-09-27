@@ -63,8 +63,16 @@ independent reason that §6 forbids a future step's artifacts.
 
 **And the phase header's own label is a mixture, so it is written as one.** *L2 for the
 managed-settings keys* — they execute on a machine that receives them, before download and again
-at session start, and *"Users can't override them."* *Two genuine L1 refusals* — the `sha256`
+at session start, and *"Users can't override them."* *Two genuine **L2** refusals* — the `sha256`
 archive digest and the `claude-community` commit pin, where the vendor's word is *refuses*.
+**Corrected from L1 to L2 at boundary 2, 2026-09-27, by Opus 5 (claude-opus-5), autonomously,
+on §4a finding 2 (recurrence 2/2, codex panel).** The layer rule in the workspace `CLAUDE.md`
+is applied *in order* and stops at the first yes: *can the bad value still be written down after
+the fix?* For both refusals it **can** — a marketplace entry may still name a wrong `sha256`,
+and the archive at the URL may still be swapped — so step 1 is `no` and the rule falls through
+to step 2, *does something execute and reject it*, which is exactly what the installer's
+compare-then-refuse does. **That is L2, not L1.** `GUARDRAILS.md` exists to stop this project
+calling an executing check structural, and this file had done it in four places.
 *A large L3 remainder* — the trust warning, the review checklist, marketplace tier naming, five
 of the seven Bank controls, and every control codex documents. **Naming one layer for the phase
 would have been a label on the strongest part of it**, which is the specific error
@@ -90,8 +98,14 @@ are where every enforceable control lives. All ten are in
 - [x] ✅ [Copilot — Enterprise managed settings](https://docs.github.com/en/copilot/reference/enterprise-administrators/enterprise-managed-settings)
 
 `./tools/check-links.sh`, run 2026-09-27T18:0xZ after these rows were added:
-**`ok=71 moved=11 blocked=2 unverified=0 broken=0`, exit 0.** Nothing broken, nothing
-unverified.
+**`ok=71 moved=11 blocked=2 unverified=0 broken=0`, exit 0.** Nothing broken — and
+`unverified=0` is the checker's own counter, **which is not the same claim as "every URL's
+content was reached."** *Qualified at boundary 2, 2026-09-27, on §4a finding 14 (1/2), which is
+right.* **`blocked=2` means two sources answered with a bot-block rather than with the page**, so
+for those two the checker proved a host is alive and proved nothing about the document. They are
+counted separately from `broken` on purpose and neither is a Plugins-phase source, but a sentence
+reading *"nothing unverified"* over a line containing `blocked=2` invites the reader to treat 73
+as the verified count when it is 71.
 
 > **One of those eleven redirects is this phase's own source, and finding it corrected a ✅ to
 > a ↪️.** `concepts/agents/about-enterprise-plugin-standards` now redirects to
@@ -137,6 +151,15 @@ component *"the name and description are in Claude's context on every turn so th
 it exists"*, while *"The full text of a skill or agent loads only when it's used."* That is
 precisely stop 7's *discriminability, not context* finding, and a plugin multiplies it: N
 components cost N descriptions on every turn whether or not any of them fires.
+
+> **That last sentence is an inference, not a quotation, and it is labelled as one after §4a
+> finding 3 (1/2), 2026-09-27.** What the page states is the *per-component* rule — name and
+> description always in context, body lazy. **Nothing on these pages states the aggregate**, and
+> this project has measured the always-on listing cost for **skills only** (stop 7). Whether an
+> agent, a hook and an MCP server each pay the same listing toll, or pay a different one, or are
+> announced once per plugin rather than once per component, **is unmeasured here.** The direction
+> is well supported and the multiplier is not. It is exactly the kind of number Lab 7.1 could
+> measure for free from one `init` event, and §6 forbids measuring it at this stop.
 
 **Three install scopes**, each writing a different settings file: **user** (`~/.claude/settings.json`),
 **project** (`.claude/settings.json`, committed), **local** (`.claude/settings.local.json`).
@@ -200,11 +223,14 @@ Apply the workspace rule in order — *can the bad value still be written down a
 
 1. **Archive digest.** *"when a marketplace entry pins an `archive` source to a `sha256` digest
    and the downloaded file's digest doesn't match it, Claude Code refuses the install."* A
-   mismatched artefact cannot be installed. **L1.**
+   mismatched artefact is rejected **by a comparison that runs at install time**. **L2**
+   *(corrected from L1 at boundary 2 — see the phase header)*: the wrong digest can still be
+   written down, so the rule does not stop at step 1.
 2. **Community commit pin.** *"Where the `claude-community` catalog pins a plugin to a commit
    SHA, which it does for nearly every entry, Claude Code refuses to install a different
-   commit."* **L1 — but only for that one catalog**, and the page attributes it to the
-   catalog's content, not to a general facility.
+   commit."* **L2 — and only for that one catalog** *(corrected from L1 at boundary 2)*, and the
+   page attributes it to the catalog's content, not to a general facility. A catalog's contents
+   are editable by its owner, so nothing here prevents the value; something rejects it.
 
 **The four-step review checklist is L3 and says so by its own admission.** Run
 `claude plugin marketplace list` for each marketplace's source; read the **Will install** pane;
@@ -274,7 +300,18 @@ hypothetical: the observatory's runner installs overlays by path.**
    a `hostPattern` entry."* The blocklist, by contrast, canonicalizes: *"Git URLs are
    canonicalized, so the `git@` and `https://` forms, `.git` suffixes, and trailing slashes of
    one `github.com` repository all match the same entry."* **A deny-list that normalizes and an
-   allow-list that does not is a control whose failure direction is permissive.**
+   allow-list that does not is a control whose failure direction is ~~permissive~~ RESTRICTIVE.**
+   *Corrected at boundary 2, 2026-09-27, by Opus 5 (claude-opus-5), autonomously, on §4a finding
+   5 (recurrence 2/2). The original word is struck, not deleted.* Work the two halves through:
+   an allow-list that does **not** canonicalize fails to match a marketplace the operator meant
+   to allow but spelled differently, and the install is **blocked** — a false negative on
+   *allowing*. A deny-list that **does** canonicalize catches every equivalent spelling, so
+   there is no bypass there either. Both halves therefore fail **closed**, which is safe and
+   annoying rather than dangerous. The vendor's own advice is the tell: *"prefer a `hostPattern`
+   entry"* is advice for making the allow-list match **more**, which is only needed when it
+   under-matches. **The uncovered channel in item 3 below is the genuinely permissive gap in this
+   page, and it is a different mechanism** — which is why stating the canonicalization asymmetry
+   as permissive was not a harmless wording slip: it put the word on the wrong control.
 3. **A lockdown has an uncovered channel.** *"An empty allowlist, `[]`, locks every marketplace
    source out"* — and immediately: *"This lockdown doesn't cover the plugins synced from
    claude.ai, which Claude Code downloads from each user's account rather than from a
@@ -371,11 +408,18 @@ or more skills. They can also optionally bundle registered MCP server connection
 server configuration, and presentation assets in a single package."* The plugins page adds
 browser extensions and hooks to that list.
 
-**Subagents are not a plugin component, and that is the finding with teeth.**
+**The plugins page does not list subagents among plugin components, and that is the finding
+with teeth — stated as an absence, which is what it is.** *Rewritten at boundary 2 on §4a finding
+7 (2/2), which was right that "are not a component" reads as a documented exclusion when what
+exists is silence. This file already applies that convention to the version selector and says so;
+it had not applied it here.*
 [`SOURCES.md`](../../SOURCES.md) line 108 records what stop 21 was built on: codex subagents
 are TOML under `.codex/agents/`, with *"no `tools` field at all"*. The plugins page's component
-list does not include them. **So on codex a plugin can carry the skill layer and the MCP layer
-of an overlay but not the agent layer** — which is exactly the layer B4, 4B and B8a are about.
+list does not include them. **So on codex a plugin is documented to carry the skill layer, and
+the MCP layer desktop-only, while the agent layer appears nowhere in the component list** — and
+that missing layer is exactly the one B4, 4B and B8a are about. The claim is *"absent from the
+component list on 2026-09-27"*, refutable by one sentence anyone finds, and it is **not** the
+claim *"codex refuses to load a subagent from a plugin"*, which nothing here tested.
 A codex plugin is a partial delivery mechanism for this project's overlay, and any step that
 used one would have to prove the agent files arrived by some other means.
 
@@ -455,8 +499,26 @@ retains the enterprise default."*
 
 ## Extract — three vendors, one table
 
-Same-day reading, 2026-09-27. Blank means *not stated on the pages read*, which is not the same
-as absent.
+Same-day reading, 2026-09-27.
+
+> **The convention below was declared and then not used, and the cells carry five different
+> strings for two different meanings. Corrected 2026-09-27 on §4a findings 8 (2/2) and 16 (1/2),
+> which are right.** There is **no blank cell in the table**, so *"blank means not stated"*
+> governed nothing. Read the cells under exactly two signals, and the distinction is the one that
+> matters for a layer label:
+>
+> - **`not stated` / `not described` / `not listed` — DOCUMENTED SILENCE.** The pages read say
+>   nothing. Refutable by one sentence anyone finds, and it is **never** evidence that the
+>   capability is missing.
+> - **`no` / `none` — A DOCUMENTED NEGATIVE.** The page describes the surrounding mechanism in
+>   full and the thing is absent from it, so the absence is load-bearing. Only two rows earn
+>   this: *Pin a plugin version* and *Rollback verb*, both on Claude Code, where the install page
+>   enumerates every verb and no downgrade appears among them.
+>
+> **Every other absence in this table is the first kind**, including codex's `not described`
+> source allowlist and every `not stated` in the Copilot column — that column is thin because
+> two of its three pages were read for key names, not for lifecycle, and a thin reading is not a
+> finding about the vendor.
 
 | | Claude Code | Codex | Copilot |
 |---|---|---|---|
@@ -518,7 +580,16 @@ compatibility, eval result.
 **What it owes, and one clause it cannot satisfy as written.** *Verify … rollback* assumes a
 rollback operation. On the pages read, **there is none on any of the three runtimes.** So the
 lab must either re-scope to *reconstruct the previous version from a pinned catalog ref* — which
-is testable — or record that the clause is unsatisfiable and say why. Rewriting the clause
+is testable — or record that the clause is unsatisfiable and say why.
+
+**And the choice between those two is made here, now, rather than left to whoever runs the lab —
+§4a finding 9 (2/2) was right that an unresolved clause gets satisfied by whichever reading is
+convenient on the day.** The binding reading: **the reconstruction satisfies the clause, and a
+native rollback verb is not required, but the lab must report which mechanism it used and must
+not describe a reconstruction as a rollback.** Reason: B13 clause 7 asks that rollback be
+*defined*, not that it be a single command, and a reconstruction that is written down, tested and
+bounded by the 14-day cache window is a definition. What would **not** satisfy it is ticking the
+clause off an untested assumption that a downgrade verb exists. Rewriting the clause
 quietly would be the failure this project names as the house one: a control reporting success
 over a scope smaller than it claims.
 
@@ -535,7 +606,7 @@ to be L3 on the evidence, and saying so is the point of labelling it.
 | Bank control | Layer, on the pages read 2026-09-27 | Why |
 |---|---|---|
 | Internal approved marketplace | **L2** | `strictKnownMarketplaces` executes before download and at session start, and *"Users can't override them"* — but it is a source list, and older clients *"ignore"* the aliases |
-| CODEOWNERS | **L2**, and **outside every runtime** | A GitHub branch-protection control on the marketplace repository. It governs the catalog, not the install; none of the three runtimes reads it |
+| CODEOWNERS | **L3 unless a branch-protection rule requires it — corrected from L2 at boundary 2**, and **outside every runtime** | A `CODEOWNERS` file is a *routing* file: on its own it requests reviewers and rejects nothing. It becomes L2 only when branch protection sets `require_code_owner_reviews`. **Checked rather than argued, 2026-09-27:** `gh api repos/UnityInFlow/agent-learning-lab/branches/main/protection` returns `require_code_owner_reviews: false` on the one repository in this project where the setting is observable, while `.github/CODEOWNERS` **does** exist — so here the file is present and enforces nothing. It governs the catalog, not the install; none of the three runtimes reads it. *§4a finding 10 (2/2) said this was an unverified assumption; it was, and the verification went against the label* |
 | Signed / reviewed releases | **L1 in exactly one case, otherwise L3** | L1 where an `archive` source carries a `sha256` the download must match, and for the `claude-community` commit pin. Everywhere else, *"Anthropic … cannot verify"* — and *reviewed* is the four-step checklist, which cannot show what a hook runs |
 | Pinned versions | **L3 at the plugin level, L2 at the catalog level** | No plugin-version selector exists. `#ref` on a marketplace executes; a plugin version is reported and not chosen |
 | Provenance | **L3** | Tier naming *"tells you who publishes the catalog, not what each plugin in it does"*. And the telemetry that would carry provenance redacts third-party names to the literal string `third-party` without `OTEL_LOG_TOOL_DETAILS=1` |
@@ -581,9 +652,12 @@ Nothing below is stated as a property of the agent under test.
   first-party marketplaces*; and **weak provenance**, since tier naming describes the catalog's
   publisher and not the plugin's contents. The right comparison is not "installing a config
   file" but "adding a dependency" — with one difference that makes it worse: *a dependency you
-  add is pinned by a lockfile, and a plugin has no version selector to pin.* The two L1
-  refusals — `sha256` archive digest, community commit SHA — are the only mechanisms on these
-  pages that behave like a lockfile, and neither is general.
+  add is pinned by a lockfile, and a plugin has no version selector to pin.* The two **L2**
+  refusals — `sha256` archive digest, community commit SHA *(both corrected from L1 at boundary
+  2 on §4a finding 11)* — are the only mechanisms on these pages that behave like a lockfile,
+  and neither is general. **And the correction sharpens the point rather than weakening it:** a
+  lockfile is L1 precisely because the bad value cannot be written; these refusals are L2, so
+  the analogy is to a checksum verified at install, not to a lockfile at all.
 - [x] **Versioning and rollback.** **Versioning is real at the catalog level and reporting-only
   at the plugin level; rollback does not exist as an operation on any of the three runtimes.**
   A plugin's `version` lives in `.claude-plugin/plugin.json`, appears in `claude plugin list`
@@ -594,7 +668,12 @@ Nothing below is stated as a property of the agent under test.
   versions is therefore **two catalogs**: *"host two marketplaces that point at different refs
   of the same plugins."* Rollback is reconstructed, not commanded — re-point the catalog and
   reinstall, or reach into `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` inside
-  the 14-day sweep window. **Teach this as the asymmetry it is:** rolling *forward* is one
+  the 14-day sweep window. **And the negative half is an argument from the page, not from the CLI
+— stated after §4a finding 6 (1/2), which is right.** This stop ran no `claude plugin` command at
+all: whether the CLI would *reject* `plugin@1.0`, silently *no-op*, or require an uninstall first
+is **unknown**, and the claim here is only that **no page read on 2026-09-27 documents a
+downgrade**. `claude plugin install --help` on an installed CLI settles it in one second and is
+Lab 7.1's to run. **Teach this as the asymmetry it is:** rolling *forward* is one
   command and happens by itself; rolling *back* is a manual reconstruction with a two-week
   expiry. A promotion gate that assumes a rollback button — and B13 clause 7 is *"rollback is
   defined"* — must define it as the reconstruction, or it is checking a box against a mechanism
@@ -641,7 +720,12 @@ learning:
     To answer, before anything is built, whether a plugin is a delivery mechanism this
     project could use. Stop 21 left the overlay existing in two runtime-specific forms and
     no way to ship either; Phase 7 is the stop that asks how they would reach a second
-    machine. The answer is a qualified yes on claude and a no on codex, and the reason is
+    machine. The answer is a qualified yes on claude and, on codex, a **partial no that must be
+    stated by layer** — corrected at boundary 2 on §4a finding 1 (2/2), which was right that a
+    bare "no" contradicts this file's own extract. A codex plugin carries the **skill** layer,
+    carries the **MCP** layer only in the ChatGPT desktop app and therefore not in the CLI this
+    project measures, and does not carry the **agent** layer on the pages read. So: no for the
+    overlay as a whole, no for the agent layer specifically, and yes for skills. The reason is
     quoted rather than reasoned.
   observed_effect: >
     n = 0 runs, so no effect on the agent under test and no number. The effect on the plan
@@ -711,7 +795,7 @@ Stop 22 registers no gate of its own; the spine's closing condition for stops 22
 | …and extract only | Seven `## Extract` sections in this file, one per source family, each dated 2026-09-27 and quoting verbatim | **L3** — nothing executes a check that an extract matches its source. The proof it was *read* is L2 above; the proof it was read *correctly* is that every claim is a quoted sentence, checkable by hand | `grep -c '^## Extract' phases/07-plugins/README.md` returns **7**. Then open each URL and search for the quoted sentence |
 | "Mark 'extract only, labs deferred by the autonomous run'" (§3 stop 7's wording, carried) | The status line at the top of this file, and `DEFERRED` on Labs 7.1, 7.2 and 7.3 | **L3** — a marker is words a reader chooses to honour | `grep -c '^## .*DEFERRED' phases/07-plugins/README.md` returns **3**, the three deferred lab headings, and the status line carries the fourth marker. *Anchored to headings on purpose: stop 7's table cited a bare `grep -c DEFERRED` and the §9 validator got a different number, because prose about the marker is itself a match* |
 | Exit gate: "Plugin vs skill" | Answered above from *"Skills, subagents, hooks, and MCP servers all work on their own, without a plugin"*, *"Use a plugin when you want several … packaged as one unit"*, and the `bin/`-on-`PATH` and hook-execution sentences of the security page | **L3** — a written answer from documentation | Compare the answer against those sentences on the overview and security pages |
-| Exit gate: "Why installation is a supply-chain event" | Answered above from *"can execute arbitrary code on your machine with your user privileges"*, *"cannot verify that they will work as intended or that they won't change"*, and *"Claude Code runs hooks and MCP servers outside the sandbox"* | **L3 for the claim.** The two *mechanisms* cited as L1 — the `sha256` archive-digest refusal and the `claude-community` commit-SHA refusal — are **L1 as the vendor describes them and untested here**: this repository has installed no plugin and observed neither refusal, so their layer is a documented claim, not an observation | Open the security page; find the two refusal bullets under *Untrusted marketplace sources and failed integrity checks* and the trust-warning code block |
+| Exit gate: "Why installation is a supply-chain event" | Answered above from *"can execute arbitrary code on your machine with your user privileges"*, *"cannot verify that they will work as intended or that they won't change"*, and *"Claude Code runs hooks and MCP servers outside the sandbox"* | **L3 for the claim.** The two *mechanisms* are **L2 as the vendor describes them — corrected from L1 at boundary 2 on §4a findings 2 and 12** (the rule stops at step 2, because a wrong `sha256` can still be written down; see the phase header) — **and untested here**: this repository has installed no plugin and observed neither refusal, so their layer is a documented claim, not an observation. *Finding 12 was right that "L1 as the vendor describes them" sat contradictorily beside "never tested here"; the fix is that the layer was wrong AND the untested caveat stays* | Open the security page; find the two refusal bullets under *Untrusted marketplace sources and failed integrity checks* and the trust-warning code block |
 | Exit gate: "Versioning and rollback" | Answered above. The negative half — no `@version`, no `--version`, no downgrade verb — is a statement about the **whole** install page and the codex and Copilot pages, which is the weakest kind of evidence in this file and is labelled as such | **L3, and an argument from absence.** Nothing executes; and "the page does not describe X" is refutable by one sentence anyone finds. It is stated as *what these pages contain on 2026-09-27*, never as a property of the tools | Read [Install and manage plugins](https://code.claude.com/docs/en/plugins/install) end to end and search it for `version`. Every hit is either the manifest field, the `Version` line of `claude plugin list`, or the cache path — none is a selector. Then `claude plugin install --help` on an installed CLI, which this stop did **not** run |
 | Exit gate: "Centralized enterprise restrictions" | Answered above from the nine-key control matrix with its *"What it can't do"* column, *"Users can't override them"*, *"before anything downloads and again at session start"*, the five client version floors, and *"Plan for what managed settings can't enforce"* | **L3 for the answer; L2 is what the answer *describes*** — and the distinction is the row's point. The keys execute on a machine that receives them. **No machine in this project receives them**: nothing in these three repositories sets a managed setting, so the L2 is the vendor's, observed by nobody here | Open the org page's control matrix and read both columns. To check the L2 claim you would need a managed-settings file on a machine and a blocked install — **not done at this stop** |
 | Hand check — one claim re-derived independently of the fetch that produced it | The Copilot `overridable` semantics. A subagent returned *"described as 'overridable for enterprise teams', indicating teams can customize at their scope level"*; re-fetched and re-read by hand, the page says *"This key is overridable for enterprise teams. Wrap the complete allowlist in `overridable` at the enterprise level"* and *"Omitting the key retains the enterprise default"* — an enterprise opt-in, not a team bypass. **The subagent's reading and the hand reading disagree in the direction that would have flattered the control's weakness, and the hand reading is the one recorded** | **L3** for the doc claim. The *process* is the §4b control and it executed: a value that decided a layer label was re-derived before it was written down | Open the managed-settings reference, find the `strictKnownMarketplaces` entry, and read the override sentence and the one after it |
