@@ -257,6 +257,30 @@ measured as `VOID` on the first one.
 because E-008/E-009 already measured prose-without-the-split on claude, and repeating it on
 codex with the model changed would answer neither question.
 
+#### Correction, additive, 2026-09-27 — the overlay is **nine** files, not eight
+
+*By Opus 5 (claude-opus-5), autonomously, at §4 step 4. The sentence above is kept verbatim and
+is not rewritten; §4 step 12 protects the text and this is the amendment that carries the fix.*
+
+`find` over `build/customizations/agent-v1.2-knowledge/.ai` returns **eight** files, not seven:
+three under `.ai/hooks/`, four under `.ai/knowledge/`, one under `.ai/policies/`. So the port is
+`AGENTS.md` **plus eight** = **nine files**, and `run-agent.sh --check-customization` reads back
+`tracked overlay files in the setup commit: 9 of 9`
+(`evidence/b10/census-port-20260927.txt`).
+
+**No prediction moves, and that is worth stating rather than assuming.** Prediction 1 is *"files
+that port unchanged: 8 of 11"*, whose mechanism is *"everything under `.ai/` plus nothing else"* —
+and `.ai/` is exactly those eight. The census confirms it at exactly 8 of 11. The slip was in the
+prose count of the *ported directory* (9 files, of which 8 are unchanged copies and 1 is a
+rename), never in the registered number. The same slip appears in `TRACK-B-STATE.md`'s
+`next_action` note for this step and is corrected there the same way.
+
+**The census result for both predictions is in the two experiment files** under *"Census result —
+predictions 1 and 2"*, with the five executed probes and their exit codes. Headline: 8 of 11 and
+0 of 2, both as predicted, with the layer split the prediction did not anticipate — the named-agent
+boundary is refused by something that runs (**L2**, `run-agent.sh:325` and `:522`), the policy gate
+is lost with nothing executing to say so (**L3**, probe 5 exits 0 and tracks the file).
+
 ### Arms, and what is cited rather than re-run
 
 | Arm | Runtime | Model | Overlay | `n` | Source |
