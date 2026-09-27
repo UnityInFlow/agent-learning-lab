@@ -107,7 +107,84 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running   # *** §0 BOUNDARY 1 OF 2 FOR STOP 22 (PHASE 7 - PLUGINS), A DIAMOND STOP.
+status: running   # *** §0 BOUNDARY 2 OF 2 FOR STOP 22 (PHASE 7 - PLUGINS), A DIAMOND STOP.
+                  # *** THE STOP IS CLOSED AND MERGED. *** PR lab#132 -> 074e2818e36c0a26cb8e552acfcdb8f77651d18d
+                  # (a MERGE COMMIT, not a squash). NINE CHECKS GREEN, ONE RED - the board check, red
+                  # by the AUTHOR'S OWN STANDING DECISION 12 ITEM 4, and NOT an oversight. lab#9 has
+                  # its closing comment, its card is `Done`, and *** IT IS STILL OPEN - READ BACK VIA
+                  # THE API (state `open`, state_reason null) *** because all three of its labs are
+                  # deferred and §4 step 14 keeps a Phase issue open on exactly that basis. The
+                  # project-#2 auto-close did NOT bite, matching the lab#8 / lab#16 precedent.
+                  # THE SESSION ENDS ON THAT BOUNDARY, NOT ON A HALT. blocked_on_author IS EMPTY and
+                  # NO §7 BULLET IS MATCHED. prompt_sha a47590a1e61d RE-COMPUTED AND UNCHANGED. All 22
+                  # validator files re-checked BY NAME, one grep per basename, and NONE IS NEW.
+                  #
+                  # *** THE NEXT STOP IS 23 (PHASE 8 - AGENTIC WORKFLOWS), THE SECOND DIAMOND STOP,
+                  # AND NOTHING OF IT EXISTS - §6 FORBIDS A FUTURE STEP'S ARTIFACTS EARLY. OPENING IT
+                  # AT §4 STEP 1 IS THE NEXT SESSION'S FIRST ACT. ***
+                  #
+                  # *** THE STOP'S OWN §4a REVIEW FOUND THAT I HAD MISAPPLIED THIS PROJECT'S CENTRAL
+                  # RULE, IN SIX PLACES, AND THAT IS THE RESULT WORTH CARRYING. *** The `sha256`
+                  # archive-digest refusal and the `claude-community` commit pin were labelled L1 in
+                  # FOUR places in the workbook and TWO in SOURCES.md - one of them the Claude Code
+                  # sandbox row, reading "a real Layer 1 boundary". Applied IN ORDER, stopping at the
+                  # first yes: the bad value CAN still be written down (a wrong digest can be typed;
+                  # the archive at the URL can be swapped), so step 1 is `no` and the rule falls to
+                  # step 2 - something EXECUTES and rejects it. *** THEY ARE L2. *** And the
+                  # correction SHARPENS the claim: a lockfile is L1 BECAUSE the bad value cannot be
+                  # written, so calling these refusals lockfile-shaped was the error, not just the
+                  # label. GUARDRAILS.md exists to prevent this; the workspace CLAUDE.md warns about
+                  # the SAME mistake pointing the other way, and records that it already cost a
+                  # VOIDED TWENTY-RUN EXPERIMENT.
+                  #
+                  # *** ONE FINDING WAS SETTLED BY OBSERVATION RATHER THAN ARGUMENT AND THE
+                  # OBSERVATION WENT AGAINST MY LABEL. *** CODEOWNERS was L2. A CODEOWNERS file
+                  # ROUTES reviewers and rejects nothing; it is L2 only when branch protection sets
+                  # require_code_owner_reviews. `gh api repos/UnityInFlow/agent-learning-lab/branches/
+                  # main/protection` returns *** require_code_owner_reviews: false *** on the one repo
+                  # in this project where the setting is observable, WHILE .github/CODEOWNERS EXISTS.
+                  # Present and enforcing nothing. Now L3, with the command in the cell.
+                  #
+                  # *** A CLAIM ABOUT A CONTROL'S FAILURE DIRECTION WAS BACKWARDS. *** "A deny-list
+                  # that normalizes and an allow-list that does not is a control whose failure
+                  # direction is permissive" - IT IS RESTRICTIVE. A non-canonicalizing allow-list
+                  # fails to match a marketplace the operator MEANT to allow, and BLOCKS it. Both
+                  # halves fail CLOSED. The vendor's own "prefer a hostPattern entry" advice is the
+                  # tell: advice for matching MORE is only needed when a matcher UNDER-matches. The
+                  # word was on the WRONG CONTROL - the genuinely permissive gap on that page is the
+                  # claude.ai sync channel, a different mechanism. Original word STRUCK, not deleted.
+                  #
+                  # *** AND THE REVIEW BOUGHT A DEFECT IN A REGISTERED INSTRUMENT NOBODY WAS
+                  # AUDITING: check-links.sh's SUMMARY HAS NEVER RECONCILED. *** It declares
+                  # "Checking 91 unique URLs" across THIRTY-FOUR FILES (not just SOURCES.md) and
+                  # reports ok=71 moved=11 blocked=2 = 84. *** SEVEN URLs ARE IN NO BUCKET. *** The
+                  # same gap stood at TWO on 2026-08-28, so it is not new - it GREW WITH THE CORPUS.
+                  # It prints only its non-ok lines (13 on the 27th, re-derived), so the missing seven
+                  # CANNOT BE RECOVERED FROM THE OUTPUT AT ALL. *** broken=0 - the clause the CI job
+                  # `verified reading is still verified` gates on - IS UNAFFECTED, and no stop's gate
+                  # rests on an "all N sources verify" sentence. *** NOT FIXED: an L2 change to a
+                  # registered instrument, which §6 forbids at a diamond stop. author_notes carries it.
+                  #
+                  # *** §0a ROW 6a - THE CODEX ISOLATION PROBE - FAILS, AND IT REPRODUCES. *** exit 2,
+                  # re-derived by hand: "ISOLATION LEAKS: the agent reached the operator's instruction
+                  # files with HOME redirected." CHECK A HOLDS (nothing auto-loads); CHECK B,
+                  # DELIBERATE READING, FAILS. Stop 21's workbook ALREADY records this as fact 11 with
+                  # the caveat that makes today load-bearing - "a model that did not look is not a
+                  # model that could not" - so *** EVERY EARLIER `ok` ON THIS ROW WAS THE ABSENCE OF A
+                  # POSITIVE, AND THIS IS THE POSITIVE, TWICE NOW. *** Stop 21 is CLOSED and is NOT
+                  # reopened; stop 22 launched no run, so nothing here is in a comparison.
+                  # DELIBERATELY NOT FIXED: changing run-agent.sh's HOME redirection alters the run
+                  # environment EVERY LATER STOP INHERITS, which makes it the AUTHOR'S call and not an
+                  # instrument PR to merge mid-track. `codex exec --help` offers --ignore-user-config,
+                  # --ignore-rules and --ephemeral, none of which the runner passes.
+                  #
+                  # THE BOARD DIGEST MOVED AND ITS VALUE IS *** b80ab7bd7834 ***, RE-DERIVED by
+                  # running check-board-freshness.sh IMMEDIATELY AFTER the last HANDOFF.md edit, never
+                  # by hand - the check EXCLUDES `board:` marker lines, so a raw-file sha is a
+                  # DIFFERENT NUMBER and not a change. ba8041f69831 IS DEAD; the markers still say
+                  # 4a67c593ada2. NOT REPUBLISHED - the author's, decision 12 item 4.
+                  # NOTHING IS RUNNING: no run-agent.sh, no codex, no opencode of ours, no lock file.
+# SUPERSEDED, kept not deleted: status: running   # *** §0 BOUNDARY 1 OF 2 FOR STOP 22 (PHASE 7 - PLUGINS), A DIAMOND STOP.
                   # THE EXTRACT IS WRITTEN, COMMITTED (f4ba961) AND PUSHED. *** The session ends on that
                   # boundary, NOT on a halt. blocked_on_author IS EMPTY and NO §7 BULLET IS MATCHED.
                   # prompt_sha a47590a1e61d RE-COMPUTED THIS SESSION AND UNCHANGED. All 22 validator
@@ -1397,7 +1474,11 @@ prompt_sha: a47590a1e61d       # RE-COMPUTED 2026-09-27T17:5xZ at the top of THI
                                # MINE - do not treat it as an unexplained edit by someone else.
   # SUPERSEDED, kept not deleted: prompt_sha: 9c75ac3cbad3       # CHANGED at re-entry 2026-09-24T23:1xZ: 76a83fb7f604 -> 9c75ac3cbad3, and NOT by me - I did not touch the prompt. WHOLE PROMPT RE-READ IN FULL, sections 0-8 (§9 is the author's standing exclusion and this session's instruction repeats it). The change is not diffable: PROMPT-opus5-track-b.md lives at the workspace root, which is NOT a git repository, so there is no previous text to compare against. What I checked instead, by grep: §3 row 17a still carries the three opening conditions for B8a and carries NO adoption record for BE-005, and the string `STANDING INSTRUCTION` does not appear - so the author did NOT paste AUTHOR-DECISION-11-CONTINUE.md into §3. Recording decision 11 as ADOPTED in prompt §3 is therefore still owed and is on this session's list.
   # SUPERSEDED, kept not deleted: prompt_sha: 76a83fb7f604       # CHANGED at re-entry 2026-09-14T13:4xZ: 16ec79abbf55 -> 76a83fb7f604, AND I CHANGED IT MYSELF - the author`s instruction this session was to ADOPT AUTHOR DECISION 11 by copying AUTHOR-DECISION-11-DECOMPOSITION.md verbatim into PROMPT §3, so the prompt moved because of an edit I made under instruction, not because someone else edited it under me. The WHOLE prompt was re-read IN FULL BEFORE the edit, sections 0-8 (§9 excluded on the author`s standing instruction `ignore §9`), and the inserted block was then re-read as part of §3. VERBATIM WAS CHECKED, NOT ASSERTED: a python round-trip restored the inserted block to the source file byte-for-byte after undoing the ONLY change, heading depth (`#`->`###`, `##`->`####`, so the block nests inside §3 instead of opening a top-level section). Sections apply from stop 16 step 7 onward. Nothing already done under 16ec79abbf55 changes.  SUPERSEDED, kept not deleted: 16ec79abbf55       # CHANGED at re-entry 2026-09-10T09:2xZ: ba62c35dbbd2 -> 16ec79abbf55. The WHOLE prompt was re-read IN FULL before any other action, per §0, sections 0-8 (§9 is the validator`s and the author`s instruction this session was again "execute sections 0 through 8 ... Ignore section 9"). The visible change is §0`s new CONTEXT GUARD paragraph: hooks/context-guard.py is wired in .claude/settings.json at the workspace root since 2026-09-10 and REFUSES every tool except editing TRACK-B-STATE.md and git add/commit/push at 60% of the window, after warning at 50%. Nothing already done under ba62c35dbbd2 is changed; sections apply from stop 15 step 1 onward. SUPERSEDED, kept not deleted: prompt_sha: ba62c35dbbd2 CHANGED at re-entry 2026-09-09T05:12Z: 92d4f1e3332d -> ba62c35dbbd2. Whole prompt re-read IN FULL before any action, per §0 (§9 excluded on the author's explicit instruction this session). The additio
-prompt_read_at: 2026-09-27T17:5xZ   # WHOLE PROMPT RE-READ IN FULL this session before any
+prompt_read_at: 2026-09-27T18:2xZ   # *** WHOLE PROMPT RE-READ IN FULL AGAIN THIS SESSION (all 967
+                   # lines, four reads, before any other action bar the state-file read §0 orders
+                   # first). sha RE-COMPUTED as a47590a1e61d and UNCHANGED, so NO prompt-change line
+                   # is owed under §0. ***
+# SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-27T17:5xZ   # WHOLE PROMPT RE-READ IN FULL this session before any
                    # other action, sections 0-8. §9 excluded on the author's explicit standing
                    # instruction for this session ("Ignore section 9"), as on every session since
                    # 2026-09-11. The sha was UNCHANGED, so no `prompt changed` line is owed; it was
@@ -1452,7 +1533,16 @@ prompt_read_at: 2026-09-27T17:5xZ   # WHOLE PROMPT RE-READ IN FULL this session 
   # SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-24T23:1xZ   # read in full before any other action this session, as §0 requires
   # SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-15T16:1xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8. Sha UNCHANGED at 76a83fb7f604, so no `prompt changed` line is owed under §0.  SUPERSEDED, kept not deleted: 2026-09-14T13:4xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8. Sha CHANGED BY MY OWN ADOPTION EDIT (see prompt_sha), so the `prompt changed` line §0 owes is in in_flight below.  SUPERSEDED, kept not deleted: 2026-09-13T10:0xZ   # WHOLE PROMPT RE-READ IN FULL this session before any other action, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed.  SUPERSEDED, kept not deleted: 2026-09-11T10:1xZ   # RE-READ IN FULL this session, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed; it was re-read anyway because the author`s instruction named the §0a preflight as the first act.  SUPERSEDED, kept not deleted: 2026-09-11T07:5xZ   # RE-READ IN FULL AGAIN this session, sections 0-8 (§9 excluded on the author`s standing instruction "Ignore section 9"). Sha UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed. SUPERSEDED, kept not deleted: 2026-09-11T06:5xZ   # WHOLE PROMPT RE-READ IN FULL before any other action this session, sections 0-8 (§9 excluded again on the author`s explicit instruction "Ignore section 9"). The sha was UNCHANGED at 16ec79abbf55, so no `prompt changed` line is owed; it was re-read anyway because the author`s instruction named the §0a preflight as the first act and §0a is only reachable by reading it. prompt_read_at: 2026-09-10T09:2xZ   # RE-READ IN FULL this session because the sha CHANGED (ba62c35dbbd2 -> 16ec79abbf55). §9 excluded on the author`s explicit instruction, as before. SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-09T07:0xZ
 
-stop: 22           # *** PHASE 7 - PLUGINS + CONTROLLED DISTRIBUTION. OPENED 2026-09-27T17:57:35Z
+stop: 22           # *** CLOSED AND MERGED 2026-09-27 at n = 0 RUNS, which is what the spine
+                   # registers a DIAMOND stop to produce and is NOT a shortfall. *** PR lab#132 ->
+                   # 074e2818e36c0a26cb8e552acfcdb8f77651d18d. The deliverable: ten documentation
+                   # pages across THREE vendors, 7 `## Extract` sections, 3 labs DEFERRED with their
+                   # debts written down, 7 new SOURCES.md rows, one ✅ re-status'd to ↪️ BY THE CHECKER
+                   # RATHER THAN BY HAND, the four exit-gate clauses answered plus "was this the agent,
+                   # or the harness?" - NEITHER, which for a diamond stop is the honest answer.
+                   # *** NEXT IS STOP 23 (PHASE 8 - AGENTIC WORKFLOWS), THE SECOND DIAMOND STOP.
+                   # NOTHING OF IT EXISTS. ***
+# SUPERSEDED, kept not deleted: stop: 22           # *** PHASE 7 - PLUGINS + CONTROLLED DISTRIBUTION. OPENED 2026-09-27T17:57:35Z
                    # on branch stop22/phase-7-plugins, created off main at f9ecb5f-era main which IS
                    # origin/main (fetched and compared, not assumed). ***
                    # *** IT IS A DIAMOND STOP: EXTRACT ONLY. *** §3's itinerary row `22-23` reads
@@ -1521,7 +1611,40 @@ stop: 22           # *** PHASE 7 - PLUGINS + CONTROLLED DISTRIBUTION. OPENED 202
                    # which IS origin/main - FETCHED AND COMPARED, NOT ASSUMED.
 # SUPERSEDED, kept not deleted: stop: 17a          # B8a - DECOMPOSITION DEPTH, on BE-005 ONLY (author decision 11 items 2-5), version-neutral, measured against v1.1. Spine position 17a, inserted after B8 and before 6A so no stop number moves. Prereqs 4B (stop 11) and B8 (stop 17) are both CLOSED AND MERGED. OPENED 2026-09-24 on branch stop17a/b8a-decomposition-depth, created off main at d4faa7e which IS origin/main (fetched and compared, not assumed).
   # SUPERSEDED, kept not deleted: stop: 17           # B8 - run state, repair limits, completion contract - v1.1. OPENED 2026-09-15 on branch stop17/b8-run-state-repair-limits. Track A prerequisite Phase 5B (stop 16) IS CLOSED AND MERGED. The B-step issue is **lab#33** - CHECKED AGAINST THE ISSUE LIST VIA THE API, NOT GUESSED (27=B2 ... 33=B8, 33 is open). Both tasks per author decision 9: BE-003 and BE-004.  SUPERSEDED, kept not deleted: 16           # Phase 5B - verification loops, bounded self-healing, completion. OPEN as of 2026-09-11T10:2xZ on branch stop16/phase-5b-verification-selfhealing. The spine`s closing condition is EVIDENCE ON DISK for Lab 5B.5 (obs#47, BLOCKED != FAILED). The Phase issue is lab#15 - CHECKED AGAINST THE ISSUE LIST, NOT GUESSED.  SUPERSEDED, kept not deleted: 16           # Phase 5B: reading, extract, Lab 5B.5 (obs#47, BLOCKED != FAILED). NOT YET OPENED - no stop-16 artifact exists and §6 forbids creating one early. STOP 15 IS CLOSED AND MERGED: PR lab#84 -> 2d201a5, nine checks green, lab#32 commented and CLOSED, card Done, both boards republished, check-board-freshness 2 board(s) current at 865f553b9c12. SUPERSEDED, kept not deleted: 15           # B7 - deterministic verification and policies. OPEN, at §4 steps 7-8. NOT CLOSED and NOT CLOSEABLE this session: the exit gate needs P7 (rubric quality) and P7 needs codex, which is refusing on auth. Steps 1-6 were done in earlier sessions; steps 7 and 8 are done in this one EXCEPT the registered sheets. stop: 15           # B7 - deterministic verification and policies. v1.0 CLOSES HERE, measured against B2 on BE-003 and against BE-004`s own B5 control on BE-004 (author decision 9); NEVER across tasks. NOT YET OPENED. Stop 14 CLOSED AND MERGED: PR lab#82 -> 259c996, nine checks green, lab#7 COMMENTED AND LEFT OPEN (5A.2-5A.7 deferred), card Done, both boards republished, check-board-freshness 2 board(s) current at 32590f81db10. SUPERSEDED, kept not deleted: 14           # Phase 5A - guardrails: reading, extract, Lab 5A.1 (remove a capability before policing it). NOT YET OPENED. STOP 13 IS CLOSED AND MERGED: PR lab#80 -> 4b21650 (nine checks green) plus the follow-up lab#81 -> 4eb5a59; lab#31 commented and CLOSED, card moved to Done, both boards republished and check-board-freshness reports 2 board(s) current at cd59aacd084f. SUPERSEDED, kept not deleted: 13           # B6 - ONE specialist skill, chosen from a failure MEASURED in B2-B5, on BOTH tasks (author decision 9). NOT YET OPENED. Stop 12 CLOSED and MERGED: PR lab#79 -> 2e32f214, nine checks green, lab#30 commented and closed, card Done. SUPERSEDED, kept not deleted: 12           # B5 - workflow phases, on BOTH BE-003 and BE-004 (author decision 9). OPEN. Steps 1-3 done: workbook opened and issue lab#30 commented at 05:19:39Z, extract and layer labels at 1031a99, and the two prediction registrations at 5777b07 (E-010, BE-003) and ccd5c0c (E-011, BE-004).
-loop_step: 2   # *** §0 BOUNDARY 1 OF 2 FOR A DIAMOND STOP: "after the extract". ***
+loop_step: 14  # *** §0 BOUNDARY 2 OF 2 FOR A DIAMOND STOP: "after the PR". THE LOOP IS COMPLETE. ***
+                   # §4 steps 1-2 were done at boundary 1 (f4ba961). This session did 11, 13, 13a, 14.
+                   # STEP 11 - VERIFIED, NOT REDONE: the `## Learning` block carries exactly the six
+                   #   keys build/README.md:663-670 registers, and the Exit gate answers all four
+                   #   clauses plus the gate's own question.
+                   # STEP 13 - the §5 table is EIGHT ROWS with an Independence check and an explicit
+                   #   `n = 0 runs` line. *** §5's OWN RULE IS NOW HONOURED IN THE FILE rather than in
+                   #   a conversation: all three verification commands were RE-RUN IMMEDIATELY BEFORE
+                   #   `done` AND THEIR OUTPUT PASTED INTO THE WORKBOOK *** - check-links.sh
+                   #   `ok=71 moved=11 blocked=2 unverified=0 broken=0` exit 0, `grep -c '^## Extract'`
+                   #   -> 7, `grep -c '^## .*DEFERRED'` -> 3. Cell-identical to boundary 1.
+                   #   *** AND THE INDEPENDENCE CHECK WAS WRONG IN BOTH DIRECTIONS *** - written at
+                   #   boundary 1, it named TWO files the branch did not yet touch (HANDOFF.md and the
+                   #   review file, both of which arrive at step 14) and OMITTED THREE it did. Corrected
+                   #   ADDITIVELY at dd26cb3 with the original sentence kept verbatim above it; the
+                   #   load-bearing half re-derived and unchanged (nothing under build/customizations/,
+                   #   benchmark/rubrics/ or evidence/). An independence check that quietly corrects its
+                   #   own scope is the house failure mode in the one row whose job is to catch it.
+                   # STEP 13a - `-P codex -n 2` on BOTH contracts. 27 DISTINCT FINDINGS: 24 FIXED,
+                   #   1 DISPUTED IN WRITING, 1 RECORDED-NOT-FIXED UNDER §6, 1 fixed by another's edit,
+                   #   at 637427e. *** THE ACCEPTANCE GATE DID NOT RUN - NOT `UNDECIDED`, NOT A PASS ***
+                   #   and the files say it themselves: "The gate failed to run (opencode exit 1)".
+                   #   lab-acceptance is on the ollama-cloud provider at its weekly limit for the EIGHTH
+                   #   consecutive session. §4a's stopping rule wants ACCEPT or every finding disposed
+                   #   AND the gate's objection answered; THERE IS NO OBJECTION WHEN THERE IS NO GATE.
+                   #   Files: findings/opencode/review-README-20260927T182937Z.md (22681 B, 39 sections,
+                   #   exit 0) and review-SOURCES-20260927T183303Z.md (13316 B, 44 sections, exit 0).
+                   #   NOTHING WAS WITHHELD from the harness, and nothing under findings/, .claude/ or
+                   #   .github/ was passed as a SUBJECT (rtk hides dotfile paths - it would review
+                   #   nothing and exit 0).
+                   # STEP 14 - PR lab#132 merged; HANDOFF position to spine 22 of 28 with the previous
+                   #   block kept verbatim as superseded; lab#9 commented, card Done, ISSUE LEFT OPEN
+                   #   and READ BACK; findings/track-b-2026-09-27-3.md written. BOARDS NOT REPUBLISHED.
+# SUPERSEDED, kept not deleted: loop_step: 2   # *** §0 BOUNDARY 1 OF 2 FOR A DIAMOND STOP: "after the extract". ***
                    # §4 step 1 DONE: Goal, Required reading and Extract filled in
                    # phases/07-plugins/README.md from sources ACTUALLY OPENED (ten pages, all fetched
                    # fresh 2026-09-27); ./tools/check-links.sh run on the new SOURCES.md rows at
@@ -1830,7 +1953,17 @@ loop_step: 2   # *** §0 BOUNDARY 1 OF 2 FOR A DIAMOND STOP: "after the extract"
   # SUPERSEDED, kept not deleted: 6-RUNNING   # §4 STEP 6, THE REGISTERED BATCH, IS RUNNING AT THIS WRITE under nohup caffeinate -i evidence/b08/run-b8-batch.sh. READ ITS MANIFEST BEFORE DECIDING ANYTHING IS DEAD and NEVER re-run a run id that is in it - a duplicate benchmark run is evidence that cannot be deleted. The driver and its 12-case guard fixture set are committed at 119ffa0.  SUPERSEDED, kept not deleted: 5-COMPLETE   # §4 STEP 5 IS DONE. BOTH PREFLIGHT PAIRS PASSED ALL FIVE DELIVERY CONDITIONS AND ARE COMMITTED. NEXT IS §4 STEP 6, THE BATCH - §0 BOUNDARY 2 IS AFTER IT. NOTHING IS RUNNING.  SUPERSEDED, kept not deleted: 5-IN-PROGRESS   # §4 STEP 4 IS DONE AND COMMITTED (3669d93). STEP 5 PREFLIGHT IS STARTING. The two FREE --check-customization probes ALREADY PASSED and their values are registered in E-018/E-019: treated 7 of 7 overlay files tracked, instructionsHash sha256:a94237242e8c1308fb1d434a06a03463; control 4 of 4 tracked, instructionsHash NULL (verify-v1.0 carries no CLAUDE.md - the registered control assertion was wrong about that and carries a dated correction). agentHash IDENTICAL in both arms.  SUPERSEDED, kept not deleted: 3-COMPLETE   # §0 BOUNDARY 1. Steps 1 (workbook Goal/Required reading/Extract, check-links, lab#33 comment, card In Progress read back), 2 (design + layer labels, CORRECTED before the build - see in_flight) and 3 (E-018 and E-019, the prediction commit) are DONE AND COMMITTED. STEP 4 (build the overlay and the verifiers) IS NOT STARTED and no overlay directory exists.  SUPERSEDED, kept not deleted: 1   # §4 step 1 - Goal, Required reading, Extract in phases/b08-run-state-repair-limits/README.md, check-links, lab#33 comment, card to In Progress. The workbook README is the 2026-08-10 SCAFFOLD that has always been on main - filling it is not a §6 violation; creating a stop-17 experiment file before step 3 would be.  SUPERSEDED, kept not deleted: census-COMPLETE   # NOT a §4 step. Stop 16`s §4 is complete through step 14 (§0 boundary 4). The decision-11 census ran at the boundary and is committed on branch census/decision-11. STOP 17 IS NOT OPENED.  SUPERSEDED, kept not deleted: 14-COMPLETE   # §0 BOUNDARY 4 for stop 16. Every step of §4 is done: 1-13 in earlier sessions, 13a (BOTH review rounds dispositioned per finding in the PR bodies) and 14 (both PRs merged, the step-14 tail PR merged, HANDOFF, boards, lab#15 comment, card Done) in this one. THE CENSUS IS NOT A §4 STEP and stop 17 is NOT OPENED - §6 forbids a future step`s artifacts early.  SUPERSEDED, kept not deleted: 14-PRs-OPEN   # §4 steps 1-13 and 13a are DONE. Step 14 is DONE EXCEPT THE MERGES: HANDOFF written, findings/track-b-2026-09-14.md written, BOTH BOARDS REPUBLISHED WITH REAL CONTENT (check-board-freshness exits 0, `2 board(s) current at 94e71935a853`), and BOTH PRs ARE OPEN AND GREEN-OR-PENDING: lab#85 and obs#77. WHAT REMAINS: the merges, the §4a per-finding dispositions in lab#85`s body, editing obs#77`s body to cite the SUCCESSFUL round-2 re-run, and lab#15`s closing comment.  SUPERSEDED, kept not deleted: 13a-REVIEW-ROUNDS   # §4 steps 1-13 are DONE AND COMMITTED for stop 16, and so is the whole of step 14 EXCEPT THE TWO PRs: HANDOFF is written, findings/track-b-2026-09-14.md is written, BOTH BOARDS ARE REPUBLISHED WITH REAL CONTENT and check-board-freshness exits 0 at `2 board(s) current at 94e71935a853`. WHAT REMAINS: (a) §4a round 2 - THE TOOLS REVIEW STALLED, 916 bytes and 0 finding sections on findings/opencode/review-classify-permission-block-20260914T142155Z.md, which §4a calls a STALL AND NOT A FINDING; re-run it on -P codex or record it as not-sent and NAME IT IN THE PR BODY. (b) the LAB PR. (c) the OBSERVATORY PR - agent-observatory branch stop16/permission-block-classifier is PUSHED at 142e4a4 with NO PR OPEN, and forgetting that repo is precisely the stop-11 failure HANDOFF records. (d) lab#15 comment + card. ROUND 1 RETURNED ACCEPT: findings/opencode/review-E-017-...-20260914T141448Z.md, 48089 bytes, 89 finding subsections, gate ACCEPT, over E-017 + the workbook + the replay and delivery READMEs.  SUPERSEDED, kept not deleted: 8-TO-13-DONE   # §4 steps 7, 8, 9, 10, 11, 12 and 13 are DONE AND COMMITTED for stop 16. Step 7: the gate over all 20 (11 pass, 9 refused) and the registered hand-vs-sheet pairing on 79c7d7c6 (hand 1 at 3854aad BEFORE any sheet existed; codex sheet 1, same missing clause). Step 8: E-017`s post-run sections - P1 VOID by decision-rule row 4, P2 refuted on arm D, P3 refuted at 5 of 10 splitting by channel, P4 held, P5 half held half unanswerable, P6 held. Step 9: the deliberate failure - 4 of 5 predictions held and the 5th was refuted in the good direction. Step 10: classifier KEPT ON DISK, NOT PROMOTED. Step 11: learning + exit gate (2 of 6 met, 4 deferred and left UNTICKED). Step 12: nothing edited. Step 13: the §5 table, 14 clauses. WHAT REMAINS: 10 codex sheets in flight (subagent), then §4a review rounds and §4 step 14 (PR, HANDOFF, boards, lab#15 comment - the Phase issue STAYS OPEN, labs 5B.1-5B.4 deferred).  SUPERSEDED, kept not deleted: 6-COMPLETE   # §0 BOUNDARY 2. All 20 runs recorded, all 20 worktrees kept and each carries evaluation.json (checked by stat, not inferred from --keep). Steps 7-14 are NOT started.  SUPERSEDED, kept not deleted: 6-BATCH-LIVE   # §4 STEP 6, the resume half (indices 21-30). NOT COMPLETE. Steps 1-5 are done and committed (fc0a1e9, 8c45eb1, 02690e2, ee05c0e, 3eac200). Step 7 is NOT started and must not be until the batch ends.  SUPERSEDED, kept not deleted: 3-COMPLETE   # §0 BOUNDARY 1 for stop 16 - `after §4 step 3: experiment file written and its prediction commit on the branch`. Steps 1, 2 and 3 are done and committed on stop16/phase-5b-verification-selfhealing. THE PREDICTION COMMIT IS 02690e265e9071d6bace5d2e8f2587a1f2386694 at 2026-09-11T12:38:28+02:00 = 10:38:28Z, AND ZERO RUNS EXIST ON THE KEY - checked against the API, not asserted: EXP-5B5-PERMISSION-BLOCK-BE003 returns 0 runs. NO BENCHMARK RUN HAS BEEN STARTED. Steps 4-14 are NOT started.  SUPERSEDED, kept not deleted: 1   # §4 step 1 for stop 16, started 2026-09-11T10:2xZ after the §0a preflight came back all-rows-pass. NOTHING of steps 2-14 exists.  SUPERSEDED, kept not deleted: 14-COMPLETE   # §0 BOUNDARY 4. Every step of §4 for stop 15 is done: 1-6 in earlier sessions, 7 and 8 finished here once codex returned, then 9 (both deliberate failures), 10 (KEEP, with the reason recorded as an argument rather than a measurement), 11 (learning block + exit gate), 12 (nothing edited), 13 (§5 validation table), 13a (the review round on the codex panel, all 41 findings answered) and 14 (PR merged, HANDOFF, boards, issue, card). STOP 16 IS NOT OPENED and no stop-16 artifact exists - §6 forbids a future step`s artifacts early. SUPERSEDED, kept not deleted: 13a-REVIEW-ROUNDS   # §4 steps 7, 8, 9, 10, 11, 12 and 13 are ALL DONE AND COMMITTED. P7 is measured on the registered scorer on both tasks; the two deliberate failures are run; the exit gate, the learning block and the §5 validation table are written; HANDOFF and findings/track-b-2026-09-11.md are written. WHAT REMAINS: the §4a review rounds (running, on the CODEX panel because ollama is at its weekly limit again) and §4 step 14 - PR, boards, lab#32. SUPERSEDED, kept not deleted: 7-SCORING-WITH-THE-REGISTERED-SCORER   # §4 step 7, the registered (codex) half, STARTED 2026-09-11T08:0xZ now that codex answers. The gate, both hand re-reads, the report and all 34 second-reader (deepseek) sheets were already on disk and committed before this session; NOTHING THERE IS REDONE. §4 step 7`s ordering requirement - write a hand value before opening a sheet - WAS ALREADY SATISFIED at 0c5651a and is not re-taken. SUPERSEDED, kept not deleted: 7-8-COMPLETE-EXCEPT-THE-REGISTERED-SHEETS   # §0 BOUNDARY 3, FINAL FORM 2026-09-11T07:5xZ. THE GATE, THE HAND RE-READS, THE REPORT, verify-sh OVER ALL 34 WORKTREES AND ALL 34 SECOND-READER SHEETS ARE ON DISK AND COMMITTED, and their values are in this file. THE REGISTERED (codex) SHEETS DO NOT EXIST and cannot be made to exist by me. P1-P6 ARE MEASURED AND ALL SIX HELD on both tasks; P7 IS DEFERRED. Steps 9-14 are NOT started. SUPERSEDED, kept not deleted: loop_step: 7-8-PARTIAL   # §0 BOUNDARY 3 REACHED 2026-09-11T07:3xZ in the form §4c step 3 allows: "sheets, report and hand re-read on disk, values in the state file" - the HAND RE-READS and the REPORT are on disk and committed, the SECOND-READER sheets are on disk, and the REGISTERED (codex) sheets DO NOT EXIST because codex is down on auth. §4c step 3 forbids answering the exit gate without them, so steps 9-14 are NOT started. loop_step: 6-COMPLETE   # §0 BOUNDARY 2 REACHED 2026-09-10T21:0xZ: `after §4 step 6 - every run of the batch recorded, run ids and worktree paths in the state file`. THE BATCH IS OVER AND IT ENDED BY ITS OWN GUARD, NOT BY A CRASH AND NOT BY A HAND: `ABORT: claude moved mid-preflight: 2.1.267 -> 2.1.268`. NOTHING WAS SCORED THIS SESSION - scoring is §4 step 7 and belongs to the next one. SUPERSEDED, kept not deleted: 6   # §4 STEP 6 RE-LAUNCHED 2026-09-10T18:37:31Z UNDER A NEW TAG, batch-20260910T183731Z, pid 72988 under `nohup caffeinate -i`. THE MACHINE WAS MEASURED BEFORE THE MONEY WAS SPENT rather than declared quiet: a full `./mvnw -q -o test` in a KEPT WORKTREE of the excluded batch took 10.2s wall at 115%% CPU, `top` reported 33.3%% idle, and load fell 202 -> 7.26/12.43/13.92 over the three windows. memcore-server is DOWN to 4.5%% CPU from 189.7 and memtrace to 0.3 from 106.9 - the two processes the previous session named as the dominant load. THE PROBE IS THE POINT: the excluded batch died because an agent could not get CPU for `./mvnw test` and burned 13 Bash calls fighting it, so the thing to measure is Maven wall time, not a load average. NONE of the six excluded ids is re-used; the new manifest starts empty. SUPERSEDED, kept not deleted: 6   # §4 STEP 6 STARTED AND WAS STOPPED BY HAND after 5 of 40 runs. NOT A HALT, NOT A FAILURE OF THE TREATMENT: the MACHINE stopped being a measurement environment (load average 201.97). ALL SIX RUN IDS EXCLUDED BY NAME, folders kept, see evidence/b07/batch-20260910T132311Z/EXCLUSIONS.md. SUPERSEDED, kept not deleted: loop_step: 6   # §4 STEP 6, THE REGISTERED BATCH, LAUNCHED 2026-09-10T13:2xZ. STEP 5 IS COMPLETE AND PASSED ON
 # SUPERSEDED, kept not deleted: loop_step: 7   # §4 STEP 7 HALTED PART-WAY 2026-09-06T13:2xZ. THE GATE HALF IS COMPLETE AND API-INDEPENDENT: check-run-gate.sh on each run's on-disk evaluation.json gives 20 ADMITTED, 0 REFUSED. THE SCORING HALF IS BLOCKED: no run records, so no codex sheets, so no O7. The hand re-read REQUIRED BEFORE ANY SHEET IS OPENED IS DONE AND COMMITTED (5f1b83d, run 207ff23d, maintainability = 0 with path:line reasoning), so whenever scoring becomes possible the ordering discipline is already satisfied and must not be redone.
 
-branch: stop22/phase-7-plugins (agent-learning-lab), created 2026-09-27T17:57:35Z off main
+branch: stop22/phase-7-plugins (agent-learning-lab) - *** MERGED into main at
+  074e2818e36c0a26cb8e552acfcdb8f77651d18d via PR lab#132, a MERGE COMMIT and not a squash. *** Four
+  commits: f4ba961 (the extract, §4 steps 1-2), 7340446 (the §0a preflight and the `ls -t` defect it
+  found), dd26cb3 (steps 11 and 13 verified, the Independence check corrected), 637427e (the §4a
+  review's 24 fixes), b8e34ac (the HANDOFF position). NOT DELETED, as the stop-21 branches were not.
+  *** NOTHING IS OPEN in agent-observatory or agent-observatory-benchmarks *** - no instrument PR was
+  owed at this stop, and the isolation fix that WOULD have been one is deliberately the author's
+  because it changes the run environment. agent-observatory still carries the same ONE UNRELATED
+  pre-existing modification, observatory-web/package-lock.json, which is NOT mine and was NOT touched.
+# SUPERSEDED, kept not deleted, its own continuation lines included:
+# SUPERSEDED, kept not deleted: branch: stop22/phase-7-plugins (agent-learning-lab), created 2026-09-27T17:57:35Z off main
   after `git fetch origin`, PUSHED and tracking origin. Two commits so far: f4ba961 (the extract,
   §4 steps 1-2) and this state write. The stop-21 branches are MERGED, not deleted. NOTHING is open
   in agent-observatory or agent-observatory-benchmarks; both are on clean `main` (agent-observatory
@@ -1939,7 +2072,28 @@ branch: stop22/phase-7-plugins (agent-learning-lab), created 2026-09-27T17:57:35
         commit of this session lands here. NO PR IS OPEN YET - a PR is §4 step 14, at boundary 2.
 # SUPERSEDED, kept not deleted: branch: stop17a/b8a-decomposition-depth (agent-learning-lab), created 2026-09-24 off main at d4faa7e, which IS origin/main - fetched and compared, not assumed. NOTHING IS ON THIS BRANCH YET beyond this state write. The author's CONTINUE instruction forbids committing to ANY main outside a PR, state-file-only commits included, so every commit of this session lands here.
   # SUPERSEDED, kept not deleted: branch: stop17/b8-run-state-repair-limits (agent-learning-lab), created 2026-09-15 off main at 3a0f61f, which is origin/main - fetched and compared, not assumed. The census branch census/decision-11 and all stop-16 branches are MERGED, not deleted.  SUPERSEDED, kept not deleted: census/decision-11 (agent-learning-lab), off main at 5bd91d3 — the census PR. All stop-16 branches are merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab) - stop16/phase-5b-verification-selfhealing and stop16/handoff-and-boards are MERGED, not deleted; agent-observatory stop16/permission-block-classifier is MERGED, not deleted.  SUPERSEDED, kept not deleted: stop16/phase-5b-verification-selfhealing (agent-learning-lab), created 2026-09-11T10:24:52Z off main at 2d201a5. The stop-15 branch is merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab), clean, at 2d201a5. THE STOP-15 BRANCH stop15/b7-verification-policies IS MERGED, not deleted. Fifteen commits on it this session. SUPERSEDED, kept not deleted: stop15/b7-verification-policies (agent-learning-lab). SIX NEW COMMITS THIS SESSION on top of 96be718: 82685e1 the n=7 decision and the n=7 detection limits registered before any sheet; 0c5651a the two hand re-reads, committed while zero sheets existed for the batch; 8cf8942 P1-P6 measured into E-015 and E-016, P7 deferred; 493e1ba step 8 artefacts (verify-sh over 34 worktrees, gate from two sources, the baseline-report defect); plus the probe-file rename and this state write. branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, PUSHED. FIVE COMMITS: 32d99cc step 1 (workbook Goal/Required reading/Extract; lab#32 commented; card In Progress), a921443 the OTHER session`s state hunks + its §7 halt, 674d8a9 step 2 (design + the census + the feasibility probe), 344bc97 the halt discharge, ea7b1d2 THE PREDICTION COMMIT at 2026-09-10T11:51:08+02:00 = 09:51:08Z. SUPERSEDED, kept not deleted: branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, THREE COMMITS: 32d99cc (step 1), a921443 (the driver session`s state hunks + its §7 halt), 674d8a9 (step 2). NOT PUSHED YET. SUPERSEDED, kept not deleted: branch: NONE - stop14/phase-5a-guardrails IS MERGED (
-in_flight:
+in_flight: []   # *** EMPTY. NOTHING IS RUNNING AND NOTHING IS UNMERGED. *** Verified with a NARROW
+  # pattern, NEVER a bare `pgrep -fl opencode` (a FOREIGN answer-panel opencode runs on this machine
+  # and a bare pgrep dumps its prompt into context), and NEVER a `pgrep -f` wait loop (it matches
+  # itself and never exits - killed by pid three times):
+  #   LC_ALL=C pgrep -fl 'run-agent.sh|codex exec|opencode-review.sh'  -> exit 1, nothing
+  #   evidence/b10/.batch.lock, .score.lock, .df.lock                  -> all ABSENT
+  # PR lab#132 is MERGED. lab#9 is COMMENTED, its card is Done, and IT IS OPEN - read back.
+  #
+  # THE PREVIOUS SESSION'S IN-FLIGHT §0a PREFLIGHT WAS SETTLED FROM DISK BEFORE ANYTHING WAS
+  # RE-RUN, as §0 requires. It had in fact COMPLETED and COMMITTED at 7340446 (eight ok, one fail,
+  # one red-by-decision), and the in_flight text below was written BEFORE that commit. Checking the
+  # evidence first cost one `git show --stat` and saved a blind re-run of a table that spends a real
+  # claude run. *** §0's rule - never re-run what you cannot prove failed to start - paid for itself
+  # again. ***
+  #
+  # UNTRACKED AND DELIBERATELY LEFT SO: `./1` - the §0a row-3a dry-run prompt (28 415 B, all four
+  # categories). *** LAB_SCORE_DRY_RUN IS A PATH, NOT A BOOLEAN *** (codex-score.sh:294 does
+  # `cp "$tmp/prompt.md" "${LAB_SCORE_DRY_RUN}"`), so `LAB_SCORE_DRY_RUN=1` writes a file literally
+  # named `1`. It is ALREADY in .gitignore at line 51 (`/1`), which means a previous session hit
+  # exactly this. A SUBAGENT MISREAD THIS ROW as "categories do NOT appear" from the 78-byte stderr
+  # notice; §4b's re-derive rule caught it, and the row is `ok`.
+# SUPERSEDED, kept not deleted: in_flight:
   - "*** §0a PREFLIGHT RE-RUN IS IN FLIGHT AS THIS IS WRITTEN. *** Delegated 2026-09-27T17:5xZ to a
      haiku subagent (§4b row 7) with the exact commands and hard per-row bounds, at the author's
      explicit instruction for this session (`starting with the section 0a preflight`) - the EIGHTH
@@ -3227,7 +3381,33 @@ last_verified_addendum_second_reader: "2026-09-25, LATER THE SAME DAY, §4 STEP 
   correct about the same code because they ask different questions - which is why the exit gate must name
   which question it answers."
 
-last_verified: "2026-09-27T17:5x-18:1xZ, STOP 22 §4 STEPS 1-2 COMPLETE AND PUSHED (f4ba961).
+last_verified: "2026-09-27T18:2x-19:1xZ, *** STOP 22 CLOSED AND MERGED AT §0 BOUNDARY 2. ***
+  (a) prompt_sha re-computed: a47590a1e61d, UNCHANGED. No prompt-change line is owed.
+  (b) VALIDATOR SWEEP: 22 files match findings/track-b-validation-*.md and ALL 22 ARE NAMED IN THIS
+      FILE - ONE GREP PER BASENAME, minimum hit count 1, never by trusting a total. NO NEW PASS
+      EXISTS (newest still 2026-09-08). Nothing to process, nothing reopened.
+  (c) §0a PREFLIGHT: the previous session's in-flight run SETTLED FROM DISK (commit 7340446), then
+      RE-RUN IN FULL this session - the NINTH consecutive, on the author's standing instruction;
+      §0a's own trigger did not fire. *** SIX ok, TWO FAIL, ONE RED-BY-DECISION. NONE IS A §7
+      HALT and blocked_on_author IS EMPTY. *** See `preflight:` for the rows; the two that changed
+      verdict since the previous session (6a and 3a) were BOTH RE-DERIVED BY HAND and they went in
+      OPPOSITE directions: 6a is a REAL new FAIL, 3a was a SUBAGENT MISREAD and is ok.
+  (d) §4 STEP 13 RE-DERIVATIONS, run immediately before `done` and PASTED INTO THE WORKBOOK as §5
+      requires: check-links.sh `ok=71 moved=11 blocked=2 unverified=0 broken=0` exit 0;
+      `grep -c '^## Extract' phases/07-plugins/README.md` -> 7;
+      `grep -c '^## .*DEFERRED' phases/07-plugins/README.md` -> 3. All three cell-identical to
+      boundary 1.
+  (e) §4 STEP 13a: 27 findings, 24 fixed at 637427e, 1 DISPUTED IN WRITING, 1 recorded-not-fixed
+      under §6, 1 fixed by another's edit. ACCEPTANCE GATE `DID NOT RUN`.
+  (f) §4 STEP 14: PR lab#132 -> 074e2818e36c0a26cb8e552acfcdb8f77651d18d, NINE GREEN ONE RED (the
+      board check, red by decision 12 item 4). `verified reading is still verified` PASSES, which is
+      the independent confirmation that my SOURCES.md edits did not break the clause CI gates on.
+      lab#9 commented, card Done, ISSUE READ BACK AND STILL OPEN (state `open`, state_reason null).
+  (g) BOARD DIGEST: *** b80ab7bd7834 ***, re-derived by RUNNING check-board-freshness.sh after the
+      last HANDOFF.md edit, never by hand. ba8041f69831 is dead; the markers still say 4a67c593ada2.
+      NOT REPUBLISHED - the author's, decision 12 item 4.
+  (h) SUPERSEDED last_verified follows:
+# SUPERSEDED, kept not deleted: last_verified: "2026-09-27T17:5x-18:1xZ, STOP 22 §4 STEPS 1-2 COMPLETE AND PUSHED (f4ba961).
   (a) prompt_sha re-computed: a47590a1e61d, UNCHANGED.
   (b) VALIDATOR SWEEP: 22 files match findings/track-b-validation-*.md and *** ALL 22 ARE NAMED IN
       THIS FILE *** - checked ONE GREP PER FILE BY BASENAME, minimum hit count 1, not by trusting a
@@ -4109,7 +4289,87 @@ last_verified: "2026-09-27T17:5x-18:1xZ, STOP 22 §4 STEPS 1-2 COMPLETE AND PUSH
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
 
-next_action: "*** STOP 22 IS OPEN AT §0 BOUNDARY 1. THE EXTRACT IS WRITTEN, COMMITTED (f4ba961)
+next_action: "*** OPEN STOP 23 AT §4 STEP 1. NOTHING OF IT EXISTS AND §6 FORBIDS CREATING A FUTURE
+  STEP'S ARTIFACTS EARLY. STOP 22 IS CLOSED AND MERGED - DO NOT RE-OPEN, RE-READ THE TEN PAGES,
+  RE-RUN ITS LINK CHECK OR RE-REVIEW ANY PART OF IT. ***
+  (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d), re-check
+      findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
+      2026-09-08 - ONE GREP PER BASENAME, never a total), and confirm nothing is running with a
+      NARROW pattern: `LC_ALL=C pgrep -fl \'run-agent.sh|codex exec|opencode-review.sh\'`.
+      *** NEVER a bare `pgrep -fl opencode` - a FOREIGN answer-panel opencode runs on this machine
+      and a bare pgrep dumps its whole prompt into context. AND NEVER A `pgrep -f` WAIT LOOP: it
+      matches itself and never exits; that has been killed by pid three times. ***
+      *** AND NEVER `ls -t <glob>`: `ls` IS ALIASED TO eza, whose `-t` is `--time FIELD`, so the
+      first glob match is EATEN AS THE FLAG ARGUMENT and it FAILS WITH EXIT 0. *** Use
+      `stat -f \'%m %N\' <glob> | sort -rn | head -1 | cut -d\' \' -f2-`. Found at stop 22; it had
+      already sent one session to an 11-day-old file believing it was the newest.
+  (1) *** STOP 23 IS PHASE 8 - AGENTIC WORKFLOWS - AND IT IS THE SECOND DIAMOND STOP: EXTRACT
+      ONLY. *** §3\'s itinerary row `22-23` reads `Phases 7 and 8 (diamond): extract only, as stop 7`.
+      STOP 22 IS NOW THE NEAREST PRECEDENT AND STOP 7 IS THE ORIGINAL; both closed at n = 0 and
+      NEITHER IS A SHORTFALL. Mark it `extract only, labs deferred by the autonomous run`.
+      *** A DIAMOND STOP HAS TWO §0 BOUNDARIES, NOT FOUR: after the extract, and after the PR. ***
+      boundary 1 = §4 steps 1-2 plus the extract written; boundary 2 = §4 steps 11, 13, 13a, 14.
+      DO NOT WRITE AN EXPERIMENT FILE, DO NOT REGISTER A PREDICTION, DO NOT SPEND A RUN, DO NOT
+      BUILD AN OVERLAY. A prediction with no run measures nothing.
+  (2) §4 step 1: fill Goal, Required reading and Extract in a NEW workbook at
+      phases/08-agentic-workflows/ (*** CHECK WHETHER A SCAFFOLD ALREADY EXISTS before creating one
+      *** - stop 22\'s did, and its open question was answered AGAINST its own assumption). Run
+      ./tools/check-links.sh on anything new in SOURCES.md. Comment `opened at spine stop 23, branch
+      <name>, <ISO date>` on the PHASE issue - a Track A stop is lab#1-lab#17, so FIND THE RIGHT ONE
+      via the API rather than guessing - and move its card to In Progress. The issue and the card are
+      a MIRROR of this file, NEVER a source.
+      *** A PHASE ISSUE STAYS OPEN IF ANY OF ITS LABS IS DEFERRED *** (§4 step 14). lab#9, lab#16 and
+      lab#8 are now ALL THREE open on exactly that basis, from stops 22, 19 and 18.
+  (3) §4 step 2: label every artifact L1/L2/L3 with the workspace CLAUDE.md rule APPLIED IN ORDER,
+      stopping at the first yes. *** AND READ STOP 22\'S CORRECTION BEFORE YOU LABEL ANYTHING: I got
+      this WRONG IN SIX PLACES at stop 22 and the §4a review caught it. An installer that COMPARES A
+      DIGEST AND REFUSES is L2, NOT L1, because the wrong digest CAN STILL BE WRITTEN DOWN - step 1
+      is `no` and the rule FALLS THROUGH. L1 requires that the bad value CANNOT BE EXPRESSED. The
+      same error made a sandbox "a real Layer 1 boundary" in SOURCES.md. *** For an extract there is
+      usually nothing above L3 and saying so plainly is the correct answer, not a gap.
+  (4) THEN steps 11 (the six learning questions of build/README.md `After every step` - the keys are
+      at build/README.md:663-670 and must be EXACTLY those six - plus the Exit gate INCLUDING `was
+      this the agent, or the harness?`, whose honest answer at a diamond stop is NEITHER), 13 (the §5
+      table - and *** §5 REQUIRES YOU TO RE-RUN EVERY VERIFICATION COMMAND IMMEDIATELY BEFORE WRITING
+      `done` AND PASTE THE OUTPUT INTO THE FILE ***, which stop 22 did and which is the only reason
+      its Independence check was caught wrong), 13a and 14.
+  (5) *** §4a MUST GO TO `-P codex` AND THE ACCEPTANCE GATE WILL NOT RUN. *** §0a row 2 has now
+      stalled for EIGHT consecutive sessions on the ollama-cloud weekly limit, and `lab-acceptance`
+      is on the SAME PROVIDER. RECORD `DID NOT RUN`, not `UNDECIDED` and not a pass; there is no
+      objection to answer when there is no gate, so DISPOSITION EVERY LINE-LEVEL FINDING instead and
+      say in the PR body that no acceptance verdict exists. *** AND THE REVIEW IS WORTH ITS COST:
+      at stop 21 it caught a REFUTED PREDICTION recorded as HELD, at stop 17a it corrected a stated
+      reason for refusing promotion, and at stop 22 it caught me misapplying the layer rule in six
+      places AND led to a defect in check-links.sh nobody was auditing. *** Send the workbook FIRST.
+      At most four artefacts per invocation and NAME IN THE PR BODY anything not sent. *** NEVER pass
+      it anything under findings/, .claude/ or .github/ *** - rtk hides dotfile paths and it would
+      review nothing and exit 0. Run the two invocations SEQUENTIALLY: concurrent opencode is this
+      machine\'s known stall mode.
+  (6) BOARDS: *** DO NOT REPUBLISH *** - the author\'s, by decision 12 item 4, so the board CI check
+      is RED and that red is EXPECTED. Nine green and one red is a MERGEABLE state with --admin, as
+      lab#132, lab#130, lab#122 and lab#117 all were. The digest both markers must be set to is now
+      *** b80ab7bd7834 ***, NOT the ba8041f69831 the previous next_action named - the stop-22 HANDOFF
+      edit moved it. *** RE-DERIVE IT AGAIN AFTER THE NEXT STOP\'S LAST HANDOFF.md EDIT *** by running
+      check-board-freshness.sh, never by hand: it EXCLUDES `board:` marker lines, so a raw-file sha is
+      a different number and not a change.
+  (7) *** MERGE VIA THE REST API, NOT `gh pr merge`. *** `gh api -X PUT repos/UnityInFlow/<repo>/
+      pulls/<n>/merge -f merge_method=merge` worked first time at stop 22; `gh pr merge` and
+      `gh pr view` time out or 401 intermittently on this machine. MERGE, NEVER SQUASH.
+  (8) FOR author_notes, ALREADY WRITTEN THERE, nothing to re-derive: check-links.sh\'s summary has
+      NEVER RECONCILED (91 declared, 84 bucketed, 7 unaccounted, and the same gap stood at 2 on
+      2026-08-28); curl `000` degrades to a non-fatal `unverified`; a SOURCES.md checker that refuses
+      a ✅ whose URL check-links.sh calls MOVED (WebFetch follows redirects SILENTLY - a ✅ from a
+      fetch is not a ✅); a DERIVED `still without an extract` count; and *** THE CODEX ISOLATION
+      LEAK, which is the author\'s because fixing it changes the run environment every later stop
+      inherits. ***
+  (9) DO NOT: create any artifact of stop 23 before opening it, or of any stop after it; write an
+      experiment or a prediction for a diamond stop; spend a benchmark run at stop 23; build any of
+      the four instruments in author_notes (all L2, all forbidden by §6 at a diamond stop); re-open,
+      re-run or re-review any part of stop 22 or stop 21; edit a measured overlay under
+      build/customizations/ (§3: a measured version is never edited); delete a worktree, log, sheet,
+      stall artefact or evidence file (§6); commit a pid lock; republish the boards; push a state
+      write straight to main; close a Phase issue whose labs are deferred; or run §9 on my own work."
+# SUPERSEDED, kept not deleted: next_action: "*** STOP 22 IS OPEN AT §0 BOUNDARY 1. THE EXTRACT IS WRITTEN, COMMITTED (f4ba961)
   AND PUSHED. DO NOT RE-WRITE IT, RE-READ THE TEN PAGES, OR RE-RUN check-links.sh FROM SCRATCH.
   WHAT REMAINS IS §4 STEPS 11, 13, 13a AND 14 = BOUNDARY 2, AND THE STOP THEN CLOSES. ***
   (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d), re-check
@@ -6887,7 +7147,64 @@ blocked_on_author: []   # *** EMPTY as of 2026-09-25. *** The single item that w
     #29 merged at eea144ef and its verifier re-run on main at 12 of 12). Plus Gate B before any of it
   # SUPERSEDED, kept not deleted: blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
-author_notes:   # *** 2026-09-27 (stop 22, §0 BOUNDARY 1) items FIRST, then the stop-21 ones, then
+author_notes:   # *** 2026-09-27 (stop 22, §0 BOUNDARY 2 - THE CLOSE) items FIRST, then boundary 1's,
+  # then the stop-21 ones. NOTHING HERE GATES ANYTHING. blocked_on_author is EMPTY and no item below
+  # matches a §7 bullet. ***
+  - "*** THE CODEX ISOLATION CONTROL LEAKS, IT REPRODUCES, AND FIXING IT IS YOURS BECAUSE IT CHANGES
+     THE RUN ENVIRONMENT. *** `agent-observatory/runner/verify-codex-isolation.sh` exits 2:
+     `ISOLATION LEAKS: the agent reached the operator's instruction files with HOME redirected.`
+     Check A (nothing AUTO-loads) holds; check B (DELIBERATE reading) fails. Seen at stop 21 and
+     again at stop 22's preflight, both re-derived by hand. *** The earlier `ok` readings were the
+     ABSENCE OF A POSITIVE, not a proof of isolation - stop 21's own workbook says why: an isolation
+     probe asks a live model to go looking, and a model that did not look is not a model that could
+     not. *** I did NOT fix it: changing run-agent.sh's HOME redirection alters the environment every
+     later stop inherits, which is a registered-variable move dressed as an instrument PR. `codex
+     exec --help` offers --ignore-user-config, --ignore-rules and --ephemeral, none of which the
+     runner passes. WHAT IT DOES AND DOES NOT THREATEN: it cannot contaminate stop 22 (n = 0 runs),
+     and for stop 21 it is a POSSIBLE confound rather than a measured one - whether any run actually
+     READ an operator file is answerable from the agent logs and was not asked, because §0 forbids
+     re-analysing a closed stop absent a validator NOT CLOSED."
+  - "*** check-links.sh's SUMMARY HAS NEVER RECONCILED, AND NO RUN OF IT EVER HAS. *** It declares
+     `Checking 91 unique URLs` across THIRTY-FOUR files and reports ok=71 moved=11 blocked=2 = 84.
+     SEVEN URLs are in no bucket. The 2026-08-28 line in SOURCES.md shows the same defect at TWO
+     (64+8+2 = 74 against a declared 76), so it GREW WITH THE CORPUS. It prints only its non-ok lines
+     (13 on the 27th, re-derived), so the missing seven CANNOT be recovered from the output.
+     *** broken=0 - the clause the CI job `verified reading is still verified` gates on - IS
+     UNAFFECTED, and no stop's gate rests on an `all N sources verify` sentence. *** Two L2 fixes
+     wanted and forbidden by §6 at a diamond stop: a summary that accounts for every URL it declares,
+     and one that does not degrade a PERMANENT curl `000` to a non-fatal `unverified`."
+  - "*** WebFetch FOLLOWS A REDIRECT SILENTLY and hands back the content as though the URL resolved,
+     so A ✅ PRODUCED BY A FETCH IS NOT A ✅. *** Found at stop 22 boundary 1 and it is the one thing
+     that stop measured about its own apparatus. The L2 fix - a check that refuses a ✅ in SOURCES.md
+     whose URL check-links.sh reports as MOVED - is NOT BUILT (§6). Related and also not built: a
+     DERIVED `still without an extract` count, now marked `⚠️ HAND-MAINTAINED` in SOURCES.md instead.
+     The same stop corrected a count in five places, which is the standing argument for deriving."
+  - "*** I MISAPPLIED GUARDRAILS.md's OWN RULE IN SIX PLACES AND THE §4a REVIEW CAUGHT IT, NOT ME. ***
+     An installer that compares a `sha256` and refuses is L2, not L1: the wrong digest CAN still be
+     written down, so the rule does not stop at step 1. Four places in the stop-22 workbook, two in
+     SOURCES.md, one of them calling a sandbox `a real Layer 1 boundary`. All corrected additively at
+     637427e. *** Worth your attention as a PATTERN rather than as a defect: the workspace CLAUDE.md
+     warns about this mistake in ONE direction (`a schema note is L3, not L1`) and records that it
+     already cost a voided twenty-run experiment. This was the SAME mistake pointing the other way,
+     in the phase whose whole job was to apply the rule to seven Bank controls. A one-line check
+     nobody has written - `does the thing cited EXECUTE? then it is at most L2` - would have caught
+     every one of the six.*"
+  - "*** `ls -t <glob>` IS BROKEN ON THIS MACHINE AND FAILS WITH EXIT 0. *** `ls` is aliased to eza,
+     whose `-t` is `--time FIELD`, so the first glob match is eaten as the flag's argument. A
+     multi-match glob prints a real but WRONG file; a single-match glob prints NOTHING. Both exit 0.
+     Found at stop 22 boundary 1 while hand-checking WHICH file a preflight row had written. Fixed at
+     L3 only, in CLAUDE.md and in phases/04b-orchestration/README.md:726 (which told a stranger to
+     re-derive a CLOSED stop's evidence with it). The replacement is
+     `stat -f '%m %N' <glob> | sort -rn | head -1 | cut -d' ' -f2-`."
+  - "§0a's TABLE IS STALE IN TWO ROWS, unchanged for eleven sessions and still not a halt: row 1 asks
+     for `16 of 16` and the suite is 87 cases; the isolation row asks for a record that `shows 0 hook
+     executions` and NO SUCH FIELD EXISTS in the run record - a top-level scan for /hook/i returns [],
+     and `customization.hooksHash` is a HASH, not a COUNT. §1 says the files win. Any past `ok` on
+     that half of the row was INFERRED, and it is now written as unobservable rather than as ok."
+  - "*** `gh pr merge` AND `gh pr view` TIME OUT OR 401 INTERMITTENTLY HERE; THE REST API DOES NOT. ***
+     `gh api -X PUT repos/<owner>/<repo>/pulls/<n>/merge -f merge_method=merge` merged lab#132 first
+     time. Recorded because three consecutive stops have now spent time on this."
+# SUPERSEDED, kept not deleted (boundary 1's author_notes header and its items follow): author_notes:   # *** 2026-09-27 (stop 22, §0 BOUNDARY 1) items FIRST, then the stop-21 ones, then
                 # the carried ones. NOTHING IS DELETED. None of these is a §7 halt and
                 # blocked_on_author stays EMPTY. ***
   - "2026-09-27, stop 22 boundary 1. *** `ls -t <glob> | head -1` IS BROKEN ON THIS MACHINE AND FAILS
@@ -9156,7 +9473,92 @@ preflight_20260925_post_discharge:  # §0a RUN IN FULL AGAIN 2026-09-25T06:4x-06
   board_check: "ok - exit 0, `2 board(s) current at c32edff33e62`. Current against origin/main, and this
     branch has not touched HANDOFF.md yet. §4 step 14 is where a republish belongs."
   hook_wiring: "STILL unproven in print mode, unchanged, and deliberately not claimed."
-preflight:  # *** §0a RE-RUN IN FULL 2026-09-27T17:5x-18:1xZ *** at the author's explicit instruction
+preflight:  # *** §0a RE-RUN IN FULL 2026-09-27T18:2x-18:4xZ *** at the author's explicit instruction
+            # for this session ("starting with the section 0a preflight"), the NINTH consecutive
+            # session to carry it. §0a's own trigger did NOT fire - neither a first session nor a
+            # halt; the instruction did. *** SIX ok, TWO FAIL, ONE RED-BY-DECISION. NEITHER FAIL NOR
+            # THE RED IS A §7 HALT and blocked_on_author STAYS EMPTY. *** §0a's halt sentence is
+            # scoped to STARTING STOP 4 with an unproven harness or a failing verifier; ALL FOUR
+            # VERIFIERS PASS.
+            # Rows 1-5, 6a and 7 delegated to a haiku subagent with exact commands and hard per-row
+            # bounds (§4b row 7); row 6b run by me. *** TWO ROWS CHANGED VERDICT SINCE THE PREVIOUS
+            # SESSION AND BOTH WERE RE-DERIVED BY HAND - THEY WENT IN OPPOSITE DIRECTIONS. ***
+            #
+            # row 1  REVIEW HOOK SCRIPT ......... ok    `all 87 cases ran and behaved as specified`,
+            #        exit 0. *** THE PROMPT'S TABLE STILL SAYS `16 of 16` AND THE SUITE IS 87 CASES ***
+            #        - the staleness author_notes has carried for eleven sessions. §1: the files win.
+            # row 2  REVIEW HARNESS, LIVE ...... *** FAIL (stall, 903 bytes, 0 finding sections,
+            #        exit 1) *** - THE EIGHTH CONSECUTIVE SESSION, ollama-cloud weekly limit.
+            #        RE-DERIVED BY HAND off the exact path the subagent named: `wc -c` -> 903,
+            #        `grep -c '^### '` -> 0. Artefact KEPT per §6 and labelled a STALL, never counted
+            #        as a review: findings/opencode/review-run-record-20260927T182550Z.md.
+            #        *** THE CONSEQUENCE WAS ACTED ON, NOT INFERRED: step 13a went to `-P codex` and
+            #        returned 22681 B / 39 sections and 13316 B / 44 sections. *** No opencode of ours
+            #        left running.
+            # row 3a CODEX DRY RUN ............. ok - *** AND THE SUBAGENT MISREAD IT. *** It reported
+            #        "category names do NOT appear", reading the 78-byte STDERR NOTICE. The prompt is
+            #        written TO A FILE, because *** LAB_SCORE_DRY_RUN IS A PATH, NOT A BOOLEAN ***
+            #        (codex-score.sh:294: `cp "$tmp/prompt.md" "${LAB_SCORE_DRY_RUN}"`). With `=1` it
+            #        lands at `./1`: 28 415 bytes, ALL FOUR CATEGORIES PRESENT, re-derived by hand.
+            #        Exit 3 is the dry run's OWN REGISTERED CODE (codex-score.sh:290-300), not a
+            #        failure. `/1` is already in .gitignore:51, so a past session hit this too.
+            #        *** §4b's rule - re-derive anything that decides a row - caught it for the fourth
+            #        session in five. ***
+            # row 3b CODEX HARNESS, LIVE ....... ok    codex-cli 0.154.0, exit 0, FOUR score lines in
+            #        findings/codex/score-good-nested-ifs-20260927T182730Z.yaml:
+            #        architecture-consistency 2 / maintainability 0 / test-quality null /
+            #        change-focus 2. *** CELL-FOR-CELL IDENTICAL to the 17:57Z, 16:21Z, 15:52Z, 12:33Z,
+            #        09:51Z, 08:40Z and 06:04Z sheets of the 27th and to 2026-09-26 and 2026-09-03.
+            #        The scorer is stable on this fixture across TEN sheets and 25 days. ***
+            # row 4  GATE AND VALIDATORS ....... ok    all four run SEPARATELY so one failure could not
+            #        hide the rest: run-gate 13 cases / sheet-category 11 / run-record 12 /
+            #        model-output 16, exit 0 each.
+            # row 5  OBSERVATORY STACK ......... ok    `All 18 checks passed`, exit 0, API 8081.
+            #        INDEPENDENTLY CONFIRMED: row 6b read a run record off that same API by hand.
+            # row 6a ISOLATION, CODEX .......... *** FAIL, exit 2, AND IT REPRODUCES. *** RE-DERIVED BY
+            #        HAND, the full output read rather than a summary trusted:
+            #          check A - `marker absent - global instructions did not reach the model`, and the
+            #                    file's own words, `check A holds: nothing AUTO-LOADS. That is not the
+            #                    same as check B below.`
+            #          check B - `ISOLATION LEAKS: the agent reached the operator's instruction files
+            #                    with HOME redirected.` / `run-agent.sh's HOME redirection is not doing
+            #                    what observatory#65 requires.`
+            #        *** THE PREVIOUS SESSIONS' `ok` WAS THE ABSENCE OF A POSITIVE, AND THIS IS THE
+            #        POSITIVE - TWICE NOW (stop 21 fact 11, and here). *** Stop 21's workbook:157-164
+            #        already carries it WITH the right caveat - "an isolation probe asks a live model to
+            #        go looking, and a model that did not look is not a model that could not" - so this
+            #        run CONVERTS a not-settled observation into a reproducing one and the workbook
+            #        needs no amendment. STOP 21 IS CLOSED AND IS NOT REOPENED. Stop 22 launched NO run,
+            #        so nothing at this stop is in any comparison.
+            #        *** DELIBERATELY NOT FIXED, and this is the judgement, not an omission: ***
+            #        changing run-agent.sh's HOME redirection alters the run environment EVERY LATER
+            #        STOP INHERITS, which is closer to §7's `a gate that cannot be closed without
+            #        moving a registered variable` than to an instrument PR §4 step 14 lets me merge.
+            #        author_notes carries it for the author. `codex exec --help` offers
+            #        --ignore-user-config, --ignore-rules and --ephemeral, NONE of which the runner
+            #        passes, and any of which may be the fix.
+            # row 6b ISOLATION, CLAUDE HALF .... ok on the observable half. Run
+            #        *** d44b8f1e-b4e5-444a-9f55-2a1accdd497f ***, experimentKey
+            #        preflight-20260927T182700Z, startedAt 2026-09-27T18:27:00Z, runtime.model
+            #        claude-haiku-4-5-20251001 (THE PINNED MODEL, checked, not assumed). RE-DERIVED BY
+            #        HAND off the API: `customization` has *** SEVEN *** keys - agentHash, agentsHash,
+            #        hooksHash, instructionsHash, knowledgeHash, mcpHash, skillsHash - and *** ALL
+            #        SEVEN ARE null *** under ISOLATE_USER_SETTINGS=1.
+            #        *** THE UNOBSERVABLE HALF IS STILL UNOBSERVABLE AND IT IS A DEFECT IN THE
+            #        PROMPT'S OWN TABLE: *** §0a asks for a record that "shows 0 hook executions" and
+            #        THERE IS NO HOOK-EXECUTION FIELD IN THE RECORD AT ALL - a top-level key scan for
+            #        /hook/i returns []. `hooksHash: null` is a HASH, not a COUNT. Any past `ok` on
+            #        that half was INFERRED. §1: the files win.
+            # row 7  BOARD CHECK .............. RED, BY THE AUTHOR'S OWN STANDING DECISION (12 item 4),
+            #        not an oversight: `2 of 2 board(s) describe an older HANDOFF.md than the one on
+            #        disk`, exit 1. NOT REPUBLISHED. *** Required marker digest b80ab7bd7834 *** - the
+            #        check's own words, `marker says prose 4a67c593ada2, but HANDOFF.md hashes to
+            #        b80ab7bd7834 ... then set its prose: marker to b80ab7bd7834`. RE-DERIVED BY
+            #        RUNNING IT after the last HANDOFF.md edit, never by hand.
+            #
+            # *** HOOK WIRING: still `unproven in print mode`, unchanged and deliberately so. *** The
+            # synchronous §4a review is this run's review control.
+# SUPERSEDED, kept not deleted: preflight:  # *** §0a RE-RUN IN FULL 2026-09-27T17:5x-18:1xZ *** at the author's explicit instruction
             # for this session ("starting with the section 0a preflight"), the EIGHTH consecutive
             # session to carry it. §0a's own trigger did NOT fire - this is neither a first session nor
             # a halt; the instruction did. EIGHT ok, ONE FAIL, ONE RED-BY-DECISION.
