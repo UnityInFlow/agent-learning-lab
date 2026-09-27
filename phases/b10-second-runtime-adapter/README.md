@@ -574,14 +574,254 @@ carry six, and that is a build decision for whoever opens one — not an edit he
 sharpest available illustration of the trap named in `## Design and layers`: **a file count reads as
 a portability fraction**, and 8 of 11 counts three files that do nothing.
 
+## Learning · §4 step 11
+
+The six questions from [`build/README.md`](../../build/README.md#after-every-step), answered from
+evidence rather than from intent.
+
+```yaml
+learning:
+  what_was_added: >
+    build/customizations/agent-v1.2-knowledge-codex/ — the v1.2 overlay's CLAUDE.md renamed to
+    AGENTS.md plus .ai/** byte-identical, nine files, delivered by run-agent.sh --customization on
+    the codex runtime. Plus three instruments that are not the treatment: evidence/b10/census-port.sh
+    (five real --check-customization probes), evidence/b10/probe-codex-isolation.sh (three runs), and
+    evidence/b10/run-b10-df.sh with 22 fixture cases. NOT added: .codex/agents/*.toml, a hooksHash
+    instrument, a .claude/settings.json in the port.
+  why_it_exists: >
+    To test P5 — "portable core and thin adapters" — by moving the one overlay this track has
+    actually measured onto a second runtime, and to answer gate #b10 from what the move costs and
+    from what the instrument can still see afterwards. The port was forced rather than chosen:
+    Decision G removed the Copilot arm, so codex is the only second runtime available.
+  observed_effect: >
+    On P5's text: 8 of 11 files port unchanged (73%), exactly as predicted, diff -r over .ai
+    returning nothing. On P5's controls: 0 of 2 survive, exactly as predicted. On the agent: NOTHING
+    THE REGISTERED OUTCOME COULD SEE, on both tasks — architecture-consistency medians 2 vs 2,
+    exact Mann-Whitney p = 1.0000 (BE-003) and 0.4444 (BE-004), decision-rule row 4, NOT DETECTABLE
+    at this n. On uptake: 10 of 10 treated runs called the router exactly once, every call a hit with
+    the task's own query; 0 of 10 controls. On the evaluator: 20 of 20 exitCode 0. On delivery: 10 of
+    10 treated at both exact registered digests, 10 of 10 controls with all five hashes null, 0 void.
+  unexpected_effect: >
+    Four, and the first is the stop's real result. (1) THE REGISTERED OUTCOME WAS AT ITS CEILING IN
+    THE CONTROL BEFORE THE FIRST TREATED RUN STARTED — architecture-consistency is 0-2 and the
+    control scored 2 on 5 of 5 on BOTH tasks, so an improvement was arithmetically impossible and
+    the only direction open was down, which two BE-004 treated runs took. Registering the MDE as
+    "undefined before the batch; the concurrent control is its first measurement" was honest AND WAS
+    NOT ENOUGH. (2) That shows author decision 9's headroom fix DOES NOT TRANSFER ACROSS RUNTIMES:
+    BE-004 was added because BE-003 was ceilinged on claude-haiku-4-5-20251001, and on gpt-5.6-sol
+    both tasks are ceilinged alike. (3) Corpus contact went from 3 of 20 on claude to 10 of 10 on
+    codex with the same corpus, the same instruction text and the same two digests — prediction 4
+    refuted, not narrowly, and stop 20's claude rate was the wrong reference class. (4) DF1's
+    co-variate at n = 1: in one run, from one directory, the router's log was written and the policy
+    gate's was not, because the router is called by the MODEL and the gate must be called by the
+    RUNTIME.
+  keep_or_remove: >
+    KEEP the port, unedited (a measured version is never edited). REMOVE .claude/settings.json from
+    every codex overlay, and now the no-effect is MEASURED rather than read: DF1 shipped it,
+    committed 100755 into the run's own baseline, with a non-empty trigger population, and got zero
+    hook executions against B7's 20 treated logs. NO KEEP/REMOVE DECISION IS TAKEN ON THE KNOWLEDGE
+    CORPUS, and that refusal is the most important line here: §4 step 10's "a rule with no measured
+    effect is removed" does not apply to AN OUTCOME WITH NO HEADROOM, and conflating the two would
+    delete the mechanism the co-variates suggest is doing the most visible work in the batch.
+    Nothing is promoted; B13's gate requires a measured benefit and there is none on this outcome.
+  next_question: >
+    For any later codex stop: register maintainability as the primary outcome, not
+    architecture-consistency. It is the only category that moved in the same direction and magnitude
+    on BOTH tasks (control median 0, treated 2 on 5 of 5, zero within-arm variance) and it had
+    headroom where the registered outcome did not. It was NOT registered here and is therefore NOT
+    this stop's result. Before that, two things this batch should have bought and did not: a CONTROL
+    ARM RUBRIC CENSUS before choosing the outcome — 18 seconds of codex would have shown the ceiling
+    — and a second reader for change-focus, which moved 1 -> 0 on 5 of 5 on BE-004 and is the
+    instrument's noisiest dimension at 18 of 34 concordance (decision 10.2).
+```
+
+### Was this the agent, or the harness? — §4 step 11's last question
+
+**Both, and the split is unusually clean at this stop, which is why it is worth stating in full.**
+
+**The harness produced the verdict.** `NOT DETECTABLE` on both tasks is a fact about
+`architecture-consistency` being a three-level scale whose top level the control already occupied.
+No property of the agent, the overlay or the runtime could have moved it. **The instrument chose the
+answer before the treatment was delivered**, and the defect is in outcome selection, not in the
+model: E-006 found the same shape on BE-003 under claude and author decision 9 was written to fix it,
+and the fix did not transfer.
+
+**The agent produced the uptake result.** 10 of 10 router calls against 3 of 20 on claude is a
+behavioural difference on the same corpus, the same instruction text and the same digests. That is
+the agent — or more precisely the runtime-and-model pair, which §6 forbids separating here — and
+it is the one number at this stop that is about the thing under test.
+
+**The harness produced the deliberate failure's answer too, and that is the point of it.** *Nothing
+on codex invokes `.claude/settings.json`* is a statement about `run-agent.sh` and `codex exec`, not
+about `gpt-5.6-sol`. DF1 exists precisely because that sentence had been a **reading** of a harness
+and §5 required it to become an **observation** of one.
+
+**And one number is neither.** `estimatedCost`, `modelCalls` and `toolCalls` are `null` on 20 of 20.
+That is not the agent being cheap and not the harness being broken; it is `codex exec` having no
+OTel path (ADR-001, obs#10). It is reported as an observability limit and never as an efficiency
+result — which is what gate clause *"observability capability"* was asking for.
+
 ## Exit gate
 
 **From the build track:** ≥3 runs per runtime · compare quality, correction effort, usage **and
 observability capability** · document each provider's limitations · pick primary and fallback.
 
-**Plus, for this to count as a learned phase:**
+*Answered by Opus 5 (claude-opus-5), autonomously, 2026-09-27, from the evidence in the §5 table
+below. Every number carries its `n`; nothing from `n < 5` is stated as a property (§5).*
 
-<!-- TODO: was "portable core, thin adapters" true? -->
+### Clause 1 — ≥3 runs per runtime · **MET**
+
+| runtime | arms | `n` per arm per task | source |
+|---|---|---|---|
+| `codex` | treated / control | **5** | **run**, this stop, batch `20260927T125809Z`, 20 runs, interleaved, 0 void |
+| `claude` | treated / control | **10** | **cited**, stop 20 / E-022 / E-023 — same benchmark sha, same evaluator, same model, closed hours before this stop opened |
+
+The claude rows are **not re-run**. §6 protects evidence rather than volume, and a second copy of an
+existing measurement costs money to tell you nothing. Both runtimes clear the floor of 3, one at
+`n = 5` and one at `n = 10`, and the `n` is attached wherever either is quoted.
+
+### Clause 2 — compare quality, correction effort, usage and observability capability
+
+**Quality: NOT COMPARED ACROSS RUNTIMES, and the evidence that it cannot be is the answer, not a
+gap in it.** Three independent blockers, each sufficient on its own: `agent-observatory#47` is open
+(`state: open`, checked by API 2026-09-27); the model necessarily moves with the adapter
+(`claude-haiku-4-5-20251001` does not run on codex — that is **two** variables and §6's one-variable
+rule is not suspended because a step's own text asks for it); and cross-arm quality claims are
+blocked by HANDOFF's seventh session. **Within codex, quality was compared and is the verdict:**
+
+| task | `architecture-consistency` control (`n = 5`) | treated (`n = 5`) | medians | exact Mann-Whitney | row |
+|---|---|---|---|---|---|
+| BE-003 | 2, 2, 2, 2, 2 | 2, 2, 2, 2, 2 | **2 vs 2** | **p = 1.0000** | **4 — NOT DETECTABLE at this `n`** |
+| BE-004 | 2, 2, 2, 2, 2 | 1, 1, 2, 2, 2 | **2 vs 2** | **p = 0.4444** | **4 — NOT DETECTABLE at this `n`** |
+
+**And the reason is the finding rather than the verdict: the control was at the scale's maximum on
+5 of 5 on both tasks, so an improvement was arithmetically impossible before the first treated run
+started.** The only direction open was down, and two BE-004 treated runs went there.
+
+**Correction effort: NOT MEASURABLE ON THIS RUNTIME, and that is a limitation, not a null result.**
+The available proxies are `modelCalls` and `toolCalls`, and both are `null` on **20 of 20** codex
+runs. `changedFiles` is reported instead and is not a correction-effort measure: BE-003 median
+3 → 2, BE-004 median 7 → 7. No correction-effort claim is made for codex in either direction.
+
+**Usage: measured, reported, never a verdict.** `reportedTotalTokens` is non-null on 20 of 20
+(prediction 5's registered number). BE-003 median **25 840 → 34 736** (+34.4 %); BE-004 median
+**29 624 → 33 349** (+12.6 %). Durations BE-003 **85 000 → 108 000 ms**, BE-004
+**138 000 → 145 000 ms**. **`estimatedCost` is `null` on 20 of 20, so no dollar figure exists for
+this runtime and none is quoted** — and a token increase beside an undetectable quality change is
+row 5 material, not an efficiency finding.
+
+**Observability capability: answered as a number, which is what makes this the clause the stop
+answered best.** Prediction 5 registered it in advance and it held on both halves:
+
+| field | codex, `n = 20` | claude, stop 20 |
+|---|---|---|
+| `estimatedCost` | **null on 20 of 20** | populated |
+| `modelCalls` | **null on 20 of 20** | populated |
+| `toolCalls` | **null on 20 of 20** | populated |
+| `reportedTotalTokens` | **non-null on 20 of 20** (predicted ≥ 8 of 10) | populated |
+| `customization.instructionsHash` / `knowledgeHash` | **exact registered values on 10 of 10 treated, null on 10 of 10 controls** | same digests, bit for bit |
+| `customization.hooksHash` | **null on 20 of 20** — the field exists and is never populated | null on every run ever recorded |
+
+`codex exec` has no OTel path (ADR-001, obs#10); `run-agent.sh:1236-1244` scrapes a bare total out of
+the agent log, which is why exactly one of the four efficiency fields survives.
+
+### Clause 3 — document each provider's limitations · **MET**
+
+| limitation | provider | evidence | layer of the proof |
+|---|---|---|---|
+| no named subagent: `--agent` is not forwarded | codex | `run-agent.sh:325`, census probe 3, **exit 1** | **L2** |
+| no agent directory at all | codex | `run-agent.sh:522`, census probe 4, **exit 1** | **L2** |
+| a codex subagent has **no `tools` field**, so a `tools:` allowlist cannot be ported at all — only its prose | codex | Extract fact 5; and E-005 measured what the allowlist does, so porting the prose without it drops the treatment | **L3** — read from docs, nothing executes |
+| the foreign instruction filename is refused | codex | `run-agent.sh:406`, census probe 2, **exit 1** | **L2** |
+| **`.claude/settings.json` is accepted, tracked, and read by nothing — so hooks, the policy gate and the repair limit are silently inert** | codex | census probe 5 **exit 0**; then **DF1** run `18eac7c0`: 10 files in setup commit `9652494fa571`, gate `100755`, 3 changed files, **0 policy-event logs**, and the same gate firing on demand before and after | **L2 for `policy-gate.sh`** (observed); **L3 for `repair-limit.sh` / `repair-record.sh`** (same wiring file, not separately observed) |
+| three of four efficiency fields unavailable | codex | table in clause 2, `n = 20` | **L2** — read from 20 records |
+| no `hooksHash` or `settingsHash` control: the schema reserves `hooksHash` and never populates it | both | `jq '.customization\|keys'` → 7 keys; `hooksHash` null on 20 of 20 | **L2** for the null, **L3** for what it implies |
+| Copilot: **no claims at all** | — | Decision G; §6 forbids any claim about a Copilot-run agent | — |
+
+### Clause 4 — pick primary and fallback · **MET**
+
+**Primary: `claude`. Fallback: `codex`.** Decided on the two things that are comparable across
+runtimes — **what the instrument can see** and **what the harness can enforce** — and explicitly
+**not** on quality, which clause 2 shows is not comparable here.
+
+1. **Observability.** claude populates `estimatedCost`, `modelCalls` and `toolCalls`; codex
+   populates none of the three on 20 of 20. A runtime on which cost cannot be measured cannot be the
+   primary of a track whose promotion gate (B13) is written in `tokens_per_accepted_task`.
+2. **Enforcement.** Every **L2** control this track has built — B7's policy gate, B8's repair
+   limit, B4/E-005's named-agent boundary — is delivered by a mechanism codex does not have. On
+   codex they are prose. DF1 measured that rather than argued it.
+3. **What the fallback is good for, because this is not a dismissal.** codex ran the task
+   **20 of 20 with evaluator `exitCode 0`**, at token counts within +13 % to +34 % of its own
+   control, and it **read the knowledge corpus on 10 of 10 treated runs** where claude read it on
+   3 of 20. As a *runner of the task* it is entirely serviceable; as a *carrier of guardrails* it is
+   not. That is the honest shape of a fallback.
+
+### Plus, for this to count as a learned phase: was "portable core, thin adapters" true?
+
+**True of the text. False of the controls. And the file count is the trap, not the answer.**
+
+- **8 of 11 files port unchanged (73 %)** — `diff -r` over `.ai` returns nothing, `CLAUDE.md` →
+  `AGENTS.md` is a rename, the two `.claude/` files have no analogue.
+- **0 of 2 measured L2 controls survive (0 %)** — and after DF1 **both halves are proved by things
+  that ran**: the named-agent boundary by two executing refusals, the policy gate by a working hook
+  that was installed, committed `100755`, and never invoked.
+- **The adapter is not thin. It is where every control lived.** The three files that did not port
+  carry 100 % of the enforcement; the eight that did carry the prose and the corpus.
+- **And 8 of 11 overstates even the text**, because the ported eight include **three `.ai/hooks/*.sh`
+  that cannot execute on the target runtime**. The port's honest description is *the portable core
+  plus three inert files*. A codex-targeted v1.3 would carry six of eleven — **55 %**.
+- **DF1's unpredicted co-variate is the best one-line statement of P5 this stop produced**, and it is
+  `n = 1`, stated as true of that run and not as a property: in one run, from one directory, the
+  router's log was written and the gate's was not. **What ports is what the model can call. What does
+  not port is what the runtime must call.**
+
+
+## §5 validation table — §4 step 13
+
+*Written by Opus 5 (claude-opus-5), autonomously, 2026-09-27. Every gate clause of `#b10`, one row
+each, plus the two registered predictions and the delivery/independence rows §5 requires. **Evidence
+is a path or an id, never a sentence.** The **layer column is about the proof, not the artifact** —
+where the only proof is that I say so, the row reads **L3** and says what would make it L2. Every
+command in the last column was re-run immediately before this table was written; the outputs are in
+the commit that carries it.*
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| *≥3 runs per runtime* — codex | `evidence/b10/batch-20260927T125809Z/manifest.tsv`, 20 rows, `n = 5` per arm per task, interleaved control-then-treated; 0 rows `VOID-0a` | **L2** — the manifest is appended by the driver per finished cell, not typed | `awk -F'\t' '$1 ~ /^BE-/ {print $1,$2,$3,$4}' evidence/b10/batch-20260927T125809Z/manifest.tsv \| wc -l` → `20`; `awk -F'\t' '$14=="VOID-0a"' …` → empty |
+| *≥3 runs per runtime* — claude | **cited, not re-run**: stop 20, `experiments/E-022-*.md` / `E-023-*.md`, `n = 10` per arm per task | **L2** for the runs existing, **L3** for "same benchmark sha and evaluator" being sufficient to cite them | open either experiment's `## Runs`; compare `runtime.model` and the benchmarks sha in stop 20's manifest against this one's manifest header |
+| *compare quality* — **within codex** | `evidence/b10/batch-20260927T125809Z/codex-sheets.tsv` → 20 sheets under `findings/codex/`, rubric shas **`396e1799eb2b`** (BE-003) and **`6252778b8472`** (BE-004). `architecture-consistency`: BE-003 `2,2,2,2,2` vs `2,2,2,2,2`; BE-004 `2,2,2,2,2` vs `1,1,2,2,2` | **L2** — 20 sheets on disk, each with exactly four `score:` lines | `tail -n +2 codex-sheets.tsv \| while IFS=$'\t' read -r t s a r x sh; do awk '/category:/{c=$3} /score:/{print c"="$2}' "$sh"; done` — re-derived in the orchestrator's own context, not only by a subagent |
+| *compare quality* — **across runtimes** | **REFUSED, with three independent reasons on record**: `agent-observatory#47` `state: open` (API, 2026-09-27); the model moves with the adapter (`runtime.model` `gpt-5.6-sol` vs `claude-haiku-4-5-20251001` — two variables); HANDOFF seventh session | **L3** — a refusal is a decision, and nothing executes to enforce it | `gh api repos/UnityInFlow/agent-observatory/issues/47 --jq .state` → `open`; `jq -r .runtime.model` on one run of each stop |
+| *compare correction effort* | **NOT MEASURABLE**: `modelCalls` and `toolCalls` `null` on **20 of 20**; `changedFiles` reported instead (BE-003 median 3→2, BE-004 7→7) and explicitly not a correction-effort measure | **L2** — the nulls are read from 20 records | `awk -F'\t' '$1 ~ /^BE-/ {print $18,$19}' manifest.tsv \| sort \| uniq -c` → `20 null null` |
+| *compare usage* | `reportedTotalTokens` non-null **20 of 20**; medians BE-003 **25 840 → 34 736**, BE-004 **29 624 → 33 349** | **L2** | `awk -F'\t' '$1=="BE-003" && $3=="control" {print $21}' manifest.tsv \| sort -n` (and the three other arm/task pairs) |
+| *compare **observability capability*** | Prediction 5, registered before the batch: `estimatedCost` / `modelCalls` / `toolCalls` **null on 20 of 20**; `reportedTotalTokens` **non-null on 20 of 20** against a predicted ≥ 8 of 10 | **L2** — 20 records | `awk -F'\t' '$1 ~ /^BE-/ {print $20}' manifest.tsv \| sort \| uniq -c` → `20 null` |
+| *document each provider's limitations* — the three refusals that execute | `evidence/b10/census-port-20260927.txt`, exit 0. Probe 2 → `run-agent.sh:406` exit 1; probe 3 → `:325` exit 1; probe 4 → `:522` exit 1 | **L2** — three real `--check-customization` invocations, each returning 1 | `./evidence/b10/census-port.sh` and read the transcript's per-probe exit codes |
+| *document each provider's limitations* — the one that is **silent** | census probe 5 **exit 0** with the file tracked; **then DF1**, run **`18eac7c0-971f-496d-8868-8799d4fec2b5`**, `evidence/b10/df-20260927T163230Z/RESULT.md` + addendum | **L2 for `policy-gate.sh`** — a hook proved to execute, committed `100755` into setup commit `9652494fa571`, non-empty trigger population, **0 log lines**. **L3 for `repair-limit.sh` and `repair-record.sh`** — same wiring file, **not separately observed** | `git -C <worktree> ls-tree -r 9652494fa571 \| grep -E '\.claude/\|policy-gate'` → `.claude/settings.json` and `100755 … policy-gate.sh`; then `comm -13 sweep-before.tsv sweep-after.tsv` → empty; then invoke the gate from the worktree → exit 2 and one `deny` line. **To make the other two L2, wire each to write its own log and re-run DF1** |
+| *document each provider's limitations* — codex subagents have no `tools` field | `## Extract` fact 5, from the codex docs | **L3** — read from documentation; nothing in this repository executes it | open the cited doc; there is no fixture and there should not be one until a run needs it |
+| *pick primary and fallback* | **primary `claude`, fallback `codex`**, decided on observability and enforcement and explicitly not on quality — `## Exit gate` clause 4, with the two tables it cites | **L3** — a judgement, and it is labelled L3 rather than dressed up | read clause 4; the two inputs (the observability table and the limitations table) are each **L2** and the choice made from them is not |
+| **Prediction 1** — *files that port unchanged: 8 of 11* | `evidence/b10/census-port-20260927.txt`; `diff -r` over `.ai` **empty**; `CLAUDE.md`→`AGENTS.md` same bytes at a different path | **L2** — the runner's refusals execute and the diff is a command | `diff -r build/customizations/agent-v1.2-knowledge/.ai build/customizations/agent-v1.2-knowledge-codex/.ai` → no output; `find … -type f \| wc -l` on both trees |
+| **Prediction 2** — *measured L2 controls that survive: 0 of 2* | named-agent half: census probes 3 and 4. Policy-gate half: **DF1**, as the row above | **L2 on both halves** — this is what DF1 converted; it was **L3** on the second half until 2026-09-27 | the two commands in the two rows above, run in either order |
+| **Prediction 3** — *both hashes set on 5 of 5 treated, null on 5 of 5 controls* — *registered as most likely to be wrong* | manifest columns 9–13: `sha256:ebf489800a60a156986f98ea4f127848` and `sha256:0770219ae7f4281a80071d78dadea285` on **10 of 10** treated, **exact values not merely non-null**; all five null on **10 of 10** controls | **L2** — read back from the API record per run, not inferred from the flag | `awk -F'\t' '$1 ~ /^BE-/ {print $3,$9,$10}' manifest.tsv`; and re-derive a digest by hand: `shasum -a 256 <overlay>/AGENTS.md \| cut -c1-32` |
+| **Prediction 4** — *corpus contact ≤ 1 of 5 on the treated arm* | **REFUTED at 5 of 5 per task, 10 of 10 treated, 0 of 10 control.** Ten one-line router logs at `evidence/b10/batch-20260927T125809Z/router-logs/`, each a `hit` with the task's own query | **L2** — the router writes its own log; H counts router invocations and is a **floor**, because a run that reads `index.yaml` by hand raises no counter | `wc -l evidence/b10/batch-20260927T125809Z/router-logs/*.jsonl` → ten files, one line each; `awk -F'\t' '$17=="router"' manifest.tsv \| wc -l` → `10` |
+| **Prediction 7 (E-025)** — *BE-004's evaluator pass rate falls below 5 of 5* | **REFUTED**: `exitCode 0` on **20 of 20**, both arms, both tasks | **L2** — the evaluator's own exit code per run | `awk -F'\t' '$1 ~ /^BE-/ {print $6}' manifest.tsv \| sort \| uniq -c` → `20 0` |
+| **DF1 — the deliberate failure** | prediction commit **`540027895084ffaef88d5ef3d3ec522709323f0c`** at **`2026-09-27T16:28:09Z`**; run `startedAt` **`2026-09-27T16:32:31Z`**; driver `evidence/b10/run-b10-df.sh`; fixtures **22 of 22** | **L2** — including **case L**, which plants a `policy-events` log, grows it and writes another, and requires the sweep to report `2`. **A negative observation whose detector was never shown to fire is not evidence, and that is the case that closes it** | `git log 5400278 -1 --format=%cI`; `jq -r .startedAt evidence/b10/df-20260927T163230Z/run-record.json`; `./evidence/b10/verify-b10-df-guards.sh` |
+| **§5: one scored cell re-read by hand, off the kept worktree, before any sheet was opened** | `evidence/b10/hand-reread/RESULT.md`, committed in **`e34d4cd` at `2026-09-27T17:53:30+02:00`**, which is **3 minutes before the first sheet was written** (`…-20260927T155628Z.yaml`, i.e. `17:56:28+02:00`) — the ordering is a git fact plus a filename, and it is stated that way rather than as "before the driver was committed", because the hand re-read and the driver share one commit. Two cells, both `architecture-consistency` — the **registered primary outcome**, not a convenient cell: run `4df04e27` → hand **2**, sheet **2**; run `05611c81` → hand **2**, sheet **2** | **L2** — the worktree and the rubric at its registered sha; and the subagent's reading was **re-derived in the orchestrator's own context** and agreed | `git log --format=%H -1 -- evidence/b10/hand-reread/RESULT.md` vs the score driver's commit; then re-walk the anchors against the worktree named in the file |
+| **§5: independence check — what else changed between arms** | Same benchmark sha (manifest header), same evaluator, `runtime.model` `gpt-5.6-sol` on **20 of 20**, `runtime.version` `codex-cli 0.154.0` on 20 of 20, `userSettingsIsolated: true`, rubric shas unmoved at `396e1799eb2b` / `6252778b8472`. **The only difference between arms is the overlay**, and it is read back per run as an exact digest | **L2** — read from the records and the manifest, **not from the flags** | `awk -F'\t' '$1 ~ /^BE-/ {print $7,$8}' manifest.tsv \| sort \| uniq -c`; `shasum -a 256 benchmark/rubrics/backend-quality*.yaml \| cut -c1-12` |
+| **§5: isolation observed rather than inferred** | `evidence/b10/iso-probe/`, **3 of 3** `ok: ALL THREE checks hold for codex-cli 0.154.0`, exit 0, every positive control firing first | **L2** at `n = 3` — and recorded as **resolved-at-`n`-observed, not as a fix**: an isolation probe asks a live model to go looking, and a model that did not look is not a model that could not. The earlier single `LEAKS` report is **UNREPRODUCED, not refuted**, because its output was never kept | `./evidence/b10/probe-codex-isolation.sh` and read the three transcripts |
+| **§5: the second reader** | **DEFERRED, and it is the one hole in this stop.** `opencode-score.sh` / `ollama-cloud` has stalled on its weekly limit for **six consecutive sessions**; the newest artefact is `findings/opencode/review-run-record-20260927T161910Z.md` at **903 bytes with 0 `### ` sections** — a stall, kept as evidence per §6, **not** a clean review | **L3 — there is no second reading, so the 20 registered sheets are one harness unchecked**, and `change-focus` is the cell that most needs it: it moved `1 → 0` on 5 of 5 on BE-004 and is the instrument's noisiest dimension at 18 of 34 concordance (decision 10.2) | `wc -c findings/opencode/review-run-record-20260927T161910Z.md` → `903`; `grep -c '^### '` → `0` |
+
+### What this table does **not** close, stated here rather than left for a validator to find
+
+1. **The second reader does not exist for this batch.** Twenty registered sheets, one harness. Row 15
+   says so and the exit gate does not lean on any single-cell reading.
+2. **`repair-limit.sh` and `repair-record.sh` are L3.** DF1 observed one of the three hooks. The other
+   two share the wiring file DF1 proved is read by nothing, which is a strong inference and is still an
+   inference. The fix is named in the row: give each its own log and re-run DF1.
+3. **`test-quality` anchor 2 and the control-arm rubric census.** No control-arm census was taken
+   before choosing the registered outcome. **18 seconds of codex would have shown the ceiling** and
+   the batch would have registered `maintainability` instead. That is in `author_notes` as the single
+   cheapest instrument this track is still missing.
+4. **The claude arms are cited, not re-run.** If stop 20's manifest were wrong about its model or its
+   benchmark sha, clause 1's claude half would fall with it. The row says what to compare.
 
 ## Commit
 
