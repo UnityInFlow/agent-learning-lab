@@ -1,0 +1,95 @@
+B10 registered population — 20 runs, read by run id from the archived records and the
+committed codex sheets. The preflight has its own experiment key and is asserted absent.
+Scorer: codex, the REGISTERED scorer (Decision C). The second reader is DEFERRED —
+ollama-cloud has been on its weekly limit for five consecutive sessions.
+
+==============================================================================
+BE-003   rubric 396e1799eb2b
+
+  control  n=5  evaluator-passing 5/5  scored 5/5  corpus contact 0/5
+  metric                          min   median      max
+  -------------------------- -------- -------- --------
+  architecture-consistency       2.00     2.00     2.00   n=5
+  maintainability                0.00     0.00     2.00   n=5
+  test-quality                   1.00     2.00     2.00   n=5
+  change-focus                   1.00     1.00     2.00   n=5
+  weighted total (0-100)        55.00    67.50    92.50   n=5
+  reportedTotalTokens        21958.00 25840.00 28866.00   n=5
+  durationMs                 71000.00 85000.00 87000.00   n=5
+  estimatedCost                -    n=0
+  modelCalls                   -    n=0
+  toolCalls                    -    n=0
+  changedFiles (count)           2.00     3.00     4.00   n=5
+  addedLines                    62.00    63.00    75.00   n=5
+  deletedLines                   0.00     7.00    13.00   n=5
+  permissionDenials            -    n=0
+  retries                      -    n=0
+
+  treated  n=5  evaluator-passing 5/5  scored 5/5  corpus contact 5/5
+  metric                          min   median      max
+  -------------------------- -------- -------- --------
+  architecture-consistency       2.00     2.00     2.00   n=5
+  maintainability                2.00     2.00     2.00   n=5
+  test-quality                   2.00     2.00     2.00   n=5
+  change-focus                   1.00     1.00     2.00   n=5
+  weighted total (0-100)        92.50    92.50   100.00   n=5
+  reportedTotalTokens        25214.00 34736.00 40683.00   n=5
+  durationMs                 76000.00 108000.00 150000.00   n=5
+  estimatedCost                -    n=0
+  modelCalls                   -    n=0
+  toolCalls                    -    n=0
+  changedFiles (count)           2.00     2.00     4.00   n=5
+  addedLines                    63.00    67.00    72.00   n=5
+  deletedLines                   0.00     7.00    13.00   n=5
+  permissionDenials            -    n=0
+  retries                      -    n=0
+
+==============================================================================
+BE-004   rubric 6252778b8472
+
+  control  n=5  evaluator-passing 5/5  scored 5/5  corpus contact 0/5
+  metric                          min   median      max
+  -------------------------- -------- -------- --------
+  architecture-consistency       2.00     2.00     2.00   n=5
+  maintainability                0.00     0.00     0.00   n=4
+  test-quality                   1.00     1.00     1.00   n=5
+  change-focus                   1.00     1.00     1.00   n=5
+  weighted total (0-100)        55.00    55.00    55.00   n=4
+  reportedTotalTokens        24989.00 29624.00 46238.00   n=5
+  durationMs                 130000.00 138000.00 151000.00   n=5
+  estimatedCost                -    n=0
+  modelCalls                   -    n=0
+  toolCalls                    -    n=0
+  changedFiles (count)           6.00     7.00     7.00   n=5
+  addedLines                   141.00   166.00   196.00   n=5
+  deletedLines                   0.00    16.00    18.00   n=5
+  permissionDenials            -    n=0
+  retries                      -    n=0
+
+  treated  n=5  evaluator-passing 5/5  scored 5/5  corpus contact 5/5
+  metric                          min   median      max
+  -------------------------- -------- -------- --------
+  architecture-consistency       1.00     2.00     2.00   n=5
+  maintainability                2.00     2.00     2.00   n=5
+  test-quality                   1.00     1.00     2.00   n=5
+  change-focus                   0.00     0.00     0.00   n=5
+  weighted total (0-100)        55.00    72.50    85.00   n=5
+  reportedTotalTokens        30367.00 33349.00 40158.00   n=5
+  durationMs                 122000.00 145000.00 158000.00   n=5
+  estimatedCost                -    n=0
+  modelCalls                   -    n=0
+  toolCalls                    -    n=0
+  changedFiles (count)           7.00     7.00     9.00   n=5
+  addedLines                   157.00   171.00   207.00   n=5
+  deletedLines                   1.00    18.00    26.00   n=5
+  permissionDenials            -    n=0
+  retries                      -    n=0
+
+==============================================================================
+PER-RUN architecture-consistency — the registered primary outcome, every value shown
+so a stranger can re-derive the median rather than take it.
+
+  BE-003  control  01=2  02=2  03=2  04=2  05=2
+  BE-003  treated  01=2  02=2  03=2  04=2  05=2
+  BE-004  control  01=2  02=2  03=2  04=2  05=2
+  BE-004  treated  01=2  02=1  03=1  04=2  05=2

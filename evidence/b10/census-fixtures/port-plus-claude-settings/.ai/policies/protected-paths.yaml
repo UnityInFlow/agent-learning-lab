@@ -1,0 +1,52 @@
+# protected-paths — the ONE policy B7 writes, and the census is why the other three are not.
+#
+# evidence/b07/violation-census-20260910.md, 499 stored runs:
+#   exit 20 new dependency introduced ........ 0 of 499
+#   exit 21 unrelated production files ....... 3 of 499, 0 of 325 in Track B
+# and Bash is already an allowlist (`--allowedTools Bash(./mvnw:*) Bash(mvn:*)`), so a
+# command-policy has nothing left to forbid, and sample-service has no migrations.
+# BACKEND-AI-AGENT-BUSINESS-REQUIREMENTS §10.10: "Only after a concrete enforcement
+# requirement appears." On this corpus it has not. This file exists to be MEASURED against
+# that zero, not because the build spec lists four filenames.
+#
+# LAYER: this file is L3 on its own — it is data and executes nothing. It is L2 only
+# through .ai/hooks/policy-gate.sh, which reads it and exits 2. If the hook stops reading
+# it, the file silently becomes a document.
+version: 1
+policy: protected-paths
+applies_to: [Edit, Write, NotebookEdit]
+
+# A path matching any of these is DENIED. Patterns are matched against the path RELATIVE to
+# the worktree root, with fnmatch semantics, after the absolute path is made relative.
+# Every entry names the boundary v1.0's agent file already claims in prose, under
+# "Boundaries": "A change to a build file, a lockfile, a CI file, a Dockerfile, a chart, or
+# anything under an infrastructure or deployment directory is out of scope BY DEFINITION".
+# That sentence is the L3 version of this file. This is the L2 version of that sentence.
+deny:
+  - "**/pom.xml"            # build file — the evaluator exits 20 on a new dependency
+  - "**/build.gradle"
+  - "**/build.gradle.kts"
+  - "**/settings.gradle"
+  - "**/settings.gradle.kts"
+  - "**/gradle.properties"
+  - "**/*.lock"             # lockfile
+  - "**/package-lock.json"
+  - ".github/**"            # CI
+  - "**/Dockerfile"
+  - "**/docker-compose*.yml"
+  - "**/docker-compose*.yaml"
+  - "infra/**"              # infrastructure / deployment
+  - "deploy/**"
+  - "charts/**"
+  - "k8s/**"
+  - "**/.env"
+  - "**/.env.*"
+
+# Anything not matched by `deny` is ALLOWED. There is no allowlist: an allowlist here would
+# deny every source file the ticket legitimately requires, which is a false-positive rate of
+# 100% dressed as a guardrail.
+message: |
+  POLICY protected-paths: {path} is out of scope for this ticket by policy, not by judgement.
+  Build files, lockfiles, CI files, Dockerfiles and infrastructure directories are protected.
+  Do not retry this edit and do not work around it; complete the ticket without touching it,
+  and record it under "Not done" if the ticket genuinely cannot be completed otherwise.

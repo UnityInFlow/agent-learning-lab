@@ -39,3 +39,21 @@ __pycache__/
 # records a partial file that reads like a finished run. The evidence that matters — the run
 # record, the init read-back, the manifest and OBSERVED.md — is committed explicitly.
 evidence/b08a/preflight-launch.out
+
+# THE FILE NAMED `1`, AND WHY AN IGNORE RULE RATHER THAN A SIXTH DELETION.
+# tools/codex-score.sh:293-294 treats LAB_SCORE_DRY_RUN as the PATH the prompt is copied to, not
+# as a boolean. §0a's table says to run it as `LAB_SCORE_DRY_RUN=1`, so every preflight writes a
+# ~28 KB prompt to a file literally named `1` in the repository root. It has been committed by
+# accident FIVE times (0dac30b, 9708073, 5f1b83d, 1031a99, a447799) and explicitly removed once
+# (ad94999, whose message reads "the LAB_SCORE_DRY_RUN=1 artefact, committed twice"), and it
+# happened again at the stop-21 preflight. A deletion fixes an instance; this fixes the class.
+# The artefact itself is KEPT, under evidence/, wherever a session's preflight is recorded.
+/1
+/score-prompt-dry-run.md
+
+# A pid lock is live process state, never evidence. evidence/b10/.batch.lock was committed at
+# bdccd1b and had to be deleted at 89f04ea; committing one means a later `git checkout` can
+# resurrect a lock for a pid that is long gone, which is the one input the batch driver's exit-8
+# guard trusts.
+evidence/*/.batch.lock
+evidence/b10/.df.lock

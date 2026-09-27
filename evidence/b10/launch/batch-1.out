@@ -1,0 +1,68 @@
+=== detached launch 2026-09-27T12:58:08Z
+=== pid=42362 pgid=42362 sid=42362  (sid == pid means the detach happened)
+=== cmd: ./evidence/b10/run-b10-batch.sh
+run-b10-batch: manifest already holds 0 run(s); ceiling is 20
+
+======== BE-003 01 control  key=EXP-B10-RUNTIME-PORT-BE003  12:58:09Z  elapsed 0s ========
+  rc=0 eval=0 delivery=ok instr=null knowledge=null contact=no tokens=28866
+
+======== BE-003 01 treated  key=EXP-B10-RUNTIME-PORT-BE003  12:59:54Z  elapsed 105s ========
+  rc=0 eval=0 delivery=ok instr=sha256:ebf489800a60a156986f98ea4f127848 knowledge=sha256:0770219ae7f4281a80071d78dadea285 contact=router tokens=37150
+
+======== BE-004 01 control  key=EXP-B10-RUNTIME-PORT-BE004  13:02:54Z  elapsed 285s ========
+  rc=0 eval=0 delivery=ok instr=null knowledge=null contact=no tokens=24989
+
+======== BE-004 01 treated  key=EXP-B10-RUNTIME-PORT-BE004  13:05:56Z  elapsed 467s ========
+  rc=0 eval=0 delivery=ok instr=sha256:ebf489800a60a156986f98ea4f127848 knowledge=sha256:0770219ae7f4281a80071d78dadea285 contact=router tokens=40158
+
+======== BE-003 02 control  key=EXP-B10-RUNTIME-PORT-BE003  13:08:51Z  elapsed 642s ========
+  rc=0 eval=0 delivery=ok instr=null knowledge=null contact=no tokens=26760
+
+======== BE-003 02 treated  key=EXP-B10-RUNTIME-PORT-BE003  13:10:47Z  elapsed 758s ========
+  rc=0 eval=0 delivery=ok instr=sha256:ebf489800a60a156986f98ea4f127848 knowledge=sha256:0770219ae7f4281a80071d78dadea285 contact=router tokens=40683
+
+======== BE-004 02 control  key=EXP-B10-RUNTIME-PORT-BE004  13:12:49Z  elapsed 880s ========
+  rc=0 eval=0 delivery=ok instr=null knowledge=null contact=no tokens=46238
+
+======== BE-004 02 treated  key=EXP-B10-RUNTIME-PORT-BE004  13:15:37Z  elapsed 1048s ========
+  rc=0 eval=0 delivery=ok instr=sha256:ebf489800a60a156986f98ea4f127848 knowledge=sha256:0770219ae7f4281a80071d78dadea285 contact=router tokens=30839
+
+======== BE-003 03 control  key=EXP-B10-RUNTIME-PORT-BE003  13:18:29Z  elapsed 1220s ========
+  rc=0 eval=0 delivery=ok instr=null knowledge=null contact=no tokens=21958
+
+======== BE-003 03 treated  key=EXP-B10-RUNTIME-PORT-BE003  13:20:06Z  elapsed 1317s ========
+  rc=0 eval=0 delivery=ok instr=sha256:ebf489800a60a156986f98ea4f127848 knowledge=sha256:0770219ae7f4281a80071d78dadea285 contact=router tokens=34736
+
+======== BE-004 03 control  key=EXP-B10-RUNTIME-PORT-BE004  13:22:21Z  elapsed 1452s ========
+  rc=0 eval=0 delivery=ok instr=null knowledge=null contact=no tokens=44082
+
+======== BE-004 03 treated  key=EXP-B10-RUNTIME-PORT-BE004  13:25:05Z  elapsed 1616s ========
+  rc=0 eval=0 delivery=ok instr=sha256:ebf489800a60a156986f98ea4f127848 knowledge=sha256:0770219ae7f4281a80071d78dadea285 contact=router tokens=30367
+
+======== BE-003 04 control  key=EXP-B10-RUNTIME-PORT-BE003  13:27:34Z  elapsed 1765s ========
+  rc=0 eval=0 delivery=ok instr=null knowledge=null contact=no tokens=25840
+
+======== BE-003 04 treated  key=EXP-B10-RUNTIME-PORT-BE003  13:29:25Z  elapsed 1876s ========
+  rc=0 eval=0 delivery=ok instr=sha256:ebf489800a60a156986f98ea4f127848 knowledge=sha256:0770219ae7f4281a80071d78dadea285 contact=router tokens=25214
+
+======== BE-004 04 control  key=EXP-B10-RUNTIME-PORT-BE004  13:31:39Z  elapsed 2010s ========
+  rc=0 eval=0 delivery=ok instr=null knowledge=null contact=no tokens=29624
+
+======== BE-004 04 treated  key=EXP-B10-RUNTIME-PORT-BE004  13:34:26Z  elapsed 2177s ========
+  rc=0 eval=0 delivery=ok instr=sha256:ebf489800a60a156986f98ea4f127848 knowledge=sha256:0770219ae7f4281a80071d78dadea285 contact=router tokens=33349
+
+======== BE-003 05 control  key=EXP-B10-RUNTIME-PORT-BE003  13:36:53Z  elapsed 2324s ========
+  rc=0 eval=0 delivery=ok instr=null knowledge=null contact=no tokens=25080
+
+======== BE-003 05 treated  key=EXP-B10-RUNTIME-PORT-BE003  13:38:46Z  elapsed 2437s ========
+  rc=0 eval=0 delivery=ok instr=sha256:ebf489800a60a156986f98ea4f127848 knowledge=sha256:0770219ae7f4281a80071d78dadea285 contact=router tokens=30442
+
+======== BE-004 05 control  key=EXP-B10-RUNTIME-PORT-BE004  13:40:27Z  elapsed 2538s ========
+  rc=0 eval=0 delivery=ok instr=null knowledge=null contact=no tokens=26622
+
+======== BE-004 05 treated  key=EXP-B10-RUNTIME-PORT-BE004  13:43:04Z  elapsed 2695s ========
+  rc=0 eval=0 delivery=ok instr=sha256:ebf489800a60a156986f98ea4f127848 knowledge=sha256:0770219ae7f4281a80071d78dadea285 contact=router tokens=33801
+
+======== batch 20260927T125809Z finished: 20 runs, 0 void on delivery, H=10 ========
+manifest /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b10/batch-20260927T125809Z/manifest.tsv
+=== exit 0 at 2026-09-27T13:46:10Z

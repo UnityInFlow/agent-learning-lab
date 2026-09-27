@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5f17ed17-f151-4e06-a3f7-879c53f2ed3f
+  mode:           run
+  run_id:         5f17ed17-f151-4e06-a3f7-879c53f2ed3f
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/5f17ed17-f151-4e06-a3f7-879c53f2ed3f
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260927T155846Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  900   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals use baseline ApiException subclasses; controllers construct no error bodies"
+    evidence: "OrderController.kt:28,42,53,65; ShipmentController.kt:35,44,65"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "The status decision uses an if condition instead of an exhaustive when expression"
+    evidence: "OrderController.kt:59"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Error bodies are asserted, but clauses b and d lack separate get requests"
+    evidence: "OrderControllerTest.kt:85,99-103,116-118"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Shipment create adds synchronization beyond the permitted cancelled-order guard"
+    evidence: "baseline/ShipmentController.kt:29; observatory-run-5f17ed17-f151-4e06-a3f7-879c53f2ed3f/ShipmentController.kt:31"
+ambiguous_categories: []

@@ -1,0 +1,21 @@
+task	seq	arm	run_id	model	runtime	instrHash	knowledgeHash	skillsHash	agentHash	agentsHash	hooksHash	mcpHash	benchSha	cost	modelCalls	totalTokens
+BE-003	01	control	a06c2daf-36ce-4a17-a6a7-2cd8e0c18775	gpt-5.6-sol	codex-cli 0.154.0	null	null	null	null	null	null	null	2fc445d2a65b13a793c	null	null	28866
+BE-003	01	treated	4df04e27-bd37-422e-bdd3-6d759558b22a	gpt-5.6-sol	codex-cli 0.154.0	sha256:ebf489800a60	sha256:0770219ae7f4	null	null	null	null	null	2fc445d2a65b13a793c	null	null	37150
+BE-004	01	control	efd94f24-75d9-40ec-9d23-82a001c49274	gpt-5.6-sol	codex-cli 0.154.0	null	null	null	null	null	null	null	2fc445d2a65b13a793c	null	null	24989
+BE-004	01	treated	05611c81-ca61-4f50-b40e-dc7e29c63ec6	gpt-5.6-sol	codex-cli 0.154.0	sha256:ebf489800a60	sha256:0770219ae7f4	null	null	null	null	null	2fc445d2a65b13a793c	null	null	40158
+BE-003	02	control	d277c1fc-8cba-4603-a5c0-3a96c702a969	gpt-5.6-sol	codex-cli 0.154.0	null	null	null	null	null	null	null	2fc445d2a65b13a793c	null	null	26760
+BE-003	02	treated	8e113a5d-b893-4cd7-8e94-5f98cd8d8a33	gpt-5.6-sol	codex-cli 0.154.0	sha256:ebf489800a60	sha256:0770219ae7f4	null	null	null	null	null	2fc445d2a65b13a793c	null	null	40683
+BE-004	02	control	5f17ed17-f151-4e06-a3f7-879c53f2ed3f	gpt-5.6-sol	codex-cli 0.154.0	null	null	null	null	null	null	null	2fc445d2a65b13a793c	null	null	46238
+BE-004	02	treated	08662342-e3cd-4e2f-8e68-2dcf0c006324	gpt-5.6-sol	codex-cli 0.154.0	sha256:ebf489800a60	sha256:0770219ae7f4	null	null	null	null	null	2fc445d2a65b13a793c	null	null	30839
+BE-003	03	control	903e3e46-7280-46f5-83c5-cf8cb5e91e1b	gpt-5.6-sol	codex-cli 0.154.0	null	null	null	null	null	null	null	2fc445d2a65b13a793c	null	null	21958
+BE-003	03	treated	52a7ccde-7789-4e54-887e-4920bc411e9d	gpt-5.6-sol	codex-cli 0.154.0	sha256:ebf489800a60	sha256:0770219ae7f4	null	null	null	null	null	2fc445d2a65b13a793c	null	null	34736
+BE-004	03	control	bbf31489-bf61-4193-8dc3-6b66a12d94ce	gpt-5.6-sol	codex-cli 0.154.0	null	null	null	null	null	null	null	2fc445d2a65b13a793c	null	null	44082
+BE-004	03	treated	90feaf79-cd28-4b79-8187-b74b0f2f31f7	gpt-5.6-sol	codex-cli 0.154.0	sha256:ebf489800a60	sha256:0770219ae7f4	null	null	null	null	null	2fc445d2a65b13a793c	null	null	30367
+BE-003	04	control	60ed144b-1793-42b4-96de-e390b33d86e1	gpt-5.6-sol	codex-cli 0.154.0	null	null	null	null	null	null	null	2fc445d2a65b13a793c	null	null	25840
+BE-003	04	treated	25544cc6-12a0-4c93-94a6-03050af88b3d	gpt-5.6-sol	codex-cli 0.154.0	sha256:ebf489800a60	sha256:0770219ae7f4	null	null	null	null	null	2fc445d2a65b13a793c	null	null	25214
+BE-004	04	control	1e7dd5e4-30df-4e15-bdd2-6a79cd410a1a	gpt-5.6-sol	codex-cli 0.154.0	null	null	null	null	null	null	null	2fc445d2a65b13a793c	null	null	29624
+BE-004	04	treated	56b0d975-a301-454c-b3d8-b1e229754509	gpt-5.6-sol	codex-cli 0.154.0	sha256:ebf489800a60	sha256:0770219ae7f4	null	null	null	null	null	2fc445d2a65b13a793c	null	null	33349
+BE-003	05	control	cc5dcdec-93c9-46e3-8656-6fedb8716a5d	gpt-5.6-sol	codex-cli 0.154.0	null	null	null	null	null	null	null	2fc445d2a65b13a793c	null	null	25080
+BE-003	05	treated	19903b3f-bb9a-4b8d-9729-6337b6ae94ac	gpt-5.6-sol	codex-cli 0.154.0	sha256:ebf489800a60	sha256:0770219ae7f4	null	null	null	null	null	2fc445d2a65b13a793c	null	null	30442
+BE-004	05	control	3062d332-692b-416a-bce2-dd379aeded8b	gpt-5.6-sol	codex-cli 0.154.0	null	null	null	null	null	null	null	2fc445d2a65b13a793c	null	null	26622
+BE-004	05	treated	63e7739f-18d0-4c4f-ba96-962670958fb2	gpt-5.6-sol	codex-cli 0.154.0	sha256:ebf489800a60	sha256:0770219ae7f4	null	null	null	null	null	2fc445d2a65b13a793c	null	null	33801

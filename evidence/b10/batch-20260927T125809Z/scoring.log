@@ -1,0 +1,81 @@
+=== BE-003 01 control a06c2daf-36ce-4a17-a6a7-2cd8e0c18775 attempt 1 (15:56:28Z)
+codex scoring observatory-run-a06c2daf-36ce-4a17-a6a7-2cd8e0c18775 with gpt-5.6-sol — 4 source file(s), 4 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-a06c2daf-36ce-4a17-a6a7-2cd8e0c18775-20260927T155628Z.yaml
+=== BE-003 01 treated 4df04e27-bd37-422e-bdd3-6d759558b22a attempt 1 (15:56:43Z)
+codex scoring observatory-run-4df04e27-bd37-422e-bdd3-6d759558b22a with gpt-5.6-sol — 2 source file(s), 2 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-4df04e27-bd37-422e-bdd3-6d759558b22a-20260927T155643Z.yaml
+=== BE-004 01 control efd94f24-75d9-40ec-9d23-82a001c49274 attempt 1 (15:56:55Z)
+codex scoring observatory-run-efd94f24-75d9-40ec-9d23-82a001c49274 with gpt-5.6-sol — 7 source file(s), 5 baseline file(s) ...
+4 categories, 1 null
+findings/codex/score-observatory-run-efd94f24-75d9-40ec-9d23-82a001c49274-20260927T155656Z.yaml
+=== BE-004 01 treated 05611c81-ca61-4f50-b40e-dc7e29c63ec6 attempt 1 (15:57:33Z)
+codex scoring observatory-run-05611c81-ca61-4f50-b40e-dc7e29c63ec6 with gpt-5.6-sol — 8 source file(s), 6 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-05611c81-ca61-4f50-b40e-dc7e29c63ec6-20260927T155733Z.yaml
+=== BE-003 02 control d277c1fc-8cba-4603-a5c0-3a96c702a969 attempt 1 (15:57:48Z)
+codex scoring observatory-run-d277c1fc-8cba-4603-a5c0-3a96c702a969 with gpt-5.6-sol — 4 source file(s), 4 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-d277c1fc-8cba-4603-a5c0-3a96c702a969-20260927T155748Z.yaml
+=== BE-003 02 treated 8e113a5d-b893-4cd7-8e94-5f98cd8d8a33 attempt 1 (15:58:19Z)
+codex scoring observatory-run-8e113a5d-b893-4cd7-8e94-5f98cd8d8a33 with gpt-5.6-sol — 3 source file(s), 3 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-8e113a5d-b893-4cd7-8e94-5f98cd8d8a33-20260927T155819Z.yaml
+=== BE-004 02 control 5f17ed17-f151-4e06-a3f7-879c53f2ed3f attempt 1 (15:58:46Z)
+codex scoring observatory-run-5f17ed17-f151-4e06-a3f7-879c53f2ed3f with gpt-5.6-sol — 7 source file(s), 7 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-5f17ed17-f151-4e06-a3f7-879c53f2ed3f-20260927T155846Z.yaml
+=== BE-004 02 treated 08662342-e3cd-4e2f-8e68-2dcf0c006324 attempt 1 (15:59:04Z)
+codex scoring observatory-run-08662342-e3cd-4e2f-8e68-2dcf0c006324 with gpt-5.6-sol — 7 source file(s), 7 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-08662342-e3cd-4e2f-8e68-2dcf0c006324-20260927T155904Z.yaml
+=== BE-003 03 control 903e3e46-7280-46f5-83c5-cf8cb5e91e1b attempt 1 (15:59:20Z)
+codex scoring observatory-run-903e3e46-7280-46f5-83c5-cf8cb5e91e1b with gpt-5.6-sol — 2 source file(s), 2 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-903e3e46-7280-46f5-83c5-cf8cb5e91e1b-20260927T155920Z.yaml
+=== BE-003 03 treated 52a7ccde-7789-4e54-887e-4920bc411e9d attempt 1 (15:59:36Z)
+codex scoring observatory-run-52a7ccde-7789-4e54-887e-4920bc411e9d with gpt-5.6-sol — 4 source file(s), 4 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-52a7ccde-7789-4e54-887e-4920bc411e9d-20260927T155936Z.yaml
+=== BE-004 03 control bbf31489-bf61-4193-8dc3-6b66a12d94ce attempt 1 (15:59:54Z)
+codex scoring observatory-run-bbf31489-bf61-4193-8dc3-6b66a12d94ce with gpt-5.6-sol — 6 source file(s), 5 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-bbf31489-bf61-4193-8dc3-6b66a12d94ce-20260927T155955Z.yaml
+=== BE-004 03 treated 90feaf79-cd28-4b79-8187-b74b0f2f31f7 attempt 1 (16:00:19Z)
+codex scoring observatory-run-90feaf79-cd28-4b79-8187-b74b0f2f31f7 with gpt-5.6-sol — 7 source file(s), 7 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-90feaf79-cd28-4b79-8187-b74b0f2f31f7-20260927T160019Z.yaml
+=== BE-003 04 control 60ed144b-1793-42b4-96de-e390b33d86e1 attempt 1 (16:00:38Z)
+codex scoring observatory-run-60ed144b-1793-42b4-96de-e390b33d86e1 with gpt-5.6-sol — 3 source file(s), 3 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-60ed144b-1793-42b4-96de-e390b33d86e1-20260927T160038Z.yaml
+=== BE-003 04 treated 25544cc6-12a0-4c93-94a6-03050af88b3d attempt 1 (16:00:55Z)
+codex scoring observatory-run-25544cc6-12a0-4c93-94a6-03050af88b3d with gpt-5.6-sol — 2 source file(s), 2 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-25544cc6-12a0-4c93-94a6-03050af88b3d-20260927T160055Z.yaml
+=== BE-004 04 control 1e7dd5e4-30df-4e15-bdd2-6a79cd410a1a attempt 1 (16:01:13Z)
+codex scoring observatory-run-1e7dd5e4-30df-4e15-bdd2-6a79cd410a1a with gpt-5.6-sol — 7 source file(s), 5 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-1e7dd5e4-30df-4e15-bdd2-6a79cd410a1a-20260927T160113Z.yaml
+=== BE-004 04 treated 56b0d975-a301-454c-b3d8-b1e229754509 attempt 1 (16:01:31Z)
+codex scoring observatory-run-56b0d975-a301-454c-b3d8-b1e229754509 with gpt-5.6-sol — 7 source file(s), 7 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-56b0d975-a301-454c-b3d8-b1e229754509-20260927T160131Z.yaml
+=== BE-003 05 control cc5dcdec-93c9-46e3-8656-6fedb8716a5d attempt 1 (16:02:01Z)
+codex scoring observatory-run-cc5dcdec-93c9-46e3-8656-6fedb8716a5d with gpt-5.6-sol — 3 source file(s), 3 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-cc5dcdec-93c9-46e3-8656-6fedb8716a5d-20260927T160201Z.yaml
+=== BE-003 05 treated 19903b3f-bb9a-4b8d-9729-6337b6ae94ac attempt 1 (16:02:36Z)
+codex scoring observatory-run-19903b3f-bb9a-4b8d-9729-6337b6ae94ac with gpt-5.6-sol — 2 source file(s), 2 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-19903b3f-bb9a-4b8d-9729-6337b6ae94ac-20260927T160236Z.yaml
+=== BE-004 05 control 3062d332-692b-416a-bce2-dd379aeded8b attempt 1 (16:02:49Z)
+codex scoring observatory-run-3062d332-692b-416a-bce2-dd379aeded8b with gpt-5.6-sol — 7 source file(s), 6 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-3062d332-692b-416a-bce2-dd379aeded8b-20260927T160249Z.yaml
+=== BE-004 05 treated 63e7739f-18d0-4c4f-ba96-962670958fb2 attempt 1 (16:03:08Z)
+codex scoring observatory-run-63e7739f-18d0-4c4f-ba96-962670958fb2 with gpt-5.6-sol — 9 source file(s), 9 baseline file(s) ...
+4 categories, 0 null
+findings/codex/score-observatory-run-63e7739f-18d0-4c4f-ba96-962670958fb2-20260927T160308Z.yaml
+=== scoring finished, 20 rows in evidence/b10/batch-20260927T125809Z/codex-sheets.tsv
