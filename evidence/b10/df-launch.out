@@ -1,0 +1,3 @@
+run-b10-df: positive control  deny_rc=2 allow_rc=0 log_lines=2
+run-b10-df: pre-run sweep found 0 policy-events log(s)
+run-b10-df: starting the codex run, key=EXP-B10-DF-BE003 task=BE-003 16:32:30Z

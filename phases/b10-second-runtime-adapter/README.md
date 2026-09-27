@@ -276,7 +276,16 @@ rename), never in the registered number. The same slip appears in `TRACK-B-STATE
 `next_action` note for this step and is corrected there the same way.
 
 **The census result for both predictions is in the two experiment files** under *"Census result —
-predictions 1 and 2"*, with the five executed probes and their exit codes. Headline: 8 of 11 and
+predictions 1 and 2"*, with the five executed probes and their exit codes.
+
+**And one of those two files' census sentences is corrected there, additively, at §4 step 9:** the
+customization block has **seven** fields, not five, and **`hooksHash` is one of them** — present and
+`null` on 20 of 20 runs of this batch. `settingsHash` genuinely does not exist. The census read the
+runner's five-hash `--check-customization` read-back and generalised it to the API record, which is
+a narrower surface than the claim named; the correct version was already on record as the stop-16
+author note. **Prediction 2, its verdict and its layer label do not move** — a field that is present
+and `null` is not a control that ran — and the claim gets sharper, not weaker: the schema reserves a
+field for exactly what the port drops and never populates it. Headline: 8 of 11 and
 0 of 2, both as predicted, with the layer split the prediction did not anticipate — the named-agent
 boundary is refused by something that runs (**L2**, `run-agent.sh:325` and `:522`), the policy gate
 is lost with nothing executing to say so (**L3**, probe 5 exits 0 and tracks the file).

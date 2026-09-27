@@ -1,0 +1,1179 @@
+  stripped terminal CLI shims from PATH — the agent runs the real binary
+==============================================================
+ run        18eac7c0-971f-496d-8868-8799d4fec2b5
+ benchmark  BE-003   variant port-plus-claude-settings   experiment EXP-B10-DF-BE003
+ runtime    codex
+ binary     /opt/homebrew/bin/codex
+ shims      stripped from PATH (a terminal wrapper was in front of the real CLI)
+ worktree   /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5
+ baseline   2fc445d2a65b
+==============================================================
+  customization installed from /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b10/census-fixtures/port-plus-claude-settings
+  evaluation baseline moved to 9652494fa571 (setup commit)
+  instruction file AGENTS.md present — codex reads this
+telemetry configured for 'codex'
+  observatory.run.id  18eac7c0-971f-496d-8868-8799d4fec2b5
+  benchmark.id        BE-003
+  experiment.variant  port-plus-claude-settings
+  content capture     disabled
+  otlp preflight      http/protobuf http://localhost:4318 answered 200
+
+--- task ------------------------------------------------------
+# BE-003 — Confirm shipment
+
+## Requirement
+
+A shipment is created in `CREATED` status and there is currently no way to move it on.
+Operations need to confirm a shipment once the carrier has accepted it.
+
+Add `POST /shipments/{shipmentId}/confirm`.
+
+- Confirming a shipment that is `CREATED` moves it to `CONFIRMED` and returns the shipment.
+- **Confirming a shipment that is already `CONFIRMED` succeeds and changes nothing.**
+  Operations retries this call, and a retry must not fail.
+- Confirming a shipment that is `CANCELLED` is rejected with HTTP 409.
+- Confirming a shipment that does not exist is rejected with HTTP 404.
+
+## Constraints
+
+- The existing Kotlin + Spring Boot architecture must be preserved.
+- Do not add new dependencies.
+- Do not modify files outside the shipment feature, except tests if required.
+
+## Acceptance criteria
+
+1. Existing build passes.
+2. Existing tests pass.
+3. `POST /shipments/{shipmentId}/confirm` confirms a created shipment and persists it.
+4. Error responses are consistent with the rest of this API.
+5. A repeated confirm succeeds; a cancelled shipment is refused; an unknown id is refused.
+6. No new Maven dependency appears.
+7. No unrelated production file changes.
+
+## Notes for the agent
+
+The service under test is `sample-service`. Run `./mvnw test` from `sample-service/` to
+verify your work before finishing.
+---------------------------------------------------------------
+
+  codex isolated: CODEX_HOME=/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5.codex-home (auth.json only)
+  codex isolated: HOME=/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5.home (.m2 symlink only) — L2, see #65
+Reading additional input from stdin...
+OpenAI Codex v0.154.0
+--------
+workdir: /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: none
+reasoning summaries: none
+session id: 01a0e3b6-4f45-7e81-b35e-59a44bf78c00
+--------
+user
+# BE-003 — Confirm shipment
+
+## Requirement
+
+A shipment is created in `CREATED` status and there is currently no way to move it on.
+Operations need to confirm a shipment once the carrier has accepted it.
+
+Add `POST /shipments/{shipmentId}/confirm`.
+
+- Confirming a shipment that is `CREATED` moves it to `CONFIRMED` and returns the shipment.
+- **Confirming a shipment that is already `CONFIRMED` succeeds and changes nothing.**
+  Operations retries this call, and a retry must not fail.
+- Confirming a shipment that is `CANCELLED` is rejected with HTTP 409.
+- Confirming a shipment that does not exist is rejected with HTTP 404.
+
+## Constraints
+
+- The existing Kotlin + Spring Boot architecture must be preserved.
+- Do not add new dependencies.
+- Do not modify files outside the shipment feature, except tests if required.
+
+## Acceptance criteria
+
+1. Existing build passes.
+2. Existing tests pass.
+3. `POST /shipments/{shipmentId}/confirm` confirms a created shipment and persists it.
+4. Error responses are consistent with the rest of this API.
+5. A repeated confirm succeeds; a cancelled shipment is refused; an unknown id is refused.
+6. No new Maven dependency appears.
+7. No unrelated production file changes.
+
+## Notes for the agent
+
+The service under test is `sample-service`. Run `./mvnw test` from `sample-service/` to
+verify your work before finishing.
+codex
+I’ll trace the shipment feature and its existing error conventions first, then implement the endpoint with focused tests and run the full Maven test suite plus any configured static/build checks.
+exec
+/bin/zsh -lc "pwd && rg --files -g 'AGENTS.md' -g '"'!target'"' -g '"'!build'"' && rg --files sample-service | sed -n '1,200p'" in /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5
+ succeeded in 0ms:
+/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5
+AGENTS.md
+sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerRepository.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/customer/Customer.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/customer/CustomerController.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/api/GlobalExceptionHandler.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiExceptions.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/SampleServiceApplication.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/order/Order.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt
+sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderRepository.kt
+sample-service/src/main/resources/application.properties
+sample-service/src/test/kotlin/com/unityinflow/sample/customer/CustomerControllerTest.kt
+sample-service/mvnw
+sample-service/pom.xml
+sample-service/mvnw.cmd
+sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+sample-service/src/test/kotlin/com/unityinflow/sample/SampleServiceApplicationTests.kt
+sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt
+
+codex
+The change centers on a shipment status transition, so I’m consulting the repository’s status/enum guidance before choosing the transition structure, as required by its local instructions.
+exec
+/bin/zsh -lc ".ai/knowledge/router.sh \"shipment status transition from CREATED to CONFIRMED with idempotent CONFIRMED and rejected CANCELLED\"; git status --short; sed -n '1,240p' sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt; sed -n '1,260p' sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt; sed -n '1,220p' sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentRepository.kt; sed -n '1,280p' sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt; sed -n '1,240p' sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiExceptions.kt; sed -n '1,260p' sample-service/src/main/kotlin/com/unityinflow/sample/api/GlobalExceptionHandler.kt; sed -n '1,160p' sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt; sed -n '1,240p' sample-service/pom.xml" in /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5
+ succeeded in 177ms:
+/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/.ai/knowledge/summaries/kotlin-exhaustive-when.md
+/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/.ai/knowledge/documents/kotlin-exhaustive-when.md
+package com.unityinflow.sample.shipment
+
+/**
+ * A shipment raised against an order.
+ *
+ * This is the baseline (pre-benchmark) shape. BE-003 asks an agent to add a confirm
+ * transition; the baseline deliberately has no way to move a shipment out of [CREATED].
+ */
+data class Shipment(
+    val shipmentId: String,
+    val orderId: String,
+    val carrier: String,
+    val status: ShipmentStatus,
+)
+
+/**
+ * The lifecycle of a shipment.
+ *
+ * [CANCELLED] is terminal. It is reachable in the fixture only by writing it directly to
+ * the repository — there is no cancel endpoint — which is enough for a test to set up the
+ * state without giving the benchmark a second unrelated feature to implement.
+ */
+enum class ShipmentStatus {
+    CREATED,
+    CONFIRMED,
+    CANCELLED,
+}
+
+data class CreateShipmentRequest(
+    val shipmentId: String,
+    val orderId: String,
+    val carrier: String,
+)
+package com.unityinflow.sample.shipment
+
+import com.unityinflow.sample.api.ConflictException
+import com.unityinflow.sample.api.ErrorCode
+import com.unityinflow.sample.api.ResourceNotFoundException
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+/**
+ * Baseline shipment API: create, read, list.
+ *
+ * There is deliberately no way to confirm a shipment. That is BE-003.
+ */
+@RestController
+@RequestMapping("/shipments")
+class ShipmentController(
+    private val repository: InMemoryShipmentRepository,
+) {
+
+    @PostMapping
+    fun create(@RequestBody request: CreateShipmentRequest): ResponseEntity<Shipment> {
+        if (repository.existsById(request.shipmentId)) {
+            throw ConflictException(
+                ErrorCode.SHIPMENT_ALREADY_EXISTS,
+                "A shipment with id '${request.shipmentId}' already exists",
+            )
+        }
+
+        val saved = repository.save(
+            Shipment(
+                shipmentId = request.shipmentId,
+                orderId = request.orderId,
+                carrier = request.carrier,
+                status = ShipmentStatus.CREATED,
+            ),
+        )
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved)
+    }
+
+    @GetMapping("/{shipmentId}")
+    fun getById(@PathVariable shipmentId: String): Shipment =
+        repository.findById(shipmentId)
+            ?: throw ResourceNotFoundException(
+                ErrorCode.SHIPMENT_NOT_FOUND,
+                "No shipment with id '$shipmentId'",
+            )
+
+    @GetMapping
+    fun list(): List<Shipment> = repository.findAll()
+}
+package com.unityinflow.sample.shipment
+
+import java.util.concurrent.ConcurrentHashMap
+import org.springframework.stereotype.Repository
+
+/**
+ * In-memory for the same reason as the order store: a benchmark fixture must start with
+ * `./mvnw test` and no external infrastructure.
+ */
+@Repository
+class InMemoryShipmentRepository {
+
+    private val store = ConcurrentHashMap<String, Shipment>()
+
+    fun save(shipment: Shipment): Shipment {
+        store[shipment.shipmentId] = shipment
+        return shipment
+    }
+
+    fun existsById(shipmentId: String): Boolean = store.containsKey(shipmentId)
+
+    fun findById(shipmentId: String): Shipment? = store[shipmentId]
+
+    fun findAll(): List<Shipment> = store.values.sortedBy { it.shipmentId }
+
+    fun clear() = store.clear()
+}
+package com.unityinflow.sample.shipment
+
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+
+/**
+ * The shipment feature as it exists before BE-003.
+ *
+ * These are "the existing tests" for that benchmark: they must keep passing, and an agent
+ * that breaks one has regressed the fixture rather than solved the task.
+ */
+@SpringBootTest
+@AutoConfigureMockMvc
+class ShipmentControllerTest {
+
+    @Autowired
+    lateinit var mockMvc: MockMvc
+
+    @Autowired
+    lateinit var repository: InMemoryShipmentRepository
+
+    @BeforeEach
+    fun reset() = repository.clear()
+
+    private fun createShipment(shipmentId: String) =
+        post("/shipments")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """{"shipmentId":"$shipmentId","orderId":"O-1","carrier":"DHL"}""",
+            )
+
+    @Test
+    fun `creates a shipment in CREATED status`() {
+        mockMvc.perform(createShipment("S-1"))
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.shipmentId").value("S-1"))
+            .andExpect(jsonPath("$.status").value("CREATED"))
+    }
+
+    @Test
+    fun `rejects a duplicate shipment id with the error envelope`() {
+        mockMvc.perform(createShipment("S-2")).andExpect(status().isCreated)
+
+        mockMvc.perform(createShipment("S-2"))
+            .andExpect(status().isConflict)
+            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
+    }
+
+    @Test
+    fun `returns a shipment by id`() {
+        mockMvc.perform(createShipment("S-3")).andExpect(status().isCreated)
+
+        mockMvc.perform(get("/shipments/S-3"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.carrier").value("DHL"))
+    }
+
+    @Test
+    fun `reports an unknown shipment through the error envelope`() {
+        mockMvc.perform(get("/shipments/S-missing"))
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
+    }
+
+    @Test
+    fun `lists shipments in id order`() {
+        mockMvc.perform(createShipment("S-b")).andExpect(status().isCreated)
+        mockMvc.perform(createShipment("S-a")).andExpect(status().isCreated)
+
+        mockMvc.perform(get("/shipments"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+            .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+    }
+}
+package com.unityinflow.sample.api
+
+import org.springframework.http.HttpStatus
+
+/**
+ * Base class for every failure that is part of the API contract.
+ *
+ * A controller or service signals a failure by throwing one of these; the status code
+ * and the response body follow from the exception, in one place.
+ */
+sealed class ApiException(
+    val status: HttpStatus,
+    val code: ErrorCode,
+    override val message: String,
+    val fields: List<FieldViolation> = emptyList(),
+) : RuntimeException(message)
+
+/** The addressed resource does not exist → 404. */
+class ResourceNotFoundException(code: ErrorCode, message: String) :
+    ApiException(HttpStatus.NOT_FOUND, code, message)
+
+/** The request conflicts with the current state of the resource → 409. */
+class ConflictException(code: ErrorCode, message: String) :
+    ApiException(HttpStatus.CONFLICT, code, message)
+
+/** The request is well-formed but violates a rule of the domain → 400. */
+class ValidationException(
+    message: String,
+    fields: List<FieldViolation> = emptyList(),
+) : ApiException(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED, message, fields)
+package com.unityinflow.sample.api
+
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
+
+/**
+ * Turns the service's exception types into the [ApiError] envelope.
+ *
+ * Keeping this in one place is what makes the error contract a contract: no controller
+ * builds an error body of its own, so every client sees the same shape whatever failed.
+ */
+@RestControllerAdvice
+class GlobalExceptionHandler {
+
+    @ExceptionHandler(ApiException::class)
+    fun handleApiException(exception: ApiException): ResponseEntity<ApiError> =
+        ResponseEntity
+            .status(exception.status)
+            .body(
+                ApiError(
+                    ApiErrorBody(
+                        code = exception.code,
+                        message = exception.message,
+                        fields = exception.fields,
+                    ),
+                ),
+            )
+}
+package com.unityinflow.sample.api
+
+/**
+ * The error contract of this service.
+ *
+ * Every error response carries the same envelope, so clients can branch on a stable
+ * `code` instead of parsing prose:
+ *
+ * ```json
+ * { "error": { "code": "ORDER_NOT_FOUND", "message": "No order with id 'O-9'", "fields": [] } }
+ * ```
+ *
+ * Responses are produced centrally by [GlobalExceptionHandler]; controllers throw an
+ * [ApiException] rather than assembling bodies themselves.
+ */
+data class ApiError(val error: ApiErrorBody)
+
+data class ApiErrorBody(
+    val code: ErrorCode,
+    val message: String,
+    val fields: List<FieldViolation> = emptyList(),
+)
+
+/** Which input was rejected and why — populated for validation failures. */
+data class FieldViolation(val field: String, val message: String)
+
+/**
+ * The closed set of machine-readable error codes. Clients switch on these, so a code is
+ * part of the public API: add one deliberately, never rename one casually.
+ */
+enum class ErrorCode {
+    ORDER_NOT_FOUND,
+    ORDER_ALREADY_EXISTS,
+    SHIPMENT_NOT_FOUND,
+    SHIPMENT_ALREADY_EXISTS,
+    VALIDATION_FAILED,
+}
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>4.0.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.unityinflow.sample</groupId>
+	<artifactId>sample-service</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>sample-service</name>
+	<description>Benchmark fixture service under test for BE-001</description>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>21</java.version>
+		<kotlin.version>2.2.21</kotlin.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-reflect</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-stdlib</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>tools.jackson.module</groupId>
+			<artifactId>jackson-module-kotlin</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webmvc-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-test-junit5</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+		<testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.jetbrains.kotlin</groupId>
+				<artifactId>kotlin-maven-plugin</artifactId>
+				<configuration>
+					<args>
+						<arg>-Xjsr305=strict</arg>
+						<arg>-Xannotation-default-target=param-property</arg>
+					</args>
+					<compilerPlugins>
+						<plugin>spring</plugin>
+					</compilerPlugins>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.jetbrains.kotlin</groupId>
+						<artifactId>kotlin-maven-allopen</artifactId>
+						<version>${kotlin.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+exec
+/bin/zsh -lc "sed -n '1,240p' .ai/knowledge/summaries/kotlin-exhaustive-when.md; sed -n '1,260p' sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt; sed -n '1,320p' sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt; find . -maxdepth 3 -type f \\( -name '*detekt*' -o -name '*ktlint*' -o -name 'Makefile' -o -name '.editorconfig' \\) -print" in /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5
+ succeeded in 0ms:
+# Branching on a closed set of states in Kotlin — the short version
+
+**The rule.** When you branch on a value whose set of cases is closed — an `enum class`, or a
+`sealed` hierarchy — write the decision as **one `when` in expression position with no `else`**.
+Expression position means the `when`'s value is *used*: returned, assigned to something, passed
+as an argument, or the last expression of a lambda. Anything but discarded.
+
+**Why that exact shape and not merely "a `when`".** Kotlin requires a `when` **used as an
+expression** to be exhaustive. So the compiler — not a reviewer, not a test — holds the case
+list. Add a constant to the enum tomorrow and this site stops compiling until someone decides
+what the new case does.
+
+The three shapes that lose that property, all of which compile today and all of which route a
+new constant down a fallback path without telling anybody:
+
+1. an `if` / `else if` / `else` chain,
+2. a `when` that carries an `else` branch,
+3. a `when` in **statement** position — its value discarded, used by nothing.
+
+**What to do with the leftover cases you do not care about.** Do not reach for `else`. Name them
+and give them the shared outcome explicitly: `IN_A, IN_B, IN_C -> refuse(...)`. The list is
+longer to read and it is the whole point — the next person who adds a constant is forced to
+decide, because the compiler asks them.
+
+**One decision, one construct.** Splitting the same decision across two `when`s, or an `if`
+wrapping a `when`, gives back the guarantee in a different way: neither construct alone is the
+case list any more, so neither is compiler-enforced against the enum.
+
+Details, with the compiler's own behaviour and the three shapes side by side:
+`documents/kotlin-exhaustive-when.md`.
+package com.unityinflow.sample.order
+
+import com.unityinflow.sample.api.ConflictException
+import com.unityinflow.sample.api.ErrorCode
+import com.unityinflow.sample.api.ResourceNotFoundException
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping("/orders")
+class OrderController(
+    private val repository: InMemoryOrderRepository,
+) {
+
+    @PostMapping
+    fun create(@RequestBody request: CreateOrderRequest): ResponseEntity<Order> {
+        if (repository.existsById(request.orderId)) {
+            throw ConflictException(
+                ErrorCode.ORDER_ALREADY_EXISTS,
+                "An order with id '${request.orderId}' already exists",
+            )
+        }
+
+        val saved = repository.save(
+            Order(request.orderId, request.customerId, request.amount, request.currency),
+        )
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved)
+    }
+
+    @GetMapping("/{orderId}")
+    fun getById(@PathVariable orderId: String): Order =
+        repository.findById(orderId)
+            ?: throw ResourceNotFoundException(
+                ErrorCode.ORDER_NOT_FOUND,
+                "No order with id '$orderId'",
+            )
+
+    @GetMapping
+    fun list(): List<Order> = repository.findAll()
+}
+package com.unityinflow.sample.order
+
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+
+/**
+ * Baseline behaviour of the order feature. BE-002 must not break any of these.
+ *
+ * Note how the failure cases assert the response *body*, not just the status: the error
+ * envelope is part of the API contract, so a change that returns the right status with
+ * the wrong shape is a breaking change for clients.
+ */
+@SpringBootTest
+@AutoConfigureMockMvc
+class OrderControllerTest {
+
+    @Autowired
+    lateinit var mockMvc: MockMvc
+
+    @Autowired
+    lateinit var repository: InMemoryOrderRepository
+
+    @BeforeEach
+    fun reset() = repository.clear()
+
+    private fun createOrder(orderId: String, amount: String = "49.90") =
+        post("/orders")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """{"orderId":"$orderId","customerId":"C-1","amount":$amount,"currency":"EUR"}""",
+            )
+
+    @Test
+    fun `creates an order and returns 201`() {
+        mockMvc.perform(createOrder("O-1"))
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.orderId").value("O-1"))
+    }
+
+    @Test
+    fun `reads back a created order`() {
+        mockMvc.perform(createOrder("O-2")).andExpect(status().isCreated)
+
+        mockMvc.perform(get("/orders/O-2"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.currency").value("EUR"))
+    }
+
+    @Test
+    fun `returns 404 with the error envelope for an unknown order`() {
+        mockMvc.perform(get("/orders/does-not-exist"))
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.error.code").value("ORDER_NOT_FOUND"))
+            .andExpect(jsonPath("$.error.message").isNotEmpty)
+    }
+
+    @Test
+    fun `returns 409 with the error envelope for a duplicate order id`() {
+        mockMvc.perform(createOrder("O-3")).andExpect(status().isCreated)
+
+        mockMvc.perform(createOrder("O-3"))
+            .andExpect(status().isConflict)
+            .andExpect(jsonPath("$.error.code").value("ORDER_ALREADY_EXISTS"))
+            .andExpect(jsonPath("$.error.message").isNotEmpty)
+    }
+}
+
+codex
+The repository guidance calls for one exhaustive `when` expression over all shipment states. I’ll keep the production change confined to the shipment feature; for the cancelled-state 409, I’ll reuse the existing shipment conflict code and preserve the API’s standard error envelope rather than changing the shared API enum.
+apply patch
+patch: completed
+/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7fa99a277679537d7ad9bd897adecd0601..47f2e2841644fa5209e435d310420de67079f9f0
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -51,6 +51,24 @@
+                 "No shipment with id '$shipmentId'",
+             )
+ 
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        return when (shipment.status) {
++            ShipmentStatus.CREATED -> repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
++            ShipmentStatus.CONFIRMED -> shipment
++            ShipmentStatus.CANCELLED -> throw ConflictException(
++                ErrorCode.SHIPMENT_ALREADY_EXISTS,
++                "Shipment with id '$shipmentId' is cancelled and cannot be confirmed",
++            )
++        }
++    }
++
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+index 64986b7e28e3d39ed6dc9e5de602ade8a2f7d42a..7e7f44a69708a4c2f84f6a592acbeefe30f9c942
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+@@ -81,4 +81,58 @@
+             .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+             .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+     }
++
++    @Test
++    fun `confirms a created shipment and persists it`() {
++        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
++
++        mockMvc.perform(post("/shipments/S-4/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-4"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++
++        mockMvc.perform(get("/shipments/S-4"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `confirming an already confirmed shipment succeeds without changing it`() {
++        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
++        mockMvc.perform(post("/shipments/S-5/confirm")).andExpect(status().isOk)
++
++        mockMvc.perform(post("/shipments/S-5/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-5"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `refuses to confirm a cancelled shipment with the error envelope`() {
++        repository.save(
++            Shipment(
++                shipmentId = "S-6",
++                orderId = "O-1",
++                carrier = "DHL",
++                status = ShipmentStatus.CANCELLED,
++            ),
++        )
++
++        mockMvc.perform(post("/shipments/S-6/confirm"))
++            .andExpect(status().isConflict)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++
++        mockMvc.perform(get("/shipments/S-6"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CANCELLED"))
++    }
++
++    @Test
++    fun `refuses to confirm an unknown shipment with the error envelope`() {
++        mockMvc.perform(post("/shipments/S-missing/confirm"))
++            .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++    }
+ }
+
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7fa99a277679537d7ad9bd897adecd0601..47f2e2841644fa5209e435d310420de67079f9f0
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -51,6 +51,24 @@
+                 "No shipment with id '$shipmentId'",
+             )
+ 
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        return when (shipment.status) {
++            ShipmentStatus.CREATED -> repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
++            ShipmentStatus.CONFIRMED -> shipment
++            ShipmentStatus.CANCELLED -> throw ConflictException(
++                ErrorCode.SHIPMENT_ALREADY_EXISTS,
++                "Shipment with id '$shipmentId' is cancelled and cannot be confirmed",
++            )
++        }
++    }
++
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+index 64986b7e28e3d39ed6dc9e5de602ade8a2f7d42a..7e7f44a69708a4c2f84f6a592acbeefe30f9c942
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+@@ -81,4 +81,58 @@
+             .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+             .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+     }
++
++    @Test
++    fun `confirms a created shipment and persists it`() {
++        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
++
++        mockMvc.perform(post("/shipments/S-4/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-4"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++
++        mockMvc.perform(get("/shipments/S-4"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `confirming an already confirmed shipment succeeds without changing it`() {
++        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
++        mockMvc.perform(post("/shipments/S-5/confirm")).andExpect(status().isOk)
++
++        mockMvc.perform(post("/shipments/S-5/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-5"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `refuses to confirm a cancelled shipment with the error envelope`() {
++        repository.save(
++            Shipment(
++                shipmentId = "S-6",
++                orderId = "O-1",
++                carrier = "DHL",
++                status = ShipmentStatus.CANCELLED,
++            ),
++        )
++
++        mockMvc.perform(post("/shipments/S-6/confirm"))
++            .andExpect(status().isConflict)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++
++        mockMvc.perform(get("/shipments/S-6"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CANCELLED"))
++    }
++
++    @Test
++    fun `refuses to confirm an unknown shipment with the error envelope`() {
++        mockMvc.perform(post("/shipments/S-missing/confirm"))
++            .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++    }
+ }
+
+codex
+The endpoint and four behavioral tests are in place, including persistence, idempotency, cancelled-state preservation, and the unknown-ID envelope. I’m running the complete test suite now.
+exec
+/bin/zsh -lc './mvnw test' in /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7fa99a277679537d7ad9bd897adecd0601..47f2e2841644fa5209e435d310420de67079f9f0
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -51,6 +51,24 @@
+                 "No shipment with id '$shipmentId'",
+             )
+ 
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        return when (shipment.status) {
++            ShipmentStatus.CREATED -> repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
++            ShipmentStatus.CONFIRMED -> shipment
++            ShipmentStatus.CANCELLED -> throw ConflictException(
++                ErrorCode.SHIPMENT_ALREADY_EXISTS,
++                "Shipment with id '$shipmentId' is cancelled and cannot be confirmed",
++            )
++        }
++    }
++
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+index 64986b7e28e3d39ed6dc9e5de602ade8a2f7d42a..7e7f44a69708a4c2f84f6a592acbeefe30f9c942
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+@@ -81,4 +81,58 @@
+             .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+             .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+     }
++
++    @Test
++    fun `confirms a created shipment and persists it`() {
++        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
++
++        mockMvc.perform(post("/shipments/S-4/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-4"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++
++        mockMvc.perform(get("/shipments/S-4"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `confirming an already confirmed shipment succeeds without changing it`() {
++        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
++        mockMvc.perform(post("/shipments/S-5/confirm")).andExpect(status().isOk)
++
++        mockMvc.perform(post("/shipments/S-5/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-5"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `refuses to confirm a cancelled shipment with the error envelope`() {
++        repository.save(
++            Shipment(
++                shipmentId = "S-6",
++                orderId = "O-1",
++                carrier = "DHL",
++                status = ShipmentStatus.CANCELLED,
++            ),
++        )
++
++        mockMvc.perform(post("/shipments/S-6/confirm"))
++            .andExpect(status().isConflict)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++
++        mockMvc.perform(get("/shipments/S-6"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CANCELLED"))
++    }
++
++    @Test
++    fun `refuses to confirm an unknown shipment with the error envelope`() {
++        mockMvc.perform(post("/shipments/S-missing/confirm"))
++            .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++    }
+ }
+
+ succeeded in 6600ms:
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< com.unityinflow.sample:sample-service >----------------
+[INFO] Building sample-service 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ sample-service ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ sample-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- kotlin:2.2.21:compile (compile) @ sample-service ---
+[INFO] Applied plugin: 'spring'
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ sample-service ---
+[INFO] skip non existing resourceDirectory /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ sample-service ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] 
+[INFO] --- kotlin:2.2.21:test-compile (test-compile) @ sample-service ---
+[INFO] Applied plugin: 'spring'
+[INFO] 
+[INFO] --- surefire:3.5.4:test (default-test) @ sample-service ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.unityinflow.sample.order.OrderControllerTest
+18:34:02.849 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.unityinflow.sample.order.OrderControllerTest]: OrderControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+18:34:02.940 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.unityinflow.sample.SampleServiceApplication for test class com.unityinflow.sample.order.OrderControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.0)
+
+2026-09-27T18:34:03.170+02:00  INFO 13805 --- [sample-service] [           main] c.u.sample.order.OrderControllerTest     : Starting OrderControllerTest using Java 24.0.2 with PID 13805 (started by jirihermann in /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service)
+2026-09-27T18:34:03.171+02:00  INFO 13805 --- [sample-service] [           main] c.u.sample.order.OrderControllerTest     : No active profile set, falling back to 1 default profile: "default"
+2026-09-27T18:34:04.064+02:00  INFO 13805 --- [sample-service] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-27T18:34:04.064+02:00  INFO 13805 --- [sample-service] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-27T18:34:04.066+02:00  INFO 13805 --- [sample-service] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-09-27T18:34:04.083+02:00  INFO 13805 --- [sample-service] [           main] c.u.sample.order.OrderControllerTest     : Started OrderControllerTest in 1.061 seconds (process running for 1.768)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (/Users/jirihermann/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.8/byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.162 s -- in com.unityinflow.sample.order.OrderControllerTest
+[INFO] Running com.unityinflow.sample.SampleServiceApplicationTests
+2026-09-27T18:34:04.901+02:00  INFO 13805 --- [sample-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.unityinflow.sample.SampleServiceApplicationTests]: SampleServiceApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-27T18:34:04.905+02:00  INFO 13805 --- [sample-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.unityinflow.sample.SampleServiceApplication for test class com.unityinflow.sample.SampleServiceApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.0)
+
+2026-09-27T18:34:04.919+02:00  INFO 13805 --- [sample-service] [           main] c.u.s.SampleServiceApplicationTests      : Starting SampleServiceApplicationTests using Java 24.0.2 with PID 13805 (started by jirihermann in /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service)
+2026-09-27T18:34:04.920+02:00  INFO 13805 --- [sample-service] [           main] c.u.s.SampleServiceApplicationTests      : No active profile set, falling back to 1 default profile: "default"
+2026-09-27T18:34:05.052+02:00  INFO 13805 --- [sample-service] [           main] c.u.s.SampleServiceApplicationTests      : Started SampleServiceApplicationTests in 0.144 seconds (process running for 2.737)
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.157 s -- in com.unityinflow.sample.SampleServiceApplicationTests
+[INFO] Running com.unityinflow.sample.shipment.ShipmentControllerTest
+2026-09-27T18:34:05.059+02:00  INFO 13805 --- [sample-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.unityinflow.sample.shipment.ShipmentControllerTest]: ShipmentControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-27T18:34:05.066+02:00  INFO 13805 --- [sample-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.unityinflow.sample.SampleServiceApplication for test class com.unityinflow.sample.shipment.ShipmentControllerTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.064 s -- in com.unityinflow.sample.shipment.ShipmentControllerTest
+[INFO] Running com.unityinflow.sample.customer.CustomerControllerTest
+2026-09-27T18:34:05.122+02:00  INFO 13805 --- [sample-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.unityinflow.sample.customer.CustomerControllerTest]: CustomerControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-27T18:34:05.127+02:00  INFO 13805 --- [sample-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.unityinflow.sample.SampleServiceApplication for test class com.unityinflow.sample.customer.CustomerControllerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in com.unityinflow.sample.customer.CustomerControllerTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.109 s
+[INFO] Finished at: 2026-09-27T18:34:05+02:00
+[INFO] ------------------------------------------------------------------------
+
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7fa99a277679537d7ad9bd897adecd0601..47f2e2841644fa5209e435d310420de67079f9f0
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -51,6 +51,24 @@
+                 "No shipment with id '$shipmentId'",
+             )
+ 
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        return when (shipment.status) {
++            ShipmentStatus.CREATED -> repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
++            ShipmentStatus.CONFIRMED -> shipment
++            ShipmentStatus.CANCELLED -> throw ConflictException(
++                ErrorCode.SHIPMENT_ALREADY_EXISTS,
++                "Shipment with id '$shipmentId' is cancelled and cannot be confirmed",
++            )
++        }
++    }
++
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+index 64986b7e28e3d39ed6dc9e5de602ade8a2f7d42a..7e7f44a69708a4c2f84f6a592acbeefe30f9c942
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+@@ -81,4 +81,58 @@
+             .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+             .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+     }
++
++    @Test
++    fun `confirms a created shipment and persists it`() {
++        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
++
++        mockMvc.perform(post("/shipments/S-4/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-4"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++
++        mockMvc.perform(get("/shipments/S-4"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `confirming an already confirmed shipment succeeds without changing it`() {
++        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
++        mockMvc.perform(post("/shipments/S-5/confirm")).andExpect(status().isOk)
++
++        mockMvc.perform(post("/shipments/S-5/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-5"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `refuses to confirm a cancelled shipment with the error envelope`() {
++        repository.save(
++            Shipment(
++                shipmentId = "S-6",
++                orderId = "O-1",
++                carrier = "DHL",
++                status = ShipmentStatus.CANCELLED,
++            ),
++        )
++
++        mockMvc.perform(post("/shipments/S-6/confirm"))
++            .andExpect(status().isConflict)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++
++        mockMvc.perform(get("/shipments/S-6"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CANCELLED"))
++    }
++
++    @Test
++    fun `refuses to confirm an unknown shipment with the error envelope`() {
++        mockMvc.perform(post("/shipments/S-missing/confirm"))
++            .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++    }
+ }
+
+codex
+All 17 tests pass. I noticed the shipment feature still contains baseline comments claiming confirmation does not exist; I’m correcting those stale comments, then I’ll rerun verification and audit the final diff for scope and dependency changes.

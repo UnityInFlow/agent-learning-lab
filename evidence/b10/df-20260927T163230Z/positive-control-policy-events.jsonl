@@ -1,0 +1,2 @@
+{"ts":"2026-09-27T16:32:30Z","decision":"deny","tool":"Edit","path":"sample-service/pom.xml","reason":"matched:**/pom.xml","policy":"protected-paths","pid":7864}
+{"ts":"2026-09-27T16:32:30Z","decision":"allow","tool":"Edit","path":"sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt","reason":"no-deny-pattern-matched","policy":"protected-paths","pid":7884}

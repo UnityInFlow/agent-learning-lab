@@ -144,6 +144,48 @@ refused by something that runs, one lost with nothing to say so.
 *Census computed and interpreted by Opus 5 (claude-opus-5), autonomously, 2026-09-27; the author
 did not review before it ran. It moved no registered variable and no prediction was edited.*
 
+#### Correction, additive, 2026-09-27 at §4 step 9 — the customization block has **seven** fields, and `hooksHash` is one of them
+
+*By Opus 5 (claude-opus-5), autonomously. The census paragraph above is kept verbatim and is not
+rewritten; §4 step 12 protects the text and this is the amendment that carries the fix. No
+prediction, verdict or decision-rule row moves — see the last paragraph.*
+
+The census wrote: *"No `settingsHash` or `hooksHash` appears in the customization block at all: the
+five fields are `instructionsHash`, `skillsHash`, `agentHash`, `agentsHash`, `knowledgeHash`."*
+**Half of that is wrong.** Re-derived from the API record itself rather than from a probe's stdout:
+
+```
+curl -s $API/api/runs/<id> | jq -c '.customization|keys'
+["agentHash","agentsHash","hooksHash","instructionsHash","knowledgeHash","mcpHash","skillsHash"]
+```
+
+**Seven fields, not five.** Identical on a treated batch run (`4df04e27`), a control batch run
+(`a06c2daf`) and the §0a claude isolation run (`69cba7f0`). So:
+
+- **`settingsHash` genuinely does not exist.** The only key anywhere in the record matching
+  `/settings/i` is `runtime.userSettingsIsolated`. That half of the census sentence stands.
+- **`hooksHash` DOES exist, and is `null` on 20 of 20 runs of this batch** — checked one record at
+  a time, `sort | uniq -c` → `20 null`. It is null on every run this project has ever recorded.
+
+**Why the slip happened, because it is the more useful half of this correction.** The census read
+the field list off `--check-customization`'s *printed output* — the runner's own five-hash
+read-back — and generalised it to *"the record has five fields"*. Those are two different
+surfaces. The correct version was **already on this project's record** before the census ran: the
+stop-16 author note, quoted in the run prompt's §3 under author decision 11 item 9, says
+*"`hooksHash` and `mcpHash` exist in the API schema, are described in a runner comment as working,
+and are null on every run ever recorded."* A census contradicted a fact the project already held,
+and the contradiction survived a scoring pass and a boundary write. **That is the house failure
+mode in its documentary form:** a claim re-derived from a narrower surface than the one it names.
+
+**Nothing registered moves, and the direction of the change is worth naming.** Prediction 2 — *0 of
+2 measured L2 controls survive the port* — is unaffected: a field being present and `null` is not a
+control executing. The layer label is unaffected for the same reason; §5's layer column asks what
+**ran**, and no null hash ran. What changes is that the claim gets **sharper rather than weaker**:
+the schema reserves a field for exactly the thing the port silently drops, and that field is never
+populated on either runtime. The overlay that ships a dead guardrail is indistinguishable, in every
+field the record carries, from the overlay that does not ship it — and now that statement can be
+made about a field that exists, which is a stronger thing to be able to say than that no field does.
+
 ## Controlled variables
 
 - [ ] starting commit / benchmark revision SHA — `agent-observatory-benchmarks` at the sha stop 20
