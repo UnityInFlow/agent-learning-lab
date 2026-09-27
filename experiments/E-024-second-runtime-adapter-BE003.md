@@ -607,6 +607,18 @@ registered **VOID rather than held** if the run changes 0 files.
 *Registered by Opus 5 (claude-opus-5), autonomously, 2026-09-27; the author did not review before
 the run.*
 
+**DF1 RAN 2026-09-27 and all four predictions HELD.** Run `18eac7c0-971f-496d-8868-8799d4fec2b5`,
+BE-003, codex, evaluator `exitCode 0`, 3 changed files. **0 new or grown `policy-events-*.jsonl`
+logs** across `$TMPDIR` and `/tmp` with a **non-empty trigger population**, against B7's 20 treated
+logs; the same gate at B7's sha `f432abbc…` fired on demand **twice**, once from the run's own
+worktree afterwards; the ten overlay files including `.claude/settings.json` are in the setup commit
+`9652494fa571`; both registered hashes unmoved and `hooksHash` `null`. **Prediction 2's second half
+is now L2 rather than L3.** Measurement and the six closed alternative explanations:
+`evidence/b10/df-20260927T163230Z/RESULT.md`. The full reading, including the unpredicted co-variate
+— the router's log was written in the same run the gate's was not, so *what ports is what the model
+can call; what does not port is what the runtime must call* (`n = 1`) — is in the workbook.
+
+
 ## Follow-up
 
 1. **Register a control-arm rubric census before any future batch** — one control run scored on

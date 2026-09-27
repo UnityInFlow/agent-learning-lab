@@ -1177,3 +1177,1005 @@ index 64986b7e28e3d39ed6dc9e5de602ade8a2f7d42a..7e7f44a69708a4c2f84f6a592acbeefe
 
 codex
 All 17 tests pass. I noticed the shipment feature still contains baseline comments claiming confirmation does not exist; I’m correcting those stale comments, then I’ll rerun verification and audit the final diff for scope and dependency changes.
+apply patch
+patch: completed
+/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+index afe4e86837f7088e879147e8075ee00bb55c0f78..4e4cc3af3eddb35da79166d34e737d04fca59732
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+@@ -3,8 +3,7 @@
+ /**
+  * A shipment raised against an order.
+  *
+- * This is the baseline (pre-benchmark) shape. BE-003 asks an agent to add a confirm
+- * transition; the baseline deliberately has no way to move a shipment out of [CREATED].
++ * Shipments start in [ShipmentStatus.CREATED] and can be confirmed after carrier acceptance.
+  */
+ data class Shipment(
+     val shipmentId: String,
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7fa99a277679537d7ad9bd897adecd0601..6db85ec7a5c3966605b5e28bd0added95bda5bf2
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -12,11 +12,7 @@
+ import org.springframework.web.bind.annotation.RequestMapping
+ import org.springframework.web.bind.annotation.RestController
+ 
+-/**
+- * Baseline shipment API: create, read, list.
+- *
+- * There is deliberately no way to confirm a shipment. That is BE-003.
+- */
++/** Shipment API: create, confirm, read, and list. */
+ @RestController
+ @RequestMapping("/shipments")
+ class ShipmentController(
+@@ -51,6 +47,24 @@
+                 "No shipment with id '$shipmentId'",
+             )
+ 
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        return when (shipment.status) {
++            ShipmentStatus.CREATED -> repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
++            ShipmentStatus.CONFIRMED -> shipment
++            ShipmentStatus.CANCELLED -> throw ConflictException(
++                ErrorCode.SHIPMENT_ALREADY_EXISTS,
++                "Shipment with id '$shipmentId' is cancelled and cannot be confirmed",
++            )
++        }
++    }
++
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+index 64986b7e28e3d39ed6dc9e5de602ade8a2f7d42a..01df0e5efc5b3ea7a2b42ad16fb185e91625710a
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+@@ -12,12 +12,7 @@
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+ 
+-/**
+- * The shipment feature as it exists before BE-003.
+- *
+- * These are "the existing tests" for that benchmark: they must keep passing, and an agent
+- * that breaks one has regressed the fixture rather than solved the task.
+- */
++/** Shipment API integration tests. */
+ @SpringBootTest
+ @AutoConfigureMockMvc
+ class ShipmentControllerTest {
+@@ -81,4 +76,58 @@
+             .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+             .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+     }
++
++    @Test
++    fun `confirms a created shipment and persists it`() {
++        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
++
++        mockMvc.perform(post("/shipments/S-4/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-4"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++
++        mockMvc.perform(get("/shipments/S-4"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `confirming an already confirmed shipment succeeds without changing it`() {
++        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
++        mockMvc.perform(post("/shipments/S-5/confirm")).andExpect(status().isOk)
++
++        mockMvc.perform(post("/shipments/S-5/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-5"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `refuses to confirm a cancelled shipment with the error envelope`() {
++        repository.save(
++            Shipment(
++                shipmentId = "S-6",
++                orderId = "O-1",
++                carrier = "DHL",
++                status = ShipmentStatus.CANCELLED,
++            ),
++        )
++
++        mockMvc.perform(post("/shipments/S-6/confirm"))
++            .andExpect(status().isConflict)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++
++        mockMvc.perform(get("/shipments/S-6"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CANCELLED"))
++    }
++
++    @Test
++    fun `refuses to confirm an unknown shipment with the error envelope`() {
++        mockMvc.perform(post("/shipments/S-missing/confirm"))
++            .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++    }
+ }
+
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+index afe4e86837f7088e879147e8075ee00bb55c0f78..4e4cc3af3eddb35da79166d34e737d04fca59732
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+@@ -3,8 +3,7 @@
+ /**
+  * A shipment raised against an order.
+  *
+- * This is the baseline (pre-benchmark) shape. BE-003 asks an agent to add a confirm
+- * transition; the baseline deliberately has no way to move a shipment out of [CREATED].
++ * Shipments start in [ShipmentStatus.CREATED] and can be confirmed after carrier acceptance.
+  */
+ data class Shipment(
+     val shipmentId: String,
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7fa99a277679537d7ad9bd897adecd0601..6db85ec7a5c3966605b5e28bd0added95bda5bf2
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -12,11 +12,7 @@
+ import org.springframework.web.bind.annotation.RequestMapping
+ import org.springframework.web.bind.annotation.RestController
+ 
+-/**
+- * Baseline shipment API: create, read, list.
+- *
+- * There is deliberately no way to confirm a shipment. That is BE-003.
+- */
++/** Shipment API: create, confirm, read, and list. */
+ @RestController
+ @RequestMapping("/shipments")
+ class ShipmentController(
+@@ -51,6 +47,24 @@
+                 "No shipment with id '$shipmentId'",
+             )
+ 
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        return when (shipment.status) {
++            ShipmentStatus.CREATED -> repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
++            ShipmentStatus.CONFIRMED -> shipment
++            ShipmentStatus.CANCELLED -> throw ConflictException(
++                ErrorCode.SHIPMENT_ALREADY_EXISTS,
++                "Shipment with id '$shipmentId' is cancelled and cannot be confirmed",
++            )
++        }
++    }
++
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+index 64986b7e28e3d39ed6dc9e5de602ade8a2f7d42a..01df0e5efc5b3ea7a2b42ad16fb185e91625710a
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+@@ -12,12 +12,7 @@
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+ 
+-/**
+- * The shipment feature as it exists before BE-003.
+- *
+- * These are "the existing tests" for that benchmark: they must keep passing, and an agent
+- * that breaks one has regressed the fixture rather than solved the task.
+- */
++/** Shipment API integration tests. */
+ @SpringBootTest
+ @AutoConfigureMockMvc
+ class ShipmentControllerTest {
+@@ -81,4 +76,58 @@
+             .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+             .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+     }
++
++    @Test
++    fun `confirms a created shipment and persists it`() {
++        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
++
++        mockMvc.perform(post("/shipments/S-4/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-4"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++
++        mockMvc.perform(get("/shipments/S-4"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `confirming an already confirmed shipment succeeds without changing it`() {
++        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
++        mockMvc.perform(post("/shipments/S-5/confirm")).andExpect(status().isOk)
++
++        mockMvc.perform(post("/shipments/S-5/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-5"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `refuses to confirm a cancelled shipment with the error envelope`() {
++        repository.save(
++            Shipment(
++                shipmentId = "S-6",
++                orderId = "O-1",
++                carrier = "DHL",
++                status = ShipmentStatus.CANCELLED,
++            ),
++        )
++
++        mockMvc.perform(post("/shipments/S-6/confirm"))
++            .andExpect(status().isConflict)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++
++        mockMvc.perform(get("/shipments/S-6"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CANCELLED"))
++    }
++
++    @Test
++    fun `refuses to confirm an unknown shipment with the error envelope`() {
++        mockMvc.perform(post("/shipments/S-missing/confirm"))
++            .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++    }
+ }
+
+exec
+/bin/zsh -lc 'git diff --check && git status --short && git diff --stat && git diff -- sample-service/pom.xml && git diff -- sample-service/src/main/kotlin/com/unityinflow/sample/shipment sample-service/src/test/kotlin/com/unityinflow/sample/shipment' in /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5
+ succeeded in 0ms:
+ M sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+ M sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+ M sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+ .../com/unityinflow/sample/shipment/Shipment.kt    |  3 +-
+ .../sample/shipment/ShipmentController.kt          | 24 +++++++--
+ .../sample/shipment/ShipmentControllerTest.kt      | 61 +++++++++++++++++++---
+ 3 files changed, 75 insertions(+), 13 deletions(-)
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+index afe4e86..4e4cc3a 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+@@ -3,8 +3,7 @@ package com.unityinflow.sample.shipment
+ /**
+  * A shipment raised against an order.
+  *
+- * This is the baseline (pre-benchmark) shape. BE-003 asks an agent to add a confirm
+- * transition; the baseline deliberately has no way to move a shipment out of [CREATED].
++ * Shipments start in [ShipmentStatus.CREATED] and can be confirmed after carrier acceptance.
+  */
+ data class Shipment(
+     val shipmentId: String,
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7..6db85ec 100644
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -12,11 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody
+ import org.springframework.web.bind.annotation.RequestMapping
+ import org.springframework.web.bind.annotation.RestController
+ 
+-/**
+- * Baseline shipment API: create, read, list.
+- *
+- * There is deliberately no way to confirm a shipment. That is BE-003.
+- */
++/** Shipment API: create, confirm, read, and list. */
+ @RestController
+ @RequestMapping("/shipments")
+ class ShipmentController(
+@@ -51,6 +47,24 @@ class ShipmentController(
+                 "No shipment with id '$shipmentId'",
+             )
+ 
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        return when (shipment.status) {
++            ShipmentStatus.CREATED -> repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
++            ShipmentStatus.CONFIRMED -> shipment
++            ShipmentStatus.CANCELLED -> throw ConflictException(
++                ErrorCode.SHIPMENT_ALREADY_EXISTS,
++                "Shipment with id '$shipmentId' is cancelled and cannot be confirmed",
++            )
++        }
++    }
++
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+index 64986b7..01df0e5 100644
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+@@ -12,12 +12,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+ 
+-/**
+- * The shipment feature as it exists before BE-003.
+- *
+- * These are "the existing tests" for that benchmark: they must keep passing, and an agent
+- * that breaks one has regressed the fixture rather than solved the task.
+- */
++/** Shipment API integration tests. */
+ @SpringBootTest
+ @AutoConfigureMockMvc
+ class ShipmentControllerTest {
+@@ -81,4 +76,58 @@ class ShipmentControllerTest {
+             .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+             .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+     }
++
++    @Test
++    fun `confirms a created shipment and persists it`() {
++        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
++
++        mockMvc.perform(post("/shipments/S-4/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-4"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++
++        mockMvc.perform(get("/shipments/S-4"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `confirming an already confirmed shipment succeeds without changing it`() {
++        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
++        mockMvc.perform(post("/shipments/S-5/confirm")).andExpect(status().isOk)
++
++        mockMvc.perform(post("/shipments/S-5/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-5"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `refuses to confirm a cancelled shipment with the error envelope`() {
++        repository.save(
++            Shipment(
++                shipmentId = "S-6",
++                orderId = "O-1",
++                carrier = "DHL",
++                status = ShipmentStatus.CANCELLED,
++            ),
++        )
++
++        mockMvc.perform(post("/shipments/S-6/confirm"))
++            .andExpect(status().isConflict)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++
++        mockMvc.perform(get("/shipments/S-6"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CANCELLED"))
++    }
++
++    @Test
++    fun `refuses to confirm an unknown shipment with the error envelope`() {
++        mockMvc.perform(post("/shipments/S-missing/confirm"))
++            .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++    }
+ }
+
+exec
+/bin/zsh -lc './mvnw test' in /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+index afe4e86837f7088e879147e8075ee00bb55c0f78..4e4cc3af3eddb35da79166d34e737d04fca59732
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+@@ -3,8 +3,7 @@
+ /**
+  * A shipment raised against an order.
+  *
+- * This is the baseline (pre-benchmark) shape. BE-003 asks an agent to add a confirm
+- * transition; the baseline deliberately has no way to move a shipment out of [CREATED].
++ * Shipments start in [ShipmentStatus.CREATED] and can be confirmed after carrier acceptance.
+  */
+ data class Shipment(
+     val shipmentId: String,
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7fa99a277679537d7ad9bd897adecd0601..6db85ec7a5c3966605b5e28bd0added95bda5bf2
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -12,11 +12,7 @@
+ import org.springframework.web.bind.annotation.RequestMapping
+ import org.springframework.web.bind.annotation.RestController
+ 
+-/**
+- * Baseline shipment API: create, read, list.
+- *
+- * There is deliberately no way to confirm a shipment. That is BE-003.
+- */
++/** Shipment API: create, confirm, read, and list. */
+ @RestController
+ @RequestMapping("/shipments")
+ class ShipmentController(
+@@ -51,6 +47,24 @@
+                 "No shipment with id '$shipmentId'",
+             )
+ 
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        return when (shipment.status) {
++            ShipmentStatus.CREATED -> repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
++            ShipmentStatus.CONFIRMED -> shipment
++            ShipmentStatus.CANCELLED -> throw ConflictException(
++                ErrorCode.SHIPMENT_ALREADY_EXISTS,
++                "Shipment with id '$shipmentId' is cancelled and cannot be confirmed",
++            )
++        }
++    }
++
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+index 64986b7e28e3d39ed6dc9e5de602ade8a2f7d42a..01df0e5efc5b3ea7a2b42ad16fb185e91625710a
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+@@ -12,12 +12,7 @@
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+ 
+-/**
+- * The shipment feature as it exists before BE-003.
+- *
+- * These are "the existing tests" for that benchmark: they must keep passing, and an agent
+- * that breaks one has regressed the fixture rather than solved the task.
+- */
++/** Shipment API integration tests. */
+ @SpringBootTest
+ @AutoConfigureMockMvc
+ class ShipmentControllerTest {
+@@ -81,4 +76,58 @@
+             .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+             .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+     }
++
++    @Test
++    fun `confirms a created shipment and persists it`() {
++        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
++
++        mockMvc.perform(post("/shipments/S-4/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-4"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++
++        mockMvc.perform(get("/shipments/S-4"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `confirming an already confirmed shipment succeeds without changing it`() {
++        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
++        mockMvc.perform(post("/shipments/S-5/confirm")).andExpect(status().isOk)
++
++        mockMvc.perform(post("/shipments/S-5/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-5"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `refuses to confirm a cancelled shipment with the error envelope`() {
++        repository.save(
++            Shipment(
++                shipmentId = "S-6",
++                orderId = "O-1",
++                carrier = "DHL",
++                status = ShipmentStatus.CANCELLED,
++            ),
++        )
++
++        mockMvc.perform(post("/shipments/S-6/confirm"))
++            .andExpect(status().isConflict)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++
++        mockMvc.perform(get("/shipments/S-6"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CANCELLED"))
++    }
++
++    @Test
++    fun `refuses to confirm an unknown shipment with the error envelope`() {
++        mockMvc.perform(post("/shipments/S-missing/confirm"))
++            .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++    }
+ }
+
+ succeeded in 5803ms:
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< com.unityinflow.sample:sample-service >----------------
+[INFO] Building sample-service 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ sample-service ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ sample-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- kotlin:2.2.21:compile (compile) @ sample-service ---
+[INFO] Applied plugin: 'spring'
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ sample-service ---
+[INFO] skip non existing resourceDirectory /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ sample-service ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] 
+[INFO] --- kotlin:2.2.21:test-compile (test-compile) @ sample-service ---
+[INFO] Applied plugin: 'spring'
+[INFO] 
+[INFO] --- surefire:3.5.4:test (default-test) @ sample-service ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.unityinflow.sample.order.OrderControllerTest
+18:34:34.061 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.unityinflow.sample.order.OrderControllerTest]: OrderControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+18:34:34.137 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.unityinflow.sample.SampleServiceApplication for test class com.unityinflow.sample.order.OrderControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.0)
+
+2026-09-27T18:34:34.327+02:00  INFO 15811 --- [sample-service] [           main] c.u.sample.order.OrderControllerTest     : Starting OrderControllerTest using Java 24.0.2 with PID 15811 (started by jirihermann in /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service)
+2026-09-27T18:34:34.328+02:00  INFO 15811 --- [sample-service] [           main] c.u.sample.order.OrderControllerTest     : No active profile set, falling back to 1 default profile: "default"
+2026-09-27T18:34:35.086+02:00  INFO 15811 --- [sample-service] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-27T18:34:35.086+02:00  INFO 15811 --- [sample-service] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-27T18:34:35.087+02:00  INFO 15811 --- [sample-service] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-27T18:34:35.099+02:00  INFO 15811 --- [sample-service] [           main] c.u.sample.order.OrderControllerTest     : Started OrderControllerTest in 0.898 seconds (process running for 1.542)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (/Users/jirihermann/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.8/byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.925 s -- in com.unityinflow.sample.order.OrderControllerTest
+[INFO] Running com.unityinflow.sample.SampleServiceApplicationTests
+2026-09-27T18:34:35.895+02:00  INFO 15811 --- [sample-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.unityinflow.sample.SampleServiceApplicationTests]: SampleServiceApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-27T18:34:35.899+02:00  INFO 15811 --- [sample-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.unityinflow.sample.SampleServiceApplication for test class com.unityinflow.sample.SampleServiceApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.0)
+
+2026-09-27T18:34:35.912+02:00  INFO 15811 --- [sample-service] [           main] c.u.s.SampleServiceApplicationTests      : Starting SampleServiceApplicationTests using Java 24.0.2 with PID 15811 (started by jirihermann in /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service)
+2026-09-27T18:34:35.912+02:00  INFO 15811 --- [sample-service] [           main] c.u.s.SampleServiceApplicationTests      : No active profile set, falling back to 1 default profile: "default"
+2026-09-27T18:34:36.032+02:00  INFO 15811 --- [sample-service] [           main] c.u.s.SampleServiceApplicationTests      : Started SampleServiceApplicationTests in 0.13 seconds (process running for 2.476)
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.143 s -- in com.unityinflow.sample.SampleServiceApplicationTests
+[INFO] Running com.unityinflow.sample.shipment.ShipmentControllerTest
+2026-09-27T18:34:36.039+02:00  INFO 15811 --- [sample-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.unityinflow.sample.shipment.ShipmentControllerTest]: ShipmentControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-27T18:34:36.045+02:00  INFO 15811 --- [sample-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.unityinflow.sample.SampleServiceApplication for test class com.unityinflow.sample.shipment.ShipmentControllerTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.055 s -- in com.unityinflow.sample.shipment.ShipmentControllerTest
+[INFO] Running com.unityinflow.sample.customer.CustomerControllerTest
+2026-09-27T18:34:36.095+02:00  INFO 15811 --- [sample-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.unityinflow.sample.customer.CustomerControllerTest]: CustomerControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-27T18:34:36.101+02:00  INFO 15811 --- [sample-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.unityinflow.sample.SampleServiceApplication for test class com.unityinflow.sample.customer.CustomerControllerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in com.unityinflow.sample.customer.CustomerControllerTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  4.431 s
+[INFO] Finished at: 2026-09-27T18:34:36+02:00
+[INFO] ------------------------------------------------------------------------
+
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+index afe4e86837f7088e879147e8075ee00bb55c0f78..4e4cc3af3eddb35da79166d34e737d04fca59732
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+@@ -3,8 +3,7 @@
+ /**
+  * A shipment raised against an order.
+  *
+- * This is the baseline (pre-benchmark) shape. BE-003 asks an agent to add a confirm
+- * transition; the baseline deliberately has no way to move a shipment out of [CREATED].
++ * Shipments start in [ShipmentStatus.CREATED] and can be confirmed after carrier acceptance.
+  */
+ data class Shipment(
+     val shipmentId: String,
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7fa99a277679537d7ad9bd897adecd0601..6db85ec7a5c3966605b5e28bd0added95bda5bf2
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -12,11 +12,7 @@
+ import org.springframework.web.bind.annotation.RequestMapping
+ import org.springframework.web.bind.annotation.RestController
+ 
+-/**
+- * Baseline shipment API: create, read, list.
+- *
+- * There is deliberately no way to confirm a shipment. That is BE-003.
+- */
++/** Shipment API: create, confirm, read, and list. */
+ @RestController
+ @RequestMapping("/shipments")
+ class ShipmentController(
+@@ -51,6 +47,24 @@
+                 "No shipment with id '$shipmentId'",
+             )
+ 
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        return when (shipment.status) {
++            ShipmentStatus.CREATED -> repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
++            ShipmentStatus.CONFIRMED -> shipment
++            ShipmentStatus.CANCELLED -> throw ConflictException(
++                ErrorCode.SHIPMENT_ALREADY_EXISTS,
++                "Shipment with id '$shipmentId' is cancelled and cannot be confirmed",
++            )
++        }
++    }
++
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+index 64986b7e28e3d39ed6dc9e5de602ade8a2f7d42a..01df0e5efc5b3ea7a2b42ad16fb185e91625710a
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+@@ -12,12 +12,7 @@
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+ 
+-/**
+- * The shipment feature as it exists before BE-003.
+- *
+- * These are "the existing tests" for that benchmark: they must keep passing, and an agent
+- * that breaks one has regressed the fixture rather than solved the task.
+- */
++/** Shipment API integration tests. */
+ @SpringBootTest
+ @AutoConfigureMockMvc
+ class ShipmentControllerTest {
+@@ -81,4 +76,58 @@
+             .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+             .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+     }
++
++    @Test
++    fun `confirms a created shipment and persists it`() {
++        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
++
++        mockMvc.perform(post("/shipments/S-4/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-4"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++
++        mockMvc.perform(get("/shipments/S-4"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `confirming an already confirmed shipment succeeds without changing it`() {
++        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
++        mockMvc.perform(post("/shipments/S-5/confirm")).andExpect(status().isOk)
++
++        mockMvc.perform(post("/shipments/S-5/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-5"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `refuses to confirm a cancelled shipment with the error envelope`() {
++        repository.save(
++            Shipment(
++                shipmentId = "S-6",
++                orderId = "O-1",
++                carrier = "DHL",
++                status = ShipmentStatus.CANCELLED,
++            ),
++        )
++
++        mockMvc.perform(post("/shipments/S-6/confirm"))
++            .andExpect(status().isConflict)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++
++        mockMvc.perform(get("/shipments/S-6"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CANCELLED"))
++    }
++
++    @Test
++    fun `refuses to confirm an unknown shipment with the error envelope`() {
++        mockMvc.perform(post("/shipments/S-missing/confirm"))
++            .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++    }
+ }
+
+codex
+DONE
+
+Implemented `POST /shipments/{shipmentId}/confirm`:
+
+- `CREATED` → persisted as `CONFIRMED`
+- Repeated confirmation remains successful and unchanged
+- `CANCELLED` → HTTP 409 using the existing API error envelope
+- Unknown ID → HTTP 404
+
+Added integration coverage in [ShipmentControllerTest.kt](/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt).
+
+Verification:
+
+- `./mvnw test`: **BUILD SUCCESS**
+- 17 tests passed
+- No static-analysis plugin is configured
+- No dependencies or `pom.xml` changes
+- Changes are confined to shipment production files and shipment tests
+- `git diff --check` passed
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+index afe4e86837f7088e879147e8075ee00bb55c0f78..4e4cc3af3eddb35da79166d34e737d04fca59732
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+@@ -3,8 +3,7 @@
+ /**
+  * A shipment raised against an order.
+  *
+- * This is the baseline (pre-benchmark) shape. BE-003 asks an agent to add a confirm
+- * transition; the baseline deliberately has no way to move a shipment out of [CREATED].
++ * Shipments start in [ShipmentStatus.CREATED] and can be confirmed after carrier acceptance.
+  */
+ data class Shipment(
+     val shipmentId: String,
+diff --git a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+index 88727b7fa99a277679537d7ad9bd897adecd0601..6db85ec7a5c3966605b5e28bd0added95bda5bf2
+--- a/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
++++ b/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+@@ -12,11 +12,7 @@
+ import org.springframework.web.bind.annotation.RequestMapping
+ import org.springframework.web.bind.annotation.RestController
+ 
+-/**
+- * Baseline shipment API: create, read, list.
+- *
+- * There is deliberately no way to confirm a shipment. That is BE-003.
+- */
++/** Shipment API: create, confirm, read, and list. */
+ @RestController
+ @RequestMapping("/shipments")
+ class ShipmentController(
+@@ -51,6 +47,24 @@
+                 "No shipment with id '$shipmentId'",
+             )
+ 
++    @PostMapping("/{shipmentId}/confirm")
++    fun confirm(@PathVariable shipmentId: String): Shipment {
++        val shipment = repository.findById(shipmentId)
++            ?: throw ResourceNotFoundException(
++                ErrorCode.SHIPMENT_NOT_FOUND,
++                "No shipment with id '$shipmentId'",
++            )
++
++        return when (shipment.status) {
++            ShipmentStatus.CREATED -> repository.save(shipment.copy(status = ShipmentStatus.CONFIRMED))
++            ShipmentStatus.CONFIRMED -> shipment
++            ShipmentStatus.CANCELLED -> throw ConflictException(
++                ErrorCode.SHIPMENT_ALREADY_EXISTS,
++                "Shipment with id '$shipmentId' is cancelled and cannot be confirmed",
++            )
++        }
++    }
++
+     @GetMapping
+     fun list(): List<Shipment> = repository.findAll()
+ }
+diff --git a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+index 64986b7e28e3d39ed6dc9e5de602ade8a2f7d42a..01df0e5efc5b3ea7a2b42ad16fb185e91625710a
+--- a/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
++++ b/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+@@ -12,12 +12,7 @@
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+ 
+-/**
+- * The shipment feature as it exists before BE-003.
+- *
+- * These are "the existing tests" for that benchmark: they must keep passing, and an agent
+- * that breaks one has regressed the fixture rather than solved the task.
+- */
++/** Shipment API integration tests. */
+ @SpringBootTest
+ @AutoConfigureMockMvc
+ class ShipmentControllerTest {
+@@ -81,4 +76,58 @@
+             .andExpect(jsonPath("$[0].shipmentId").value("S-a"))
+             .andExpect(jsonPath("$[1].shipmentId").value("S-b"))
+     }
++
++    @Test
++    fun `confirms a created shipment and persists it`() {
++        mockMvc.perform(createShipment("S-4")).andExpect(status().isCreated)
++
++        mockMvc.perform(post("/shipments/S-4/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-4"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++
++        mockMvc.perform(get("/shipments/S-4"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `confirming an already confirmed shipment succeeds without changing it`() {
++        mockMvc.perform(createShipment("S-5")).andExpect(status().isCreated)
++        mockMvc.perform(post("/shipments/S-5/confirm")).andExpect(status().isOk)
++
++        mockMvc.perform(post("/shipments/S-5/confirm"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.shipmentId").value("S-5"))
++            .andExpect(jsonPath("$.status").value("CONFIRMED"))
++    }
++
++    @Test
++    fun `refuses to confirm a cancelled shipment with the error envelope`() {
++        repository.save(
++            Shipment(
++                shipmentId = "S-6",
++                orderId = "O-1",
++                carrier = "DHL",
++                status = ShipmentStatus.CANCELLED,
++            ),
++        )
++
++        mockMvc.perform(post("/shipments/S-6/confirm"))
++            .andExpect(status().isConflict)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_ALREADY_EXISTS"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++
++        mockMvc.perform(get("/shipments/S-6"))
++            .andExpect(status().isOk)
++            .andExpect(jsonPath("$.status").value("CANCELLED"))
++    }
++
++    @Test
++    fun `refuses to confirm an unknown shipment with the error envelope`() {
++        mockMvc.perform(post("/shipments/S-missing/confirm"))
++            .andExpect(status().isNotFound)
++            .andExpect(jsonPath("$.error.code").value("SHIPMENT_NOT_FOUND"))
++            .andExpect(jsonPath("$.error.message").isNotEmpty)
++    }
+ }
+
+tokens used
+25 551
+DONE
+
+Implemented `POST /shipments/{shipmentId}/confirm`:
+
+- `CREATED` → persisted as `CONFIRMED`
+- Repeated confirmation remains successful and unchanged
+- `CANCELLED` → HTTP 409 using the existing API error envelope
+- Unknown ID → HTTP 404
+
+Added integration coverage in [ShipmentControllerTest.kt](/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt).
+
+Verification:
+
+- `./mvnw test`: **BUILD SUCCESS**
+- 17 tests passed
+- No static-analysis plugin is configured
+- No dependencies or `pom.xml` changes
+- Changes are confined to shipment production files and shipment tests
+- `git diff --check` passed
+  codex surface: systemSkills=imagegen,openai-docs,plugin-creator,review-agent,skill-creator,skill-installer; remotePlugins=none
+
+--- diff ------------------------------------------------------
+ .../com/unityinflow/sample/shipment/Shipment.kt    |  3 +-
+ .../sample/shipment/ShipmentController.kt          | 24 +++++++--
+ .../sample/shipment/ShipmentControllerTest.kt      | 61 +++++++++++++++++++---
+ 3 files changed, 75 insertions(+), 13 deletions(-)
+---------------------------------------------------------------
+    codex reported 25551 tokens (total only — no split, no cost)
+
+BE-003 evaluator 1.0.0
+  repo      /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5
+  service   sample-service
+  baseline  9652494fa571
+
+Changed files (3):
+  - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/Shipment.kt
+  - sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt
+  - sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt
+
+  AC1 build                          PASS
+  AC2 existing tests                 PASS
+      agent's own tests              pass (recorded, not an AC)
+  AC3/AC5 functional suite           PASS
+  AC4 error contract                 PASS
+  AC6 no new dependencies            PASS
+  AC0 task attempted                 yes (2 production file(s))
+  AC7 scope discipline               PASS
+
+  acceptance 7/7   exit 0
+  evaluation -> /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5/evaluation.json
+evaluator exit code: 0
+
+==> registering benchmark and run with the Observatory
+
+  run recorded:  http://127.0.0.1:8081/api/runs/18eac7c0-971f-496d-8868-8799d4fec2b5
+  UI:            http://localhost:5174/runs/18eac7c0-971f-496d-8868-8799d4fec2b5
+  trace search:  { resource.observatory.run.id = "18eac7c0-971f-496d-8868-8799d4fec2b5" }
+
+  schema policy: NOT RUN — no init-record check for this runtime/mode.
+  The delivered tool set is UNOBSERVED for this run: absent, not proven equal.
+  worktree kept at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5
+  isolated codex home kept at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5.codex-home
+  isolated HOME kept at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-18eac7c0-971f-496d-8868-8799d4fec2b5.home

@@ -466,6 +466,53 @@ batch manifest the 20-run ceiling counts, plus two direct hook invocations that 
 Expected 2–4 minutes. `estimatedCost` is `null` on every codex run ever recorded, so no dollar
 figure is available and none is quoted.
 
+#### DF1 result — 2026-09-27, all four held, and the conversion happened
+
+*Read by Opus 5 (claude-opus-5), autonomously, after the run. Measurement at
+`evidence/b10/df-20260927T163230Z/RESULT.md` (driver output plus a dated addendum); run record kept
+verbatim at `run-record.json` beside it. Prediction commit `5400278` at **`16:28:09Z`**, run
+`startedAt` **`16:32:31Z`** — **4 m 22 s** before, read from git and from the record, not from prose.*
+
+Run `18eac7c0-971f-496d-8868-8799d4fec2b5`, BE-003, `codex` / `gpt-5.6-sol` / `codex-cli 0.154.0`,
+key `EXP-B10-DF-BE003`, `--isolate-user-settings --keep`, evaluator **`exitCode 0`**, 3 changed
+files, 25 551 tokens, 135 s.
+
+| | verdict | what was measured |
+|---|---|---|
+| **DF-P1** | **HELD, on replacement evidence** | runner `rc = 0`, the run completed and the evaluator returned 0. **But the read-back string I registered does not exist on a real run** — `tracked overlay files in the setup commit: N of N` is printed by `--check-customization`, which is where the census saw it. The replacement is author decision 11 item 9 condition (a) and is stronger: the setup commit `9652494fa571`'s own tree lists **10 paths** including **`.claude/settings.json`**, byte-identical at `925a3823…`. **The guardrail's wiring file was committed into the run's evaluation baseline and the run proceeded.** |
+| **DF-P2** | **HELD, and not VOID** | `policy-events-*.jsonl` across `$TMPDIR` and `/tmp`: **0 before, 0 after, 0 new or grown**, by name *and* by line count. Trigger population **non-empty**: 3 Kotlin source files changed, all `Edit`/`Write` targets, all **allow** paths — so on claude the gate would have written three `allow` lines. Against B7's **20** treated logs / **0** control logs. |
+| **DF-P3** | **HELD twice** | the installed gate at B7's sha `f432abbc…` → exit **2** on `pom.xml`, exit **0** on `ApiError.kt`, **2** log lines. And then again **from the run's own worktree after the run**, exit **2** with a `deny` line. |
+| **DF-P4** | **HELD** | `instructionsHash` and `knowledgeHash` back at the two registered values, **unmoved by the tenth file**; `hooksHash` **`null`**; the only keys matching `/hook\|settings/i` anywhere in the record are `customization.hooksHash` and `runtime.userSettingsIsolated`. |
+
+**The conversion is done: prediction 2's second half is now L2.** It was *"`run-agent.sh` does
+nothing with `.claude/settings.json` on codex"* — a sentence derived by reading source, which §5
+makes **L3**. It is now: a hook **proved to execute**, at the sha B7 measured **17 of 17**, committed
+`100755` into the run's own baseline, still executable and still firing after the run, with a
+non-empty and correctly-typed trigger population, **logging nothing**. Both halves of *0 of 2
+measured L2 controls survive the port* are now proved by things that ran — the named-agent half by
+two executing refusals (census probes 3 and 4), the policy-gate half by this.
+
+**Six alternative explanations were closed by command, not by argument**, and they are tabulated in
+the RESULT addendum: not-installed, installed-non-executable (the mode bit no hash sees, stop 20's
+precedent), deleted-mid-run, broken-and-dying-silently, empty-trigger-population, and — the one a
+validator should ask hardest — **a detector that was never shown to fire**, closed by
+`verify-b10-df-guards.sh` case L, which plants a log, grows it, writes another, and requires the
+sweep to report `2`.
+
+**And the DF returned something nobody predicted, which is the part worth carrying.** In the *same
+run*, from the *same directory*, `.ai/knowledge/router.sh` **did** write its log — one `hit` with the
+task's own query — while `.ai/hooks/policy-gate.sh` wrote nothing. Two shell scripts, one overlay,
+one runtime: one ran, one did not, and the difference is **who invokes it**. The router is called by
+*the model*, having read about it in `AGENTS.md`; the gate must be called by *the runtime*.
+
+> **What ports is what the model can call. What does not port is what the runtime must call.**
+
+That is a better statement of P5 than *8 of 11* is, because it is a rule a reader can apply to a file
+they have not seen yet, and it also closes the alternative reading that `.ai/` simply does not
+function on codex. It is a co-variate of **one run**, labelled `n = 1` and stated as true of this run
+rather than as a property (§5). It was not registered and it is **not** this stop's verdict.
+
+
 ## Exit gate
 
 **From the build track:** ≥3 runs per runtime · compare quality, correction effort, usage **and
