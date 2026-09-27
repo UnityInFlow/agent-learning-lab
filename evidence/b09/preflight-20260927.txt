@@ -1,0 +1,21 @@
+row1 hook-test:
+opencode-review.test: 87 passed, 0 failed, 0 skipped.
+opencode-review.test: all 87 cases ran and behaved as specified.
+exit=0
+row4 verify-run-gate-checker:
+verify-run-gate-checker: all 13 cases behaved as specified.
+exit=
+row4 verify-sheet-category-checker:
+verify-sheet-category-checker: all 11 cases behaved as specified.
+exit=
+row4 verify-run-record-validator:
+ok    templates/run-record.yaml              exit 0
+exit=
+row4 verify-model-output-classifier:
+ok    acceptance/empty-body.md                   empty          exit 3
+exit=
+row7 board:
+  current   https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc  (prose 4a67c593ada2, built from 74e0965)
+  current   https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3  (prose 4a67c593ada2, built from 74e0965)
+check-board-freshness: 2 board(s) current at 4a67c593ada2
+exit=0
