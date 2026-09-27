@@ -56,3 +56,4 @@ evidence/b08a/preflight-launch.out
 # resurrect a lock for a pid that is long gone, which is the one input the batch driver's exit-8
 # guard trusts.
 evidence/*/.batch.lock
+evidence/b10/.df.lock
