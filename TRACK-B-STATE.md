@@ -107,7 +107,94 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running   # *** §0 BOUNDARY 3 FOR STOP 20 (B9). §4 STEPS 7 AND 8 ARE COMPLETE: 40 OF 40
+status: running   # *** §0 BOUNDARY 4 FOR STOP 20 (B9). THE STOP IS CLOSED AND §4 STEPS 9-14 ARE
+                  # COMPLETE EXCEPT THE BOARD REPUBLISH, WHICH IS THE AUTHOR`S BY DECISION 12 ITEM 4
+                  # AND WHOSE RED CHECK THAT DECISION SAYS IN TERMS NOT TO TREAT AS A BLOCKER. ***
+                  # THE SESSION ENDS ON THE BOUNDARY, NOT ON A HALT. blocked_on_author IS EMPTY and NO
+                  # §7 BULLET IS MATCHED. prompt_sha a47590a1e61d RE-COMPUTED THIS SESSION AND
+                  # UNCHANGED. All 22 validator files re-checked BY NAME, one grep each, and NONE IS
+                  # NEW (newest still 2026-09-08).
+                  #
+                  # *** THE NEXT STOP IS 21 (B10 - SECOND RUNTIME ADAPTER, key `EXP-B10-...`, issue
+                  # lab#35, card PVTI_lADOD-WaCM4Bhgoqzg4Ozz8) AND NOTHING OF IT EXISTS - §6 FORBIDS A
+                  # FUTURE STEP`S ARTIFACTS EARLY. OPENING IT AT §4 STEP 1 IS THE NEXT SESSION`S FIRST
+                  # ACT. *** Decision G skips Copilot; the second runtime is CODEX.
+                  #
+                  # *** THE VERDICT IS UNCHANGED BY EVERYTHING THIS SESSION DID: VOID, BOTH TASKS. ***
+                  #   E-022 (BE-003)  H = 2 of 10 -> row 0  VOID - THE TREATMENT WAS NOT TESTED
+                  #   E-023 (BE-004)  H = 1 of 10 -> row 1  VOID - same, at any M
+                  # Corpus KEPT in the repository, NOT promoted, NOT removed (REJECT needs H >= 3).
+                  #
+                  # *** §4 STEP 9 RAN AT n = 5 FOR $0.658351 AND FIVE OF SIX CLAUSES HELD. *** The
+                  # break was ONE MODE BIT: build/customizations/agent-v1.2-knowledge-noexec, router.sh
+                  # without +x, `diff -r` returns NOTHING, own key EXP-B9-DF-NOEXEC, BE-003 only.
+                  #   clause 1 HELD - THE REGISTERED DRIVER DOES *NOT* REFUSE IT. exit 0, output
+                  #     IDENTICAL to the measured overlay. knowledgeHash IS NOT A DELIVERY PROOF FOR AN
+                  #     EXECUTABLE ARTIFACT - both guards digest (path, content) and a mode bit is
+                  #     neither, while cp -R preserves modes. INVERSE OF STOP 17a, where the same class
+                  #     of guard refused at exit 6.
+                  #   clauses 2, 3, 5 HELD - knowledgeHash and instructionsHash at their registered
+                  #     values on 5 of 5; evaluator exit 0 on 5 of 5, changedFiles=3 every run.
+                  #   clause 4 HELD - unexecutable router: shell exit 126, ZERO log lines. Index
+                  #     removed: exit 3, ONE line, status=malformed. Hit: exit 0, one line.
+                  #   clause 6 - EXPECTATION REFUTED: 3 of 5 attempted, not 0-2. Fisher p = 0.2507 vs
+                  #     the registered arm`s 2 of 10, NOT separable, and no mechanism makes an
+                  #     unreadable mode bit raise an attempt rate. Registered as reported-only, stays so.
+                  #
+                  # *** THREE THINGS NOBODY PREDICTED, AND THE FIRST IS THE STOP`S LAYER-3 LABEL
+                  # *** DEMONSTRATED RATHER THAN ASSERTED.
+                  # (a) A RETRIEVAL THAT NEVER HAPPENED WAS TRUSTED. Runs 02 and 03 wrote
+                  #     `router.sh "..." 2>/dev/null || echo "No match found"` and got exactly
+                  #     "No match found", is_error FALSE. Run 02 then ls -la`d the directory, received
+                  #     `.rw-r--r-- router.sh` - THE MISSING MODE BIT, IN ITS OWN CONTEXT - and moved on
+                  #     without a word. THE IDIOM WAS INVITED BY THE OVERLAY CLAUSE`S OWN REASSURANCE
+                  #     that exit 2 "is an answer, not a broken command".
+                  # (b) RUN 05 CALLED THE ROUTER BY ABSOLUTE PATH AND THE HARNESS DENIED IT. The
+                  #     allowlist is Bash(.ai/knowledge/router.sh:*). SO router_denied=no ON 20 OF 20 IS
+                  #     NOT EVIDENCE THE ALLOWLIST IS ADEQUATE - only that no agent in twenty runs used
+                  #     that form. *** H = 2 IS A FLOOR, NOT A POINT ESTIMATE. *** (The driver`s detector
+                  #     was CHECKED and is SOUND: run 03 also had one denial and the detector correctly
+                  #     said `no`, because that denial was mvnw|tee and not the router.)
+                  # (c) EVERY estimatedCost/modelCalls/toolCalls IS NULL ON 5 OF 5, because this driver
+                  #     exported OTLP_GRPC_ENDPOINT *WITHOUT* the http:// scheme. The preflight printed
+                  #     `grpc localhost:4317 answered 200`; the registered batch logged
+                  #     `grpc http://localhost:4317 answered 200`. THE SAME 200, OPPOSITE OUTCOMES -
+                  #     curl normalises a scheme-less host:port and the exporter does not, PROVED BY
+                  #     DIRECT PROBE of both forms. otlp-preflight.sh`s own header says it exists
+                  #     because null overhead columns "happened to two batches"; IT IS NOW THREE AND
+                  #     THIS TIME THE CHECK WAS GREEN. Costs recovered from total_cost_usd in the
+                  #     stream-json: median $0.129793, total $0.658351, 65.5 % of the $1.0047 ceiling.
+                  # (d) THE CEILING COULD NOT HAVE FIRED: SPENT accumulates from the null field, so it
+                  #     stayed $0. A stop rule reading a field the run did not populate is not a control.
+                  #
+                  # *** THE CENSUS IS THE SESSION`S REAL FINDING AND IT COST NOTHING. *** H is
+                  # registered as "log non-empty", the log is written by the router and by nothing else,
+                  # SO H COUNTS ROUTER INVOCATIONS AND NOT CORPUS CONSULTATIONS. BE-003 run 06 read
+                  # index.yaml AND the summary by hand and never ran the router: router invocations
+                  # 2 of 10, corpus contact 3 of 10. On BE-004 the two are the SAME number, 1 of 10 -
+                  # the gap was looked for and was not there, and that negative is the result.
+                  # *** THE VERDICT DOES NOT MOVE AND THE COUNTERFACTUAL IS WRITTEN DOWN BESIDE IT: ***
+                  # H = 3 fires row 3, a REJECT whose disposition REMOVES the corpus. H was defined
+                  # before any data and §4 step 12 forbids editing it, ESPECIALLY when the edit changes
+                  # the verdict. THE VERDICT TURNS ON ONE RUN AND ON ONE WORD. Amendment 5, both files.
+                  #
+                  # *** §4a: 42 FINDINGS, ALL DISPOSITIONED, NO ACCEPT CLAIMED. *** codex panel, -n 2,
+                  # 24 031 and 24 735 bytes, 5 sections each, exit 0. The acceptance gate is
+                  # STRUCTURALLY unreachable on this panel (opencode-review.sh:264 vs :490), recorded at
+                  # §0a row 2c on 2026-09-26. 8 already fixed, 9 fixed additively by Amendment 6,
+                  # 7 DISPUTED WITH A CONCRETE REASON, 13 valid-and-unfixable because §4 step 12
+                  # protects the text, 5 to author_notes.
+                  # *** AND ONE THING SAID PLAINLY: THE REVIEWER HAD AMENDMENT 5. *** 077bacb landed
+                  # 09:11:05Z; the review started 09:11:56Z, FIFTY-ONE SECONDS LATER, and its findings
+                  # cite line 851, inside the amendment. Where it names the H ambiguity it is RESTATING
+                  # a finding already on record, NOT confirming it independently.
+                  #
+                  # *** THE BOARD CHECK IS THE ONLY RED ANYWHERE AND IT IS THE EXPECTED ONE. *** Nine
+                  # of ten green on c9393d8. THE DIGEST BOTH MARKERS MUST BE SET TO AFTER THE AUTHOR`S
+                  # REPUBLISH IS *** 8c372d41c484 ***, computed after the last HANDOFF.md edit. DO NOT
+                  # EDIT HANDOFF.md WITHOUT RE-DERIVING IT.
+                  # NOTHING IS RUNNING: no run-b9 driver, no codex, no opencode of ours, no lock file.
+# SUPERSEDED, kept not deleted: status: running   # *** §0 BOUNDARY 3 FOR STOP 20 (B9). §4 STEPS 7 AND 8 ARE COMPLETE: 40 OF 40
                   # SHEETS, THE REPORT, BOTH HAND RE-READS, AND BOTH VERDICTS WRITTEN INTO E-022
                   # AND E-023. THE SESSION ENDS ON THE BOUNDARY, NOT ON A HALT. ***
                   # blocked_on_author IS EMPTY, NO §7 BULLET IS MATCHED, prompt_sha a47590a1e61d
@@ -993,7 +1080,11 @@ prompt_sha: a47590a1e61d       # RE-COMPUTED 2026-09-26T08:3xZ at the top of thi
                                # MINE - do not treat it as an unexplained edit by someone else.
   # SUPERSEDED, kept not deleted: prompt_sha: 9c75ac3cbad3       # CHANGED at re-entry 2026-09-24T23:1xZ: 76a83fb7f604 -> 9c75ac3cbad3, and NOT by me - I did not touch the prompt. WHOLE PROMPT RE-READ IN FULL, sections 0-8 (§9 is the author's standing exclusion and this session's instruction repeats it). The change is not diffable: PROMPT-opus5-track-b.md lives at the workspace root, which is NOT a git repository, so there is no previous text to compare against. What I checked instead, by grep: §3 row 17a still carries the three opening conditions for B8a and carries NO adoption record for BE-005, and the string `STANDING INSTRUCTION` does not appear - so the author did NOT paste AUTHOR-DECISION-11-CONTINUE.md into §3. Recording decision 11 as ADOPTED in prompt §3 is therefore still owed and is on this session's list.
   # SUPERSEDED, kept not deleted: prompt_sha: 76a83fb7f604       # CHANGED at re-entry 2026-09-14T13:4xZ: 16ec79abbf55 -> 76a83fb7f604, AND I CHANGED IT MYSELF - the author`s instruction this session was to ADOPT AUTHOR DECISION 11 by copying AUTHOR-DECISION-11-DECOMPOSITION.md verbatim into PROMPT §3, so the prompt moved because of an edit I made under instruction, not because someone else edited it under me. The WHOLE prompt was re-read IN FULL BEFORE the edit, sections 0-8 (§9 excluded on the author`s standing instruction `ignore §9`), and the inserted block was then re-read as part of §3. VERBATIM WAS CHECKED, NOT ASSERTED: a python round-trip restored the inserted block to the source file byte-for-byte after undoing the ONLY change, heading depth (`#`->`###`, `##`->`####`, so the block nests inside §3 instead of opening a top-level section). Sections apply from stop 16 step 7 onward. Nothing already done under 16ec79abbf55 changes.  SUPERSEDED, kept not deleted: 16ec79abbf55       # CHANGED at re-entry 2026-09-10T09:2xZ: ba62c35dbbd2 -> 16ec79abbf55. The WHOLE prompt was re-read IN FULL before any other action, per §0, sections 0-8 (§9 is the validator`s and the author`s instruction this session was again "execute sections 0 through 8 ... Ignore section 9"). The visible change is §0`s new CONTEXT GUARD paragraph: hooks/context-guard.py is wired in .claude/settings.json at the workspace root since 2026-09-10 and REFUSES every tool except editing TRACK-B-STATE.md and git add/commit/push at 60% of the window, after warning at 50%. Nothing already done under ba62c35dbbd2 is changed; sections apply from stop 15 step 1 onward. SUPERSEDED, kept not deleted: prompt_sha: ba62c35dbbd2 CHANGED at re-entry 2026-09-09T05:12Z: 92d4f1e3332d -> ba62c35dbbd2. Whole prompt re-read IN FULL before any action, per §0 (§9 excluded on the author's explicit instruction this session). The additio
-prompt_read_at: 2026-09-27T05:5xZ   # read in full, sections 0-8; §9 skipped, it is the
+prompt_read_at: 2026-09-27T08:2xZ   # read IN FULL this session, sections 0 through 8; §9
+                  # SKIPPED because the user`s instruction says so and §9 is the validator`s, never the
+                  # builder`s, on its own work. prompt_sha a47590a1e61d re-computed BEFORE any other
+                  # action and UNCHANGED, so no `prompt changed` line is owed under §0.
+# SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-27T05:5xZ   # read in full, sections 0-8; §9 skipped, it is the
                   # validator's and the builder never runs it on its own work. prompt_sha
                   # RE-COMPUTED at the top of this session = a47590a1e61d, UNCHANGED.
 # SUPERSEDED, kept not deleted: prompt_read_at: 2026-09-26T08:3xZ   # read in full, sections 0-8 (§9 is the validator's and is
@@ -1054,7 +1145,16 @@ stop: 20           # B9 - KNOWLEDGE ROUTER AND HIT RATE. A *B STEP*, so the loop
                    # which IS origin/main - FETCHED AND COMPARED, NOT ASSUMED.
 # SUPERSEDED, kept not deleted: stop: 17a          # B8a - DECOMPOSITION DEPTH, on BE-005 ONLY (author decision 11 items 2-5), version-neutral, measured against v1.1. Spine position 17a, inserted after B8 and before 6A so no stop number moves. Prereqs 4B (stop 11) and B8 (stop 17) are both CLOSED AND MERGED. OPENED 2026-09-24 on branch stop17a/b8a-decomposition-depth, created off main at d4faa7e which IS origin/main (fetched and compared, not assumed).
   # SUPERSEDED, kept not deleted: stop: 17           # B8 - run state, repair limits, completion contract - v1.1. OPENED 2026-09-15 on branch stop17/b8-run-state-repair-limits. Track A prerequisite Phase 5B (stop 16) IS CLOSED AND MERGED. The B-step issue is **lab#33** - CHECKED AGAINST THE ISSUE LIST VIA THE API, NOT GUESSED (27=B2 ... 33=B8, 33 is open). Both tasks per author decision 9: BE-003 and BE-004.  SUPERSEDED, kept not deleted: 16           # Phase 5B - verification loops, bounded self-healing, completion. OPEN as of 2026-09-11T10:2xZ on branch stop16/phase-5b-verification-selfhealing. The spine`s closing condition is EVIDENCE ON DISK for Lab 5B.5 (obs#47, BLOCKED != FAILED). The Phase issue is lab#15 - CHECKED AGAINST THE ISSUE LIST, NOT GUESSED.  SUPERSEDED, kept not deleted: 16           # Phase 5B: reading, extract, Lab 5B.5 (obs#47, BLOCKED != FAILED). NOT YET OPENED - no stop-16 artifact exists and §6 forbids creating one early. STOP 15 IS CLOSED AND MERGED: PR lab#84 -> 2d201a5, nine checks green, lab#32 commented and CLOSED, card Done, both boards republished, check-board-freshness 2 board(s) current at 865f553b9c12. SUPERSEDED, kept not deleted: 15           # B7 - deterministic verification and policies. OPEN, at §4 steps 7-8. NOT CLOSED and NOT CLOSEABLE this session: the exit gate needs P7 (rubric quality) and P7 needs codex, which is refusing on auth. Steps 1-6 were done in earlier sessions; steps 7 and 8 are done in this one EXCEPT the registered sheets. stop: 15           # B7 - deterministic verification and policies. v1.0 CLOSES HERE, measured against B2 on BE-003 and against BE-004`s own B5 control on BE-004 (author decision 9); NEVER across tasks. NOT YET OPENED. Stop 14 CLOSED AND MERGED: PR lab#82 -> 259c996, nine checks green, lab#7 COMMENTED AND LEFT OPEN (5A.2-5A.7 deferred), card Done, both boards republished, check-board-freshness 2 board(s) current at 32590f81db10. SUPERSEDED, kept not deleted: 14           # Phase 5A - guardrails: reading, extract, Lab 5A.1 (remove a capability before policing it). NOT YET OPENED. STOP 13 IS CLOSED AND MERGED: PR lab#80 -> 4b21650 (nine checks green) plus the follow-up lab#81 -> 4eb5a59; lab#31 commented and CLOSED, card moved to Done, both boards republished and check-board-freshness reports 2 board(s) current at cd59aacd084f. SUPERSEDED, kept not deleted: 13           # B6 - ONE specialist skill, chosen from a failure MEASURED in B2-B5, on BOTH tasks (author decision 9). NOT YET OPENED. Stop 12 CLOSED and MERGED: PR lab#79 -> 2e32f214, nine checks green, lab#30 commented and closed, card Done. SUPERSEDED, kept not deleted: 12           # B5 - workflow phases, on BOTH BE-003 and BE-004 (author decision 9). OPEN. Steps 1-3 done: workbook opened and issue lab#30 commented at 05:19:39Z, extract and layer labels at 1031a99, and the two prediction registrations at 5777b07 (E-010, BE-003) and ccd5c0c (E-011, BE-004).
-loop_step: 8-COMPLETE   # *** §0 BOUNDARY 3: "sheets, report and hand re-read on disk, values in
+loop_step: 14-COMPLETE   # *** §0 BOUNDARY 4: "merged, HANDOFF updated, boards republished". ***
+                  # Steps 9, 10, 11, 12, 13, 13a and 14 all ran this session. Step 10 was NOT re-decided
+                  # - it was already written in both experiments under row 0 / row 1 and re-deciding it
+                  # would be editing a registered disposition. Step 12 is satisfied by construction:
+                  # nothing above any amendment line was rewritten, no run folder, sheet or evidence
+                  # file was deleted, and the ONE relocation (five self-labelled stub sheets out of
+                  # findings/codex) was a MOVE with a README, not a deletion.
+                  # THE ONLY PART OF STEP 14 NOT DONE IS THE BOARD REPUBLISH, which decision 12 item 4
+                  # assigns to the author`s interactive session and explicitly de-gates.
+# SUPERSEDED, kept not deleted: loop_step: 8-COMPLETE   # *** §0 BOUNDARY 3: "sheets, report and hand re-read on disk, values in
                   # the state file". ALL THREE ARE ON DISK AND THE VALUES ARE IN last_verified. ***
                   # The next session opens at §4 STEP 9 (the deliberate failure), whose subject is
                   # now decided by the batch, and runs through step 14 - that is boundary 4.
@@ -1295,7 +1395,20 @@ loop_step: 8-COMPLETE   # *** §0 BOUNDARY 3: "sheets, report and hand re-read o
   # n=7 on the same reasoning and decision 9 registered it in advance. NEXT IS §4 STEP 7, SCORING.
   # SUPERSEDED, kept not deleted: 6-RUNNING   # §4 STEP 6, THE REGISTERED BATCH, IS RUNNING AT THIS WRITE under nohup caffeinate -i evidence/b08/run-b8-batch.sh. READ ITS MANIFEST BEFORE DECIDING ANYTHING IS DEAD and NEVER re-run a run id that is in it - a duplicate benchmark run is evidence that cannot be deleted. The driver and its 12-case guard fixture set are committed at 119ffa0.  SUPERSEDED, kept not deleted: 5-COMPLETE   # §4 STEP 5 IS DONE. BOTH PREFLIGHT PAIRS PASSED ALL FIVE DELIVERY CONDITIONS AND ARE COMMITTED. NEXT IS §4 STEP 6, THE BATCH - §0 BOUNDARY 2 IS AFTER IT. NOTHING IS RUNNING.  SUPERSEDED, kept not deleted: 5-IN-PROGRESS   # §4 STEP 4 IS DONE AND COMMITTED (3669d93). STEP 5 PREFLIGHT IS STARTING. The two FREE --check-customization probes ALREADY PASSED and their values are registered in E-018/E-019: treated 7 of 7 overlay files tracked, instructionsHash sha256:a94237242e8c1308fb1d434a06a03463; control 4 of 4 tracked, instructionsHash NULL (verify-v1.0 carries no CLAUDE.md - the registered control assertion was wrong about that and carries a dated correction). agentHash IDENTICAL in both arms.  SUPERSEDED, kept not deleted: 3-COMPLETE   # §0 BOUNDARY 1. Steps 1 (workbook Goal/Required reading/Extract, check-links, lab#33 comment, card In Progress read back), 2 (design + layer labels, CORRECTED before the build - see in_flight) and 3 (E-018 and E-019, the prediction commit) are DONE AND COMMITTED. STEP 4 (build the overlay and the verifiers) IS NOT STARTED and no overlay directory exists.  SUPERSEDED, kept not deleted: 1   # §4 step 1 - Goal, Required reading, Extract in phases/b08-run-state-repair-limits/README.md, check-links, lab#33 comment, card to In Progress. The workbook README is the 2026-08-10 SCAFFOLD that has always been on main - filling it is not a §6 violation; creating a stop-17 experiment file before step 3 would be.  SUPERSEDED, kept not deleted: census-COMPLETE   # NOT a §4 step. Stop 16`s §4 is complete through step 14 (§0 boundary 4). The decision-11 census ran at the boundary and is committed on branch census/decision-11. STOP 17 IS NOT OPENED.  SUPERSEDED, kept not deleted: 14-COMPLETE   # §0 BOUNDARY 4 for stop 16. Every step of §4 is done: 1-13 in earlier sessions, 13a (BOTH review rounds dispositioned per finding in the PR bodies) and 14 (both PRs merged, the step-14 tail PR merged, HANDOFF, boards, lab#15 comment, card Done) in this one. THE CENSUS IS NOT A §4 STEP and stop 17 is NOT OPENED - §6 forbids a future step`s artifacts early.  SUPERSEDED, kept not deleted: 14-PRs-OPEN   # §4 steps 1-13 and 13a are DONE. Step 14 is DONE EXCEPT THE MERGES: HANDOFF written, findings/track-b-2026-09-14.md written, BOTH BOARDS REPUBLISHED WITH REAL CONTENT (check-board-freshness exits 0, `2 board(s) current at 94e71935a853`), and BOTH PRs ARE OPEN AND GREEN-OR-PENDING: lab#85 and obs#77. WHAT REMAINS: the merges, the §4a per-finding dispositions in lab#85`s body, editing obs#77`s body to cite the SUCCESSFUL round-2 re-run, and lab#15`s closing comment.  SUPERSEDED, kept not deleted: 13a-REVIEW-ROUNDS   # §4 steps 1-13 are DONE AND COMMITTED for stop 16, and so is the whole of step 14 EXCEPT THE TWO PRs: HANDOFF is written, findings/track-b-2026-09-14.md is written, BOTH BOARDS ARE REPUBLISHED WITH REAL CONTENT and check-board-freshness exits 0 at `2 board(s) current at 94e71935a853`. WHAT REMAINS: (a) §4a round 2 - THE TOOLS REVIEW STALLED, 916 bytes and 0 finding sections on findings/opencode/review-classify-permission-block-20260914T142155Z.md, which §4a calls a STALL AND NOT A FINDING; re-run it on -P codex or record it as not-sent and NAME IT IN THE PR BODY. (b) the LAB PR. (c) the OBSERVATORY PR - agent-observatory branch stop16/permission-block-classifier is PUSHED at 142e4a4 with NO PR OPEN, and forgetting that repo is precisely the stop-11 failure HANDOFF records. (d) lab#15 comment + card. ROUND 1 RETURNED ACCEPT: findings/opencode/review-E-017-...-20260914T141448Z.md, 48089 bytes, 89 finding subsections, gate ACCEPT, over E-017 + the workbook + the replay and delivery READMEs.  SUPERSEDED, kept not deleted: 8-TO-13-DONE   # §4 steps 7, 8, 9, 10, 11, 12 and 13 are DONE AND COMMITTED for stop 16. Step 7: the gate over all 20 (11 pass, 9 refused) and the registered hand-vs-sheet pairing on 79c7d7c6 (hand 1 at 3854aad BEFORE any sheet existed; codex sheet 1, same missing clause). Step 8: E-017`s post-run sections - P1 VOID by decision-rule row 4, P2 refuted on arm D, P3 refuted at 5 of 10 splitting by channel, P4 held, P5 half held half unanswerable, P6 held. Step 9: the deliberate failure - 4 of 5 predictions held and the 5th was refuted in the good direction. Step 10: classifier KEPT ON DISK, NOT PROMOTED. Step 11: learning + exit gate (2 of 6 met, 4 deferred and left UNTICKED). Step 12: nothing edited. Step 13: the §5 table, 14 clauses. WHAT REMAINS: 10 codex sheets in flight (subagent), then §4a review rounds and §4 step 14 (PR, HANDOFF, boards, lab#15 comment - the Phase issue STAYS OPEN, labs 5B.1-5B.4 deferred).  SUPERSEDED, kept not deleted: 6-COMPLETE   # §0 BOUNDARY 2. All 20 runs recorded, all 20 worktrees kept and each carries evaluation.json (checked by stat, not inferred from --keep). Steps 7-14 are NOT started.  SUPERSEDED, kept not deleted: 6-BATCH-LIVE   # §4 STEP 6, the resume half (indices 21-30). NOT COMPLETE. Steps 1-5 are done and committed (fc0a1e9, 8c45eb1, 02690e2, ee05c0e, 3eac200). Step 7 is NOT started and must not be until the batch ends.  SUPERSEDED, kept not deleted: 3-COMPLETE   # §0 BOUNDARY 1 for stop 16 - `after §4 step 3: experiment file written and its prediction commit on the branch`. Steps 1, 2 and 3 are done and committed on stop16/phase-5b-verification-selfhealing. THE PREDICTION COMMIT IS 02690e265e9071d6bace5d2e8f2587a1f2386694 at 2026-09-11T12:38:28+02:00 = 10:38:28Z, AND ZERO RUNS EXIST ON THE KEY - checked against the API, not asserted: EXP-5B5-PERMISSION-BLOCK-BE003 returns 0 runs. NO BENCHMARK RUN HAS BEEN STARTED. Steps 4-14 are NOT started.  SUPERSEDED, kept not deleted: 1   # §4 step 1 for stop 16, started 2026-09-11T10:2xZ after the §0a preflight came back all-rows-pass. NOTHING of steps 2-14 exists.  SUPERSEDED, kept not deleted: 14-COMPLETE   # §0 BOUNDARY 4. Every step of §4 for stop 15 is done: 1-6 in earlier sessions, 7 and 8 finished here once codex returned, then 9 (both deliberate failures), 10 (KEEP, with the reason recorded as an argument rather than a measurement), 11 (learning block + exit gate), 12 (nothing edited), 13 (§5 validation table), 13a (the review round on the codex panel, all 41 findings answered) and 14 (PR merged, HANDOFF, boards, issue, card). STOP 16 IS NOT OPENED and no stop-16 artifact exists - §6 forbids a future step`s artifacts early. SUPERSEDED, kept not deleted: 13a-REVIEW-ROUNDS   # §4 steps 7, 8, 9, 10, 11, 12 and 13 are ALL DONE AND COMMITTED. P7 is measured on the registered scorer on both tasks; the two deliberate failures are run; the exit gate, the learning block and the §5 validation table are written; HANDOFF and findings/track-b-2026-09-11.md are written. WHAT REMAINS: the §4a review rounds (running, on the CODEX panel because ollama is at its weekly limit again) and §4 step 14 - PR, boards, lab#32. SUPERSEDED, kept not deleted: 7-SCORING-WITH-THE-REGISTERED-SCORER   # §4 step 7, the registered (codex) half, STARTED 2026-09-11T08:0xZ now that codex answers. The gate, both hand re-reads, the report and all 34 second-reader (deepseek) sheets were already on disk and committed before this session; NOTHING THERE IS REDONE. §4 step 7`s ordering requirement - write a hand value before opening a sheet - WAS ALREADY SATISFIED at 0c5651a and is not re-taken. SUPERSEDED, kept not deleted: 7-8-COMPLETE-EXCEPT-THE-REGISTERED-SHEETS   # §0 BOUNDARY 3, FINAL FORM 2026-09-11T07:5xZ. THE GATE, THE HAND RE-READS, THE REPORT, verify-sh OVER ALL 34 WORKTREES AND ALL 34 SECOND-READER SHEETS ARE ON DISK AND COMMITTED, and their values are in this file. THE REGISTERED (codex) SHEETS DO NOT EXIST and cannot be made to exist by me. P1-P6 ARE MEASURED AND ALL SIX HELD on both tasks; P7 IS DEFERRED. Steps 9-14 are NOT started. SUPERSEDED, kept not deleted: loop_step: 7-8-PARTIAL   # §0 BOUNDARY 3 REACHED 2026-09-11T07:3xZ in the form §4c step 3 allows: "sheets, report and hand re-read on disk, values in the state file" - the HAND RE-READS and the REPORT are on disk and committed, the SECOND-READER sheets are on disk, and the REGISTERED (codex) sheets DO NOT EXIST because codex is down on auth. §4c step 3 forbids answering the exit gate without them, so steps 9-14 are NOT started. loop_step: 6-COMPLETE   # §0 BOUNDARY 2 REACHED 2026-09-10T21:0xZ: `after §4 step 6 - every run of the batch recorded, run ids and worktree paths in the state file`. THE BATCH IS OVER AND IT ENDED BY ITS OWN GUARD, NOT BY A CRASH AND NOT BY A HAND: `ABORT: claude moved mid-preflight: 2.1.267 -> 2.1.268`. NOTHING WAS SCORED THIS SESSION - scoring is §4 step 7 and belongs to the next one. SUPERSEDED, kept not deleted: 6   # §4 STEP 6 RE-LAUNCHED 2026-09-10T18:37:31Z UNDER A NEW TAG, batch-20260910T183731Z, pid 72988 under `nohup caffeinate -i`. THE MACHINE WAS MEASURED BEFORE THE MONEY WAS SPENT rather than declared quiet: a full `./mvnw -q -o test` in a KEPT WORKTREE of the excluded batch took 10.2s wall at 115%% CPU, `top` reported 33.3%% idle, and load fell 202 -> 7.26/12.43/13.92 over the three windows. memcore-server is DOWN to 4.5%% CPU from 189.7 and memtrace to 0.3 from 106.9 - the two processes the previous session named as the dominant load. THE PROBE IS THE POINT: the excluded batch died because an agent could not get CPU for `./mvnw test` and burned 13 Bash calls fighting it, so the thing to measure is Maven wall time, not a load average. NONE of the six excluded ids is re-used; the new manifest starts empty. SUPERSEDED, kept not deleted: 6   # §4 STEP 6 STARTED AND WAS STOPPED BY HAND after 5 of 40 runs. NOT A HALT, NOT A FAILURE OF THE TREATMENT: the MACHINE stopped being a measurement environment (load average 201.97). ALL SIX RUN IDS EXCLUDED BY NAME, folders kept, see evidence/b07/batch-20260910T132311Z/EXCLUSIONS.md. SUPERSEDED, kept not deleted: loop_step: 6   # §4 STEP 6, THE REGISTERED BATCH, LAUNCHED 2026-09-10T13:2xZ. STEP 5 IS COMPLETE AND PASSED ON
 # SUPERSEDED, kept not deleted: loop_step: 7   # §4 STEP 7 HALTED PART-WAY 2026-09-06T13:2xZ. THE GATE HALF IS COMPLETE AND API-INDEPENDENT: check-run-gate.sh on each run's on-disk evaluation.json gives 20 ADMITTED, 0 REFUSED. THE SCORING HALF IS BLOCKED: no run records, so no codex sheets, so no O7. The hand re-read REQUIRED BEFORE ANY SHEET IS OPENED IS DONE AND COMMITTED (5f1b83d, run 207ff23d, maintainability = 0 with path:line reasoning), so whenever scoring becomes possible the ordering discipline is already satisfied and must not be redone.
-branch: stop20/b9-knowledge-router (agent-learning-lab), created 2026-09-26 off main at
+branch: stop20/b9-knowledge-router (agent-learning-lab) - PR lab#128, MERGED THIS SESSION.
+  Head at merge 977a9ea. Six commits added this session on top of 292e31a:
+    fd5dcae  §4 step 9 THE PREDICTION, committed BEFORE the break and before any run
+    5db4043  the break, its driver, its 16-case fixture set, and two defects the fixtures found
+    077bacb  Amendment 5 in both experiments + Lab B9.1 answered
+    20e7c9e  instrument fix 1 of 3: the preflight`s own experiment key (-PF)
+    26fee92  §4 steps 9-13: the DF result, the exit gate, the Commit block, the §5 table
+    3409adb  §4 step 13a: 42 findings dispositioned, Amendment 6, the scorer proved after change
+    c9393d8  HANDOFF.md: position 20 of 28, stop 20 closed
+    977a9ea  findings/track-b-2026-09-27.md - the §5 row and the five things to carry
+  NOTHING WAS COMMITTED TO ANY main OUTSIDE A PR. No other repo was touched: the OTLP-preflight
+  scheme fix belongs in agent-observatory and is in author_notes, NOT opened - a third repo`s PR at
+  this boundary is scope the stop does not need, and saying so is the honest version of not doing it.
+# SUPERSEDED, kept not deleted: branch: stop20/b9-knowledge-router (agent-learning-lab), created 2026-09-26 off main at
         1d9e26afff689af386e886ae34ca8969fcab9f05 (= origin/main, verified equal before branching),
         PUSHED and tracking origin. Two commits on it: c90b157 (§4 steps 1-2) and ef2c6c0 (§4 step 3,
         the prediction commit). NO PR EXISTS YET - a PR is §4 step 14, at boundary 4.
@@ -1351,7 +1464,35 @@ branch: stop20/b9-knowledge-router (agent-learning-lab), created 2026-09-26 off 
         commit of this session lands here. NO PR IS OPEN YET - a PR is §4 step 14, at boundary 2.
 # SUPERSEDED, kept not deleted: branch: stop17a/b8a-decomposition-depth (agent-learning-lab), created 2026-09-24 off main at d4faa7e, which IS origin/main - fetched and compared, not assumed. NOTHING IS ON THIS BRANCH YET beyond this state write. The author's CONTINUE instruction forbids committing to ANY main outside a PR, state-file-only commits included, so every commit of this session lands here.
   # SUPERSEDED, kept not deleted: branch: stop17/b8-run-state-repair-limits (agent-learning-lab), created 2026-09-15 off main at 3a0f61f, which is origin/main - fetched and compared, not assumed. The census branch census/decision-11 and all stop-16 branches are MERGED, not deleted.  SUPERSEDED, kept not deleted: census/decision-11 (agent-learning-lab), off main at 5bd91d3 — the census PR. All stop-16 branches are merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab) - stop16/phase-5b-verification-selfhealing and stop16/handoff-and-boards are MERGED, not deleted; agent-observatory stop16/permission-block-classifier is MERGED, not deleted.  SUPERSEDED, kept not deleted: stop16/phase-5b-verification-selfhealing (agent-learning-lab), created 2026-09-11T10:24:52Z off main at 2d201a5. The stop-15 branch is merged, not deleted.  SUPERSEDED, kept not deleted: main (agent-learning-lab), clean, at 2d201a5. THE STOP-15 BRANCH stop15/b7-verification-policies IS MERGED, not deleted. Fifteen commits on it this session. SUPERSEDED, kept not deleted: stop15/b7-verification-policies (agent-learning-lab). SIX NEW COMMITS THIS SESSION on top of 96be718: 82685e1 the n=7 decision and the n=7 detection limits registered before any sheet; 0c5651a the two hand re-reads, committed while zero sheets existed for the batch; 8cf8942 P1-P6 measured into E-015 and E-016, P7 deferred; 493e1ba step 8 artefacts (verify-sh over 34 worktrees, gate from two sources, the baseline-report defect); plus the probe-file rename and this state write. branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, PUSHED. FIVE COMMITS: 32d99cc step 1 (workbook Goal/Required reading/Extract; lab#32 commented; card In Progress), a921443 the OTHER session`s state hunks + its §7 halt, 674d8a9 step 2 (design + the census + the feasibility probe), 344bc97 the halt discharge, ea7b1d2 THE PREDICTION COMMIT at 2026-09-10T11:51:08+02:00 = 09:51:08Z. SUPERSEDED, kept not deleted: branch: stop15/b7-verification-policies (agent-learning-lab), created 2026-09-10T09:32:29Z, THREE COMMITS: 32d99cc (step 1), a921443 (the driver session`s state hunks + its §7 halt), 674d8a9 (step 2). NOT PUSHED YET. SUPERSEDED, kept not deleted: branch: NONE - stop14/phase-5a-guardrails IS MERGED (
-in_flight:
+in_flight: []   # *** EMPTY. NOTHING IS RUNNING AND NOTHING IS UNMERGED except this file`s own PR. ***
+  # Verified by narrow pgrep at the close: no run-b9 driver, no run-agent.sh, no codex exec, no
+  # opencode of ours, and evidence/b09/.df.lock and .batch.lock are both GONE.
+  # ---- WHAT RAN AND FINISHED THIS SESSION, IN ORDER ----
+  # - §0a preflight re-run IN FULL at the author`s standing instruction for this session,
+  #   08:20-08:42Z. SIX ok, ONE FAIL. The FAIL is row 2 (the live opencode review): 903 bytes, ONE
+  #   `## ` section, exit 1 - a STALL on the default ollama-cloud panel, which is on a weekly limit.
+  #   IT REPRODUCES 05:55Z EXACTLY and it is the third consecutive session to see it. NOT a §7 halt:
+  #   §0a`s halt sentence is scoped to STARTING STOP 4 with an unproven review harness, and the
+  #   consequence was ACTED ON at step 13a by routing to `-P codex`, which returned two 24k files.
+  #   ROW 3 CHANGED VERDICT SINCE 06:04Z: the FIXTURE route now works (exit 0, 23s, four categories,
+  #   cell-identical to the 06:04Z and 2026-09-26 sheets) where at 06:04Z it wedged at 0.0 % CPU for
+  #   an hour. Both observations are recorded; neither is inferred from the other.
+  # - the deliberate-failure batch, detached through evidence/b09/detach.py (sid == pid CHECKED in
+  #   launch-2.out), 09:03:20Z -> 09:19:37Z, exit 0, 5 of 5 rows.
+  # - ONE FAILED LAUNCH BEFORE IT, batch-20260927T085830Z, KEPT with FAILED-LAUNCH.md: five rows of
+  #   none/rc=1/null in TWO SECONDS under the message `done: 5 runs`, because API was assigned and
+  #   not exported. NOTHING RAN AND NOTHING WAS SPENT (no run id, no worktree, no knowledge log, and
+  #   the API`s newest run id was unchanged).
+  # - the §4a review, one round, `-P codex -n 2`, both experiment files, 42 findings, exit 0 both.
+  # - one real codex scoring call AFTER the scorer was modified, to prove it still works.
+  # - PR lab#128 opened, CI waited for in full, merged at bff2f4a.
+  # ---- ONE PROCESS NOTE THAT COST NOTHING BUT WILL COST SOMETHING LATER ----
+  # `LC_ALL=C pgrep -fl opencode` at the top of this session matched a FOREIGN opencode belonging to
+  # ~/Documents/workspace-1-ideas/ai-agents/books and printed its entire prompt and diff - about 60
+  # lines - into the builder`s context for no information. USE A NARROW PATTERN. The foreign process
+  # was left alone, correctly, and it is also a standing STALL RISK for §4a: concurrent opencode
+  # calls are this machine`s known stall mode, which is one more reason step 13a went to codex.
+# SUPERSEDED, kept not deleted: in_flight:
   - "NOTHING IS RUNNING at this boundary, checked by name rather than by absence of noise:
     `LC_ALL=C pgrep -fl 'score-b9-batch|run-agent.sh|detach.py|codex exec|opencode'` returns
     nothing of ours, and evidence/b09/.batch.lock is gone. The scoring driver`s own last line is
@@ -2543,7 +2684,52 @@ last_verified_addendum_second_reader: "2026-09-25, LATER THE SAME DAY, §4 STEP 
   correct about the same code because they ask different questions - which is why the exit gate must name
   which question it answers."
 
-last_verified: "2026-09-27T08:28-09:10Z, STOP 20 §4 STEPS 7 AND 8 COMPLETE. Commits on
+last_verified: "2026-09-27T08:20-09:55Z, STOP 20 §4 STEPS 9 THROUGH 14 COMPLETE AND MERGED.
+  PR lab#128 -> bff2f4a278f2432230d65e7a83c9948c00fee0a7, merge commit, NOT squash. Nine of ten
+  checks green on 977a9ea; the one red is `a published board does not outlive its source`, the
+  EXPECTED one, author`s by decision 12 item 4. lab#34 CLOSED `completed` with the §5 row as a
+  comment (id 5854722085); its card PVTI_lADOD-WaCM4Bhgoqzg4OzwY moved to Done AND READ BACK.
+  lab#35 (B10) card still Todo, correctly - stop 21 is not opened.
+  ---- WHAT WAS MEASURED, WITH ITS n ----
+  DELIBERATE FAILURE batch 20260927T090320Z, n = 5, BE-003, key EXP-B9-DF-NOEXEC, $0.658351 of a
+  $1.0047 ceiling. Run ids 14fd7ef4 f6602243 61a677b5 93fa27f1 d5231fd3. Per run: eval 0 on 5 of 5,
+  changedFiles 3 on 5 of 5, knowledgeHash sha256:0770219ae7f4281a80071d78dadea285 on 5 of 5,
+  instructionsHash sha256:ebf489800a60a156986f98ea4f127848 on 5 of 5, agentHash
+  sha256:b3450564b6f32d6193e8580db766210e on 5 of 5, log_state ABSENT/0 on 5 of 5.
+  router_exec 1 on runs 02, 03, 05 and 0 on 01, 04. router_denied YES on run 05 ONLY.
+  Costs from total_cost_usd in the stream-json (the API`s estimatedCost is NULL on all five):
+  0.114885 / 0.145589 / 0.143896 / 0.124188 / 0.129793; median 0.129793, +1.93 % on the treated
+  median 0.127337. turns 22 / 26 / 25 / 24 / 23.
+  CLAUSE 1: evidence/b09/deliberate-failure/clause1-guards-broken-overlay.txt exit 0 AND
+  clause1-guards-measured-overlay.txt exit 0 - IDENTICAL. CLAUSE 4:
+  clause4-log-blindness.txt - exit 126 / 0 lines, exit 3 / 1 line status=malformed, exit 0 / 1 line
+  status=hit; the three exit codes captured a second time without a pipe because the first tee`d
+  block lost them to PIPESTATUS inside a subshell, AND THAT IS RECORDED IN THE FILE RATHER THAN HIDDEN.
+  CENSUS on the registered batch: BE-003 router-only 02 and 09, DIRECT-ONLY-invisible-to-H 06,
+  no-contact the other seven; BE-004 router-only 08, no-contact the other nine. On the DF batch:
+  router-only 02/03/05, no-contact 01/04, ZERO direct reads.
+  CONTEXT METRICS, evidence/b09/reports/context-metrics.txt, n = 10 per arm per task, off the
+  ARCHIVED records: BE-003 inputTokens +7.06 %, outputTokens -6.42 %, cachedTokens +6.63 %,
+  cacheCreationTokens +1.57 %; BE-004 -5.50 %, +5.27 %, +1.09 %, +2.83 %. reportedTotalTokens NULL
+  on every claude run BY CONSTRUCTION (written only from codex`s log, run-agent.sh:1240-1245).
+  ---- FIXTURE SETS, ALL RE-RUN THIS SESSION ----
+  verify-b9-df-guards.sh 16 of 16 (case A re-derived BY HAND); verify-corpus-access-census.sh 17 of
+  17 (case E re-derived by hand against a naive grep that finds 2 hits on the same file);
+  verify-codex-score-timeout.sh 11 of 11; verify-b9-preflight-guards.sh 12 of 12 (case L shown to
+  refuse by mutation: B9_PREFLIGHT_KEY_SUFFIX=-XX turns it to FAIL); verify-run-gate-checker 13,
+  verify-sheet-category-checker 11, verify-run-record-validator, verify-model-output-classifier,
+  verify-knowledge-router 15 cases/18 assertions, verify-score-driver-guards 13 of 13.
+  ---- THE MODIFIED REGISTERED SCORER WAS PROVED, NOT ASSUMED ----
+  findings/codex/score-good-nested-ifs-20260927T092842Z.yaml, exit 0, four categories, CELL FOR CELL
+  IDENTICAL to the pre-change 20260927T084020Z sheet on the same fixture (2 / 0 / null / 2), and it
+  records wall_budget_s: 2700 in its own provenance. shellcheck on tools/codex-score.sh reports the
+  SAME finding set before and after the change (one pre-existing SC2001 style note at line 122,
+  present at HEAD, not introduced and not fixed - out of scope for an additive instrument fix).
+  ---- INDEPENDENCE, RE-RUN AND PASTED INTO THE WORKBOOK RATHER THAN DESCRIBED ----
+  jq over the 40 archived records returns exactly TWO rows, twenty each: v1.1 instructionsHash with
+  no knowledgeHash, and v1.2 instructionsHash with the registered corpus sha. agentHash and
+  runtime.model identical on all 40. Benchmarks 2fc445d."
+# SUPERSEDED, kept not deleted: last_verified: "2026-09-27T08:28-09:10Z, STOP 20 §4 STEPS 7 AND 8 COMPLETE. Commits on
   stop20/b9-knowledge-router: 37aacb1, c05f5ab, 597dceb, 4d5d1eb, 3c9d7e8, 77940ef, 0bc890d.
   (a) SCORING: finished 2026-09-27T08:28:04Z, exit 0, 40 of 40 rows in
       evidence/b09/batch-20260926T151319Z/codex-sheets.tsv. EVERY sheet complete at four
@@ -3148,7 +3334,53 @@ last_verified: "2026-09-27T08:28-09:10Z, STOP 20 §4 STEPS 7 AND 8 COMPLETE. Com
   aggregates by experimentKey and has NO exclusion mechanism. No number in either experiment file comes from
   it. (9) TWO PREFLIGHT ROWS REPORTED AS FAILURES HAVE ONE CAUSE between them, codex auth, and one of the
   two was not a failure at all. SUPERSEDED, kept not deleted: THE REGISTERED BATCH RAN AND ENDED BY ITS OWN GUARD, AND EVERY CLAIM BELOW WAS RE-DERIVED RATHER THAN ACCEPTED. 34 runs, BE-003 10+10 complete, BE-004 7+7, every row make_rc=0 and evaluator_exit=0. The abort is `claude moved mid-preflight: 2.1.267 -> 2.1.268` and it is the instrument WORKING - runtime version is a registered variable and B4`s batch 1 died of the same thing. ALL 34 RUN RECORDS read from the API: version 2.1.267 on 34 of 34, model claude-haiku-4-5-20251001 on 34 of 34, benchmark sha eea144ef on 34 of 34, evaluator 1.0.0 on 34 of 34; I re-read the three that decide it MYSELF (the first run, and both arms of the last completed cell) and `claude --version` now returns 2.1.268, so the boundary is where the guard says. TREATMENT DELIVERY IS PER-RUN, NOT PREFLIGHT-ONLY: policy_lines == edits EXACTLY on all 17 treated runs (3/3, 4/4, 5/5, 7/7, 10/10), ABSENT/0 on all 17 controls, agentHash identical on both arms. TWO THINGS I NEARLY GOT WRONG AND CAUGHT BY CONTRADICTION: the 20:29Z stall alarm at load 147 looked like the batch that died at 202, but the stalling run had the SAME SHAPE as a healthy one (9 mvnw, 26 tool_use, ~270 KB) and grew 62 KB in a timed 30 s window, so nothing was excluded; and `make smoke` reported 0 of 18 while my own curl to the API returned 200 - the Makefile does not derive its URLs from API_PORT, so the row was testing the default ports, not this stack. Pointed at the tunnel it is 10 of 18. ALSO: five validator passes (2026-09-04 #5-#9) were on disk and had NEVER been listed in validation_processed; all five read in full, none marks a stop NOT CLOSED, and the one correction still owed - pass 6`s 8.4, the `n = 3` per cell qualifier - is now applied additively in both files that quote it."
-next_action: "*** §0 BOUNDARY 4 FOR STOP 20: §4 STEPS 9 THROUGH 14. NOTHING IS RUNNING AND
+next_action: "*** STOP 20 IS CLOSED AND MERGED. THE NEXT ACT IS §4 STEP 1 OF STOP 21 (B10 -
+  PORT THE ADAPTER TO A SECOND RUNTIME) AND NOTHING OF IT EXISTS. *** §6 forbids a future step`s
+  artifacts early; do not create a workbook, an experiment, an overlay or a branch for it before
+  step 1.
+  (0) FIRST, ALWAYS: re-compute prompt_sha (`shasum -a 256 ../PROMPT-opus5-track-b.md | cut -c1-12`,
+      expect a47590a1e61d), re-check findings/track-b-validation-*.md BY NAME against
+      validation_processed (22 files, newest 2026-09-08), and confirm nothing is running with a
+      NARROW pattern: `LC_ALL=C pgrep -fl 'run-b9|run-b10|run-agent.sh|codex exec'`. *** NEVER run a
+      bare `pgrep -fl opencode` *** - a foreign opencode in ~/Documents/workspace-1-ideas/ai-agents/
+      books matched it this session and dumped a 60-line diff into context for nothing.
+  (1) §4 STEP 1 FOR STOP 21: fill Goal, Required reading and Extract in
+      phases/b10-second-runtime-adapter/README.md from sources actually opened; run
+      ./tools/check-links.sh on anything new in SOURCES.md; comment on lab#35 `opened at spine stop
+      21, branch <name>, <ISO date>`; move card PVTI_lADOD-WaCM4Bhgoqzg4Ozz8 to In Progress
+      (project PVT_kwDOD-WaCM4Bhgoq, field PVTSSF_lADOD-WaCM4BhgoqzhgcH0g, option In Progress =
+      47fc9ee4; Done = 98236657 - THESE IDS ARE READ BACK AND CORRECT, used this session).
+  (2) *** THE SPINE`S OWN CONSTRAINTS ON STOP 21, FROM §3, BEFORE YOU DESIGN ANYTHING: *** the
+      second runtime is *** CODEX ***, Copilot is SKIPPED BY DECISION G and §6 forbids any claim
+      about a Copilot-run agent. Freeze everything but adapter and model. *** CROSS-ARM QUALITY
+      CLAIMS STAY BLOCKED *** (HANDOFF, seventh session): compare what the design allows and say
+      what it does not. Gate #b10 in build/README.md. Author decision 9 still applies from stop 12
+      on: BOTH TASKS, BE-003 and BE-004, separate experiment keys, separate prediction commits, no
+      verdict computed across tasks.
+  (3) *** THREE INSTRUMENT FACTS FROM THIS SESSION THAT WILL BITE STOP 21 IF IGNORED: ***
+      (a) EXPORT the endpoint variables, and EXPORT OTLP_GRPC_ENDPOINT *WITH* the http:// scheme.
+          run-agent.sh:31 reads API from its own environment and defaults to localhost:8080; and a
+          scheme-less OTLP_GRPC_ENDPOINT makes the otlp preflight print `answered 200` while EVERY
+          estimatedCost, modelCalls and toolCalls comes back NULL. Copy run-b9-batch.sh:80-84
+          verbatim; do not retype them.
+      (b) A COST CEILING THAT READS estimatedCost IS INERT WHEN TELEMETRY IS LOST. Read
+          total_cost_usd out of the stream-json result line as well, or the stop rule cannot fire.
+      (c) codex-score.sh NOW HAS LAB_SCORE_TIMEOUT (default 2700s, exit 124 on expiry, process-GROUP
+          kill) AND LAB_SCORE_OUTDIR. A sheet with fewer than four `score:` lines is an UNSCORED run,
+          not a scored zero.
+  (4) *** AND ONE DESIGN FACT: A `verify-*.sh` FIXTURE MUST NEVER INVOKE THE REAL RUNNER OR THE REAL
+      SCORER. *** Case O of verify-b9-df-guards.sh first stubbed the API and thereby started
+      run-agent.sh for real; it was killed after 110s and nothing was spent, but a fixture that CAN
+      start a paid run is a defect in the fixture. Give the driver a `*_RUNNER` hook, as
+      run-b9-deliberate-failure.sh now has, and stub THAT.
+  (5) DO NOT: open stop 21 past step 1 in the same session as this note (§0, one session per phase);
+      re-run any recorded run of batch 20260926T151319Z or 20260927T090320Z; delete
+      batch-20260927T085830Z, any header-only sheet, or the five stub sheets in
+      evidence/b09/stub-sheets-from-fixture (§6 - all of them are fixtures or records now); edit a
+      prediction, a decision rule, a result or an amendment; fire Decision H (it has NEVER fired and
+      it promotes deepseek, which was the refused one); republish the boards (the author`s, decision
+      12 item 4 - the digest is 8c372d41c484); or run §9 on your own work."
+# SUPERSEDED, kept not deleted: next_action: "*** §0 BOUNDARY 4 FOR STOP 20: §4 STEPS 9 THROUGH 14. NOTHING IS RUNNING AND
   NOTHING NEEDS RESUMING - the batch and the scoring are both finished and recorded. ***
   (0) FIRST: re-compute prompt_sha, re-check the validator files by name, and confirm nothing is
       running (`LC_ALL=C pgrep -fl 'run-b9-batch|score-b9-batch|run-agent.sh'`; a bare pgrep is
@@ -5495,7 +5727,70 @@ blocked_on_author: []   # *** EMPTY as of 2026-09-25. *** The single item that w
     #29 merged at eea144ef and its verifier re-run on main at 12 of 12). Plus Gate B before any of it
   # SUPERSEDED, kept not deleted: blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
-author_notes:   # 2026-09-26 boundary-2 items first, then the earlier 2026-09-26 ones, then the
+author_notes:   # 2026-09-27 (stop 20 close) items first, then the carried ones
+  - "(A) *** THE BOARD REPUBLISH IS OWED TO YOU AND GATES NOTHING. *** §4 step 14 edited HANDOFF.md,
+    so both boards are stale and `check-board-freshness` is RED - the only red anywhere. THE DIGEST
+    BOTH MARKERS MUST BE SET TO IS *** 8c372d41c484 ***, re-derived after the last HANDOFF.md edit.
+    Decision 12 item 4 is what made this a note and not a blocker, and PR lab#128 was merged nine of
+    ten green on that basis, as stops 17a, 18 and 19 were."
+  - "(B) *** AN ADDITIVE INSTRUMENT PR IS OWED IN agent-observatory AND I DID NOT OPEN IT. *** The
+    OTLP preflight accepts a SCHEME-LESS endpoint the exporter cannot use: `otlp preflight grpc
+    localhost:4317 answered 200` on five runs whose estimatedCost, modelCalls and toolCalls all came
+    back NULL, against `grpc http://localhost:4317 answered 200` on the registered batch. Probed
+    directly, BOTH forms return 200 from the same curl the preflight uses - curl normalises the
+    scheme-less form and the Claude Code OTLP exporter does not. `otlp-preflight.sh``s own header
+    says it exists because null overhead columns `happened to two batches`; IT IS NOW THREE AND THIS
+    TIME THE CHECK WAS GREEN. The fix is a few lines - reject or normalise an endpoint with no scheme
+    and SAY WHICH. *** WHY I DID NOT OPEN IT: a third repository`s PR at this phase boundary is scope
+    the stop does not need, and §0 boundary 4 is `merged, HANDOFF updated, boards republished`, not
+    `every instrument you found`. Saying so is the honest version of not doing it; it is not a §7
+    halt and it blocks nothing. *** It is written into next_action item 3(a) so stop 21 cannot repeat
+    the loss even if the fix never lands."
+  - "(C) The §0a table still says the review-hook suite is `16 of 16` and the suite reports `87
+    passed`. SIXTH session carrying it. The prompt is your file; §1 makes the suite the fact."
+  - "(D) The §0a isolation row asks for a run record that `shows 0 hook executions` and NO SUCH FIELD
+    EXISTS in the record - the only hook-ish key is `hooksHash`, null on every run ever recorded.
+    THIRD session carrying it. Any past `ok` on that half of the row was inferred, never observed."
+  - "(E) *** THE REGISTERED WRONG-SUMMARY DEMONSTRATION IS STILL OWED, AND ITS ARITHMETIC IS NOW
+    KNOWN. *** The B9 workbook`s §4 step 9 TODO was `put a wrong summary in the index and see whether
+    the agent trusts it`. At 3-of-10 corpus contact, n = 5 puts the wrong text in front of one or two
+    runs, and five readers needs n ~ 17. It was DEFERRED WITH THAT ARITHMETIC, the TODO is kept
+    verbatim and quoted, and what ran instead answered a sharper question - whether a retrieval that
+    NEVER HAPPENED is trusted - and found that it is. The original is a step of its own if you want
+    it; about 17 runs and roughly $2.30 on BE-003."
+  - "(F) *** THE §4a REVIEW`S FOUR FINDINGS I COULD NOT ACT ON, because acting would break §4 step
+    12, and they are yours: *** (i) there is NO PRE-REGISTERED PRECEDENCE RULE for a registered gate
+    overridden by a later amendment - Amendment 3 did exactly that at this stop and recorded it, but a
+    rule written now would be a rule written after the event it governs; (ii) `maintainability`
+    DOUBLES as a scored category and a pass/fail gate, and `H` doubles as a reported outcome and the
+    VOID gate - structural, and it is why `H <= 2` reads as `not tested` rather than as a result about
+    routing; (iii) the MEDIAN TIE-BREAK CONVENTION is unregistered and changes a reported gap
+    (1x7/2x3 gives 1; 1x5/2x5 gives 1.5) - from stop 21 on I will register it before the batch, but
+    the stop-20 numbers stand as computed; (iv) the decision rules do not state Fisher`s SIDEDNESS -
+    it decided nothing here (the realised value is 1.0000 either way) and I will state it from stop 21
+    on. All 42 findings and their dispositions are in
+    findings/review-dispositions/stop-20-b9-round-1.md."
+  - "(G) *** ONE THING ABOUT THE REVIEW`S STANDING THAT I WANT ON THE RECORD IN MY OWN WORDS: *** the
+    reviewer HAD Amendment 5. 077bacb landed at 09:11:05Z and the review started at 09:11:56Z, 51
+    seconds later, and its findings cite line 851, which is inside the amendment. Where it names the H
+    ambiguity it is RESTATING a finding already on record, not confirming it independently. I could
+    have presented those eight findings as external corroboration of the session`s central result and
+    it would have read very well. It would also have been the exact overclaim this project keeps
+    catching, so it is written down the other way in the PR body, the HANDOFF section, the disposition
+    file and here."
+  - "(H) *** A RETRIEVAL RECORD THAT IS AN ARTIFACT OF THE RUN, RATHER THAN OF $TMPDIR, IS STILL NOT
+    BUILT *** - Phase 6B finding 3`s second route. Amendment 1 moved the router`s log OUT of the
+    worktree because both evaluators score an untracked file an AC7 scope violation (exit 21), and the
+    evaluator`s ignore pattern is a REGISTERED VARIABLE (§7) so teaching it about `.agent/` was not
+    available. The consequence is that `a lookup was recorded` is L2 about $TMPDIR and says nothing
+    about the run`s own tree. Closing it needs either an evaluator change (yours) or a record the
+    runtime emits (stop 19 measured that the harness emits none)."
+  - "(I) A SMALL ONE, AND IT IS ABOUT MY OWN CONTEXT DISCIPLINE RATHER THAN THE EXPERIMENT: a bare
+    `LC_ALL=C pgrep -fl opencode` at the top of this session matched a FOREIGN opencode belonging to
+    ~/Documents/workspace-1-ideas/ai-agents/books and printed its whole prompt and diff - about 60
+    lines - into my context for no information at all. The narrow pattern is in next_action item 0.
+    The foreign process was left alone."
+# SUPERSEDED, kept not deleted: author_notes:   # 2026-09-26 boundary-2 items first, then the earlier 2026-09-26 ones, then the
   - "2026-09-27, §0a row 1: *** THE PROMPT`S OWN PREFLIGHT TABLE IS STALE. *** It says the review
     hook script passes `16 of 16 cases`; the suite now reports `87 passed, 0 failed, 0 skipped`.
     Nothing is wrong - the suite grew - but a reader checking the table against the output would
@@ -7450,7 +7745,64 @@ preflight_20260925_post_discharge:  # §0a RUN IN FULL AGAIN 2026-09-25T06:4x-06
   board_check: "ok - exit 0, `2 board(s) current at c32edff33e62`. Current against origin/main, and this
     branch has not touched HANDOFF.md yet. §4 step 14 is where a republish belongs."
   hook_wiring: "STILL unproven in print mode, unchanged, and deliberately not claimed."
-preflight:  # *** §0a RE-RUN IN FULL 2026-09-27T05:55-08:20Z *** at the author`s explicit
+preflight:  # *** §0a RE-RUN IN FULL 2026-09-27T08:20-08:42Z *** at the author`s explicit
+            # instruction for this session (`starting with the section 0a preflight`), which is the
+            # THIRD consecutive session to carry that instruction. §0a`s own trigger did NOT fire -
+            # this is neither a first session nor a halt. SIX ok, ONE FAIL.
+            # *** THE FAIL IS NOT A §7 HALT and blocked_on_author STAYS EMPTY. *** §0a`s halt
+            # sentence is scoped to STARTING STOP 4 with an unproven review harness; this is stop 20
+            # at §4 step 9, and the consequence was ACTED ON at step 13a rather than noted.
+            # Delegated to a haiku subagent with exact commands and an instruction to capture every
+            # exit code; the two rows whose verdict could be inverted by a mislabel (2 and 3) were
+            # RE-DERIVED BY HAND from the files they name.
+  row1_review_hook_script: "ok. `.claude/hooks/opencode-review.test.sh` -> `87 passed, 0 failed`,
+    exit 0. *** THE PROMPT`S TABLE IS STILL STALE BY 71 CASES: it says `16 of 16`. *** Sixth session
+    carrying it. §1 says the files win over the prompt, so the suite`s number is the one recorded;
+    the prompt is the author`s file and this goes to author_notes rather than being edited."
+  row2_review_harness_live: "*** FAIL - A STALL, NOT A REVIEW, AND IT REPRODUCES 05:55Z EXACTLY. ***
+    findings/opencode/review-run-record-20260927T083838Z.md at *** 903 BYTES WITH ONE `## ` SECTION
+    AND ZERO FINDING SECTIONS ***, exit 1. Re-derived by hand: `wc -c` = 903 and
+    `grep -c '^## '` = 1. Panel was the DEFAULT ollama-cloud/glm-5.2 + minimax-m3, and ollama-cloud
+    is the harness on the WEEKLY limit. §6: a header-only findings file is a STALL, not a finding.
+    No opencode process of ours left running. *** CONSEQUENCE ACTED ON, NOT JUST RECORDED: §4 step
+    13a was routed to `-P codex` and returned findings files of 24 031 and 24 735 bytes with 5
+    sections each, exit 0. *** A standing aggravating factor: a FOREIGN opencode was running the
+    whole session in ~/Documents/workspace-1-ideas/ai-agents/books, and concurrent opencode calls
+    are this machine`s known stall mode."
+  row3_codex_harness_live: "ok, AND IT CHANGED VERDICT SINCE 06:04Z THIS MORNING, WHICH IS WHY BOTH
+    OBSERVATIONS ARE KEPT. 3a dry run printed the prompt. 3b codex-cli 0.154.0. 3c *** THE FIXTURE
+    ROUTE NOW WORKS ***: findings/codex/score-good-nested-ifs-20260927T084020Z.yaml, exit 0, 1 840
+    bytes, FOUR categories (architecture-consistency 2, maintainability 0, test-quality null,
+    change-focus 2), and CELL-FOR-CELL IDENTICAL to the 06:04Z and 2026-09-26 sheets on the same
+    fixture. At 06:04Z the same route WEDGED at 0.0 % CPU for an hour and wrote a header-only sheet.
+    NEITHER FACT IS INFERRED FROM THE OTHER and the wedge is what produced this session`s
+    LAB_SCORE_TIMEOUT instrument fix. Re-derived by hand: `wc -c` and `grep -n score:` on the sheet."
+  row4_gate_and_validators: "ok, all four, each run SEPARATELY so one failure could not hide the
+    rest. verify-run-gate-checker exit 0 `all 13 cases`; verify-sheet-category-checker exit 0
+    `all 11 cases`; verify-run-record-validator exit 0; verify-model-output-classifier exit 0."
+  row5_observatory_stack: "ok. `cd ../agent-observatory && make smoke` -> `All 18 checks passed.`,
+    exit 0, against API 8081."
+  row6_isolation: "ok on the half that is observable, and the other half is STILL THE PROMPT`S OWN
+    DEFECT, unchanged for three sessions. `./runner/verify-codex-isolation.sh` exit 0. The row also
+    asks for a claude run `whose record shows 0 hook executions` and *** THE API RUN RECORD HAS NO
+    SUCH FIELD *** - the only hook-ish key is `hooksHash`, null on every run ever recorded. Any past
+    `ok` on that half was INFERRED. NO EXTRA CLAUDE RUN WAS LAUNCHED FOR IT: five registered
+    deliberate-failure runs were about to go out under ISOLATE_USER_SETTINGS=1 and all five DID show
+    the observable half - `customization.*Hash` exactly as registered, no user-settings leakage - so
+    the row is answered by the batch instead of by an unregistered run."
+  row7_board_check: "ok AT PREFLIGHT TIME: `2 board(s) current at 4a67c593ada2`, built from 74e0965.
+    *** IT IS RED AT THE CLOSE, AND THAT IS THIS SESSION`S OWN DOING AND IS EXPECTED: *** §4 step 14
+    edited HANDOFF.md, which makes a board stale by construction. THE DIGEST BOTH MARKERS MUST BE SET
+    TO IS *** 8c372d41c484 ***, computed after the LAST HANDOFF.md edit and before the merge. Author
+    decision 12 item 4 assigns the republish to the author`s interactive session and says in terms
+    `do NOT treat the red check-board-freshness as a blocker on your own work`; PR lab#128 was
+    therefore merged nine-of-ten green, as stops 17a, 18 and 19 were."
+  hook_wiring_this_session: "unproven in print mode, unchanged, and DELIBERATELY not tested. Four
+    pushes happened this session while a synchronous §4a review was either in flight or about to be,
+    and concurrent opencode calls are this machine`s known stall mode - with a foreign opencode
+    already running. The §4a synchronous review remains the review control for this run and was
+    taken once at this stop, on codex."
+# SUPERSEDED, kept not deleted: preflight:  # *** §0a RE-RUN IN FULL 2026-09-27T05:55-08:20Z *** at the author`s explicit
             # instruction for this session (`starting with the section 0a preflight`), exactly as
             # the previous session`s run was. §0a`s own trigger did NOT fire - this is neither a
             # first session nor a halt. FIVE ok, ONE FAIL, ONE ok-that-was-red-yesterday.
