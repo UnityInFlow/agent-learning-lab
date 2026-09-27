@@ -491,3 +491,59 @@ Two facts from it bear directly on this task:
   computed ceiling of **$4.7234** is the driver's own resume output, not an assumption.
 - **Row 0 of this experiment's decision rule is unmoved**: `n_t < 7 or n_c < 7 ⇒ NOT COMPUTED` was
   the reason reducing `n` was refused, not a consequence of it.
+
+---
+
+## Hand re-read — written 2026-09-27, BEFORE any BE-004 scoring sheet for this batch exists
+
+*§5: "At least one scored cell per step is re-read by hand off the kept worktree and the hand
+reading is written down next to the sheet's value." `E-022` carries the BE-003 cell, re-read on
+2026-09-26 when no sheet of any kind existed. This is the BE-004 cell, and its ordering is weaker
+than `E-022`'s and is stated rather than glossed: codex returned early and the registered scoring
+run was already in flight when this was written — but it scores `run-ids.tsv` in file order, all
+twenty BE-003 pairs before the first BE-004 pair, and at the time of writing it had produced four
+sheets, all BE-003, and `grep -c BE-004 evidence/b09/batch-20260926T151319Z/codex-sheets.tsv`
+returned **0**. So no sheet for this run, this task or this rubric existed to anchor the reading.
+Written by Opus 5 (claude-opus-5), autonomously, 2026-09-27.*
+
+| field | value |
+|---|---|
+| run | `3fc93ff4-4b85-4f3c-9d97-360c3853c056` — BE-004, **treated**, eval exit 0, gate exit 0 |
+| worktree read | `$TMPDIR/observatory-run-3fc93ff4-4b85-4f3c-9d97-360c3853c056` |
+| rubric | `benchmark/rubrics/backend-quality-be004.yaml`, `shasum -a 256 \| cut -c1-12` = **`6252778b8472`** — the registered sha, re-derived twice |
+| cell | `maintainability`, the registered outcome of this stop |
+| **hand value** | **0** |
+| sheet value | *no BE-004 sheet existed when this was written; the row is filled when the scoring run reaches this id* |
+
+Anchor 2 (`backend-quality-be004.yaml:79`) asks for *"One `when (order.status)` in EXPRESSION
+position, carrying no `else`"*. It fails on the cheapest possible evidence: `grep -n 'when *(\|else'`
+over `sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt` returns
+**nothing at all**. There is no `when` in the file and no `else` in the file.
+
+The decision in `cancel` is a bare `if` at `OrderController.kt:56`
+(`if (order.status == OrderStatus.CANCELLED) { return ResponseEntity.ok(order) }`), and the method
+falls through past it to the cancel path.
+
+**The anchor text and the anchor's own stated rationale disagree on this shape, and the reading is
+recorded with that disagreement rather than without it.** Anchor 0 names *"an `if` / `else if` /
+`else` chain"*; a single `if` with no `else` is not literally a chain, which would push this to
+anchor 1, the residual. The category's rationale comment
+(`backend-quality-be004.yaml:71-73`) names the property the anchor is for: *"an if-chain, or a
+`when` with an `else`, makes it fall through silently"* — and a new `OrderStatus` constant compiles
+without touching this method and takes the fall-through path unannounced, which is exactly the
+0 condition's consequence clause, *"a new status constant compiles without touching this method
+and takes the fallback path unannounced"*. **The hand value is 0 on the consequence clause.** A
+scorer reading only the first sentence of anchor 0 could defensibly return 1 here, and if the codex
+sheet returns 1 that is the anchor's wording, not a scorer defect — it is recorded now, before the
+sheet, so that it cannot be constructed afterwards to explain a disagreement away.
+
+**Re-derived in the orchestrator's own context, as §4b requires of any delegated value.** A `sonnet`
+subagent produced the reading; the `sed -n '48,80p'` over `OrderController.kt` and the `grep` for
+`when` / `else` were then run again by hand here and agree, and the anchor text was read out of the
+rubric at its registered sha in this context rather than taken from the subagent's quotation.
+
+**What this cell does and does not establish.** `n = 1`, true of this run, never stated as a
+property (§5). It is a fixed point for the sheet to be compared against, and it is on the treated
+arm — the arm whose corpus states the Kotlin exhaustiveness rule this category scores. That the
+treated run does not use `when` at all is consistent with this batch's uptake finding (1 of 10
+treated BE-004 runs opened the knowledge log at all) and is not independent evidence for it.
