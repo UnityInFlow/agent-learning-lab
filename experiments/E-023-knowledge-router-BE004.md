@@ -116,7 +116,7 @@ Repetitions per arm: **10**, interleaved · Total budget: **≤ $5.20** for this
 (20 batch runs at B8's `$0.21` median = `$4.20`, plus 2 preflight runs, plus headroom).
 BE-004 runs take 2–4 minutes each (decision 9).
 
-Prediction commit: `<filled after the batch>` · first run `startedAt`: `<filled after the batch>`
+Prediction commit: **`ef2c6c0`, 2026-09-26T09:20:40Z** (`2026-09-26T11:20:40+02:00`) — the same commit as `E-022`; both prediction files went in together, before any run of either. · First run of the registered BE-004 batch `startedAt`: **2026-09-26T18:45:27Z** — **9 h 25 min later**. The earliest BE-004 run under this key at all is the preflight at **2026-09-26T12:52:45Z**, also after the commit. Both read from git and from the archived run records, not from prose. *Filled 2026-09-27 at §4 step 8, as the placeholder required.*
 
 ## Minimum detectable effect
 
@@ -212,31 +212,179 @@ list is in `E-022`'s decision rule. Row 6 is additive and sits outside the parti
 
 ## Observed telemetry
 
+*§4 step 6. Filled 2026-09-27 from the manifest and the 40 archived run records. The collector
+rotated at 2026-09-26T19:46:35Z, so a `jq` over `events.jsonl` alone sees three runs of this batch
+and returns a number; nothing below needs it.*
+
+| observation | treated | control |
+|---|---|---|
+| runs | 10 | 10 |
+| evaluator exit 0 | **10 of 10** | **10 of 10** |
+| `check-run-gate.sh` exit 0 | **10 of 10** | **10 of 10** |
+| `.agent/knowledge-log.jsonl` non-empty (`H`) | **1 of 10** | 0 of 10 |
+| first log line is the index lookup | 1 of 10 | n/a |
+| `router_denied` | **0 of 10** | 0 of 10 |
+| `customization.knowledgeHash` | `sha256:0770219ae7f4281a80071d78dadea285` on 10 of 10 | **null on 10 of 10** |
+| `runtime.model` | `claude-haiku-4-5-20251001` on 10 of 10 | same |
+
+**Prediction 3 was registered as the most likely of the five to be wrong on this task
+specifically**, on the ground that BE-004's ticket is longer and has more clauses competing for
+attention than BE-003's. Uptake here is **1 of 10** against BE-003's 2 of 10 — the same direction
+the prediction named, from a rate that was already too low to test anything.
+
+**BE-004 still has never failed the evaluator on this model.** 10 of 10 in both arms, which takes
+the running total to 9 + 20 + 20 + 14 + 20 and no exit-code failure anywhere in it.
+
 ## Results
+
+*Filled 2026-09-27 from the 20 codex sheets of batch `20260926T151319Z`, every one at rubric sha
+`6252778b8472` — the registered sha, re-derived on disk before scoring and again by the scoring
+driver, which refuses to start if it has moved. Index:
+`evidence/b09/batch-20260926T151319Z/codex-sheets.tsv`. Values read by a `sonnet` subagent and
+re-derived in the orchestrator's own context with an independent parser over the same files.*
+
+### The registered outcome
+
+| | treated | control |
+|---|---|---|
+| `maintainability` anchor 2 (`M`, `C`) | **0 of 10** | **0 of 10** |
+| `maintainability` median | 0 | 0 |
+| two-sided Fisher | **`p = 1.0000`** | |
+
+The treated arm's only non-zero cell is a single **1** on `03342809`. Every other cell in both
+arms is **0**. The historical floor this task has sat on since B5 — 0 of 36 — is unmoved at 0 of
+56.
+
+### Every category, both arms
+
+| category | treated median | control median | treated values | control values |
+|---|---|---|---|---|
+| `architecture-consistency` | 2 | 2 | ten 2s | ten 2s |
+| `maintainability` | 0 | 0 | nine 0s, one 1 | ten 0s |
+| `test-quality` | **1** | **1.5** | 1×7, 2×3 | 1×5, 2×5 |
+| `change-focus` *(report-only, 10.3)* | **1** | **2** | 0×3, 1×4, 2×3 | 0×2, 1×2, 2×6 |
+
+No nulls in any cell of either arm, on either precondition category.
+
+### Cost, tokens and calls — the registered population only
+
+| metric | treated median (min–max) | control median (min–max) |
+|---|---|---|
+| `estimatedCost` | **$0.207919** ($0.1759–$0.3263) | **$0.205583** ($0.1562–$0.2592) |
+| model calls | 25.5 (23–41) | 27 (15–34) |
+| tool calls | 24.5 (22–38) | 26 (14–33) |
+
+**Cost median delta +1.14 %.** Duration is not reported as a result for the same reason as
+`E-022`: the batch spanned rate-limit windows.
+
+### The API cannot produce this report for this key
+
+`run-b9-preflight.sh:134` gives the preflight pair the batch's own experiment key, so
+`EXP-B9-ROUTER-BE004` holds **24** runs where the registered population is 20.
+`analyze-experiment.py --expect-n 10` **refuses, exit 2**, naming the over-count;
+`make baseline-report` pools silently. Numbers above come from
+`evidence/b09/report-b9-registered.py`, which reads the 40 archived records **by run id**. Both
+API outputs, refusal included, are kept under `evidence/b09/reports/`.
 
 ## Which predictions held
 
 | # | Prediction | Held? | Actual |
 |---|---|---|---|
-| 1 | anchor 2 on ≥ 5 of 10, two-arm | | |
-| 2 | anchor 2 on ≥ 3 of 10, one-arm | | |
-| 3 | router used on ≥ 7 of 10 | | |
-| 4 | cost ≤ +10 % | | |
-| 5 | `architecture-consistency` and `test-quality` unmoved | | |
+| 1 | anchor 2 on ≥ 5 of 10, `Fisher p ≤ 0.0325` | **REFUTED** | **0 of 10**, `p = 1.0000` |
+| 2 | anchor 2 on ≥ 3 of 10 against `p0 = 0.0798` | **REFUTED** | **0 of 10** |
+| 3 | router used on ≥ 7 of 10 | **REFUTED** | **1 of 10.** Registered as the most likely of the five to be wrong on this task, and it was |
+| 4 | cost ≤ +10 % | **HELD** | **+1.14 %** |
+| 5 | `architecture-consistency` and `test-quality` medians identical between arms | **HALF HELD, HALF REFUTED** | `architecture-consistency` identical (2 vs 2, every value 2). `test-quality` **NOT** identical: **1 vs 1.5**, and the difference favours the CONTROL |
+
+**Prediction 5's refuted half is the most instructive line in this experiment and it is not a
+result about the treatment.** The treated arm consulted the router on **one** run out of ten. An
+arm that never used its treatment is a control with a different hash, so a half-point median gap
+on `test-quality` — and a full point on the report-only `change-focus`, also favouring the control
+— is this instrument's **noise floor on BE-004 at `n = 10`**, measured here by accident. Had
+uptake been high, the same two numbers would have been read as evidence that the knowledge router
+makes tests and scope *worse*. They are recorded now, under `H = 1`, so that no later step can
+read a gap of this size on this task as an effect without first clearing this bar.
 
 ## Failure analysis
 
+**Delivered, not denied, not used.** `knowledgeHash` set on 10 of 10 treated records and null on
+10 of 10 controls; `router_denied` no on 10 of 10. The corpus was in the worktree and the
+instruction was in the overlay. Nine of ten runs did not open the log.
+
+**Why lower than BE-003's 2 of 10, and it was predicted.** Prediction 3 named the mechanism in
+advance: BE-004's ticket is longer and carries more clauses — the all-or-nothing cascade, the
+cancelled-order guard on shipment creation — competing for the same attention the router
+instruction needs. The instruction is L3 on both tasks and it loses to a longer ticket.
+
+**`M = 0` cannot separate this from a `REJECT`, and the rule already knew that.** Row 5 of the
+decision rule (`H ≥ 3` and `M ≤ 2`) is the `REJECT` row, and it is unreachable at `H = 1` by
+construction. So the batch cannot distinguish *"the corpus was consulted and did not help"* from
+*"the corpus was not consulted"* — it only observed the second. Writing `REJECT` here would be
+claiming a measurement of a thing that did not happen.
+
+**What would overturn it.** The same as `E-022`: a delivery mechanism that is not a sentence in a
+`CLAUDE.md`. E-004 established that a skill's *description* decides whether it loads; nothing in
+this track has yet tested an index delivered that way. That is a different treatment, and on this
+task it would also need the ticket-length effect controlled.
+
 ## Sanity checks
 
-- [ ] Did any dramatic number appear? Has it been explained *and* the explanation tested?
-- [ ] Did any **flattering** number appear? Has it been disbelieved twice?
-- [ ] If a fix motivated this run, did the original symptom actually disappear?
+- [x] **Did any dramatic number appear?** `03342809` at 41 model calls against a treated median of
+      25.5, and `5bc8b735` at $0.3263 against a median of $0.2079. Both are inside the control
+      arm's own spread on other batches and neither changes a median. Neither is excluded.
+- [x] **Did any flattering number appear?** No number here flatters the treatment. The two that
+      move at all — `test-quality` and `change-focus` — both favour the **control**, and they are
+      disbelieved in the same direction they would have been believed: at `H = 1` the treated arm
+      is not a treated arm, so they measure this instrument's noise, not a harm.
+- [x] **If a fix motivated this run, did the original symptom disappear?** The Amendment 3
+      preflight fix held: 20 of 20 BE-004 cells ran, 0 denied.
+- [x] **Sheet against hand, and an ambiguity that was registered before it could be argued.**
+      `3fc93ff4` `maintainability`: hand **0** (597dceb, committed 08:10:51Z, before the sheet
+      started at 08:18:56Z), sheet **0**. Agreement. The hand re-read registered in advance that
+      anchor 0 names *"an `if` / `else if` / `else` chain"* while this diff has a bare `if`, so a
+      scorer could defensibly have returned the residual **1**. It did not: codex read the
+      consequence clause the same way the hand reading did. **The ambiguity is real and did not
+      bite**, and it is on record as a rubric-wording item for whoever ports this category next.
+- [x] **Independence.** `knowledgeHash` treated/null by arm on 20 of 20; `runtime.model`,
+      benchmark and rubric sha identical across arms and unmoved from registration.
 
 ## Decision
 
+**`VOID — THE TREATMENT WAS NOT TESTED`, by decision-rule row 1 (`H ≤ 2`), with `H = 1 of 10`**,
+at any `M`.
+
+**Row 0 does not fire:** `n_t = n_c = 10`, both at or above the registered floor of 7. The
+population is complete and the verdict is not a population failure.
+
+**Rows 2–5 are all unreachable at this `H`**, by the rule's own partition — including row 5, the
+`REJECT` row. That is the rule working as written, not a gap: it was enumerated by
+`evidence/b09/verify-decision-rule-exhaustive.py` before the batch, over every
+`(n_t, n_c, M, H, Fisher)` combination, 0 gaps and no dead row.
+
+**Row 6 does not fire:** cost median delta **+1.14 %**, far inside +25 %.
+
+**Disposition (§4 step 10): not promoted; the corpus stays in the repository.** The finding is
+about the instruction, not about the corpus, and it is the same finding on both tasks — which is
+itself worth more than either task alone, because the two tickets differ in every way except the
+delivery mechanism, and the delivery mechanism is what failed.
+
+*Decided by Opus 5 (claude-opus-5), autonomously, 2026-09-27, from the rule committed before the
+batch. The author did not review before the run or before this verdict.*
+
 ## Follow-up
 
----
+- **BE-004's noise floor at `n = 10` is now measured** — a 0.5 median gap on `test-quality` and a
+  1.0 gap on `change-focus` between two arms that differ only in a hash. Any later step claiming
+  an effect of that size on this task has to clear this bar first. It belongs in the MDE inputs
+  for every BE-004 step after this one.
+- **`change-focus` remains report-only on this task** under author decision 10.3 and `E-019`'s
+  finding, and nothing here changes that; it is reported above and enters no row.
+- **The preflight-key defect** (`run-b9-preflight.sh:134`) makes `analyze-experiment.py` refuse
+  every B-step dataset that has a preflight. It refused correctly. Additive instrument PR under
+  §4 step 14.
+- **B8a's `handoff` field and B9's corpus are both artifacts nothing consulted.** Two steps in a
+  row have now produced a well-delivered L3 artifact with near-zero uptake. That pattern, not
+  either step, is what the §5 table for this stop should carry forward.
 
 ## Amendment 1 — the log path, changed before any run, because the registered one would have scored every treated run a scope violation
 

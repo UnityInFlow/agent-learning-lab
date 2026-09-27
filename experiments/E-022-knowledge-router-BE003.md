@@ -154,7 +154,7 @@ written from something other than the measuring instrument, and this experiment 
 Repetitions per arm: **10**, interleaved · Total budget: **≤ $3.20** for this task
 (20 batch runs at B8's `$0.12` median = `$2.40`, plus 2 preflight runs, plus headroom)
 
-Prediction commit: `<filled after the batch>` · first run `startedAt`: `<filled after the batch>`
+Prediction commit: **`ef2c6c0`, 2026-09-26T09:20:40Z** (`2026-09-26T11:20:40+02:00`) · first run of the registered batch `startedAt`: **2026-09-26T15:13:20Z** (`c49eec44`, BE-003 01 treated) — **5 h 52 min later**. The earliest run under this experiment key at all is the preflight pair at **2026-09-26T12:48:02Z**, also after the commit; every run of every kind that touched this key postdates the prediction. Both read from git and from the archived run records, not from prose. *Filled 2026-09-27 at §4 step 8, as the placeholder required.*
 
 *One run is a story. Five is a hint. Ten is the minimum for a decision.*
 
@@ -263,36 +263,185 @@ additive by construction and sit outside the partition the script checks.
 
 ## Observed telemetry
 
-<!-- §4 step 6. Pass OTLP_GRPC_PORT and check events.jsonl GROWS before trusting any
-     telemetry-sourced number (stop 11's rule). A per-file count is not a per-run count across a
-     rotation boundary — one run id already spans two of the three events*.jsonl files on disk
-     (stop 19, next_action item 2d). -->
+*§4 step 6. Filled 2026-09-27 from the manifest and the 40 archived run records, not from a
+telemetry file — and the reason is recorded rather than glossed: the collector ROTATED at
+2026-09-26T19:46:35Z, so `events.jsonl` holds only the last three runs of this batch and a `jq`
+over it alone SEES THREE RUNS AND RETURNS A NUMBER. Any telemetry claim here needs both
+`events-2026-09-26T19-46-35.355.jsonl` and `events.jsonl`. The numbers below need neither: they
+come from the run records, which are now archived in this repository at
+`evidence/b09/batch-20260926T151319Z/run-records/`.*
+
+| observation | treated | control |
+|---|---|---|
+| runs | 10 | 10 |
+| evaluator exit 0 | **10 of 10** | **10 of 10** |
+| `check-run-gate.sh` exit 0 | **10 of 10** | **10 of 10** |
+| `.agent/knowledge-log.jsonl` non-empty (`H`) | **2 of 10** | 0 of 10 |
+| first log line is the index lookup | **2 of 10** | n/a |
+| `router_denied` | **0 of 10** | 0 of 10 |
+| `customization.knowledgeHash` | `sha256:0770219ae7f4281a80071d78dadea285` on 10 of 10 | **null on 10 of 10** |
+| `runtime.model` | `claude-haiku-4-5-20251001` on 10 of 10 | same |
+| permission denials | 0 | 0 |
+
+**Uptake is the whole story of this batch and it is not a harness failure.** Zero runs were
+denied the router. On the two runs that used it, it was called once each and the first line was
+the index lookup, as designed. The other eight read the instruction and did not act on it.
 
 ## Results
+
+*Filled 2026-09-27 from the 20 codex sheets of batch `20260926T151319Z`, every one at rubric sha
+`396e1799eb2b`, every one complete at four categories. The index is
+`evidence/b09/batch-20260926T151319Z/codex-sheets.tsv`; the per-run sheets are under
+`findings/codex/`. The four values per run were read by a `sonnet` subagent (§4b) and then
+**re-derived in the orchestrator's own context with an independent parser over the same 20
+files**; the two readings agree cell for cell on all 80 cells.*
+
+### The registered outcome
+
+| | treated | control |
+|---|---|---|
+| `maintainability` anchor 2 (`M`, `C`) | **5 of 10** | **4 of 10** |
+| `maintainability` median | 1.5 | 0.0 |
+| two-sided Fisher on the anchor-2 counts | **`p = 1.0000`** | |
+
+### Every category, both arms
+
+| category | treated median | control median | treated values | control values |
+|---|---|---|---|---|
+| `architecture-consistency` | 2 | 2 | ten 2s | ten 2s |
+| `maintainability` | 1.5 | 0 | 0,0,0,1,1,2,2,2,2,2 | 0,0,0,0,0,0,2,2,2,2 |
+| `test-quality` | 1 | 1 | ten 1s | ten 1s |
+| `change-focus` | 1 | 1 | ten 1s | ten 1s |
+
+No nulls in any cell of either arm.
+
+### Cost, tokens and calls — the registered population only
+
+From `evidence/b09/reports/registered-population-report.txt`, `n = 10` per arm:
+
+| metric | treated median (min–max) | control median (min–max) |
+|---|---|---|
+| `estimatedCost` | **$0.127337** ($0.1097–$0.1518) | **$0.125968** ($0.1015–$0.1497) |
+| model calls | 22.5 (18–27) | 21 (15–28) |
+| tool calls | 20.5 (17–26) | 20 (14–26) |
+
+**Cost median delta +1.09 %.**
+
+**Duration is excluded and the exclusion is registered, not chosen after seeing it.** Run
+`c49eec44` records 5420 s against a batch median near 117 s, because the batch spanned a
+rate-limit window. §4 step 6: exclude duration, keep the run.
+
+### The report came from the records, not from the API, and that is a finding about the instrument
+
+`run-b9-preflight.sh:134` gives the preflight pair the **same experiment key as the batch**, with
+the comment `REGISTERED`. So `EXP-B9-ROUTER-BE003` holds **25** runs where the registered
+population is 20 — four preflight runs and the recorded orphan `6d728d76` share the key.
+
+- `make baseline-report EXPERIMENT=EXP-B9-ROUTER-BE003` **pools them silently** and prints
+  `25 measuring run(s)` with a median that is not this experiment's.
+- `analyze-experiment.py … --expect-n 10` **refuses, exit 2**: *"arm `agent-v1.1` has 12 measuring
+  runs, expected 10"*. A control that rejects the contaminated dataset is the only reason this was
+  found rather than quoted. Both outputs are kept under `evidence/b09/reports/`, the refusal
+  included.
+- The numbers above therefore come from `evidence/b09/report-b9-registered.py`, which reads the 40
+  archived records **by run id** off `run-ids.tsv`, so no run outside the batch can enter a number.
 
 ## Which predictions held
 
 | # | Prediction | Held? | Actual |
 |---|---|---|---|
-| 1 | anchor 2 on ≥ 8 of 10 | | |
-| 2 | treated − control ≥ +4 | | |
-| 3 | router used on ≥ 7 of 10; index first on ≥ 5 | | |
-| 4 | cost ≤ +10 % | | |
-| 5 | no other category moves | | |
+| 1 | anchor 2 on ≥ 8 of 10 | **REFUTED** | **5 of 10.** Registered in advance as the one most likely to be wrong, and it was |
+| 2 | treated − control ≥ +4 | **REFUTED** | **+1** (5 vs 4), Fisher `p = 1.0000` |
+| 3 | router used on ≥ 7 of 10; index first on ≥ 5 | **REFUTED, both clauses** | **2 of 10** and **2 of 10**. This is the row that decides the verdict |
+| 4 | cost ≤ +10 % | **HELD** | **+1.09 %** |
+| 5 | no other category moves | **HELD** | `architecture-consistency`, `test-quality` and `change-focus` medians identical between arms, and every individual value identical too |
+
+Four of five registered predictions are answerable and three of them are refuted. Prediction 3's
+mechanism paragraph said exactly what its failure would mean — *"an L3 disposition can produce
+zero uptake, and if it does here the batch has measured an instruction nobody followed"* — and
+that is what happened. The prediction that was registered as most likely to be wrong was wrong,
+and the one nobody doubted (cost) held.
 
 ## Failure analysis
 
+**The treatment was delivered and was not used.** Delivery is proved per run and not by a flag:
+`customization.knowledgeHash` is `sha256:0770219ae7f4281a80071d78dadea285` on 10 of 10 treated
+records and `null` on 10 of 10 controls. The router was never denied — `router_denied` is `no` on
+20 of 20 treated rows across both tasks. So this is not a permission failure, not a delivery
+failure and not a harness failure: the corpus was in the worktree, the instruction to consult it
+was in the overlay `CLAUDE.md`, and on eight of ten runs the agent did not consult it.
+
+**That is the same shape as E-005's description arm**, which the decision rule named in advance:
+a read-only *description* made zero write attempts, so nothing tested the boundary. Here an L3
+*instruction to consult* produced two consultations, so almost nothing tested the corpus. The
+rule's row 0 exists because this outcome was foreseen; it is not a surprise being retrofitted.
+
+**What `M = 5` is and is not.** It is not evidence for the router. Five of the ten treated runs
+reached anchor 2 and **eight of them never opened the log**, so at most two of those five could
+have been influenced by the corpus at all. The control reached 4 of 10 unaided. The honest reading
+is that `maintainability` on BE-003 sits near half on this model with or without the treatment,
+which is what E-006 found when it measured 29 of 80 across the eight arms of B5–B8, and 5 vs 4 is
+that same rate twice.
+
+**The one thing that would overturn this result** is an uptake mechanism that is not an
+instruction — a hook that injects the index, or a skill whose description selects it, the way
+E-004 showed a description decides whether a skill loads. That is a different treatment and a
+different step, not a re-run of this one at larger `n`. Raising `n` with `H = 2 of 10` buys a
+tighter estimate of how often the model ignores a sentence.
+
 ## Sanity checks
 
-- [ ] Did any dramatic number appear? Has it been explained *and* the explanation tested?
-- [ ] Did any **flattering** number appear? Has it been disbelieved twice?
-- [ ] If a fix motivated this run, did the original symptom actually disappear?
+- [x] **Did any dramatic number appear?** Yes — a 5420 s duration on `c49eec44`, 46× the batch
+      median. Explained by the rate-limit window the batch spanned, and the explanation is
+      testable: the neighbouring runs in the same window show the same gaps, and the run's own
+      token and cost figures are unremarkable ($0.1414, 26 model calls). Duration is excluded
+      under §4 step 6; the run is kept.
+- [x] **Did any flattering number appear?** `M = 5` against a control of 4 could be written as
+      *"the treated arm scored higher"*. Disbelieved twice: (a) Fisher `p = 1.0000`; (b) eight of
+      the ten treated runs never opened the knowledge log, so the arm is mostly control runs
+      wearing a hash. It is reported as `VOID`, not as a small positive.
+- [x] **If a fix motivated this run, did the original symptom disappear?** The preflight fix
+      (Amendments 2 and 3) was for the harness refusing the batch. It did not recur: 40 of 40
+      cells ran and 0 of 20 treated rows were denied.
+- [x] **Sheet against hand.** `c49eec44` `maintainability`: hand **2** (78d5af5, written before
+      any sheet existed), sheet **2**. Agreement.
+- [x] **Independence.** `knowledgeHash` set on every treated record and null on every control;
+      `instructionsHash` differs between arms by design and is constant within each arm; model,
+      benchmark and rubric sha identical across arms and unmoved from registration.
 
 ## Decision
 
+**`VOID — THE TREATMENT WAS NOT TESTED`, by decision-rule row 0 (`H ≤ 2`), with `H = 2 of 10`.**
+The row is unconditional on `M` and `M = 5` therefore decides nothing here.
+
+**Row 4 also fires and is reported, as the rule requires:** `Fisher(5, 4) = 1.0000 > 0.05`, so the
+two-arm reading is `NOT DETECTABLE`. Prediction 2 registered that as the expected shape even of a
+real effect at this `n`, so it adds nothing beyond what was already written down.
+
+**Row 5 does not fire:** cost median delta is **+1.09 %**, far inside the +25 % objection
+threshold and inside prediction 4's +10 %.
+
+**Disposition (§4 step 10): the corpus is KEPT IN THE REPOSITORY AND NOT PROMOTED**, exactly as
+row 0 specifies. It is not removed — row 3, the `REJECT` row that removes it, requires `H ≥ 3`,
+and removing an artifact that was never consulted would record a measurement nobody made. **The
+finding is about the instruction, not about the corpus.**
+
+*Decided by Opus 5 (claude-opus-5), autonomously, 2026-09-27, from the rule committed before the
+batch. The author did not review before the run or before this verdict.*
+
 ## Follow-up
 
----
+- **B9's gate clause "hit rate measured" is answered by this batch, and the answer is 20 %**
+  (2 of 10 treated runs consulted the router; of those, 2 of 2 went index-first). That is a
+  measurement, not a failure to measure, and it belongs in the §5 table with this `n`.
+- **The preflight key defect is an instrument fix owed to every later step**, not to this one:
+  `run-b9-preflight.sh:134` must give the preflight its own key, or `analyze-experiment.py` will
+  keep refusing every B-step dataset that has a preflight. It refused correctly here. Filed for
+  §4 step 14 as an additive instrument PR.
+- **`codex-score.sh` has no timeout**, proved by a 61-minute wedge during this step's scoring. The
+  mitigation is in the B9 scoring driver only; the registered scorer is unchanged, deliberately.
+- **Nothing here licenses a rung-up re-run at larger `n`.** With `H = 2` the next question is
+  delivery, and E-004 already showed which mechanism decides selection.
 
 ## Amendment 1 — the log path, changed before any run, because the registered one would have scored every treated run a scope violation
 
