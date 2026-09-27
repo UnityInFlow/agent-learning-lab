@@ -8024,9 +8024,14 @@ preflight:  # *** §0a RE-RUN IN FULL 2026-09-27T09:50-10:4xZ *** at the author'
     publish that did not happen is how one ends up PROVABLY CURRENT AND WRONG - the failure this
     check exists to PREVENT, not to perform. NOTE: the previous session's board_state still names
     the SUPERSEDED digest 91344292d8ed; 8c372d41c484 is the live one and next_action carries it."
-  hook_wiring_this_session: "unproven in print mode, unchanged. No push happened before this
-    boundary, so the §0a hook-wiring proof had nothing to attach to. The §4a synchronous review
-    remains the review control for this run and is owed at step 13a, on `-P codex` per row 2."
+  hook_wiring_this_session: "unproven in print mode, unchanged, and DELIBERATELY not tested.
+    *** AN EARLIER DRAFT OF THIS LINE SAID `no push happened before this boundary` AND THAT WAS
+    WRONG - the branch WAS pushed at the boundary. *** It was pushed with LAB_REVIEW_HOOK=0, which
+    is the reason the proof was not taken and is a choice rather than an omission: the default
+    opencode panel has now stalled on three consecutive sessions (row 2), concurrent opencode is
+    this machine's named stall mode, and letting the hook fire would have wedged a process for a
+    proof §0a itself calls unobservable from print mode. The §4a synchronous review on `-P codex`
+    remains the review control for this run and is owed at step 13a."
 # SUPERSEDED, kept not deleted: preflight:  # *** §0a RE-RUN IN FULL 2026-09-27T08:20-08:42Z *** at the author`s explicit
             # instruction for this session (`starting with the section 0a preflight`), which is the
             # THIRD consecutive session to carry that instruction. §0a`s own trigger did NOT fire -
