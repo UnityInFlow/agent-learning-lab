@@ -687,13 +687,156 @@ disable → analyze → redesign → re-evaluate
 > deadline** — and it is still better than a rule that depends on somebody remembering.
 > *(Stop 23, 2026-09-27, Opus 5.)*
 
+## Learning — §4 step 11
+
+The six keys of `build/README.md#after-every-step`, in that order and with no others.
+
+```yaml
+learning:
+  what_was_added: >
+    No agent capability and no benchmark run. What was added is a re-verification of a
+    49-day-old extract against the live pages, and one instrument that executes:
+    evidence/p08/verify-quotes.sh — 29 registered sentences over the seven Verified-reading
+    pages, fetched over the network, printed FOUND or ABSENT, with four registered exit codes
+    and a 10-case fixture set (evidence/p08/verify-quote-checker.sh). Plus two SOURCES.md rows
+    (threat-detection, triggers) and five dated extract sections beside the August text, which
+    is kept verbatim.
+  why_it_exists: >
+    Because check-links.sh proves a URL RESOLVES and nothing here proved a QUOTATION still
+    appears in the page it resolves to. This workbook's own August extract carries, as a bold
+    display quote, "The agent never receives write tokens directly" — and that sentence is not
+    on the page it cites. The claim survived a rewording; the quotation did not. A verbatim
+    quote in this project's own extract went stale in 49 days and nothing executed to catch it.
+  observed_effect: >
+    The instrument failed on our own workbook on its first live run: found=28 absent=1, exit 2,
+    and the single ABSENT line is our own August sentence. Re-run at boundary 2 over the network:
+    found=28 absent=1, exit 2, same sentence. Two other August quotes were re-checked and are
+    still verbatim, so this is ONE SENTENCE, not a rewritten page. Four further findings of
+    record, each verified FOUND before it was written down: the safe-output vocabulary roughly
+    doubled and now contains merge-pull-request and approve-workflow-run; the injection defence
+    is L2 and its judge is a language model; `roles:` is an exact-match allowlist and not a
+    privilege threshold; and `.md` -> `.lock.yml` means the file a human reviews is not the file
+    that executes.
+  unexpected_effect: >
+    Two, both cutting against a conclusion that was easier to write. (1) The absences were
+    checked rather than asserted, and one FOUND turned up inside them: "id-token: read is not a
+    valid permission and will be rejected at compile time" — so `gh aw compile` DOES validate the
+    permissions block and DOES refuse at least one value. "The page says nothing that executes"
+    would have been false. (2) The threat detector FAILS CLOSED on its own failure — "If the
+    detection process itself fails ... the workflow stops and safe outputs are not applied" —
+    which is the opposite of this project's own check-links.sh degrading a curl `000` to a
+    non-fatal `unverified`. Same decision, opposite default, and theirs is the right one.
+  keep_or_remove: >
+    KEEP evidence/p08/verify-quotes.sh, scoped to this phase only. It is the one artefact of this
+    stop with an L2 proof and it earned that by refusing: 10 of 10 fixtures over all four exit
+    codes, including one fixture with exactly one quote deleted (exit 2, absent=1) and one quote
+    containing `!==` matched literally rather than as a regex; case B re-derived by hand. A
+    general, repo-wide quote checker is REFUSED at this stop and sits in author_notes — §6 forbids
+    a future step's artefacts and a repo-wide instrument is not stop 23's. REMOVE nothing: no rule,
+    hook, skill or overlay was added, so there is nothing whose no-effect could be measured.
+  next_question: >
+    Does a quotation-staleness check belong on every extract in this repository, and if so what is
+    its registered cadence and its expiry? gh-aw's own answer to the second half is `stop-after:`,
+    an expiry written at creation time before anyone is attached to the output — the most portable
+    thing on these seven pages, and the one this project could adopt for nothing.
+```
+
+**What problem did it solve, and what evidence supports keeping it** — the two scaffold
+questions not covered by a key above. The problem: an extract is L3 by construction, and this
+project had no way to tell a stale quotation from a current one short of a human re-reading
+seven pages. The evidence: the instrument's first live run found a defect in the workbook that
+commissioned it, and its fixture set proves it refuses (10 of 10 over four exit codes). **The new
+cost:** 29 network fetches per invocation and a registered sentence list that must be edited
+whenever the extract is, which is a maintenance burden a repo-wide version would multiply — that
+is the argument for keeping it phase-scoped until someone measures the burden.
+
+## Validation — §5, at §0 boundary 2, 2026-09-27
+
+**`n = 0` runs.** This is the registration, not a shortfall: §3's itinerary row `22-23` reads
+*"Phases 7 and 8 (◇): extract only, as stop 7"*, and §4 makes a Track A stop the loop **minus
+steps 3–10** when the lab runs no benchmark. No experiment file, no prediction, no overlay, no
+dollar spent on the agent under test at this stop. Verified, not asserted: over all **740** runs
+on the API, the count of runs whose `experimentKey` matches `p08|stop23|PHASE-8|B8-agentic` is
+**0** (`curl -fsS http://127.0.0.1:8081/api/runs | jq '[.[] | select((.experimentKey // "") |
+test("p08|stop23|PHASE-8|B8-agentic";"i"))] | length'`). The pinned model was touched only by the
+§0a row-6b isolation probe, whose key is `preflight-*` and which enters no comparison.
+
+**Independence check: there are no arms to be independent of.** A one-variable comparison needs
+two populations and this stop has none. Nothing in this workbook is a claim about
+`claude-haiku-4-5-20251001`; every subject row is a claim about seven vendor documentation pages,
+and the proof column says so.
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| `Human-triggered vs unattended risk` | `phases/08-agentic-workflows/README.md:405-452`; the trigger set and `roles:` quotes, each verified `FOUND` by `evidence/p08/verify-quotes.sh`; live output `evidence/p08/quote-verification-20260927T194029Z.txt` | **L2 that the sentences are on the pages** (a script fetches and matches); **L3 that the risk transition behaves as described** — `n = 0`, nothing was watched | `./evidence/p08/verify-quotes.sh` → expect `found=28 absent=1`, exit 2. Then read the section and compare each quoted sentence with the `FOUND` lines |
+| `Read-only default` — **answered `qualified`, not `yes`** | `phases/08-agentic-workflows/README.md:288-312`; two verbatim quotes, both `FOUND`: *"uses read-only permissions by default"* (permissions page) and *"`create-issue` is automatically enabled with conservative defaults (`max: 1` …)"* (safe-outputs page) | **L2** that both sentences exist; **L3** that the combination is safe | Run the script; both sentences appear in its `FOUND` list. The clause is false without its subject: the **agent job** is read-only, the **workflow** is not |
+| `Safe-output separation` | `phases/08-agentic-workflows/README.md:48-50` (layer table row) and `:133-154` (the August extract, kept verbatim) | **L3.** The control is **L1** — the agent's process holds no credential that can express a write — but the *proof* is a reading. I read that the jobs are separated; I did not watch a write be refused | Read the safe-outputs page at the URL in `SOURCES.md` and confirm the two-job split. To move this row to L2 someone must run Lab 8.2 (`staged: true`), which is **DEFERRED** |
+| `Schedule/event attack surface` | `phases/08-agentic-workflows/README.md:405-452`; thirteen trigger types, `roles:` exact-match, *"Pull request workflows block forks by default"*, `stop-after:` — all `FOUND` | **L2** that the sentences are on the page; **L3** that the surface is bounded | Run the script, then count the trigger types in the section against the triggers page |
+| `Why auto-merge should not be the first target` | `phases/08-agentic-workflows/README.md:255-287`; `merge-pull-request`, `approve-workflow-run` and `push-to-pull-request-branch` are now **in** the closed vocabulary, each marked `experimental` | **L3.** It is an argument, not a measurement — but a sharper one than the scaffold could make, because auto-merge is no longer hypothetical | Read the safe-outputs page's output-type list and find the three names. The August extract does not contain them |
+| `Was this the agent, or the harness?` (§4 step 11) | **Neither.** `n = 0` runs; the run count for this stop's keys is `0` of `740` on the API | **L2** — a counted query over the run store, not a claim | The `jq` one-liner above. An empty result is the whole answer |
+| Instrument: `./tools/check-links.sh` over the two new `SOURCES.md` rows | re-run at boundary 2: `ok=73 moved=11 blocked=2 unverified=0 broken=0`, **exit 0** | **L2** | `cd agent-learning-lab && ./tools/check-links.sh`. Two more `ok` than stop 22's 71 — the two new rows and nothing else |
+| Instrument: `./evidence/p08/verify-quotes.sh`, live over the network | re-run at boundary 2: `found=28 absent=1`, **exit 2**; the one `ABSENT` is `[safe] The agent never receives write tokens directly` — **this workbook's own August quote** | **L2** | `./evidence/p08/verify-quotes.sh`. **If it returns `29/0` the page changed again and that is a new finding, not a pass** |
+| Instrument: `./evidence/p08/verify-quote-checker.sh` (the fixture set) | re-run at boundary 2: **`10 passed, 0 failed`**, exit 0, over all four registered exit codes; case B (one quote deleted → exit 2, `absent=1`) re-derived by hand | **L2** | `./evidence/p08/verify-quote-checker.sh`. A checker never shown to refuse is indistinguishable from one that refuses nothing |
+| The spine's `**L1**` label for Phase 8 (`LEARNING-PATH.md:103`) | `phases/08-agentic-workflows/README.md:35-77` — the layer rule applied **in order**; only **two** of ten subject rows survive step 1 | **L3, and now qualified rather than overwritten** | Apply the workspace `CLAUDE.md` rule in order to each row of the subject table. The label is right about the credential and wrong about everything that inspects content |
+
+Every command in the right-hand column was re-run immediately before this section was written,
+and its output is the value quoted, not a remembered one.
+
 ## Exit gate
 
-- [ ] Human-triggered vs unattended risk
-- [ ] Read-only default
-- [ ] Safe-output separation
-- [ ] Schedule/event attack surface
-- [ ] Why auto-merge should not be the first target
+Answered at §0 boundary 2, 2026-09-27, from the extract above. `[x]` = answered from the reading;
+`[~]` = answered **qualified**, with the qualification stated.
+
+- [x] **Human-triggered vs unattended risk** — the difference is not the trigger, it is that
+  `roles:` replaces the approval prompt, and `roles:` is an **exact-match allowlist, not a
+  privilege threshold** (*"Setting `roles: [write]` will reject actors with `admin` or
+  `maintainer` roles because `admin !== write`"*). Thirteen trigger types can start an agent,
+  including `repository_dispatch:` — *"Trigger a workflow from outside GitHub using a single
+  authenticated API call"*. Forks are blocked by default. The risk class changes because the only
+  thing left between an outside actor and an unattended agent is a set literal whose direction
+  must be read rather than assumed — the **third** occurrence of that shape in this project.
+- [~] **Read-only default** — **qualified, and the clause as the scaffold wrote it is false
+  without a subject.** The **agent job** is read-only by default (*"uses read-only permissions by
+  default for security, with write operations handled through safe outputs"*). The **workflow is
+  not**: with no `safe-outputs:` block at all, *"`create-issue` is automatically enabled with
+  conservative defaults (`max: 1` …)"*. Both sentences are verbatim on their pages and they are
+  about different things. Filed as a correction to this phase's own exit gate.
+- [x] **Safe-output separation** — the one unambiguous **L1** in the subject table, and the only
+  control where step 1 of the layer rule answers *no*: the agent's process holds no credential
+  that can express a write, so there is nothing to reject. `staged: true` (*"Every write operation
+  is skipped"*) is the second, and it is a **preview mode, not a production control** — Phase 5A's
+  *remove the capability before policing it*, shipped by a vendor. Everything that **inspects
+  content** is L2 at best: threat detection blocks, and *"By default, threat detection uses the
+  same AI engine as your main workflow"* — **a model asked whether a model was manipulated, the
+  weakest L2 this project has catalogued**, which nonetheless **fails closed on its own failure**
+  and deserves that credit. The only rule-based lane is protected files, whose **default
+  (`request_review`) routes to a human rather than refusing**; only `blocked` refuses — the same
+  shape as stop 22's `strictKnownMarketplaces`: the strict option exists and is not the default.
+- [x] **Schedule/event attack surface** — bounded by three things and nothing else: the trigger
+  allowlist, `roles:`, and the closed output vocabulary. **The vocabulary is the whole control and
+  its membership is the vendor's**: it roughly doubled in 49 days and now holds
+  `merge-pull-request`, `approve-workflow-run`, `push-to-pull-request-branch`,
+  `dispatch-workflow` / `call-workflow` / `dispatch-repository`, `create-agent-session` and
+  third-party writers (`jira-*`, `linear-*`, `ado-*`). **An L1 control whose scope is a list
+  maintained by someone else has an L3 perimeter.** `stop-after:` bounds the surface in *time* and
+  is this phase's own noise-kill rule as something that executes.
+- [x] **Why auto-merge should not be the first target** — because it is no longer hypothetical and
+  that makes the answer sharper, not softer. `merge-pull-request` and `approve-workflow-run` are
+  **in** the vocabulary, both `experimental`. The reason to refuse it first is the compile step:
+  **`.md` → `.lock.yml` means the file a human reviews is not the file that executes.** Both are
+  committed; only the lock file runs; and `stale`, `out of date`, `out-of-date`, `recompile`,
+  `--verify` and `check that the lock` are **`ABSENT`, all six**, from the page that teaches
+  workflow creation — a scoped claim about **one page**, not about the CLI. An agent that can merge
+  its own pull request, behind a review surface that is not the executed artefact, is the one
+  combination on these pages with no L1 anywhere in it.
+- **Was this the agent, or the harness?** — **neither.** `n = 0` runs: 0 of 740 runs on the API
+  carry a stop-23 experiment key. Every finding here is a property of seven documentation pages
+  read on 2026-09-27, and the proof column of every subject row says **L3** for that reason.
+
+**One clause of this gate was corrected rather than answered**, and that is recorded as the
+result it is: a scaffold written before the pages were read asked for *"read-only default"* as a
+yes/no, and the pages answer *"whose default?"*. *(Stop 23, §0 boundary 2, 2026-09-27, Opus 5
+(claude-opus-5), autonomously; the author did not review before this was written.)*
 
 ## Commit
 
