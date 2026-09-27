@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-05611c81-ca61-4f50-b40e-dc7e29c63ec6
+  mode:           run
+  run_id:         05611c81-ca61-4f50-b40e-dc7e29c63ec6
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/05611c81-ca61-4f50-b40e-dc7e29c63ec6
+  attachments:    8 changed file(s), 6 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260927T155733Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  900   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals throw baseline ApiException subclasses; controllers construct no error bodies"
+    evidence: "OrderMutationService.kt:20, OrderMutationService.kt:34, OrderMutationService.kt:52, OrderController.kt:25, OrderController.kt:39, ShipmentController.kt:31, ShipmentController.kt:53"
+  - name: "maintainability"
+    score: 2
+    anchor_level: 2
+    reason: "cancel returns one exhaustive status when without else"
+    evidence: "OrderMutationService.kt:25"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Clause b is absent because refused state is read directly from repositories"
+    evidence: "OrderCancellationTest.kt:86, OrderCancellationTest.kt:87"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Multiple unnamed methods were added or changed beyond the permitted list"
+    evidence: "OrderMutationService.kt:30, OrderMutationService.kt:50; baseline OrderControllerTest.kt:46, work OrderControllerTest.kt:46"
+ambiguous_categories: []

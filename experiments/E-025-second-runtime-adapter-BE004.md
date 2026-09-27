@@ -362,38 +362,241 @@ failure row.
 
 ## Observed telemetry
 
-<!-- TODO -->
+**`estimatedCost`, `modelCalls`, `toolCalls`, `permissionDenials` and `retries` are `null` on
+20 of 20 runs of this batch** — both arms alike, which is a measurement and is prediction 5's
+subject. `reportedTotalTokens` is non-null on 20 of 20, scraped out of the agent log at
+`run-agent.sh:1236-1244`. `durationMs` survives too, from the runner's clock rather than the
+agent's.
+
+So the gate clause **"observability capability"** is a count: **one** of the six behaviour and
+efficiency numbers this track reads on claude crosses to codex.
+
+**Prediction-commit ordering, checked after the runs as §4 step 3 requires**, from git and the
+run records rather than from this file's prose:
+
+| | value |
+|---|---|
+| prediction commit `05aaf3e` | `2026-09-27T12:12:30+02:00` = **10:12:30Z** |
+| first run of the batch `a06c2daf` `startedAt` | **2026-09-27T12:58:09Z** |
+| first BE-004 run `efd94f24` `startedAt` | **2026-09-27T13:02:54Z** |
+| last run `63e7739f` `finishedAt` | 2026-09-27T13:45:43Z |
+| margin | the prediction precedes the first run of this task by **2 h 50 m 24 s** |
 
 ## Results
 
-<!-- TODO -->
+Population: **`n = 5` per arm.** `check-run-gate.sh` exit 0 with `gate passed (exitCode 0)` on
+10 of 10 BE-004 runs (20 of 20 across both tasks,
+`evidence/b10/batch-20260927T125809Z/run-gate.tsv`), so nothing is excluded by Decision D.
+Every sheet carries exactly four `score:` lines — **zero stalls, zero retries, first attempt on
+all 10**.
+
+Registered scorer codex (Decision C), rubric **`6252778b8472`**, asserted on disk by the driver
+before it ran. **Second reader DEFERRED per run** — `ollama-cloud` has been on its weekly limit
+for five consecutive sessions. Decision H is **not** fired; it promotes the unavailable model.
+Author decision 10.3's `change-focus` carve-out **does not bite here**, because these sheets are
+codex, the registered scorer, not the fallback — so `change-focus` below is admissible.
+
+### The registered primary outcome
+
+| arm | `architecture-consistency`, every run | median |
+|---|---|---|
+| control | 2, 2, 2, 2, 2 | **2** |
+| treated | 1, 1, 2, 2, 2 | **2** |
+
+Difference `0`. Mann–Whitney U = 7.5, **exact** two-sided `p = 0.4444` (= 4/9) — exact, not the
+normal approximation, which is wrong at `n = 5`.
+
+**Decision rule, walked in order** (`evidence/b10/decide-b10.py`, transcript `decision.txt`):
+row 0a does not fire (0 void); row 0b does not fire (both arms reached `n = 5` ≥ 3 inside the
+20-run and 4-hour ceiling — the batch finished 20 runs in 48 minutes); row 0c does not fire;
+row 1 does not fire (`H = 5`); row 2 does not fire; row 3 does not fire; **row 4 FIRES.**
+
+> ### Verdict: NOT DETECTABLE at this `n`.
+
+### The registered outcome was at its ceiling in the control here too
+
+The **control scored 2 on 5 of 5**, the maximum of the 0–2 scale, so improvement was
+arithmetically impossible on this cell before the first treated run started. The MDE registered
+this outcome as *"undefined before the batch; the concurrent control is its first measurement"* —
+and that first measurement is **zero variance at the maximum**.
+
+**This is the one place BE-004 was supposed to help, and it did not.** Author decision 9 added
+this task precisely because E-006 found 50 of 100 rubric points at zero variance on BE-003 with
+`claude-haiku-4-5-20251001`. The fix was written against that model. On `gpt-5.6-sol` the harder
+task's control is at ceiling on this dimension just as BE-003's is, so **the headroom decision 9
+bought does not transfer across runtimes.** That is a finding about decision 9's scope, not a
+failure of it.
+
+Two treated runs scored **1**, and the movement that exists is therefore *downward* — which is
+the only direction a ceiling leaves open. It is inside the MDE and is recorded as NOT DETECTABLE,
+never as a rejection (registered: *"a result that lands inside an MDE is recorded as NOT
+DETECTABLE at this `n`, never as refuted"*).
+
+### What did move — reported as co-variates, and neither is this experiment's result
+
+| category | control | median | treated | median | direction |
+|---|---|---|---|---|---|
+| `maintainability` | 0, 0, 0, 0, **null** | **0** (`n = 4`) | 2, 2, 2, 2, 2 | **2** | **for** the treated arm |
+| `test-quality` | 1, 1, 1, 1, 1 | 1 | 1, 1, 1, 1, 2 | 1 | flat |
+| `change-focus` | 1, 1, 1, 1, 1 | **1** | 0, 0, 0, 0, 0 | **0** | **against** the treated arm |
+
+Two of the three moved, in **opposite directions**, each with zero within-arm variance:
+
+- **`maintainability` 0 → 2 on 5 of 5.** The same move, same magnitude, same direction as
+  BE-003's. Two tasks agreeing is the strongest signal in this batch.
+- **`change-focus` 1 → 0 on 5 of 5.** Every treated run scored the floor and every control run
+  scored 1. The treated arm also touches more: `changedFiles` median 7 both arms but range
+  7–9 treated against 6–7 control, `addedLines` median 171 against 166, `deletedLines` median 18
+  against 16. So the overlay is **plausibly making the diff wider**, which is what `change-focus`
+  penalises.
+
+**Neither is a result of this experiment and this file does not report them as one.** Only
+`architecture-consistency` was registered; §4 step 12 and §5 forbid promoting a co-variate after
+seeing it, and E-004 refused exactly this move. Two further reasons to hold `change-focus`
+especially loosely: author decision 10.2 records that on 34 runs codex and the second reader agree
+34/34 on the other three categories and only **18 of 34** on `change-focus`, always in the same
+direction — so it is the noisiest dimension in the instrument — and the second reader that would
+test it is unavailable.
+
+The weighted total moves with the two of them and nets out small: control median 55.0
+(`n = 4`), treated median 72.5. Reported under the same restriction.
+
+### Row 5 — the cost row, reported, never a verdict
+
+`reportedTotalTokens`: control median **29 624** (range 24 989–46 238, width 21 249), treated
+median **33 349** (range 30 367–40 158). The median shift of **+3 725 (+13 %) is INSIDE the
+control's range**, so on this task row 5 does **not** clear its own threshold — unlike BE-003,
+where the shift was +34 % and outside it. The control's range is three times wider here, which is
+the whole reason, and it is a property of the harder task rather than of the treatment.
+`durationMs` median 138 000 → 145 000 ms.
 
 ## Which predictions held
 
 | # | Prediction | Held? | Actual |
 |---|---|---|---|
-| 1 | files port unchanged 8 of 11 | | |
-| 2 | measured L2 controls survive 0 of 2 | | |
-| 3 | both hashes set 5/5 treated, null 5/5 control | | |
-| 4 | corpus contact ≤ 1 of 5 | | |
-| 5 | cost/calls/tokens null 10/10, reportedTotalTokens ≥ 8/10 | | |
-| 6 | `architecture-consistency` does not separate | | |
-| 7 | BE-004 evaluator does not pass 5/5 on the codex control | | |
+| 1 | files port unchanged 8 of 11 | **HELD** | 8 of 11 (73 %), census, exactly the predicted number |
+| 2 | measured L2 controls survive 0 of 2 | **HELD** | 0 of 2, both losses traced to a named runner line |
+| 3 | both hashes set 5/5 treated, null 5/5 control | **HELD** | `instructionsHash sha256:ebf489800a60a156986f98ea4f127848` AND `knowledgeHash sha256:0770219ae7f4281a80071d78dadea285` — the **full** values against the registered ones, not a non-null test — on 5 of 5 treated; all five `null` on 5 of 5 control. Re-derived from `GET /api/runs/{id}` for all 20, not read off the driver's own manifest. **Registered as the prediction most likely to be wrong; it held cleanly.** |
+| 4 | corpus contact **0 of 5**, refuted at ≥ 2 of 5 | **REFUTED** | **5 of 5** — the whole population, past a threshold set at 2 |
+| 5 | cost/calls/tokens null 10/10, reportedTotalTokens ≥ 8/10 | **HELD** | `estimatedCost`, `modelCalls`, `toolCalls` `null` on 10 of 10; `reportedTotalTokens` non-null on 10 of 10 |
+| 6 | `architecture-consistency` does not separate | **HELD** | medians 2 vs 2, difference 0, exact `p = 0.4444` |
+| 7 | BE-004 evaluator does **not** pass 5/5 on the codex control | **REFUTED** | **5 of 5 passed**, exit 0. And 5 of 5 on the treated arm too |
+
+**Five of seven held; both refutations are worth more than the five.**
+
+**Prediction 7's refutation is the load-bearing one.** It was written on the reasoning that
+BE-004's perfect evaluator record — 9 of 9, 10 of 10, 7 of 7, 10 of 10 — is *"a property of
+**that** model, and this arm changes the model."* It is not: `gpt-5.6-sol` also passes 10 of 10.
+So **BE-004's ceiling is a property of the task, not of `claude-haiku-4-5-20251001`** — and a task
+that two model families from two vendors never fail has no correctness headroom for any later
+step to measure. Decision 9's *"pass rate is a result, not a nuisance"* applies: this is the
+result, and it is a constraint on every remaining B step that uses BE-004.
+
+**Prediction 6 held for a mechanism its own batch refutes.** It predicted no separation *"because
+the port carries no control that could change the shape of the code; only a corpus that prediction
+4 says will not be read."* The corpus **was** read, 5 of 5. The number is right, the stated reason
+is wrong, and the actual reason — the control at ceiling — appears in neither prediction.
 
 ## Failure analysis
 
-<!-- TODO -->
+**1. Prediction 4 refuted at 5 of 5 against a predicted 0 of 5.** The transferred reference was
+stop 20's **1 of 10** on this task with claude, scaled below one run. It was the wrong reference
+class: measured on `claude-haiku-4-5-20251001` under a `.claude/` overlay, applied to
+`gpt-5.6-sol` under an `AGENTS.md` overlay. **Stop 20's corpus-contact rate is not evidence about
+codex in either direction.** The prediction stands as written (§4 step 12).
+
+**2. Prediction 7 refuted, and BE-004 is now measured as ceilinged across two model families.**
+Above. This goes to `author_notes` because it bears on stops the author owns: it is the second
+independent reason (after `architecture-consistency` at ceiling) that BE-004 cannot discriminate
+on this runtime, and it is evidence for the premise behind author decision 11's BE-005 — that a
+task needs headroom built in from the first sentence rather than added by size.
+
+**3. The primary outcome could not move, on both tasks, and the missing control was cheap.**
+There was **no control-arm rubric census before the batch**. One codex control run scored on the
+registered rubric — **18 seconds** at this batch's median per-sheet time (13 s fastest, 37 s
+slowest, 400 s for all 20) — would have shown `architecture-consistency = 2` and turned the choice
+of primary outcome into a decision. That is
+the cheapest missing control in the track. `author_notes`.
+
+**4. One null cell, bounded, on this task's control arm.** `efd94f24` scores
+`maintainability: null`, `reason: "ambiguous: 0 vs 1; status if is delegated outside the method
+named cancel"`. A missing cell is not a null cell and this is a **null cell** — the scorer used
+the rubric's ambiguity escape hatch and **named both candidates, 0 and 1, both below the treated
+arm's 2**. The `maintainability` direction therefore does not depend on it. It is excluded from
+that arm's median rather than imputed, which is why that cell reads `n = 4` and why the arm's
+weighted total does too.
+
+**5. What this experiment still cannot say.** No cross-runtime quality verdict, for the three
+independent reasons in the workbook's `## Goal`. The comparison here is **within codex only**,
+treated against its own concurrent control.
 
 ## Sanity checks
 
-- [ ] Did any dramatic number appear? Has it been explained *and* the explanation tested?
-- [ ] Did any **flattering** number appear? Has it been disbelieved twice?
-- [ ] If a fix motivated this run, did the original symptom actually disappear?
+- [x] **Did any dramatic number appear? Has it been explained *and* the explanation tested?**
+  Two. **(a)** Corpus contact 5 of 5 against a predicted 0 — explained by the router being
+  invoked, and **tested rather than asserted**: a per-run router log was copied out of `$TMPDIR`
+  for each of the 5 treated runs (`router-logs/knowledge-log-observatory-run-*.jsonl`, 1 line
+  each, `corpus_contact=router`) while the control column reads `none` with 0 lines on 5 of 5.
+  **(b)** `change-focus` at the floor on 5 of 5 treated — explained by a wider diff, and that
+  explanation is tested against `changedFiles`, `addedLines` and `deletedLines`, all three of
+  which are higher on the treated arm. It remains a co-variate on the instrument's noisiest
+  dimension and is not claimed.
+- [x] **Did any flattering number appear? Has it been disbelieved twice?**
+  Yes — `maintainability` 2 on 5 of 5 treated against a control median of 0. Disbelieved twice:
+  **(a)** it is not a registered outcome and enters no row of the decision rule; **(b)** the
+  control's floor is softer than `0, 0, 0, 0` looks, because the fifth cell is the scorer calling
+  the same dimension ambiguous between 0 and 1. Third: the second reader that would test it is
+  unavailable, so this is one harness unchecked. **And the flattering number has a companion
+  moving the other way** — `change-focus` 1 → 0 on 5 of 5 — which is the reason the weighted
+  total nets out to something far less impressive than `maintainability` alone suggests.
+- [x] **If a fix motivated this run, did the original symptom actually disappear?**
+  Not applicable — no fix motivated it. The isolation question that opened §4 step 4 did resolve:
+  `verify-codex-isolation.sh` returned `ok: ALL THREE checks hold for codex-cli 0.154.0` at exit 0
+  at this session's §0a, after leaking once and wedging once the session before. Recorded as
+  resolved-at-`n`-observed, not as a fix.
 
 ## Decision
 
-<!-- TODO -->
+**Keep the port; make no claim for it on this outcome; and record BE-004 as ceilinged on codex.**
+
+- The **port is kept**: delivered on 10 of 10 treated runs across both tasks by exact hash, 8 of
+  11 files crossed unchanged. P5's *"portable core"* half is **supported** at the file level and
+  by delivery proof.
+- P5's *"thin adapters"* half is **refuted by the census**: 0 of 2 measured L2 controls survive.
+  What crosses is prose and a corpus; what does not cross is every control that executes.
+- **No `keep`/`remove` decision on the knowledge corpus from this stop.** §4 step 10's *"a rule
+  with no measured effect is removed"* does **not** apply — this is not a measured no-effect, it
+  is an outcome with **no headroom**, and conflating the two would remove a mechanism the
+  co-variates suggest is doing the most visible work in the batch. That distinction is the thing
+  from this stop most worth carrying forward.
+- **BE-004 is recorded as having no correctness headroom on either model family** — 10 of 10 on
+  `gpt-5.6-sol` here, beside the record already on file for `claude-haiku-4-5-20251001`, quoted
+  rather than re-totalled because the per-arm counts do not add to a single figure without
+  assuming how the arms were pooled: *"9 of 9 before stop 12, 10 of 10 in every arm at B5 and B6,
+  7 of 7 in both arms at B7"* (run prompt §3, author decision 11), plus 10 of 10 per arm at stop
+  20. **No batch on either model has ever produced a BE-004 evaluator failure.** That sentence is
+  what the evidence supports; a total is not. Also no rubric headroom on `architecture-consistency`
+  on codex. Both go to `author_notes`.
+- **Primary runtime: claude. Fallback: codex** — the gate's *"pick primary and fallback"* clause
+  answered from this batch, and answered the same way on both tasks: codex loses 5 of 6
+  observability numbers and both executing controls, and gains nothing measurable on the
+  registered outcome.
 
 ## Follow-up
 
-<!-- TODO -->
+1. **Register a control-arm rubric census before any future batch**, before the primary outcome
+   is chosen. `author_notes`.
+2. **`maintainability` on codex is the outcome a later stop should register** — it is the only
+   dimension that moved the same way on both tasks — with its prediction written before any of
+   these sheets are re-read.
+3. **`change-focus` needs the second reader before anyone builds on it**, per decision 10.2's
+   18-of-34 concordance. Deferred, not waived.
+4. **BE-004's ceiling is now measured on two model families** and is an input to whatever the
+   author decides about BE-005 and later steps. Not the builder's to act on (§7: a new task is
+   the author's).
+5. The second reader is owed on all 20 run ids; when `ollama-cloud` returns, `opencode-score.sh`
+   on the same ids, labelled as the second reading produced after the registered sheet.
+
+*Filled in from evidence by Opus 5 (claude-opus-5), autonomously, 2026-09-27. No prediction, MDE
+row or decision rule in this file was edited after its run; predictions 4 and 7 stand as written
+and refuted.*

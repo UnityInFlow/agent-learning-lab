@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality.yaml
+  rubric_sha:     396e1799eb2b
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-25544cc6-12a0-4c93-94a6-03050af88b3d
+  mode:           run
+  run_id:         25544cc6-12a0-4c93-94a6-03050af88b3d
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/25544cc6-12a0-4c93-94a6-03050af88b3d
+  attachments:    2 changed file(s), 2 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260927T160055Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  900   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals use existing ResourceNotFoundException or ConflictException subclasses"
+    evidence: "ShipmentController.kt:23, ShipmentController.kt:41, ShipmentController.kt:52, ShipmentController.kt:61"
+  - name: "maintainability"
+    score: 2
+    anchor_level: 2
+    reason: "A single no-else when is consumed directly by return"
+    evidence: "ShipmentController.kt:47"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "Tests assert repeat response body, re-read persisted state, and refusal envelopes"
+    evidence: "ShipmentControllerTest.kt:56, ShipmentControllerTest.kt:70, ShipmentControllerTest.kt:72, ShipmentControllerTest.kt:88"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "The class documentation changed outside confirm while unnamed methods remained identical"
+    evidence: "ShipmentController.kt:14; baseline/ShipmentController.kt:14"
+ambiguous_categories: []

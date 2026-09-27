@@ -349,37 +349,212 @@ failure row.
 
 ## Observed telemetry
 
-<!-- TODO -->
+**`estimatedCost`, `modelCalls`, `toolCalls`, `permissionDenials` and `retries` are `null` on
+20 of 20 runs of this batch.** Not missing — `null`, on both arms alike, which is a measurement
+and is prediction 5's subject. The one efficiency field that survives is
+`reportedTotalTokens`, non-null on 20 of 20, scraped out of the agent log at
+`run-agent.sh:1236-1244` rather than reported by an OTel path.
+
+So the gate clause **"observability capability"** is answered by a count and not by prose: of
+the six behaviour and efficiency numbers this track reads on claude, **one** crosses to codex.
+`durationMs` also survives, from the runner's own clock rather than from the agent.
+
+**Prediction-commit ordering, checked after the runs as §4 step 3 requires**, from git and the
+run records rather than from this file's prose:
+
+| | value |
+|---|---|
+| prediction commit `05aaf3e` | `2026-09-27T12:12:30+02:00` = **10:12:30Z** |
+| first run `a06c2daf` `startedAt` | **2026-09-27T12:58:09Z** |
+| last run `63e7739f` `finishedAt` | 2026-09-27T13:45:43Z |
+| margin | the prediction precedes the first run by **2 h 45 m 39 s** |
 
 ## Results
 
-<!-- TODO -->
+Population: **`n = 5` per arm**, 20 runs across both tasks, `check-run-gate.sh` exit 0 with
+`gate passed (exitCode 0)` on **20 of 20** (`evidence/b10/batch-20260927T125809Z/run-gate.tsv`),
+so no run is excluded by Decision D and nothing was scored that had not cleared the evaluator.
+Every sheet carries exactly four `score:` lines — **zero stalls, zero retries, 20 of 20 on the
+first attempt** — which is the first codex scoring batch in this track to do that.
+
+Registered scorer codex (Decision C), rubric `396e1799eb2b`, asserted on disk by the driver
+before it ran. **The second reader is DEFERRED, per run:** `ollama-cloud` has been on its weekly
+limit for five consecutive sessions (§0a row 2 stalled at 903 bytes with 0 finding sections
+again this session), so `opencode-score.sh` cannot produce the concordance sheets §4 step 7 asks
+for. Decision H is **not** fired — it promotes the very model that is unavailable.
+
+### The registered primary outcome
+
+| arm | `architecture-consistency`, every run | median |
+|---|---|---|
+| control | 2, 2, 2, 2, 2 | **2** |
+| treated | 2, 2, 2, 2, 2 | **2** |
+
+Difference `0`. Mann–Whitney U = 12.5, **exact** two-sided `p = 1.0000` — computed exactly rather
+than by the normal approximation, which is wrong at `n = 5`.
+
+**Decision rule, walked in order** (`evidence/b10/decide-b10.py`, transcript
+`decision.txt`): row 0a does not fire (0 void of 10 treated, 0 control with a non-null hash);
+row 0b does not fire (both arms reached `n = 5` ≥ 3, inside 20 runs and 48 minutes of a 4-hour
+ceiling); row 0c does not fire (codex never refused); row 1 does not fire (`H = 5`, not 0);
+row 2 does not fire; row 3 does not fire; **row 4 FIRES.**
+
+> ### Verdict: NOT DETECTABLE at this `n`.
+
+### The registered outcome was at its ceiling in the control, and that is the finding
+
+`architecture-consistency` is scored 0–2 and the **control scored 2 on 5 of 5 runs**. The
+treated arm therefore had **no headroom**: on this cell an improvement was arithmetically
+impossible before the first treated run started, and the only movement the outcome could have
+shown was downward.
+
+The MDE table registered this outcome as *"undefined before the batch; the concurrent control is
+its first measurement."* **That first measurement has now been taken and it is: zero variance,
+at the maximum.** Registering an MDE as undefined was the honest move and it was also not
+enough — an outcome can be undefined *and* already known to be unable to move, and the census
+that would have caught it is one codex control run, which this stop could have afforded.
+
+This is **E-006's defect reappearing on a new runtime.** E-006 found 50 of 100 rubric points at
+zero variance on BE-003 with `claude-haiku-4-5-20251001`, and author decision 9 added BE-004 to
+fix it. The fix worked for the model it was written against. It did not transfer: on
+`gpt-5.6-sol`, `architecture-consistency` is at ceiling on **both** tasks' controls
+(`BE-004` likewise 2, 2, 2, 2, 2), so adding the harder task bought nothing on this dimension.
+
+### What did move — reported as a co-variate, and it is not this experiment's result
+
+| category | control | median | treated | median |
+|---|---|---|---|---|
+| `maintainability` | 0, 0, 0, 2, 2 | **0** | 2, 2, 2, 2, 2 | **2** |
+| `test-quality` | 1, 1, 2, 2, 2 | 2 | 2, 2, 2, 2, 2 | 2 |
+| `change-focus` | 1, 1, 1, 1, 2 | 1 | 1, 1, 1, 1, 2 | 1 |
+
+`maintainability` moves by **two points of a three-point scale**, in the treated arm's favour, at
+25 % weight — and it does the same thing on BE-004 (control median 0, treated 2 on 5 of 5). Two
+tasks, same direction, same magnitude, treated arm at the ceiling on 10 of 10 runs.
+
+**It is not a result and this file does not report it as one.** `maintainability` was never a
+registered outcome of E-024; §4 step 12 and §5 forbid promoting a co-variate to a verdict after
+seeing it, and E-004's own write-up refused exactly this move for exactly this category. What it
+is: **the strongest candidate for a registered primary outcome at any later codex stop**, and the
+reason the sentence above about the ceiling is a design finding rather than an excuse. A stop
+that registers `maintainability` on codex and finds nothing will have measured something; this
+stop cannot claim it either way.
+
+The weighted total moves with it — control median 67.5, treated median 92.5 — and is reported
+under the same restriction, since it is a function of the same four cells.
+
+### Row 5 — the cost row, reported, never a verdict
+
+`reportedTotalTokens`: control median **25 840** (range 21 958–28 866, width 6 908), treated
+median **34 736** (range 25 214–40 683). The median shift of **+8 896 (+34 %) is outside the
+control's whole range**, so row 5 fires as a reported cost row. `durationMs` moves with it,
+median 85 000 → 108 000 ms.
+
+The mechanism is not in doubt and is not orchestration: the treated arm carries an instruction
+file and a knowledge corpus the control does not, and the router was invoked on 5 of 5 treated
+runs. **A cost row is never a second condition on a failure row** (registered), so this does not
+convert row 4 into a rejection — but a +34 % token cost for a cell that could not move is the
+honest shape of this result.
 
 ## Which predictions held
 
 | # | Prediction | Held? | Actual |
 |---|---|---|---|
-| 1 | files port unchanged 8 of 11 | | |
-| 2 | measured L2 controls survive 0 of 2 | | |
-| 3 | both hashes set 5/5 treated, null 5/5 control | | |
-| 4 | corpus contact ≤ 1 of 5 | | |
-| 5 | cost/calls/tokens null 10/10, reportedTotalTokens ≥ 8/10 | | |
-| 6 | `architecture-consistency` does not separate | | |
+| 1 | files port unchanged 8 of 11 | **HELD** | 8 of 11 (73 %), census, exactly the predicted number |
+| 2 | measured L2 controls survive 0 of 2 | **HELD** | 0 of 2, and both losses traced to a named runner line |
+| 3 | both hashes set 5/5 treated, null 5/5 control | **HELD** | `instructionsHash sha256:ebf489800a60a156986f98ea4f127848` AND `knowledgeHash sha256:0770219ae7f4281a80071d78dadea285` — the **full** values against the registered ones, not a non-null test — on 5 of 5 treated; all five hashes `null` on 5 of 5 control. Re-derived from `GET /api/runs/{id}` for all 20, not read off the driver's manifest. **This was registered as the prediction most likely to be wrong, and it is the one that held cleanly.** |
+| 4 | corpus contact ≤ 1 of 5 | **REFUTED** | **5 of 5.** Off by the whole population, and in the direction nobody predicted |
+| 5 | cost/calls/tokens null 10/10, reportedTotalTokens ≥ 8/10 | **HELD** | `estimatedCost`, `modelCalls`, `toolCalls` `null` on 20 of 20 (10 of 10 on this task); `reportedTotalTokens` non-null on 10 of 10, above the ≥ 8 threshold |
+| 6 | `architecture-consistency` does not separate | **HELD** | medians 2 vs 2, difference 0, exact `p = 1.0000` |
+
+**Five of six held, and the held ones are worth less than the refuted one.** Prediction 6 held
+for a reason its stated mechanism gets wrong: it predicted no separation *"because the port
+carries no control that could change the shape of the code; only a corpus that prediction 4 says
+will not be read."* The corpus **was** read, on 5 of 5 runs. So prediction 6's number is right and
+its mechanism is refuted by prediction 4 in the same batch — and the real reason there was no
+separation is the ceiling, which neither prediction mentions.
 
 ## Failure analysis
 
-<!-- TODO -->
+**1. Prediction 4 is refuted at 5 of 5, and the refutation is about the runtime, not the corpus.**
+Stop 20 measured corpus contact at 3 of 20 on claude and this experiment scaled that number down
+to ≤ 1 of 5. On codex it is **5 of 5**. The transferred rate was the wrong reference class: a
+number measured on `claude-haiku-4-5-20251001` with a `.claude/` overlay was carried to
+`gpt-5.6-sol` with an `AGENTS.md` overlay, and nothing in the mechanism made it portable. The
+prediction stands as written (§4 step 12) and the lesson is that **stop 20's rate is not
+evidence about codex**, in either direction.
+
+**2. The primary outcome could not move, and nothing in the registered design could catch that.**
+Covered above. The concrete instrument gap: **there was no control-arm rubric census before the
+batch.** One codex control run scored on the registered rubric — **18 seconds** of scorer
+time at this batch's median, 13 s fastest and 37 s slowest over its 20 sheets (400 s of wall clock
+for the whole scoring pass) — would have shown `architecture-consistency = 2` and made the choice
+of primary outcome a decision rather than an accident. This is the cheapest missing
+control in the track and it goes to `author_notes`.
+
+**3. One null cell, and it is bounded.** `evidence/b10` sheet for BE-004 control `efd94f24`
+scores `maintainability: null` with `reason: "ambiguous: 0 vs 1; status if is delegated outside
+the method named cancel"`. A missing cell is not a null cell and this is a null cell — the
+scorer used the rubric's own ambiguity escape hatch and **named both candidates, 0 and 1, both
+below the treated arm's 2**. So the direction of the `maintainability` co-variate does not depend
+on it, and it is excluded from that arm's median rather than imputed (`n = 4` on that one cell).
+
+**4. What this experiment still cannot say.** No cross-runtime quality verdict, for the three
+independent reasons in the workbook's `## Goal` — `agent-observatory#47` open, the model moving
+with the adapter (two variables), and HANDOFF's seventh-session block. Nothing here loosens that.
+The comparison above is **within codex only**, treated against its own concurrent control.
 
 ## Sanity checks
 
-- [ ] Did any dramatic number appear? Has it been explained *and* the explanation tested?
-- [ ] Did any **flattering** number appear? Has it been disbelieved twice?
-- [ ] If a fix motivated this run, did the original symptom actually disappear?
+- [x] **Did any dramatic number appear? Has it been explained *and* the explanation tested?**
+  Yes — corpus contact 5 of 5 against a predicted ≤ 1. Explanation: the router was invoked, and
+  it is **tested rather than asserted** — the driver copied a per-run router log out of `$TMPDIR`
+  for each of the 5 treated runs (`router-logs/knowledge-log-observatory-run-*.jsonl`, 1 line
+  each, `corpus_contact=router`), and the control's column reads `none` with `0` lines on 5 of 5.
+- [x] **Did any flattering number appear? Has it been disbelieved twice?**
+  Yes — `maintainability` 2 on 5 of 5 treated against a control median of 0, and the weighted
+  total 92.5 vs 67.5. Disbelieved twice: **(a)** it is not a registered outcome, so it is reported
+  as a co-variate and enters no row of the decision rule; **(b)** it is on the same dimension the
+  BE-004 sheets call ambiguous between 0 and 1 in one control run, so the control's own floor is
+  softer than `0, 0, 0, 2, 2` makes it look. A third reason to hold it loosely: the second reader
+  that would test it is unavailable, so this is one harness unchecked.
+- [x] **If a fix motivated this run, did the original symptom actually disappear?**
+  Not applicable — no fix motivated this run. The isolation question that opened §4 step 4 *did*
+  resolve: `verify-codex-isolation.sh` returned `ok: ALL THREE checks hold for codex-cli 0.154.0`
+  at exit 0 at this session's §0a, after leaking once and wedging once in the previous session.
+  Recorded as resolved-at-`n`-observed, not as a fix.
 
 ## Decision
 
-<!-- TODO -->
+**Keep the port; make no claim for it on this outcome.**
+
+- The **port itself is kept**: `build/customizations/agent-v1.2-knowledge-codex/` delivered on
+  10 of 10 treated runs across both tasks, by exact hash, and 8 of 11 files crossed unchanged.
+  P5's *"portable core"* half is **supported at the file level and by delivery proof**.
+- P5's *"thin adapters"* half is **refuted by the census, not by this batch**: 0 of 2 measured L2
+  controls survive, so what crosses is the prose and the corpus, and what does not cross is every
+  control that executes. A core that ports while its guardrails do not is not a thin adapter.
+- **No `keep`/`remove` decision is taken on the knowledge corpus from this stop**, because the
+  registered outcome could not see it. §4 step 10's *"a rule with no measured effect is removed"*
+  does **not** apply: this is not a measured no-effect, it is an outcome with no headroom, and
+  treating the two as the same would remove a mechanism the co-variates suggest is doing the most
+  visible work in the batch. That distinction is the one thing from this stop worth carrying.
+- **Primary runtime: claude. Fallback: codex** — the gate's *"pick primary and fallback"* clause,
+  answered from this batch: codex loses 5 of 6 observability numbers and both executing controls,
+  and gains nothing measurable on the registered outcome at +34 % tokens.
 
 ## Follow-up
 
-<!-- TODO -->
+1. **Register a control-arm rubric census before any future batch** — one control run scored on
+   the registered rubric before the primary outcome is chosen. `author_notes`.
+2. **`maintainability` on codex is the outcome a later stop should register**, with its prediction
+   written before any of these sheets are re-read.
+3. **The second reader is owed on all 20 run ids** and is deferred, not waived; when
+   `ollama-cloud` returns, `opencode-score.sh` on the same ids, labelled as the second reading
+   produced after the registered sheet.
+4. Stop 20's corpus-contact rate must not be cited as evidence about codex again, in either
+   direction.
+
+*Filled in from evidence by Opus 5 (claude-opus-5), autonomously, 2026-09-27. No prediction, MDE
+row or decision rule in this file was edited after its run; prediction 4 stands as written and
+refuted.*

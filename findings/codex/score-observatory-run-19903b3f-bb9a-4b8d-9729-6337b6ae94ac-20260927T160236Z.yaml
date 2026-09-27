@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality.yaml
+  rubric_sha:     396e1799eb2b
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-19903b3f-bb9a-4b8d-9729-6337b6ae94ac
+  mode:           run
+  run_id:         19903b3f-bb9a-4b8d-9729-6337b6ae94ac
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/19903b3f-bb9a-4b8d-9729-6337b6ae94ac
+  attachments:    2 changed file(s), 2 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260927T160236Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  900   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "Both refusals throw baseline ApiException subclasses; no error body is constructed"
+    evidence: "ShipmentController.kt:55, ShipmentController.kt:64"
+  - name: "maintainability"
+    score: 2
+    anchor_level: 2
+    reason: "A returned when expression has no else branch"
+    evidence: "ShipmentController.kt:60"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "Tests assert repeat body, re-read persisted state, and refusal envelope"
+    evidence: "ShipmentControllerTest.kt:79, ShipmentControllerTest.kt:91, ShipmentControllerTest.kt:105"
+  - name: "change-focus"
+    score: 2
+    anchor_level: 2
+    reason: "Create, getById, and list remain identical; only confirm was added"
+    evidence: "ShipmentController.kt:25, ShipmentController.kt:45, ShipmentController.kt:71; baseline/ShipmentController.kt:25, baseline/ShipmentController.kt:45, baseline/ShipmentController.kt:53"
+ambiguous_categories: []

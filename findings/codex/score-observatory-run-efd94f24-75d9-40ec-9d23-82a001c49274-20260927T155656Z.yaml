@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-efd94f24-75d9-40ec-9d23-82a001c49274
+  mode:           run
+  run_id:         efd94f24-75d9-40ec-9d23-82a001c49274
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/efd94f24-75d9-40ec-9d23-82a001c49274
+  attachments:    7 changed file(s), 5 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260927T155656Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  900   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals use baseline ApiException subclasses without constructing error bodies"
+    evidence: "OrderController.kt:23; OrderShipmentCoordinator.kt:22; OrderShipmentCoordinator.kt:31; OrderShipmentCoordinator.kt:44; OrderShipmentCoordinator.kt:51; ShipmentController.kt:37"
+  - name: "maintainability"
+    score: null
+    anchor_level: null
+    reason: "ambiguous: 0 vs 1; status if is delegated outside the method named cancel"
+    evidence: "OrderController.kt:44; OrderShipmentCoordinator.kt:27"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Body assertions exist, but clauses (b) and (d) lack separate GET re-reads"
+    evidence: "OrderCancellationTest.kt:67; OrderCancellationTest.kt:78; OrderCancellationTest.kt:82"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "A new coordinator class exceeds the exhaustive permitted-differences list"
+    evidence: "OrderShipmentCoordinator.kt:14"
+ambiguous_categories: ["maintainability"]

@@ -1,0 +1,54 @@
+B10 decision rules, walked IN ORDER. n = 5 per arm per task, 20 runs.
+
+==============================================================================
+BE-003   E-024
+  row 0a  void treated/control runs = 0  -> does not fire
+  row 0b  both arms reached n = 5 >= 3 before the ceiling -> does not fire
+  row 0c  codex refused on quota = no -> does not fire
+  row 1   H = 5  -> does not fire
+
+  architecture-consistency  treated [2, 2, 2, 2, 2] median 2
+                            control [2, 2, 2, 2, 2] median 2
+                            difference (treated - control) = +0
+                            Mann-Whitney U = 12.5, exact two-sided p = 1.0000 (1)
+  row 2   d >= +1 -> does not fire
+  row 3   d <= -1 -> does not fire
+  row 4   |d| < 1 -> FIRES: NOT DETECTABLE at this n
+
+  row 5 (reported, never a verdict)  reportedTotalTokens
+        treated median 34736 range 25214-40683
+        control median 25840 range 21958-28866
+        control range width 6908, median shift +8896
+        -> OUTSIDE the control range
+
+  other categories, reported so the primary is not read alone:
+    maintainability            treated [2, 2, 2, 2, 2] median 2 | control [0, 0, 0, 2, 2] median 0
+    test-quality               treated [2, 2, 2, 2, 2] median 2 | control [1, 1, 2, 2, 2] median 2
+    change-focus               treated [1, 1, 1, 1, 2] median 1 | control [1, 1, 1, 1, 2] median 1
+
+==============================================================================
+BE-004   E-025
+  row 0a  void treated/control runs = 0  -> does not fire
+  row 0b  both arms reached n = 5 >= 3 before the ceiling -> does not fire
+  row 0c  codex refused on quota = no -> does not fire
+  row 1   H = 5  -> does not fire
+
+  architecture-consistency  treated [1, 1, 2, 2, 2] median 2
+                            control [2, 2, 2, 2, 2] median 2
+                            difference (treated - control) = +0
+                            Mann-Whitney U = 7.5, exact two-sided p = 0.4444 (4/9)
+  row 2   d >= +1 -> does not fire
+  row 3   d <= -1 -> does not fire
+  row 4   |d| < 1 -> FIRES: NOT DETECTABLE at this n
+
+  row 5 (reported, never a verdict)  reportedTotalTokens
+        treated median 33349 range 30367-40158
+        control median 29624 range 24989-46238
+        control range width 21249, median shift +3725
+        -> INSIDE the control range
+
+  other categories, reported so the primary is not read alone:
+    maintainability            treated [2, 2, 2, 2, 2] median 2 | control [0, 0, 0, 0] median 0.0
+    test-quality               treated [1, 1, 1, 1, 2] median 1 | control [1, 1, 1, 1, 1] median 1
+    change-focus               treated [0, 0, 0, 0, 0] median 0 | control [1, 1, 1, 1, 1] median 1
+
