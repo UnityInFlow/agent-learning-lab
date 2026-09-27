@@ -252,6 +252,9 @@ branch: stop23/phase-8-agentic-workflows (agent-learning-lab) - created from mai
         # ONE COMMIT: 14f2d60 "Stop 23 (Phase 8 - gh-aw) at §0 boundary 1: extract written,
         # n = 0 runs". NOT YET PUSHED at the time this line was written; the push is the last act
         # of this session and its result is in last_verified.
+        # *** PUSHED, CONFIRMED 2026-09-27T19:5xZ: `* [new branch] stop23/phase-8-agentic-workflows
+        # -> stop23/phase-8-agentic-workflows`, tracking origin. TWO COMMITS ON IT: 14f2d60 (the
+        # stop) and 6d96643 (this state write). ***
         # *** NO PR YET - a PR is §4 step 14 = boundary 2. ***
 in_flight: []   # *** EMPTY of anything of MINE. *** Checked with the NARROW pattern
                 # `LC_ALL=C pgrep -fl 'run-agent.sh|codex exec|opencode-review.sh'` - NEVER a bare
