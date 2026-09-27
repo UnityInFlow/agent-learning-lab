@@ -48,7 +48,7 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 `NOT DETECTABLE AT THIS n` on both tasks, row 4 of each decision rule, all four build-track gate
 clauses answered from measurement, a deliberate failure at `n = 1` that converted the stop's one L3
 claim into an L2 observation, and three instruments built with it. NOTHING is blocked on the
-author.** PR `lab#PRNUM`. `lab#35` (B10) is **closed** — a B-step issue closes when its deliverable
+author.** PR `lab#130`. `lab#35` (B10) is **closed** — a B-step issue closes when its deliverable
 is decided, and a `NOT DETECTABLE` with a disposition is a decision. `lab#16` and `lab#8` **stay
 open** from stops 19 and 18, unchanged: their stub labs are deferred and a Phase issue closes only
 when its gate is met from measurement. **Stop 22 (Phase 7 — plugins, a ◇ extract-only stop) is NOT
