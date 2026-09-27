@@ -173,6 +173,48 @@ have to remember. The L2 version is a locale-forced stall check inside
 it is not built, because a review was in flight when this was found and **never edit a tool
 while a run of it is in flight** outranks fixing it promptly.
 
+### `ls -t | head -1` returns the WRONG file in this shell, and exits 0
+
+**Found 2026-09-27 during the stop-22 preflight, and it is the `pgrep` defect again with a
+different command.** `ls` here is an alias for `eza --group-directories-first --icons=auto`
+(eza v0.23.4), and **in eza `-t` is `--time FIELD`** — *"which timestamp field to list
+(modified, accessed, created)"* — **not "sort by mtime"**. So `eza -t a.md b.md` consumes
+`a.md` as the argument to `-t`, lists only `b.md`, and **exits 0**. Against a glob, `ls -t
+findings/opencode/*.md | head -1` silently swallows the newest match and returns whichever of
+the rest sorts first by name.
+
+Measured, deterministic, 3 of 3 each way on the same directory:
+
+```
+ls -t findings/opencode/*.md | head -1        -> review-check-run-state-20260916T182713Z.md   # WRONG, 11 days old
+/bin/ls -t findings/opencode/*.md | head -1   -> review-run-record-20260927T175535Z.md        # right
+eza -s modified -r findings/opencode/*.md     -> review-run-record-20260927T175535Z.md        # right
+```
+
+**Use `/bin/ls -t`, or `eza -s modified -r`, or `stat -f '%m %N'` and sort.** Never bare
+`ls -t`.
+
+Why it matters more than it looks: *"read the findings file in `findings/opencode/`"* is the
+first line of §4a's revision loop and of the §0a review-harness row, and **a review round that
+picked its subject with `ls -t | head -1` would have read a real findings file about a different
+artifact, with a success exit code and nothing to notice.** No committed script under `tools/`,
+`.claude/hooks/`, `runner/` or the Makefile uses it — checked by grep — so this is a procedure
+risk, not a live defect in an instrument. It **was** a live defect in one *re-derivation
+instruction*: `phases/04b-orchestration/README.md` line 726 told a stranger to re-derive a
+closed stop's evidence with it, and that row is amended there.
+
+This is **L3** — a sentence you have to remember, exactly like the `pgrep` one above. The L2
+version is a `newest-file` helper in `tools/` that the scripts and the workbooks both call, so
+the idiom exists in one place and can be fixture-proved. It is **not built**, because stop 22 is
+a ◇ extract-only stop and §6 of the run prompt forbids building a future step's artifact; it is
+on record for the author.
+
+**The pattern these two share is the thing to carry, not either command.** Both are checks that
+answer *plausibly* without looking: bare `pgrep` printed nothing and looked like "no stall";
+bare `ls -t` prints a real filename and looks like "the newest file". A control whose failure
+mode is a confident wrong answer is worse than one that crashes, and this repository has now
+found two of them in the same paragraph of procedure.
+
 **The mitigation is `LAB_REVIEW_TIMEOUT` (default 600s)**, which covers every panel family
 *and* the acceptance gate: a stall drops that family, on the record, and the rest continue.
 Nothing has ever recovered past ~10 minutes.
