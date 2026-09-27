@@ -19,7 +19,7 @@ LAB="$PWD"
 DRIVER="$LAB/evidence/b09/run-b9-preflight.sh"
 T="$LAB/build/customizations/agent-v1.2-knowledge"
 C="$LAB/build/customizations/agent-v1.1"
-EXPECTED_CASES=11
+EXPECTED_CASES=12
 
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT
 pass=0; fail=0
@@ -95,6 +95,23 @@ printf '%s\n' "$$" > "$WORK/held.lock"
 expect 8 "K a held pid lock refuses a second preflight" -- env B9_LOCK="$WORK/held.lock" "$DRIVER"
 
 echo
+# --- L: THE PREFLIGHT MUST NOT USE THE BATCH'S REGISTERED KEY. ---------------------------------
+# The defect this asserts against put four preflight runs into the registered dataset:
+# EXP-B9-ROUTER-BE003 held 25 runs where the registered population is 20, `make baseline-report`
+# pooled them silently, and only `analyze-experiment.py --expect-n 10` refused at exit 2 — which is
+# the only reason it was found rather than quoted. Asserted through B9_PRINT_KEYS so no run and no
+# dollar is needed, and asserted in BOTH directions: the -PF keys must appear AND a bare
+# EXP-B9-ROUTER-BE003 must not.
+KEYS_OUT="$(B9_PRINT_KEYS=1 "$DRIVER" 2>&1)"; KEYS_RC=$?
+if [[ "$KEYS_RC" -eq 0 ]] \
+   && printf '%s' "$KEYS_OUT" | grep -q 'EXP-B9-ROUTER-BE003-PF' \
+   && printf '%s' "$KEYS_OUT" | grep -q 'EXP-B9-ROUTER-BE004-PF' \
+   && ! printf '%s' "$KEYS_OUT" | grep -qE 'EXP-B9-ROUTER-BE00[34]$'; then
+  ok "L the preflight key is not the batch's registered key (-PF suffix)"
+else
+  bad "L the preflight key is not the batch's registered key (rc=$KEYS_RC)"
+fi
+
 ran=$((pass + fail))
 if [[ "$ran" -ne "$EXPECTED_CASES" ]]; then
   echo "verify-b9-preflight-guards: ${ran} cases ran, ${EXPECTED_CASES} registered — the announced"

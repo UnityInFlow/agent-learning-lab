@@ -101,6 +101,14 @@ fi
 echo "guards: one variable moves. agent/settings/policy/hooks identical; CLAUDE.md differs by the"
 echo "        router clause only; corpus sha256:$kh present on treated and absent on control."
 
+# B9_PRINT_KEYS exists so the key fix below can be ASSERTED rather than read. A fix whose only
+# proof is that someone changed a line is L3; this makes it L2. Prints and runs nothing.
+if [[ -n "${B9_PRINT_KEYS:-}" ]]; then
+  for t in BE-003 BE-004; do
+    printf 'preflight key %s -> EXP-B9-ROUTER-%s%s\n' "$t" "$(echo "$t" | tr -d '-')" "${B9_PREFLIGHT_KEY_SUFFIX:--PF}"
+  done
+  echo "print-keys: nothing was run"; exit 0
+fi
 if [[ -n "${B9_GUARDS_ONLY:-}" ]]; then echo "guards-only: every guard passed and NOTHING was run"; exit 0; fi
 
 ac="$(curl -s -o /dev/null -w '%{http_code}' -m 10 "$API/api/runs?limit=1")"
@@ -131,7 +139,19 @@ COST_TOTAL=0; FAIL_II=0; FAIL_I_III=0
 
 one() {  # one <task> <arm>
   local task="$1" arm="$2" key log rc rid wt rec
-  key="EXP-B9-ROUTER-$(echo "$task" | tr -d '-')"   # BE-003 -> EXP-B9-ROUTER-BE003. REGISTERED.
+  # *** THE PREFLIGHT GETS ITS OWN KEY, AND THIS IS A CORRECTION, NOT A DESIGN. ***
+  # This line read `EXP-B9-ROUTER-$(...)` — the BATCH's registered key — so four preflight runs
+  # landed in the registered dataset: EXP-B9-ROUTER-BE003 holds 25 runs and BE004 holds 24 where
+  # the registered population is 20. `make baseline-report` POOLS THEM SILENTLY and reports
+  # `25 measuring run(s)`; `analyze-experiment.py --expect-n 10` REFUSES at exit 2, and that
+  # refusal is the only reason this was found rather than quoted. Stop 20's step-8 numbers had to
+  # come from evidence/b09/report-b9-registered.py, BY RUN ID, off the archived records.
+  # A preflight is not a measuring run of the experiment it precedes, so it may not share its key.
+  # The suffix is `-PF`, matching what E-022/E-023 already say about exclusions by name.
+  # Fixed 2026-09-27 by Opus 5 (claude-opus-5), autonomously, at stop 20 §4 step 14, as the
+  # additive instrument PR E-022's follow-up section files. The 2026-09-26 runs keep the key they
+  # were recorded under; nothing on disk is rewritten.
+  key="EXP-B9-ROUTER-$(echo "$task" | tr -d '-')${B9_PREFLIGHT_KEY_SUFFIX:--PF}"
   log="$EVID/${task}-${arm}.log"
   echo ""; echo "======== PREFLIGHT $task $arm  key=$key  $(date -u +%H:%M:%SZ) ========"
   local -a args=(--runtime claude --benchmark "$task" --experiment "$key" --model "$MODEL"

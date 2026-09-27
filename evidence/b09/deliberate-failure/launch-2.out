@@ -11,3 +11,6 @@ ceiling: $1.0047 = 5 x $0.133958 x 1.5
   recorded: eval=0 log=ABSENT/0 router_exec=1 mentions=4 cost=null  spent=$0
 
 ======== BE-003 03  key=EXP-B9-DF-NOEXEC  09:09:51Z ========
+  recorded: eval=0 log=ABSENT/0 router_exec=1 mentions=2 cost=null  spent=$0
+
+======== BE-003 04  key=EXP-B9-DF-NOEXEC  09:13:08Z ========
