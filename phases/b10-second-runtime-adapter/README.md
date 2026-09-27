@@ -377,6 +377,86 @@ Candidates, in the order they are currently ranked:
    broken path would reach roughly zero runs, and the arithmetic for that was already written
    down at stop 20.
 
+### The choice — candidate 2, and the ranking above is amended additively rather than rewritten
+
+*Chosen and predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-27, at §4 step 9, after the
+batch and the scoring closed at §0 boundary 3. The three candidates above are kept verbatim; §4
+step 12 protects the text and this section carries the decision.*
+
+**Candidate 2 runs.** It is the only one of the three that changes what this stop can *prove* rather
+than what it can *say*: it converts the stop's one remaining **L3** claim — prediction 2's second
+half, *"the policy gate does not survive the port"*, currently proved by **reading**
+`run-agent.sh` and by `hooksHash` being `null` — into an **L2** observation of a script that is
+proved to run, installed, and logging nothing.
+
+**Candidate 1 is refused as written:** it proves `run-agent.sh:406` refuses a foreign instruction
+filename, which that guard's own fixture set already proves, and no run happens, so it buys a
+second copy of an existing L2 proof.
+
+**Candidate 3 is dead, and saying why matters more than re-ranking it quietly.** Its stated
+mechanism was *"corpus contact at 3 of 20 on claude, so at `n = 5` on codex the broken path would
+reach roughly zero runs"*. The batch **refuted that premise at 5 of 5 per task, 10 of 10 treated**
+(prediction 4, E-024 / E-025). So breaking the corpus path on codex would now hit every treated
+run and would be a **different and better experiment** than the one that was ranked last — a real
+measurement of what the agent does when the router's target is missing, on a runtime where it
+demonstrably reads it. It is recorded in `author_notes` as that, not re-ranked into this slot.
+
+#### The observable is settled before the prediction, because the obvious one does not exist
+
+`TRACK-B-STATE.md` `preflight:` row 6b, re-confirmed this session and the one before it: **the run
+record has no hook-execution field at all.** The only hook-ish key in the whole JSON is
+`hooksHash`, `null` on every run ever recorded. So *"zero hook executions"* is **not** read off a
+record here, and no absence in a record is reported as a measurement.
+
+**The observable is `policy-gate.sh`'s own log**, which its header names as *"the ONLY per-run
+delivery proof available"* and which it appends to **on allow as well as on deny** for exactly this
+reason. It is written outside the worktree — B7 moved it there after the log's own presence in the
+diff scored two solved runs `exit 21` — at
+`${POLICY_EVENT_LOG:-${TMPDIR:-/tmp}/policy-events-$(basename ${CLAUDE_PROJECT_DIR:-unknown}).jsonl}`.
+
+**And the sweep is a glob, not a predicted filename.** `grep -n 'CLAUDE_PROJECT_DIR\|POLICY_EVENT_LOG'
+runner/run-agent.sh` returns **nothing**: the runner sets neither, so on a codex run the log's name
+is not predictable in advance — it would be `policy-events-unknown.jsonl` if anything wrote it at
+all. Looking in one predicted place and calling the absence a measurement is this project's house
+failure mode, so the check sweeps `${TMPDIR}/policy-events-*.jsonl` **and** `/tmp/policy-events-*.jsonl`
+for anything created inside the run window.
+
+#### Predictions — DF1, registered before the run
+
+Overlay: `evidence/b10/census-fixtures/port-plus-claude-settings/` — **ten files, already tracked,
+already the subject of census probe 5**, re-verified on disk at §4 step 9: `diff -r` against the
+registered nine-file port differs by `.claude/` **and nothing else**, `settings.json` byte-identical
+to v1.2's, modes `755` on all four `.sh` and `644` on the rest, `instructionsHash`
+`sha256:ebf489800a60a156986f98ea4f127848` and `knowledgeHash` `sha256:0770219ae7f4281a80071d78dadea285`
+— the registered values. Task **BE-003**, runtime `codex`, model `gpt-5.6-sol`, key
+**`EXP-B10-DF-BE003`** — its own key, **not in E-024's population**, exactly as the preflight pair was.
+
+| | prediction | magnitude | mechanism | refuted if |
+|---|---|---|---|---|
+| **DF-P1** | the runner **does not refuse** the extra `.claude/settings.json` on codex and the run completes | 1 of 1, `tracked overlay files in the setup commit: 10 of 10` | census probe 5 already exited **0** at `--check-customization`; a real run adds only the model call and no refusal sits between them | the overlay install path returns non-zero |
+| **DF-P2** | **zero** hook executions: no `policy-events-*.jsonl` is created anywhere in `$TMPDIR` or `/tmp` inside the run window, **while the run changes ≥ 1 file** | **0 log lines**, against B7's **20** treated logs and **0** control logs (`find evidence/b07/batch-* -name '*-treated-policy-events.jsonl' \| wc -l` → 20; `…-control-…` → 0; E-016's scored population 17 of 17) | `.claude/settings.json` is read by claude-code's own hook dispatcher and by nothing else; `codex exec` has no hook protocol, and the runner copies the file into the setup commit without interpreting it | any log line appears |
+| **DF-P3** | the **positive control** fires in the same session on the **same script sha**: the installed `policy-gate.sh` at `f432abbcbf1f3b90ec4dd801a23c333a5f7e6c40fe0b54b11fd5689f9938cbca` — B7's registered value, verified bit-for-bit on the fixture — invoked directly, exits **2** on `sample-service/pom.xml` and **0** on a `.kt` path, writing **one log line each** | 2 of 2 exit codes, 2 log lines | B7 measured exactly this; §5 requires a verification command be re-run immediately before the assertion it supports | either exit code or either log line is missing |
+| **DF-P4** | **no hash sees the added file**: `instructionsHash` and `knowledgeHash` come back at the two registered values **unchanged by the tenth file**, and **no `settingsHash` or `hooksHash` key exists anywhere in the record JSON** | 2 values identical, 0 such keys | `run-agent.sh` hashes `AGENTS.md` (`:572-576`) and the `.ai/knowledge` tree (`:653-668`) and nothing else | either hash moves, or such a key exists |
+
+**DF-P2 is VOID rather than held if the run changes 0 files**, and that clause is registered here
+rather than discovered afterwards: an empty trigger population makes an empty log unattributable.
+B7's own `unexpected_effect` (2) is that *"the delivery proof cannot distinguish 'no hook installed'
+from 'hook broken, denying everything'; both leave no log."* **DF-P3 is what removes the second
+horn** — a script proved to execute and to log, at the sha B7 measured — and **DF-P2 without DF-P3
+proves nothing and leaves the L3 label standing.** The two are reported together or not at all.
+
+**What this converts, stated before the result is known.** If DF-P1 through DF-P4 all hold, the
+sentence *"0 of 2 measured L2 controls survive the port"* is proved for **both** halves by things
+that ran: the named-agent boundary by two executing refusals (census probes 3 and 4, `run-agent.sh:325`
+and `:522`), and the policy gate by a working hook that was installed, tracked, and never invoked.
+If DF-P2 is refuted, prediction 2 of both experiments is **wrong on its second half**, the census's
+L3 label was wrong in the other direction, and that is the more interesting outcome of the two.
+
+**Cost and ceiling:** one codex run under its own key, outside E-024's population and outside the
+batch manifest the 20-run ceiling counts, plus two direct hook invocations that cost nothing.
+Expected 2–4 minutes. `estimatedCost` is `null` on every codex run ever recorded, so no dollar
+figure is available and none is quoted.
+
 ## Exit gate
 
 **From the build track:** ≥3 runs per runtime · compare quality, correction effort, usage **and

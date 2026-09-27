@@ -543,6 +543,28 @@ The comparison above is **within codex only**, treated against its own concurren
   answered from this batch: codex loses 5 of 6 observability numbers and both executing controls,
   and gains nothing measurable on the registered outcome at +34 % tokens.
 
+## Deliberate failure — DF1, registered 2026-09-27 at §4 step 9, before the run
+
+**The prediction lives in the workbook**, `phases/b10-second-runtime-adapter/README.md`
+*"## Deliberate failure → The choice — candidate 2"*, because prediction 2 is registered once there
+and cited by both experiments. It is summarised here and **not restated as a second copy**; a
+prediction in two files is a prediction that can disagree with itself.
+
+DF1 ships census probe 5's overlay — the nine-file port **plus `.claude/settings.json`**, which the
+runner permits at exit 0 — on one real codex run under its own key `EXP-B10-DF-BE003`, outside this
+experiment's population, and asks whether the policy gate B7 measured at 17 of 17 executes. Four
+predictions: the runner does not refuse (DF-P1); **zero** hook-log lines with a non-empty trigger
+population (DF-P2); the same `policy-gate.sh` sha invoked directly **does** fire, 2 and 0 with a log
+line each (DF-P3); and neither registered hash moves, with no `settingsHash` or `hooksHash` key
+anywhere in the record (DF-P4).
+
+**Why it is here at all:** prediction 2's second half is currently proved by *reading* the runner,
+which §5 makes **L3**. DF-P2 and DF-P3 together make it **L2**. DF-P2 alone proves nothing, and is
+registered **VOID rather than held** if the run changes 0 files.
+
+*Registered by Opus 5 (claude-opus-5), autonomously, 2026-09-27; the author did not review before
+the run.*
+
 ## Follow-up
 
 1. **Register a control-arm rubric census before any future batch** — one control run scored on
