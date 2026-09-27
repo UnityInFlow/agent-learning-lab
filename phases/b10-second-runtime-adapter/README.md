@@ -3,7 +3,10 @@
 **Track A first:** [Phase 4A](../04a-agents-permissions/)
 **Version:** **v1.2**
 **Spine position:** 21 of 28 · after [B9](../b09-knowledge-router/) · before [Phase 7](../07-plugins/)
-**Status:** 🟨 OPEN at spine stop 21 — §4 step 3 (prediction commit), branch `stop21/b10-second-runtime-adapter`, 2026-09-27
+**Status:** ✅ **CLOSED at spine stop 21, 2026-09-27 — `NOT DETECTABLE AT THIS n` on both tasks,
+row 4 of each decision rule.** v1.2's codex port is **kept and not promoted**. The verdict is not the
+finding: the registered outcome was at its ceiling in the control on 5 of 5 on both tasks. Branch
+`stop21/b10-second-runtime-adapter`.
 
 > Scaffold. **Build** and **Exit gate** moved from [`build/README.md`](../../build/README.md#b10).
 > Everything else is yours to fill.
@@ -823,6 +826,23 @@ the commit that carries it.*
 4. **The claude arms are cited, not re-run.** If stop 20's manifest were wrong about its model or its
    benchmark sha, clause 1's claude half would fall with it. The row says what to compare.
 
-## Commit
+## Commit — §4 step 14, 2026-09-27
 
-<!-- TODO -->
+| what | where |
+|---|---|
+| version | **v1.2, the codex port. KEPT, NOT PROMOTED.** `build/customizations/agent-v1.2-knowledge-codex/` — nine files, unedited from here on (§3: a measured version is never edited) |
+| experiments | [`E-024`](../../experiments/E-024-second-runtime-adapter-BE003.md) `EXP-B10-RUNTIME-PORT-BE003` · [`E-025`](../../experiments/E-025-second-runtime-adapter-BE004.md) `EXP-B10-RUNTIME-PORT-BE004` |
+| verdict | **`NOT DETECTABLE AT THIS n`** on both tasks — decision-rule **row 4** on each. `architecture-consistency` medians **2 vs 2**, exact Mann-Whitney **`p = 1.0000`** (BE-003) and **`0.4444`** (BE-004), `n = 5` per arm per task. Row 0a does not fire (0 void of 20); row 1 does not fire (`H = 10`, not 0) |
+| **why the verdict is not the finding** | **the registered primary outcome was at its ceiling in the control on 5 of 5 on BOTH tasks.** `architecture-consistency` is 0–2 and the control scored 2 every time, so an improvement was arithmetically impossible before the first treated run started. The only direction open was down, and two BE-004 treated runs went there |
+| census (predictions 1 and 2) | **8 of 11 files port unchanged; 0 of 2 measured L2 controls survive.** Both as predicted. `evidence/b10/census-port-20260927.txt`, five real `--check-customization` probes, exit 0 |
+| deliberate failure | **DF1**, `EXP-B10-DF-BE003`, run `18eac7c0-971f-496d-8868-8799d4fec2b5`, `n = 1` + two direct hook invocations. **All four predictions held**, and it **converted prediction 2's second half from L3 to L2**: the policy gate committed `100755` into the run's own baseline, a non-empty trigger population, **0 hook executions**, and the same gate firing on demand before and after. `evidence/b10/df-20260927T163230Z/RESULT.md` |
+| disposition (§4 step 10) | four decisions: the port **KEPT unedited**; **no keep/remove decision on the knowledge corpus**, because an outcome with no headroom is not a measured no-effect; `.claude/settings.json` **REMOVED** from every codex overlay with the no-effect now measured; the three `.ai/hooks/*.sh` **kept under protest and named as inert** |
+| predictions refuted | **BE-003 one of six** (P4, corpus contact); **BE-004 two of seven** (P4, and P7 the evaluator pass rate). **Both refutations outweigh the ten holds.** P4 predicted ≤ 1 of 5 and measured **5 of 5 on each task, 10 of 10 treated, 0 of 10 control** — stop 20's 3-of-20 on claude was the wrong reference class. P7's refutation makes BE-004's perfect evaluator record **a property of the task, not of the pinned model** |
+| prediction registered as most likely wrong | **P3 HELD** — all ten treated records carry the **exact** registered digests, not merely non-null, and all ten controls carry all five hashes `null` |
+| primary / fallback | **primary `claude`, fallback `codex`** — on observability and enforcement, explicitly not on quality |
+| scoring | **20 of 20 codex sheets, four `score:` lines each, first attempt, zero stalls**, 400 s for the whole pass (median 18 s/sheet). One null cell, bounded: `efd94f24` `maintainability`, the scorer's own ambiguity hatch naming 0 vs 1 — **both below the treated arm's 2, so no direction depends on it** |
+| instruments added with this stop | `evidence/b10/census-port.sh` (5 probes) · `evidence/b10/probe-codex-isolation.sh` (3 of 3 at `n = 3`) · `evidence/b10/run-b10-df.sh` + `verify-b10-df-guards.sh` (**22 of 22**, including case L, which proves the sweep detector fires) |
+| additive corrections made inside this stop | the overlay is **nine** files not eight (§4 step 4) · **the customization block has seven fields and `hooksHash` is one of them**, the census's "five fields" sentence being wrong and the correct version already on record as the stop-16 author note (§4 step 9) |
+| still owed, and named rather than buried | the **second reader** — six consecutive stalls, so 20 registered sheets are one harness unchecked, and `change-focus` most needs it · a **control-arm rubric census before choosing an outcome**, which 18 s of codex would have bought · own logs for `repair-limit.sh` / `repair-record.sh` so their inertness becomes L2 · `maintainability` as the registered outcome for any later codex stop |
+| boards | **NOT republished** — the author's, by decision 12 item 4. The board CI check is RED and the red is expected |
+

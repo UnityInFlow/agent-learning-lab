@@ -44,6 +44,42 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
+**Spine 21 of 28. Positions 4–21 CLOSED — 21 (B10 — second runtime adapter) closed 2026-09-27
+`NOT DETECTABLE AT THIS n` on both tasks, row 4 of each decision rule, all four build-track gate
+clauses answered from measurement, a deliberate failure at `n = 1` that converted the stop's one L3
+claim into an L2 observation, and three instruments built with it. NOTHING is blocked on the
+author.** PR `lab#PRNUM`. `lab#35` (B10) is **closed** — a B-step issue closes when its deliverable
+is decided, and a `NOT DETECTABLE` with a disposition is a decision. `lab#16` and `lab#8` **stay
+open** from stops 19 and 18, unchanged: their stub labs are deferred and a Phase issue closes only
+when its gate is met from measurement. **Stop 22 (Phase 7 — plugins, a ◇ extract-only stop) is NOT
+OPENED and nothing of it exists**; §6 forbids a future step's artifacts early, and opening it at §4
+step 1 is the next session's first act.
+
+**The verdict is not the finding, and the finding is about the instrument.** The registered primary
+outcome, `architecture-consistency`, is a 0–2 scale and **the control scored 2 on 5 of 5 on BOTH
+tasks** — so an improvement was arithmetically impossible before the first treated run started, and
+the only direction open was down, which two BE-004 treated runs took. **Author decision 9's headroom
+fix does not transfer across runtimes:** BE-004 exists because BE-003 was ceilinged on
+`claude-haiku-4-5-20251001`, and on `gpt-5.6-sol` both tasks are ceilinged alike. Registering the MDE
+as *"undefined before the batch"* was honest and was not enough; the missing instrument is a
+**control-arm rubric census before the outcome is chosen**, which 18 seconds of codex would have
+bought.
+
+**And P5 got answered properly.** **8 of 11 files port unchanged (73 %); 0 of 2 measured L2 controls
+survive.** The adapter is not thin — it is where every control lived. **8 of 11 overstates even the
+text**, because three of the ported eight are hooks that cannot execute on the target runtime, so a
+codex-targeted v1.3 carries **6 of 11 = 55 %**. DF1's own co-variate says it better, at `n = 1`:
+**what ports is what the model can call; what does not port is what the runtime must call.**
+
+> **This paragraph has now been found stale five times, was rewritten by hand a sixth, and this is
+> the seventh.** The argument has not changed and is still not acted on: **it should be GENERATED
+> from `TRACK-B-STATE.md`, not maintained by hand.** Until it is, `TRACK-B-STATE.md` is the fact and
+> this is a hint. *Written by Opus 5 (claude-opus-5), autonomously, 2026-09-27.*
+
+<!-- SUPERSEDED, kept not deleted: -->
+
+## Position — superseded 2026-09-27 at the stop-21 close
+
 **Spine 20 of 28. Positions 4–20 CLOSED — 20 (B9 — knowledge router) closed 2026-09-27 `VOID` on
 both tasks, all three build-track gate clauses answered from measurement, a deliberate failure run at
 `n = 5` for `$0.658351`, and three additive instrument fixes merged with it. NOTHING is blocked on the
@@ -58,8 +94,6 @@ act.
 > argument has not changed and is still not acted on: **it should be GENERATED from
 > `TRACK-B-STATE.md`, not maintained by hand.** Until it is, `TRACK-B-STATE.md` is the fact and this
 > is a hint. *Written by Opus 5 (claude-opus-5), autonomously, 2026-09-27.*
-
-<!-- SUPERSEDED, kept not deleted: -->
 
 ## Position — superseded 2026-09-27
 
@@ -162,6 +196,112 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## Stop 21 — B10 CLOSED `NOT DETECTABLE`: eight of eleven files ported, nought of two controls survived, and the outcome that was supposed to measure it was already at its ceiling — 2026-09-27
+
+`Written by Opus 5 (claude-opus-5), autonomously, 2026-09-27. The author did not review before the
+close.` Workbook [`phases/b10-second-runtime-adapter/`](phases/b10-second-runtime-adapter/README.md),
+experiments [`E-024`](experiments/E-024-second-runtime-adapter-BE003.md) and
+[`E-025`](experiments/E-025-second-runtime-adapter-BE004.md), findings row
+`findings/track-b-2026-09-27-2.md`.
+
+**What was built.** `build/customizations/agent-v1.2-knowledge-codex/` — the measured v1.2 overlay's
+`CLAUDE.md` renamed to `AGENTS.md` plus `.ai/**` byte-identical, **nine files**, delivered by
+`run-agent.sh --customization` on the codex runtime. `n = 5` per arm per task, interleaved
+control-then-treated, 20 runs, batch `20260927T125809Z`, 48 minutes against a ceiling of 20 runs and
+4 hours, **0 void**.
+
+**The verdict.** **`NOT DETECTABLE AT THIS n` on both tasks**, decision-rule row 4 on each.
+`architecture-consistency` medians **2 vs 2**; exact Mann-Whitney **`p = 1.0000`** (BE-003) and
+**`0.4444`** (BE-004).
+
+**Why the verdict is not the finding.** **The registered primary outcome was at its ceiling in the
+control before the first treated run started.** `architecture-consistency` is 0–2 and the control
+scored 2 on **5 of 5 on BE-003 and 5 of 5 on BE-004**. An improvement was arithmetically impossible;
+the only direction open was down, and two BE-004 treated runs went there (`1,1,2,2,2`). **This is
+E-006's defect on a new runtime, and it shows author decision 9's headroom fix does not transfer
+across runtimes** — BE-004 was added because BE-003 had 50 of 100 rubric points at zero variance on
+`claude-haiku-4-5-20251001`, and on `gpt-5.6-sol` both tasks' controls sit at the maximum alike.
+
+**What P5 actually turned out to be.** **8 of 11 files port unchanged (73 %)** — `diff -r` over `.ai`
+returns nothing — and **0 of 2 measured L2 controls survive**. Both predicted, both held. **The
+adapter is not thin; it is where every control lived.** And **8 of 11 overstates even the text**: three
+of the ported eight are `.ai/hooks/*.sh` that cannot execute on codex, so the port's honest description
+is *the portable core plus three inert files*, and a codex-targeted v1.3 would carry **6 of 11 = 55 %**.
+
+**The two controls are lost in two different ways, and the census could only prove one of them.** The
+named-agent boundary is refused **loudly** — `run-agent.sh:325` and `:522`, exit 1 each, two things
+that execute, **L2**. The policy gate is lost **silently**: census probe 5 ships the port plus
+`.claude/settings.json`, the runner says nothing, exit 0, the file is **tracked**, and no
+`settingsHash` exists. That half was **L3** — proved by reading source.
+
+**DF1 converted it.** One codex run, `18eac7c0-971f-496d-8868-8799d4fec2b5`, shipping exactly probe
+5's overlay. All four predictions held. The gate was committed **`100755`** into the run's own
+evaluation baseline (setup commit `9652494fa571`, ten paths including `.claude/settings.json`
+byte-identical), the run changed **3 Kotlin source files** — a non-empty and correctly-typed trigger
+population — and **zero `policy-events-*.jsonl` logs appeared anywhere in `$TMPDIR` or `/tmp`**,
+against B7's **20** treated logs on claude. The same gate, at B7's registered sha `f432abbc…`, fired
+on demand **before** the run and again **from the run's own worktree afterwards**: exit 2 with a
+`deny` line. **Six alternative explanations closed by command**, including the one that matters most
+— *a detector never shown to fire* — closed by `verify-b10-df-guards.sh` case L, which plants a log,
+grows it, writes another, and requires the sweep to report `2`.
+
+**And DF1 returned the thing nobody predicted.** In the same run, from the same directory,
+`.ai/knowledge/router.sh` **did** write its log while `.ai/hooks/policy-gate.sh` wrote nothing. Two
+shell scripts, one overlay, one runtime. The difference is **who invokes it** — the router is called
+by *the model*, having read about it in `AGENTS.md`; the gate must be called by *the runtime*:
+
+> **What ports is what the model can call. What does not port is what the runtime must call.**
+
+`n = 1`, stated as true of that run and not as a property, and it also closes the alternative reading
+that `.ai/` simply does not function on codex.
+
+**Two predictions refuted, and both outweigh the ten that held.** **P4** predicted corpus contact
+≤ 1 of 5 on the treated arm and measured **5 of 5 on each task, 10 of 10 treated, 0 of 10 control** —
+every treated run called the router exactly once, every call a `hit` with the task's own query. On
+claude at stop 20 the same corpus, the same instruction text and the same two digests produced **3 of
+20**. Stop 20's rate was the **wrong reference class** and is not evidence about codex in either
+direction; the comparison is an *uptake* claim read off the router's own log, and cross-runtime
+*quality* stays blocked. **P7** (BE-004's evaluator pass rate falls below 5 of 5) refuted at **5 of 5
+in both arms**, which makes **BE-004's perfect evaluator record a property of the task, not of the
+pinned model**. **P3 — registered as most likely to be wrong — held**, at *exact* digests rather than
+non-null.
+
+**Observability, answered as a number rather than as prose, which is the gate clause this stop
+answered best.** `estimatedCost`, `modelCalls` and `toolCalls` **null on 20 of 20**;
+`reportedTotalTokens` **non-null on 20 of 20** against a predicted ≥ 8 of 10. So **no dollar figure
+exists for the codex arm** and none is quoted anywhere in the stop, and correction effort is recorded
+as **not measurable on this runtime** rather than as a null result. **Primary `claude`, fallback
+`codex`** — decided on observability and enforcement, explicitly **not** on quality, which three
+independent blockers make incomparable here (`obs#47` still open, the model moves with the adapter,
+HANDOFF's seventh session).
+
+**What was decided about the corpus: nothing, deliberately.** §4 step 10's *"a rule with no measured
+effect is removed"* **does not apply to an outcome with no headroom**, and conflating the two would
+delete the mechanism the batch's co-variates point at — `maintainability` moved from a control median
+of **0** to **2 on 5 of 5 on both tasks**, same direction, same magnitude, zero within-arm variance.
+That was **not** a registered outcome, E-004 refused exactly this promotion for exactly this reason,
+and so does this stop. **`maintainability` is the outcome a later codex stop should register**, and
+that is an `author_notes` item, not a result.
+
+**An additive correction found inside this stop.** The census wrote *"the five fields are
+`instructionsHash`, `skillsHash`, `agentHash`, `agentsHash`, `knowledgeHash`"*. The record carries
+**seven**, and **`hooksHash` is one of them** — present and `null` on 20 of 20. `settingsHash`
+genuinely does not exist. The census had read the runner's printed `--check-customization` read-back
+and generalised it to the API record; **the correct version was already on this project's record** as
+the stop-16 author note. Nothing registered moves — a field that is present and `null` is not a
+control that ran — and the claim gets *sharper*: the schema reserves a field for exactly what the port
+drops and never populates it.
+
+**What is BLOCKED ON YOU: nothing.** For `author_notes`, four items, all already written into the two
+experiments: the missing **control-arm rubric census** (18 seconds of codex would have bought it, and
+it would have changed which outcome was registered); **`maintainability`** as the outcome a later codex
+stop should register; **BE-004 now ceilinged on two model families**; and **`change-focus` owing the
+second reader** — it moved `1 → 0` on 5 of 5 on BE-004, on the instrument's noisiest dimension (18 of
+34 concordance, decision 10.2), and the second reader has stalled on its weekly limit for **six
+consecutive sessions**, so twenty registered sheets are one harness unchecked. **Decision H was not
+fired**: it promotes deepseek, which stop 20 refused. **The boards are not republished** — the
+author's, by decision 12 item 4 — so the board CI check is RED and that red is expected.
 
 ## Stop 20 — B9 CLOSED `VOID`: the corpus arrived on 20 of 20 runs and the sentence telling the agent to use it did not carry — 2026-09-27
 
