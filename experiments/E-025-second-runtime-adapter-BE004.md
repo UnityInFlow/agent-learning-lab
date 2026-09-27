@@ -172,6 +172,56 @@ did not review before it ran. It moved no registered variable and no prediction 
 - [ ] **uncontrolled and named:** codex seeds six skills into `skills/.system` on both arms
       (`run-agent.sh:934-940`); `--enable-skills` is a no-op on codex (Extract fact 10)
 
+## Isolation, resolved at n = 3 before the arm opened — 2026-09-27
+
+`## Controlled variables` registers the environment row as **not claimed as proven**, because
+`runner/verify-codex-isolation.sh` reported `ISOLATION LEAKS` at this session's §0a preflight, and
+§4 step 4's registered first act was to resolve it *"one way or the other"* at `n = 3` before any
+arm opened. It was resolved. `evidence/b10/probe-codex-isolation.sh` (ShellCheck clean, wall-clock
+bounded at 420 s per invocation with a process-**group** kill, because macOS has no `timeout` and
+`LAB_REVIEW_TIMEOUT`'s poll loop has already been seen not to kill what it polls):
+
+| invocation | exit | verdict | log |
+|---|---|---|---|
+| 1 | 0 | `ok: ALL THREE checks hold for codex-cli 0.154.0` | `evidence/b10/iso-probe/run-1-20260927T123945Z.txt` |
+| 2 | 0 | same | `evidence/b10/iso-probe/run-2-20260927T124200Z.txt` |
+| 3 | 0 | same | `evidence/b10/iso-probe/run-3-20260927T124416Z.txt` |
+
+Each invocation's **positive control fired first** — the marker present without isolation, the
+operator's instruction files found with a real `HOME`, four plugins installed without
+`--disable plugins` — so all three negative results mean something rather than describing a
+model that declined to look.
+
+**The earlier `ISOLATION LEAKS` did not reproduce, and it is recorded as unreproduced rather than
+as refuted, for a reason that is about evidence and not about tact: its output was not kept.** It
+survives only as a message quoted in `TRACK-B-STATE.md`. The only artefact on disk from that
+episode is `evidence/b10-iso-probe-20260927-wedged.txt`, which is **64 bytes — one line** — from
+the *second*, wedged invocation. So there is nothing to re-derive the leak from, and no reading of
+today's three passes can settle what the one failure saw.
+
+**A mechanism can be named but not measured, and it is written down as a hypothesis.** Check B's
+leak branch greps the redirected-`HOME` run's *output* for the literal strings `$HOME/.agents/`
+and `$HOME/.codex/skills` (`verify-codex-isolation.sh:135`). A model that reached nothing but
+*narrated* the path it tried — "checked /Users/&lt;op&gt;/.agents, nothing there" — would trip that
+branch. That would make the detector match a **mention** rather than a **reach**, which is the
+house failure mode inverted: a control reporting failure over a scope wider than it claims. It is
+**not** asserted here; the output that would prove or disprove it was not kept.
+
+**So the registered statement for both codex arms is this, and it is deliberately weaker than
+"isolation holds":** the isolation control is **L2** — three checks that execute, each with a
+positive control — and it is **verified at `n = 3` on the exact binary (`codex-cli 0.154.0`) this
+batch uses, hours before the batch**. On the same machine and the same day it also produced one
+unreproduced leak report and one wedge. **That intermittency is recorded as a shared uncontrolled
+variable across both codex arms**, not as a resolved question: both arms run through the same
+`--isolate-user-settings` path, so an intermittent leak would fall on treated and control alike
+and cannot manufacture a within-runtime difference — which is the only comparison this experiment
+computes. It could, however, contaminate both arms against the *cited* claude rows, and no
+cross-runtime verdict is computed here for three independent reasons already on record.
+
+*Resolved and interpreted by Opus 5 (claude-opus-5), autonomously, 2026-09-27; the author did not
+review before the runs. The probe decides nothing on its own — it records three outcomes and this
+paragraph is the judgement.*
+
 ## Runs
 
 Repetitions per arm: **5** (floor 3, §4 step 6) · Total budget: **20 codex runs across E-024 and
