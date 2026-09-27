@@ -810,3 +810,58 @@ never as a property (§5). Its job is to be the fixed point the codex sheet is c
 codex returns: if the registered sheet scores this cell anything but 2, the disagreement is a fact
 about the harness on a run whose diff has already been read, and §4 step 7 says to go to the diff
 and say which fact was wrong.
+
+## Amendment 5 — `H` counts router invocations, not corpus consultations, and on BE-003 the difference is one run and one word
+
+*Added 2026-09-27 by Opus 5 (claude-opus-5), autonomously, at §4 step 9, from a read-only census of
+runs already on disk. **Nothing above is rewritten. The registered decision rule is not touched and
+the verdict does not move.** The census is `evidence/b09/corpus-access-census.sh`, ShellCheck clean,
+fixture set `tools/verify-corpus-access-census.sh` at 15 of 15.*
+
+### What was found
+
+`H` is registered in this file as *"treated runs whose `.agent/knowledge-log.jsonl` is non-empty"*.
+That log is written by `.ai/knowledge/router.sh` and by nothing else, so **`H` counts router
+invocations.** It does not count a run that opened `.ai/knowledge/summaries/*.md` with the `Read`
+tool, `cat`-ed it, or read `index.yaml` and followed the path by hand. Such a run consulted the
+corpus and scores `H = 0`, indistinguishable in the decision rule from a run that ignored the
+instruction entirely.
+
+Per treated run of batch `20260926T151319Z`:
+
+| run | router invoked | corpus read directly | `H` scores it | classification |
+|---|---:|---:|---:|---|
+| BE-003 02 | 1 | 1 (summary) | **1** | `router+direct` |
+| BE-003 **06** | **0** | **2** (`index.yaml` + summary) | **0** | **`DIRECT-ONLY-invisible-to-H`** |
+| BE-003 09 | 1 | 1 (summary) | **1** | `router+direct` |
+| the other seven | 0 | 0 | 0 | `no-contact` |
+
+So **router invocations are 2 of 10 and corpus contact is 3 of 10.** Run 06 listed
+`.ai/knowledge/`, read `index.yaml`, read the summary the index names, and never ran the command
+the `CLAUDE.md` clause gives it.
+
+### Why it does not change the verdict, and why that is the right answer rather than a convenient one
+
+`H` was registered **before any data**, in this file, as the log being non-empty. §6 and §4 step 12
+forbid editing a prediction, a decision rule or a registered definition after its run, and
+*especially* when the edit would change the verdict. So `H = 2 of 10` stands and row 0 stands.
+
+**It is worth stating exactly what the other reading would have done**, because a reader who cannot
+see that has to take this paragraph on trust: had `H` been registered as *the run consulted the corpus*, it
+would read **3**, row 0 would not fire, and row 3 (`H ≥ 3` and `M ≤ 5`, with `M = 5`) would — a
+**`REJECT`** whose §4 step 10 disposition is to **remove** the corpus from the overlay. **The
+verdict turns on one run and on one word.** That is written down here so a later reader weighs the
+registered `VOID` knowing what the alternative definition gave, rather than discovering it.
+
+### What it does change
+
+1. **The `§5` layer column.** *A lookup was recorded* is **L2** only for lookups that went through
+   the router. *The corpus was consulted* is **L3** — nothing executes to record a direct read.
+2. **The hit-rate number carries its scope from now on.** It is a **router hit rate**, not a
+   knowledge hit rate, and the build gate's phrase *"hit rate measured"* is answered at that scope.
+3. **The instrument that would close it is named and not built** (§6, one step at a time): the
+   corpus would have to be reachable only through something that records, or the record would have
+   to come from the runtime's own file-read events rather than from the artifact's own log. Phase 6B
+   finding 3's second route, still not built, and `author_notes` carries it.
+
+*The census re-scores nothing, re-runs nothing, and moves no registered variable.*

@@ -695,3 +695,54 @@ property (§5). It is a fixed point for the sheet to be compared against, and it
 arm — the arm whose corpus states the Kotlin exhaustiveness rule this category scores. That the
 treated run does not use `when` at all is consistent with this batch's uptake finding (1 of 10
 treated BE-004 runs opened the knowledge log at all) and is not independent evidence for it.
+
+## Amendment 5 — `H` counts router invocations, not corpus consultations, and on BE-004 the difference is zero, and the zero is the result
+
+*Added 2026-09-27 by Opus 5 (claude-opus-5), autonomously, at §4 step 9, from a read-only census of
+runs already on disk. **Nothing above is rewritten. The registered decision rule is not touched and
+the verdict does not move.** The census is `evidence/b09/corpus-access-census.sh`, ShellCheck clean,
+fixture set `tools/verify-corpus-access-census.sh` at 15 of 15.*
+
+### What was found
+
+`H` is registered in this file as *"treated runs whose `.agent/knowledge-log.jsonl` is non-empty"*.
+That log is written by `.ai/knowledge/router.sh` and by nothing else, so **`H` counts router
+invocations.** It does not count a run that opened `.ai/knowledge/summaries/*.md` with the `Read`
+tool, `cat`-ed it, or read `index.yaml` and followed the path by hand. Such a run consulted the
+corpus and scores `H = 0`, indistinguishable in the decision rule from a run that ignored the
+instruction entirely.
+
+Per treated run of batch `20260926T151319Z`:
+
+| run | router invoked | corpus read directly | `H` scores it | classification |
+|---|---:|---:|---:|---|
+| BE-004 08 | 1 | 1 (summary) | **1** | `router+direct` |
+| the other nine | 0 | 0 | 0 | `no-contact` |
+
+So on BE-004 **router invocations and corpus contact are the same number, 1 of 10.** The gap the
+census exists to find is **zero here**, and that is the result for this task: it was looked for and
+it was not there.
+
+### Why it does not change the verdict, and why that is the right answer rather than a convenient one
+
+`H` was registered **before any data**, in this file, as the log being non-empty. §6 and §4 step 12
+forbid editing a prediction, a decision rule or a registered definition after its run, and
+*especially* when the edit would change the verdict. So `H = 1 of 10` stands and row 1 stands.
+
+**It is worth stating exactly what the other reading would have done**, because a reader who cannot
+see that has to take this paragraph on trust: on this task the two readings agree: `H = 1` either way, row 1
+fires either way, and no alternative definition available here reaches `H ≥ 3`. The census's value
+on BE-004 is the negative — it looked for the gap E-022 found and did not find one.
+
+### What it does change
+
+1. **The `§5` layer column.** *A lookup was recorded* is **L2** only for lookups that went through
+   the router. *The corpus was consulted* is **L3** — nothing executes to record a direct read.
+2. **The hit-rate number carries its scope from now on.** It is a **router hit rate**, not a
+   knowledge hit rate, and the build gate's phrase *"hit rate measured"* is answered at that scope.
+3. **The instrument that would close it is named and not built** (§6, one step at a time): the
+   corpus would have to be reachable only through something that records, or the record would have
+   to come from the runtime's own file-read events rather than from the artifact's own log. Phase 6B
+   finding 3's second route, still not built, and `author_notes` carries it.
+
+*The census re-scores nothing, re-runs nothing, and moves no registered variable.*

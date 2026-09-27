@@ -1,0 +1,20 @@
+B9 context metrics — the five token counters, by task and arm, from the ARCHIVED records.
+There is no single 'context metric' in this instrument (workbook extract fact 3); these five
+counters are the whole of what the exit-gate clause can be answered with.
+
+BE-003
+  counter                 treated median  control median       delta   n_t/n_c
+  inputTokens                        182             170     +7.06 %    10/10
+  outputTokens                      9560           10216     -6.42 %    10/10
+  cachedTokens                    342784          321460     +6.63 %    10/10
+  cacheCreationTokens              22547           22199     +1.57 %    10/10
+  reportedTotalTokens                  -               -           -0/   0
+
+BE-004
+  counter                 treated median  control median       delta   n_t/n_c
+  inputTokens                        206             218     -5.50 %    10/10
+  outputTokens                     18004           17102     +5.27 %    10/10
+  cachedTokens                    501262          495840     +1.09 %    10/10
+  cacheCreationTokens              33942           33008     +2.83 %    10/10
+  reportedTotalTokens                  -               -           -0/   0
+
