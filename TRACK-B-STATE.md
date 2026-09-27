@@ -107,7 +107,358 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-status: running   # *** §0 BOUNDARY 2 OF 2 FOR STOP 22 (PHASE 7 - PLUGINS), A DIAMOND STOP.
+# ===== CURRENT STATE - STOP 23, PHASE 8 (gh-aw), §0 BOUNDARY 1 OF 2, 2026-09-27 =====
+# Newest first, as this file has always been kept. Every key below SUPERSEDES the next
+# occurrence of the same key further down; nothing further down is deleted. The keys NOT
+# repeated here are still live at their old positions and are still current:
+#   validation_processed (22 files, newest 2026-09-08, none new this session)
+#   author_decisions (items 1-12, unchanged)
+#   blocked_on_author: [] (EMPTY - no §7 bullet is matched)
+#   author_notes (three stop-23 items added at its top)
+status: running   # *** §0 BOUNDARY 1 OF 2 FOR STOP 23 (PHASE 8 - UNATTENDED AGENTS, gh-aw), A
+                  # DIAMOND STOP. THE STOP IS OPEN AND THE EXTRACT IS WRITTEN, COMMITTED (14f2d60)
+                  # AND PUSHED. NOT a halt: blocked_on_author IS EMPTY and NO §7 BULLET IS MATCHED.
+                  # prompt_sha a47590a1e61d RE-COMPUTED AND UNCHANGED. All 22 validator files
+                  # re-checked BY NAME (one grep per basename, never a total) and NONE IS NEW.
+                  #
+                  # *** WHAT REMAINS IS §4 STEPS 11, 13, 13a AND 14 = BOUNDARY 2, AND THE STOP THEN
+                  # CLOSES. DO NOT RE-WRITE THE EXTRACT, RE-READ THE SEVEN PAGES, OR RE-RUN
+                  # check-links.sh FROM SCRATCH. ***
+                  #
+                  # *** THE HEADLINE OF THIS STOP IS A FAILED CHECK ON THIS PROJECT'S OWN WORKBOOK,
+                  # AND IT IS THE RESULT WORTH CARRYING. *** The August 2026 extract of this same
+                  # phase carries, as a BOLD DISPLAY QUOTE, the sentence "The agent never receives
+                  # write tokens directly." *** THAT SENTENCE IS NOT IN THE PAGE IT CITES. *** The
+                  # page's equivalent today is "all without giving the agentic portion of the
+                  # workflow any write permissions"; the claim survived the rewording and the
+                  # QUOTATION did not. Two other August quotes were re-checked and both are still
+                  # verbatim, so this is ONE SENTENCE, not a rewritten page.
+                  #   WHAT IT IS EVIDENCE OF, STATED NARROWLY: a verbatim quote in this project's
+                  #   own extract went stale in 49 days and NOTHING EXECUTED TO CATCH IT.
+                  #   check-links.sh proves a URL RESOLVES. Nothing here proved a QUOTATION still
+                  #   appears in the resolved page. That gap is now closed FOR ONE PHASE ONLY -
+                  #   evidence/p08/verify-quotes.sh, 29 registered sentences over seven pages,
+                  #   found=28 absent=1, EXIT 2, live over the network at
+                  #   evidence/p08/quote-verification-20260927T194029Z.txt. A GENERAL instrument is
+                  #   in author_notes and is NOT built: §6 forbids a future step's artifact and a
+                  #   repo-wide quote checker is not stop 23's.
+                  #   ITS FIXTURE SET PASSES 10 OF 10 (evidence/p08/verify-quote-checker.sh) over
+                  #   ALL FOUR registered exit codes, including a fixture with exactly one quote
+                  #   deleted (exit 2, absent=1) and a quote containing `!==` matched literally
+                  #   rather than as a regex. *** CASE B WAS RE-DERIVED BY HAND *** - 29 <p> lines
+                  #   in, the first quote stripped, 28 out, and the one ABSENT line names the quote
+                  #   that was removed. A checker never shown to refuse is indistinguishable from
+                  #   one that refuses nothing.
+                  #
+                  # *** FOUR MORE FINDINGS OF RECORD, EACH QUOTED VERBATIM IN THE WORKBOOK AND EACH
+                  # VERIFIED `FOUND` BY THE SCRIPT ABOVE BEFORE IT WAS WRITTEN DOWN: ***
+                  #  1. THE CLOSED OUTPUT VOCABULARY ROUGHLY DOUBLED. It now holds
+                  #     merge-pull-request, approve-workflow-run, push-to-pull-request-branch,
+                  #     dispatch-workflow / call-workflow / dispatch-repository, create-agent-session
+                  #     and third-party writers (jira-*, linear-*, ado-*). THE MECHANISM IS UNCHANGED
+                  #     AND THE SEPARATION HOLDS - each runs in its own job with its own scoped
+                  #     credential and most are marked `experimental`. The conclusion the August
+                  #     extract was one step from: *** A CLOSED VOCABULARY BOUNDS THE ATTACK SURFACE
+                  #     EXACTLY AS TIGHTLY AS ITS MEMBERSHIP, AND THE MEMBERSHIP IS THE VENDOR'S TO
+                  #     CHANGE BETWEEN TWO READINGS OF THE SAME PAGE. An L1 control whose scope is a
+                  #     list maintained by someone else has an L3 perimeter. ***
+                  #  2. THE INJECTION DEFENCE IS L2, NOT L1, AND ITS JUDGE IS A LANGUAGE MODEL.
+                  #     Threat detection is "automatically enabled when safe outputs are configured",
+                  #     it blocks ("the workflow fails and safe outputs are blocked"), AND "By
+                  #     default, threat detection uses the same AI engine as your main workflow".
+                  #     Applied IN ORDER: the malicious body CAN still be written (step 1 = yes), a
+                  #     JOB executes and rejects it (step 2 = yes) -> L2. A model asked whether a
+                  #     model was manipulated is the WEAKEST L2 this project has catalogued.
+                  #     *** IT DOES FAIL CLOSED ON ITS OWN ERROR and deserves the credit *** - "If
+                  #     the detection process itself fails ... the workflow stops and safe outputs
+                  #     are not applied" - which is the OPPOSITE of check-links.sh degrading a curl
+                  #     `000` to a non-fatal `unverified`. Same decision, opposite default, theirs is
+                  #     right. The only rule-based lane is protected files, "a static, rule-based
+                  #     protection layer", whose DEFAULT (`request_review`) routes to a human rather
+                  #     than refusing; only `blocked` refuses. Same shape as stop 22's
+                  #     strictKnownMarketplaces: the strict option exists and is not the default.
+                  #  3. `roles:` IS AN EXACT-MATCH ALLOWLIST, NOT A PRIVILEGE THRESHOLD - "Setting
+                  #     roles: [write] will reject actors with admin or maintainer roles because
+                  #     admin !== write". *** THIRD OCCURRENCE IN THIS PROJECT of a permission field
+                  #     whose DIRECTION must be read rather than assumed *** (stop 7: `tools:`
+                  #     narrows, `allowed-tools:` pre-approves; position 9: the runtime rewrote the
+                  #     list). And `stop-after:` - "Automatically disable workflow triggering after a
+                  #     deadline to control costs" - is THIS PHASE'S OWN NOISE-KILL RULE AS SOMETHING
+                  #     THAT EXECUTES: L3 here, L2 upstream, and the cheapest thing on these pages to
+                  #     port.
+                  #  4. `.md` -> `.lock.yml`: THE FILE A HUMAN REVIEWS IS NOT THE FILE THAT EXECUTES.
+                  #     Both are committed; only the lock file runs. `stale`, `out of date`,
+                  #     `out-of-date`, `recompile`, `--verify` and `check that the lock` are ABSENT,
+                  #     ALL SIX, from the page that teaches workflow creation - a scoped claim about
+                  #     ONE PAGE, not about the CLI. Same gap as position 9's `tools:` list with a
+                  #     BUILD STEP in the middle, and the workspace CLAUDE.md already holds the
+                  #     receipt: `Read, Grep, Glob, Bash` delivered as ["Read","Bash"] on 10 of 10.
+                  #
+                  # *** THE SPINE'S `L1` LABEL FOR PHASE 8 IS RIGHT ABOUT THE CREDENTIAL AND WRONG
+                  # ABOUT EVERYTHING THAT INSPECTS CONTENT. *** It is QUALIFIED in the workbook, not
+                  # overwritten. Only TWO rows survive step 1 of the layer rule: the safe-output
+                  # separation (the agent's process holds no credential that can express a write)
+                  # and `staged: true` ("Every write operation is skipped"), which is Phase 5A's
+                  # remove-the-capability-before-policing-it, shipped - and is a PREVIEW mode, not a
+                  # production control. *** AND THE PROOF COLUMN OF EVERY SUBJECT ROW IS L3 AT THIS
+                  # STOP, BECAUSE n = 0: I READ that the detection job blocks; I did not watch one
+                  # block anything. Saying that plainly is §5's requirement, not a shortfall. ***
+                  #
+                  # *** ONE CORRECTION TO THIS PHASE'S OWN EXIT GATE, TO BE ANSWERED AT BOUNDARY 2:
+                  # the clause "read-only default" NEEDS ITS SUBJECT NAMED OR IT IS FALSE. *** The
+                  # AGENT JOB is read-only; THE WORKFLOW IS NOT. With no `safe-outputs:` block at
+                  # all, "create-issue is automatically enabled with conservative defaults (max: 1
+                  # ...)". Both sentences are verbatim and they are about different things.
+                  #
+                  # *** AND ONE `FOUND` INSIDE A SET OF ABSENCES, WHICH IS WHY THE ABSENCES WERE
+                  # CHECKED RATHER THAN ASSERTED: *** the permissions page has NO warning against
+                  # giving the agent job write scopes (do not grant / avoid granting / never grant /
+                  # warning / caution / should not / conflict / refuse are ABSENT, all eight) - BUT
+                  # `rejected` IS FOUND, once, about something else: "id-token: read is not a valid
+                  # permission and will be rejected at compile time." So `gh aw compile` DOES
+                  # validate the permissions block and DOES refuse at least one value. There is a
+                  # real L2 in the compiler; it simply does not police the combination that would
+                  # dissolve the L1. "The page says nothing that executes" would have been FALSE.
+                  #
+                  # *** THE NEXT SESSION'S FIRST ACT IS BOUNDARY 2, NOT A NEW STOP. *** Stop 24
+                  # (Phase 9 - Memory) does not exist and §6 forbids its artifacts.
+
+prompt_sha: a47590a1e61d       # RE-COMPUTED 2026-09-27T17:5xZ at the top of THIS session with
+                               # `shasum -a 256 ../PROMPT-opus5-track-b.md | cut -c1-12`, and
+                               # *** UNCHANGED. *** No §0 prompt-change line is owed.
+prompt_read_at: 2026-09-27T19:0xZ   # *** WHOLE PROMPT RE-READ IN FULL THIS SESSION (all 967 lines,
+                               # in four ranges) *** because the author's message says "execute
+                               # sections 0 through 8 exactly as written". §9 was read only far
+                               # enough to confirm it is the validator's and is NOT run on my own
+                               # work.
+stop: 23           # *** OPEN at §0 BOUNDARY 1 of 2. PHASE 8 - UNATTENDED AGENTS (gh-aw). ***
+                   # §3's itinerary row `22-23` reads "Phases 7 and 8 (diamond): extract only, as
+                   # stop 7", and LEARNING-PATH.md line 103 puts Phase 8 at spine 23 with layer
+                   # `**L1**`. *** n = 0 RUNS AND THAT IS THE REGISTRATION, NOT A SHORTFALL. ***
+                   # Stop 7 is the original precedent, stop 22 the nearest; both closed at n = 0.
+                   # NO experiment file, NO prediction, NO overlay, NO benchmark run, NO dollar
+                   # spent on the agent under test. The pinned model was touched only by the §0a
+                   # row-6b isolation probe, which is a preflight key and enters no comparison.
+loop_step: 2   # *** §0 BOUNDARY 1 OF 2 FOR A DIAMOND STOP: "after the extract". §4 STEPS 1 AND 2
+               # ARE DONE AND THE EXTRACT IS WRITTEN. *** Step 1: Goal, Verified reading and Extract
+               # filled from sources actually opened; check-links.sh run on the two new SOURCES.md
+               # rows; lab#10 commented (issuecomment-5859209428) and its card moved to In Progress
+               # AND READ BACK (`issue #10 state=OPEN card=In Progress`). Step 2: every artifact
+               # labelled L1/L2/L3 with the rule APPLIED IN ORDER, in two tables - one for gh-aw's
+               # controls and one for this stop's own artifacts.
+               # *** STEPS 3-10 DO NOT APPLY: §4 makes a Track A stop the loop MINUS 3-10 unless the
+               # lab runs the benchmark, and this one does not. BOUNDARY 2 IS STEPS 11, 13, 13a, 14.
+branch: stop23/phase-8-agentic-workflows (agent-learning-lab) - created from main at e731159,
+        # ONE COMMIT: 14f2d60 "Stop 23 (Phase 8 - gh-aw) at §0 boundary 1: extract written,
+        # n = 0 runs". NOT YET PUSHED at the time this line was written; the push is the last act
+        # of this session and its result is in last_verified.
+        # *** NO PR YET - a PR is §4 step 14 = boundary 2. ***
+in_flight: []   # *** EMPTY of anything of MINE. *** Checked with the NARROW pattern
+                # `LC_ALL=C pgrep -fl 'run-agent.sh|codex exec|opencode-review.sh'` - NEVER a bare
+                # `pgrep -fl opencode` (a foreign answer-panel opencode runs on this machine and a
+                # bare pgrep dumps its whole prompt into context) and NEVER a `pgrep -f` wait loop
+                # (it matches itself and never exits; killed by pid three times).
+                # *** ONE FOREIGN-TO-THE-STOP PROCESS WAS ALIVE AND IS RECORDED RATHER THAN
+                # SUPPRESSED: *** the §0a row-3b codex-score.sh, pid 91730, still inside its own
+                # 900s perl alarm when the preflight subagent returned. ITS SHEET WAS ALREADY
+                # COMPLETE ON DISK (findings/codex/score-good-nested-ifs-20260927T191350Z.yaml,
+                # 1943 bytes, `ambiguous_categories` present = fully written), so row 3b is `ok`
+                # and NOT a timeout. I did NOT start a second codex-score beside it (§6: never edit
+                # or re-run a tool while a run of it is in flight).
+last_verified: "2026-09-27T17:5x-19:5xZ, *** STOP 23 OPENED AND §0 BOUNDARY 1 REACHED. ***
+  RE-ENTRY, in the order §0 demands: (1) prompt_sha re-computed = a47590a1e61d, UNCHANGED;
+  (2) all 22 findings/track-b-validation-*.md re-checked BY NAME, one grep per basename against
+  validation_processed - all 22 present, NONE NEW, so no §0 validator batch was owed;
+  (3) narrow pgrep - nothing of mine running; (4) working tree clean on main at e731159 with
+  stop 22's state write merged (lab#133).
+  §0a PREFLIGHT RE-RUN IN FULL at the author's explicit instruction ('starting with the section 0a
+  preflight'), the TENTH consecutive session to carry it; §0a's own trigger did NOT fire - neither
+  a first session nor a halt. SIX ok, TWO FAIL, ONE RED-BY-DECISION; see the preflight: block.
+  NEITHER FAIL NOR THE RED IS A §7 HALT - §0a's halt sentence is scoped to STARTING STOP 4 with an
+  unproven harness or a failing verifier, and ALL FOUR VERIFIERS PASS.
+  §4 STEP 1: seven gh-aw pages read fresh. *** EVERY URL'S HTTP STATUS WAS TAKEN FROM `curl -L -w
+  '%{http_code} %{url_effective}'` BEFORE ANY PAGE WAS READ *** - all seven returned 200 AT THE URL
+  AS WRITTEN, no redirects - because stop 22 measured that WebFetch follows a redirect SILENTLY and
+  a subagent then reports `resolved directly` for a page that moved. A tick from a fetch is not a
+  tick. SOURCES.md gained two rows (threat-detection, triggers) and check-links.sh was re-run:
+  *** ok=73 moved=11 blocked=2 unverified=0 broken=0, EXIT 0 *** - two more `ok` than stop 22's 71,
+  which is the two new rows and nothing else.
+  §4 STEP 1 GITHUB HALF: lab#10 is the Phase 8 issue, *** LOOKED UP VIA THE API, NOT GUESSED ***
+  (gh api repos/.../issues, filtered to number <= 17). Comment issuecomment-5859209428 says
+  `opened at spine stop 23, branch stop23/phase-8-agentic-workflows, 2026-09-27`. Card
+  PVTI_lADOD-WaCM4Bhgoqzg4Ot0U moved Todo -> In Progress and READ BACK: `issue #10 state=OPEN
+  card=In Progress`. *** THE ISSUE STAYS OPEN - all four of its labs are deferred and §4 step 14
+  keeps a Phase issue open on exactly that basis, as lab#9, lab#16 and lab#8 already are. ***
+  THE NEW INSTRUMENT, AND IT IS THE ONLY L2 THIS STOP PRODUCED: evidence/p08/verify-quotes.sh,
+  ShellCheck CLEAN, 29 registered sentences over the seven pages, exit codes 0/2/3/4 registered.
+  Fixture set evidence/p08/verify-quote-checker.sh: *** 10 PASSED, 0 FAILED, exit 0 *** over all
+  four codes. CASE B RE-DERIVED BY HAND. LIVE RUN OVER THE NETWORK: found=28 absent=1, EXIT 2,
+  at evidence/p08/quote-verification-20260927T194029Z.txt - and the ONE absence is OUR OWN August
+  quote. THE CHECK FAILED ON OUR WORKBOOK, WHICH IS THE POINT OF HAVING IT.
+  COMMITTED: 14f2d60 (workbook + SOURCES.md + evidence/p08). NOTHING WAS OVERWRITTEN - the
+  2026-08-09 extract is kept verbatim under its own heading with a dated banner, and the drift is
+  recorded in a NEW dated section beside it."
+next_action: "*** STOP 23 IS OPEN AT §0 BOUNDARY 1. THE EXTRACT IS WRITTEN, COMMITTED (14f2d60) AND
+  PUSHED. DO NOT RE-WRITE IT, RE-READ THE SEVEN PAGES, OR RE-RUN check-links.sh FROM SCRATCH.
+  WHAT REMAINS IS §4 STEPS 11, 13, 13a AND 14 = BOUNDARY 2, AND THE STOP THEN CLOSES. ***
+  (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d), re-check
+      findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
+      2026-09-08 - ONE GREP PER BASENAME, never a total), and confirm nothing is running with the
+      NARROW pattern `LC_ALL=C pgrep -fl 'run-agent.sh|codex exec|opencode-review.sh'`.
+      *** NEVER a bare `pgrep -fl opencode`; NEVER a `pgrep -f` WAIT LOOP (it matches itself and
+      never exits); NEVER `ls -t <glob>` (ls is aliased to eza, whose -t is --time FIELD, so the
+      first glob match is EATEN AS THE FLAG ARGUMENT and it fails WITH EXIT 0) - use
+      `stat -f '%m %N' <glob> | sort -rn | head -1 | cut -d' ' -f2-`. ***
+      *** AND NEVER TAIL runner logs under /tmp/preflight-*.log: they are JSONL with full thinking
+      blocks and signatures. One tail -4 cost more context this session than the whole workbook.
+      grep them for a narrow pattern or read the run off the API instead. ***
+  (1) §4 STEP 11: the SIX learning questions of build/README.md `After every step` - the keys are at
+      build/README.md:663-670 and must be EXACTLY those six - plus the Exit gate on all five
+      clauses INCLUDING `was this the agent, or the harness?`, whose honest answer at a diamond stop
+      is NEITHER. *** THE EXIT GATE HAS A CORRECTION WAITING FOR IT, ALREADY WRITTEN IN THE
+      WORKBOOK: the clause `Read-only default` NEEDS ITS SUBJECT NAMED OR IT IS FALSE. *** The
+      agent job is read-only; the workflow is not - with no `safe-outputs:` block, `create-issue is
+      automatically enabled with conservative defaults (max: 1 ...)`. Answer the clause as
+      `qualified`, not as `yes`. The other four clauses (human-triggered vs unattended risk,
+      safe-output separation, schedule/event attack surface, why auto-merge should not be the first
+      target) are ALL answerable from the extract - and the LAST one is answerable more sharply than
+      the scaffold could have known, because `merge-pull-request` and `approve-workflow-run` are now
+      IN the safe-output vocabulary, both `experimental`, so `auto-merge` is no longer hypothetical.
+  (2) §4 STEP 13: the §5 table, in the workbook, one row per gate clause, with the LAYER OF THE
+      PROOF (not of the artifact) and a re-derivation a stranger could run. *** §5 REQUIRES EVERY
+      VERIFICATION COMMAND RE-RUN IMMEDIATELY BEFORE WRITING `done`, WITH THE OUTPUT PASTED IN ***
+      - at stop 22 that is the only reason its Independence check was caught wrong. The three
+      commands this stop's table should promise are `./evidence/p08/verify-quote-checker.sh` (expect
+      `10 passed, 0 failed`), `./evidence/p08/verify-quotes.sh` (expect `found=28 absent=1`, exit 2
+      - AND IF IT COMES BACK 29/0, THE PAGE CHANGED AGAIN AND THAT IS A NEW FINDING, NOT A PASS) and
+      `./tools/check-links.sh` (expect ok=73, exit 0). Add an explicit `n = 0 runs` line and an
+      Independence check saying THERE ARE NO ARMS TO BE INDEPENDENT OF.
+  (3) §4 STEP 13a - THE REVIEW: *** ROUTE IT TO `-P codex` AND EXPECT NO ACCEPTANCE VERDICT. ***
+      §0a row 2 has now stalled NINE consecutive sessions on the ollama-cloud weekly limit and
+      `lab-acceptance` is on the SAME PROVIDER. RECORD `DID NOT RUN`, not `UNDECIDED` and not a
+      pass; there is no objection to answer when there is no gate, so DISPOSITION EVERY LINE-LEVEL
+      FINDING instead and say in the PR body that no acceptance verdict exists. *** SEND THE
+      WORKBOOK phases/08-agentic-workflows/README.md FIRST *** - it is the contract this stop wrote.
+      evidence/p08/verify-quotes.sh SECOND: it is a NEW TOOL and §4a reviews tools. At most four
+      artefacts per invocation, run the invocations SEQUENTIALLY (concurrent opencode is this
+      machine's known stall mode), and NAME IN THE PR BODY anything not sent. *** NEVER pass it
+      anything under findings/, .claude/ or .github/ *** - rtk hides dotfile paths and it would
+      review nothing and exit 0. *** AND THE REVIEW IS WORTH ITS COST: at stop 21 it caught a
+      REFUTED PREDICTION recorded as HELD, at stop 17a it corrected a stated reason for refusing
+      promotion, and at stop 22 it caught me MISAPPLYING THE LAYER RULE IN SIX PLACES. Expect it to
+      come for this stop's L1/L2 calls first; they are the claims most likely to be wrong. ***
+  (4) §4 STEP 14 - THE PR: one PR in agent-learning-lab, body carrying the path of the final review
+      file and, per finding, the sha that fixed it or the dispute. Wait for every check. Then
+      HANDOFF.md: position to spine 23 of 28, KEEPING THE PREVIOUS LINE VERBATIM AS SUPERSEDED.
+      *** BOARDS: DO NOT REPUBLISH *** - the author's, by decision 12 item 4, so the board CI check
+      is RED and that red is EXPECTED. Nine green and one red is a MERGEABLE state with --admin, as
+      lab#132, lab#130, lab#122 and lab#117 all were. *** RE-DERIVE THE REQUIRED DIGEST AFTER THE
+      LAST HANDOFF.md EDIT by RUNNING ./tools/check-board-freshness.sh, NEVER BY HAND *** - it
+      EXCLUDES `board:` marker lines, so a raw-file sha is a different number. At the time of this
+      write it is b80ab7bd7834 and THE STOP-23 HANDOFF EDIT WILL MOVE IT.
+      *** MERGE VIA THE REST API: `gh api -X PUT repos/UnityInFlow/agent-learning-lab/pulls/<n>/
+      merge -f merge_method=merge`. MERGE, NEVER SQUASH. *** `gh pr merge` and `gh pr view` time out
+      or 401 intermittently on this machine; `gh api` REST worked first time at stop 22, and the
+      GraphQL project-board calls worked this session under a 180s perl alarm.
+      THEN CLOSE THE STOP ON GITHUB: one comment on lab#10 carrying the §5 row, card to Done -
+      *** BUT THE ISSUE ITSELF STAYS OPEN, all four labs are deferred. Moving a Phase card to Done
+      DOES auto-close the issue on project #2 and the automation is DELAYED (stop 18, lab#8), so
+      READ THE STATE BACK A FEW MINUTES LATER AND REOPEN IT IF IT CLOSED. ***
+  (5) FOR author_notes, ALREADY WRITTEN THERE, nothing to re-derive: the GENERAL quote-staleness
+      checker (this stop built a phase-scoped one only); INCONCLUSIVE vs EXTEND as two rows rather
+      than one NOT DETECTABLE; check-links.sh's curl `000` degrading to a non-fatal `unverified`
+      where gh-aw's detector fails closed; check-links.sh's summary NEVER RECONCILING; and *** THE
+      CODEX ISOLATION LEAK, which is the author's because fixing it changes the run environment
+      every later stop inherits. ***
+  (6) DO NOT: create any artifact of stop 24 (Phase 9 - Memory) or later; write an experiment or a
+      prediction for a diamond stop; spend a benchmark run at stop 23; build the general quote
+      checker or any other instrument in author_notes; re-open, re-run or re-review stop 22 or 21;
+      edit a measured overlay under build/customizations/; delete a worktree, log, sheet, stall
+      artefact or evidence file (§6); commit a pid lock; republish the boards; push a state write
+      straight to main; close a Phase issue whose labs are deferred; or run §9 on my own work."
+preflight:  # *** §0a RE-RUN IN FULL 2026-09-27T19:1x-19:3xZ *** at the author's explicit instruction
+            # for this session ("starting with the section 0a preflight"), the TENTH consecutive
+            # session to carry it. §0a's own trigger did NOT fire - neither a first session nor a
+            # halt; the instruction did. *** SIX ok, TWO FAIL, ONE RED-BY-DECISION. NEITHER FAIL NOR
+            # THE RED IS A §7 HALT and blocked_on_author STAYS EMPTY. *** §0a's halt sentence is
+            # scoped to STARTING STOP 4 with an unproven harness or a failing verifier; ALL FOUR
+            # VERIFIERS PASS.
+            # Rows 1-5, 6a and 7 delegated to a haiku subagent with exact commands and hard per-row
+            # bounds (§4b row 7); row 6b run by me. *** THE DECIDING ROWS WERE RE-DERIVED BY HAND
+            # AND ONE SUBAGENT VERDICT WAS OVERTURNED BY DOING SO. ***
+            #
+            # row 1  REVIEW HOOK SCRIPT ......... ok    `all 87 cases ran and behaved as specified`,
+            #        exit 0. *** THE PROMPT'S TABLE STILL SAYS `16 of 16` AND THE SUITE IS 87 CASES
+            #        *** - staleness author_notes has now carried for twelve sessions. §1: the files
+            #        win.
+            # row 2  REVIEW HARNESS, LIVE ...... *** FAIL (stall, 903 bytes, 0 finding sections)
+            #        *** - THE NINTH CONSECUTIVE SESSION, ollama-cloud weekly limit, every family
+            #        refused. RE-DERIVED BY HAND off the exact path the subagent named:
+            #        `wc -c` -> 903, `grep -c '^### '` -> 0. Artefact KEPT per §6 and labelled a
+            #        STALL, never counted as a review:
+            #        findings/opencode/review-run-record-20260927T191218Z.md. No opencode of ours
+            #        left running. *** THE CONSEQUENCE IS ACTED ON, NOT INFERRED: step 13a goes to
+            #        `-P codex` at boundary 2 and the acceptance gate is recorded DID NOT RUN. ***
+            # row 3a CODEX DRY RUN ............. ok    28 415 bytes at ./1, ALL FOUR CATEGORIES
+            #        PRESENT (grep counts 1/2/3/2). *** LAB_SCORE_DRY_RUN IS A PATH, NOT A BOOLEAN
+            #        *** (codex-score.sh:294 `cp "$tmp/prompt.md" "${LAB_SCORE_DRY_RUN}"`), so `=1`
+            #        lands at `./1`; exit 3 is the dry run's OWN REGISTERED CODE, not a failure.
+            #        `/1` is in .gitignore:51, so a past session hit this too.
+            # row 3b CODEX HARNESS, LIVE ....... *** ok - AND THE SUBAGENT CALLED IT A TIMEOUT. ***
+            #        It reported `TIMEOUT / backgrounded` because its own perl-alarm wrapper (pid
+            #        91730) was still alive when it returned. THE SHEET WAS ALREADY COMPLETE:
+            #        findings/codex/score-good-nested-ifs-20260927T191350Z.yaml, 1943 bytes, read BY
+            #        HAND - architecture-consistency 2 / maintainability 0 / test-quality null /
+            #        change-focus 2, with `ambiguous_categories: ["test-quality"]` present, which is
+            #        the last block the scorer writes. codex-cli 0.154.0.
+            #        *** CELL-FOR-CELL IDENTICAL to the 19:23Z-earlier sheets of the 27th (18:27Z,
+            #        17:57Z, 16:21Z, 15:52Z, 12:33Z, 09:51Z, 08:40Z, 06:04Z) and to 2026-09-26 and
+            #        2026-09-03. The scorer is stable on this fixture across ELEVEN sheets and 25
+            #        days. *** §4b's rule - re-derive anything that decides a row - has now
+            #        overturned a subagent verdict in FIVE OF SIX SESSIONS.
+            # row 4  GATE AND VALIDATORS ....... ok    all four run SEPARATELY so one failure could
+            #        not hide the rest: run-gate 13 cases / sheet-category 11 / run-record 12 /
+            #        model-output 16, exit 0 each.
+            # row 5  OBSERVATORY STACK ......... ok    `All 18 checks passed`, exit 0, API 8081.
+            #        INDEPENDENTLY CONFIRMED: row 6b read a run record off that same API by hand.
+            # row 6a ISOLATION, CODEX .......... *** FAIL, exit 2, AND IT REPRODUCES FOR THE THIRD
+            #        TIME *** (stop 21 fact 11, stop 22's preflight, here).
+            #          check A - `nothing AUTO-LOADS`
+            #          check B - `ISOLATION LEAKS: the agent reached the operator's instruction files
+            #                    with HOME redirected.`
+            #        *** DELIBERATELY NOT FIXED, and this is the judgement, not an omission: ***
+            #        changing run-agent.sh's HOME redirection alters the run environment EVERY LATER
+            #        STOP INHERITS, which is closer to §7's `a gate that cannot be closed without
+            #        moving a registered variable` than to an instrument PR §4 step 14 lets me merge.
+            #        author_notes carries it for the author. `codex exec --help` offers
+            #        --ignore-user-config, --ignore-rules and --ephemeral, NONE of which the runner
+            #        passes. *** STOP 23 LAUNCHED NO SCORED RUN, so nothing at this stop is in any
+            #        comparison. ***
+            # row 6b ISOLATION, CLAUDE HALF .... ok on the observable half. Run
+            #        *** 59ea41b2-8e84-479c-ac72-3623ad11c3de ***, experimentKey
+            #        preflight-20260927T192314Z, startedAt 2026-09-27T19:23:15Z, evaluation exitCode
+            #        0, runtime.model claude-haiku-4-5-20251001 (THE PINNED MODEL, CHECKED, NOT
+            #        ASSUMED). RE-DERIVED BY HAND off the API: `customization` has *** SEVEN *** keys
+            #        - agentHash, agentsHash, hooksHash, instructionsHash, knowledgeHash, mcpHash,
+            #        skillsHash - and *** ALL SEVEN ARE null *** under ISOLATE_USER_SETTINGS=1.
+            #        *** THE UNOBSERVABLE HALF IS STILL UNOBSERVABLE AND IT IS A DEFECT IN THE
+            #        PROMPT'S OWN TABLE: *** §0a asks for a record that "shows 0 hook executions" and
+            #        THERE IS NO HOOK-EXECUTION FIELD IN THE RECORD AT ALL - a paths(scalars) scan
+            #        for /hook/i over the whole record returns []. `hooksHash: null` is a HASH, not a
+            #        COUNT. Any past `ok` on that half was INFERRED. §1: the files win.
+            # row 7  BOARD CHECK .............. RED, BY THE AUTHOR'S OWN STANDING DECISION (12 item
+            #        4), not an oversight: `2 of 2 board(s) describe an older HANDOFF.md than the one
+            #        on disk`, exit 1. NOT REPUBLISHED. Required marker digest at the time of this
+            #        write: *** b80ab7bd7834 *** - and THE STOP-23 HANDOFF EDIT AT BOUNDARY 2 WILL
+            #        MOVE IT, so RE-DERIVE BY RUNNING THE CHECK, never by hand.
+            #
+            # *** HOOK WIRING: still `unproven in print mode`, unchanged and deliberately so. *** The
+            # synchronous §4a review is this run's review control, and at boundary 2 it goes to codex
+            # because row 2 says the opencode families are refused.
+
+# SUPERSEDED STATUS KEY, COMMENTED OUT SO EXACTLY ONE `^status:` IS LIVE (the driver greps
+# `^status: *(done|blocked)`); ITS TEXT AND ITS WHOLE COMMENT BLOCK ARE KEPT VERBATIM BELOW.
+# status: running   # *** §0 BOUNDARY 2 OF 2 FOR STOP 22 (PHASE 7 - PLUGINS), A DIAMOND STOP.
                   # *** THE STOP IS CLOSED AND MERGED. *** PR lab#132 -> 074e2818e36c0a26cb8e552acfcdb8f77651d18d
                   # (a MERGE COMMIT, not a squash). NINE CHECKS GREEN, ONE RED - the board check, red
                   # by the AUTHOR'S OWN STANDING DECISION 12 ITEM 4, and NOT an oversight. lab#9 has
@@ -7150,6 +7501,44 @@ blocked_on_author: []   # *** EMPTY as of 2026-09-25. *** The single item that w
 author_notes:   # *** 2026-09-27 (stop 22, §0 BOUNDARY 2 - THE CLOSE) items FIRST, then boundary 1's,
   # then the stop-21 ones. NOTHING HERE GATES ANYTHING. blocked_on_author is EMPTY and no item below
   # matches a §7 bullet. ***
+  # *** 2026-09-27 (stop 23, §0 BOUNDARY 1) items, added at the top per this block's own convention:
+  - "*** A QUOTE-STALENESS CHECKER FOR THE WHOLE REPOSITORY, NOT JUST ONE PHASE. *** Stop 23 found
+     that the boldest display quote in phases/08-agentic-workflows/README.md - 'The agent never
+     receives write tokens directly.' - IS NO LONGER IN THE PAGE IT CITES, 49 days after it was
+     written. Nothing executed to catch that: check-links.sh proves a URL RESOLVES and says nothing
+     about whether a QUOTATION still appears in the resolved page, so every extract in phases/ is
+     carrying an unknown number of sentences that have drifted. evidence/p08/verify-quotes.sh is the
+     fix FOR ONE PHASE (29 sentences, seven pages, exit 2 on any absence, fixture set 10 of 10) and
+     is deliberately NOT generalised: a tools/check-quotes.sh that walked every `>` blockquote in
+     every workbook against its cited URL is an instrument for the repository, and §6 forbids
+     building a future step's artifact at a diamond stop. *** THE SHAPE IF ANYONE BUILDS IT: the hard
+     part is not fetching, it is deciding WHICH URL a blockquote belongs to - the p08 version solves
+     that by REGISTERING (page-key, sentence) pairs in the script itself, which is honest and does
+     not scale. *** Note it would have caught this drift on any weekly run. NOT A BLOCKER."
+  - "*** check-links.sh DEGRADES A curl `000` TO A NON-FATAL `unverified`, AND STOP 23 READ THE
+     OPPOSITE DEFAULT IN SOMEBODY ELSE'S DOCUMENTATION. *** gh-aw's threat detector: 'If the
+     detection process itself fails (e.g., network issues, tool errors), the workflow stops and safe
+     outputs are not applied. This fail-safe approach prevents potentially malicious content from
+     being processed.' Same decision - what does a checker do when it cannot check - and the opposite
+     answer. Ours fails OPEN and counts the row as `unverified`; theirs fails CLOSED and stops the
+     workflow. *** THIS IS NOT A DEFECT REPORT, because `unverified` IS reported separately and is
+     not silently counted as `ok` - it is an argument that the DEFAULT is backwards and that a
+     `--strict` mode returning non-zero on any `unverified` would cost nothing. *** Related and
+     already carried: the summary line has NEVER RECONCILED (91 declared, 84 bucketed, 7 unaccounted;
+     the same gap stood at 2 on 2026-08-28). NOT A BLOCKER and NOT MINE to flip - check-links.sh
+     gates CI, so changing its exit behaviour changes what a green check means for every repo."
+  - "*** `INCONCLUSIVE` AND `EXTEND` AS TWO DECISION-RULE ROWS RATHER THAN ONE `NOT DETECTABLE`. ***
+     gh-aw's experiment engine returns four verdicts and its own page separates the two this project
+     collapses: 'INCONCLUSIVE Minimum samples exist, but the evidence or practical effect does not
+     establish a winner ... EXTEND means that evidence collection or computation is incomplete.'
+     Track B's rows are void / not detectable / reject / improved, and `NOT DETECTABLE` has been used
+     for BOTH situations: stop 11 (E-007, n = 20, the engine COULD adjudicate and no winner emerged)
+     and E-016 (n = 7 against a registered n = 10, where the population never reached the size the
+     MDE was computed for). *** THOSE ARE DIFFERENT CLAIMS AND THE SECOND IS WEAKER. *** Splitting
+     them would change how three closed stops READ, which is exactly why I did not touch them: §6
+     forbids editing a registered decision rule mid-track and a closed verdict is carried by a dated
+     amendment, never a rewrite. FOR THE AUTHOR TO DECIDE, and if adopted it belongs in
+     templates/experiment.md from the NEXT stop forward, not backwards. NOT A BLOCKER."
   - "*** THE CODEX ISOLATION CONTROL LEAKS, IT REPRODUCES, AND FIXING IT IS YOURS BECAUSE IT CHANGES
      THE RUN ENVIRONMENT. *** `agent-observatory/runner/verify-codex-isolation.sh` exits 2:
      `ISOLATION LEAKS: the agent reached the operator's instruction files with HOME redirected.`
