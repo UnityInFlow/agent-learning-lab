@@ -1,0 +1,28 @@
+CLAUSE 4 — can `H` (log non-empty) tell a break the router SURVIVES from one it does not?
+Run 2026-09-27T08:55:16Z by Opus 5 (claude-opus-5), autonomously. Read-only on the overlays.
+
+=== (a) UNEXECUTABLE router (the break that ran), mode -rw-r--r-- ===
+    stderr/stdout: (eval):5: permission denied: .ai/knowledge/router.sh
+    exit code: 
+    log file exists: NO
+    log lines: 0
+
+=== (b) EXECUTABLE router, index.yaml removed, mode -rwxr-xr-x ===
+    stderr/stdout: knowledge router: index not readable at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/tmp.ixyil6zMQM/b/.ai/knowledge/index.yaml
+    exit code: 
+    log file exists: yes
+    log lines: 1
+    log content: {"ts":"2026-09-27T08:55:17Z","status":"malformed","query":"status transitions enum when","topic":"","summary":"","details":"","matches":0,"pid":44923}
+
+=== (c) CONTROL — the measured overlay, untouched ===
+    exit code: 0
+    log lines: 1
+    first status: hit
+
+VERDICT ON CLAUSE 4: (a) writes 0 lines; (b) writes 1; (c) writes 1.
+
+=== ADDENDUM, same run: the three exit codes, captured without a pipe ===
+    (the tee'd block above lost them to ${PIPESTATUS[0]} inside a subshell — recorded, not hidden)
+    (a) unexecutable router, bash -c: exit 126  <- the shell's cannot-execute code
+    (b) executable router, index removed: exit 3  <- the router's own MALFORMED code
+    (a) log lines: 0   (b) log lines: 1

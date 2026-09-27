@@ -1,0 +1,12 @@
+# B9 DELIBERATE FAILURE 20260927T085830Z  n=5  task=BE-003  key=EXP-B9-DF-NOEXEC
+# overlay /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/agent-v1.2-knowledge-noexec (router NOT executable; every byte identical to agent-v1.2-knowledge)
+# expected knowledgeHash sha256:0770219ae7f4281a80071d78dadea285  instructionsHash sha256:ebf489800a60a156986f98ea4f127848  agentHash sha256:b3450564b6f32d6193e8580db766210e
+# ceiling $1.0047  claude 2.1.283  model claude-haiku-4-5-20251001  benchmarks 2fc445d
+# prediction commit fd5dcae at 2026-09-27, BEFORE any run here
+seq	run_id	rc	eval	knowledge_hash	instr_hash	agent_hash	log_state	log_lines	router_exec	router_mentions	router_denied	model_calls	cost	duration_ms	changed	init_tools	worktree
+01	none	1	null	null	null	null	ABSENT	0	0	0	no	null	null	null	null	UNPARSED	none
+02	none	1	null	null	null	null	ABSENT	0	0	0	no	null	null	null	null	UNPARSED	none
+03	none	1	null	null	null	null	ABSENT	0	0	0	no	null	null	null	null	UNPARSED	none
+04	none	1	null	null	null	null	ABSENT	0	0	0	no	null	null	null	null	UNPARSED	none
+05	none	1	null	null	null	null	ABSENT	0	0	0	no	null	null	null	null	UNPARSED	none
+# COMPLETE 2026-09-27T08:58:32Z  n=5  spent $0 of $1.0047

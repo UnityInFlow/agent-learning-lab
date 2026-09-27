@@ -1,0 +1,2 @@
+ceiling BE-003: pair $0.2810 x 11 = $3.0910   (author decision 13, computed from /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/preflight-20260926T131746Z/manifest.tsv)
+guards-only: every guard passed and NOTHING was run

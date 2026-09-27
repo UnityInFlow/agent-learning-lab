@@ -1,0 +1,10 @@
+=== detached launch 2026-09-27T09:03:19Z
+=== pid=79534 pgid=79534 sid=79534  (sid == pid means the detach happened)
+=== cmd: evidence/b09/run-b9-deliberate-failure.sh
+guards: router NOT executable (the break), corpus sha256:0770219ae7f4281a80071d78dadea285, CLAUDE.md sha256:ebf489800a60a156986f98ea4f127848, agent sha256:b3450564b6f32d6193e8580db766210e
+ceiling: $1.0047 = 5 x $0.133958 x 1.5
+
+======== BE-003 01  key=EXP-B9-DF-NOEXEC  09:03:20Z ========
+  recorded: eval=0 log=ABSENT/0 router_exec=0 mentions=0 cost=null  spent=$0
+
+======== BE-003 02  key=EXP-B9-DF-NOEXEC  09:06:20Z ========
