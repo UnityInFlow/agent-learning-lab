@@ -602,11 +602,71 @@ that decides nothing, for the reason the trap table gives.
 
 <!-- TODO: context metrics are the comparison, not just quality. -->
 
-## Deliberate failure
+## Deliberate failure — §4 step 9, prediction registered 2026-09-27, `n = 5`
 
-<!-- TODO: put a wrong summary in the index and see whether the agent
-     trusts it. This is the Layer 3 untrusted demonstration — retrieved
-     text is input, and input can be wrong or hostile. -->
+<!-- The original TODO is kept verbatim below. It is NOT what ran, and the reason is arithmetic,
+     not preference. -->
+
+> <!-- TODO: put a wrong summary in the index and see whether the agent
+>      trusts it. This is the Layer 3 untrusted demonstration — retrieved
+>      text is input, and input can be wrong or hostile. -->
+
+### Why the registered wrong-summary demonstration is deferred, with the arithmetic
+
+The batch measured corpus contact at **3 of 10** treated runs on BE-003 and **1 of 10** on BE-004
+(`evidence/b09/corpus-access-census.sh 20260926T151319Z`). A wrong summary can only be trusted by a
+run that reads it, so an `n = 5` arm would put the wrong text in front of **one or two** runs and a
+trust rate computed on that is not a measurement — §5 forbids stating an `n < 5` result as a
+property, and this would be `n ≈ 1`. Reaching five readers needs about **17 runs** at the observed
+rate, and comparing a trust *rate* against anything needs more. That is a step of its own, not a
+step 9.
+
+**What replaced it is the failure the batch made decidable**, and it is on the path
+`TRACK-B-STATE.md` named before this session opened: the instruction-to-call path, broken — not the
+router's content and not the corpus.
+
+*Decided by Opus 5 (claude-opus-5), autonomously, 2026-09-27; the author did not review before the
+run. Nothing above is rewritten.*
+
+### The break: one mode bit, and nothing else
+
+`build/customizations/agent-v1.2-knowledge-noexec/` — a copy of the measured
+`agent-v1.2-knowledge/` in which `.ai/knowledge/router.sh` **loses its executable bit**. Every byte
+of every file is identical, proved by `diff -r` returning nothing; the only difference is a
+permission, proved by `find . -perm`. **The measured overlay is not touched** (§6: a measured
+version is never edited). Own probe key **`EXP-B9-DF-NOEXEC`**, excluded by name from both
+registered arms, and it runs on **BE-003 only** — BE-004's contact rate is 1 of 10 and it would add
+no decidable clause.
+
+`CLAUDE.md` still tells the agent, in the same bytes, to run `.ai/knowledge/router.sh`. So the
+instruction is intact and the thing it names cannot execute. `n = 5`, not 3, because clause 4 is
+stated as a property.
+
+### The registered predictions
+
+Every clause is decidable at `n = 5` **without depending on the agent choosing to consult
+anything** — which is the mistake the wrong-summary version would have made.
+
+| # | prediction | mechanism | how it is decided |
+|---|---|---|---|
+| 1 | **The registered batch driver does NOT refuse the broken overlay.** `B9_GUARDS_ONLY=1 B9_OVERLAY_T=…-noexec evidence/b09/run-b9-batch.sh` exits **0** | the corpus assertion at `run-b9-batch.sh:181` and `knowledge_hash()` at `run-agent.sh:653-662` both digest **(path, content)** pairs. A mode bit is neither. The overlay is installed with `cp -R` (`run-agent.sh:338`), which preserves modes — so the break survives the copy and no guard sees it | one command, no run. Inverse of stop 17a, where the same guard refused a broken overlay at exit 6 |
+| 2 | `knowledgeHash` **equals** the registered `sha256:0770219ae7f4281a80071d78dadea285` on **5 of 5** | same mechanism as 1 | the run record's `customization.knowledgeHash` |
+| 3 | `instructionsHash` **equals** the treated arm's registered `sha256:ebf489800a60a156986f98ea4f127848` on **5 of 5** | the clause is byte-identical; one variable moved | the run record's `customization.instructionsHash` |
+| 4 | **`H` as registered cannot tell an unexecutable router from an abstention, and can tell every break the script survives.** A hand call in a broken worktree writes **zero** log lines; the same router with its index removed writes **one**, `status=malformed` | the shell refuses the exec at 126 *before* line 1, so `emit()` never runs. Every in-script failure path calls `emit()` first (`router.sh:70,75,105,131,136,143,151`) | two hand calls, free. `H` is registered as *"treated runs whose log is non-empty"* (`E-022:222`) |
+| 5 | Evaluator exit **0** on **5 of 5** | BE-003 has never failed on this model, and the corpus names no task word | `evaluation.exitCode` |
+| 6 | **Reported, deciding nothing, with its `n`:** how many of the 5 runs *attempt* the call, by `router_exec` in the census, and whether the manifest's `router_mentions` separates an attempt from a no-contact run where `H` does not | at 3-of-10 contact this is expected to be **0–2 of 5** and is explicitly **not** stated as a property | `corpus-access-census.sh` + `manifest.tsv` |
+
+**What would refute clause 4, and it is the honest half:** the manifest carries `router_mentions`
+beside `log_lines`, and a refused or failed `tool_use` still appears in the stream. If any broken run
+attempts the call, `router_mentions ≥ 1` with `log_state=ABSENT` **does** separate it. Clause 4 is
+therefore a claim about **the registered decision rule**, not about the instrument as a whole, and
+clause 6 is what tests whether the column rescues it. Stated this way before the run rather than
+discovered after it.
+
+**Cost ceiling $1.00** — 5 × the treated arm's BE-003 median `$0.133958`, plus margin. Not a knob.
+
+*Predicted by Opus 5 (claude-opus-5), autonomously, 2026-09-27T09:2xZ; the author did not review
+before the run.*
 
 ## Exit gate
 
