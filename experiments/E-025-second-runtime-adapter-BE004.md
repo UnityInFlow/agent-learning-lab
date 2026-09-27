@@ -237,6 +237,67 @@ two suites and runs roughly two to three times BE-003 — giving an expected 4�
 and the same 4 h batch ceiling. **That scaling is a transfer, not a measurement**, and the first
 BE-004 codex control run replaces it.
 
+## Preflight result — §4 step 5, 2026-09-27, PASSED 4 of 4
+
+Driver `evidence/b10/run-b10-preflight.sh`, manifest
+`evidence/b10/preflight-20260927T124708Z/manifest.tsv`, key `EXP-B10-PREFLIGHT-BE004` —
+**excluded from the population** by `## Exclusions`, and given its **own** key rather than the
+batch's, because `run-b9-preflight.sh:134` handed the preflight the batch's key at stop 20 and
+`make baseline-report` then pooled 25 runs into a registered population of 20.
+
+| task | arm | verdict | `instructionsHash` | `knowledgeHash` | eval | `reportedTotalTokens` | `durationMs` | changed |
+|---|---|---|---|---|---|---|---|---|
+| BE-003 | control | **ok** | `null` | `null` | 0 | 31 067 | 81 000 | 2 |
+| BE-003 | treated | **ok** | `sha256:ebf489800a60a156986f98ea4f127848` | `sha256:0770219ae7f4281a80071d78dadea285` | 0 | 24 523 | 112 000 | 4 |
+| BE-004 | control | **ok** | `null` | `null` | 0 | 29 454 | 154 000 | 8 |
+| BE-004 | treated | **ok** | `sha256:ebf489800a60a156986f98ea4f127848` | `sha256:0770219ae7f4281a80071d78dadea285` | 0 | 30 706 | 122 000 | 8 |
+
+**Prediction 3 — the one registered as most likely to be wrong — holds on the preflight pair, at
+the exact registered digests rather than merely non-null.** The reason it was registered that way
+is that *"the codex arm has never carried a customization at all — all eight stored codex runs have
+every hash `null`"*. It carries one now. The control assertion holds in its own right and was
+**read back from the record**: all five `customization.*Hash` `null`, not inferred from the absent
+flag. The batch's own `n = 5` per arm is what the prediction is scored against; the preflight is
+not in that population.
+
+**The `init.tools` read-back is `absent` on all four runs, and that is a measurement.** Author
+decision 8 requires it *"even though codex has no `tools:` list"*, because E-005's rewrite —
+`Read, Grep, Glob, Bash` delivered as `["Read","Bash"]` on 10 of 10 — was found by taking this
+read-back on an arm nobody expected it from. Here it produces nothing: `codex exec` emits no
+`init`/`system` record that `INIT_SCHEMA_DIR` can capture. So the tool-schema question is **not
+answerable on this runtime with this instrument**, which is an observability limitation of the
+codex adapter and is reported under the gate's *"document each provider's limitations"* clause
+rather than passed over.
+
+**`estimatedCost`, `modelCalls` and `toolCalls` are `null` on 4 of 4 and `reportedTotalTokens` is
+set on 4 of 4** — prediction 5's shape, visible before the batch. It is scored on the batch, not
+here.
+
+### The preflight found the thing nobody predicted, and it is recorded without touching prediction 4
+
+**Both treated runs called the router — 2 of 2 — and each called it exactly once, on a `hit`.**
+The two logs are kept at
+`evidence/b10/preflight-20260927T124708Z/router-logs/knowledge-log-observatory-run-{{fcd1b669…,5314a421…}}.jsonl`
+and copied out of `$TMPDIR` at the end of the run that wrote them, because `router.sh:51` writes
+outside the worktree and macOS reaps `$TMPDIR` in about three days. The queries are the task's,
+not boilerplate:
+
+- BE-003: `implement shipment status transition from CREATED to CONFIRMED, idempotent when already CONFIRMED, reject CANCELLED`
+- BE-004: `implement order and shipment status enum branching cancellation state transitions Kotlin when versus if`
+
+**Prediction 4 says corpus contact on the treated codex arm is ≤ 1 of 5, and this is 2 of 2 on
+runs that are not in the population.** The prediction is **not edited** (§4 step 12) and this note
+is not a result: preflight runs are excluded, `n = 2`, and §5 forbids stating anything from
+`n < 5` as a property — it is true of these two runs. It is written down here, before the batch,
+so that whichever way the batch falls the reader can see the signal was visible in advance and was
+left alone. **If the batch refutes prediction 4, the interesting number will not be codex's rate
+but the comparison with claude's 3 of 20 at stop 20** — same corpus, same instruction text, same
+digests, different runtime — and that comparison is blocked as a *quality* claim and permitted as
+an *uptake* one, because uptake is read from the router's own log rather than from a rubric.
+
+*Recorded by Opus 5 (claude-opus-5), autonomously, 2026-09-27, between §4 step 5 and step 6; the
+author did not review. No prediction, MDE row or decision rule was edited.*
+
 ## Minimum detectable effect
 
 **There is no stored codex population on BE-004 of any kind** — not a rubric sheet, not a run.

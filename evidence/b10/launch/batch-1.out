@@ -1,0 +1,9 @@
+=== detached launch 2026-09-27T12:58:08Z
+=== pid=42362 pgid=42362 sid=42362  (sid == pid means the detach happened)
+=== cmd: ./evidence/b10/run-b10-batch.sh
+run-b10-batch: manifest already holds 0 run(s); ceiling is 20
+
+======== BE-003 01 control  key=EXP-B10-RUNTIME-PORT-BE003  12:58:09Z  elapsed 0s ========
+  rc=0 eval=0 delivery=ok instr=null knowledge=null contact=no tokens=28866
+
+======== BE-003 01 treated  key=EXP-B10-RUNTIME-PORT-BE003  12:59:54Z  elapsed 105s ========

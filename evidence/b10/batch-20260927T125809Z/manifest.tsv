@@ -1,0 +1,9 @@
+# B10 REGISTERED BATCH 20260927T125809Z  n=5 per arm per task, interleaved control-then-treated
+# runtime codex  model gpt-5.6-sol  treated overlay /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/agent-v1.2-knowledge-codex  control NO OVERLAY
+# expected treated instructionsHash sha256:ebf489800a60a156986f98ea4f127848 / knowledgeHash sha256:0770219ae7f4281a80071d78dadea285; control ALL FIVE null
+# ceiling 20 runs and 14400 s of wall-clock. NO DOLLAR CEILING: estimatedCost is null on
+#   8 of 8 codex runs ever recorded, so a dollar ceiling cannot fire on this arm.
+# codex codex-cli 0.154.0 at launch, benchmarks 2fc445d
+# prediction commits 05aaf3e (E-024, E-025) at 2026-09-27, BEFORE any run here
+task	seq	arm	run_id	rc	eval	runtime_ver	model	instr_hash	knowledge_hash	skills_hash	agent_hash	agents_hash	delivery	router_log	router_lines	corpus_contact	model_calls	tool_calls	cost	tokens	duration_ms	changed	worktree
+BE-003	01	control	a06c2daf-36ce-4a17-a6a7-2cd8e0c18775	0	0	codex-cli 0.154.0	gpt-5.6-sol	null	null	null	null	null	ok	none	0	no	null	null	null	28866	79000	4	/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-a06c2daf-36ce-4a17-a6a7-2cd8e0c18775
