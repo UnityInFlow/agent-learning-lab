@@ -297,7 +297,7 @@ is lost with nothing executing to say so (**L3**, probe 5 exits 0 and tracks the
 
 | Arm | Runtime | Model | Overlay | `n` | Source |
 |---|---|---|---|---|---|
-| codex-treated | `codex` | `gpt-5.6-sol` | the 8-file port | 5 per task | **new, this stop** |
+| codex-treated | `codex` | `gpt-5.6-sol` | the **9**-file port *(this cell said `8-file`; corrected additively 2026-09-27 at §4a round 1, finding 1 — 8 of the 9 are unchanged copies and 1 is a rename)* | 5 per task | **new, this stop** |
 | codex-control | `codex` | `gpt-5.6-sol` | none | 5 per task | **new, this stop**, interleaved |
 | claude-treated | `claude` | `claude-haiku-4-5-20251001` | `agent-v1.2-knowledge` (11 files) | 10 per task | **cited** — stop 20, E-022 / E-023 |
 | claude-control | `claude` | `claude-haiku-4-5-20251001` | none | 10 per task | **cited** — stop 20, E-022 / E-023 |
@@ -309,7 +309,8 @@ That satisfies the gate's *"≥3 runs per runtime"* on the claude side with `n =
 task.
 
 **The two runtimes do not carry the same overlay and no effect is compared across them.** The
-claude arms carry 11 files, the codex arms carry 8. That difference *is* the port, and it is why
+claude arms carry 11 files, the codex arms carry **9** — 8 unchanged copies and 1 rename *(this
+sentence said `8`; corrected additively 2026-09-27 at §4a round 1)*. That difference *is* the port, and it is why
 the only verdicts computed here are **within** a runtime — codex-treated against codex-control,
 per task, under decision 9.
 
@@ -494,6 +495,46 @@ makes **L3**. It is now: a hook **proved to execute**, at the sha B7 measured **
 non-empty and correctly-typed trigger population, **logging nothing**. Both halves of *0 of 2
 measured L2 controls survive the port* are now proved by things that ran — the named-agent half by
 two executing refusals (census probes 3 and 4), the policy-gate half by this.
+
+#### Correction, additive, 2026-09-27 after §4a round 1 — **DF-P4 is REFUTED on its second clause, and "all four held" was wrong**
+
+*By Opus 5 (claude-opus-5), autonomously, after the codex review of this workbook and of E-024
+returned the same finding twice at 2/2 recurrence. **The prediction above is not edited and the
+result table above is not edited**; §4 step 12 protects both, and this section carries the
+correction. The reviewer was right and I was wrong.*
+
+DF-P4 as registered has **two** clauses and a refutation rule that covers both:
+
+> *"`instructionsHash` and `knowledgeHash` come back at the two registered values **unchanged by the
+> tenth file**, and **no `settingsHash` or `hooksHash` key exists anywhere in the record JSON**." …
+> **refuted if** either hash moves, **or such a key exists**.*
+
+**`hooksHash` exists.** It is `null`, on 20 of 20 batch runs and on the DF run. **A null key is a
+key**, so DF-P4's own registered refutation clause fires:
+
+| clause | verdict |
+|---|---|
+| neither registered hash moves when a tenth file is added | **HELD** — both back at `sha256:ebf489800a60a156986f98ea4f127848` and `sha256:0770219ae7f4281a80071d78dadea285` |
+| no `settingsHash` **or `hooksHash`** key exists anywhere in the record | **REFUTED** — `settingsHash` indeed does not exist; **`hooksHash` does** |
+
+**So the DF's score is three predictions held and one split — held on its first clause, refuted on
+its second — and every sentence in this workbook and in E-024/E-025 that reads *"all four
+predictions held"* is wrong as written and is corrected by this section.**
+
+**How it happened, because that is the part worth keeping.** DF-P4 was registered in commit
+`5400278` at `16:28:09Z`, drafted from the census's sentence *"the five fields are
+`instructionsHash`, `skillsHash`, `agentHash`, `agentsHash`, `knowledgeHash`"*. **I then discovered
+that sentence was wrong** and committed the seven-field correction in `94f4312` — **two commits
+later, in the same session, and never went back to the clause the discovery refutes.** A correction
+was written and its consequence for a live prediction was not traced. That is a smaller version of
+exactly the failure the correction itself describes, and it took a second model family to see it.
+
+**The substantive conclusion does not move, and saying so is not a softening.** No hash saw the
+tenth file: `hooksHash` is `null` on every run ever recorded, so the overlay that ships a dead
+guardrail is still indistinguishable, in every field the record carries, from the overlay that does
+not ship it. **What moves is the prediction's score**, and a prediction whose wording was refuted
+while its intent survived is recorded as refuted, not as "held in spirit" — that distinction is the
+only thing keeping the other twelve verdicts in this stop worth reading.
 
 **Six alternative explanations were closed by command, not by argument**, and they are tabulated in
 the RESULT addendum: not-installed, installed-non-executable (the mode bit no hash sees, stop 20's
@@ -807,6 +848,9 @@ the commit that carries it.*
 | **Prediction 4** — *corpus contact ≤ 1 of 5 on the treated arm* | **REFUTED at 5 of 5 per task, 10 of 10 treated, 0 of 10 control.** Ten one-line router logs at `evidence/b10/batch-20260927T125809Z/router-logs/`, each a `hit` with the task's own query | **L2** — the router writes its own log; H counts router invocations and is a **floor**, because a run that reads `index.yaml` by hand raises no counter | `wc -l evidence/b10/batch-20260927T125809Z/router-logs/*.jsonl` → ten files, one line each; `awk -F'\t' '$17=="router"' manifest.tsv \| wc -l` → `10` |
 | **Prediction 7 (E-025)** — *BE-004's evaluator pass rate falls below 5 of 5* | **REFUTED**: `exitCode 0` on **20 of 20**, both arms, both tasks | **L2** — the evaluator's own exit code per run | `awk -F'\t' '$1 ~ /^BE-/ {print $6}' manifest.tsv \| sort \| uniq -c` → `20 0` |
 | **DF1 — the deliberate failure** | prediction commit **`540027895084ffaef88d5ef3d3ec522709323f0c`** at **`2026-09-27T16:28:09Z`**; run `startedAt` **`2026-09-27T16:32:31Z`**; driver `evidence/b10/run-b10-df.sh`; fixtures **22 of 22** | **L2** — including **case L**, which plants a `policy-events` log, grows it and writes another, and requires the sweep to report `2`. **A negative observation whose detector was never shown to fire is not evidence, and that is the case that closes it** | `git log 5400278 -1 --format=%cI`; `jq -r .startedAt evidence/b10/df-20260927T163230Z/run-record.json`; `./evidence/b10/verify-b10-df-guards.sh` |
+| **DF1 — DF-P4's second clause** | **REFUTED**, by `hooksHash` existing and being `null`. `jq -c '.customization\|keys'` → **7** keys on every record | **L2** — the key list is read from the record | `jq -r '.customization\|keys\|join(",")'` on any run of this batch → includes `hooksHash`. The correction is under `## Deliberate failure`; the prediction and the result table are **not edited** (§4 step 12) |
+| **§4a review, round 1** | three artefacts, **41 findings**, `-P codex`, `-n 2` each, files at `findings/opencode/review-{README,run-b10-df,E-024-second-runtime-adapter-BE003}-20260927T16*.md`. Dispositions in `## §4a review — round 1` | **L2** for the line-level panel (**codex ok / codex ok** on all three, 30–64 s). **L3 — there is NO acceptance verdict**: the gate returned `opencode exit 1` on all three because `lab-acceptance` is on the stalled provider, and that is recorded as *did not run*, not as `UNDECIDED` and not as a pass | open the three findings files; `grep -c '^### '` → 29, 15, 46; `grep -A2 '^## Acceptance'` → *"The gate failed to run (opencode exit 1)"* on each |
+| **the DF driver after review** | `evidence/b10/verify-b10-df-guards.sh` → **`36 passed, 0 failed`**, up from 22 cases. Six new cases (**M–R**) each **failed against the pre-review driver** `02a2147479fcbe06` before passing | **L2** — the fixtures execute, and case **R** proves the settling sweep catches what the immediate sweep misses | `./evidence/b10/verify-b10-df-guards.sh`; then `git stash` the driver to `02a2147479fcbe06` and watch M–R fail |
 | **§5: one scored cell re-read by hand, off the kept worktree, before any sheet was opened** | `evidence/b10/hand-reread/RESULT.md`, committed in **`e34d4cd` at `2026-09-27T17:53:30+02:00`**, which is **3 minutes before the first sheet was written** (`…-20260927T155628Z.yaml`, i.e. `17:56:28+02:00`) — the ordering is a git fact plus a filename, and it is stated that way rather than as "before the driver was committed", because the hand re-read and the driver share one commit. Two cells, both `architecture-consistency` — the **registered primary outcome**, not a convenient cell: run `4df04e27` → hand **2**, sheet **2**; run `05611c81` → hand **2**, sheet **2** | **L2** — the worktree and the rubric at its registered sha; and the subagent's reading was **re-derived in the orchestrator's own context** and agreed | `git log --format=%H -1 -- evidence/b10/hand-reread/RESULT.md` vs the score driver's commit; then re-walk the anchors against the worktree named in the file |
 | **§5: independence check — what else changed between arms** | Same benchmark sha (manifest header), same evaluator, `runtime.model` `gpt-5.6-sol` on **20 of 20**, `runtime.version` `codex-cli 0.154.0` on 20 of 20, `userSettingsIsolated: true`, rubric shas unmoved at `396e1799eb2b` / `6252778b8472`. **The only difference between arms is the overlay**, and it is read back per run as an exact digest | **L2** — read from the records and the manifest, **not from the flags** | `awk -F'\t' '$1 ~ /^BE-/ {print $7,$8}' manifest.tsv \| sort \| uniq -c`; `shasum -a 256 benchmark/rubrics/backend-quality*.yaml \| cut -c1-12` |
 | **§5: isolation observed rather than inferred** | `evidence/b10/iso-probe/`, **3 of 3** `ok: ALL THREE checks hold for codex-cli 0.154.0`, exit 0, every positive control firing first | **L2** at `n = 3` — and recorded as **resolved-at-`n`-observed, not as a fix**: an isolation probe asks a live model to go looking, and a model that did not look is not a model that could not. The earlier single `LEAKS` report is **UNREPRODUCED, not refuted**, because its output was never kept | `./evidence/b10/probe-codex-isolation.sh` and read the three transcripts |
@@ -825,6 +869,104 @@ the commit that carries it.*
    cheapest instrument this track is still missing.
 4. **The claude arms are cited, not re-run.** If stop 20's manifest were wrong about its model or its
    benchmark sha, clause 1's claude half would fall with it. The row says what to compare.
+
+## §4a review — round 1, and what it changed · §4 step 13a
+
+*Run and dispositioned by Opus 5 (claude-opus-5), autonomously, 2026-09-27. **Routed to `-P codex`**,
+because §0a row 2 has stalled on the `ollama-cloud` weekly limit for **six consecutive sessions** and
+row 3b proved codex live. `-n 2` per artefact, three artefacts.*
+
+| artefact | findings file | bytes | `### ` sections | line-level panel | acceptance gate |
+|---|---|---|---|---|---|
+| this workbook | `findings/opencode/review-README-20260927T164606Z.md` | 17 695 | 29 | **codex ok / codex ok**, 55 s + 64 s | **DID NOT RUN** |
+| `evidence/b10/run-b10-df.sh` | `findings/opencode/review-run-b10-df-20260927T164939Z.md` | 9 293 | 15 | **codex ok / codex ok**, 42 s + 30 s | **DID NOT RUN** |
+| `experiments/E-024-…-BE003.md` | `findings/opencode/review-E-024-second-runtime-adapter-BE003-20260927T165223Z.md` | 25 035 | 46 | **codex ok / codex ok** | **DID NOT RUN** |
+
+**41 findings. The acceptance gate did not run on any of the three**, and that is recorded as *did
+not run* rather than as `UNDECIDED` or as a pass: `opencode exit 1` on all three, because
+`lab-acceptance` lives on the same `ollama-cloud` provider that has stalled for six sessions. §4a's
+stopping rule is *"`ACCEPT`, or every remaining line-level finding disputed and the gate's own
+objection answered"* — **there is no gate objection to answer, because there is no gate**. So the
+line-level findings are dispositioned one by one below and the stop is closed with **no acceptance
+verdict on record**. `E-025` was **not sent**; §4a caps invocations at four artefacts and its text is
+E-024's with the task swapped, so its findings are taken to be E-024's and the omission is named here
+as §4a requires.
+
+### The two findings that changed a stated result
+
+| # | finding | recurrence | disposition |
+|---|---|---|---|
+| **1** | *"DF-P4's own refutation rule is met by a null `hooksHash`, yet the artifact still marks it HELD"* — raised on this workbook **and** independently on E-024 | **2/2 on both** | **ACCEPTED, and it is the most important line in this review.** DF-P4 is now recorded **REFUTED on its second clause**; *"all four predictions held"* is corrected everywhere. See the additive correction under `## Deliberate failure`. I found the `hooksHash` fact myself and failed to trace it back to a live prediction two commits later; a second model family saw it and I did not |
+| **2** | *"Prediction 5 is marked HELD without checking its own registered `inputTokens`/`outputTokens` condition; the telemetry section reports `toolCalls`/`permissionDenials`/`retries` instead"* | **2/2** | **ACCEPTED as a gap in the evidence, and now CLOSED BY MEASUREMENT.** The reviewer was right that two of P5's four registered fields were never checked. Checked now, across all 20 batch runs: `efficiency.inputTokens` and `efficiency.outputTokens` **exist and are `null` on 20 of 20** (`jq -r '[(.efficiency.inputTokens // "ABSENT-OR-NULL"),(.efficiency.outputTokens // "ABSENT-OR-NULL")]\|@tsv'` → `20  ABSENT-OR-NULL ABSENT-OR-NULL`). **P5's verdict stands, and it stands on evidence that did not exist when it was written** |
+
+### The six findings on the DF driver — all six accepted, all six fixed, and all six closed against DF1 itself
+
+The driver that produced DF1 is sha **`02a2147479fcbe06`**. Every finding is fixed in the version this
+PR carries, and **every one is separately closed against DF1's own run by evidence rather than by
+argument** — because a fix does not retroactively validate a measurement taken without it.
+
+| # | finding | fix | why it could not have affected DF1 |
+|---|---|---|---|
+| **4** | the pid lock was **checked-then-written**, so two copies could both pass `[[ -e ]]` and both spend a run | atomic `( set -o noclobber; echo $$ > "$LOCK" )`, and a stale lock is **removed and re-raced** rather than overwritten | **exactly one** DF ever ran: one `df-*` directory (`find -maxdepth 1 -type d`), and **one** run under `EXP-B10-DF-BE003` in the API |
+| **5** | `.claude/settings.json` was checked for **existence, not identity** — so swapping the treatment left all three digests unchanged | its sha is now **registered** (`925a3823…`) and mismatch is exit 5. **This was the sharpest finding**: the driver hashed the two portable files and merely stat-ed the one file the DF is about | the setup commit's copy was verified **by sha** afterwards: `git show 9652494fa571:.claude/settings.json \| shasum -a 256` → `925a3823…`, equal to v1.2's. Verified post hoc, which **is** the gap — now closed prospectively |
+| **6** | a filename containing a newline made `ls -1` emit **two records**, corrupting the diff DF-P2 rests on | the sweep is **null-delimited** (`find -print0` / `sort -z` / `read -d ''`), and an unrepresentable path is **flagged**, not normalised | both sweeps were **empty** (`wc -l` → 0 and 0), so no filename existed to misparse |
+| **7** | the driver could **exit 0 after a non-zero runner rc**, and DF-P1 *is* "the runner did not refuse" | new **exit 10**: RESULT.md is written and marked, withholding **both** DF-P1 and DF-P2 — the latter because an incomplete run has an unknown trigger population | runner `rc = 0` |
+| **8** | a hook **child** appending just after `run-agent.sh` exits would be a false negative | a **settling sweep** after `B10_DF_SETTLE` seconds (default 20); both the immediate and the settled observation are reported | a **late re-sweep ~30 minutes after the run** found **0** logs and **0** new-or-grown, kept as `sweep-late.tsv` in the DF directory |
+| **9** | unchecked `curl`/`jq` on a timeout or an HTML 502 still wrote RESULT.md and exited 0 | new **exit 11**, and the record must parse **and** carry `runId`, `evaluation`, `customization` | `run-record.json` is valid JSON with `evaluation.exitCode`, `customization.instructionsHash` and three `changedFiles` all populated |
+| **10** | *"no runner return code or API-response condition is defined as valid"* (cross-cutting) | answered by **exits 10 and 11 together**: the two conditions are now named, enforced, and each has a fixture | subsumed by 7 and 9 above |
+
+**The fixture set went from 22 cases to 36, and every one of the six new cases FAILED against
+`02a2147479fcbe06` before it passed.** Cases **M** (wrong `settings.json` sha → 5), **N** (runner rc
+→ 10, withholding both claims), **O** (unreadable record → 11, reporting **no** DF-P4 field), **P** (a
+newline in a log filename → **one** flagged record, not two), **Q** (`noclobber` refuses a second
+create and the first writer's pid survives), **R** (a child that appends 2 s late: **the immediate
+sweep misses it and the settling sweep catches it**), plus **S**, a stub API so the happy path has a
+record it can actually read. `./evidence/b10/verify-b10-df-guards.sh` → **`36 passed, 0 failed`**.
+
+### Two defects found *while fixing* the review's findings, and both are the house failure mode
+
+Neither was in the review. Both were found because a fixture that had been passing started failing
+once it was pointed at what it claimed to be pointing at.
+
+1. **The fixture set was never testing the closed port its own comment described.** Cases I, K and L
+   passed `API=http://127.0.0.1:1`, and `run-b10-df.sh:86` does `export API="${B10_API:-…8081}"` —
+   **an incoming `API=` is overwritten.** So those cases were hitting the **live stack at 8081** and
+   looking up a stub uuid that does not exist there. They passed, for the wrong reason, under a
+   comment claiming *"API is pointed at a closed port … deliberate"*. **A control reporting success
+   over a scope smaller than it claims**, in the fixture set written to prevent exactly that.
+2. **`jq -e` on empty input exits 0.** `printf '' | jq -e '.runId != null'` → **exit 0**: jq emits
+   nothing and succeeds. So exit 11's guard, *written as the fix for finding 9*, passed when the API
+   returned absolutely nothing — **the fix reproduced the defect it was fixing**, and it was only
+   visible after defect 1 above was repaired. The guard now tests emptiness first. This is why
+   `verify-*.sh` is described in §4a as *"the review that executes"*: the codex reviewer read the fix
+   and could not have seen this; a fixture could.
+
+### Findings accepted as limitations, recorded and not fixed here
+
+| # | finding | recurrence | why it is recorded rather than fixed |
+|---|---|---|---|
+| **11** | *"decision-rule rows 2/3 (IMPROVED) and row 4 (NOT DETECTABLE) both fire on an exact one-point median difference; ordering alone breaks the tie"* — the only **L1** finding in the batch | **2/2** | **ACCEPTED as a real defect in the decision rule, and the rule is a registered variable** — §6 makes editing it mid-experiment a halt, and the batch is scored. **It did not bite here**: both tasks' median differences are **0**, not 1, so no tie arose and no verdict depends on row ordering. Named in `author_notes` as a fix for the next decision rule written in this track |
+| **13, 14** | *"an intermittent isolation leak need not hit both arms equally; an imbalanced realisation can manufacture an uncontrolled difference"* | **2/2, twice** | **ACCEPTED, and it is a better statement of the limitation than the one already in the file.** The isolation section says the earlier single `LEAKS` report is *unreproduced, not refuted*; the reviewer's point is sharper — `n = 3` clean probes bound the **rate**, not the **balance**. Recorded as a limitation of the isolation evidence. Nothing available at this stop distinguishes them; a per-run isolation assertion would, and is an instrument nobody has built |
+| **16** | *"the void rule covers only treated delivery failures; there is no handling for a contaminated control run with a non-null hash"* | **1/2** | **ACCEPTED as a genuine gap in row 0a's wording.** It did not bite: all **10** controls came back with **all five hashes `null`**, read from the records. A row 0a that is silent about the control arm is still an incomplete rule and is named for the next one |
+| **3** | *"the independence claim is undercut by codex seeding six skills"* | **2/2** | **PARTIALLY DISPUTED, with the reason.** The seeded skills are present on **both** arms — same runtime, same binary, same flags, verified as `runtime.version codex-cli 0.154.0` on 20 of 20 — so they cannot manufacture a **between-arm** difference, which is what the independence check is for. The finding is right that they are an **uncontrolled feature of the runtime**, and that is already why no cross-runtime claim appears anywhere in this stop. Recorded, not fixed |
+
+### Findings about the file count — accepted, and corrected additively in three more places
+
+Findings **1** and **12**: the arms table still said *"the 8-file port"* and the delivery mechanism row
+still totalled *"`AGENTS.md` + `.ai/**` (7 files)"* while the digest row and the §4-step-4 correction
+say **nine**. All three now carry the count additively. **No prediction moves** — prediction 1 is
+*8 of 11 port **unchanged***, and the ported directory is 9 files of which 8 are unchanged copies and
+1 is a rename, which is what the census measured. **The reviewer found the third and fourth copies of
+a slip the stop had already corrected twice**, which is an argument for the count being derived rather
+than retyped.
+
+### The 22 findings not listed
+
+The review's own *"Layer of the implied fix"* marks them **L3** — ambiguity and guidance, no
+mechanism-level failure scenario. Eleven on the workbook, eleven on E-024. §4a says a finding at 1/2
+recurrence is still a finding, so they are **not dismissed**; they are not individually dispositioned
+here, the findings files are committed in full, and the three paths are named in the PR body. A
+stranger re-derives every one of them by opening those files.
 
 ## Commit — §4 step 14, 2026-09-27
 

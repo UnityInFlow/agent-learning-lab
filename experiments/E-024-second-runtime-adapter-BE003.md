@@ -93,7 +93,7 @@ open. Three independent reasons, each sufficient. No cross-runtime verdict appea
 
 | | |
 |---|---|
-| Mechanism | overlay directory `build/customizations/agent-v1.2-knowledge-codex/`, installed by `run-agent.sh --customization`: `AGENTS.md` (the v1.2 `CLAUDE.md` body verbatim) + `.ai/**` (7 files, byte-identical) |
+| Mechanism | overlay directory `build/customizations/agent-v1.2-knowledge-codex/`, installed by `run-agent.sh --customization`: `AGENTS.md` (the v1.2 `CLAUDE.md` body verbatim) + `.ai/**` (**8** files, byte-identical — **nine in total**; this row said `7` and is corrected additively 2026-09-27 at §4a round 1, finding 12, to agree with the digest row beside it and with the §4-step-4 correction in the workbook) |
 | Content hash | **registered 2026-09-27 at §4 step 4, before the preflight and before any run.** Directory digest over the sorted (path, content) pairs of all nine files: `sha256:65a8b15a320df2ec0a074c4d5fd8038f5867b8f7f6ac3e777e81a6c50407edd8`. Per file, full sha256: `AGENTS.md` `ebf489800a60a156986f98ea4f127848222a0ca449983c6831230e99b17ec3cb` · `.ai/knowledge/index.yaml` `57cda5082f15a81f65aa427b55bd412246912cd63222cb12b3468ce83ef5bcef` · `.ai/knowledge/router.sh` `5cb83b49f81c6c7c2794aeba7dd622d078bcc7d551dda67cb5743490b0145e4b` · `.ai/knowledge/documents/kotlin-exhaustive-when.md` `5a8881116e1dbd048f821bc7b92ac2167a2935ed9fc8ba2f2a5085f340f634f9` · `.ai/knowledge/summaries/kotlin-exhaustive-when.md` `f38b03186f726b92c4191677b3a32d522e9e9c326574713146ac477f3449f2fb` · `.ai/policies/protected-paths.yaml` `76c4c34c0f4ca5ebeb12dbb3c25bd717533a6219b2ba9ab0a340c41dc90663e6` · `.ai/hooks/policy-gate.sh` `f432abbcbf1f3b90ec4dd801a23c333a5f7e6c40fe0b54b11fd5689f9938cbca` · `.ai/hooks/repair-limit.sh` `fa38193a5093c09bf0261947b0b4d2750b9c973b90fb17123eec82519077cea5` · `.ai/hooks/repair-record.sh` `7339e63045fa4e2a2ecd835d57e317d948c38acad5f0b1a6ca5c1dcf897c767a`. **The two hashes the record will carry are registered as exact values, not as "non-null":** `instructionsHash` = `sha256:ebf489800a60a156986f98ea4f127848` and `knowledgeHash` = `sha256:0770219ae7f4281a80071d78dadea285` — computed from the runner's own `hash_of()` (`run-agent.sh:572-576`) and `knowledge_hash()` (`:653-668`) and **read back from a real `--check-customization` invocation**, not predicted. Both are **bit-for-bit the values stop 20 registered for the claude arm** (`evidence/b09/run-b9-batch.sh:73,75`), which is the strongest available statement that the portable half ported: not "the same text", the same digest. Modes were checked too, because stop 20's deliberate failure proved a mode bit is in no hash: `755` on all four `.sh`, `644` on the rest, identical on both sides. |
 | Preflight assertion | one codex run per arm under key `EXP-B10-PREFLIGHT-BE003`, **not in the population**: treated shows `customization.instructionsHash` and `knowledgeHash` non-null; the `init` read-back per author decision 8 is recorded for the codex arm even though codex has no `tools:` list, because *"the runtime rewrites the list before the model sees it"* was discovered exactly by taking that read-back on an arm nobody expected it from |
 | Control assertion | control run shows all five `customization.*Hash` `null`, read back from the record, not inferred from the absent flag |
@@ -401,6 +401,24 @@ So the gate clause **"observability capability"** is answered by a count and not
 the six behaviour and efficiency numbers this track reads on claude, **one** crosses to codex.
 `durationMs` also survives, from the runner's own clock rather than from the agent.
 
+**Added additively 2026-09-27 after §4a round 1, finding 2 — the two registered fields this section
+never named.** The reviewer found that prediction 5 registers **four** null fields —
+`estimatedCost`, `modelCalls`, **`inputTokens`** and **`outputTokens`** — and that this section
+reported `toolCalls`, `permissionDenials` and `retries` instead, so **P5 was marked HELD without its
+own registered condition ever being checked on two of its four fields.** That was true. Checked now,
+across all 20 runs of this batch, one record at a time:
+
+```
+jq -r '[(.efficiency.inputTokens // "ABSENT-OR-NULL"),(.efficiency.outputTokens // "ABSENT-OR-NULL")]|@tsv'
+  → 20  ABSENT-OR-NULL  ABSENT-OR-NULL
+```
+
+Both fields **exist** in the schema (`efficiency.inputTokens`, `efficiency.outputTokens`, beside
+`cachedTokens` and `cacheCreationTokens`) and both are **`null` on 20 of 20**. **So P5's verdict
+stands — and it now stands on evidence that did not exist when it was written.** The substituted
+fields reported above are kept: they are a wider observation of the same clause and were never wrong,
+only insufficient.
+
 **Prediction-commit ordering, checked after the runs as §4 step 3 requires**, from git and the
 run records rather than from this file's prose:
 
@@ -617,6 +635,20 @@ is now L2 rather than L3.** Measurement and the six closed alternative explanati
 `evidence/b10/df-20260927T163230Z/RESULT.md`. The full reading, including the unpredicted co-variate
 — the router's log was written in the same run the gate's was not, so *what ports is what the model
 can call; what does not port is what the runtime must call* (`n = 1`) — is in the workbook.
+
+**CORRECTED 2026-09-27 after §4a round 1: DF-P4 is REFUTED on its second clause and the sentence
+above is wrong where it says "all four".** DF-P4 registered *"no `settingsHash` **or `hooksHash`**
+key exists anywhere in the record"* and made *"such a key exists"* its own refutation clause.
+**`hooksHash` exists and is `null` — a null key is a key.** So the DF is three held and one split:
+held on *"neither registered hash moves"*, refuted on *"no such key exists"*. The prediction and the
+result table are **not edited** (§4 step 12); the correction is carried in the workbook's
+*"Correction, additive … DF-P4 is REFUTED on its second clause"*, which also records how it happened
+— DF-P4 was drafted from the census's wrong "five fields" sentence, I corrected that sentence two
+commits later in the same session, and never traced the consequence back to the live prediction.
+**The substantive conclusion does not move** (no hash saw the tenth file; `hooksHash` is null on
+every run ever recorded) — **the prediction's score does**, and a wording refuted while its intent
+survives is recorded as refuted.
+
 
 
 ## Follow-up

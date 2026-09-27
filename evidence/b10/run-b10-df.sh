@@ -44,6 +44,23 @@
 #       stop 20's deliberate failure shipped an unexecutable router.sh past two identical hashes)
 #   8   a second DF is already running (pid lock)
 #   9   the run produced no run id, so there is nothing to read
+#   10  THE RUNNER RETURNED NON-ZERO. RESULT.md is written and marked INVALID FOR DF-P1, because
+#       DF-P1 *is* "the runner did not refuse" and a driver that exits 0 after a failed runner
+#       lets one reader see a completed DF where another sees a failed run. (§4a round 1, `the run`.)
+#   11  THE RUN RECORD IS UNREADABLE OR INCOMPLETE. An empty body or an HTML 502 makes every jq
+#       read come back empty, and empty is not the same measurement as null. RESULT.md is written
+#       and marked RECORD UNREADABLE. (§4a round 1, `REC`.)
+#
+# AMENDED 2026-09-27 AFTER §4a ROUND 1, which returned six findings on this file and was right
+# about all six. The version that produced DF1 is sha 02a2147479fcbe06; all six are closed against
+# DF1 itself by evidence rather than by argument (see the RESULT addendum), and all six are fixed
+# here prospectively. What changed: the lock is created ATOMICALLY rather than checked-then-written;
+# `.claude/settings.json` is checked BY SHA and not merely for existence -- it IS the treatment, and
+# a driver that hashes the two portable files and only stats the one under test is the delivery
+# proof this project has already paid for twice; the sweep is NULL-DELIMITED so a filename
+# containing a newline cannot split one record into two; the runner's rc and the record's
+# readability each get their own exit code; and a SETTLING re-sweep runs after a delay, because a
+# hook child appending just after run-agent.sh exits would otherwise be a false negative.
 set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit 1
 LAB="$PWD"
@@ -59,6 +76,12 @@ EXPECT_INSTR="${B10_EXPECT_INSTR_T:-sha256:ebf489800a60a156986f98ea4f127848}"
 EXPECT_KNOW="${B10_EXPECT_KNOWLEDGE_T:-sha256:0770219ae7f4281a80071d78dadea285}"
 # B7's registered policy-gate.sh sha, from phases/b07-verification-policies/README.md's §5 table.
 EXPECT_GATE="${B10_EXPECT_GATE_SHA:-f432abbcbf1f3b90ec4dd801a23c333a5f7e6c40fe0b54b11fd5689f9938cbca}"
+# THE TREATMENT'S OWN SHA. v1.2's .claude/settings.json, byte for byte, re-derived from
+# build/customizations/agent-v1.2-knowledge/.claude/settings.json and from the setup commit of
+# DF1's own run (9652494fa571). Registered as an EXACT VALUE for the same reason the other two
+# digests are: existence is not identity, and this file is the one thing the DF is about.
+EXPECT_SETTINGS="${B10_EXPECT_SETTINGS_SHA:-925a382322daada434a8d3716f8696882a1759b048ccc7f0d580a902ea27fb2b}"
+SETTLE_SECONDS="${B10_DF_SETTLE:-20}"
 
 export API="${B10_API:-http://127.0.0.1:8081}"
 export WEB="${B10_WEB:-http://localhost:5174}"
@@ -76,15 +99,25 @@ mkdir -p "$EVID"
 RESULT="$EVID/RESULT.md"
 
 # --- exit 8: the pid lock -------------------------------------------------------------------
+# ATOMIC, not checked-then-written. §4a round 1: two copies started together could both pass an
+# `[[ -e "$LOCK" ]]` test before either wrote, both overwrite the lock with their own pid, and both
+# spend a run -- so the exit-8 guard was advertising mutual exclusion it did not provide.
+# `set -o noclobber` makes the create-or-fail one operation, which is the only form that holds.
 LOCK="$LAB/evidence/b10/.df.lock"
-if [[ -e "$LOCK" ]]; then
+take_lock() { ( set -o noclobber; echo "$$" > "$LOCK" ) 2>/dev/null; }
+if ! take_lock; then
   other="$(cat "$LOCK" 2>/dev/null)"
   if [[ -n "$other" ]] && kill -0 "$other" 2>/dev/null; then
     echo "run-b10-df: a DF is already running as pid $other ($LOCK). Refusing." >&2; exit 8
   fi
+  # A stale lock is taken over -- but by REMOVING it and racing for the create again, so that two
+  # processes finding the same stale lock cannot both proceed.
   echo "run-b10-df: stale lock for pid ${other:-?}, taking it over" >&2
+  rm -f "$LOCK"
+  if ! take_lock; then
+    echo "run-b10-df: lost the race for a stale lock to another DF. Refusing." >&2; exit 8
+  fi
 fi
-echo "$$" > "$LOCK"
 trap 'rm -f "$LOCK"' EXIT
 
 # --- exit 5: the overlay is the registered one, checked before anything is spent -------------
@@ -111,6 +144,18 @@ fi
 if [[ ! -f "$OVERLAY/.claude/settings.json" ]]; then
   echo "run-b10-df: the DF overlay has no .claude/settings.json, which IS the deliberate" >&2
   echo "  failure. Refusing to run a DF that does not contain its own treatment." >&2
+  exit 5
+fi
+# AND IT MUST BE THE REGISTERED ONE, not merely present. §4a round 1 found that changing only this
+# file -- for instance to a configuration some runtime DOES read -- left GOT_INSTR, GOT_KNOW and
+# GOT_GATE untouched and let the driver test a different treatment while RESULT.md still called the
+# overlay registered.
+GOT_SETTINGS="$(shasum -a 256 "$OVERLAY/.claude/settings.json" | cut -d' ' -f1)"
+if [[ "$GOT_SETTINGS" != "$EXPECT_SETTINGS" ]]; then
+  echo "run-b10-df: .claude/settings.json is NOT the registered v1.2 file. It IS the treatment," >&2
+  echo "  so this is the one file whose identity the DF cannot infer." >&2
+  echo "  want $EXPECT_SETTINGS" >&2
+  echo "  got  $GOT_SETTINGS" >&2
   exit 5
 fi
 NOEXEC="$(find "$OVERLAY" -type f -name '*.sh' ! -perm -u+x | wc -l | tr -d ' ')"
@@ -145,10 +190,21 @@ if [[ "$PC_DENY_RC" != 2 || "$PC_ALLOW_RC" != 0 || "$PC_LINES" != 2 ]]; then
 fi
 
 # --- the pre-run inventory: what policy-events logs exist BEFORE the run --------------------
-sweep() {  # sweep -> "<path>\t<lines>" per existing log, sorted
-  { ls -1 "${TMPDIR:-/tmp}"/policy-events-*.jsonl 2>/dev/null
-    ls -1 /tmp/policy-events-*.jsonl 2>/dev/null; } | LC_ALL=C sort -u \
-  | while IFS= read -r f; do printf '%s\t%s\n' "$f" "$(wc -l < "$f" | tr -d ' ')"; done
+# NULL-DELIMITED, because DF-P2 is a claim about a DIFF of two inventories and `ls -1` emits a
+# filename containing a newline as TWO records -- which would break the path-to-line-count mapping
+# the whole negative observation rests on (§4a round 1, `the pre-run inventory`). A tab or newline
+# inside a path is also reported explicitly rather than silently normalised, because a log the
+# sweep cannot represent is a log the sweep cannot rule out.
+sweep() {  # sweep -> "<path>\t<lines>" per existing log, sorted, one record per file
+  { find "${TMPDIR:-/tmp}" -maxdepth 1 -name 'policy-events-*.jsonl' -print0 2>/dev/null
+    find /tmp -maxdepth 1 -name 'policy-events-*.jsonl' -print0 2>/dev/null; } \
+  | LC_ALL=C sort -z -u \
+  | while IFS= read -r -d '' f; do
+      case "$f" in
+        *$'\n'*|*$'\t'*) printf 'UNREPRESENTABLE-PATH\t%s\n' "$(printf '%s' "$f" | od -An -c | tr -d ' \n')" ;;
+        *) printf '%s\t%s\n' "$f" "$(wc -l < "$f" | tr -d ' ')" ;;
+      esac
+    done
 }
 sweep > "$EVID/sweep-before.tsv"
 BEFORE_N="$(wc -l < "$EVID/sweep-before.tsv" | tr -d ' ')"
@@ -174,6 +230,36 @@ AFTER_N="$(wc -l < "$EVID/sweep-after.tsv" | tr -d ' ')"
 NEW_OR_GROWN="$(LC_ALL=C comm -13 "$EVID/sweep-before.tsv" "$EVID/sweep-after.tsv" | wc -l | tr -d ' ')"
 NEW_OR_GROWN_DETAIL="$(LC_ALL=C comm -13 "$EVID/sweep-before.tsv" "$EVID/sweep-after.tsv" | tr '\t' ' ' | tr '\n' ';')"
 
+# THE SETTLING SWEEP. A hook child that appends its policy event shortly AFTER run-agent.sh exits
+# would make the immediate sweep a false negative (§4a round 1, `the post-run sweep`). An immediate
+# zero and a zero N seconds later are two different observations, and only the second one rules
+# that out. Both are reported; neither replaces the other.
+sleep "$SETTLE_SECONDS"
+sweep > "$EVID/sweep-late.tsv"
+LATE_N="$(wc -l < "$EVID/sweep-late.tsv" | tr -d ' ')"
+LATE_NEW="$(LC_ALL=C comm -13 "$EVID/sweep-before.tsv" "$EVID/sweep-late.tsv" | wc -l | tr -d ' ')"
+
+# exit 10: DF-P1 IS "the runner did not refuse", so a non-zero rc is not a detail the reader can
+# take or leave (§4a round 1, `the run`). The measurement is still written; only the claim is
+# withheld.
+if [[ "$RC" != 0 ]]; then
+  # Same single-quote-on-purpose reason as the main report block below.
+  # shellcheck disable=SC2016
+  {
+    printf '# B10 DF1 — THE RUNNER RETURNED %s, exit 10\n\n' "$RC"
+    printf '**DF-P1 CANNOT BE CLAIMED FROM THIS RUN** — DF-P1 *is* "the runner does not refuse the\n'
+    printf 'extra `.claude/settings.json`", and this runner refused, failed, or died. run id `%s`,\n' "${RID:-none}"
+    printf 'log `%s`.\n\n' "$LOG"
+    printf 'The sweeps ran and are reported so nothing is lost: before %s, after %s, new-or-grown\n' "$BEFORE_N" "$AFTER_N"
+    printf '**%s**; settling sweep after %ss: %s log(s), new-or-grown **%s**. DF-P3 positive control:\n' "$NEW_OR_GROWN" "$SETTLE_SECONDS" "$LATE_N" "$LATE_NEW"
+    printf 'deny `%s`, allow `%s`, log lines `%s`. **DF-P2 is NOT claimed either**, because a run that\n' "$PC_DENY_RC" "$PC_ALLOW_RC" "$PC_LINES"
+    printf 'did not complete has an unknown trigger population, and DF-P2 without a non-empty trigger\n'
+    printf 'population is registered VOID.\n'
+  } > "$RESULT"
+  echo "run-b10-df: runner rc=$RC. RESULT.md marked, DF-P1 and DF-P2 NOT claimed." >&2
+  exit 10
+fi
+
 if [[ -z "$RID" ]]; then
   # Every printf format below is SINGLE-quoted ON PURPOSE: the backticks are markdown code spans
   # and `$TMPDIR` is the literal name of the variable being written about, not an expansion. Values
@@ -188,6 +274,32 @@ if [[ -z "$RID" ]]; then
 fi
 
 REC="$(curl -s -m 20 "$API/api/runs/$RID" 2>/dev/null)"
+printf '%s' "$REC" > "$EVID/run-record.json"
+# exit 11: EMPTY IS NOT NULL. An unreachable API or an HTML 502 makes every jq read come back
+# empty, and a RESULT.md full of empty fields reads exactly like a run whose fields were genuinely
+# null -- which is a measurement, not an absence (§6: "a missing cell is not a null cell").
+# *** THE EMPTINESS TEST COMES FIRST, AND IT IS NOT REDUNDANT. *** `printf '' | jq -e '.x != null'`
+# exits **0**: jq on empty input emits nothing and succeeds, so a check written as `jq -e` ALONE
+# passes when the API returned absolutely nothing -- which is the exact failure the finding named,
+# reproduced inside the fix for it. Caught by fixture case O, which only failed once the fixture
+# itself stopped silently hitting the live stack.
+if [[ -z "$REC" ]] \
+   || ! printf '%s' "$REC" | jq -e '.runId != null and .evaluation != null and .customization != null' >/dev/null 2>&1; then
+  # Same single-quote-on-purpose reason as the main report block below.
+  # shellcheck disable=SC2016
+  {
+    printf '# B10 DF1 — RECORD UNREADABLE, exit 11\n\n'
+    printf 'run id `%s`, runner rc `%s`. The API at `%s` returned nothing usable, so NO field of\n' "$RID" "$RC" "$API"
+    printf 'DF-P4 is reported: empty is not null, and a table of blanks would read like a\n'
+    printf 'measurement. The sweeps DID run and are valid on their own terms:\n\n'
+    printf -- '- before %s, after %s, new-or-grown **%s**\n' "$BEFORE_N" "$AFTER_N" "$NEW_OR_GROWN"
+    printf -- '- settling sweep after %ss: %s log(s), new-or-grown **%s**\n' "$SETTLE_SECONDS" "$LATE_N" "$LATE_NEW"
+    printf -- '- DF-P3 positive control: deny `%s`, allow `%s`, log lines `%s`\n' "$PC_DENY_RC" "$PC_ALLOW_RC" "$PC_LINES"
+    printf '\nRe-read the record and re-derive DF-P4 by hand; do not re-run the DF.\n'
+  } > "$RESULT"
+  echo "run-b10-df: the run record is unreadable. RESULT.md marked, DF-P4 NOT reported." >&2
+  exit 11
+fi
 j() { printf '%s' "$REC" | jq -r "$1"; }
 IH="$(j '.customization.instructionsHash // "null"')"
 KH="$(j '.customization.knowledgeHash // "null"')"
@@ -198,8 +310,15 @@ EV="$(j '.evaluation.exitCode // "null"')"
 CHG="$(j 'if .result.changedFiles then (.result.changedFiles|length) else "null" end')"
 TOK="$(j '.efficiency.reportedTotalTokens // "null"')"
 DUR="$(j '.efficiency.durationMs // "null"')"
-TRACKED="$(/usr/bin/grep -aoE 'tracked overlay files in the setup commit: [0-9]+ of [0-9]+' "$LOG" | head -1)"
-printf '%s' "$REC" > "$EVID/run-record.json"
+# The setup commit, which is what DF-P1 is ACTUALLY evidenced by: the `tracked overlay files`
+# line is printed by `--check-customization` and NOT by a real run (found at §4 step 9), so the
+# read-back is the commit's own tree.
+SETUP_COMMIT="$(/usr/bin/grep -aoE 'evaluation baseline moved to [0-9a-f]+' "$LOG" | head -1 | awk '{print $NF}')"
+OVERLAY_IN_TREE="?"
+if [[ -n "$SETUP_COMMIT" && -n "${WT:-}" && -d "$WT" ]]; then
+  OVERLAY_IN_TREE="$(git -C "$WT" ls-tree -r --name-only "$SETUP_COMMIT" 2>/dev/null \
+    | /usr/bin/grep -cE '^(AGENTS\.md|\.ai/|\.claude/)' || echo '?')"
+fi
 
 # Every printf format below is SINGLE-quoted ON PURPOSE: the backticks are markdown code spans
 # and `$TMPDIR` is the literal name of the variable being written about, not an expansion. Values
@@ -221,10 +340,16 @@ printf '%s' "$REC" > "$EVID/run-record.json"
   printf '| changedFiles | **`%s`** |\n' "$CHG"
   printf '| reportedTotalTokens / durationMs | `%s` / `%s` |\n' "$TOK" "$DUR"
   printf '\n## DF-P1 — the runner does not refuse the extra `.claude/settings.json`\n\n'
-  printf 'runner rc **`%s`**; the setup-commit read-back in the run log: `%s`\n' "$RC" "${TRACKED:-NOT FOUND IN LOG}"
+  printf 'runner rc **`%s`**. The read-back is the SETUP COMMIT `%s`, whose tree holds **%s**\n' "$RC" "${SETUP_COMMIT:-none}" "$OVERLAY_IN_TREE"
+  printf 'overlay path(s) matching `AGENTS.md|.ai/|.claude/` — author decision 11 item 9 condition (a).\n'
+  printf '(The `tracked overlay files in the setup commit: N of N` line is printed by\n'
+  printf '`--check-customization` and NOT by a real run; that was found at §4 step 9.)\n'
   printf '\n## DF-P2 — hook executions during the run\n\n'
   printf '`policy-events-*.jsonl` logs in `$TMPDIR` and `/tmp`: **%s before, %s after**, and\n' "$BEFORE_N" "$AFTER_N"
   printf '**%s new or grown**. Detail: `%s`\n\n' "$NEW_OR_GROWN" "${NEW_OR_GROWN_DETAIL:-(none)}"
+  printf 'And a **settling sweep %ss later**: %s log(s), **%s new or grown**. An immediate zero and\n' "$SETTLE_SECONDS" "$LATE_N" "$LATE_NEW"
+  printf 'a zero after a delay are two different observations, and only the second rules out a hook\n'
+  printf 'child that appends just after the runner exits.\n\n'
   printf 'Inventories: `sweep-before.tsv`, `sweep-after.tsv` — by name AND by line count, so a\n'
   printf 'log that existed and GREW is caught as well as one that appeared.\n'
   printf '\n## DF-P3 — the positive control, on the same script sha\n\n'
