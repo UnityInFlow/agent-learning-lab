@@ -513,6 +513,67 @@ function on codex. It is a co-variate of **one run**, labelled `n = 1` and state
 rather than as a property (§5). It was not registered and it is **not** this stop's verdict.
 
 
+## Decide — keep, modify, remove · §4 step 10
+
+*Decided by Opus 5 (claude-opus-5), autonomously, 2026-09-27. Four decisions, and the second one is
+a refusal to decide, with the reason it is not an evasion.*
+
+### 1. The nine-file codex port — **KEEP**, unedited
+
+It delivered on 10 of 10 treated runs at the two registered digests, on both tasks, with all five
+hashes `null` on 10 of 10 controls, 0 void. It is the artifact this stop was built to produce and it
+works. **And it is not edited, now or later**: §3's pre-made decision is that *"a version that has
+been measured is never edited; a change is a new version"*, and this one has been measured at
+`n = 5` per arm per task.
+
+### 2. The knowledge corpus inside it — **NO keep/remove decision is taken**, and that is the finding
+
+§4 step 10 says *"a rule with no measured effect is removed, and its removal is recorded as the
+finding."* **It does not apply here, and conflating the two cases would be the worst mistake
+available at this step.** What happened is not a measured no-effect. It is **an outcome with no
+headroom**: `architecture-consistency` is a 0–2 scale and **the control scored 2 on 5 of 5 on
+BE-003 and 5 of 5 on BE-004**. An improvement was *arithmetically impossible* before the first
+treated run started; the only direction open was down. A "no measured effect" is a corpus that had
+room to move something and did not. This corpus was never given room.
+
+Removing it on that basis would delete the mechanism the batch's co-variates suggest is doing the
+most visible work in it — `maintainability` moved from a control median of 0 to 2 on 5 of 5 **on both
+tasks**, same direction, same magnitude, zero within-arm variance. That was **not** a registered
+outcome, E-004 refused exactly this promotion for exactly this reason, and so does this stop: it is
+recorded as a co-variate and it is **not** grounds for keeping either. **Neither decision is
+available from this batch.** The honest output is the registered outcome a later codex stop should
+use, which is in `author_notes`.
+
+### 3. `.claude/settings.json` in a codex overlay — **REMOVE, and now the no-effect is measured**
+
+The registered port deliberately omitted it, on a *reading* of `run-agent.sh`. DF1 turned that
+reading into a measurement: shipped, committed `100755` into the run's own evaluation baseline,
+byte-identical, with a non-empty trigger population — and **zero hook executions**, against B7's 20
+treated logs on claude. So the omission stands with its evidence, and the recorded finding is the one
+§4 step 10 asks for:
+
+> **A `.claude/settings.json` in a codex overlay is not a guardrail with no effect. It is a document
+> that reads like a guardrail.** Shipping it would be worse than omitting it, because a reader who
+> saw it in the tree would believe the policy gate was active. It is refused from every codex overlay
+> from here on, and the reason is a run id rather than a paragraph.
+
+### 4. The three `.ai/hooks/*.sh` that the port *does* carry — **KEPT under protest, and named**
+
+**Measured: one of the three. Inferred for the other two, and the inference is named rather than
+hidden.** DF1 observed `policy-gate.sh` not firing. `repair-limit.sh` and `repair-record.sh` were not
+separately observed — but **all three are wired by the single file DF1 proved is read by nothing**:
+`jq` over `.claude/settings.json` returns `PreToolUse → policy-gate.sh`, `PreToolUse →
+repair-limit.sh`, `PostToolUse → repair-record.sh` and no other entry. So the claim about the other
+two rests on one measurement plus one file, and that is **L3 for them** while the `policy-gate.sh`
+half is L2. Both labels appear in the §5 table. **They stay**, because decision 1 above forbids editing a measured overlay, and because
+removing them would change `AGENTS.md`'s registered digest's sibling files and therefore the
+artifact two experiments cite. **What is recorded instead** is that the nine-file port contains
+**three files that cannot execute on its target runtime**, so its honest description is not *"the
+portable core"* but *"the portable core plus three inert files"*. A codex-targeted **v1.3** would
+carry six, and that is a build decision for whoever opens one — not an edit here. This is the
+sharpest available illustration of the trap named in `## Design and layers`: **a file count reads as
+a portability fraction**, and 8 of 11 counts three files that do nothing.
+
 ## Exit gate
 
 **From the build track:** ≥3 runs per runtime · compare quality, correction effort, usage **and
