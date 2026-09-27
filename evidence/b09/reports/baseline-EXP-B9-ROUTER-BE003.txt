@@ -1,0 +1,15 @@
+
+=== EXP-B9-ROUTER-BE003 ===
+  25 measuring run(s)
+
+  pass rate   25/25
+
+  outcome            n         min        p25     median        p75        max
+  ---------------- ---  ---------- ---------- ---------- ---------- ----------
+  duration (s)      25          94        104        117        127       5420
+  estimated cost    25      0.1015     0.1196     0.1284     0.1414     0.1518
+  total tokens      25        8076       9074      10114      10686      11506
+  tool calls        25          14         19         20         22         26
+  model calls       25          15         20         22         24         28
+  cache tokens      25      214748     304760     361438     413488     502168
+

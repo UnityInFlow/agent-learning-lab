@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f9468acb-0f07-4804-bea8-a2e353864257
+  mode:           run
+  run_id:         f9468acb-0f07-4804-bea8-a2e353864257
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/f9468acb-0f07-4804-bea8-a2e353864257
+  attachments:    6 changed file(s), 6 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260927T082153Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "all refusals throw existing ApiException subclasses; controllers construct no error bodies"
+    evidence: "order/OrderController.kt:27,53,66; shipment/ShipmentController.kt:32,41,64"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel uses an if decision for order status"
+    evidence: "order/OrderController.kt:59"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "refusal bodies are asserted, but clause (b) omits shipment state reread after 409"
+    evidence: "order/OrderControllerTest.kt:139"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "unnamed creates-order and reads-back test methods both differ from baseline"
+    evidence: "work/order/OrderControllerTest.kt:52,60; baseline/order/OrderControllerTest.kt:45,52"
+ambiguous_categories: []

@@ -1,0 +1,8 @@
+REFUSING to analyse 'EXP-B9-ROUTER-BE004': this is not the registered dataset.
+
+  - arm 'agent-v1.1' has 12 measuring runs, expected 10
+  - arm 'agent-v1.2-knowledge' has 12 measuring runs, expected 10
+
+Running an analysis on a partial batch and stopping when the p value looks
+good is optional stopping, and it invalidates the result. Complete the runs,
+or pass --exploratory to look without producing a verdict.
