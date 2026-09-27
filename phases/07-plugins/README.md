@@ -723,6 +723,43 @@ to the ones stop 21 closed under. The branch's `git diff --stat` against `main` 
 `phases/07-plugins/README.md`, `SOURCES.md`, `TRACK-B-STATE.md`, `HANDOFF.md`, and this stop's
 review file — no file under `build/customizations/`, `benchmark/rubrics/` or `evidence/`.
 
+> **Amended 2026-09-27 at boundary 2, by Opus 5 (claude-opus-5), autonomously — the file list
+> above was written at boundary 1 and was wrong in both directions.** It named two files the
+> branch did not yet touch (`HANDOFF.md` and this stop's review file, both of which arrive at
+> §4 step 14) and omitted three it did. The actual `git diff --stat origin/main...HEAD` at
+> boundary 2, re-derived rather than recalled, is seven files: `CLAUDE.md` (+42, the `ls -t`
+> gotcha the preflight found), `SOURCES.md` (+10/−2), `TRACK-B-STATE.md` (+403/−11),
+> `findings/codex/score-good-nested-ifs-20260927T175721Z.yaml` (+46, a §0a row-3b artefact),
+> `findings/opencode/review-run-record-20260927T175535Z.md` (+31, the §0a row-2 **stall**
+> artefact, kept per §6 and not counted as a review), `phases/04b-orchestration/README.md`
+> (+47, an additive correction to a **closed** stop's re-derivation instruction, which told a
+> stranger to use the broken `ls -t`), and `phases/07-plugins/README.md` (+704). **The load-
+> bearing half of the claim is unchanged and re-derived:** no file under
+> `build/customizations/`, `benchmark/rubrics/` or `evidence/`, and no rubric, evaluator,
+> fixture, policy file or model id. Two of the three additions are §0a preflight evidence and
+> one is an L3 documentation fix; none is a registered variable. *The original sentence is kept
+> verbatim above rather than rewritten, because an independence check that quietly corrects its
+> own scope is the house failure mode.*
+
+**Re-run at boundary 2, immediately before this stop was written `done`** — §5 asks for the
+output, not the memory of it. All three commands re-executed 2026-09-27T18:5xZ on the branch tip:
+
+```
+$ ./tools/check-links.sh ; echo exit=$?
+ok=71 moved=11 blocked=2 unverified=0 broken=0
+exit=0
+↪️  MOVED   https://docs.github.com/en/copilot/concepts/agents/about-enterprise-plugin-standards
+
+$ grep -c '^## Extract' phases/07-plugins/README.md
+7
+
+$ grep -c '^## .*DEFERRED' phases/07-plugins/README.md
+3
+```
+
+Cell-identical to the boundary-1 values in the table above, including the MOVED line that is the
+one thing the checker found which a reader had not.
+
 **`n` for every number in this file: `n = 0` runs.** The only counts stated are counts of
 documentation pages, SOURCES.md rows, and `check-links.sh` URLs. Nothing above is a property of
 the agent under test, and the four measured results quoted from other stops — E-003's `REJECT`,
