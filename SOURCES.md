@@ -1,7 +1,35 @@
 # Verified sources
 
-Every URL the curriculum cites, checked with `curl -sSL` on **2026-08-28**. Re-run
-[`tools/check-links.sh`](tools/check-links.sh) before each cohort — this list drifts.
+Every URL the curriculum cites, checked with `curl -sSL`. **Last full run 2026-09-27T18:5xZ**
+(the date was stale at **2026-08-28** until boundary 2 of spine stop 22 — §4a finding 22, 1/2,
+was right that a header date of 2026-08-28 contradicted rows reading *"Read fresh … 2026-09-27"*).
+Re-run [`tools/check-links.sh`](tools/check-links.sh) before each cohort — this list drifts.
+
+> **The checker's scope is wider than this file, and its summary does not add up. Both were found
+> by §4a at stop 22 (findings 17, 21 and 27) and both reproduce.** *Recorded 2026-09-27 by Opus 5
+> (claude-opus-5), autonomously.*
+>
+> - **Scope.** `check-links.sh` prints `Checking 91 unique URLs in SOURCES.md CURRICULUM.md
+>   LEARNING-PATH.md GUARDRAILS.md README.md build/README.md` **plus 28 phase workbooks** — 34
+>   files, not this one. So *"every URL the curriculum cites"* is the right description of the
+>   **checker** and has never been a description of **this table**, which holds 73 status rows and
+>   75 unique URLs (`grep -cE '^\| *(✅|↪️|🚫|❓|❌)' SOURCES.md` → 73;
+>   `grep -oE 'https?://[^)| ]+' SOURCES.md | sort -u | wc -l` → 75).
+> - **The arithmetic gap, unresolved and stated as such.** The 2026-09-27 run reports
+>   `ok=71 moved=11 blocked=2 unverified=0 broken=0` against a declared **91**. That sums to
+>   **84**, leaving **7 URLs in no bucket**. The same defect is visible in the superseded
+>   2026-08-28 line below, where `64+8+2 = 74` against a declared **76** left **2**
+>   unaccounted — so the gap is not new, it grew with the corpus, and **no run of this checker has
+>   ever reconciled.** The checker prints only its non-`ok` lines (13 of them on 2026-09-27,
+>   re-derived: `grep -cE '^(✅|↪️|🔒|🔑|⚠️|❌)' <output>` → 13), so the missing 7 cannot be
+>   recovered from the output at all.
+> - **What this does and does not invalidate.** `broken=0` is the clause CI gates on and it is
+>   unaffected: a broken URL is printed, and none was. What is not supported is any sentence of
+>   the form *"all N sources verify"*, because **N is not known from this output**. No such
+>   sentence is relied on by any stop's gate.
+> - **Not fixed here.** A summary that accounts for every URL it declares is an L2 change to a
+>   registered instrument, and §6 forbids a future step's artifact at a ◇ extract-only stop. It is
+>   on record for the author, alongside the SOURCES.md stale-tick checker from the same stop.
 
 **Status legend:** ✅ resolves as written · ↪️ resolves but **redirects** (the URL in
 `CURRICULUM.md` is stale) · 🔒 live in a browser, blocks `curl` (403 to bots) ·
@@ -9,7 +37,8 @@ Every URL the curriculum cites, checked with `curl -sSL` on **2026-08-28**. Re-r
 
 ## What the check found
 
-**2026-08-28 re-check: the same 76 URLs. `ok=64 moved=8 blocked=2 unverified=0 broken=0`.
+**Superseded 2026-09-27, kept not deleted — its arithmetic is the second data point for the gap
+recorded above.** **2026-08-28 re-check: the same 76 URLs. `ok=64 moved=8 blocked=2 unverified=0 broken=0`.
 The same eight redirects, still the same eight, none of them new — eighteen days and this
 file did not drift.** Nothing here needs a new entry.
 
@@ -67,7 +96,7 @@ to non-browser user agents. They load normally in a browser.
 | ✅ | [Copilot CLI reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference) | Search the page for **OpenTelemetry monitoring**. `invoke_agent` / `chat` / `execute_tool` spans, token fields, hook lifecycle, compaction events |
 | ✅ | [OpenTelemetry — Signals](https://opentelemetry.io/docs/concepts/signals/) | Traces vs metrics vs logs. Do not collapse them |
 | ✅ | [OpenTelemetry — Collector](https://opentelemetry.io/docs/collector/) | receiver → processor → exporter |
-| ✅ | [OpenTelemetry — GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) | The vocabulary your normalization layer should target instead of vendor span names |
+| ✅⚠️ | [OpenTelemetry — GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) | The vocabulary your normalization layer should target instead of vendor span names. **⚠️ RESOLVES BUT IS SUPERSEDED — see the tombstone further down this file**, which records that the content moved to `open-telemetry/semantic-conventions-genai`. *Cross-referenced 2026-09-27 on §4a findings 18 (2/2) and 24 (1/2), which were right that a bare ✅ here sat in flat contradiction with a tombstone warning about this same URL.* **Precedence rule, stated once and applying to every row in this file: a ✅ is a statement about HTTP and a tombstone is a statement about CONTENT, and the tombstone wins for the reader's purpose.** The ✅ is kept because it is true and because `check-links.sh` will keep returning it; ⚠️ is added because nothing executes that could have reconciled the two |
 | ✅ | [Grafana Tempo](https://grafana.com/docs/tempo/latest/) | Trace storage |
 | ✅ | [Grafana — Visualize traces](https://grafana.com/docs/tempo/latest/visualize-traces/) | Reading a trace waterfall |
 | 🔒 | [OpenAI — Running Codex safely](https://openai.com/index/running-codex-safely/) | Sandboxing, approvals, telemetry posture |
@@ -120,7 +149,7 @@ to non-browser user agents. They load normally in a browser.
 |---|---|---|
 | ✅ | [Copilot — LSP servers](https://docs.github.com/en/copilot/concepts/agents/copilot-cli/lsp-servers) | Definition/references/implementations/symbols/hover — symbol-aware, not text |
 | ✅ | [Copilot — Add LSP servers](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/add-lsp-servers) | `.github/lsp.json` |
-| ✅ | [Copilot — MCP private registry enforcement](https://docs.github.com/en/copilot/reference/enterprise-administrators/mcp-private-registry-enforcement) | **Read fresh at stop 18, 2026-09-25, and the rename did change the model.** *"Enforcement is based only on server name/ID matching, which can be bypassed by editing configuration files"* and *"Strict enforcement that prevents installation of non-registry servers is not yet available."* Applies to local **and** remote servers under "Registry only"; the Copilot **cloud agent has no enforcement at all**; every other surface carries a client version floor. **This is L3, not a boundary** |
+| ✅ | [Copilot — MCP private registry enforcement](https://docs.github.com/en/copilot/reference/enterprise-administrators/mcp-private-registry-enforcement) | **Read fresh at stop 18, 2026-09-25, and the rename did change the model.** *"Enforcement is based only on server name/ID matching, which can be bypassed by editing configuration files"* and *"Strict enforcement that prevents installation of non-registry servers is not yet available."* Applies to local **and** remote servers under "Registry only"; the Copilot **cloud agent has no enforcement at all**; every other surface carries a client version floor. **This is L2 on the NAME and L3 on the CAPABILITY — split at boundary 2 of stop 22, 2026-09-27, on §4a finding 19 (1/2), which is right that a bare L3 hid an executing check.** Apply the rule in order: a non-registry server name can still be written down, so step 1 is `no`; something then *executes* and rejects the name, so the label reaches **step 2**. What makes the L3 half true is the vendor's own sentence — *"can be bypassed by editing configuration files"* — so the check rejects a **string**, not a **server**. **That is the exact shape of this track's own measured result at stop 9: `tools:` filters names, not capabilities (E-005, 10/10 with `Bash` added, p = 1.0 against no list at all).** Writing it as flatly L3 lost the executing half; writing it as flatly L2 would be the error E-005 was built to expose. *Neither half is a boundary in the sense the Bank controls need* |
 | ✅ | [Claude Code — MCP](https://code.claude.com/docs/en/mcp) | **Extracted 2026-09-25 (stop 18).** Three scopes: local `~/.claude.json`, project `.mcp.json`, user `~/.claude.json`. The approval prompt for a project-scoped server fires **only in interactive sessions** — *"In `claude -p` runs, Agent SDK sessions, and cloud sessions, Claude Code can't show that prompt: it loads project-scoped servers without asking"*, and **every run this project makes is `claude -p`**. What does execute: `--strict-mcp-config`, `managedMcpServers`, `disabledMcpjsonServers`, `allowedMcpServers`/`deniedMcpServers`, `managed-mcp.json` |
 | ✅ | [Codex — MCP](https://learn.chatgpt.com/docs/extend/mcp?surface=cli) | Note the `?surface=` param — the docs are surface-scoped. **Extracted 2026-09-25 (stop 18):** `[mcp_servers.<name>]` in `~/.codex/config.toml`; stdio `command`/`args`/`env`/`cwd`/`startup_timeout_sec`/`tool_timeout_sec`, HTTP `url`/`bearer_token_env_var`/`http_headers`/`auth`. **Checked on the installed `codex-cli 0.154.0`: there is no analogue of `--strict-mcp-config`** — `--strict-config` only rejects unrecognised config keys — so the codex arm's only MCP isolation is a clean `CODEX_HOME` |
 | ✅ | [MCP specification — overview, `2026-07-28`](https://modelcontextprotocol.io/specification/2026-07-28) | Cited dated, not as `latest`, per this file's own Protocol row. **`latest` resolved to `2026-07-28` on 2026-09-25** — `check-links.sh` reports the redirect, so the revision is mechanically confirmed and not just read. Read at stop 18. The sentence the phase turns on: *"While MCP itself cannot enforce these security principles at the protocol level, implementors **SHOULD**…"* — the spec's security section is **L3 by its own admission**. Adds `Elicitation` (server-initiated requests for user input) to the surface Lab 6.3 was written against |
@@ -131,8 +160,14 @@ to non-browser user agents. They load normally in a browser.
 | | Source | What to take from it |
 |---|---|---|
 | ✅ | [Copilot — About plugins](https://docs.github.com/en/copilot/concepts/agents/about-plugins) | `plugin.json` can bundle agents, skills, hooks, MCP and LSP config |
-| ✅ | [Copilot — Enterprise plugin standards](https://docs.github.com/en/copilot/concepts/agents/about-enterprise-plugin-standards) | |
-| ✅ | [Claude Code — Plugins](https://code.claude.com/docs/en/plugins) | |
+| ↪️ | [Copilot — Enterprise plugin standards](https://docs.github.com/en/copilot/concepts/agents/about-enterprise-plugin-standards) → `…/concepts/enterprise/plugin-standards` | **Re-status'd from ✅ to ↪️ at stop 22, 2026-09-27**, by `check-links.sh`, not by hand: the page moved **out of `concepts/agents/` and into `concepts/enterprise/`**, which is a scope rename and not a slug tidy. Read fresh at the old URL (which redirects): plugin standards are *"configuring a `managed-settings.json` file"* naming *"Known marketplaces"* and *"Specific plugins that are automatically installed when users authenticate"*; the page defers every key name to the reference page below. **This row is why a ✅ from a `WebFetch` is not a ✅ — `WebFetch` follows a redirect silently and reports the content as if the URL resolved.** A subagent reported it as resolving directly; the checker is the thing that executes |
+| ✅ | [Claude Code — Plugins](https://code.claude.com/docs/en/plugins) | **Read fresh at stop 22, 2026-09-27.** The manifest moved: it is `.claude-plugin/plugin.json`, and *"A plugin is a directory of components, usually with a manifest"* — **usually**, so the manifest is not required. Components are skills, agents, hooks and MCP servers. *"An enabled plugin is part of every session, not only the sessions where you use it"* — the always-on cost is the listing, not the body |
+| ✅ | [Claude Code — Plugin security and trust](https://code.claude.com/docs/en/plugins/security) | **Read fresh at stop 22, 2026-09-27.** The sentence the phase turns on: *"A Claude Code plugin you install can execute arbitrary code on your machine with your user privileges."* Also: *"Claude Code runs hooks and MCP servers outside the sandbox"*; `bin/` is added to the Bash tool's `PATH`; and *"when auto-update is on … Claude Code updates that plugin in the background, so the files you reviewed can change on disk"*. Two **L1** refusals exist — an `archive` source pinned to a `sha256` digest whose download must match, and the community catalog's commit-SHA pin where *"Claude Code refuses to install a different commit"* |
+| ✅ | [Claude Code — Manage plugins for your organization](https://code.claude.com/docs/en/plugins/org) | **Read fresh at stop 22, 2026-09-27.** The **L2** layer of this phase, with its own limits column: `strictKnownMarketplaces`, `blockedMarketplaces`, `enabledPlugins`, `disableSideloadFlags`, `strictPluginOnlyCustomization`, `allowManagedHooksOnly`, `disableCommandPluginSources`, `syncClaudeAiPlugins`, `pluginTrustMessage`. *"Users can't override them."* Both lists apply *"before anything downloads and again at session start"*. And a section named **"Plan for what managed settings can't enforce"** — read it before labelling any of this L1 |
+| ✅ | [Claude Code — Install and manage plugins](https://code.claude.com/docs/en/plugins/install) | **Read fresh at stop 22, 2026-09-27.** The finding stop 22's exit gate turns on: **there is no plugin-version selector and no rollback command.** `#ref` pins the *marketplace*, not the plugin; `claude plugin update` is forward-only; auto-update is **on by default** for the official marketplace names except `knowledge-work-plugins` and `first-party-plugins` |
+| ✅ | [Codex — Plugins](https://learn.chatgpt.com/docs/plugins) | **Read fresh at stop 22, 2026-09-27. Codex has plugins now** — *"Plugins bundle capabilities into reusable workflows in ChatGPT and Codex. They can include skills and MCP servers"*, plus browser extensions and hooks. **Subagents are not among them**, which matters because `.codex/agents/` is where the codex arm's agent definitions live. No manifest filename, no version field and no rollback are stated on the page |
+| ✅ | [Codex — Plugin management (enterprise)](https://learn.chatgpt.com/docs/enterprise/plugin-management) | **Read fresh at stop 22, 2026-09-27.** Admin controls are an **Installation policy** per plugin (`Available` / `Installed`) in a console, plus a GitHub marketplace an admin imports and syncs. Pinning is *"Branch, tag, or commit"* on the marketplace: *"use a branch to receive future commits; a fixed commit stays at that revision."* **No allowlist/blocklist of sources is described**, and no sentence says a user cannot override the policy |
+| ✅ | [Copilot — Enterprise managed settings (resolved URL)](https://docs.github.com/en/copilot/reference/enterprise-administrators/enterprise-managed-settings) | Cross-listed with the ↪️ row under *Enterprise administration*, whose redirect target this is — and **it resolved directly at stop 22, 2026-09-27**, so the stale row's target is now a live URL. It names three plugin keys with **the same names Claude Code uses**: `enabledPlugins`, `extraKnownMarketplaces`, `strictKnownMarketplaces`. `strictKnownMarketplaces` *"Restricts plugin installation to explicitly listed marketplaces"* and *"is overridable for enterprise teams. Wrap the complete allowlist in `overridable` at the enterprise level"* — an **opt-in delegation primitive the enterprise must choose**, not a user bypass. Hand-verified at stop 22 after a subagent read it the other way |
 
 ## Agentic workflows (gh-aw)
 
@@ -211,7 +246,7 @@ Added from labs and extracts. None of these are in `CURRICULUM.md`. All verified
 | ✅ | [Simon Willison — The lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/) | Private data + untrusted content + external communication. **95% detection is "a failing grade."** Extracted in [0A](phases/00a-agent-mechanics/) |
 | ✅ | [OWASP — Top 10 for LLM Applications](https://genai.owasp.org/llm-top-10/) | Which of the ten your L1/L2 controls can actually stop |
 | ✅ | [Claude Code — Security](https://code.claude.com/docs/en/security) | Read the limits harder than the guarantees |
-| ✅ | [Claude Code — Sandboxing](https://code.claude.com/docs/en/sandboxing) | What a real Layer 1 boundary looks like |
+| ✅ | [Claude Code — Sandboxing](https://code.claude.com/docs/en/sandboxing) | ~~What a real Layer 1 boundary looks like~~ **What a strong Layer 2 boundary looks like.** *Corrected 2026-09-27 on §4a finding 25 (1/2), which is right: a sandbox that denies an out-of-bounds write is something that **executes and rejects**, which the layer rule in the workspace `CLAUDE.md` reaches at step 2. L1 would require that the out-of-bounds write could not be **expressed**, and it can — the agent emits it and the sandbox refuses. The struck words are kept.* Still the strongest enforcement mechanism the curriculum cites; the correction is to its label, not to its standing |
 | ✅ | [Claude Code — IAM](https://code.claude.com/docs/en/iam) | Layer 2 in detail, and precedence |
 | ✅ | [Claude Code — Dev containers](https://code.claude.com/docs/en/devcontainer) | When Layer 2 is not enough |
 
@@ -245,7 +280,7 @@ Added from labs and extracts. None of these are in `CURRICULUM.md`. All verified
 | [9](phases/09-memory/#extract) | Claude Code memory |
 | [10](phases/10-production-observability/#extract) | Claude Code monitoring usage |
 
-**Still without an extract:** 7 — tracked in issue #17.
+**Still without an extract:** 7 — tracked in issue #17. **⚠️ HAND-MAINTAINED, and nothing executes that would catch it drifting.** *Marked 2026-09-27 on §4a finding 26 (1/2), which is right.* This number has already been corrected once by hand (see the note below) and is one of the counts the stop-22 workbook's `unexpected_effect` names when it argues that **a figure repeated in several places should be derived, not typed** — the same slip was corrected four times in a single earlier stop. The derivation is not built here: it is an L2 instrument change and §6 forbids a future step's artifact at a ◇ extract-only stop. **Until it is built, treat this as a hint and the per-phase `## Extract` headings as the fact.**
 
 *(Corrected 2026-09-25 by Opus 5 (claude-opus-5), autonomously, at spine stop 19. This line read
 **"5B, 6A, 6B, 7"** and three of those four had extracts: 5B was written at stop 16, 6A at stop 18,

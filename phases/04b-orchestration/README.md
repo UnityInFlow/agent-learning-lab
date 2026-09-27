@@ -915,3 +915,50 @@ say so.**
 **Where it lives:** [`experiments/E-008-fourth-cell-prose-without-split.md`](../../experiments/E-008-fourth-cell-prose-without-split.md)
 (void, kept) and [`experiments/E-009-fourth-cell-second-registration.md`](../../experiments/E-009-fourth-cell-second-registration.md)
 (the result and its §5 table), evidence under `evidence/p04b/lab-4b4/fourth-cell/`.
+
+## Amendment — 2026-09-27, from the stop-22 preflight
+
+Source: this stop was not re-opened and nothing of its result is touched. The stop-22 §0a
+preflight found that **one re-derivation command in the §5 table above does not work in this
+project's own shell**, and §5 requires a re-derivation a stranger can run.
+
+**The row:** *"One scored cell re-read by hand, before any sheet existed"*. Its second
+re-derivation command reads
+
+```
+ls -t findings/codex/score-observatory-run-207ff23d-*.yaml | head -1
+```
+
+`ls` on this machine is an alias for `eza --group-directories-first --icons=auto` (v0.23.4), and
+**in eza `-t` is `--time FIELD`** — *"which timestamp field to list"* — **not "sort by mtime".**
+So the command consumes the first glob match as the argument to `-t`, lists only the rest, and
+**exits 0**. Both failure directions were observed on 2026-09-27, and this glob gets the quieter
+one: **it matches exactly one sheet, `-t` swallows it, and the command prints nothing and exits
+0** — a stranger sees an empty answer where the row promises a file. On a glob with several
+matches, the same command instead prints a real file that is not the newest, which is the worse
+of the two because it looks like an answer. Measured deterministically 3 of 3 on 2026-09-27; the
+full evidence and the pattern it shares with the `LC_ALL=C pgrep` defect are in
+[`agent-learning-lab/CLAUDE.md`](../../CLAUDE.md), section *"`ls -t | head -1` returns the WRONG
+file in this shell"*.
+
+**The corrected command, which returns the same file the row already claims:**
+
+```
+/bin/ls -t findings/codex/score-observatory-run-207ff23d-*.yaml | head -1
+# or, equivalently:  eza -s modified -r findings/codex/score-observatory-run-207ff23d-*.yaml | head -1
+```
+
+**Nothing else in this workbook changes.** The original command is kept above verbatim rather
+than rewritten, because it is the evidence for this amendment. The row's value, its `path:line`
+reasoning, its L3 relabelling and E-007's registered `NOT DETECTABLE` verdict are all untouched —
+this corrects an *instruction*, not a prediction, a result, a sheet or a run folder.
+
+**This is the second time a §5 re-derivation command in this project has been found unusable by
+the reader it was written for**, and the first was also caught from outside the stop: stop 7's
+`grep -c DEFERRED` was unstable because prose about the marker is itself a match, and the §9
+validator got a different number than the table claimed. Two of two found by someone re-running
+the command rather than by the session that wrote it. **The standing lesson is that a
+"how a stranger re-derives it" cell is itself an artifact that has never been executed until
+somebody executes it**, and §5 does not require that anyone does.
+
+*Amended by Opus 5 (claude-opus-5), autonomously, 2026-09-27, at the stop-22 §0 boundary 1.*

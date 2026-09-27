@@ -44,6 +44,63 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
+**Spine 22 of 28. Positions 4–22 CLOSED — 22 (Phase 7 — plugins + controlled distribution, a ◇
+extract-only stop) closed 2026-09-27 with `n = 0` runs, which is what the spine registers a ◇ stop
+to produce and is not a shortfall.** PR `lab#132`. Ten documentation pages read across three
+vendors, seven `## Extract` sections, three labs deferred with their debts written down, seven new
+`SOURCES.md` rows and one `✅` re-status'd to `↪️` by the checker rather than by hand. **NOTHING is
+blocked on the author.** `lab#9` (Phase 7) **stays open** — a Phase issue closes only when its gate
+is met from measurement, and Labs 7.1, 7.2 and 7.3 are all deferred. `lab#16` and `lab#8` stay open
+on the same basis from stops 19 and 18. **Stop 23 (Phase 8 — agentic workflows, the second ◇ stop)
+is NOT OPENED and nothing of it exists**; §6 forbids a future step's artifacts early, and opening it
+at §4 step 1 is the next session's first act.
+
+**Three corrected premises, and each one changes a later step rather than this one.** (1) **Codex
+has plugins** — the scaffold's open question is answered against its own assumption — but the
+plugins page does not list subagents among plugin components, and an MCP-carrying codex plugin is
+marked *Desktop only*, so it cannot reach the CLI this project measures. A codex plugin carries the
+skill layer, not the agent layer B4, 4B and B8a are about. (2) **There is no plugin-version selector
+and no rollback verb on any of the three runtimes.** `#ref` pins the *catalog*; `claude plugin
+update` is forward-only; a version is reported and never selected. **So B13 clause 7 (*"rollback is
+defined"*) must define a reconstruction** — re-point the catalog at an older ref, or reach into the
+cache inside its 14-day sweep window — or it ticks a box against a mechanism that is not there. (3)
+**A plugin-delivered overlay would arrive by a route no hash in the run record sees**, which is the
+exact defect author decision 11 item 9 exists to prevent. The candidate observable is the `init`
+event's `plugins` list; `run-agent.sh:883-885` already uses the invocation that emits it and **the
+field itself is unmeasured**. Lab 7.1 owns that probe, it costs one run with `--plugin-dir` and no
+benchmark, and §6 forbade building it here.
+
+**The stop's own review found that I had misapplied this project's central rule, in six places.**
+The `sha256` archive-digest refusal and the `claude-community` commit pin were labelled **L1**;
+applied in order the rule stops at the first yes, the bad value **can** still be written down, and
+what happens next is an executing compare-then-refuse — **L2**. `SOURCES.md`'s Claude Code sandbox
+row said *"a real Layer 1 boundary"* and has the same error. `GUARDRAILS.md` exists to prevent
+exactly this, and the workspace `CLAUDE.md` warns about the opposite direction of the same mistake.
+**One finding was settled by observation rather than argument, and the observation went against the
+label:** CODEOWNERS was L2, and `require_code_owner_reviews` is **`false`** on this repository's own
+`main` while `.github/CODEOWNERS` exists — present and enforcing nothing, so L3.
+
+**And the reading apparatus is the thing this stop actually measured.** `WebFetch` follows a redirect
+silently and returns the content as though the URL resolved; `check-links.sh`, which uses `curl` and
+reports the hop, caught that Copilot's enterprise-plugin-standards page had left `concepts/agents/`
+for `concepts/enterprise/` — a scope rename. **A `✅` produced by a fetch is not a `✅`.** Chasing a
+review finding about arithmetic then exposed that **`check-links.sh`'s summary has never
+reconciled**: it declares *"Checking 91 unique URLs"* across 34 files and reports
+`ok=71 moved=11 blocked=2` = **84**, leaving seven in no bucket, and the same gap stood at two on
+2026-08-28. `broken=0` — the clause CI gates on — is unaffected, and no stop's gate rests on an
+*"all N sources verify"* sentence. Both fixes are L2 instrument changes that §6 forbade here and
+both are on record for the author.
+
+> **This paragraph has now been found stale five times, was rewritten by hand a sixth and a
+> seventh, and this is the eighth.** The argument has not changed and is still not acted on: **it
+> should be GENERATED from `TRACK-B-STATE.md`, not maintained by hand.** Until it is,
+> `TRACK-B-STATE.md` is the fact and this is a hint. *Written by Opus 5 (claude-opus-5),
+> autonomously, 2026-09-27.*
+
+<!-- SUPERSEDED, kept not deleted: -->
+
+## Position — superseded 2026-09-27 at the stop-22 close
+
 **Spine 21 of 28. Positions 4–21 CLOSED — 21 (B10 — second runtime adapter) closed 2026-09-27
 `NOT DETECTABLE AT THIS n` on both tasks, row 4 of each decision rule, all four build-track gate
 clauses answered from measurement, a deliberate failure at `n = 1` that converted the stop's one L3
