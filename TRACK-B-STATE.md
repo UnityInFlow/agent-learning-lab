@@ -5242,6 +5242,19 @@ blocked_on_author: []   # *** EMPTY as of 2026-09-25. *** The single item that w
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
 author_notes:   # 2026-09-26 boundary-2 items first, then the earlier 2026-09-26 ones, then the
                 # carried ones. NONE of these gates anything (§7).
+  - "2026-09-27 01:4xZ, `git push` HUNG FOR TWO AND A HALF HOURS AFTER THE REMOTE REF HAD ALREADY
+     ADVANCED, AND NOTHING ABOUT IT LOOKED LIKE SUCCESS. The boundary-2 push of 7c03aac (262 files)
+     updated refs/heads/stop20/b9-knowledge-router on the server - `git ls-remote` returned
+     7c03aac3c89e9be267e8ac265a35518129ccc417 - while the local `git push -q` sat at 02:34 elapsed
+     with a live git-remote-https child. *** IT WAS NOT THE REVIEW HOOK: *** no opencode and no
+     codex-critic process existed at any point, checked with LC_ALL=C pgrep. So this is the
+     transport, not LAB_REVIEW_HOOK, and the §0 rule `never rely on the git push review hook` does
+     not cover it. Killing the push client left the remote correct and the working tree clean, and
+     the backgrounded command then exited 0. WHAT A LATER SESSION SHOULD DO: after any large push,
+     believe `git ls-remote`, not the exit of `git push` - and do not assume a push that has not
+     returned has not landed, because re-pushing or re-committing on that assumption is how history
+     gets rewritten. This is the same shape as the pgrep self-match note above: the check everyone
+     reads (the command returning) is not the check that knows the answer (the remote ref)."
   - "2026-09-26 20:0xZ, CODEX CAME BACK FOUR DAYS BEFORE THE TIME IT ITSELF PUBLISHED, AND FOUR
      SESSIONS OF THIS FILE SAY SCORING IS BLOCKED UNTIL 2026-09-30T16:29Z. It is not: preflight row
      3c wrote a real four-category sheet at 18:31Z in 23 seconds. THE LESSON IS NOT ABOUT CODEX -
