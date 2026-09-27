@@ -236,7 +236,14 @@ that execute, **L2**. The policy gate is lost **silently**: census probe 5 ships
 `settingsHash` exists. That half was **L3** — proved by reading source.
 
 **DF1 converted it.** One codex run, `18eac7c0-971f-496d-8868-8799d4fec2b5`, shipping exactly probe
-5's overlay. All four predictions held. The gate was committed **`100755`** into the run's own
+5's overlay. **Three predictions held and the fourth split: DF-P4 is REFUTED on its second clause**,
+because it registered *"no `settingsHash` **or `hooksHash`** key exists anywhere in the record"* and
+made *"such a key exists"* its own refutation clause — and `hooksHash` exists and is `null`, and a
+null key is a key. Found by the §4a codex review at 2/2 recurrence on two artefacts, after I had
+myself discovered the seven-field fact two commits earlier and failed to trace it to a live
+prediction. The prediction is not edited (§4 step 12); an additive correction carries it. The
+substantive conclusion does not move — no hash saw the tenth file — but the score does. The gate was
+committed **`100755`** into the run's own
 evaluation baseline (setup commit `9652494fa571`, ten paths including `.claude/settings.json`
 byte-identical), the run changed **3 Kotlin source files** — a non-empty and correctly-typed trigger
 population — and **zero `policy-events-*.jsonl` logs appeared anywhere in `$TMPDIR` or `/tmp`**,
