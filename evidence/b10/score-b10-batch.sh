@@ -65,7 +65,16 @@ newest_sheet() {
 }
 
 # A completed sheet carries one `score:` line per rubric category. Four, or it is a stall.
-sheet_complete() { [ "$(grep -c '^ *score:' "$1" 2>/dev/null)" -eq 4 ]; }
+# The `${n:-0}` is not decoration: on a MISSING file `grep -c` prints nothing, and a bare
+# `[ "" -eq 4 ]` is a bash *syntax* error that exits 2. The caller only tests non-zero, so the
+# batch behaved correctly either way, but a guard whose failure mode is undefined is not a guard
+# — verify-score-b10-guards.sh case F caught this on its first run and it is fixed here rather
+# than accepted in the fixture.
+sheet_complete() {
+  [ -n "${1:-}" ] || return 1
+  local n; n=$(grep -c '^ *score:' "$1" 2>/dev/null)
+  [ "${n:-0}" -eq 4 ]
+}
 
 # Run a command under a wall-clock budget, killing the whole process GROUP on expiry.
 # Writes the command's exit status to <rcfile>; the caller reads it. 124 means expired.
