@@ -3,9 +3,16 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "Stop 17a — B8a CLOSED" immediately below the Position section. It is the newest
-section: stop 17a closed 2026-09-25 with the verdict `NO ROW FIRES` and the ladder shut, the next
-stop is 18 (Phase 6A) and nothing of it exists, and NOTHING is blocked on the author.**
+**Start at "The author's decision of 2026-09-26" immediately below the Position section. It is the
+newest section: the batch ceiling is now a RULE rather than a flat number, which is the thing that
+bit stop 17a. Positions 4–19 are CLOSED, stop 20 (B9) is OPEN with its prediction commit on the
+branch and nothing run, and NOTHING is blocked on the author.**
+
+*(Superseded pointer, kept:)* "Start at \"Stop 17a — B8a CLOSED\" immediately below the Position
+section. It is the newest section: stop 17a closed 2026-09-25 with the verdict `NO ROW FIRES` and
+the ladder shut, the next stop is 18 (Phase 6A) and nothing of it exists, and NOTHING is blocked on
+the author." **Two stops have closed since** — 18 and 19 — each with its own section above 17a's,
+so that pointer named neither the newest section nor the live stop.
 
 *(Superseded pointer, kept:)* "Start at 'The author's four decisions of 2026-09-25' immediately
 below the Position section — the Stop 17a halt is DISCHARGED, the author answered all four items,
@@ -37,15 +44,45 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
+**Spine 20 of 28. Positions 4–20 CLOSED — 20 (B9 — knowledge router) closed 2026-09-27 `VOID` on
+both tasks, all three build-track gate clauses answered from measurement, a deliberate failure run at
+`n = 5` for `$0.658351`, and three additive instrument fixes merged with it. NOTHING is blocked on the
+author.** PR `lab#128`. `lab#34` (B9) is **closed** — a B-step issue closes when its deliverable is
+decided, and a `VOID` with a disposition is a decision. `lab#16` and `lab#8` **stay open** from stops
+19 and 18, unchanged: their stub labs are deferred and a Phase issue closes only when its gate is met
+from measurement. **Stop 21 (B10 — second runtime adapter) is NOT OPENED and nothing of it exists**;
+§6 forbids a future step's artifacts early, and opening it at §4 step 1 is the next session's first
+act.
+
+> **This paragraph has now been found stale five times and it was rewritten by hand a sixth.** The
+> argument has not changed and is still not acted on: **it should be GENERATED from
+> `TRACK-B-STATE.md`, not maintained by hand.** Until it is, `TRACK-B-STATE.md` is the fact and this
+> is a hint. *Written by Opus 5 (claude-opus-5), autonomously, 2026-09-27.*
+
+<!-- SUPERSEDED, kept not deleted: -->
+
+## Position — superseded 2026-09-27
+
 **Spine 19 of 28. Positions 4–19 CLOSED — 19 (Phase 6B — knowledge retrieval, read path) closed
 2026-09-26 with four of six exit-gate clauses answered from measurement, one from reading and
 labelled L3, one recorded UNANSWERABLE with its reason, and one lab run at `n = 0` on the agent
 under test and $0 spent. NOTHING is blocked on the author.** `lab#16` **stays open**: all five of
 the author's stub labs are deferred and one gate clause cannot be met from measurement here, and
 §4 step 14 closes a Phase issue only when its gate is met. `lab#8` also **stays open** from stop
-18, for the same reason. The next stop is **20 (B9 — knowledge router)**, and nothing of it exists
-— §6 forbids a future step's artifacts early. **B9 owes an instrument that can record a retrieval
-before its prediction commit, and stop 19 measured that the harness cannot record one at all.**
+18, for the same reason. **Stop 20 (B9 — knowledge router) is OPEN**, not pending: §4 steps 1–3 are complete on
+`stop20/b9-knowledge-router`, the prediction commit is **`ef2c6c0`** (E-022 on BE-003, E-023 on
+BE-004), and **nothing has run**. **B9 owes an instrument that can record a retrieval before its
+prediction commit, and stop 19 measured that the harness cannot record one at all.**
+
+> *(Superseded in the same session that wrote it, kept:)* "The next stop is **20 (B9 — knowledge
+> router)**, and nothing of it exists — §6 forbids a future step's artifacts early." **That was true
+> when written and was false within the same driver session**, which opened stop 20 three steps deep
+> immediately afterwards. **This is the FIFTH time this file's status line has been found stale**,
+> and the fourth time it was caught by someone doing something else — this time by the author's
+> interactive session while republishing the boards. The argument has not changed and is still not
+> acted on: **this paragraph should be GENERATED from `TRACK-B-STATE.md`, not maintained by hand.**
+> Until it is, `TRACK-B-STATE.md` is the fact and this is a hint.
+> *Corrected by Claude Opus 5 (1M context), 2026-09-26, at the author's direction.*
 
 *(Superseded, kept:)* "Spine 18 of 28. Positions 4–18 CLOSED — 18 (Phase 6A — code intelligence)
 closed 2026-09-25 with its exit gate answered on all four clauses and one lab run, `n = 0` on the
@@ -125,6 +162,195 @@ commit, concurrent control, MDE table and §5 row, and no verdict computed acros
 Phase issue stays open while any of its labs is. **It was closed in error at the stop-11 close
 (`19:09:31Z`) and REOPENED 2026-09-06** with a comment naming the three unrun labs — validator
 pass 16 correction 1, and the second recurrence of this exact failure after lab#5 and lab#6.
+
+## Stop 20 — B9 CLOSED `VOID`: the corpus arrived on 20 of 20 runs and the sentence telling the agent to use it did not carry — 2026-09-27
+
+**PR `lab#128`. `VOID — THE TREATMENT WAS NOT TESTED` on both tasks**, from decision rules committed
+before the batch: E-022 row 0 (`H = 2 of 10` on BE-003), E-023 row 1 (`H = 1 of 10` on BE-004). Row 4
+fires on both (`Fisher = 1.0000`, `NOT DETECTABLE`); row 5 does not (cost `+1.09 %` / `+1.14 %`).
+**Three of five predictions refuted on each task, including — on both — the one registered in advance
+as most likely to be wrong** (prediction 3, uptake). Evaluator exit 0 on 40 of 40; BE-004 has still
+never failed on this model.
+
+**Disposition: the corpus is KEPT in the repository, NOT promoted, NOT removed.** The `REJECT` rows
+that remove it need `H ≥ 3`, and removing an artifact nothing consulted would record a measurement
+nobody made.
+
+### The one sentence to carry
+
+**`knowledgeHash` was set on 20 of 20 treated records and `null` on 20 of 20 controls, and 3 of 20
+treated runs touched the corpus.** Delivery is not uptake, and only the first of the two has a hash.
+This is E-005's description arm again, at `n = 20`, on a different mechanism.
+
+### What the census found, and why the verdict still stands
+
+`H` is registered as *"treated runs whose knowledge log is non-empty"*, the log is written by
+`.ai/knowledge/router.sh` and by nothing else — so **`H` counts router invocations, not corpus
+consultations.** `evidence/b09/corpus-access-census.sh` (read-only, 17-case fixture set, anchored to
+the stream-json `tool_use` envelope so it cannot count the harness's own echo) found **BE-003 run 06
+read `index.yaml` and the summary by hand and never ran the router.** Router invocations 2 of 10;
+corpus contact 3 of 10. On BE-004 the two are the same number, 1 of 10, and that negative is the
+result for that task.
+
+**The verdict does not move and the counterfactual is written down beside it.** `H` was defined before
+any data; §4 step 12 forbids editing it, *especially* when the edit changes the verdict — and it would:
+`H = 3` fires row 3, a `REJECT` whose disposition is to **remove** the corpus. **The verdict turns on
+one run and on one word.** Amendment 5 in both experiments.
+
+**And the registered lesson, which is the transferable part:** *a retrieval-contact definition must be
+written before the run and must enumerate every **mechanism**, not name one artifact's log.*
+`verify-decision-rule-exhaustive.py` was exhaustive over the values `H` can take and could never have
+caught a definition that was narrow about how contact happens.
+
+### The deliberate failure — one mode bit, `n = 5`, `$0.658351`
+
+The registered TODO was *a wrong summary in the index*. **Deferred with its arithmetic**, not dropped:
+at 3-of-10 contact, `n = 5` puts the wrong text in front of one or two runs, and five readers needs
+`n ≈ 17`. What ran instead is the instruction-to-call path, broken: `agent-v1.2-knowledge-noexec`, the
+measured overlay with `router.sh` stripped of `+x`, every byte identical, own key `EXP-B9-DF-NOEXEC`.
+
+**Five of six clauses held.** The two that matter:
+
+1. **`knowledgeHash` is not a delivery proof for an *executable* artifact.** The registered batch
+   driver **accepted** the broken overlay at exit 0, with output identical to the measured one, because
+   both its guard and `knowledge_hash()` digest `(path, content)` pairs and a mode bit is neither,
+   while `cp -R` preserves modes. **This is the inverse of stop 17a**, where the same class of guard
+   refused at exit 6 — so there the deliberate failure needed its own driver to happen at all, and here
+   it needed one to be *contained*. Every later step that ships a script inside an overlay inherits
+   this.
+2. **`H` cannot tell an unexecutable router from an abstention, and can tell every break the script
+   survives.** Shell exit 126 writes 0 log lines; the same router with its index removed writes 1 at
+   exit 3, because `emit()` runs before every in-script failure return.
+
+**Three things nobody predicted, and the first is the stop's Layer-3 label demonstrated rather than
+asserted:**
+
+- **A retrieval that never happened was trusted.** Two of the three runs that tried wrote
+  `router.sh "…" 2>/dev/null || echo "No match found"` and received exactly `"No match found"`,
+  `is_error: false`. One of them then `ls -la`'d the directory, got `.rw-r--r-- router.sh` back — the
+  missing mode bit, in its own context — and moved on without a word. **The idiom was invited by the
+  overlay clause's own reassurance** that exit 2 *"is an answer, not a broken command"*. A clause
+  written to stop the agent reading an empty answer as a fault taught it to read a fault as an empty
+  answer.
+- **Run 05 called the router by absolute path and the harness denied it.** The allowlist is
+  `Bash(.ai/knowledge/router.sh:*)`. **So `router_denied = no` on 20 of 20 is not evidence the
+  allowlist is adequate** — only that no agent in twenty runs used that form. **`H = 2` is a floor.**
+- **Every `estimatedCost` and `modelCalls` is `null` on 5 of 5**, because the driver exported
+  `OTLP_GRPC_ENDPOINT` **without the `http://` scheme**. The preflight printed
+  `grpc localhost:4317 answered 200`; the registered batch logged `grpc http://localhost:4317 answered
+  200`. **The same 200, opposite outcomes** — `curl` normalises a scheme-less `host:port` and the
+  exporter does not. `otlp-preflight.sh`'s own header says it exists because null overhead columns
+  *"happened to two batches"*. **It is now three, and this time the preflight was green.** Costs were
+  recovered from `total_cost_usd` in the stream-json instead: median `$0.129793`, `+1.93 %` on the
+  treated median.
+
+### The exit gate, answered
+
+| clause | answer |
+|---|---|
+| retrieval order recorded per run | index-first on **3 of 3** lookups |
+| hit rate measured | **2 of 10** BE-003, **1 of 10** BE-004 — a **router** hit rate, at that scope |
+| context metrics compared against B8 | the **four** token counters that exist, every delta under 7 % and pointing opposite ways on the two tasks. `reportedTotalTokens` is `null` on every claude run by construction |
+
+**Was this the agent, or the harness?** The agent — and the answer is stronger than *zero denials*,
+because the deliberate failure showed the denial path exists.
+
+**The noise floor of this instrument at `n = 10` on this model was measured by accident:** every token
+counter within 7 %, every rubric delta at or near 0, in comparisons where the treatment was used once
+or twice in ten runs. Every later step's MDE has to clear that.
+
+### Three instrument fixes, merged with the stop, each shown to refuse
+
+| fix | the defect | proof |
+|---|---|---|
+| the preflight gets its own key (`-PF`) | it used the **batch's** key, so `EXP-B9-ROUTER-BE003` held **25** runs where the population is 20, and `make baseline-report` pooled them silently. Only `analyze-experiment.py --expect-n 10` refused | `verify-b9-preflight-guards.sh` **12 of 12**, asserted in both directions through a `B9_PRINT_KEYS` probe, shown to refuse by mutation |
+| `LAB_SCORE_TIMEOUT` in `tools/codex-score.sh` | a `codex exec` sat at 0.0 % CPU for **61 minutes** and still wrote a sheet with **zero** `score:` lines. The registered scorer had no budget at all | `verify-codex-score-timeout.sh` **11 of 11** — fires at 124, kills the **process group**, does not kill a completing call |
+| `LAB_SCORE_OUTDIR` | the fixture's stub sheets landed in the **real** `findings/codex/`, because the scorer `cd`s to the lab root | case J asserts the directory's count is unchanged; five self-labelled stubs **moved, not deleted**, with a README |
+
+**The default budget is 2700 s and the first value written was 900 s, which would have killed two
+calls that finished** (977 s and 1875 s). A budget set from how long a call *ought* to take is a
+control that rejects correct work. **The modified registered scorer was then proved rather than
+assumed:** one real call after the change, exit 0, **cell for cell identical** to the pre-change sheet
+on the same fixture.
+
+### Two defects the fixture sets found in code written the same session
+
+1. A non-numeric median summed to a **`$0.0000` ceiling** that matched the validity regex and would
+   fire on the first run — the *identical* defect `run-b9-batch.sh`'s own comment documents,
+   reproduced by someone who had just read it.
+2. The driver's first launch wrote **five `none/null` rows in two seconds** under `done: 5 runs`,
+   because `API` was assigned and not exported. A run with no run id now keeps its row and **stops the
+   batch** at exit 14.
+
+And one in a fixture: **case O first stubbed the API and thereby invoked the real runner**, which can
+start a paid run. Killed after 110 s; `find` over `$TMPDIR` and the API's newest run id prove nothing
+ran and nothing was spent. It now stubs the **runner**.
+
+### The §4a review, and one thing said plainly about it
+
+42 findings on the `codex` panel (24 031 and 24 735 bytes, 5 sections each, exit 0). **No `ACCEPT` is
+claimed**: the acceptance gate is structurally unreachable on this panel. Every finding is
+dispositioned in `findings/review-dispositions/stop-20-b9-round-1.md` — 8 already fixed, 9 fixed
+additively by Amendment 6, **7 disputed with a concrete reason**, 13 valid-and-unfixable because
+§4 step 12 protects the text they name, 5 to `author_notes`.
+
+**The reviewer had Amendment 5** — committed 51 seconds before the review started, its findings citing
+a line inside it. Where it names the `H` ambiguity it is **restating a finding already on record, not
+confirming it independently.** Recorded because the opposite claim would be the overclaim this project
+exists to catch.
+
+### What is BLOCKED ON YOU
+
+**Nothing.** `blocked_on_author` is empty and no §7 bullet is matched.
+
+**What is owed to you but gates nothing** (`author_notes` carries all of it): the **board republish**,
+which is yours by decision 12 item 4 and whose red `check-board-freshness` that decision says in terms
+not to treat as a blocker — this session edited `HANDOFF.md`, so the markers need re-setting; the
+**OTLP-preflight scheme fix** in `agent-observatory`, which is an additive instrument PR and which I
+did not open because a third repo's PR at this boundary is scope the stop does not need; the
+**wrong-summary demonstration** at `n ≈ 17`; a **pre-registered precedence rule** for a gate overridden
+by a later amendment; and the structural point that **`maintainability` doubles as a scored category
+and a pass/fail gate** while **`H` doubles as a reported outcome and the `VOID` gate**.
+
+---
+
+## The author's decision of 2026-09-26 — the batch ceiling is a RULE, not a flat number
+
+**Provenance, recorded rather than left implicit.** The rule below was **proposed by Claude Opus 5
+(1M context)** in an interactive session on **2026-09-26** and **adopted by the author in that
+session**, on the author's instruction to resolve it. The reasoning is the builder's; the adoption is
+the author's. This project's own working style says a decision adopted from someone else measures
+nothing unless its provenance is recorded, so it is recorded.
+
+> **DECISION 13 — the batch ceiling.** A B-step's cost ceiling is no longer a flat dollar figure
+> computed from the plain-run median. It is **11 × the measured preflight-pair cost, per task**, read
+> from the preflight pair the step already runs before its batch. Decision 3's `$9.70 = 25 × $0.388`
+> **stands as the record of what stop 17a ran under** and is not rewritten.
+
+**Why, and it is arithmetic on the wrong unit rather than a wrong number.** Stop 17a's ceiling was
+25 × the **plain-run** median of `$0.388`. Its preflight then measured a treated-plus-control pair at
+**`$1.2222`** — 1.57× two plain runs, because the treated arm ran **1.95×** the control's cost. So
+`$9.70` funded **7.9 pairs**, the batch stopped at **n = 8 per arm** on exit 11, and E-020's
+registered threshold of **8 of 10** could not be evaluated as written. **A pair is not two plain
+runs**, and every B-step from here pays a treated arm that costs more than the arm the median came
+from.
+
+**What the rule costs, stated rather than left to be inferred:**
+
+- **The budget stops being known in advance.** It becomes known one pair into the step — early enough
+  to stop a batch, not early enough to promise a figure beforehand. A step that needs a number in
+  advance multiplies the previous stop's pair cost and **says it is transferred**, exactly as an MDE
+  does.
+- **It does not rescue a threshold written as k-of-10 at an n the money cannot buy.** It funds
+  **n = 10 per arm plus one pair of margin**, which is what a 10-run threshold assumes. If a
+  treatment turns out dearer than its own preflight pair, the ceiling still stops the batch and **the
+  population that occurred is still what gets reported** — decision-rule row 0b, on E-016's
+  precedent.
+- **It is per task.** Author decision 9 gives a B-step one batch per task, so **stop 20 carries two
+  ceilings**, one from BE-003's preflight pair and one from BE-004's.
+- **The ceiling only stays L2 if the driver computes it.** Stop 17a made a flat number executable in
+  the batch driver, and it fired. A multiplication living in this file is **L3 again**: B9's driver
+  must read the preflight pair cost and multiply, or this decision is prose and not a control.
 
 ## Stop 19 — Phase 6B CLOSED: the instrument cannot name what a run read, and the detector that says so survived being widened twice — 2026-09-26
 
@@ -2489,8 +2715,8 @@ carrying B3's null and the correction the acceptance gate forced:**
 |---|---|
 | [Agent Observatory Handoff](https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc) | where the project stands right now — B3's three arms, the two instrument defects still open, what is held |
 | [Road to the First Agent](https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3) | the 28-position route, now three stops from an agent, and the cost-against-file-size figure |
-<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: a0ccff3 prose: 1119de805984 -->
-<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: a0ccff3 prose: 1119de805984 -->
+<!-- board: https://claude.ai/code/artifact/e023a84c-8f0c-49ee-a2cb-cf33eb5b78cc built-from: 74e0965 prose: 4a67c593ada2 -->
+<!-- board: https://claude.ai/code/artifact/f2294fb0-ca98-4681-a42a-a51a8b5afad3 built-from: 74e0965 prose: 4a67c593ada2 -->
 
 The first had been **rebuilt but never published** — four earlier attempts were refused by the
 publisher's view-guard, which will not overwrite a live artifact this session has not read. The

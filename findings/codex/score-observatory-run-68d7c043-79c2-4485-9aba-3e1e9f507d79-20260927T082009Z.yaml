@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-68d7c043-79c2-4485-9aba-3e1e9f507d79
+  mode:           run
+  run_id:         68d7c043-79c2-4485-9aba-3e1e9f507d79
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/68d7c043-79c2-4485-9aba-3e1e9f507d79
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260927T082009Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals throw baseline ApiException subclasses; controllers construct no error bodies"
+    evidence: "order/OrderController.kt:25,41,50,65; shipment/ShipmentController.kt:29,40,62"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "The order-status decision uses an if statement"
+    evidence: "order/OrderController.kt:57"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "Tests cover idempotency bodies, refused-state preservation, error envelopes, and persisted success"
+    evidence: "order/OrderControllerTest.kt:102,136,141,159,163,168,173"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Controller constructor injection changes fall outside anchor 2’s exhaustive allowed-differences list"
+    evidence: "baseline/order/OrderController.kt:18; work/order/OrderController.kt:20; baseline/shipment/ShipmentController.kt:24; work/shipment/ShipmentController.kt:26"
+ambiguous_categories: []

@@ -1,0 +1,10 @@
+# B9 REGISTERED BATCH 20260926T133740Z  n=10 per arm per task, interleaved (author decision 9)
+# treated /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/agent-v1.2-knowledge / control /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/build/customizations/agent-v1.1
+# expected knowledgeHash treated sha256:0770219ae7f4281a80071d78dadea285 / control null
+# expected agentHash BOTH arms sha256:b3450564b6f32d6193e8580db766210e; instructionsHash treated sha256:ebf489800a60a156986f98ea4f127848 / control sha256:a94237242e8c1308fb1d434a06a03463
+# COMPUTED ceiling BE-003: pair $0.2810 x 11 = $3.0910 (author decision 13, from /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/preflight-20260926T131746Z/manifest.tsv)
+# COMPUTED ceiling BE-004: pair $0.4294 x 11 = $4.7234 (author decision 13, from /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/preflight-20260926T131746Z/manifest.tsv)
+# claude 2.1.283 at launch, model claude-haiku-4-5-20251001, benchmarks 2fc445d
+# API http://127.0.0.1:8081  OTLP http://localhost:4318 / http://localhost:4317  events.jsonl 25945954 bytes at launch
+# prediction commit ef2c6c0 at 2026-09-26, BEFORE any run here
+task	seq	arm	run_id	rc	eval	f13	edits	runtime_ver	model	knowledge_hash	instr_hash	agent_hash	log_state	log_lines	log_hits	first_status	router_mentions	router_denied	corpus_match	model_calls	tool_calls	cost	duration_ms	changed	init_tools	worktree

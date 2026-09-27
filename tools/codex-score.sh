@@ -46,7 +46,14 @@ cd "$(dirname "$0")/.." || exit 1
 MODEL="${LAB_CODEX_MODEL:-gpt-5.6-sol}"
 AGENT=".opencode/agent/lab-scorer.md"
 SCHEMA="tools/schemas/scorer-sheet.schema.json"
-OUTDIR="findings/codex"
+# LAB_SCORE_OUTDIR exists ONLY so a fixture set can keep its stub sheets out of the registered
+# scorer's own output directory. `cd "$(dirname "$0")/.."` above makes OUTDIR lab-relative no matter
+# where the caller stands, so verify-codex-score-timeout.sh's first run wrote FIVE stub sheets into
+# the real findings/codex/. They are self-labelling (`codex: codex-cli 0.0.0-stub`) and they were
+# MOVED, not deleted, to evidence/b09/stub-sheets-from-fixture/ with a README — §6 forbids deleting
+# evidence, and a stub sheet in the registered scorer's directory is worse than one in a labelled
+# corner. Added 2026-09-27 by Opus 5 (claude-opus-5), autonomously.
+OUTDIR="${LAB_SCORE_OUTDIR:-findings/codex}"
 
 # TWO WAYS IN, ONE INVARIANT. Path A scores a benchmark FIXTURE and proves it cleared the
 # gates by name, from the benchmarks registry. Path B scores an observatory RUN and proves
@@ -320,26 +327,76 @@ echo "codex scoring $slug with $MODEL — ${#srcs[@]} source file(s), ${#base[@]
   echo "  scored_utc:     $stamp"
   echo "  session:        fresh    # --ephemeral; independence requires no memory"
   echo "  isolation:      --ignore-user-config --ignore-rules --sandbox read-only"
+  echo "  wall_budget_s:  ${LAB_SCORE_TIMEOUT:-2700}   # 0 = none; a stall is exit 124, not a score"
   echo "---"
 } > "$out"
 
-codex exec \
-  --model "$MODEL" \
-  --sandbox read-only \
-  --ephemeral \
-  --ignore-user-config \
-  --ignore-rules \
-  --skip-git-repo-check \
-  --color never \
-  --output-schema "$PINNED" \
-  --output-last-message "$tmp/last.json" \
-  - < "$tmp/prompt.md" > "$tmp/stdout.log" 2>&1
-rc=$?
+# *** THE SCORING ROUTE HAD NO WALL-CLOCK BUDGET AT ALL, AND IT COST AN HOUR. ***
+# On 2026-09-27, during spine stop 20's scoring, a `codex exec` under this script sat at 0.0 % CPU
+# for SIXTY-ONE MINUTES and never returned. `grep -n timeout tools/codex-score.sh` returned nothing:
+# the harness this project adopted BECAUSE opencode stalled had no budget of its own. And the
+# stalled call still wrote a sheet — 1.3k, full provenance header, ZERO `score:` lines where a
+# complete sheet has four — so a driver trusting the exit code or the file's existence would have
+# recorded it as SCORED. That is the house failure mode inside the instrument that produces the
+# experiment's numbers.
+#
+# macOS ships no `timeout`/`gtimeout`, so the budget is a watchdog on the process GROUP. A plain
+# `kill $pid` leaves the `codex exec` child alive — that is how `opencode` left wedged processes on
+# this machine twice. The pattern is the one already proved at 13 of 13 in
+# evidence/b09/verify-score-driver-guards.sh, lifted into the registered scorer rather than left in
+# one batch driver. Exit 124 on expiry, distinct from codex's own non-zero codes.
+#
+# *** THE DEFAULT IS 2700s, AND THE FIRST VALUE WRITTEN HERE WAS 900s, WHICH WOULD HAVE KILLED
+# TWO CALLS THAT FINISHED. *** The four completed calls of that batch took 12s, 16m17s (977s), 30s
+# and 31m15s (1875s) — alternating short and long, which reads as rate-limit backoff on the codex
+# side. A 900s budget expires 977 and 1875, turning two real sheets into two stalls; a budget set
+# from how long a call *ought* to take rather than from how long calls *were observed* to take is a
+# control that rejects correct work. 2700s is above the observed maximum with margin and still
+# catches the 61-minute wedge that motivated the fix, and it is the same value the stop-20 scoring
+# driver was launched with. Set it to 0 to disable, which restores the pre-2026-09-27 behaviour;
+# either way the value is recorded in the sheet's own provenance.
+# Added 2026-09-27 by Opus 5 (claude-opus-5), autonomously, at stop 20 §4 step 14.
+SCORE_BUDGET="${LAB_SCORE_TIMEOUT:-2700}"
+case "$SCORE_BUDGET" in (*[!0-9]*|"") echo "LAB_SCORE_TIMEOUT must be a whole number of seconds, got '$SCORE_BUDGET'" >&2; exit 1 ;; esac
+
+run_codex() {
+  codex exec \
+    --model "$MODEL" \
+    --sandbox read-only \
+    --ephemeral \
+    --ignore-user-config \
+    --ignore-rules \
+    --skip-git-repo-check \
+    --color never \
+    --output-schema "$PINNED" \
+    --output-last-message "$tmp/last.json" \
+    - < "$tmp/prompt.md" > "$tmp/stdout.log" 2>&1
+}
+
+if [ "$SCORE_BUDGET" -eq 0 ]; then
+  run_codex
+  rc=$?
+else
+  set -m
+  run_codex & codex_pid=$!
+  ( sleep "$SCORE_BUDGET"; kill -TERM -"$codex_pid" 2>/dev/null; sleep 5; kill -KILL -"$codex_pid" 2>/dev/null ) &
+  watchdog=$!
+  wait "$codex_pid"; rc=$?
+  kill "$watchdog" 2>/dev/null; wait "$watchdog" 2>/dev/null
+  set +m
+  # A signalled child reports 128+n. Collapse every such death to 124 so a caller can tell an
+  # EXPIRED call from a codex error without parsing a log.
+  if [ "$rc" -ge 128 ]; then
+    rc=124
+    echo "codex-score: the call exceeded LAB_SCORE_TIMEOUT=${SCORE_BUDGET}s and its process GROUP was killed." >&2
+    echo "  This is a STALL, not a score. The header-only sheet at $out is kept as the artefact of it," >&2
+    echo "  because a sheet with fewer than four \`score:\` lines is an UNSCORED run and not a scored zero." >&2
+  fi
+fi
 
 if [ $rc -ne 0 ]; then
-  echo "codex exited $rc — infrastructure, discard. Tail:" >&2
-  tail -3 "$tmp/stdout.log" >&2
-  exit 1
+  [ "$rc" -eq 124 ] || { echo "codex exited $rc — infrastructure, discard. Tail:" >&2; tail -3 "$tmp/stdout.log" >&2; }
+  exit "$rc"
 fi
 
 # The schema-constrained JSON becomes the YAML sheet the rest of the lab already reads, so

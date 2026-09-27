@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-603bdf4c-f673-45a1-b951-958ab0d94e85
+  mode:           run
+  run_id:         603bdf4c-f673-45a1-b951-958ab0d94e85
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/603bdf4c-f673-45a1-b951-958ab0d94e85
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260927T082641Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "all refusal paths throw baseline ApiException subclasses"
+    evidence: "OrderController.kt:27,42,53,66; ShipmentController.kt:32,41,61"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "order-status decision uses an if branch with silent fallback"
+    evidence: "OrderController.kt:59"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "all four behavioral clauses are asserted through response bodies and separate reads"
+    evidence: "OrderControllerTest.kt:107-112,119-122,134-147"
+  - name: "change-focus"
+    score: 2
+    anchor_level: 2
+    reason: "changes remain within the explicitly permitted methods and structural additions"
+    evidence: "OrderController.kt:25,40,48,51; baseline OrderController.kt:22,37,45; ShipmentController.kt:30,59,67; baseline ShipmentController.kt:29,51,59"
+ambiguous_categories: []

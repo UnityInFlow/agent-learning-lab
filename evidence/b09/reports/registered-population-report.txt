@@ -1,0 +1,51 @@
+B9 registered population — 40 runs, read by run id from the archived records.
+Preflight and orphan runs share the experiment key and are NOT in this report.
+
+========================================================================
+BE-003
+
+  treated  variant=agent-v1.2-knowledge  n=10  evaluator-passing 10/10
+  metric             n          min       median          max
+  ---------------- --- ------------ ------------ ------------
+  estimated cost    10       0.1097       0.1273       0.1518
+  model calls       10      18.0000      22.5000      27.0000
+  tool calls        10      17.0000      20.5000      26.0000
+  perm denials      10       0.0000       0.0000       0.0000
+  duration (s)      10      98.0000     118.5000    5420.0000
+
+  control  variant=agent-v1.1  n=10  evaluator-passing 10/10
+  metric             n          min       median          max
+  ---------------- --- ------------ ------------ ------------
+  estimated cost    10       0.1015       0.1260       0.1497
+  model calls       10      15.0000      21.0000      28.0000
+  tool calls        10      14.0000      20.0000      26.0000
+  perm denials      10       0.0000       0.0000       0.0000
+  duration (s)      10     101.0000     110.0000     175.0000
+
+  cost median treated 0.127337 vs control 0.125968 = +1.09 %
+========================================================================
+BE-004
+
+  treated  variant=agent-v1.2-knowledge  n=10  evaluator-passing 10/10
+  metric             n          min       median          max
+  ---------------- --- ------------ ------------ ------------
+  estimated cost    10       0.1759       0.2079       0.3263
+  model calls       10      23.0000      25.5000      41.0000
+  tool calls        10      22.0000      24.5000      38.0000
+  perm denials      10       0.0000       0.0000       0.0000
+  duration (s)      10     144.0000     180.5000     223.0000
+
+  control  variant=agent-v1.1  n=10  evaluator-passing 10/10
+  metric             n          min       median          max
+  ---------------- --- ------------ ------------ ------------
+  estimated cost    10       0.1562       0.2056       0.2592
+  model calls       10      15.0000      27.0000      34.0000
+  tool calls        10      14.0000      26.0000      33.0000
+  perm denials      10       0.0000       0.0000       0.0000
+  duration (s)      10     136.0000     176.5000     233.0000
+
+  cost median treated 0.207919 vs control 0.205583 = +1.14 %
+
+DURATION CARRIES A KNOWN CONTAMINANT AND IS NOT A RESULT: run c49eec44 records
+5420 s against a batch median near 117 s, because the batch spanned a rate window.
+§4 step 6: exclude duration, keep the run.

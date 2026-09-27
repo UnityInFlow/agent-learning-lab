@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-8e5913e9-ff7f-4059-953a-9ec73c28d7be
+  mode:           run
+  run_id:         8e5913e9-ff7f-4059-953a-9ec73c28d7be
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/8e5913e9-ff7f-4059-953a-9ec73c28d7be
+  attachments:    6 changed file(s), 6 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260927T082121Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "all refusals use baseline ApiException subclasses and controllers construct no error bodies"
+    evidence: "OrderController.kt:27, OrderController.kt:41, OrderController.kt:53, OrderController.kt:68, ShipmentController.kt:31, ShipmentController.kt:42, ShipmentController.kt:65"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel makes the order-status decision with an if statement"
+    evidence: "OrderController.kt:60"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "body and state assertions exist, but successful cancellation is not re-read through get"
+    evidence: "OrderControllerTest.kt:122, OrderControllerTest.kt:139, OrderControllerTest.kt:154, OrderControllerTest.kt:159"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "controller constructor injections exceed anchor 2’s exhaustive allowed-difference list"
+    evidence: "OrderController.kt:19, baseline/OrderController.kt:17, ShipmentController.kt:24, baseline/ShipmentController.kt:22"
+ambiguous_categories: []

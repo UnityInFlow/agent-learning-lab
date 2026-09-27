@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4a6a16a1-91bc-430b-ba90-9a1e2865e47b
+  mode:           run
+  run_id:         4a6a16a1-91bc-430b-ba90-9a1e2865e47b
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/4a6a16a1-91bc-430b-ba90-9a1e2865e47b
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260927T082337Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals throw baseline ApiException subclasses; controllers construct no error bodies"
+    evidence: "OrderController.kt:27, OrderController.kt:42, OrderController.kt:57, ShipmentController.kt:32, ShipmentController.kt:43, ShipmentController.kt:66"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel uses an if chain for order status"
+    evidence: "OrderController.kt:50"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Error bodies are asserted, but clauses b and d lack separate GET rereads"
+    evidence: "OrderControllerTest.kt:107, OrderControllerTest.kt:139, OrderControllerTest.kt:144, OrderControllerTest.kt:148"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Both reset methods and createShipment changed beyond ticket-named methods"
+    evidence: "baseline OrderControllerTest.kt:35; work OrderControllerTest.kt:41; baseline ShipmentControllerTest.kt:33,35; work ShipmentControllerTest.kt:39,45"
+ambiguous_categories: []

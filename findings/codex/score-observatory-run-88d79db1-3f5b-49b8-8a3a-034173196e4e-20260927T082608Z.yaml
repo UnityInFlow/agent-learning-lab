@@ -1,0 +1,49 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.154.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-88d79db1-3f5b-49b8-8a3a-034173196e4e
+  mode:           run
+  run_id:         88d79db1-3f5b-49b8-8a3a-034173196e4e
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/88d79db1-3f5b-49b8-8a3a-034173196e4e
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20260927T082608Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All controller refusals use baseline ApiException subclasses; neither package constructs error bodies."
+    evidence: "work/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:26,41,53,68; work/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:31,41,61"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "The order-status decision uses an if statement."
+    evidence: "work/sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:60"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Bodies are asserted, but refused shipment state and successful order persistence are not re-read."
+    evidence: "work/sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:74,88,113,150"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Reset and multiple existing shipment test methods differ from baseline."
+    evidence: "work/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt:39,53; baseline/sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt:33,44"
+ambiguous_categories: []

@@ -1,0 +1,169 @@
+=== detached launch 2026-09-26T18:05:00Z
+=== pid=81126 pgid=81126 sid=81126  (sid == pid means the detach happened)
+=== cmd: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/run-b9-batch.sh --resume 20260926T151319Z 10 BE-003 BE-004
+ceiling BE-003: pair $0.2810 x 11 = $3.0910   (author decision 13, computed from /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/preflight-20260926T131746Z/manifest.tsv)
+ceiling BE-004: pair $0.4294 x 11 = $4.7234   (author decision 13, computed from /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/preflight-20260926T131746Z/manifest.tsv)
+resume: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/batch-20260926T151319Z/manifest.tsv validated — same corpus, same agent file, same two CLAUDE.md shas, n=10
+resume: joining /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/batch-20260926T151319Z/manifest.tsv — 4 rows already recorded
+resume: BE-003 already spent $0.5830 of its ceiling
+resume: BE-004 already spent $0 of its ceiling
+  resume: SKIP BE-003 01 treated — already recorded in this batch's manifest
+  resume: SKIP BE-003 01 control — already recorded in this batch's manifest
+  resume: SKIP BE-003 02 treated — already recorded in this batch's manifest
+  resume: SKIP BE-003 02 control — already recorded in this batch's manifest
+
+======== BE-003 03 treated  key=EXP-B9-ROUTER-BE003  18:05:01Z ========
+  -> 4bf8abf5-9242-4e41-8fce-29c7d3bb4824 rc=0 eval=0 edits=3 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=18 cost=0.120992
+     worktree copied -> evidence.local/b09-worktrees/4bf8abf5-9242-4e41-8fce-29c7d3bb4824 ( 26M)
+
+======== BE-003 03 control  key=EXP-B9-ROUTER-BE003  18:07:39Z ========
+  -> af960f77-1b49-4085-a23b-9c3865631dd3 rc=0 eval=0 edits=3 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=28 cost=0.14512
+     worktree copied -> evidence.local/b09-worktrees/af960f77-1b49-4085-a23b-9c3865631dd3 ( 26M)
+
+======== BE-003 04 treated  key=EXP-B9-ROUTER-BE003  18:11:08Z ========
+  -> 60ec2a97-daae-4b03-9497-a9df535683d6 rc=0 eval=0 edits=3 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=19 cost=0.115424
+     worktree copied -> evidence.local/b09-worktrees/60ec2a97-daae-4b03-9497-a9df535683d6 ( 26M)
+
+======== BE-003 04 control  key=EXP-B9-ROUTER-BE003  18:13:32Z ========
+  -> 86e25d53-b7ac-4546-9d20-52ff7cef7715 rc=0 eval=0 edits=3 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=19 cost=0.113948
+     worktree copied -> evidence.local/b09-worktrees/86e25d53-b7ac-4546-9d20-52ff7cef7715 ( 26M)
+
+======== BE-003 05 treated  key=EXP-B9-ROUTER-BE003  18:15:45Z ========
+  -> 18a276be-16bf-45ff-9caf-5503a9f9f971 rc=0 eval=0 edits=3 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=20 cost=0.109736
+     worktree copied -> evidence.local/b09-worktrees/18a276be-16bf-45ff-9caf-5503a9f9f971 ( 26M)
+
+======== BE-003 05 control  key=EXP-B9-ROUTER-BE003  18:18:02Z ========
+  -> e376a5d7-23a4-4f84-9215-7c4ece6dc9c5 rc=0 eval=0 edits=3 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=22 cost=0.131332
+     worktree copied -> evidence.local/b09-worktrees/e376a5d7-23a4-4f84-9215-7c4ece6dc9c5 ( 26M)
+
+======== BE-003 06 treated  key=EXP-B9-ROUTER-BE003  18:20:40Z ========
+  -> 85f2d3b8-d00a-433e-a8b9-84dd661f1ec2 rc=0 eval=0 edits=3 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=6 denied=no corpus=MATCH calls=25 cost=0.133958
+     worktree copied -> evidence.local/b09-worktrees/85f2d3b8-d00a-433e-a8b9-84dd661f1ec2 ( 26M)
+
+======== BE-003 06 control  key=EXP-B9-ROUTER-BE003  18:22:55Z ========
+  -> 25ed633c-be52-422f-85b3-f33b38af27f0 rc=0 eval=0 edits=3 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=15 cost=0.101541
+     worktree copied -> evidence.local/b09-worktrees/25ed633c-be52-422f-85b3-f33b38af27f0 ( 26M)
+
+======== BE-003 07 treated  key=EXP-B9-ROUTER-BE003  18:25:25Z ========
+  -> d7805a76-b8fa-42c5-9402-23e73cc166f1 rc=0 eval=0 edits=3 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=24 cost=0.126174
+     worktree copied -> evidence.local/b09-worktrees/d7805a76-b8fa-42c5-9402-23e73cc166f1 ( 26M)
+
+======== BE-003 07 control  key=EXP-B9-ROUTER-BE003  18:28:10Z ========
+  -> 4045cf63-2bba-48db-a69d-f473c987a4a8 rc=0 eval=0 edits=3 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=20 cost=0.112865
+     worktree copied -> evidence.local/b09-worktrees/4045cf63-2bba-48db-a69d-f473c987a4a8 ( 26M)
+
+======== BE-003 08 treated  key=EXP-B9-ROUTER-BE003  18:30:41Z ========
+  -> 58317ec2-045b-458f-89f7-be55b4069f35 rc=0 eval=0 edits=3 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=18 cost=0.12816
+     worktree copied -> evidence.local/b09-worktrees/58317ec2-045b-458f-89f7-be55b4069f35 ( 26M)
+
+======== BE-003 08 control  key=EXP-B9-ROUTER-BE003  18:33:22Z ========
+  -> ffa216ed-2705-46a1-b5a2-95f1e01e2e62 rc=0 eval=0 edits=4 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=23 cost=0.128371
+     worktree copied -> evidence.local/b09-worktrees/ffa216ed-2705-46a1-b5a2-95f1e01e2e62 ( 26M)
+
+======== BE-003 09 treated  key=EXP-B9-ROUTER-BE003  18:35:41Z ========
+  -> dcdce8bb-390f-40fa-8647-b4ec39901bdb rc=0 eval=0 edits=5 kn=sha256:0770219ae7f4281a80071d78dadea285 log=PRESENT(1L/1hit first=hit) rmentions=2 denied=no corpus=MATCH calls=27 cost=0.149318
+     worktree copied -> evidence.local/b09-worktrees/dcdce8bb-390f-40fa-8647-b4ec39901bdb ( 26M)
+
+======== BE-003 09 control  key=EXP-B9-ROUTER-BE003  18:38:14Z ========
+  -> 97346556-e26c-46e8-b3f1-97e5bd7f22e2 rc=0 eval=0 edits=3 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=21 cost=0.119595
+     worktree copied -> evidence.local/b09-worktrees/97346556-e26c-46e8-b3f1-97e5bd7f22e2 ( 26M)
+
+======== BE-003 10 treated  key=EXP-B9-ROUTER-BE003  18:40:31Z ========
+  -> cde81ea1-0a60-4c43-9311-56a85f74adf3 rc=0 eval=0 edits=3 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=21 cost=0.126515
+     worktree copied -> evidence.local/b09-worktrees/cde81ea1-0a60-4c43-9311-56a85f74adf3 ( 26M)
+
+======== BE-003 10 control  key=EXP-B9-ROUTER-BE003  18:43:09Z ========
+  -> 5e613fd7-29b2-42c2-94dc-8c68cc93cc80 rc=0 eval=0 edits=3 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=20 cost=0.123564
+     worktree copied -> evidence.local/b09-worktrees/5e613fd7-29b2-42c2-94dc-8c68cc93cc80 ( 26M)
+
+======== BE-004 01 treated  key=EXP-B9-ROUTER-BE004  18:45:26Z ========
+  -> 3fc93ff4-4b85-4f3c-9d97-360c3853c056 rc=0 eval=0 edits=7 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=25 cost=0.199978
+     worktree copied -> evidence.local/b09-worktrees/3fc93ff4-4b85-4f3c-9d97-360c3853c056 ( 26M)
+
+======== BE-004 01 control  key=EXP-B9-ROUTER-BE004  18:49:03Z ========
+  -> 53749b37-adaf-4acd-921f-74012f2c7f9c rc=0 eval=0 edits=7 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=24 cost=0.185837
+     worktree copied -> evidence.local/b09-worktrees/53749b37-adaf-4acd-921f-74012f2c7f9c ( 26M)
+
+======== BE-004 02 treated  key=EXP-B9-ROUTER-BE004  18:52:35Z ========
+  -> 1f2f995f-4033-4735-a4e6-ad307d8247da rc=0 eval=0 edits=7 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=23 cost=0.188098
+     worktree copied -> evidence.local/b09-worktrees/1f2f995f-4033-4735-a4e6-ad307d8247da ( 26M)
+
+======== BE-004 02 control  key=EXP-B9-ROUTER-BE004  18:55:45Z ========
+  -> 68d7c043-79c2-4485-9aba-3e1e9f507d79 rc=0 eval=0 edits=7 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=29 cost=0.220326
+     worktree copied -> evidence.local/b09-worktrees/68d7c043-79c2-4485-9aba-3e1e9f507d79 ( 26M)
+
+======== BE-004 03 treated  key=EXP-B9-ROUTER-BE004  18:59:07Z ========
+  -> 9e5cefbb-6f4e-4764-9d83-ff1eacc27dc8 rc=0 eval=0 edits=6 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=23 cost=0.191836
+     worktree copied -> evidence.local/b09-worktrees/9e5cefbb-6f4e-4764-9d83-ff1eacc27dc8 ( 26M)
+
+======== BE-004 03 control  key=EXP-B9-ROUTER-BE004  19:02:56Z ========
+  -> 6660f57b-fb0e-4f1c-bdff-55c8a6ffcba9 rc=0 eval=0 edits=7 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=32 cost=0.245727
+     worktree copied -> evidence.local/b09-worktrees/6660f57b-fb0e-4f1c-bdff-55c8a6ffcba9 ( 26M)
+
+======== BE-004 04 treated  key=EXP-B9-ROUTER-BE004  19:07:29Z ========
+  -> 8e5913e9-ff7f-4059-953a-9ec73c28d7be rc=0 eval=0 edits=6 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=24 cost=0.175922
+     worktree copied -> evidence.local/b09-worktrees/8e5913e9-ff7f-4059-953a-9ec73c28d7be ( 26M)
+
+======== BE-004 04 control  key=EXP-B9-ROUTER-BE004  19:10:49Z ========
+  -> f9468acb-0f07-4804-bea8-a2e353864257 rc=0 eval=0 edits=6 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=33 cost=0.25921
+     worktree copied -> evidence.local/b09-worktrees/f9468acb-0f07-4804-bea8-a2e353864257 ( 26M)
+
+======== BE-004 05 treated  key=EXP-B9-ROUTER-BE004  19:15:01Z ========
+  -> 3e552393-2a3a-4886-ab2e-883ab87dea9a rc=0 eval=0 edits=7 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=26 cost=0.207352
+     worktree copied -> evidence.local/b09-worktrees/3e552393-2a3a-4886-ab2e-883ab87dea9a ( 26M)
+
+======== BE-004 05 control  key=EXP-B9-ROUTER-BE004  19:18:41Z ========
+  -> c8e2974a-83c2-466d-b3e3-b7e30011e810 rc=0 eval=0 edits=7 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=27 cost=0.196903
+     worktree copied -> evidence.local/b09-worktrees/c8e2974a-83c2-466d-b3e3-b7e30011e810 ( 26M)
+
+======== BE-004 06 treated  key=EXP-B9-ROUTER-BE004  19:22:00Z ========
+  -> 4a6a16a1-91bc-430b-ba90-9a1e2865e47b rc=0 eval=0 edits=7 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=25 cost=0.213975
+     worktree copied -> evidence.local/b09-worktrees/4a6a16a1-91bc-430b-ba90-9a1e2865e47b ( 26M)
+
+======== BE-004 06 control  key=EXP-B9-ROUTER-BE004  19:25:53Z ========
+  -> bca40f15-886e-4a7f-9012-8d3e5623ff64 rc=0 eval=0 edits=7 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=23 cost=0.178571
+     worktree copied -> evidence.local/b09-worktrees/bca40f15-886e-4a7f-9012-8d3e5623ff64 ( 26M)
+
+======== BE-004 07 treated  key=EXP-B9-ROUTER-BE004  19:28:44Z ========
+  -> 03342809-cdb2-4ce6-a4f8-9e41f0ee5d07 rc=0 eval=0 edits=7 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=27 cost=0.218585
+     worktree copied -> evidence.local/b09-worktrees/03342809-cdb2-4ce6-a4f8-9e41f0ee5d07 ( 26M)
+
+======== BE-004 07 control  key=EXP-B9-ROUTER-BE004  19:32:28Z ========
+  -> 70ab2d52-4f35-46b0-951b-3d1ad042ec2e rc=0 eval=0 edits=13 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=34 cost=0.222762
+     worktree copied -> evidence.local/b09-worktrees/70ab2d52-4f35-46b0-951b-3d1ad042ec2e ( 26M)
+
+======== BE-004 08 treated  key=EXP-B9-ROUTER-BE004  19:36:00Z ========
+  -> ad15a0f7-722a-43be-b307-f9690f7afe6d rc=0 eval=0 edits=7 kn=sha256:0770219ae7f4281a80071d78dadea285 log=PRESENT(1L/1hit first=hit) rmentions=2 denied=no corpus=MATCH calls=26 cost=0.208485
+     worktree copied -> evidence.local/b09-worktrees/ad15a0f7-722a-43be-b307-f9690f7afe6d ( 26M)
+
+======== BE-004 08 control  key=EXP-B9-ROUTER-BE004  19:39:11Z ========
+  -> ae03ad42-b651-4d57-acd0-6b579b6010e0 rc=0 eval=0 edits=7 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=27 cost=0.206936
+     worktree copied -> evidence.local/b09-worktrees/ae03ad42-b651-4d57-acd0-6b579b6010e0 ( 26M)
+
+======== BE-004 09 treated  key=EXP-B9-ROUTER-BE004  19:43:05Z ========
+  -> 88d79db1-3f5b-49b8-8a3a-034173196e4e rc=0 eval=0 edits=7 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=28 cost=0.218041
+     worktree copied -> evidence.local/b09-worktrees/88d79db1-3f5b-49b8-8a3a-034173196e4e ( 26M)
+
+======== BE-004 09 control  key=EXP-B9-ROUTER-BE004  19:46:03Z ========
+  -> 603bdf4c-f673-45a1-b951-958ab0d94e85 rc=0 eval=0 edits=7 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=15 cost=0.156216
+     worktree copied -> evidence.local/b09-worktrees/603bdf4c-f673-45a1-b951-958ab0d94e85 ( 26M)
+
+======== BE-004 10 treated  key=EXP-B9-ROUTER-BE004  19:49:29Z ========
+  -> 5bc8b735-6d49-4fed-89e6-194fafc4350f rc=0 eval=0 edits=7 kn=sha256:0770219ae7f4281a80071d78dadea285 log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=MATCH calls=41 cost=0.326321
+     worktree copied -> evidence.local/b09-worktrees/5bc8b735-6d49-4fed-89e6-194fafc4350f ( 26M)
+
+======== BE-004 10 control  key=EXP-B9-ROUTER-BE004  19:53:43Z ========
+  -> 0f163eb9-256c-4482-a919-41dd170f8b5e rc=0 eval=0 edits=7 kn=null log=ABSENT(0L/0hit first=n/a) rmentions=0 denied=no corpus=ABSENT-as-registered calls=26 cost=0.204229
+     worktree copied -> evidence.local/b09-worktrees/0f163eb9-256c-4482-a919-41dd170f8b5e ( 26M)
+
+BATCH DONE 2026-09-26T19:57:07Z
+batch 20260926T151319Z ended (UTC): 2026-09-26T19:57:07Z  exit 0
+task BE-003: spent $2.5696 of a COMPUTED ceiling $3.0910 (pair $0.2810 x 11)
+task BE-004: spent $4.2252 of a COMPUTED ceiling $4.7234 (pair $0.4294 x 11)
+runs whose estimatedCost read null: 0 — with any of these every total is a LOWER BOUND
+treated runs with a non-empty router log (H, the decision rules first partition): 3
+treated runs whose ROUTER CALL THE HARNESS DENIED: 0 — any of these and the batch is
+  measuring a permission rather than a treatment, and is NOT the VOID row
+events.jsonl bytes before 27044499, after 566483
+manifest: /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b09/batch-20260926T151319Z/manifest.tsv
+=== exit 0 at 2026-09-26T19:57:07Z
