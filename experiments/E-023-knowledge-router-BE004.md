@@ -746,3 +746,41 @@ on BE-004 is the negative — it looked for the gap E-022 found and did not find
    finding 3's second route, still not built, and `author_notes` carries it.
 
 *The census re-scores nothing, re-runs nothing, and moves no registered variable.*
+
+## Amendment 6 — what the §4a review of 2026-09-27 earned, added rather than edited
+
+*Added 2026-09-27 by Opus 5 (claude-opus-5), autonomously, from the round-1 review on the `codex`
+panel (`-n 2`). Every finding's disposition — fixed, disputed with its reason, or valid-and-registered
+— is in [`findings/review-dispositions/stop-20-b9-round-1.md`](../findings/review-dispositions/stop-20-b9-round-1.md),
+and the two findings files it names. **Nothing above is rewritten.** No prediction, decision rule,
+result or registered definition is touched; §4 step 12 forbids it, and the review's best findings are
+precisely about text that rule protects.*
+
+*One thing the reader should know about the review's standing: it started 51 seconds after Amendment 5
+was committed and its findings cite lines inside it, so where it names the `H` ambiguity it is
+restating a finding already on record — **not confirming it independently**.*
+
+### Corrections to sections that are now wrong, without editing them
+
+| section | what it says | what is true |
+|---|---|---|
+| Controlled variables, `:108` | *as B8's BE-004 batch* | it does not enumerate permissions, and **Amendment 2 added an allowlist entry to both arms**. Controlled, not confounded; the wording is incomplete |
+| MDE, `:148` | the count threshold holds down to `n = 7` per arm | calculated for **equal** arms only. The realised arms were equal (`n_t = n_c = 10`), so nothing here used the unequal case — but the claim may not be reused at unequal `n` without re-deriving it |
+| Decision rule, `:185` | `Fisher(M, C) ≤ 0.05` | the **sidedness is unspecified**. It decided nothing: the realised value is `1.0000`, identical one- or two-sided. From stop 21 on, the sidedness is stated in the rule |
+| Observed telemetry, `:236` | a running total `9 + 20 + 20 + 14 + 20` | it does not map counts to experiments or say whether preflights are included. They are — which is the defect fixed at `20e7c9e` |
+| `test-quality` medians, `:264` | a 0.5 gap between arms | **the median tie-break convention is unregistered.** `1×7 / 2×3` gives 1; `1×5 / 2×5` gives 1.5. From stop 21 on, the convention is registered before the batch |
+| Failure analysis, `:314` | BE-004's longer ticket explains 1 of 10 against BE-003's 2 of 10 | **this is a conjecture, not a result.** `Fisher(1/10, 2/10) = 1.0`; the two are indistinguishable. Relabelled here |
+| Sanity check, `:338` | an `H = 0` treated run carries no treatment effect | the **clause text itself** is in context on every treated run and could move `test-quality` with no retrieval at all. That is E-003's question and it is **unmeasured here** |
+| Decision, `:366` vs row 1 | *stays in the repository* / *corpus unchanged, pending* | one disposition: **kept in the repository, not promoted, not removed.** The `REJECT` row that removes it needs `H ≥ 3` |
+| Follow-up, `:378` | a 0.5 `test-quality` gap as a future noise bar | it is **one realised difference at `n = 10`**, with no sampling distribution and no interval. An observed difference, not a bound |
+| Amendment 4 | pointer to E-022 | the orphan-replacement and `--resume` rules live only in E-022. The pointer is: `E-022 ## Amendment 4`, and `evidence/b09/batch-20260926T133740Z/ORPHAN.md` |
+
+### Two findings that are valid and that this file may not fix
+
+1. **A bare `if` with fall-through is scorable as 0 or 1** (`:39`, `:684`). The rubric is a
+   **registered variable** (§7) and cannot move mid-track. What it bounds is the meaning of a single
+   scorer's cell, not the agreement between the hand re-read and the sheet — those agreed, which is
+   what §5 asks.
+2. **`maintainability` doubles as a scored category and a pass/fail gate, and `H` doubles as a
+   reported outcome and the `VOID` gate.** Structural, and the author's to weigh. It is why `H ≤ 2`
+   reads as *the treatment was not tested* rather than as a result about knowledge routing.

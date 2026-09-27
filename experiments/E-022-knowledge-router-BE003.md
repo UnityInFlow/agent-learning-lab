@@ -865,3 +865,44 @@ registered `VOID` knowing what the alternative definition gave, rather than disc
    finding 3's second route, still not built, and `author_notes` carries it.
 
 *The census re-scores nothing, re-runs nothing, and moves no registered variable.*
+
+## Amendment 6 — what the §4a review of 2026-09-27 earned, added rather than edited
+
+*Added 2026-09-27 by Opus 5 (claude-opus-5), autonomously, from the round-1 review on the `codex`
+panel (`-n 2`). Every finding's disposition — fixed, disputed with its reason, or valid-and-registered
+— is in [`findings/review-dispositions/stop-20-b9-round-1.md`](../findings/review-dispositions/stop-20-b9-round-1.md),
+and the two findings files it names. **Nothing above is rewritten.** No prediction, decision rule,
+result or registered definition is touched; §4 step 12 forbids it, and the review's best findings are
+precisely about text that rule protects.*
+
+*One thing the reader should know about the review's standing: it started 51 seconds after Amendment 5
+was committed and its findings cite lines inside it, so where it names the `H` ambiguity it is
+restating a finding already on record — **not confirming it independently**.*
+
+### Corrections to sections that are now wrong, without editing them
+
+| section | what it says | what is true |
+|---|---|---|
+| Controlled variables, `:144` | permissions unchanged from B8 | **Amendment 2 added `Bash(.ai/knowledge/router.sh:*)` to the runner's allowlist**, on **both** arms. Controlled, not confounded — but `:144` as written is wrong, and the deliberate failure then showed the allowlist can still deny an *absolute-path* invocation, which `router_denied = no` on 20 of 20 does not rule out |
+| Runs / budget, `:155` | 20 batch runs + 2 preflight | **20 registered + 8 preflight runs across two preflights + 2 permission probes + 2 orphans.** The 8 preflight runs carried the batch's own key, which is the defect fixed at `20e7c9e` |
+| Failure analysis, `:380` | *at most two of five influenced* | with corpus contact at **3**, the bound is **three of five**. The sentence predates the census |
+| MDE, `:177` vs rule row 2, `:233` | `≥7/10` clears `p = 0.0318`; `M = 6` is INCONCLUSIVE | both true: `:177` is the **one-arm** test against history, row 2 the **two-arm** test against the concurrent control. Neither section labels which test it means in every sentence. **Row 2 never fired** — `H = 2` decided on row 0 |
+| Exclusion rule, `:213` | infrastructure failures are excluded and replaced | it gives no boundary between an infrastructure failure and a **completed** run needing reconstruction. Applied once, to `413bcf23`. A future rule needs that boundary written before the batch |
+| Amendment 4, `:727` | a control's 160 s duration dropped conservatively | with no contamination evidence. It changed no registered outcome: **duration is excluded from every outcome at this stop** under §4 step 6 |
+| Which predictions held, `:359` | the table scores five, the prose says four are answerable | prediction 5 is answerable from the sheets whatever the uptake, and is scored HELD. "Four" meant the four bearing on the treatment's effect |
+
+### The registered lesson, and it is the most useful thing the round produced
+
+**A retrieval-contact definition must be written before the run, and must enumerate every
+mechanism — not name one artifact's log.** `H` named `knowledge-log.jsonl`, which only the router
+writes, so a direct `Read` of the summary scored 0. That is not a mistake in the rule's arithmetic; it
+is a mistake in its *scope*, and no amount of exhaustiveness-checking over `(M, H)` pairs could catch
+it, because the checker was exhaustive over the values `H` can take and not over the ways contact can
+happen. `evidence/b09/verify-decision-rule-exhaustive.py` was right and the definition it checked was
+narrow.
+
+**Known blind spots of the census that replaced it**, listed rather than left implicit: a corpus read
+over MCP, a `find -exec` or `xargs` indirection, a read inside a subagent whose stream is not in this
+log, and the model reproducing corpus text from an earlier turn without re-reading it. The census
+enumerates four mechanisms and proves each in `tools/verify-corpus-access-census.sh`; these four are
+**not** covered and no run of this batch used them, which is an observation and not a guarantee.
