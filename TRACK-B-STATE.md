@@ -107,6 +107,295 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
+# ===== CURRENT STATE - STOP 23, PHASE 8 (gh-aw), §0 BOUNDARY 2 OF 2 - CLOSED, 2026-09-28 =====
+# Newest first, as this file has always been kept. Every key below SUPERSEDES the next
+# occurrence of the same key further down; nothing further down is deleted. The keys NOT
+# repeated here are still live at their old positions and are still current:
+#   validation_processed (22 files, newest 2026-09-08, none new this session)
+#   author_decisions (items 1-12, unchanged)
+#   blocked_on_author: [] (EMPTY - no §7 bullet is matched)
+status: running   # *** §0 BOUNDARY 2 OF 2 FOR STOP 23 (PHASE 8 - UNATTENDED AGENTS, gh-aw), A
+                  # DIAMOND STOP. THE STOP IS CLOSED AND MERGED. *** PR lab#134 ->
+                  # c5f461de3ead66b01a78757105aaf3044e1b4c35, A MERGE COMMIT, NOT A SQUASH.
+                  # NINE CHECKS GREEN, ONE RED - the board check, red by the AUTHOR'S OWN STANDING
+                  # DECISION 12 ITEM 4, NOT an oversight. THE SESSION ENDS ON THE BOUNDARY, NOT ON
+                  # A HALT: blocked_on_author IS EMPTY and NO §7 BULLET IS MATCHED. prompt_sha
+                  # a47590a1e61d RE-COMPUTED AND UNCHANGED. All 22 validator files re-checked BY
+                  # NAME (one grep per basename) and NONE IS NEW.
+                  #
+                  # *** THE NEXT STOP IS 24 (PHASE 9 - MEMORY) AND NOTHING OF IT EXISTS - §6 FORBIDS
+                  # A FUTURE STEP'S ARTIFACTS EARLY. OPENING IT AT §4 STEP 1 IS THE NEXT SESSION'S
+                  # FIRST ACT. ***
+                  #
+                  # *** TWO RESULTS, AND THE SECOND IS THE SHARPER ONE. ***
+                  #
+                  # 1. THE HEADLINE FROM BOUNDARY 1 STANDS: a verbatim quote in THIS PROJECT'S OWN
+                  #    August extract went stale in 49 days and NOTHING EXECUTED TO CATCH IT. The
+                  #    bold display quote "The agent never receives write tokens directly" is NOT on
+                  #    the page it cites; the page's equivalent today is "all without giving the
+                  #    agentic portion of the workflow any write permissions". The CLAIM survived the
+                  #    rewording, the QUOTATION did not. Two other August quotes re-checked and still
+                  #    verbatim - ONE SENTENCE, not a rewritten page.
+                  #
+                  # 2. *** THE INSTRUMENT BUILT TO CATCH THAT HAD FIVE DEFECTS, ALL OF ONE SHAPE: A
+                  #    FAILURE TO FETCH OR PARSE, REPORTED AS DOCUMENTATION DRIFT. *** Found across
+                  #    TWO §4a rounds. EACH PROVED AGAINST THE PRE-FIX SCRIPT, NOT ASSERTED, by
+                  #    `git show HEAD:evidence/p08/verify-quotes.sh` and running the new case at it:
+                  #      (a) curl had no --fail: a 404 serving a NON-EMPTY body exits 0, strips to
+                  #          real text, and every quote on that page prints ABSENT at exit 2.
+                  #      (b) an empty CACHED page was accepted where an empty live response or
+                  #          fixture exits 3.  OLD: exit 2, found=20 absent=9.
+                  #      (c) an UNDECLARED PAGE KEY read a missing file with stderr swallowed by
+                  #          2>/dev/null.          OLD: exit 2, found=20 absent=9.
+                  #      (d) *** strip() HAD NO FAILURE GUARD - THE ACCEPTANCE GATE'S BLOCKING
+                  #          FINDING. *** A crashing python3 or ONE NON-UTF-8 BYTE left an empty
+                  #          .txt and the matcher read it.  OLD: exit 2, found=0 absent=29 -
+                  #          *** THE ENTIRE EXTRACT DECLARED FABRICATED. ***
+                  #      (e) strip keeps page CHROME - DISPUTED in writing and registered as a
+                  #          scoped limitation in the script header, not fixed: body extraction
+                  #          needs a per-site selector that breaks on the next redesign, and these
+                  #          are full sentences, which chrome does not carry.
+                  #    ONE EMPTY CACHED PAGE MANUFACTURED NINE PHANTOM STALE QUOTATIONS; ONE BROKEN
+                  #    INTERPRETER MANUFACTURED ALL TWENTY-NINE - at exit 2, IN THE SAME FORMAT AS A
+                  #    REAL FINDING. Same shape as the stop-8 contamination guard that would have
+                  #    excluded the treatment arm and reported a null: *** A CONTROL WHOSE FAILURE IS
+                  #    INDISTINGUISHABLE FROM, AND LOUDER THAN, THE FINDING IT WAS BUILT TO MAKE. ***
+                  #    AFTER THE FIXES: shellcheck exit 0 on both scripts, *** 16 OF 16 FIXTURES ***
+                  #    over all four registered exit codes, and the live run STILL reproduces
+                  #    found=28 absent=1 exit 2 with the SAME absent sentence - so the headline is
+                  #    UNCHANGED BY FIVE FIXES TO THE INSTRUMENT THAT PRODUCED IT, which is the only
+                  #    reason it may still be stated.
+                  #
+                  # *** THE ACCEPTANCE GATE RAN AT ROUND 2 - ITS FIRST VERDICT IN TEN SESSIONS - AND
+                  # RETURNED `REJECT`. *** lab-acceptance · minimax-m3, on defect (d). ROUND 1'S GATE
+                  # DID NOT RUN ("The gate failed to run (opencode exit 1)") and is recorded
+                  # `DID NOT RUN`, NOT `UNDECIDED` and NOT a pass. Round 3 not run; §4a caps at three
+                  # and the blocking finding is fixed. TWO ROUNDS, FIVE DEFECTS, ALL FIXED, THREE
+                  # FINDINGS DISPUTED IN WRITING.
+                  #
+                  # *** AND THE SAME LAYER MISTAKE AS STOP 22, AGAIN, CAUGHT BY THE SAME REVIEWER AND
+                  # NOT BY ME: `staged: true` WAS L1 AND IS L2. *** Applied in order, the write
+                  # request IS STILL EXPRESSED in the structured output and something executes and
+                  # SKIPS it. Whether staged mode omits the write-capable job or generates and
+                  # suppresses it is NOT DETERMINED BY THE PAGE, and a label resting on an
+                  # undetermined mechanism is not L1. *** SO EXACTLY ONE OF TEN SUBJECT ROWS SURVIVES
+                  # STEP 1 - the safe-output separation - AND NOT TWO. *** Every dependent count in
+                  # the workbook is corrected. The argument now is that GUARDRAILS.md needs a WORKED
+                  # EXAMPLE of this shape, not another warning; it is in author_notes.
+                  #
+                  # OTHER CORRECTIONS THE REVIEW FORCED, each at the text it concerns: `roles:` does
+                  # NOT reach an actorless `schedule:` trigger, which makes the surface LARGER than
+                  # the exit gate's own sentence implied; the vocabulary/"L3 perimeter" claim is
+                  # SCOPED to the documented vocabulary and marked UNMEASURED for an already-compiled
+                  # .lock.yml; "29 network fetches per invocation" was WRONG BY FOUR-FOLD (SEVEN
+                  # pages, 29 sentences searched locally); fail-closed is right for A CHECK WHOSE
+                  # OUTPUT GATES A CLAIM, not universally; a redacted `19:2xZ` identifies no run and
+                  # now cites an artefact; and the Commit block is annotated as the DEFERRED LABS'
+                  # deliverables, not this stop's.
+                  #
+                  # DISPUTED IN WRITING, WITH REASONS (§4a step 2): the compile-step correspondence
+                  # check (the finding restates the section's own conclusion as an omission, and
+                  # building it would be an instrument for a workflow this project does not run);
+                  # the deliberately-broad jq pattern (A SUPERSET MATCHING NOTHING PROVES THE SUBSET
+                  # MATCHES NOTHING - the looseness makes the result STRONGER); and (e) above.
+                  #
+                  # FIVE DEFERRED-LAB UNDERSPECIFICATIONS REGISTERED AS DEBTS AND NOT FIXED - §6
+                  # forbids designing a future step's decision rule. Lab 8.4's is the one that
+                  # GENERALISES PAST THIS PHASE and is in author_notes: interleaving gives a
+                  # CONCURRENT control and does NOT by itself give EXCHANGEABLE arms, which every
+                  # interleaved batch in this track (E-007, E-011, E-013, E-016) inherits.
+                  #
+                  # GITHUB: lab#10 commented (issuecomment-5864782562) and its card moved to Done.
+                  # *** THE ISSUE ITSELF MUST STAY OPEN - all four labs are deferred. *** Moving a
+                  # Phase card to Done AUTO-CLOSES the issue on project #2 and the automation is
+                  # DELAYED, so the state was WATCHED after the move and the result is in
+                  # last_verified. lab#9, lab#16 and lab#8 stay open on the same basis.
+
+prompt_sha: a47590a1e61d       # RE-COMPUTED 2026-09-27T21:0xZ at the top of THIS session with
+                               # `shasum -a 256 ../PROMPT-opus5-track-b.md | cut -c1-12`, and
+                               # *** UNCHANGED. *** No §0 prompt-change line is owed.
+prompt_read_at: 2026-09-27T21:1xZ   # *** WHOLE PROMPT RE-READ IN FULL THIS SESSION (all 967 lines,
+                               # in four ranges) *** because the author's message says "execute
+                               # sections 0 through 8 exactly as written". §9 was read only far
+                               # enough to confirm it is the validator's and is NOT run on my own
+                               # work.
+stop: 23           # *** CLOSED AND MERGED 2026-09-28 at n = 0 RUNS, which is what the spine
+                   # registers a diamond stop to produce and is NOT a shortfall. *** §3's itinerary
+                   # row `22-23` reads "Phases 7 and 8 (diamond): extract only, as stop 7".
+                   # *** n = 0 IS COUNTED, NOT ASSERTED: 0 of 740 runs on the API carry a stop-23
+                   # experiment key *** (jq over .experimentKey with a DELIBERATELY BROAD regex;
+                   # a superset matching nothing proves the subset matches nothing). NO experiment
+                   # file, NO prediction, NO overlay, NO dollar spent on the agent under test. The
+                   # pinned model was touched ONLY by the §0a row-6b isolation probe, run
+                   # a74ac5fe-605a-4607-84f7-de67082ddbd9, whose key is preflight-* and which enters
+                   # no comparison.
+loop_step: 14  # *** §0 BOUNDARY 2 OF 2 FOR A DIAMOND STOP: "after the PR". THE LOOP IS COMPLETE. ***
+               # Steps 11, 13, 13a and 14 all done this session; steps 1-2 were boundary 1; steps
+               # 3-10 DO NOT APPLY (§4: a Track A stop is the loop MINUS 3-10 unless the lab runs
+               # the benchmark, and this one does not).
+branch: stop23/phase-8-agentic-workflows (agent-learning-lab) - *** MERGED into main at
+        # c5f461de3ead66b01a78757105aaf3044e1b4c35 via the REST API (gh api -X PUT .../merge
+        # -f merge_method=merge). MERGE, NOT SQUASH. *** Five commits on it: 14f2d60 (boundary 1,
+        # the extract), 6d96643 + 58064be (boundary-1 state writes), 1bb0ffb (§4 steps 11 and 13),
+        # f7b1e42 (§4a round 1 - dispositions + the first four instrument fixes), fbf9d7d (§4a
+        # round 2 - the gate's REJECT and the fifth fix), d68e591 (HANDOFF.md).
+in_flight: []   # *** EMPTY. NOTHING IS RUNNING AND NOTHING IS UNMERGED except this state write. ***
+                # Checked with the NARROW pattern
+                # `LC_ALL=C pgrep -fl 'run-agent.sh|codex exec|opencode-review.sh'` - NEVER a bare
+                # `pgrep -fl opencode` (a foreign answer-panel opencode runs on this machine and a
+                # bare pgrep dumps its whole prompt into context) and NEVER a `pgrep -f` wait loop
+                # (it matches itself and never exits).
+last_verified: "2026-09-27T21:0xZ - 2026-09-28T04:5xZ, *** STOP 23 CLOSED AND MERGED AT §0
+  BOUNDARY 2. ***
+  RE-ENTRY, in the order §0 demands: (1) prompt_sha re-computed = a47590a1e61d, UNCHANGED;
+  (2) all 22 findings/track-b-validation-*.md re-checked BY NAME, one grep per basename against
+  validation_processed - all 22 present, NONE NEW, so no §0 validator batch was owed;
+  (3) narrow pgrep - nothing of mine running; (4) three commits on the branch, tree clean.
+  §0a PREFLIGHT RE-RUN IN FULL at the author's explicit instruction ('starting with the section 0a
+  preflight'), the ELEVENTH consecutive session to carry it; §0a's own trigger did NOT fire.
+  SIX ok, TWO FAIL, ONE RED-BY-DECISION; see the preflight: block. NEITHER FAIL NOR THE RED IS A
+  §7 HALT - §0a's halt sentence is scoped to STARTING STOP 4 with an unproven harness or a failing
+  verifier, and ALL FOUR VERIFIERS PASS.
+  *** §4b's RE-DERIVE RULE OVERTURNED TWO SUBAGENT VERDICTS THIS SESSION, IN OPPOSITE DIRECTIONS,
+  WHICH IS A FIRST. *** The haiku preflight subagent returned row 1 as FAIL and row 6a as ok.
+  BY HAND: row 1 is `87 passed, 0 failed, exit 0` (ok) and row 6a is `ISOLATION LEAKS`, exit 2
+  (FAIL, its FOURTH reproduction). A subagent that misreads in the SAFE direction and one that
+  misreads in the DANGEROUS direction are the same defect, and only re-derivation catches either.
+  §4 STEP 11: the six keys of build/README.md `After every step` - what_was_added, why_it_exists,
+  observed_effect, unexpected_effect, keep_or_remove, next_question - plus the two scaffold
+  questions no key covers.
+  §4 STEP 13: the §5 table, one row per gate clause, LAYER OF THE PROOF not of the artifact, with
+  an explicit `n = 0 runs` line and an Independence check saying THERE ARE NO ARMS TO BE
+  INDEPENDENT OF. *** EVERY COMMAND IN THE RE-DERIVATION COLUMN WAS RE-RUN IMMEDIATELY BEFORE THE
+  SECTION WAS WRITTEN, AND AGAIN AFTER THE §4a FIXES: ***
+    ./evidence/p08/verify-quote-checker.sh   16 passed, 0 failed                 exit 0
+    ./evidence/p08/verify-quotes.sh          found=28 absent=1                   exit 2
+    ./tools/check-links.sh                   ok=73 moved=11 blocked=2 unverified=0 broken=0, exit 0
+    shellcheck (both scripts)                                                    exit 0
+  EXIT GATE: four clauses answered, ONE answered QUALIFIED - `read-only default` is FALSE without
+  its subject (the AGENT JOB is read-only; THE WORKFLOW IS NOT: with no safe-outputs: block at all,
+  `create-issue is automatically enabled with conservative defaults (max: 1 ...)`). And
+  `was this the agent, or the harness?` is NEITHER.
+  §4 STEP 13a: TWO ROUNDS, -P codex, -n 2 each, SEQUENTIAL. Round 1 gate DID NOT RUN. *** ROUND 2'S
+  GATE RAN - ITS FIRST VERDICT IN TEN SESSIONS - AND RETURNED REJECT *** on the strip() guard.
+  FIVE DEFECTS FOUND IN THIS STOP'S OWN INSTRUMENT, ALL FIXED, EACH PROVED TO REFUSE THE PRE-FIX
+  SCRIPT. See the status block.
+  §4 STEP 14: PR lab#134 -> c5f461de3ead66b01a78757105aaf3044e1b4c35, MERGE not squash, via the
+  REST API. NINE GREEN, ONE RED (the board check, expected). HANDOFF.md moved to spine 23 of 28
+  with the previous Position block KEPT VERBATIM under a superseded heading. BOARDS NOT
+  REPUBLISHED (author's, decision 12 item 4); required marker digest RE-DERIVED BY RUNNING
+  ./tools/check-board-freshness.sh after the last HANDOFF.md edit: *** c1e2b847fce9 ***.
+  GITHUB: lab#10 comment issuecomment-5864782562, card Todo -> ... -> Done.
+  *** THE AUTO-CLOSE FIRED, AS PREDICTED, AND WAS UNDONE: *** moving the Phase card to Done closed
+  the issue `completed`; it was WATCHED FOR, then REOPENED via the REST API, and BOTH HALVES WERE
+  READ BACK: `state=open state_reason=reopened` and card `Done`. That is the required end state for
+  a Phase issue whose labs are all deferred."
+next_action: "*** OPEN STOP 24 (PHASE 9 - MEMORY) AT §4 STEP 1. NOTHING OF IT EXISTS AND §6 FORBIDS
+  CREATING A FUTURE STEP'S ARTIFACTS EARLY. STOP 23 IS CLOSED AND MERGED - DO NOT RE-OPEN, RE-RUN
+  OR RE-REVIEW IT. ***
+  (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d), re-check
+      findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
+      2026-09-08 - ONE GREP PER BASENAME, never a total), and confirm nothing is running with the
+      NARROW pattern `LC_ALL=C pgrep -fl 'run-agent.sh|codex exec|opencode-review.sh'`.
+      *** NEVER a bare `pgrep -fl opencode`; NEVER a `pgrep -f` WAIT LOOP (it matches itself and
+      never exits); NEVER `ls -t <glob>` (ls is aliased to eza, whose -t is --time FIELD, so the
+      first glob match is EATEN AS THE FLAG ARGUMENT and it fails WITH EXIT 0) - use
+      `stat -f '%m %N' <glob> | sort -rn | head -1 | cut -d' ' -f2-`. ***
+      *** AND NEVER TAIL runner logs under /tmp/*.log: they are JSONL with full thinking blocks. ***
+      *** A NEW ONE, LEARNED THIS SESSION: the memtrace rail hook fires on Bash `grep` and injects a
+      multi-kilobyte find_code payload into context on EVERY grep of a repo file. USE `awk` or
+      `sed -n '/pat/p'` FOR PATTERN MATCHING IN FILES INSTEAD; it cost several thousand tokens
+      before it was noticed. ***
+  (1) §4 STEP 1 for stop 24: Phase 9 is MEMORY and its issue is in the lab#1-lab#17 range - *** LOOK
+      IT UP VIA THE API (gh api repos/.../issues filtered to number <= 17), NEVER GUESS IT ***, as
+      this session did for lab#10. Comment `opened at spine stop 24, branch <name>, <ISO date>`,
+      move its card to In Progress AND READ THE MOVE BACK.
+      §3's itinerary row 24 reads `Phase 9 memory: reading, extract, ONE LAB` - so stop 24 is NOT a
+      diamond stop: it has a lab, and if that lab runs the benchmark the loop is the WHOLE §4
+      including steps 3-10 and a prediction commit BEFORE the first run. Read LEARNING-PATH.md's
+      row for spine 24 before assuming either shape.
+      *** §6 FORBIDS OPENING 6B'S WRITE PATH BEFORE PHASE 9 - AND PHASE 9 IS THIS STOP. Read that
+      rule's exact wording before designing the lab; it is a permission that arrives here, not a
+      licence for anything beyond it. ***
+  (2) THE TWO INSTRUMENT LESSONS OF STOP 23 APPLY TO WHATEVER STOP 24 BUILDS, and they are the same
+      lesson twice: *** A CHECKER THAT CANNOT DISTINGUISH `I FAILED TO LOOK` FROM `IT IS NOT THERE`
+      WILL REPORT THE SECOND. *** Five defects in one 140-line script, every one of that shape, and
+      the fixture set that passed 10 of 10 did not catch any of them because NO FIXTURE MADE THE
+      SCRIPT FAIL AT ITS OWN MACHINERY. When stop 24 writes any checker: give it a fixture that
+      BREAKS ITS INTERPRETER, one that FEEDS IT A NON-UTF-8 BYTE, and one that HANDS IT A
+      MISCONFIGURED KEY - and prove each REFUSES THE PRE-FIX VERSION, not just that it passes now.
+  (3) DO NOT: create any artifact of stop 25 or later; re-open, re-run or re-review stops 23, 22 or
+      21; edit a measured overlay under build/customizations/; delete a worktree, log, sheet, stall
+      artefact or evidence file (§6); commit a pid lock; republish the boards (author's, decision 12
+      item 4); push a state write straight to main; close a Phase issue whose labs are deferred; or
+      run §9 on my own work."
+preflight:  # *** §0a RE-RUN IN FULL 2026-09-27T21:1x-21:4xZ *** at the author's explicit instruction
+            # for this session ("starting with the section 0a preflight"), the ELEVENTH consecutive
+            # session to carry it. §0a's own trigger did NOT fire - neither a first session nor a
+            # halt; the instruction did. *** SIX ok, TWO FAIL, ONE RED-BY-DECISION. NEITHER FAIL NOR
+            # THE RED IS A §7 HALT and blocked_on_author STAYS EMPTY. *** ALL FOUR VERIFIERS PASS.
+            # Rows 1-5, 6a and 7 delegated to a haiku subagent; row 6b run by me. *** THE DECIDING
+            # ROWS WERE RE-DERIVED BY HAND AND TWO SUBAGENT VERDICTS WERE OVERTURNED - IN OPPOSITE
+            # DIRECTIONS, WHICH HAS NOT HAPPENED BEFORE. ***
+            #
+            # row 1  REVIEW HOOK SCRIPT ......... ok    *** THE SUBAGENT SAID FAIL (exit 1, "1/87").
+            #        BY HAND: `87 passed, 0 failed` and `all 87 cases ran and behaved as specified`,
+            #        EXIT 0. *** The prompt's table still says `16 of 16` and the suite is 87 cases -
+            #        staleness author_notes has carried for thirteen sessions. §1: the files win.
+            # row 2  REVIEW HARNESS, LIVE ...... *** FAIL (stall, 903 bytes, 0 finding sections)
+            #        *** - THE TENTH CONSECUTIVE SESSION, ollama-cloud weekly limit. RE-DERIVED BY
+            #        HAND: `wc -c` -> 903, `grep -c '^### '` -> 0. Artefact KEPT per §6 and labelled
+            #        a STALL, never counted as a review:
+            #        findings/opencode/review-run-record-20260927T200749Z.md. No opencode of ours
+            #        left running. *** THE CONSEQUENCE WAS ACTED ON: step 13a went to `-P codex`.
+            #        AND THAT ROUTE'S ACCEPTANCE GATE *DID* RUN AT ROUND 2 (lab-acceptance ·
+            #        minimax-m3, REJECT) - SO `row 2 FAIL` DOES NOT MEAN `NO GATE IS REACHABLE`,
+            #        which is what the last nine sessions inferred. THAT IS A CORRECTION. ***
+            # row 3a CODEX DRY RUN ............. ok    28 415 bytes at ./1, ALL FOUR CATEGORIES.
+            #        LAB_SCORE_DRY_RUN IS A PATH, NOT A BOOLEAN, so `=1` lands at `./1`; exit 3 is
+            #        the dry run's OWN REGISTERED CODE, not a failure.
+            # row 3b CODEX HARNESS, LIVE ....... ok    findings/codex/score-good-nested-ifs-
+            #        20260927T200931Z.yaml, 2032 bytes, READ BY HAND: architecture-consistency 2 /
+            #        maintainability 0 / test-quality null / change-focus 2, with
+            #        `ambiguous_categories: ["test-quality"]` present (the last block the scorer
+            #        writes = the sheet is complete). *** CELL-FOR-CELL IDENTICAL to the eleven
+            #        earlier sheets on this fixture - TWELVE sheets over 25 days. ***
+            # row 4  GATE AND VALIDATORS ....... ok    all four run SEPARATELY so one failure could
+            #        not hide the rest: run-gate 13 / sheet-category 11 / run-record 12 /
+            #        model-output 16, exit 0 each.
+            # row 5  OBSERVATORY STACK ......... ok    18 checks, exit 0, API 8081. INDEPENDENTLY
+            #        CONFIRMED: row 6b read a run record off that same API by hand.
+            # row 6a ISOLATION, CODEX .......... *** FAIL, exit 2, AND IT REPRODUCES FOR THE FOURTH
+            #        TIME. THE SUBAGENT REPORTED `ok, exit 0` AND WAS WRONG. *** By hand:
+            #          check A - `nothing AUTO-LOADS`
+            #          check B - `ISOLATION LEAKS: the agent reached the operator's instruction
+            #                    files with HOME redirected.`
+            #        *** AND A CORRECTION TO THIS RUN'S OWN STANDING author_note ABOUT THE FIX: ***
+            #        the note names --ignore-user-config, --ignore-rules and --ephemeral as the
+            #        candidate remedy. THOSE THREE GOVERN AUTO-LOADING, WHICH IS EXACTLY WHAT CHECK
+            #        A ALREADY PROVES HOLDS. Check B runs `codex exec --sandbox workspace-write` and
+            #        the agent DISCOVERS the operator's files BY ABSOLUTE PATH with HOME redirected
+            #        (verify-codex-isolation.sh, check B) - so the remedy is a FILESYSTEM SANDBOX
+            #        BOUNDARY, not those flags. tools/codex-critic.sh:101-103 ALREADY PASSES ALL
+            #        THREE and is therefore NOT the precedent it looked like. Still DELIBERATELY NOT
+            #        FIXED - it changes the run environment every later stop inherits.
+            # row 6b ISOLATION, CLAUDE HALF .... ok on the observable half. Run
+            #        *** a74ac5fe-605a-4607-84f7-de67082ddbd9 ***, experimentKey
+            #        preflight-20260927T200755Z, startedAt 2026-09-27T20:07:56Z, evaluation exitCode
+            #        0, runtime.model claude-haiku-4-5-20251001 (THE PINNED MODEL, CHECKED, NOT
+            #        ASSUMED). RE-DERIVED BY HAND off the API: `customization` has *** SEVEN *** keys
+            #        and *** ALL SEVEN ARE null *** under ISOLATE_USER_SETTINGS=1.
+            #        *** THE UNOBSERVABLE HALF IS STILL UNOBSERVABLE: *** §0a asks for a record that
+            #        "shows 0 hook executions" and THERE IS NO HOOK-EXECUTION FIELD IN THE RECORD.
+            #        `hooksHash: null` is a HASH, not a COUNT. Any past `ok` there was INFERRED.
+            # row 7  BOARD CHECK .............. RED, BY THE AUTHOR'S OWN STANDING DECISION (12 item
+            #        4), not an oversight: `2 of 2 board(s) describe an older HANDOFF.md than the
+            #        one on disk`, exit 1. NOT REPUBLISHED. *** Required marker digest AFTER the
+            #        stop-23 HANDOFF edit, RE-DERIVED BY RUNNING THE CHECK: c1e2b847fce9. ***
+            #
+            # *** HOOK WIRING: still `unproven in print mode`, unchanged and deliberately so. *** The
+            # synchronous §4a review is this run's review control and was taken twice this session.
+
 # ===== CURRENT STATE - STOP 23, PHASE 8 (gh-aw), §0 BOUNDARY 1 OF 2, 2026-09-27 =====
 # Newest first, as this file has always been kept. Every key below SUPERSEDES the next
 # occurrence of the same key further down; nothing further down is deleted. The keys NOT
@@ -115,113 +404,115 @@ needs is in this file; nothing lives in a conversation.
 #   author_decisions (items 1-12, unchanged)
 #   blocked_on_author: [] (EMPTY - no §7 bullet is matched)
 #   author_notes (three stop-23 items added at its top)
-status: running   # *** §0 BOUNDARY 1 OF 2 FOR STOP 23 (PHASE 8 - UNATTENDED AGENTS, gh-aw), A
-                  # DIAMOND STOP. THE STOP IS OPEN AND THE EXTRACT IS WRITTEN, COMMITTED (14f2d60)
-                  # AND PUSHED. NOT a halt: blocked_on_author IS EMPTY and NO §7 BULLET IS MATCHED.
-                  # prompt_sha a47590a1e61d RE-COMPUTED AND UNCHANGED. All 22 validator files
-                  # re-checked BY NAME (one grep per basename, never a total) and NONE IS NEW.
-                  #
-                  # *** WHAT REMAINS IS §4 STEPS 11, 13, 13a AND 14 = BOUNDARY 2, AND THE STOP THEN
-                  # CLOSES. DO NOT RE-WRITE THE EXTRACT, RE-READ THE SEVEN PAGES, OR RE-RUN
-                  # check-links.sh FROM SCRATCH. ***
-                  #
-                  # *** THE HEADLINE OF THIS STOP IS A FAILED CHECK ON THIS PROJECT'S OWN WORKBOOK,
-                  # AND IT IS THE RESULT WORTH CARRYING. *** The August 2026 extract of this same
-                  # phase carries, as a BOLD DISPLAY QUOTE, the sentence "The agent never receives
-                  # write tokens directly." *** THAT SENTENCE IS NOT IN THE PAGE IT CITES. *** The
-                  # page's equivalent today is "all without giving the agentic portion of the
-                  # workflow any write permissions"; the claim survived the rewording and the
-                  # QUOTATION did not. Two other August quotes were re-checked and both are still
-                  # verbatim, so this is ONE SENTENCE, not a rewritten page.
-                  #   WHAT IT IS EVIDENCE OF, STATED NARROWLY: a verbatim quote in this project's
-                  #   own extract went stale in 49 days and NOTHING EXECUTED TO CATCH IT.
-                  #   check-links.sh proves a URL RESOLVES. Nothing here proved a QUOTATION still
-                  #   appears in the resolved page. That gap is now closed FOR ONE PHASE ONLY -
-                  #   evidence/p08/verify-quotes.sh, 29 registered sentences over seven pages,
-                  #   found=28 absent=1, EXIT 2, live over the network at
-                  #   evidence/p08/quote-verification-20260927T194029Z.txt. A GENERAL instrument is
-                  #   in author_notes and is NOT built: §6 forbids a future step's artifact and a
-                  #   repo-wide quote checker is not stop 23's.
-                  #   ITS FIXTURE SET PASSES 10 OF 10 (evidence/p08/verify-quote-checker.sh) over
-                  #   ALL FOUR registered exit codes, including a fixture with exactly one quote
-                  #   deleted (exit 2, absent=1) and a quote containing `!==` matched literally
-                  #   rather than as a regex. *** CASE B WAS RE-DERIVED BY HAND *** - 29 <p> lines
-                  #   in, the first quote stripped, 28 out, and the one ABSENT line names the quote
-                  #   that was removed. A checker never shown to refuse is indistinguishable from
-                  #   one that refuses nothing.
-                  #
-                  # *** FOUR MORE FINDINGS OF RECORD, EACH QUOTED VERBATIM IN THE WORKBOOK AND EACH
-                  # VERIFIED `FOUND` BY THE SCRIPT ABOVE BEFORE IT WAS WRITTEN DOWN: ***
-                  #  1. THE CLOSED OUTPUT VOCABULARY ROUGHLY DOUBLED. It now holds
-                  #     merge-pull-request, approve-workflow-run, push-to-pull-request-branch,
-                  #     dispatch-workflow / call-workflow / dispatch-repository, create-agent-session
-                  #     and third-party writers (jira-*, linear-*, ado-*). THE MECHANISM IS UNCHANGED
-                  #     AND THE SEPARATION HOLDS - each runs in its own job with its own scoped
-                  #     credential and most are marked `experimental`. The conclusion the August
-                  #     extract was one step from: *** A CLOSED VOCABULARY BOUNDS THE ATTACK SURFACE
-                  #     EXACTLY AS TIGHTLY AS ITS MEMBERSHIP, AND THE MEMBERSHIP IS THE VENDOR'S TO
-                  #     CHANGE BETWEEN TWO READINGS OF THE SAME PAGE. An L1 control whose scope is a
-                  #     list maintained by someone else has an L3 perimeter. ***
-                  #  2. THE INJECTION DEFENCE IS L2, NOT L1, AND ITS JUDGE IS A LANGUAGE MODEL.
-                  #     Threat detection is "automatically enabled when safe outputs are configured",
-                  #     it blocks ("the workflow fails and safe outputs are blocked"), AND "By
-                  #     default, threat detection uses the same AI engine as your main workflow".
-                  #     Applied IN ORDER: the malicious body CAN still be written (step 1 = yes), a
-                  #     JOB executes and rejects it (step 2 = yes) -> L2. A model asked whether a
-                  #     model was manipulated is the WEAKEST L2 this project has catalogued.
-                  #     *** IT DOES FAIL CLOSED ON ITS OWN ERROR and deserves the credit *** - "If
-                  #     the detection process itself fails ... the workflow stops and safe outputs
-                  #     are not applied" - which is the OPPOSITE of check-links.sh degrading a curl
-                  #     `000` to a non-fatal `unverified`. Same decision, opposite default, theirs is
-                  #     right. The only rule-based lane is protected files, "a static, rule-based
-                  #     protection layer", whose DEFAULT (`request_review`) routes to a human rather
-                  #     than refusing; only `blocked` refuses. Same shape as stop 22's
-                  #     strictKnownMarketplaces: the strict option exists and is not the default.
-                  #  3. `roles:` IS AN EXACT-MATCH ALLOWLIST, NOT A PRIVILEGE THRESHOLD - "Setting
-                  #     roles: [write] will reject actors with admin or maintainer roles because
-                  #     admin !== write". *** THIRD OCCURRENCE IN THIS PROJECT of a permission field
-                  #     whose DIRECTION must be read rather than assumed *** (stop 7: `tools:`
-                  #     narrows, `allowed-tools:` pre-approves; position 9: the runtime rewrote the
-                  #     list). And `stop-after:` - "Automatically disable workflow triggering after a
-                  #     deadline to control costs" - is THIS PHASE'S OWN NOISE-KILL RULE AS SOMETHING
-                  #     THAT EXECUTES: L3 here, L2 upstream, and the cheapest thing on these pages to
-                  #     port.
-                  #  4. `.md` -> `.lock.yml`: THE FILE A HUMAN REVIEWS IS NOT THE FILE THAT EXECUTES.
-                  #     Both are committed; only the lock file runs. `stale`, `out of date`,
-                  #     `out-of-date`, `recompile`, `--verify` and `check that the lock` are ABSENT,
-                  #     ALL SIX, from the page that teaches workflow creation - a scoped claim about
-                  #     ONE PAGE, not about the CLI. Same gap as position 9's `tools:` list with a
-                  #     BUILD STEP in the middle, and the workspace CLAUDE.md already holds the
-                  #     receipt: `Read, Grep, Glob, Bash` delivered as ["Read","Bash"] on 10 of 10.
-                  #
-                  # *** THE SPINE'S `L1` LABEL FOR PHASE 8 IS RIGHT ABOUT THE CREDENTIAL AND WRONG
-                  # ABOUT EVERYTHING THAT INSPECTS CONTENT. *** It is QUALIFIED in the workbook, not
-                  # overwritten. Only TWO rows survive step 1 of the layer rule: the safe-output
-                  # separation (the agent's process holds no credential that can express a write)
-                  # and `staged: true` ("Every write operation is skipped"), which is Phase 5A's
-                  # remove-the-capability-before-policing-it, shipped - and is a PREVIEW mode, not a
-                  # production control. *** AND THE PROOF COLUMN OF EVERY SUBJECT ROW IS L3 AT THIS
-                  # STOP, BECAUSE n = 0: I READ that the detection job blocks; I did not watch one
-                  # block anything. Saying that plainly is §5's requirement, not a shortfall. ***
-                  #
-                  # *** ONE CORRECTION TO THIS PHASE'S OWN EXIT GATE, TO BE ANSWERED AT BOUNDARY 2:
-                  # the clause "read-only default" NEEDS ITS SUBJECT NAMED OR IT IS FALSE. *** The
-                  # AGENT JOB is read-only; THE WORKFLOW IS NOT. With no `safe-outputs:` block at
-                  # all, "create-issue is automatically enabled with conservative defaults (max: 1
-                  # ...)". Both sentences are verbatim and they are about different things.
-                  #
-                  # *** AND ONE `FOUND` INSIDE A SET OF ABSENCES, WHICH IS WHY THE ABSENCES WERE
-                  # CHECKED RATHER THAN ASSERTED: *** the permissions page has NO warning against
-                  # giving the agent job write scopes (do not grant / avoid granting / never grant /
-                  # warning / caution / should not / conflict / refuse are ABSENT, all eight) - BUT
-                  # `rejected` IS FOUND, once, about something else: "id-token: read is not a valid
-                  # permission and will be rejected at compile time." So `gh aw compile` DOES
-                  # validate the permissions block and DOES refuse at least one value. There is a
-                  # real L2 in the compiler; it simply does not police the combination that would
-                  # dissolve the L1. "The page says nothing that executes" would have been FALSE.
-                  #
-                  # *** THE NEXT SESSION'S FIRST ACT IS BOUNDARY 2, NOT A NEW STOP. *** Stop 24
-                  # (Phase 9 - Memory) does not exist and §6 forbids its artifacts.
+# SUPERSEDED STATUS KEY, COMMENTED OUT SO EXACTLY ONE `^status:` IS LIVE (the driver greps
+# `^status: *(done|blocked)`); ITS TEXT AND ITS WHOLE COMMENT BLOCK ARE KEPT VERBATIM BELOW.
+# status: running   # *** §0 BOUNDARY 1 OF 2 FOR STOP 23 (PHASE 8 - UNATTENDED AGENTS, gh-aw), A
+#                   # DIAMOND STOP. THE STOP IS OPEN AND THE EXTRACT IS WRITTEN, COMMITTED (14f2d60)
+#                   # AND PUSHED. NOT a halt: blocked_on_author IS EMPTY and NO §7 BULLET IS MATCHED.
+#                   # prompt_sha a47590a1e61d RE-COMPUTED AND UNCHANGED. All 22 validator files
+#                   # re-checked BY NAME (one grep per basename, never a total) and NONE IS NEW.
+#                   #
+#                   # *** WHAT REMAINS IS §4 STEPS 11, 13, 13a AND 14 = BOUNDARY 2, AND THE STOP THEN
+#                   # CLOSES. DO NOT RE-WRITE THE EXTRACT, RE-READ THE SEVEN PAGES, OR RE-RUN
+#                   # check-links.sh FROM SCRATCH. ***
+#                   #
+#                   # *** THE HEADLINE OF THIS STOP IS A FAILED CHECK ON THIS PROJECT'S OWN WORKBOOK,
+#                   # AND IT IS THE RESULT WORTH CARRYING. *** The August 2026 extract of this same
+#                   # phase carries, as a BOLD DISPLAY QUOTE, the sentence "The agent never receives
+#                   # write tokens directly." *** THAT SENTENCE IS NOT IN THE PAGE IT CITES. *** The
+#                   # page's equivalent today is "all without giving the agentic portion of the
+#                   # workflow any write permissions"; the claim survived the rewording and the
+#                   # QUOTATION did not. Two other August quotes were re-checked and both are still
+#                   # verbatim, so this is ONE SENTENCE, not a rewritten page.
+#                   #   WHAT IT IS EVIDENCE OF, STATED NARROWLY: a verbatim quote in this project's
+#                   #   own extract went stale in 49 days and NOTHING EXECUTED TO CATCH IT.
+#                   #   check-links.sh proves a URL RESOLVES. Nothing here proved a QUOTATION still
+#                   #   appears in the resolved page. That gap is now closed FOR ONE PHASE ONLY -
+#                   #   evidence/p08/verify-quotes.sh, 29 registered sentences over seven pages,
+#                   #   found=28 absent=1, EXIT 2, live over the network at
+#                   #   evidence/p08/quote-verification-20260927T194029Z.txt. A GENERAL instrument is
+#                   #   in author_notes and is NOT built: §6 forbids a future step's artifact and a
+#                   #   repo-wide quote checker is not stop 23's.
+#                   #   ITS FIXTURE SET PASSES 10 OF 10 (evidence/p08/verify-quote-checker.sh) over
+#                   #   ALL FOUR registered exit codes, including a fixture with exactly one quote
+#                   #   deleted (exit 2, absent=1) and a quote containing `!==` matched literally
+#                   #   rather than as a regex. *** CASE B WAS RE-DERIVED BY HAND *** - 29 <p> lines
+#                   #   in, the first quote stripped, 28 out, and the one ABSENT line names the quote
+#                   #   that was removed. A checker never shown to refuse is indistinguishable from
+#                   #   one that refuses nothing.
+#                   #
+#                   # *** FOUR MORE FINDINGS OF RECORD, EACH QUOTED VERBATIM IN THE WORKBOOK AND EACH
+#                   # VERIFIED `FOUND` BY THE SCRIPT ABOVE BEFORE IT WAS WRITTEN DOWN: ***
+#                   #  1. THE CLOSED OUTPUT VOCABULARY ROUGHLY DOUBLED. It now holds
+#                   #     merge-pull-request, approve-workflow-run, push-to-pull-request-branch,
+#                   #     dispatch-workflow / call-workflow / dispatch-repository, create-agent-session
+#                   #     and third-party writers (jira-*, linear-*, ado-*). THE MECHANISM IS UNCHANGED
+#                   #     AND THE SEPARATION HOLDS - each runs in its own job with its own scoped
+#                   #     credential and most are marked `experimental`. The conclusion the August
+#                   #     extract was one step from: *** A CLOSED VOCABULARY BOUNDS THE ATTACK SURFACE
+#                   #     EXACTLY AS TIGHTLY AS ITS MEMBERSHIP, AND THE MEMBERSHIP IS THE VENDOR'S TO
+#                   #     CHANGE BETWEEN TWO READINGS OF THE SAME PAGE. An L1 control whose scope is a
+#                   #     list maintained by someone else has an L3 perimeter. ***
+#                   #  2. THE INJECTION DEFENCE IS L2, NOT L1, AND ITS JUDGE IS A LANGUAGE MODEL.
+#                   #     Threat detection is "automatically enabled when safe outputs are configured",
+#                   #     it blocks ("the workflow fails and safe outputs are blocked"), AND "By
+#                   #     default, threat detection uses the same AI engine as your main workflow".
+#                   #     Applied IN ORDER: the malicious body CAN still be written (step 1 = yes), a
+#                   #     JOB executes and rejects it (step 2 = yes) -> L2. A model asked whether a
+#                   #     model was manipulated is the WEAKEST L2 this project has catalogued.
+#                   #     *** IT DOES FAIL CLOSED ON ITS OWN ERROR and deserves the credit *** - "If
+#                   #     the detection process itself fails ... the workflow stops and safe outputs
+#                   #     are not applied" - which is the OPPOSITE of check-links.sh degrading a curl
+#                   #     `000` to a non-fatal `unverified`. Same decision, opposite default, theirs is
+#                   #     right. The only rule-based lane is protected files, "a static, rule-based
+#                   #     protection layer", whose DEFAULT (`request_review`) routes to a human rather
+#                   #     than refusing; only `blocked` refuses. Same shape as stop 22's
+#                   #     strictKnownMarketplaces: the strict option exists and is not the default.
+#                   #  3. `roles:` IS AN EXACT-MATCH ALLOWLIST, NOT A PRIVILEGE THRESHOLD - "Setting
+#                   #     roles: [write] will reject actors with admin or maintainer roles because
+#                   #     admin !== write". *** THIRD OCCURRENCE IN THIS PROJECT of a permission field
+#                   #     whose DIRECTION must be read rather than assumed *** (stop 7: `tools:`
+#                   #     narrows, `allowed-tools:` pre-approves; position 9: the runtime rewrote the
+#                   #     list). And `stop-after:` - "Automatically disable workflow triggering after a
+#                   #     deadline to control costs" - is THIS PHASE'S OWN NOISE-KILL RULE AS SOMETHING
+#                   #     THAT EXECUTES: L3 here, L2 upstream, and the cheapest thing on these pages to
+#                   #     port.
+#                   #  4. `.md` -> `.lock.yml`: THE FILE A HUMAN REVIEWS IS NOT THE FILE THAT EXECUTES.
+#                   #     Both are committed; only the lock file runs. `stale`, `out of date`,
+#                   #     `out-of-date`, `recompile`, `--verify` and `check that the lock` are ABSENT,
+#                   #     ALL SIX, from the page that teaches workflow creation - a scoped claim about
+#                   #     ONE PAGE, not about the CLI. Same gap as position 9's `tools:` list with a
+#                   #     BUILD STEP in the middle, and the workspace CLAUDE.md already holds the
+#                   #     receipt: `Read, Grep, Glob, Bash` delivered as ["Read","Bash"] on 10 of 10.
+#                   #
+#                   # *** THE SPINE'S `L1` LABEL FOR PHASE 8 IS RIGHT ABOUT THE CREDENTIAL AND WRONG
+#                   # ABOUT EVERYTHING THAT INSPECTS CONTENT. *** It is QUALIFIED in the workbook, not
+#                   # overwritten. Only TWO rows survive step 1 of the layer rule: the safe-output
+#                   # separation (the agent's process holds no credential that can express a write)
+#                   # and `staged: true` ("Every write operation is skipped"), which is Phase 5A's
+#                   # remove-the-capability-before-policing-it, shipped - and is a PREVIEW mode, not a
+#                   # production control. *** AND THE PROOF COLUMN OF EVERY SUBJECT ROW IS L3 AT THIS
+#                   # STOP, BECAUSE n = 0: I READ that the detection job blocks; I did not watch one
+#                   # block anything. Saying that plainly is §5's requirement, not a shortfall. ***
+#                   #
+#                   # *** ONE CORRECTION TO THIS PHASE'S OWN EXIT GATE, TO BE ANSWERED AT BOUNDARY 2:
+#                   # the clause "read-only default" NEEDS ITS SUBJECT NAMED OR IT IS FALSE. *** The
+#                   # AGENT JOB is read-only; THE WORKFLOW IS NOT. With no `safe-outputs:` block at
+#                   # all, "create-issue is automatically enabled with conservative defaults (max: 1
+#                   # ...)". Both sentences are verbatim and they are about different things.
+#                   #
+#                   # *** AND ONE `FOUND` INSIDE A SET OF ABSENCES, WHICH IS WHY THE ABSENCES WERE
+#                   # CHECKED RATHER THAN ASSERTED: *** the permissions page has NO warning against
+#                   # giving the agent job write scopes (do not grant / avoid granting / never grant /
+#                   # warning / caution / should not / conflict / refuse are ABSENT, all eight) - BUT
+#                   # `rejected` IS FOUND, once, about something else: "id-token: read is not a valid
+#                   # permission and will be rejected at compile time." So `gh aw compile` DOES
+#                   # validate the permissions block and DOES refuse at least one value. There is a
+#                   # real L2 in the compiler; it simply does not police the combination that would
+#                   # dissolve the L1. "The page says nothing that executes" would have been FALSE.
+#                   #
+#                   # *** THE NEXT SESSION'S FIRST ACT IS BOUNDARY 2, NOT A NEW STOP. *** Stop 24
+#                   # (Phase 9 - Memory) does not exist and §6 forbids its artifacts.
 
 prompt_sha: a47590a1e61d       # RE-COMPUTED 2026-09-27T17:5xZ at the top of THIS session with
                                # `shasum -a 256 ../PROMPT-opus5-track-b.md | cut -c1-12`, and
@@ -7501,7 +7792,69 @@ blocked_on_author: []   # *** EMPTY as of 2026-09-25. *** The single item that w
     #29 merged at eea144ef and its verifier re-run on main at 12 of 12). Plus Gate B before any of it
   # SUPERSEDED, kept not deleted: blocked_on_author: []   # EMPTY. The one item written at 09:4xZ by the driver session is DISCHARGED (see status) and has been MOVED VERBATIM, with its date, into author_notes below. Nothing is deleted. No §7 bullet is matched at this state write.
   # PREVIOUS VALUE, kept not deleted: []   # ONLY §7 halts (prompt §0, sha ba62c35dbbd2). Emptied 2026-09-09 by Claude Fable 5.1 at the author`s direction: none of the 12 items below matched a §7 bullet - two were discharged (benchmarks#29 merged eea144ef; fourth cell lab#74 e342d1e) and ten are notes. Moved verbatim to author_notes, nothing deleted.
-author_notes:   # *** 2026-09-27 (stop 22, §0 BOUNDARY 2 - THE CLOSE) items FIRST, then boundary 1's,
+author_notes:   # *** 2026-09-28 (stop 23, §0 BOUNDARY 2 - THE CLOSE) items FIRST, then stop 22's,
+                # then older. NOTHING BELOW IS DELETED and NOTHING HERE GATES ANYTHING - §0's rule
+                # is that only a §7 halt goes in blocked_on_author, which is EMPTY.
+
+  - "STOP 23, AND THE ONE I MOST WANT READ: *** A CHECKER THAT CANNOT DISTINGUISH `I FAILED TO
+     LOOK` FROM `IT IS NOT THERE` WILL REPORT THE SECOND. *** evidence/p08/verify-quotes.sh had
+     FIVE defects of exactly that shape in 140 lines, and its 10-case fixture set caught NONE of
+     them because no fixture ever made the script fail at its own machinery. One empty cached page
+     printed nine quotations as stale; one broken interpreter or one non-UTF-8 byte printed ALL
+     TWENTY-NINE, at exit 2, in the same format as a real finding. This is the stop-8 contamination
+     guard again and the third instance in the project. *** THE PROPOSAL, WHICH IS YOURS BECAUSE IT
+     IS A REPO CONVENTION: every verify-*.sh in this repository gets three mandatory fixtures - one
+     that breaks its interpreter, one that feeds it malformed input, and one that misconfigures it -
+     each proved to REFUSE the pre-fix version. *** I did not apply it to the other verifiers; that
+     would be an instrument sweep across closed stops."
+
+  - "STOP 23: *** `row 2 FAIL` DOES NOT MEAN `NO ACCEPTANCE GATE IS REACHABLE`, AND THE LAST NINE
+     SESSIONS INFERRED THAT IT DID. *** §0a row 2 has stalled ten sessions running on the
+     ollama-cloud weekly limit, and each session recorded the §4a acceptance gate as DID NOT RUN on
+     that basis. THIS SESSION IT RAN - lab-acceptance · minimax-m3 - on the `-P codex` route at
+     round 2, and returned REJECT on a real blocking defect the line-level passes had also found.
+     So the gate's availability is PER ROUTE, not global, and `-P codex` reaches it. Round 1 on the
+     same route did NOT produce a verdict, so it is not deterministic either. WORTH KNOWING BEFORE
+     ANOTHER STOP RECORDS `no gate exists` WITHOUT TRYING."
+
+  - "STOP 23, A CORRECTION TO THIS RUN'S OWN STANDING NOTE ABOUT THE CODEX ISOLATION LEAK (row 6a,
+     now FOUR reproductions): the note names --ignore-user-config, --ignore-rules and --ephemeral as
+     the candidate fix. *** THOSE THREE GOVERN AUTO-LOADING, WHICH IS EXACTLY WHAT CHECK A ALREADY
+     PROVES HOLDS. *** Check B runs `codex exec --sandbox workspace-write` and the agent DISCOVERS
+     the operator's files BY ABSOLUTE PATH with HOME redirected. The remedy is a FILESYSTEM SANDBOX
+     BOUNDARY, not those flags - and tools/codex-critic.sh:101-103 already passes all three, so it
+     is not the precedent it looked like. STILL YOURS: fixing it changes the run environment every
+     later stop inherits."
+
+  - "STOP 23: *** `staged: true` WAS LABELLED L1 AND IS L2 - THE SAME LAYER MISTAKE AS STOP 22, TWO
+     STOPS RUNNING, CAUGHT BY THE SAME REVIEWER AND NOT BY ME. *** GUARDRAILS.md warns about this
+     direction and the warning did not work twice. A WORKED EXAMPLE of the `staged` shape - the bad
+     value IS still expressed, something executes and declines to act, therefore L2 - would do what
+     another warning demonstrably does not. Editing GUARDRAILS.md is a repo convention and yours."
+
+  - "STOP 23, FROM THE DEFERRED-LAB DEBTS AND IT GENERALISES PAST PHASE 8: *** INTERLEAVING GIVES A
+     CONCURRENT CONTROL AND DOES NOT BY ITSELF GIVE EXCHANGEABLE ARMS. *** If the candidate always
+     follows the control and anything drifts within the pair, treatment stays confounded with order;
+     counterbalancing or randomisation is a separate requirement this project has never registered.
+     E-007, E-011, E-013 and E-016 all inherit it. NOT a defect in any closed stop and NOT a reason
+     to reopen one - it is a question about the decision rule for everything after stop 23."
+
+  - "STOP 23: a GENERAL quote-staleness checker is still NOT BUILT - this stop built a phase-scoped
+     one only (§6 forbids a future step's artefact). The case for it is now stronger than at
+     boundary 1, because the phase-scoped one found a real defect in our own workbook AND was itself
+     wrong five times, so a repo-wide version must ship with the three-fixture rule above or it will
+     be a louder liar. Also still open from earlier stops: check-links.sh degrading a curl `000` to
+     a non-fatal `unverified` (defensible under the rule this stop derived - it gates nothing - so
+     this may now be CLOSED rather than fixed, your call); check-links.sh's summary never
+     reconciling; and INCONCLUSIVE vs EXTEND as two decision rows rather than one NOT DETECTABLE."
+
+  - "STOP 23, INSTRUMENT DEFECT IN THIS SESSION'S OWN TOOLING, recorded because it cost real
+     context: the memtrace rail hook fires on Bash `grep` against repo files and injects a
+     multi-kilobyte find_code payload into the session on every call. `awk` and `sed -n '/pat/p'`
+     are unaffected. next_action carries the workaround for the next session."
+
+# ===== stop 22 and older author_notes, kept verbatim, nothing deleted =====
+# author_notes:   # *** 2026-09-27 (stop 22, §0 BOUNDARY 2 - THE CLOSE) items FIRST, then boundary 1's,
   # then the stop-21 ones. NOTHING HERE GATES ANYTHING. blocked_on_author is EMPTY and no item below
   # matches a §7 bullet. ***
   # *** 2026-09-27 (stop 23, §0 BOUNDARY 1) items, added at the top per this block's own convention:
