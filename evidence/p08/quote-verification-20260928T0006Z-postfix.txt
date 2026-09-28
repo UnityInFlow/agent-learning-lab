@@ -1,0 +1,31 @@
+FOUND   [safe] Safe outputs enforce security through separation
+FOUND   [safe] least privilege, defense against prompt injection, auditability, and controlled limits per operation
+FOUND   [safe] all without giving the agentic portion of the workflow any write permissions
+ABSENT  [safe] The agent never receives write tokens directly
+FOUND   [safe] create-issue is automatically enabled with conservative defaults
+FOUND   [safe] Every write operation is skipped
+FOUND   [safe] Merge pull requests after policy gates pass (max: 1, experimental)
+FOUND   [safe] Trigger other workflows with inputs (max: 3, same-repo only)
+FOUND   [safe] Create Copilot coding agent sessions (max: 1)
+FOUND   [perms] GitHub Agentic Workflows uses read-only permissions by default for security, with write operations handled through safe outputs
+FOUND   [perms] id-token: read is not a valid permission and will be rejected at compile time
+FOUND   [creating] A GitHub Agentic Workflows source is a Markdown file in
+FOUND   [creating] The gh aw compile command turns this source into the .lock.yml GitHub Actions workflow
+FOUND   [creating] Add, commit and push the workflow file and its lock file to your repository
+FOUND   [threat] analyze agent output and code changes for potential security issues before they are applied
+FOUND   [threat] Threat detection is automatically enabled when safe outputs are configured
+FOUND   [threat] the workflow stops and safe outputs are not applied. This fail-safe approach prevents potentially malicious content from being processed
+FOUND   [threat] By default, threat detection uses the same AI engine as your main workflow to analyze output for security threats
+FOUND   [threat] a static, rule-based protection layer
+FOUND   [threat] Hard-block: the safe output fails with an error message
+FOUND   [trig] roles is an allowlist, not a privilege threshold
+FOUND   [trig] will reject actors with admin or maintainer roles because admin !== write
+FOUND   [trig] Pull request workflows block forks by default for security
+FOUND   [trig] Automatically disable workflow triggering after a deadline to control costs
+FOUND   [exp] A/B Experiments is an experimental feature
+FOUND   [exp] Statistical significance alone does not override minimum_effect
+FOUND   [exp] Only usable observations count toward min_samples
+FOUND   [exp] Over time, this keeps usage roughly balanced across variants
+FOUND   [exp] It does not promote a variant, edit the workflow, or change traffic
+
+found=28 absent=1

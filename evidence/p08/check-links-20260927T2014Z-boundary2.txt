@@ -1,0 +1,39 @@
+Checking 93 unique URLs in SOURCES.md CURRICULUM.md LEARNING-PATH.md GUARDRAILS.md README.md build/README.md phases/00a-agent-mechanics/README.md phases/00b-observatory/README.md phases/01-instructions/README.md phases/02-prompt-files/README.md phases/03-skills/README.md phases/04a-agents-permissions/README.md phases/04b-orchestration/README.md phases/05a-guardrails/README.md phases/05b-verification-selfhealing/README.md phases/06a-code-intelligence/README.md phases/06b-knowledge-retrieval/README.md phases/07-plugins/README.md phases/08-agentic-workflows/README.md phases/09-memory/README.md phases/10-production-observability/README.md phases/b01-experiment-contract/README.md phases/b02-plain-baseline/README.md phases/b03-global-instructions/README.md phases/b04-agent-boundary/README.md phases/b05-workflow-phases/README.md phases/b06-specialist-skill/README.md phases/b07-verification-policies/README.md phases/b08-run-state-repair-limits/README.md phases/b08a-decomposition-depth/README.md phases/b09-knowledge-router/README.md phases/b10-second-runtime-adapter/README.md phases/b11-efficiency/README.md phases/b12-governed-self-learning/README.md phases/b13-production-observability/README.md
+
+🏠 LOCAL   http://127.0.0.1:1  (service endpoint, not a source)
+🏠 LOCAL   http://127.0.0.1:18081  (service endpoint, not a source)
+🏠 LOCAL   http://127.0.0.1:18081/api/runs?limit=500'  (service endpoint, not a source)
+🏠 LOCAL   http://127.0.0.1:18081/api/runs/<id  (service endpoint, not a source)
+🏠 LOCAL   http://127.0.0.1:8081/api/runs?limit=1  (service endpoint, not a source)
+🏠 LOCAL   http://localhost:4317  (service endpoint, not a source)
+🏠 LOCAL   http://localhost:4318/v1/traces  (service endpoint, not a source)
+↪️  MOVED   https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code
+           → https://claude.dev/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code/
+↪️  MOVED   https://code.visualstudio.com/docs/agents/memory
+           → https://code.visualstudio.com/docs/agents/run/memory
+↪️  MOVED   https://developers.openai.com/codex/agent-configuration/agents-md
+           → https://learn.chatgpt.com/docs/agent-configuration/agents-md
+↪️  MOVED   https://developers.openai.com/codex/agent-configuration/subagents
+           → https://learn.chatgpt.com/docs/agent-configuration/subagents
+↪️  MOVED   https://developers.openai.com/codex/mcp
+           → https://learn.chatgpt.com/docs/extend/mcp?surface=cli
+↪️  MOVED   https://developers.openai.com/codex/skills
+           → https://learn.chatgpt.com/docs/build-skills
+↪️  MOVED   https://docs.github.com/en/copilot/concepts/agents/about-enterprise-plugin-standards
+           → https://docs.github.com/en/copilot/concepts/enterprise/plugin-standards
+↪️  MOVED   https://docs.github.com/en/copilot/concepts/context/content-exclusion
+           → https://docs.github.com/en/copilot/concepts/security-governance-and-network-settings/content-exclusion
+↪️  MOVED   https://docs.github.com/en/copilot/reference/enterprise-managed-settings-reference
+           → https://docs.github.com/en/copilot/reference/enterprise-administrators/enterprise-managed-settings
+↪️  MOVED   https://docs.github.com/en/copilot/reference/mcp-allowlist-enforcement
+           → https://docs.github.com/en/copilot/reference/enterprise-administrators/mcp-private-registry-enforcement
+↪️  MOVED   https://modelcontextprotocol.io/specification/latest
+           → https://modelcontextprotocol.io/specification/2026-07-28
+🔒 BLOCKED https://openai.com/index/running-codex-safely/  (403 to curl — verify in a browser)
+🔒 BLOCKED https://openai.com/index/unrolling-the-codex-agent-loop/  (403 to curl — verify in a browser)
+
+ok=73 moved=11 blocked=2 unverified=0 broken=0
+
+A redirect is not automatically harmless. If a page was *renamed*, the model
+behind it usually changed too — read it fresh rather than trusting notes written
+against the old title, and update SOURCES.md.

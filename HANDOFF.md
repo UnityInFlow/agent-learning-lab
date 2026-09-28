@@ -44,6 +44,112 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
+**Spine 23 of 28. Positions 4–23 CLOSED — 23 (Phase 8 — unattended agents, event- and
+schedule-triggered, `gh-aw`; a ◇ extract-only stop) closed 2026-09-28 with `n = 0` runs, counted
+rather than asserted: 0 of 740 runs on the API carry a stop-23 experiment key.** PR `lab#PRNUM`.
+Seven vendor pages re-read, five dated `## Extract` sections written beside an August 2026 extract
+kept verbatim, four labs deferred with their debts now written down, two new `SOURCES.md` rows, and
+one instrument that executes. **NOTHING is blocked on the author.** `lab#10` (Phase 8) **stays
+open** — a Phase issue closes only when its gate is met from measurement, and Labs 8.1–8.4 are all
+deferred. `lab#9`, `lab#16` and `lab#8` stay open on the same basis from stops 22, 19 and 18.
+**Stop 24 (Phase 9 — memory) is NOT OPENED and nothing of it exists**; §6 forbids a future step's
+artifacts early, and opening it at §4 step 1 is the next session's first act.
+
+**The first headline is a failed check on this project's own workbook.** The August 2026 extract of
+this same phase carries, as a bold display quote, *"The agent never receives write tokens
+directly."* **That sentence is not on the page it cites.** The page's equivalent today is *"all
+without giving the agentic portion of the workflow any write permissions"* — the claim survived the
+rewording and the **quotation did not**. Two other August quotes were re-checked and are still
+verbatim, so this is **one sentence, not a rewritten page**. Stated narrowly: **a verbatim quote in
+this project's own extract went stale in 49 days and nothing executed to catch it.**
+`check-links.sh` proves a URL *resolves*; nothing proved a *quotation* still appears in the
+resolved page. That gap is closed **for one phase only** — `evidence/p08/verify-quotes.sh`, 29
+registered sentences over seven pages, `found=28 absent=1`, **exit 2**, live over the network. A
+repo-wide version is **refused** here and sits in `author_notes`.
+
+**The second headline is that the instrument was itself wrong, in four places, and it is the
+sharper of the two.** Its own §4a review found four defects and **every one reported a failure to
+fetch as documentation drift**: `curl` without `--fail`, so a 404 serving a non-empty body exits 0,
+strips to real text, and every quote on that page prints `ABSENT` at exit 2; an empty **cached**
+page accepted where an empty live response or fixture exits 3 — *same content, two verdicts,
+decided only by where it came from*; an undeclared page key reading a missing file with stderr
+discarded, so a one-character typo was indistinguishable from real drift; and `strip` keeping page
+chrome, which is **disputed** and registered as a scoped limitation rather than fixed. **Proved
+against the pre-fix script rather than asserted**: cases J and K each return `exit 2, found=20
+absent=9` at `git show HEAD:evidence/p08/verify-quotes.sh`. **One empty cached page, or one typo,
+and the old checker reported nine quotations as stale documentation.** It would not have failed; it
+would have produced a *louder* version of this stop's own headline, and nothing would have
+contradicted it. That is the stop-8 contamination guard again: **a control whose failure looks
+exactly like a finding.** After the fix: ShellCheck clean, **14 of 14** fixtures over all four
+registered exit codes, and the live run reproduces `found=28 absent=1` with the same absent
+sentence — so the headline is unchanged by the fix, which is the only reason it may still be
+stated. Fail-closed was **observed**, not argued: exit 3 on a page that timed out.
+
+**And the same layer mistake as stop 22, again, caught by the same reviewer and not by me.**
+`staged: true` was labelled **L1** here on the grounds that the write steps do not run; applied in
+order, the write request **is still expressed** and something executes and *skips* it — **L2**.
+Whether the staged mode omits the write-capable job or generates and suppresses it is **not
+determined by the page**, and a label resting on an undetermined mechanism is not L1. So **exactly
+one** of ten subject rows survives step 1 — the safe-output separation, where the agent's process
+holds no credential that can express a write — and not two. Two stops running, the same error, and
+the argument is now that `GUARDRAILS.md` needs a worked example of this shape rather than another
+warning.
+
+**Four further findings about the subject, each verified `FOUND` before it was written down.**
+(1) **The closed output vocabulary roughly doubled** and now holds `merge-pull-request`,
+`approve-workflow-run`, `push-to-pull-request-branch`, `dispatch-workflow` / `call-workflow` /
+`dispatch-repository`, `create-agent-session` and third-party writers (`jira-*`, `linear-*`,
+`ado-*`). **An L1 control whose scope is a list maintained by someone else has an L3 perimeter** —
+scoped, after review, to the *documented vocabulary*: whether a newly added type reaches an
+**already-compiled** `.lock.yml` without a recompile is **unmeasured**. (2) **The injection defence
+is L2 and its judge is a language model** — *"By default, threat detection uses the same AI engine
+as your main workflow"* — the weakest L2 catalogued here, which nonetheless **fails closed on its
+own failure**. The only rule-based lane is protected files, whose **default routes to a human
+rather than refusing**. (3) **`roles:` is an exact-match allowlist, not a privilege threshold**
+(*"`admin !== write`"*) — and **it does not reach an actorless `schedule:` trigger at all**, which
+makes the surface *larger* than the exit gate's own sentence implied. Third occurrence here of a
+permission field whose *direction* must be read rather than assumed. (4) **`.md` → `.lock.yml`: the
+file a human reviews is not the file that executes** — `stale`, `out of date`, `out-of-date`,
+`recompile`, `--verify` and `check that the lock` are **`ABSENT`, all six**, from the page that
+teaches workflow creation; a scoped claim about **one page**, not about the CLI.
+
+**One clause of this phase's own exit gate was corrected rather than answered.** *"Read-only
+default"* is **false without a subject**: the **agent job** is read-only, the **workflow is not** —
+with no `safe-outputs:` block at all, *"`create-issue` is automatically enabled with conservative
+defaults (`max: 1` …)"*. And **the proof column of every subject row is L3, because `n = 0`**: I
+read that the detection job blocks; I did not watch one block anything. The spine's `L1` label for
+Phase 8 is right about the credential and wrong about everything that inspects content, and it is
+**qualified** in the workbook rather than overwritten.
+
+**The absences were checked rather than asserted, and one `FOUND` turned up inside them.** The
+permissions page carries no warning against giving the agent job write scopes (`do not grant`,
+`avoid granting`, `never grant`, `warning`, `caution`, `should not`, `conflict`, `refuse` — all
+eight `ABSENT`) — but `rejected` **is** `FOUND`, once, about something else: *"`id-token: read` is
+not a valid permission and will be rejected at compile time."* **`gh aw compile` does validate the
+permissions block and does refuse at least one value**; there is a real L2 in the compiler, and it
+simply does not police the combination that would dissolve the L1. *"The page says nothing that
+executes"* would have been **false**.
+
+**The most portable thing on the seven pages costs this project nothing: `stop-after:`** —
+*"Automatically disable workflow triggering after a deadline to control costs"* — this phase's own
+noise-kill rule as something that **executes**, set at creation time before anyone is attached to
+the output. What does **not** port is `hypothesis:`: pointing at a frontmatter string would be a
+**downgrade** from a git commit whose timestamp precedes the first run's `startedAt`. And one rule
+was narrowed by review rather than adopted whole: **a check whose result is quoted as evidence must
+fail closed; a check that only reports may degrade** — which is why `check-links.sh` keeping
+`unverified` is defensible and `verify-quotes.sh` returning exit 3 is required.
+
+> **This paragraph has now been found stale five times, was rewritten by hand a sixth, seventh and
+> eighth, and this is the ninth.** The argument has not changed and is still not acted on: **it
+> should be GENERATED from `TRACK-B-STATE.md`, not maintained by hand.** Until it is,
+> `TRACK-B-STATE.md` is the fact and this is a hint. *Written by Opus 5 (claude-opus-5),
+> autonomously, 2026-09-28.*
+
+<!-- SUPERSEDED, kept not deleted: -->
+
+## Position — superseded 2026-09-28 at the stop-23 close
+
+
 **Spine 22 of 28. Positions 4–22 CLOSED — 22 (Phase 7 — plugins + controlled distribution, a ◇
 extract-only stop) closed 2026-09-27 with `n = 0` runs, which is what the spine registers a ◇ stop
 to produce and is not a shortfall.** PR `lab#132`. Ten documentation pages read across three
