@@ -43,14 +43,27 @@ digest-comparing installer **L1 in six places**, and the §4a review was right t
 wrong digest *can* still be written down, so step 1 answers **yes** and the rule falls through
 to step 2 — an installer that compares and refuses is **L2**. **L1 requires that the bad value
 cannot be expressed at all**, which is why a lockfile is L1 and a checksum check is not. The
-table below is written with that correction applied, and only two rows survive step 1.
+table below is written with that correction applied, and **only one row survives step 1.**
+
+> **And the §4a review of this stop caught the same error again, in the `staged: true` row.**
+> I had it as **L1** on the grounds that *"the write steps do not run at all"*. Applied in
+> order: **the bad value can still be written down** — the agent still emits a valid write
+> request into the structured output — and then *"Every write operation is **skipped**"*, which
+> is something executing and declining to act. That is **L2**. Whether `staged: true` omits the
+> write-capable job from the generated workflow (L1) or generates it and suppresses it (L2) is
+> **not determined by the page**, and a label resting on an undetermined mechanism is not L1.
+> Relabelled below. **Two stops in a row, the same mistake, caught by the same reviewer and not
+> by me** — which is the argument for the review, and an argument that `GUARDRAILS.md` needs a
+> worked `staged`-shaped example rather than another warning.
+> *(Corrected 2026-09-27 from `findings/opencode/review-README-20260927T201538Z.md`, codex,
+> 2 of 2 runs.)*
 
 ### The subject — what gh-aw's controls are
 
 | Control | Bad value it targets | Can that value still be written? | The thing that executes | Layer |
 |---|---|---|---|---|
 | **Safe-output separation** — agent job runs with `contents: read` and requests actions as structured output | the agent writing to the repository | **No.** The process holds no credential that can express a write; there is no rejection step because there is nothing to reject | — | **L1** |
-| **`staged: true`** — *"Every write operation is skipped"* | any write during a preview run | **No** — the write steps do not run at all | — | **L1**, but a preview mode, not a production control. It is Phase 5A's *remove the capability before policing it*, shipped |
+| **`staged: true`** — *"Every write operation is skipped"* | any write during a preview run | **Yes** — the agent still emits a valid write request into the structured output; what changes is whether it is acted on | the staged branch of the compiled workflow, which *"skips"* each write operation | **L2** *(was L1 until the §4a review; see the note above)*. Still a preview mode and not a production control — but policed, not removed |
 | **Threat detection** | a malicious issue body / patch reaching a write handler | **Yes** — it is already in the output artifact | the threat-detection job: *"the workflow fails and safe outputs are blocked"* | **L2** — and the judge is a model (below), which is the weakest L2 in this project's model |
 | **Protected files** | a patch touching `package.json`, `.github/workflows/*`, `CLAUDE.md`, `.claude/settings.json` | **Yes** | *"a static, rule-based protection layer"*; with `protected-files: blocked` the safe output *"fails with an error message"* | **L2** — the strongest L2 on the page, because it is rule-based, not model-based |
 | **`roles:`** exact-match allowlist on the trigger | an outside actor starting an unattended agent | **Yes** — anyone can still comment | the activation job's role check | **L2** |
@@ -72,7 +85,9 @@ table below is written with that correction applied, and only two rows survive s
 
 **The proof column of every row in the first table is L3 at this stop**, because `n = 0`: I
 *read* that the threat-detection job blocks safe outputs, I did not watch one block anything.
-Two things at this stop have an L2 proof and they are both in the second table. Saying that
+**Exactly one subject row is L1** — the safe-output separation — and everything else on these
+pages either executes and refuses (L2) or is words (L3).
+Three things at this stop have an L2 proof and they are all in the second table. Saying that
 plainly is §5's requirement, not a shortfall of it.
 
 ## Verified reading
@@ -90,7 +105,10 @@ All seven are in [`SOURCES.md`](../../SOURCES.md) under *Agentic workflows (gh-a
 - [x] ✅ [Threat detection](https://github.github.com/gh-aw/reference/threat-detection/) — **added at this stop**
 - [x] ✅ [Triggers](https://github.github.com/gh-aw/reference/triggers/) — **added at this stop**
 
-`./tools/check-links.sh`, re-run 2026-09-27T19:2xZ after the two new rows were added:
+`./tools/check-links.sh`, re-run after the two new rows were added — and re-run again at §0
+boundary 2, with the output kept at `evidence/p08/check-links-20260927T2014Z-boundary2.txt`
+rather than cited by a redacted minute. *(The §4a review was right that `19:2xZ` identifies no
+execution. Fixed by citing the artefact.)*
 **`ok=73 moved=11 blocked=2 unverified=0 broken=0`, exit 0** — two more `ok` than stop 22's
 71, which is the two new rows and nothing else. **Neither new URL redirected**: all seven were
 checked with `curl -o /dev/null -w '%{http_code} %{url_effective}' -L` before they were read,
@@ -197,7 +215,8 @@ ShellCheck clean.
 
 **It has been shown to refuse**, which is the only reason to believe it when it accepts:
 [`evidence/p08/verify-quote-checker.sh`](../../evidence/p08/verify-quote-checker.sh) is its
-fixture set — **10 cases, 10 passed, exit 0** — covering all four exit codes, including a fixture
+fixture set — **14 cases, 14 passed, exit 0** after the §4a review added three (10 before it) —
+covering all four exit codes, including a fixture
 with exactly one quote deleted (`exit 2`, `absent=1`) and a quote containing `!==` matched
 literally rather than as a regex. **Case B was then re-derived by hand**: 29 `<p>` lines in, the
 first quote stripped, 28 out, and the one `ABSENT` line names the quote that was removed.
@@ -284,6 +303,14 @@ For this project that is a concrete rule and not a musing: **if a gh-aw workflow
 adopted here, the `safe-outputs:` block must enumerate the types it wants rather than inherit a
 default**, and the enumerated list belongs in a contract a review reads — because a type added
 upstream needs no action by us to become available to a handler we already enabled.
+
+> **That sentence is now scoped, because the §4a review found it claiming more than was read.**
+> What the pages establish is that *the documented vocabulary* grew with no action by anyone
+> here. Whether a newly added type reaches an **already-compiled** `.lock.yml` without a
+> recompile is **not determined by anything I read** — and the compile step is a reason to think
+> it may not. The perimeter claim holds about the vocabulary a reader of the docs inherits and is
+> **unmeasured** about a workflow already committed. Naming that boundary is the point: a claim
+> whose scope exceeds its evidence is this project's house failure mode.
 
 ### 4. The default is read-only, and the default is also one issue
 
@@ -413,7 +440,15 @@ cron syntax"*), `issues:`, `pull_request:`, `pull_request_target:`, `issue_comme
 `repository_dispatch:` (*"Trigger a workflow from outside GitHub using a single authenticated API
 call"*), plus `slash_command:` and `label_command:`.
 
-**The control on who may trigger is `roles:`, and its semantics are a trap worth naming.**
+**The control on who may trigger is `roles:`, and its semantics are a trap worth naming — but it
+only reaches a trigger that HAS an actor, and the §4a review caught me treating it as though it
+reached all thirteen.** A `schedule:` trigger has no actor whose repository role could be
+exact-matched, and `repository_dispatch:` authenticates an API caller rather than presenting a
+repository role in the same sense. The trigger set therefore divides: **actor-originated triggers
+are role-gated; the scheduled path is not gated by `roles:` at all** — which makes the surface
+*larger* than the original sentence implied, not smaller. Which trigger classes execute the role
+check is **not stated on the page**, and that absence is itself the finding.
+*(Scoped 2026-09-27 from the §4a review, 2 of 2 runs.)*
 
 > "Controls who can trigger agentic workflows using an exact-match allowlist against the actor's
 > repository role. Defaults to `[admin, maintainer, write]`."
@@ -515,7 +550,10 @@ the delivery proof itself.
 > roughly balanced across variants."
 
 **Balanced assignment is not randomisation.** Deterministically picking the least-used variant
-makes arm membership a function of run order, so anything that drifts with time — a model
+makes arm membership a function of run order — **to the extent the page defines it: the
+tie-breaking rule between two equally used variants is not documented, so whether run 1 always
+lands in the same arm is unstated, and only the existence of the confound follows, not its
+exact shape** *(scoped from the §4a review)* — so anything that drifts with time — a model
 update, a rate limit, a repository that got bigger — lands unevenly and is indistinguishable
 from the treatment. This project's mitigation is interleaving with a **concurrent** control,
 which has the same weakness and at least keeps the arms in the same time window; `min_samples:
@@ -537,6 +575,13 @@ worth knowing before Lab 8.3 is costed.
 > "The `gh aw compile` command turns this source into the `.lock.yml` GitHub Actions workflow"
 
 > "Add, commit and push the workflow file and its lock file to your repository."
+
+> **Disputed §4a finding, recorded with its reason.** The review asked for a stated pass/fail
+> correspondence check between `.md` and `.lock.yml`, on the scenario of a reviewer inspecting
+> only the source. **That scenario is the hazard this section reports, not a divergence about
+> what the section says** — the finding restates the conclusion as though it were an omission.
+> Supplying such a check would be building an instrument for a workflow this project does not
+> run, which §6 forbids at this stop. The absence stays the finding. *(Disputed 2026-09-27.)*
 
 **Two committed files, one of which executes.** The `.md` is what a human reviews — the prompt,
 the `permissions:` block, the `safe-outputs:` list, the `roles:` allowlist. The `.lock.yml` is
@@ -571,7 +616,15 @@ adds, as a ranked list — most portable first:
 2. **Fail-closed on the detector's own failure.** *"If the detection process itself fails … the
    workflow stops"*. This project's scorers do the opposite in one documented place — `curl`
    returning `000` in `check-links.sh` *"degrades to a non-fatal `unverified`"* (`author_notes`,
-   carried for weeks). Same decision, opposite default, and gh-aw's is the right one.
+   carried for weeks). Same decision, opposite default — and **gh-aw's is the right one for a
+   check whose output gates a claim**, which is the qualification the §4a review correctly
+   demanded. A detector that cannot run must not let a write through. A *reachability* check that
+   degrades an unreachable host to `unverified` is defensible precisely because nothing gates on
+   it. So the portable rule is narrower than "fail closed": **a check whose result is quoted as
+   evidence must fail closed; a check that only reports may degrade.** By that rule
+   `verify-quotes.sh` must fail closed — and it does, observed live rather than argued: exit 3 at
+   `evidence/p08/quote-verification-20260928T0000Z-fetch-timeout-exit3.txt` when one page timed
+   out at boundary 2.
 3. **Enumerate the vocabulary; never inherit the default set.** §3's *"one variable"* rule has an
    analogue: a capability list that someone else can extend is not a fixed variable.
 4. **`INCONCLUSIVE` vs `EXTEND` as separate rows.** Track B collapses both into
@@ -667,6 +720,29 @@ lessons from Phase 1 about *registering the bar before you see the data* pay off
 > membership is a function of run order and drifts with anything else that does. Run it with a
 > concurrent control or do not claim a comparison.
 
+## Debts the deferred labs owe before they run — registered by the §4a review, 2026-09-27
+
+The review read the four DEFERRED labs and the noise-kill rule as though they were about to be
+run, and found each one underspecified in a way that lets two competent reviewers reach opposite
+verdicts from the same data. **None of these is fixed here** — designing a deferred lab's decision
+rule at this stop would be creating a future step's artifact, which §6 forbids. They are recorded
+so the lab cannot be run without answering them, which is the whole function of writing a debt
+down.
+
+| Lab / rule | What is undefined | Why it decides the result |
+|---|---|---|
+| **Lab 8.1** — hand-scored actionable/noise split | the **denominator**: per emitted item or per unique item after de-duplication | five reports with 20 items, 3 duplicates, gives two different useful-finding rates from one run ledger |
+| **Lab 8.2** — staged mode | the **pass criterion**: is "no mutation occurred" enough, or must the production handler be shown to reject a disallowed request? | identical output yields opposite lab verdicts |
+| **Lab 8.3** — injection fixture | the **repetition count and decision threshold**: "more than once" spans 2 runs and 100 runs | 1 detection in 2 vs 40 in 100 are materially different claims about the miss rate; at `n < 5` §5 forbids stating either as a property |
+| **Lab 8.4** — A/B | the **boundary operator** on `above 0.9` (`>` or `>=`), and whether counterbalancing is required as well as concurrency | a variant scoring exactly `0.900` is promoted by one reading and rejected by the other; and a concurrent control still leaves treatment confounded with order if the candidate always follows the control |
+| **The noise kill rule** | `ignored`, `noisy`, the **threshold**, the denominator and the **named observer** | nine ignored of ten for two weeks is "disable" to one reader and "keep" to another |
+
+**Lab 8.4's debt is the one that generalises past this phase**, and it is the same argument
+`author_notes` already carries about `INCONCLUSIVE` vs `EXTEND`: interleaving gives a concurrent
+control and **does not by itself give exchangeable arms**. Every interleaved batch in this track —
+E-007, E-011, E-013, E-016 — inherits that, and it is a question for the author about the decision
+rule, not a defect in any closed stop. *(Registered, not fixed, 2026-09-27.)*
+
 ## The noise kill rule
 
 If an unattended workflow generates ignored or noisy output for two consecutive weeks:
@@ -698,7 +774,9 @@ learning:
     49-day-old extract against the live pages, and one instrument that executes:
     evidence/p08/verify-quotes.sh — 29 registered sentences over the seven Verified-reading
     pages, fetched over the network, printed FOUND or ABSENT, with four registered exit codes
-    and a 10-case fixture set (evidence/p08/verify-quote-checker.sh). Plus two SOURCES.md rows
+    and a 14-case fixture set (evidence/p08/verify-quote-checker.sh) — 10 cases before the §4a
+    review of this stop found four defects in the checker and three more cases were added to
+    prove the fixes refuse. Plus two SOURCES.md rows
     (threat-detection, triggers) and five dated extract sections beside the August text, which
     is kept verbatim.
   why_it_exists: >
@@ -728,7 +806,11 @@ learning:
     non-fatal `unverified`. Same decision, opposite default, and theirs is the right one.
   keep_or_remove: >
     KEEP evidence/p08/verify-quotes.sh, scoped to this phase only. It is the one artefact of this
-    stop with an L2 proof and it earned that by refusing: 10 of 10 fixtures over all four exit
+    stop with an L2 proof — but it earned that only after its own review found FOUR defects in it,
+    every one of which reported a FAILURE TO FETCH as DOCUMENTATION DRIFT. One empty cached page or
+    one typo and the pre-fix script printed nine quotations as stale. The instrument built to catch
+    a stale claim would have manufactured louder versions of the same claim, and nothing would have
+    contradicted it. KEEP the fixed script: 14 of 14 fixtures over all four exit
     codes, including one fixture with exactly one quote deleted (exit 2, absent=1) and one quote
     containing `!==` matched literally rather than as a regex; case B re-derived by hand. A
     general, repo-wide quote checker is REFUSED at this stop and sits in author_notes — §6 forbids
@@ -745,10 +827,19 @@ learning:
 questions not covered by a key above. The problem: an extract is L3 by construction, and this
 project had no way to tell a stale quotation from a current one short of a human re-reading
 seven pages. The evidence: the instrument's first live run found a defect in the workbook that
-commissioned it, and its fixture set proves it refuses (10 of 10 over four exit codes). **The new
-cost:** 29 network fetches per invocation and a registered sentence list that must be edited
-whenever the extract is, which is a maintenance burden a repo-wide version would multiply — that
-is the argument for keeping it phase-scoped until someone measures the burden.
+commissioned it, and its fixture set proves it refuses — **14 of 14 over four exit codes** after
+the §4a review added three cases (see the review section below). **The new cost:** **seven**
+network fetches per invocation — one per page in `PAGES`, not one per sentence — plus a
+registered list of 29 sentences that must be edited whenever the extract is, which is a
+maintenance burden a repo-wide version would multiply; that is the argument for keeping it
+phase-scoped until someone measures the burden.
+
+> **`29 network fetches per invocation` was simply wrong, by a factor of four, and the §4a review
+> caught it in 2 of 2 runs.** The loop is `for entry in "${PAGES[@]}"` with one `curl` per entry
+> (`evidence/p08/verify-quotes.sh:87,97`) and `PAGES` holds **seven** URLs; the 29 is the
+> sentence count, searched locally in the stripped text. Re-derived by hand off the script and
+> off the live output, whose `[tag]` values resolve to six distinct pages plus `home`, which
+> carries no registered sentence. *(Fixed 2026-09-27.)*
 
 ## Validation — §5, at §0 boundary 2, 2026-09-27
 
@@ -758,8 +849,19 @@ steps 3–10** when the lab runs no benchmark. No experiment file, no prediction
 dollar spent on the agent under test at this stop. Verified, not asserted: over all **740** runs
 on the API, the count of runs whose `experimentKey` matches `p08|stop23|PHASE-8|B8-agentic` is
 **0** (`curl -fsS http://127.0.0.1:8081/api/runs | jq '[.[] | select((.experimentKey // "") |
-test("p08|stop23|PHASE-8|B8-agentic";"i"))] | length'`). The pinned model was touched only by the
-§0a row-6b isolation probe, whose key is `preflight-*` and which enters no comparison.
+test("p08|stop23|PHASE-8|B8-agentic";"i"))] | length'`, run at boundary 2, **exit status 0 on
+both stages**, and the `740` is the same call's `jq length`). The pinned model was touched only
+by the §0a row-6b isolation probe, run `a74ac5fe-605a-4607-84f7-de67082ddbd9`, whose key is
+`preflight-*` and which enters no comparison.
+
+> **The §4a review attacked this derivation twice and one attack is answered, not fixed.** Run 1
+> asked what happens if the API is down: `curl -fsS` fails, `jq` gets empty input and errors, and
+> the pipeline does not print `0` — so the failure mode is a visible error, not a false zero; the
+> status is recorded above to close it. Run 2 argued the regex is **broader** than the stop's key
+> set and could count an unrelated `p08-old`. **That is a reason the result is stronger, not
+> weaker: a superset that matches nothing proves the subset matches nothing.** Had it returned a
+> non-zero count I would have had to inspect each match before claiming anything — which is why
+> the pattern is deliberately loose. Recorded as a **dispute**, with the reasoning, per §4a step 2.
 
 **Independence check: there are no arms to be independent of.** A one-variable comparison needs
 two populations and this stop has none. Nothing in this workbook is a claim about
@@ -775,9 +877,10 @@ and the proof column says so.
 | `Why auto-merge should not be the first target` | `phases/08-agentic-workflows/README.md:255-287`; `merge-pull-request`, `approve-workflow-run` and `push-to-pull-request-branch` are now **in** the closed vocabulary, each marked `experimental` | **L3.** It is an argument, not a measurement — but a sharper one than the scaffold could make, because auto-merge is no longer hypothetical | Read the safe-outputs page's output-type list and find the three names. The August extract does not contain them |
 | `Was this the agent, or the harness?` (§4 step 11) | **Neither.** `n = 0` runs; the run count for this stop's keys is `0` of `740` on the API | **L2** — a counted query over the run store, not a claim | The `jq` one-liner above. An empty result is the whole answer |
 | Instrument: `./tools/check-links.sh` over the two new `SOURCES.md` rows | re-run at boundary 2: `ok=73 moved=11 blocked=2 unverified=0 broken=0`, **exit 0** | **L2** | `cd agent-learning-lab && ./tools/check-links.sh`. Two more `ok` than stop 22's 71 — the two new rows and nothing else |
-| Instrument: `./evidence/p08/verify-quotes.sh`, live over the network | re-run at boundary 2: `found=28 absent=1`, **exit 2**; the one `ABSENT` is `[safe] The agent never receives write tokens directly` — **this workbook's own August quote** | **L2** | `./evidence/p08/verify-quotes.sh`. **If it returns `29/0` the page changed again and that is a new finding, not a pass** |
-| Instrument: `./evidence/p08/verify-quote-checker.sh` (the fixture set) | re-run at boundary 2: **`10 passed, 0 failed`**, exit 0, over all four registered exit codes; case B (one quote deleted → exit 2, `absent=1`) re-derived by hand | **L2** | `./evidence/p08/verify-quote-checker.sh`. A checker never shown to refuse is indistinguishable from one that refuses nothing |
-| The spine's `**L1**` label for Phase 8 (`LEARNING-PATH.md:103`) | `phases/08-agentic-workflows/README.md:35-77` — the layer rule applied **in order**; only **two** of ten subject rows survive step 1 | **L3, and now qualified rather than overwritten** | Apply the workspace `CLAUDE.md` rule in order to each row of the subject table. The label is right about the credential and wrong about everything that inspects content |
+| Instrument: `./evidence/p08/verify-quotes.sh`, live over the network | **after** the four §4a fixes: `found=28 absent=1`, **exit 2**, same absent sentence — `[safe] The agent never receives write tokens directly`, this workbook's own August quote (`evidence/p08/quote-verification-20260928T0006Z-postfix.txt`). The headline is unchanged by the fix, which is the only reason it may still be stated. Its **fail-closed** path was observed rather than argued: exit 3 on a timed-out page, `evidence/p08/quote-verification-20260928T0000Z-fetch-timeout-exit3.txt` | **L2** | `./evidence/p08/verify-quotes.sh`. **If it returns `29/0` the page changed again and that is a new finding, not a pass** |
+| Instrument: `./evidence/p08/verify-quote-checker.sh` (the fixture set) | re-run after the §4a fixes: **`14 passed, 0 failed`**, exit 0, over all four registered exit codes (`evidence/p08/quote-checker-fixtures-20260927T2345Z-14-cases.txt`); case B re-derived by hand, and cases **I, J, K each proved to REFUSE the pre-fix script** — J and K returned `exit 2, found=20 absent=9` against it | **L2** | `./evidence/p08/verify-quote-checker.sh`. To re-derive the refusals: `git show <pre-fix sha>:evidence/p08/verify-quotes.sh` and run cases I/J/K at it. A checker never shown to refuse is indistinguishable from one that refuses nothing |
+| The spine's `**L1**` label for Phase 8 (`LEARNING-PATH.md:103`) | `phases/08-agentic-workflows/README.md:35-77` — the layer rule applied **in order**; only **one** of ten subject rows survive step 1 | **L3, and now qualified rather than overwritten** | Apply the workspace `CLAUDE.md` rule in order to each row of the subject table. The label is right about the credential and wrong about everything that inspects content |
+| The instrument built at this stop is itself sound | four defects found by the §4a review and fixed, each with a fixture proving it refuses the pre-fix script; ShellCheck exit 0 on both scripts; the fourth (page chrome) **disputed** and registered as a scoped limitation in the script header | **L2** | `shellcheck evidence/p08/verify-quotes.sh evidence/p08/verify-quote-checker.sh` (expect exit 0), then `./evidence/p08/verify-quote-checker.sh` (expect `14 passed, 0 failed`) |
 
 Every command in the right-hand column was re-run immediately before this section was written,
 and its output is the value quoted, not a remembered one.
@@ -803,9 +906,11 @@ Answered at §0 boundary 2, 2026-09-27, from the extract above. `[x]` = answered
   about different things. Filed as a correction to this phase's own exit gate.
 - [x] **Safe-output separation** — the one unambiguous **L1** in the subject table, and the only
   control where step 1 of the layer rule answers *no*: the agent's process holds no credential
-  that can express a write, so there is nothing to reject. `staged: true` (*"Every write operation
-  is skipped"*) is the second, and it is a **preview mode, not a production control** — Phase 5A's
-  *remove the capability before policing it*, shipped by a vendor. Everything that **inspects
+  that can express a write, so there is nothing to reject. **It is the ONLY row that survives step 1**
+  — `staged: true` was labelled L1 here until the §4a review, and it is **L2**: the write request
+  is still expressed and something executes and *skips* it. It is also a preview mode, not a
+  production control — Phase 5A's *remove the capability before policing it* shipped as
+  *police it in preview*, which is a weaker thing than the August extract implied. Everything that **inspects
   content** is L2 at best: threat detection blocks, and *"By default, threat detection uses the
   same AI engine as your main workflow"* — **a model asked whether a model was manipulated, the
   weakest L2 this project has catalogued**, which nonetheless **fails closed on its own failure**
@@ -838,7 +943,75 @@ result it is: a scaffold written before the pages were read asked for *"read-onl
 yes/no, and the pages answer *"whose default?"*. *(Stop 23, §0 boundary 2, 2026-09-27, Opus 5
 (claude-opus-5), autonomously; the author did not review before this was written.)*
 
+## The §4a review — what it found, and what it found in the instrument
+
+Two invocations, `-P codex`, `-n 2` each, run sequentially. **There is no acceptance verdict and
+that is recorded as `DID NOT RUN`, not as a pass and not as `UNDECIDED`:** the gate is an
+`opencode` route and `lab-acceptance` sits on the provider whose weekly limit has stalled §0a row 2
+for ten consecutive sessions. `## Acceptance` in both files reads *"The gate failed to run (opencode
+exit 1)"*. Both panels ran clean — `codex ok 62s / 63s` and `codex ok 24s / 25s` — so the findings
+are results, not stalls.
+
+- `findings/opencode/review-README-20260927T201538Z.md` — 23 136 bytes, 44 sections, the workbook
+- `findings/opencode/review-verify-quotes-20260927T202016Z.md` — 6 555 bytes, 9 sections, the tool
+
+**One family only, so recurrence is `1/1` on every row and `2 of 2 runs` is the honest phrasing for
+the four findings both runs raised** — the `staged: true` label, `roles:` on actorless triggers, the
+fetch count, and the Commit block. §4a is explicit that recurrence is a detection threshold and not
+a truth value, so the single-run findings were dispositioned on their merits, not discounted.
+
+**Every finding is dispositioned above, at the text it concerns**: eight fixed, two disputed in
+writing with the reason (the compile-step correspondence check; the deliberately-broad `jq`
+pattern), and five registered as debts of the deferred labs. The PR body carries the same list
+against the shas.
+
+### The instrument review is the part worth reading, because the instrument was wrong
+
+`verify-quotes.sh` — the one L2 artefact this stop produced, ShellCheck clean, 10 of 10 fixtures —
+had **four defects, all of the same shape: a failure to fetch reported as documentation drift.**
+That is this project's house failure mode pointed at the tool built to catch it.
+
+| Defect | What it did | Fix | Fixture |
+|---|---|---|---|
+| `curl` had no `--fail` | a 404 serving a non-empty HTML error page exits 0, gets stripped to real text, and **every quote on that page reports `ABSENT`, exit 2** — claiming drift for a page never read | `curl -fsS` → exit 3 | **I** |
+| an empty **cached** page was accepted | `-f` without `-s`: the cache branch reached the matcher and exited 2, while an empty *live* response or *fixture* exits 3. **Same content, two verdicts, decided only by where it came from** | `-s` check → exit 3 | **J** |
+| an **undeclared page key** in `QUOTES` | a one-character typo read a file that does not exist, `2>/dev/null` swallowed the error, and the quote printed `ABSENT` — an invalid verifier configuration indistinguishable from real drift | validate every key against `PAGES` → exit 4; `2>/dev/null` removed | **K** |
+| `strip` keeps page **chrome** | a sentence deleted from the body but surviving in navigation would still report `FOUND` | **disputed, and registered as a scoped limitation in the script header** — the claim supported is *"the sentence still appears somewhere on the cited page"*, which is the claim a quotation makes; body extraction needs a per-site selector that breaks on the next redesign | — |
+
+**The first three were proved against the pre-fix script, not asserted.** `git show HEAD:` the old
+file and run the new cases at it:
+
+```
+case I   OLD does not carry --fail
+case J   OLD exit 2, found=20 absent=9      (fix expects exit 3)
+case K   OLD exit 2, found=20 absent=9      (fix expects exit 4)
+```
+
+**One empty cached page, or one typo, and the old checker reported nine quotations as stale
+documentation.** It would not have failed; it would have produced a *louder* version of this stop's
+headline, and nothing would have contradicted it. That is the same shape as the contamination guard
+at stop 8 that would have excluded the treatment arm and reported a null — a control whose failure
+looks exactly like a finding.
+
+**After the fix:** ShellCheck clean, **14 of 14 fixtures** over all four registered exit codes, and
+the live run reproduces **`found=28 absent=1`, exit 2**, same absent sentence
+(`evidence/p08/quote-verification-20260928T0006Z-postfix.txt`). The headline of this stop is
+therefore unchanged by the fix — which is the only reason it may still be stated.
+
+**And the fail-closed behaviour was observed rather than argued.** The first post-fix live run hit a
+network timeout on the `home` page and returned **exit 3** with `FETCH FAILED`, recorded at
+`evidence/p08/quote-verification-20260928T0000Z-fetch-timeout-exit3.txt`. A checker that cannot
+reach a page says so instead of reporting drift.
+
 ## Commit
+
+**These are the scaffold's deliverables for Labs 8.1–8.4, all four DEFERRED — not files this
+stop produced.** The §4a review flagged the ambiguity in 2 of 2 runs and it was real: the
+workbook says *"no experiment file"* while this block names one. **What stop 23 actually
+committed:** this workbook, two `SOURCES.md` rows, `evidence/p08/verify-quotes.sh`,
+`evidence/p08/verify-quote-checker.sh` and the boundary-1/boundary-2 output captures under
+`evidence/p08/`. Nothing under `.github/workflows/`, no experiment and no threat-model file
+exists, and §6 forbids creating them for a deferred lab. *(Clarified 2026-09-27.)*
 
 ```
 .github/workflows/<workflow>.md

@@ -15,6 +15,16 @@
 #   3  a page could not be fetched (nothing was proved either way)
 #   4  bad usage
 #
+# REGISTERED LIMITATION, not a defect to discover later. `strip` removes <script> and <style>
+# and then all tags, so the searched text includes page CHROME — navigation, footers,
+# accessibility-only elements. A sentence deleted from the body but surviving in chrome would
+# still report FOUND. The claim this script supports is therefore exactly: "the quoted
+# sentence still appears somewhere on the cited page", which is the claim the workbook makes,
+# since a quotation cites a page and not a region. Raised by the §4a codex review,
+# 2026-09-27, and DISPUTED rather than fixed: body extraction needs a per-site selector that
+# breaks on the next redesign, and these quotes are full sentences, which chrome does not
+# carry. The limitation is written here so no reader infers a stronger claim.
+#
 # It is L2 over the quoting and says nothing whatever about the agent under test.
 set -uo pipefail
 
@@ -92,18 +102,45 @@ for entry in "${PAGES[@]}"; do
     [ -r "$FIXTURE" ] || { echo "FIXTURE NOT READABLE $FIXTURE" >&2; exit 3; }
     [ -s "$FIXTURE" ] || { echo "FIXTURE EMPTY $FIXTURE" >&2; exit 3; }
     cp "$FIXTURE" "$TMP/$key.html"
-  elif [ -n "$CACHE" ] && [ -f "$CACHE/ghaw-$key.html" ]; then cp "$CACHE/ghaw-$key.html" "$TMP/$key.html"
+  elif [ -n "$CACHE" ] && [ -f "$CACHE/ghaw-$key.html" ]; then
+    # Identical empty content used to be classified two different ways depending only on
+    # where it came from: an empty live response or fixture exits 3, an empty CACHED page
+    # reached the matcher and exited 2. Same input, two verdicts. Found by the §4a codex
+    # review, 2026-09-27; fixture J proves the fix.
+    [ -s "$CACHE/ghaw-$key.html" ] || { echo "EMPTY CACHED PAGE $key $CACHE/ghaw-$key.html" >&2; exit 3; }
+    cp "$CACHE/ghaw-$key.html" "$TMP/$key.html"
   else
-    curl -sS -m 40 -L "$url" -o "$TMP/$key.html" || { echo "FETCH FAILED $key $url" >&2; exit 3; }
+    # `--fail` is load-bearing and was missing. Without it a 404 that serves a non-empty
+    # HTML error page exits 0, the strip step produces real text, every quote for that
+    # page reports ABSENT and the script exits 2 — CLAIMING DOCUMENTATION DRIFT FOR A PAGE
+    # IT NEVER READ. That is this project's house failure mode (a control reporting over a
+    # scope smaller than it claims) and it could have produced a false headline.
+    # Found by the §4a codex review, 2026-09-27; fixture I proves the fix.
+    curl -fsS -m 40 -L "$url" -o "$TMP/$key.html" || { echo "FETCH FAILED $key $url" >&2; exit 3; }
     [ -s "$TMP/$key.html" ] || { echo "EMPTY PAGE $key $url" >&2; exit 3; }
   fi
   strip < "$TMP/$key.html" > "$TMP/$key.txt"
 done
 
+# Every quote's page key must name a DECLARED page. A typo used to read a file that does not
+# exist, with stderr discarded by `2>/dev/null`, and print ABSENT — so an invalid verifier
+# configuration was indistinguishable from real documentation drift. Bash 3.2 ships on this
+# machine, so this is a string membership test and not an associative array.
+# Found by the §4a codex review, 2026-09-27; fixture K proves the fix.
+PAGE_KEYS=" "
+for entry in "${PAGES[@]}"; do PAGE_KEYS="$PAGE_KEYS${entry%%|*} "; done
+while IFS=$'\t' read -r key _q; do
+  [ -z "${key:-}" ] && continue
+  case "$PAGE_KEYS" in
+    *" $key "*) : ;;
+    *) echo "UNDECLARED PAGE KEY '$key' in QUOTES — not a drift result" >&2; exit 4 ;;
+  esac
+done <<< "$QUOTES"
+
 found=0; missing=0
 while IFS=$'\t' read -r key quote; do
   [ -z "${key:-}" ] && continue
-  if grep -qF -- "$quote" "$TMP/$key.txt" 2>/dev/null; then
+  if grep -qF -- "$quote" "$TMP/$key.txt"; then   # no 2>/dev/null: every key is validated above
     printf 'FOUND   [%s] %s\n' "$key" "$quote"; found=$((found+1))
   else
     printf 'ABSENT  [%s] %s\n' "$key" "$quote"; missing=$((missing+1))

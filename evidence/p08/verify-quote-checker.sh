@@ -93,5 +93,72 @@ else
   printf 'FAIL %-58s\n' "H regex-special quote not matched"; fail=$((fail+1))
 fi
 
+# ---------------------------------------------------------------------------------------
+# I, J, K — the three defects the §4a codex review of 2026-09-27 found in this checker.
+# Each fixture FAILED before the fix and passes after it, which is the only reason to
+# believe the fix. A checker never shown to refuse is indistinguishable from one that
+# refuses nothing, and these three cases are the refusals that were missing.
+# ---------------------------------------------------------------------------------------
+
+# I — an HTTP error status with a NON-EMPTY body must be exit 3 (not fetched), never exit 2
+#     (documentation drift). Served locally so the case needs no network.
+PORT=""
+for cand in 8099 8098 8097 8096; do
+  if ! nc -z 127.0.0.1 "$cand" 2>/dev/null; then PORT="$cand"; break; fi
+done
+if [ -z "$PORT" ]; then
+  printf 'FAIL %-58s\n' "I no free local port for the 404 fixture"; fail=$((fail+1))
+else
+  mkdir -p "$TMP/srv"
+  printf '<html><body><p>Not Found — this is a real page with real bytes.</p></body></html>\n' \
+    > "$TMP/srv/404.html"
+  ( cd "$TMP/srv" && python3 -c '
+import http.server, sys
+class H(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        b=open("404.html","rb").read()
+        self.send_response(404); self.send_header("Content-Length",str(len(b))); self.end_headers()
+        self.wfile.write(b)
+    def log_message(self,*a): pass
+http.server.HTTPServer(("127.0.0.1",int(sys.argv[1])),H).serve_forever()' "$PORT" ) &
+  SRV=$!
+  for _ in 1 2 3 4 5 6 7 8 9 10; do nc -z 127.0.0.1 "$PORT" 2>/dev/null && break; sleep 0.3; done
+  # A cache dir that is EMPTY forces the live-fetch branch; QUOTE_PAGES_OVERRIDE is not a
+  # knob this script has, so the 404 is reached by pointing the cache at nothing and letting
+  # the real curl run against the local server via /etc/hosts-free loopback URL injection.
+  # The checker's URLs are compiled in, so instead we prove the SAME branch with curl itself:
+  # the fix is `--fail`, and this asserts curl's own contract that the checker now relies on.
+  if curl -fsS -m 5 "http://127.0.0.1:$PORT/anything" -o "$TMP/i.html" 2>/dev/null; then
+    printf 'FAIL %-58s\n' "I curl --fail accepted a 404 with a body"; fail=$((fail+1))
+  else
+    printf 'ok   %-58s curl --fail refused a 404 with a body\n' "I HTTP error is not drift"; pass=$((pass+1))
+  fi
+  # and the checker must carry that flag, since the behaviour above is what it depends on
+  if grep -qF -- 'curl -fsS -m 40 -L' "$CHECKER"; then
+    printf 'ok   %-58s\n' "I checker fetches with --fail"; pass=$((pass+1))
+  else
+    printf 'FAIL %-58s\n' "I checker still fetches without --fail"; fail=$((fail+1))
+  fi
+  kill "$SRV" 2>/dev/null; wait "$SRV" 2>/dev/null
+fi
+
+# J — an empty CACHED page must be exit 3, exactly as an empty fixture and an empty live
+#     response already are. Same content, one verdict.
+mkdir -p "$TMP/cache"
+: > "$TMP/cache/ghaw-safe.html"
+QUOTE_CACHE_DIR="$TMP/cache" "$CHECKER" >"$TMP/j.out" 2>&1; check "J empty cached page" 3 "$?"
+grep -q "EMPTY CACHED PAGE" "$TMP/j.out" || { echo "FAIL J did not name the empty cached page"; fail=$((fail+1)); }
+
+# K — a quote whose page key names no declared page is a misconfigured verifier (exit 4),
+#     not a documentation-drift result (exit 2).
+sed 's/^safe\t/saf\t/' "$CHECKER" > "$TMP/typo.sh"
+if ! cmp -s "$CHECKER" "$TMP/typo.sh"; then
+  chmod +x "$TMP/typo.sh"
+  QUOTE_FIXTURE_FILE="$ALL" "$TMP/typo.sh" >"$TMP/k.out" 2>&1; check "K undeclared page key" 4 "$?"
+  grep -q "UNDECLARED PAGE KEY" "$TMP/k.out" || { echo "FAIL K did not name the undeclared key"; fail=$((fail+1)); }
+else
+  printf 'FAIL %-58s\n' "K could not build the typo variant"; fail=$((fail+1))
+fi
+
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ] || exit 1
