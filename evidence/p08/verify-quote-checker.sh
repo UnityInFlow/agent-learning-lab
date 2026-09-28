@@ -160,5 +160,22 @@ else
   printf 'FAIL %-58s\n' "K could not build the typo variant"; fail=$((fail+1))
 fi
 
+# L, M — the fifth defect, found by the §4a ACCEPTANCE GATE at round 2 (minimax-m3, REJECT,
+# 2026-09-28): the html->text step could fail and the script carried on to report drift.
+
+# L — a python3 that exits non-zero must be exit 3 (nothing proved), never exit 2 (drift)
+mkdir -p "$TMP/badpy"
+printf '#!/bin/sh\nexit 1\n' > "$TMP/badpy/python3"
+chmod +x "$TMP/badpy/python3"
+PATH="$TMP/badpy:$PATH" QUOTE_FIXTURE_FILE="$ALL" "$CHECKER" >"$TMP/l.out" 2>&1
+check "L strip interpreter fails" 3 "$?"
+grep -q "STRIP FAILED\|STRIP PRODUCED NO TEXT" "$TMP/l.out" || { echo "FAIL L did not name the strip failure"; fail=$((fail+1)); }
+
+# M — a page with a non-UTF-8 byte raises UnicodeDecodeError in strip; also exit 3
+printf '<html><body><p>caf\351 not utf-8</p></body></html>' > "$TMP/latin1.html"
+QUOTE_FIXTURE_FILE="$TMP/latin1.html" "$CHECKER" >"$TMP/m.out" 2>&1
+check "M non-UTF-8 page" 3 "$?"
+grep -q "STRIP FAILED\|STRIP PRODUCED NO TEXT" "$TMP/m.out" || { echo "FAIL M did not name the strip failure"; fail=$((fail+1)); }
+
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ] || exit 1

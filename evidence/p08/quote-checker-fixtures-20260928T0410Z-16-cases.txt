@@ -1,0 +1,18 @@
+ok   A all quotes present                                       exit 0
+ok   B one quote removed                                        exit 2
+ok   C fixture missing                                          exit 3
+ok   D fixture empty                                            exit 3
+ok   E two arguments                                            exit 4
+ok   F unknown argument                                         exit 4
+ok   G --list exits 0                                           exit 0
+ok   G --list line count                                        29 quotes
+ok   H literal quote is in the registered set                  
+ok   H regex-special quote matched literally                   
+ok   I HTTP error is not drift                                  curl --fail refused a 404 with a body
+ok   I checker fetches with --fail                             
+ok   J empty cached page                                        exit 3
+ok   K undeclared page key                                      exit 4
+ok   L strip interpreter fails                                  exit 3
+ok   M non-UTF-8 page                                           exit 3
+
+16 passed, 0 failed

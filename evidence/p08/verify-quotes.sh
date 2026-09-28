@@ -119,7 +119,16 @@ for entry in "${PAGES[@]}"; do
     curl -fsS -m 40 -L "$url" -o "$TMP/$key.html" || { echo "FETCH FAILED $key $url" >&2; exit 3; }
     [ -s "$TMP/$key.html" ] || { echo "EMPTY PAGE $key $url" >&2; exit 3; }
   fi
-  strip < "$TMP/$key.html" > "$TMP/$key.txt"
+  # The strip step is a python3 wrapper and it CAN fail: a crashing or missing interpreter, or a
+  # page carrying a non-UTF-8 byte (UnicodeDecodeError). `set -uo pipefail` does not catch it
+  # because `-e` is absent and the status was never checked, so an EMPTY .txt reached the matcher
+  # and every quote on the page printed ABSENT at exit 2 — AN INTERNAL PROCESSING FAILURE
+  # REPORTED AS DOCUMENTATION DRIFT. Fifth instance of that shape in this script, and the one the
+  # §4a ACCEPTANCE GATE blocked on (minimax-m3, REJECT, 2026-09-28). Fixtures L and M prove it.
+  if ! strip < "$TMP/$key.html" > "$TMP/$key.txt"; then
+    echo "STRIP FAILED $key (html -> text extraction)" >&2; exit 3
+  fi
+  [ -s "$TMP/$key.txt" ] || { echo "STRIP PRODUCED NO TEXT $key" >&2; exit 3; }
 done
 
 # Every quote's page key must name a DECLARED page. A typo used to read a file that does not

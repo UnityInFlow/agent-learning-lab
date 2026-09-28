@@ -215,7 +215,7 @@ ShellCheck clean.
 
 **It has been shown to refuse**, which is the only reason to believe it when it accepts:
 [`evidence/p08/verify-quote-checker.sh`](../../evidence/p08/verify-quote-checker.sh) is its
-fixture set — **14 cases, 14 passed, exit 0** after the §4a review added three (10 before it) —
+fixture set — **16 cases, 16 passed, exit 0** after two §4a rounds added six (10 before them) —
 covering all four exit codes, including a fixture
 with exactly one quote deleted (`exit 2`, `absent=1`) and a quote containing `!==` matched
 literally rather than as a regex. **Case B was then re-derived by hand**: 29 `<p>` lines in, the
@@ -774,9 +774,9 @@ learning:
     49-day-old extract against the live pages, and one instrument that executes:
     evidence/p08/verify-quotes.sh — 29 registered sentences over the seven Verified-reading
     pages, fetched over the network, printed FOUND or ABSENT, with four registered exit codes
-    and a 14-case fixture set (evidence/p08/verify-quote-checker.sh) — 10 cases before the §4a
-    review of this stop found four defects in the checker and three more cases were added to
-    prove the fixes refuse. Plus two SOURCES.md rows
+    and a 16-case fixture set (evidence/p08/verify-quote-checker.sh) — 10 cases before the §4a
+    review of this stop found FIVE defects in the checker across two rounds, and six more cases
+    were added to prove the fixes refuse. Plus two SOURCES.md rows
     (threat-detection, triggers) and five dated extract sections beside the August text, which
     is kept verbatim.
   why_it_exists: >
@@ -810,7 +810,7 @@ learning:
     every one of which reported a FAILURE TO FETCH as DOCUMENTATION DRIFT. One empty cached page or
     one typo and the pre-fix script printed nine quotations as stale. The instrument built to catch
     a stale claim would have manufactured louder versions of the same claim, and nothing would have
-    contradicted it. KEEP the fixed script: 14 of 14 fixtures over all four exit
+    contradicted it. KEEP the fixed script: 16 of 16 fixtures over all four exit
     codes, including one fixture with exactly one quote deleted (exit 2, absent=1) and one quote
     containing `!==` matched literally rather than as a regex; case B re-derived by hand. A
     general, repo-wide quote checker is REFUSED at this stop and sits in author_notes — §6 forbids
@@ -827,8 +827,8 @@ learning:
 questions not covered by a key above. The problem: an extract is L3 by construction, and this
 project had no way to tell a stale quotation from a current one short of a human re-reading
 seven pages. The evidence: the instrument's first live run found a defect in the workbook that
-commissioned it, and its fixture set proves it refuses — **14 of 14 over four exit codes** after
-the §4a review added three cases (see the review section below). **The new cost:** **seven**
+commissioned it, and its fixture set proves it refuses — **16 of 16 over four exit codes** after
+two §4a rounds added six cases (see the review section below). **The new cost:** **seven**
 network fetches per invocation — one per page in `PAGES`, not one per sentence — plus a
 registered list of 29 sentences that must be edited whenever the extract is, which is a
 maintenance burden a repo-wide version would multiply; that is the argument for keeping it
@@ -878,9 +878,9 @@ and the proof column says so.
 | `Was this the agent, or the harness?` (§4 step 11) | **Neither.** `n = 0` runs; the run count for this stop's keys is `0` of `740` on the API | **L2** — a counted query over the run store, not a claim | The `jq` one-liner above. An empty result is the whole answer |
 | Instrument: `./tools/check-links.sh` over the two new `SOURCES.md` rows | re-run at boundary 2: `ok=73 moved=11 blocked=2 unverified=0 broken=0`, **exit 0** | **L2** | `cd agent-learning-lab && ./tools/check-links.sh`. Two more `ok` than stop 22's 71 — the two new rows and nothing else |
 | Instrument: `./evidence/p08/verify-quotes.sh`, live over the network | **after** the four §4a fixes: `found=28 absent=1`, **exit 2**, same absent sentence — `[safe] The agent never receives write tokens directly`, this workbook's own August quote (`evidence/p08/quote-verification-20260928T0006Z-postfix.txt`). The headline is unchanged by the fix, which is the only reason it may still be stated. Its **fail-closed** path was observed rather than argued: exit 3 on a timed-out page, `evidence/p08/quote-verification-20260928T0000Z-fetch-timeout-exit3.txt` | **L2** | `./evidence/p08/verify-quotes.sh`. **If it returns `29/0` the page changed again and that is a new finding, not a pass** |
-| Instrument: `./evidence/p08/verify-quote-checker.sh` (the fixture set) | re-run after the §4a fixes: **`14 passed, 0 failed`**, exit 0, over all four registered exit codes (`evidence/p08/quote-checker-fixtures-20260927T2345Z-14-cases.txt`); case B re-derived by hand, and cases **I, J, K each proved to REFUSE the pre-fix script** — J and K returned `exit 2, found=20 absent=9` against it | **L2** | `./evidence/p08/verify-quote-checker.sh`. To re-derive the refusals: `git show <pre-fix sha>:evidence/p08/verify-quotes.sh` and run cases I/J/K at it. A checker never shown to refuse is indistinguishable from one that refuses nothing |
+| Instrument: `./evidence/p08/verify-quote-checker.sh` (the fixture set) | re-run after both §4a rounds: **`16 passed, 0 failed`**, exit 0, over all four registered exit codes (`evidence/p08/quote-checker-fixtures-20260928T0410Z-16-cases.txt`); case B re-derived by hand, and cases **I, J, K, L and M each proved to REFUSE the pre-fix script** — J and K returned `exit 2, found=20 absent=9`, and L and M returned `exit 2, found=0 absent=29` | **L2** | `./evidence/p08/verify-quote-checker.sh`. To re-derive the refusals: `git show <pre-fix sha>:evidence/p08/verify-quotes.sh` and run cases I/J/K at it. A checker never shown to refuse is indistinguishable from one that refuses nothing |
 | The spine's `**L1**` label for Phase 8 (`LEARNING-PATH.md:103`) | `phases/08-agentic-workflows/README.md:35-77` — the layer rule applied **in order**; only **one** of ten subject rows survive step 1 | **L3, and now qualified rather than overwritten** | Apply the workspace `CLAUDE.md` rule in order to each row of the subject table. The label is right about the credential and wrong about everything that inspects content |
-| The instrument built at this stop is itself sound | four defects found by the §4a review and fixed, each with a fixture proving it refuses the pre-fix script; ShellCheck exit 0 on both scripts; the fourth (page chrome) **disputed** and registered as a scoped limitation in the script header | **L2** | `shellcheck evidence/p08/verify-quotes.sh evidence/p08/verify-quote-checker.sh` (expect exit 0), then `./evidence/p08/verify-quote-checker.sh` (expect `14 passed, 0 failed`) |
+| The instrument built at this stop is itself sound | **five** defects found across two §4a rounds and fixed, each with a fixture proving it refuses the pre-fix script; ShellCheck exit 0 on both scripts; the fourth (page chrome) **disputed** and registered as a scoped limitation in the script header | **L2** | `shellcheck evidence/p08/verify-quotes.sh evidence/p08/verify-quote-checker.sh` (expect exit 0), then `./evidence/p08/verify-quote-checker.sh` (expect `16 passed, 0 failed`) |
 
 Every command in the right-hand column was re-run immediately before this section was written,
 and its output is the value quoted, not a remembered one.
@@ -968,7 +968,7 @@ against the shas.
 ### The instrument review is the part worth reading, because the instrument was wrong
 
 `verify-quotes.sh` — the one L2 artefact this stop produced, ShellCheck clean, 10 of 10 fixtures —
-had **four defects, all of the same shape: a failure to fetch reported as documentation drift.**
+had **five defects, all of the same shape: a failure to fetch reported as documentation drift.**
 That is this project's house failure mode pointed at the tool built to catch it.
 
 | Defect | What it did | Fix | Fixture |
@@ -976,6 +976,7 @@ That is this project's house failure mode pointed at the tool built to catch it.
 | `curl` had no `--fail` | a 404 serving a non-empty HTML error page exits 0, gets stripped to real text, and **every quote on that page reports `ABSENT`, exit 2** — claiming drift for a page never read | `curl -fsS` → exit 3 | **I** |
 | an empty **cached** page was accepted | `-f` without `-s`: the cache branch reached the matcher and exited 2, while an empty *live* response or *fixture* exits 3. **Same content, two verdicts, decided only by where it came from** | `-s` check → exit 3 | **J** |
 | an **undeclared page key** in `QUOTES` | a one-character typo read a file that does not exist, `2>/dev/null` swallowed the error, and the quote printed `ABSENT` — an invalid verifier configuration indistinguishable from real drift | validate every key against `PAGES` → exit 4; `2>/dev/null` removed | **K** |
+| `strip` had **no failure guard** *(round 2, the gate's blocking finding)* | a crashing `python3` or one non-UTF-8 byte left an empty `.txt`; the matcher read it and **all 29 quotes printed `ABSENT` at exit 2** — the whole extract declared stale | check `strip`'s status and its output → exit 3 | **L**, **M** |
 | `strip` keeps page **chrome** | a sentence deleted from the body but surviving in navigation would still report `FOUND` | **disputed, and registered as a scoped limitation in the script header** — the claim supported is *"the sentence still appears somewhere on the cited page"*, which is the claim a quotation makes; body extraction needs a per-site selector that breaks on the next redesign | — |
 
 **The first three were proved against the pre-fix script, not asserted.** `git show HEAD:` the old
@@ -993,10 +994,45 @@ headline, and nothing would have contradicted it. That is the same shape as the 
 at stop 8 that would have excluded the treatment arm and reported a null — a control whose failure
 looks exactly like a finding.
 
-**After the fix:** ShellCheck clean, **14 of 14 fixtures** over all four registered exit codes, and
-the live run reproduces **`found=28 absent=1`, exit 2**, same absent sentence
-(`evidence/p08/quote-verification-20260928T0006Z-postfix.txt`). The headline of this stop is
-therefore unchanged by the fix — which is the only reason it may still be stated.
+### Round 2 — the acceptance gate ran, returned `REJECT`, and was right
+
+`findings/opencode/review-verify-quotes-20260928T040312Z.md`. **The gate that had not run in ten
+sessions ran here** — `lab-acceptance · minimax-m3` — and blocked on a **fifth** defect of the
+same shape, raised independently by both line-level runs as well:
+
+> *"`strip()` has no exit-status check; a Python wrapper crash, missing module, or decode error
+> leaves the per-page `.txt` file empty and the loop continues without flagging the failure"* —
+> so the reader *"would see exit 2 and conclude 'this sentence is no longer in its cited page'…
+> when in fact nothing was verified for that page."*
+
+Correct, and worse than the first four. `set -uo pipefail` does not catch it (`-e` is absent and
+the status was never read). Fixed: `strip` failure or empty output → **exit 3**. Fixtures **L**
+(a `python3` on `PATH` that exits 1) and **M** (a page with a non-UTF-8 byte →
+`UnicodeDecodeError`) prove it, and both **refuse the pre-fix script**:
+
+```
+case L   OLD exit 2, found=0 absent=29      (fix expects exit 3)
+case M   OLD exit 2, found=0 absent=29      (fix expects exit 3)
+```
+
+**One broken interpreter, or one non-UTF-8 byte anywhere in seven pages, and the old checker
+reported ALL TWENTY-NINE quotations as stale documentation** — the entire extract declared
+fabricated, at exit 2, in the same format as a real finding. The four earlier defects each
+manufactured nine; this one manufactures the whole result. **It is the sharpest instance of this
+project's house failure mode found so far**, and it was caught by a gate that has been
+unavailable for ten sessions and happened to be reachable on this route.
+
+**After both rounds:** ShellCheck clean, **16 of 16 fixtures** over all four registered exit
+codes (`evidence/p08/quote-checker-fixtures-20260928T0410Z-16-cases.txt`), and the live run
+reproduces **`found=28 absent=1`, exit 2**, same absent sentence
+(`evidence/p08/quote-verification-20260928T0415Z-postfix-round2.txt`). The headline of this stop
+is therefore unchanged by five fixes to the instrument that produced it — which is the only
+reason it may still be stated.
+
+**Round 3 was not run and the loop is closed at two.** §4a caps at three rounds; round 2
+produced one blocking finding, it is fixed, and the acceptance gate is a different model from
+the line-level pass, so a third round would be a third detection threshold rather than an
+answer. Recorded as: **two rounds, five defects, all fixed, one finding disputed in writing.**
 
 **And the fail-closed behaviour was observed rather than argued.** The first post-fix live run hit a
 network timeout on the `home` page and returned **exit 3** with `FETCH FAILED`, recorded at
