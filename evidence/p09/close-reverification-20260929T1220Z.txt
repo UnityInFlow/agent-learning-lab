@@ -6,3 +6,5 @@ check-links(phase): ok=3 moved=0 blocked=0 unverified=0 broken=0
 verify-quotes: manifest=quotes-p09 found=3 absent=5
 shellcheck tools/verify-quotes.sh tools/verify-quote-checker.sh -> exit 0, no output
 ./tools/verify-quote-checker.sh -> exit 0, '29 passed, 0 failed'
+.claude/hooks/opencode-review.test.sh -> exit 0, "87 passed, 0 failed, 0 skipped" and "all 87 cases ran and behaved as specified"
+  (RE-DERIVED BY HAND at the close, not taken from the subagent; the prompt §0a table still says "16 of 16")
