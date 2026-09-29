@@ -243,3 +243,29 @@ moment they were taken. Like (b), this is a **live counter quoted as a fact**, a
 of that shape in one stop — which is itself a small result: *the classes of claim that go stale
 fastest are the ones that duplicate a number something else owns.* That is the same sentence as
 the lab's own `F-ev` category, arrived at from the opposite direction.
+
+## 11. Is the refutation itself reproducible? For rows 11–12, yes — three for three
+
+The same session's §0a row 6a returned **three different verdicts in thirty minutes** from an
+unchanged script, because its check asks a model to go looking and reports what one sample did.
+That makes "did you run it once?" a fair question to put to **every** verdict in this audit, and
+the only one at risk is `F-rep` — the class that claims a stated behaviour *does not reproduce*.
+
+Re-run three times, back to back:
+
+```
+trial 1: findings/=8987 bytes  .claude/=2398 bytes
+trial 2: findings/=8987 bytes  .claude/=2398 bytes
+trial 3: findings/=8987 bytes  .claude/=2398 bytes
+```
+
+Byte-identical, three for three. `rtk git diff` is deterministic on these inputs, so rows 11 and
+12 are a property of the command and not of one sample. **The other 23 verdicts are decided by
+`stat`, `git`, `curl`, `lsof` and file reads**, which are not behavioural either — with the
+single exception of row 10 (`gh api /copilot_internal/user`), a live network call whose success
+is a fact about one moment and is recorded as such.
+
+This section exists because the alternative is a double standard: it would be incoherent to
+publish *"`verify-codex-isolation.sh` is one sample of behaviour, not a control"* in the same
+session as twenty-five verdicts each taken from one run of one command, without saying which of
+them could have gone the other way.
