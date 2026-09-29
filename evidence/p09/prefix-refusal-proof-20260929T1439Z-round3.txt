@@ -1,0 +1,29 @@
+# Pre-fix refusal proof for §4a round-3 cases W, X, Y, Z — 2026-09-29T14:39:50Z
+# The PRE-FIX script is /tmp/verify-quotes.sh.bak, a byte copy of tools/verify-quotes.sh taken
+# immediately before the round-3 fixes (case-insensitive strip, url-hashed cache name, quote
+# whitespace collapse). A case that passes against BOTH scripts tests nothing.
+# pre-fix sha: 7b8eebaadddc   post-fix sha: 77c653db5e9f
+
+W  pre-fix exit=0   (post-fix expects 2)
+X  pre-fix exit=0   (post-fix expects 3)
+Y  pre-fix exit=3   (post-fix expects 0)
+Z  pre-fix exit=2   (post-fix expects 0)
+
+# All four cases FAIL against the pre-fix script and PASS against the fixed one, so none of them
+# is green over a behaviour that was already correct.
+#
+# W: pre-fix exit 0 = the sentence inside the uppercase <SCRIPT> block was FOUND, i.e. counted as
+#    page text, while the file's registered limitation told the reader script content was removed.
+# X: pre-fix exit 0 = the cache file written under the OLD name was USED and every quote matched
+#    against a page whose url the manifest never declared. Silent, and exit 0.
+# Y: pre-fix exit 3 = the url-hashed name meant nothing to the old script, so it fell through to a
+#    live fetch of example.invalid. This is the NEGATIVE CONTROL for X: without it, X would pass
+#    equally against a checker whose cache never worked at all.
+# Z: pre-fix exit 2 = a double-spaced quote reported ABSENT against text that was PRESENT. A FALSE
+#    ABSENT inflates a staleness count; this is the only one of the four whose direction could
+#    have moved this stop's headline, and neither manifest on disk carries a whitespace run, so it
+#    did not.
+#
+# The pre-fix bytes are recoverable without this copy: `git show 06851b5:tools/verify-quotes.sh`
+# is the same file, sha 7b8eebaadddc, which is also the sha the round-3 review header recorded for
+# the artifact it read.

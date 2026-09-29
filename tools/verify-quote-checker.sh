@@ -130,12 +130,16 @@ http.server.HTTPServer(("127.0.0.1",int(sys.argv[1])),H).serve_forever()' "$PORT
 fi
 
 # J — an empty CACHED page must be exit 3, exactly as an empty fixture already is. Same
-#     content, one verdict. The cache filename is <manifest-slug>-<key>.html.
+#     content, one verdict. The cache filename is <manifest-slug>-<key>-<url-sha-12>.html
+#     since the §4a round-3 fix; before it, the url was not in the name at all (case X).
 mkdir -p "$TMP/cache"
-: > "$TMP/cache/good-p1.html"
+GOOD_URL="https://example.invalid/never-fetched"
+GOOD_HASH=$(printf '%s' "$GOOD_URL" | shasum -a 256 | cut -c1-12)
+: > "$TMP/cache/good-p1-$GOOD_HASH.html"
 QUOTE_CACHE_DIR="$TMP/cache" "$CHECKER" --manifest "$GOOD" >"$TMP/j.out" 2>&1
 check "J empty cached page" 3 "$?"
 names "J" "$TMP/j.out" "EMPTY CACHED PAGE"
+rm -f "$TMP/cache/good-p1-$GOOD_HASH.html"
 
 # K — a quote whose page key names no declared page is a misconfigured verifier (exit 4),
 #     not a documentation-drift result (exit 2).
@@ -243,6 +247,54 @@ if [ -x /bin/bash ]; then
 else
   printf 'ok   %-56s skipped: no /bin/bash\n' "V bash 3.2"; pass=$((pass+1))
 fi
+
+# W — the strip must remove an UPPERCASE <SCRIPT> block. Until the §4a round-3 fix the two
+#     substitutions were case-sensitive, so a sentence living only inside `<SCRIPT>` reported
+#     FOUND and exit 0 while the file's own registered limitation told the reader script
+#     content had been removed. A CONTROL REPORTING OVER A SCOPE SMALLER THAN IT CLAIMS, which
+#     is this project's named failure mode. The page's visible body must NOT contain the
+#     sentence, or the case proves nothing.
+UPPER="$TMP/upper.html"
+printf '<html><head><SCRIPT>const e = "Only inside uppercase script.";</SCRIPT></head><body><p>Visible text that is not the quote.</p></body></html>\n' > "$UPPER"
+UPPER_TSV="$TMP/upper.tsv"
+printf 'page\tp1\thttps://example.invalid/never-fetched\n' > "$UPPER_TSV"
+printf 'quote\tp1\tOnly inside uppercase script.\n' >> "$UPPER_TSV"
+QUOTE_FIXTURE_FILE="$UPPER" "$CHECKER" --manifest "$UPPER_TSV" >"$TMP/w.out" 2>&1
+check "W uppercase <SCRIPT> is stripped" 2 "$?"
+names "W" "$TMP/w.out" "ABSENT"
+
+# X — a cache file under the PRE-URL-HASH name must NOT be used. Two manifests sharing a
+#     basename and a key but declaring different urls used to collide silently, the second
+#     reporting `cached` for a page it never fetched. Now the old name is warned about and
+#     ignored, which drops through to a live fetch of example.invalid — so exit 3, a loud
+#     failure, rather than exit 0 over the wrong page. A cache MISS is safe; a wrong cache
+#     HIT is not, and that asymmetry is the whole design of the fix.
+printf '<html><body><p>The first sentence is here.</p><p>And the second sentence is here.</p></body></html>\n' > "$TMP/cache/good-p1.html"
+QUOTE_CACHE_DIR="$TMP/cache" "$CHECKER" --manifest "$GOOD" >"$TMP/x.out" 2>&1
+check "X pre-url-hash cache name is ignored" 3 "$?"
+names "X" "$TMP/x.out" "PRE-URL-HASH CACHE NAME"
+rm -f "$TMP/cache/good-p1.html"
+
+# Y — the negative control for X. The SAME bytes under the url-hashed name ARE used, so the
+#     fix refuses one name and accepts the other rather than refusing every cache. Without
+#     this case X would pass just as well against a checker whose cache never works at all.
+printf '<html><body><p>The first sentence is here.</p><p>And the second sentence is here.</p></body></html>\n' > "$TMP/cache/good-p1-$GOOD_HASH.html"
+QUOTE_CACHE_DIR="$TMP/cache" "$CHECKER" --manifest "$GOOD" >"$TMP/y.out" 2>&1
+check "Y url-hashed cache name IS used" 0 "$?"
+names "Y" "$TMP/y.out" "sources=p1=cached"
+rm -f "$TMP/cache/good-p1-$GOOD_HASH.html"
+
+# Z — the quote is collapsed with the SAME rule as the page. `strip()` folds every whitespace
+#     run in the page to one space; the matcher used to search the quote raw, so a quote
+#     carrying a double space could never match text that was PRESENT — a false ABSENT, the
+#     direction that INFLATES a staleness count. Neither manifest on disk carries such a run,
+#     so nothing measured moved; this case is why the next manifest does not have to be lucky.
+DBL="$TMP/double.tsv"
+printf 'page\tp1\thttps://example.invalid/never-fetched\n' > "$DBL"
+printf 'quote\tp1\tThe first  sentence is here.\n' >> "$DBL"
+QUOTE_FIXTURE_FILE="$PAGE" "$CHECKER" --manifest "$DBL" >"$TMP/z.out" 2>&1
+check "Z double-spaced quote matches collapsed page" 0 "$?"
+names "Z" "$TMP/z.out" "FOUND"
 
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ] || exit 1

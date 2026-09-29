@@ -149,12 +149,18 @@ if [ "$LIST" = 1 ]; then printf '%s' "$QUOTES"; exit 0; fi
 TMP=$(mktemp -d) || exit 3
 trap 'rm -rf "$TMP"' EXIT
 
+# §4a round-3 blocking finding (2), codex + deepseek-v4-pro panel, 2026-09-29: these two
+# substitutions were case-sensitive, so a `<SCRIPT>` block SURVIVED the strip and a sentence
+# that exists only inside uppercase script content reported FOUND. The registered limitation
+# in this file's own header says "strip removes <script> and <style>" — which was true of
+# lowercase only. That is the house failure mode exactly: A CONTROL REPORTING OVER A SCOPE
+# SMALLER THAN IT CLAIMS. `re.I` added; fixture W proves it on an uppercase block.
 strip() { # html on stdin -> one long line of text on stdout
   python3 -c '
 import sys,re,html
 t=sys.stdin.read()
-t=re.sub(r"<script.*?</script>","",t,flags=re.S)
-t=re.sub(r"<style.*?</style>","",t,flags=re.S)
+t=re.sub(r"<script.*?</script>","",t,flags=re.S|re.I)
+t=re.sub(r"<style.*?</style>","",t,flags=re.S|re.I)
 sys.stdout.write(re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>"," ",t))))'
 }
 
@@ -169,18 +175,29 @@ PAGE_SOURCES=""
 for entry in "${PAGES[@]}"; do
   key=${entry%%|*}; url=${entry#*|}
   SOURCE="unknown"
+  # §4a round-3 blocking finding (1), codex + deepseek-v4-pro panel, 2026-09-29: the cache
+  # filename was "$SLUG-$key.html" — manifest basename plus page key, and NOT the declared URL.
+  # Two manifests sharing a basename and a key but declaring DIFFERENT urls collided: the second
+  # read the first's page and reported `sources=<key>=cached` for a url it never fetched, with
+  # nothing in the output naming the url. A wrong cache HIT is silent; a cache MISS is not,
+  # because it falls through to a live fetch and says so. The url is therefore part of the name.
+  # A cache written under the old name is not found, and that is warned about rather than used.
+  urlhash=$(printf '%s' "$url" | shasum -a 256 | cut -c1-12)
+  if [ -n "$CACHE" ] && [ ! -f "$CACHE/$SLUG-$key-$urlhash.html" ] && [ -f "$CACHE/$SLUG-$key.html" ]; then
+    echo "PRE-URL-HASH CACHE NAME for key '$key' at $CACHE/$SLUG-$key.html - IGNORED, fetching live; re-populate it as $SLUG-$key-$urlhash.html" >&2
+  fi
   if [ -n "$FIXTURE" ]; then
     # A fixture that cannot be read proves nothing about a quote, so it is exit 3 — the same
     # code as a failed fetch — and never a page full of absences.
     [ -r "$FIXTURE" ] || { echo "FIXTURE NOT READABLE $FIXTURE" >&2; exit 3; }
     [ -s "$FIXTURE" ] || { echo "FIXTURE EMPTY $FIXTURE" >&2; exit 3; }
     cp "$FIXTURE" "$TMP/$key.html"; SOURCE="fixture"
-  elif [ -n "$CACHE" ] && [ -f "$CACHE/$SLUG-$key.html" ]; then
+  elif [ -n "$CACHE" ] && [ -f "$CACHE/$SLUG-$key-$urlhash.html" ]; then
     # Stop 23 defect (b): identical empty content was classified two different ways depending
     # only on where it came from — an empty live response or fixture exited 3, an empty CACHED
     # page reached the matcher and exited 2. Same input, two verdicts.
-    [ -s "$CACHE/$SLUG-$key.html" ] || { echo "EMPTY CACHED PAGE $key $CACHE/$SLUG-$key.html" >&2; exit 3; }
-    cp "$CACHE/$SLUG-$key.html" "$TMP/$key.html"; SOURCE="cached"
+    [ -s "$CACHE/$SLUG-$key-$urlhash.html" ] || { echo "EMPTY CACHED PAGE $key $CACHE/$SLUG-$key-$urlhash.html" >&2; exit 3; }
+    cp "$CACHE/$SLUG-$key-$urlhash.html" "$TMP/$key.html"; SOURCE="cached"
   else
     # Stop 23 defect (a): `--fail` is load-bearing. Without it a 404 that serves a non-empty
     # HTML error page exits 0, the strip step produces real text, every quote for that page
@@ -211,9 +228,19 @@ source_of() { # key -> the source recorded for it
   done
 }
 
+# §4a round-3 line-level finding (4), deepseek-v4-pro: `strip()` collapses every whitespace run
+# in the PAGE to one space, and the matcher then searched the quote RAW. A quote carrying a
+# double space, a tab or a trailing run therefore could never match text that was present —
+# a FALSE ABSENT, which is the direction that INFLATES a staleness headline rather than hiding
+# one. Neither quotes-p09.tsv nor quotes-p08.tsv carries such a run (checked by `awk` before
+# this fix, and the two manifests re-run after it return the same cells), so it did not bite on
+# any measurement on file; it is fixed because the next manifest is not checked by that fact.
+# The collapse here is the SAME collapse `strip()` applies, deliberately: no trimming, no
+# case folding, nothing the page side does not also do. Fixture Z proves it.
 found=0; missing=0
 while IFS=$'\t' read -r key quote; do
   [ -z "${key:-}" ] && continue
+  quote=$(printf '%s' "$quote" | tr -s '[:space:]' ' ')
   if grep -qF -- "$quote" "$TMP/$key.txt"; then   # no 2>/dev/null: every key is validated above
     printf 'FOUND   [%s:%s] %s\n' "$key" "$(source_of "$key")" "$quote"; found=$((found+1))
   else

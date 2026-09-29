@@ -984,3 +984,56 @@ ten were raised by exactly one of two families, and eight of them were right.
 described the measurement, not about the measurement: `found=3 absent=5` on the extract and
 10 / 1 / 5 / 2 / 7 on the memory corpus are the same before and after, and the evidence files
 they were read from are untouched.
+
+---
+
+### The gate script's round 3: two blocking defects, and one of them could have inflated the headline
+
+`findings/opencode/review-verify-quotes-20260929T143000Z.md`, the `codex + deepseek-v4-pro` panel
+again, against `tools/verify-quotes.sh` at sha `7b8eebaadddc`. **`REJECT`, two blocking entries,
+four line-level findings, and every one of them new** — none is a repeat of the two disputed in
+round 1 or the `declare -A` regression of round 2.
+
+| | Defect | Disposition |
+|---|---|---|
+| **blocking 1** | The cache filename was `<manifest-slug>-<key>.html` — basename plus page key, **and not the url**. Two manifests sharing a basename and a key but declaring different urls collided; the second read the first's page and printed `sources=<key>=cached` for a url it never fetched | **Fixed.** The name carries a 12-char sha of the url. Fixtures **X** and **Y** |
+| **blocking 2** | The `<script>` / `<style>` strip was **case-sensitive**, so a `<SCRIPT>` block survived and a sentence living only inside it reported `FOUND` | **Fixed** (`re.I`). Fixture **W** |
+| line 3 | deepseek: a literal space after the tab in the manifest parse would put a leading space in every quote | **Refuted by observation, not argument.** `od -c` on the line shows `QUOTES="$QUOTES$key \t $val \n` — tab, value, newline, no space. The acceptance gate also disputed it, for a different and wrong reason |
+| line 4 | `strip()` collapses every whitespace run in the **page**; the matcher searched the **quote** raw. A quote carrying a double space could never match text that was present | **Fixed.** The quote is collapsed by the same rule. Fixture **Z** |
+
+**Blocking 2 is the house failure mode again, in the one place this stop had already named it.**
+The file's registered limitation reads *"`strip` removes `<script>` and `<style>`"*. It removed
+lowercase. A reader building a fixture to prove script content is excluded would have got `FOUND`
+and trusted it — **a control reporting over a scope smaller than it claims**, written into a
+script whose own workbook section is about that exact sentence.
+
+**Line 4 is the only finding at this stop that could have moved a number, and it moves it in the
+direction nobody checks.** Every previously disputed defect biased toward `FOUND` — toward
+*under*-reporting staleness, so the headline was safe. This one biases toward `ABSENT`: a false
+absence **inflates** a staleness count. `5 of 8` is the stop's headline. So it was checked rather
+than argued: `awk` over both manifests finds **no quote carrying a double space, a tab or a
+trailing run**, and the re-run after the fix returns the same cells. It did not bite. It is fixed
+because the next manifest is not protected by that fact.
+
+**Every new case fails against the pre-fix script**
+(`evidence/p09/prefix-refusal-proof-20260929T1439Z-round3.txt`) — W `0`, X `0`, Y `3`, Z `2`,
+against post-fix `2`, `3`, `0`, `0`. **Y is the negative control for X**: without it, X would pass
+just as well against a checker whose cache never worked at all. Suite **39 → 47** cases,
+ShellCheck clean on both scripts, and the pre-fix bytes stay recoverable as
+`git show 06851b5:tools/verify-quotes.sh` — verified to hash to `7b8eebaadddc`, the same sha the
+review header recorded.
+
+**And the measurement is unmoved for the fourth time**, cell for cell by `diff`, on both corpora:
+
+```
+p09   pre-round-3   found=3  absent=5  sources=claude=live
+p09   post-round-3  found=3  absent=5  sources=claude=live
+p08   pre-round-3   found=28 absent=1  seven pages, all live
+p08   post-round-3  found=28 absent=1  seven pages, all live
+```
+
+**Eleven defects have now been found in this instrument across three review rounds and none of
+them changed a single cell of its output.** That is worth saying plainly rather than as a boast:
+the review harness is finding real defects in a tool whose *result* has been right the whole time,
+which means its value here is not in correcting this stop's number but in the next manifest, the
+next phase and the next reader — and none of that is measured by anything at this stop.
