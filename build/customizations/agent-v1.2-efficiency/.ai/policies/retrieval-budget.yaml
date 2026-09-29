@@ -1,0 +1,39 @@
+# Retrieval budget — B11 (v1.2), mechanism 2. DATA, not a control: this file is read by
+# .ai/hooks/retrieval-budget.sh, which is the thing that executes. On its own it is L3.
+#
+# The four limits are the build spec's, at build/README.md#b11 step 2 and
+# businesscase/BACKEND-AGENT-EFFICIENCY-SELF-LEARNING-DESIGN.md §6.2. THREE OF THE FOUR ARE
+# ENFORCED BY A HOOK AND ONE IS NOT, and which is which is written down here rather than left
+# to be discovered from the code — a limit nothing checks is indistinguishable from no limit.
+version: v1.2
+limits:
+  max_initial_searches:
+    value: 5
+    enforced: true
+    layer: L2
+    counts: "Grep + Glob calls made BEFORE the first Edit/Write of the run"
+    enforced_by: ".ai/hooks/retrieval-budget.sh — PreToolUse on Grep|Glob, exit 2 beyond the limit"
+  max_files_before_design:
+    value: 15
+    enforced: true
+    layer: L2
+    counts: "DISTINCT file paths opened with Read BEFORE the first Edit/Write of the run"
+    enforced_by: ".ai/hooks/retrieval-budget.sh — PreToolUse on Read, exit 2 beyond the limit"
+  max_full_log_lines:
+    value: 0
+    enforced: true
+    layer: L2
+    counts: "an unbounded Read of a log-shaped path (*.log, *.jsonl, */logs/*, */target/surefire-reports/*)"
+    enforced_by: ".ai/hooks/retrieval-budget.sh — refused unless the call passes a `limit`"
+  max_similar_implementations:
+    value: 2
+    enforced: false
+    layer: L3
+    counts: "how many existing implementations of the same shape are consulted before writing"
+    why_not_enforced: >
+      A hook sees a tool name and its arguments. Deciding that two Reads are two SIMILAR
+      IMPLEMENTATIONS rather than two unrelated files needs a semantic judgement about file
+      content, and a phrase-matching approximation of it is the trap this project has already
+      paid for four times in the observatory's failure classifier. Registered as L3 and
+      unenforced rather than approximated — and `H2` counts the hook's own log, so no
+      prediction rests on this limit.

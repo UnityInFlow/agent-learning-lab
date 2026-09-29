@@ -192,6 +192,125 @@ wrong thing.
    verification stays unchanged.
 5. **Command deduplication** against the current code fingerprint.
 
+## What was built at §4 step 4 — and the two things the build itself measured
+
+*Written 2026-09-29/30 by Opus 5 (claude-opus-5), autonomously, after the build and before any
+benchmark run of this stop. Nothing here is a result of Lab B11.1.*
+
+### The overlay
+
+`build/customizations/agent-v1.2-efficiency/` — **v1.1's seven files byte for byte, plus eight new
+ones.** `CLAUDE.md` gains a `# v1.2 — efficiency` section and nothing above it changed; the
+registered instructionsHash is **`sha256:1cb0ea105099353da3e8048b1a923687`** against v1.1's
+`sha256:a94237242e8c1308fb1d434a06a03463`. `settings.json` necessarily differs — it is the wiring —
+and the guards assert the control's copy is still v1.1's and names none of the new hooks.
+
+| mechanism | files | layer | how it is counted |
+|---|---|---|---|
+| 1 classifier | `.ai/efficiency/classify-task.sh` | L3 | `H₁` — `task-classification-<worktree>.yaml` exists |
+| 2 retrieval budget | `.ai/hooks/retrieval-budget.sh` + `.ai/policies/retrieval-budget.yaml` | **L2** | `H₂` — a line in `budget-log-<worktree>.jsonl` |
+| 3 file-summary cache | `.ai/hooks/summary-cache.sh` (PreToolUse) + `.ai/hooks/summary-cache-record.sh` (PostToolUse) | **L2** | `H₃` — a line in `cache-log-<worktree>.jsonl` |
+| 4 verification planner | `.ai/efficiency/verification-profiles.yaml` + the table in `CLAUDE.md` | L3 | `H₄` — **`unmeasured`, registered before the batch** |
+| 5 command dedup | `.ai/hooks/command-dedup.sh` | **L2** | `H₅` — a line in `dedup-log-<worktree>.jsonl` |
+
+**Mechanism 3 is two hook files and the registration says "the cache hook".** One event cannot
+honestly do both jobs: the refusal must be `PreToolUse` (a `PostToolUse` exit 2 does not enforce —
+`phases/05a-guardrails/README.md:58-60`), and the recorder must be `PostToolUse` or the cache would
+hold entries for reads the retrieval budget then refused — a "you already have this" about content
+the model never saw. Recorded as a refinement of the delivery row, not a change to it.
+
+**The logs live OUTSIDE the worktree and the registered paths stay `.agent/*.jsonl`.** This is B8's
+convention inherited (`.agent/run-state.json` is documented and the file is under `$TMPDIR`), and
+the reason is measured: B7's preflight pair `2077432c` and `88b861f3` **solved their tasks** and
+were scored exit 21 for "unrelated production files changed", where the single unrelated file was
+the guardrail's own log (`E-016:227-237`); B9 hit it again (`E-022` Amendment 1). The evaluator's
+ignore pattern is a registered variable, so teaching it to ignore `.agent/` is a §7 halt and is not
+attempted.
+
+**One spec line is NOT converted, and saying so is the point.** `build/README.md#b11` step 2 says
+exceeding a limit "requires a recorded reason". There is no override channel, because an override
+the model can write is an override it can write *without* a reason — which is the L2→L3 demotion
+stop 7 recorded for `allowed-tools`. The limit refuses; the refusal is logged with its cause. The
+`max_similar_implementations: 2` limit is likewise **`enforced: false`** in the policy file, with
+the reason in the file: deciding that two files are the same *shape* is a semantic judgement, and
+phrase-matching it is the trap the observatory's failure classifier paid for four times.
+
+### The controls that execute, and the fixtures that prove they refuse
+
+| fixture set | cases | what it proves that a batch cannot |
+|---|---|---|
+| `tools/verify-retrieval-budget.sh` | **24, exit 0** | the 6th search and the 16th file are refused; both limits STOP at the first edit; the log rule survives the phase change; a bounded `.log` read is allowed; an unreadable or non-integer policy **fails open and records that it did** |
+| `tools/verify-summary-cache.sh` | **19, exit 0** | a hash match is refused and a hash MISMATCH is allowed with the entry dropped; the refusal carries a summary and **not the file body**; a `Grep` on the shared matcher is neither decided nor logged |
+| `tools/verify-command-dedup.sh` | **22, exit 0** | a repeat under unchanged code is refused; **a gitignored `target/` write does not unlock it**; a tracked edit does; a quoted command logs intact; no git repo at all fails open |
+| `evidence/b11/verify-b11-preflight-guards.sh` | **14, exit 0** | every one-variable guard refuses, including a new hook file present but **not wired**, and the fixture gate itself refuses in both directions |
+| `evidence/b11/verify-b11-batch-guards.sh` | see §5 | author decision 13's ceiling is computed per task, refuses when it cannot be computed, and fires at `>=` |
+
+A batch can only show that a refusal *happened*. It cannot show that a refusal was *right*, and on
+a task the model passes nearly always, it may show no refusal at all — `build/README.md#b8`'s
+problem one stop earlier. These five sets are the part that executes.
+
+### Where the fixture sets stand at the end of step 4, exactly
+
+| set | result | note |
+|---|---|---|
+| `tools/verify-retrieval-budget.sh` | **24 / 24, exit 0** | |
+| `tools/verify-summary-cache.sh` | **19 / 19, exit 0** | |
+| `tools/verify-command-dedup.sh` | **22 / 22, exit 0** | ~2 min: ~30 hook calls, each paying process startup (Finding 1) |
+| `evidence/b11/verify-b11-preflight-guards.sh` | **14 / 14, exit 0** | |
+| `evidence/b11/verify-b11-batch-guards.sh` | **16 / 17, exit 1** | case Q returns **exit 7 — a dead API**, not a wrong answer. It is the only case that needs a live stack, and the stack went down mid-build (see below). It is UNVERIFIED, not failing, and it is re-run before the batch. |
+
+The first three are wired into CI beside `verify-repair-limit.sh`, so they run on every push rather
+than when someone remembers. **The two driver guard sets are not**, and the reason is case Q: they
+need a live API and a live OTLP endpoint, which CI has not got.
+
+Case O of the batch guards **passed for the wrong reason on its first run** and is worth recording:
+it was carried over from B9, where the population is registered by a corpus hash, and it still
+passed `mkbatch` the argument `knowledge`. The helper no longer knows that word, so it wrote the
+REAL treated hash, the driver's grep found it, and the case reported "refuses a different
+population" at exit 0 — a fixture reporting over a scope smaller than it claims, inside the file
+whose own comment two functions higher warns about exactly that.
+
+### The stack died during step 4, and the diagnosis is in the state file, not here
+
+`agent-observatory-observatory-api-1` exited **137 (SIGKILL — OOM)** while the fixture sets were
+running, and would not restart: the colima VM has **4 GiB with no swap**, and a container belonging
+to another project on this machine (`repo-context-neo4j`, started mid-session, now **unhealthy**)
+holds **1.48 GiB**, leaving **64 MB available**. §0a row 5 passed at 19:47Z — `All 18 checks
+passed` — so the stack was healthy when the preflight was authorised and was not when it was
+reached. **§4 step 5 is therefore not started**, and no run of this stop exists. The fix is one
+command and it is the author's, because it touches a container outside these three repositories;
+both options are in `TRACK-B-STATE.md` `author_notes`.
+
+### Finding 1 — on this machine a hook's cost is dominated by process startup, not by its logic
+
+Measured 2026-09-29 while building, not inferred: **`jq` costs ≈ 0.68 s per invocation here**
+(2.72 s for four no-op calls) and `git status --porcelain` + `git diff` ≈ 0.6 s cold and ≈ 1.8 s
+under load. The first version of `command-dedup.sh` made **five** `jq` calls and ran at **4.08 /
+6.56 / 6.46 s per Bash tool call**. At roughly a hundred tool calls per run that is ten minutes of
+pure hook latency — and it brings the 15-second hook timeout into range, where **a timed-out hook
+is a control that silently did not run.**
+
+Two consequences, both applied before any run: every hook now parses its stdin **once** and reads
+its state **once**, and the four new hooks are registered with a **60-second timeout** while
+v1.1's three keep 15 (so v1.1's carried-over files stay byte-identical). **This is why P6 predicts
+`durationMs` rises and registers it as inadmissible** — and it is now clear that the rise is partly
+*the number of hooks*, which is a property of the version rather than of the model's behaviour.
+Nothing here is a measurement of the agent.
+
+### Finding 2 — the fixture set caught a defect in my own optimisation, which is what it is for
+
+Cutting the `jq` calls introduced `IFS=$'\t' read -r A B <<<"$(jq ... | @tsv)"`. **A tab is IFS
+whitespace**, so bash strips it when it leads the string: a legitimately empty first field
+disappears and every later field shifts left. On a store with no entry for a fingerprint that
+turned `("", "?")` into `("?", "")` — so **a first run read as a repeat**, and the dedup hook would
+have refused nothing while logging that it had. `verify-command-dedup.sh` case 1 failed on exactly
+that, one line, before a single dollar was spent. All four hooks now read one value per line with
+`IFS= read -r`, which preserves empty fields.
+
+It is the same shape as `grep -c` counting lines and `ls -t` eating its argument: **a plausible
+wrong answer, produced confidently.** The fixture sets were written because a batch cannot test a
+refusal; this one paid for itself against the build instead.
+
 ## Design — one variable, five mechanisms, and a layer label per mechanism
 
 ### The one-variable decision
