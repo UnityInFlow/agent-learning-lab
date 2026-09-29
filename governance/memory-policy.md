@@ -19,8 +19,14 @@ Taken from the phase README's split and kept, because the audit gave no reason t
 Git                   → authoritative. Everything below is derived state.
 memtrace              → code. Symbols, call graphs, "why is this here", decisions.
 Claude auto memory    → this machine's session preferences. Nothing authoritative.
-Observatory Postgres  → runs, evaluations, and (not yet built) learned knowledge.
+Observatory Postgres  → runs and evaluations.
 ```
+
+**Proposed, and deliberately not in the block above:** a governed *learning store*, also in the
+observatory's Postgres. It **does not exist** — it is B9's subject. The four lines above describe
+what is live on this machine today; every claim in §2 is about those four and about nothing that
+is still a proposal. Run 1 of this file's §4a review was right that bundling the two made a
+measured property indistinguishable from a prescribed one.
 
 Verified live at audit time rather than assumed: `~/.claude/projects/…/memory/` holds 16 files
 (15 memories + the index); `~/.memtrace/` holds `cortex-store` and `embed-cache`; the
@@ -38,8 +44,8 @@ point of the exercise; an unanswered row is a real gap and is written as one.
 | **where stored** | `~/.claude/projects/<slug>/memory/` — machine-local, outside both repos | `~/.memtrace/` — machine-local | a container volume, machine-local |
 | **how long** | **forever.** No expiry field exists | until re-indexed | forever |
 | **admin inspect / export / delete** | inspect and delete yes (plain files); export is `cp` | yes | yes, SQL |
-| **can it hold confidential data** | **yes, and nothing prevents it** — it is free text written by an agent that has read the repo | code only | run records only |
-| **how is staleness detected** | **it is not.** No checker, no schema, no expiry, no CI job reads these files | re-index overwrites | run records are immutable facts about a past event and cannot go stale |
+| **can it hold confidential data** | **yes, and nothing prevents it** — it is free text written by an agent that has read the repo | **yes for the Cortex decision layer**, which stores free-text rationale; code and call graphs otherwise | run records only |
+| **how is staleness detected** | **it is not.** No checker, no schema, no expiry, no CI job reads these files | **also not detected** — re-indexing *overwrites* stale entries without ever reporting that they were stale, which is a remedy, not a detector | run records are immutable facts about a past event and cannot go stale |
 | **authoritative vs Git** | Git wins, always | Git wins | the run record wins about what happened; Git wins about what the code is |
 
 Three rows in that table are the finding: *forever*, *yes and nothing prevents it*, and
@@ -48,8 +54,10 @@ Three rows in that table are the finding: *forever*, *yes and nothing prevents i
 ## 3. Lab 9.4's three questions
 
 **"How many of these facts are still true?"** — of the **25** assertions the memory index
-advertises, **11 are true, 1 is true but obsolete, 7 are false, and 7 cannot be decided by
-running anything.** Five of the seven false claims are duplicates of a value that lives
+advertises, **10 are true and load-bearing, 1 is true but obsolete, 7 are false, and 7 cannot be
+decided by running anything** — 10 + 1 + 7 + 7 = 25, five disjoint classes. An earlier draft of
+this sentence read *"11 are true"* and then listed the obsolete one separately, which sums to 26;
+the §4a review caught it at 2 of 2 runs. Five of the seven false claims are duplicates of a value that lives
 authoritatively elsewhere and moved; two do not reproduce as written and are
 indistinguishable from claims that were wrong when written. `n = 25 assertions, 15 memories,
 1 machine` — a property of these twenty-five sentences, not of agent memory.
@@ -60,16 +68,19 @@ already routes there by rule. Not the auto memory: the audit found its index lin
 project telling a reader **never to trust a spine position written in memory**, which is a
 memory whose own headline is a warning about memory.
 
-**"Has anything ever *removed* a stale fact?"** — **no.** Not once in the **52 days** the corpus has existed (oldest memory file born 2026-08-08, newest 2026-09-25). The seven false claims were corrected on 2026-09-29 after the audit file was
-frozen, and that is the first removal this corpus has had. It was triggered by a lab, not by
-anything that runs.
+**"Has anything ever *removed* a stale fact?"** — **not until this lab did, on 2026-09-29.** For
+the **52 days** before that (oldest memory file born 2026-08-08, newest 2026-09-25) nothing ever
+removed one. The seven false claims were corrected after the audit file was frozen, and that
+correction **is** the first removal this corpus has had. It was triggered by a lab run once by
+hand, not by anything that runs on its own — which is why the answer is about the past and not a
+guarantee about the next one.
 
 ## 4. Layers — applied in order, stopping at the first yes
 
 | Thing | Layer | Why, applied in order |
 |---|---|---|
 | This file | **L3** | Nothing in it executes. A future session can contradict every row of it and no command objects. It is words a human reads and chooses to follow. |
-| The frozen audit | **L3** | Applied in order: can a bad value still be written down after it exists? Yes. So L3. It is append-only evidence too, but “append-only” is §6 — a rule nothing executes — so that does not raise the label. The layer model classifies controls; a record is not one. |
+| The frozen audit | **L3** | Applied in order: can a bad value still be written down after it exists? Yes. So L3. It is append-only evidence too, but that is a **rule in the autonomous run's own prompt** (`../../PROMPT-opus5-track-b.md` §6, *“never overwrite or delete a run folder, a sheet, or an evidence file; add a new one”*) — a sentence nothing executes — so it does not raise the label. The layer model classifies controls; a record is not one. |
 | `Git wins over memory` | **L3** | It is a sentence. Nothing rejects a memory that contradicts the repository. |
 | The absence of any staleness check | **not a layer at all** | This is the row that matters. A narrow L2 control lies to a reader; **no control does not.** They are different failure modes and only the first one produces false assurance. |
 
@@ -92,3 +103,29 @@ over it would be L2 over the thing it actually executes on.
 **Do not commit raw memories.** This file and the audit record claims, verdicts and the
 commands that decided them. No memory file's contents are reproduced beyond the fragment a
 verdict needs.
+
+---
+
+## 6. §4a review — round 1, and what was done with each finding
+
+`findings/opencode/review-memory-policy-20260929T112646Z.md`, `-n 2`,
+critic `ollama-cloud/glm-5.2`, acceptance gate `ollama-cloud/minimax-m3`, verdict **REJECT**.
+Nine findings. Seven fixed, one already fixed before the review returned, one disputed.
+
+| # | Rec. | Finding | Action |
+|---|---|---|---|
+| 1 | 1/2 | §1 bundled the not-yet-built learning store with systems that exist, so a measured property could not be told from a prescribed one | **fixed** — the block now lists only what is live; the learning store is called out as B9's and not existing |
+| 2 | 1/2 | §2 said memtrace holds "code only" while §1 gave it *decisions*, which are free-text rationale | **fixed** — the Cortex decision layer is named as free text that can hold confidential data |
+| 3 | 1/2 | §2's memtrace staleness answer "re-index overwrites" is a **remedy, not a detector** | **fixed** — reads "also not detected", with the distinction spelled out |
+| 4 | **2/2** | §3's counts summed to **26** against `n = 25` | **fixed** — 10 + 1 + 7 + 7 = 25, and the superseded wording is kept so the error is visible |
+| 5 | 1/2 | §3's bold **"no"** is contradicted by its own next sentence, which names a removal on the date in question | **fixed** — restated as *"not until this lab did, on 2026-09-29"*; the claim is about the 52 days before |
+| 6, 8 | 2/2, 1/2 | "§6 forbids" pointed at a section this file does not have | **fixed** — the reference now names the run prompt's §6 and quotes it |
+| 7 | 1/2 | "L1 as a record" fails the layer model's own step 1 | **already fixed at `d446308`, before the review returned.** Both the critic and I reached it independently, from the same rule applied in order |
+| 9 | 1/2 | The preamble was "skipped as unverifiable" because the audit file it cites was not attached | **disputed.** §4a sends at most four artifacts per invocation and the audit file is evidence, not a contract; it is on disk at the relative path cited. A reviewer not being given a file is not a defect in the file that cites it |
+
+**Finding 5 ran against an earlier draft.** Run 1 quoted *"21 days"*, which this file no longer
+says — the figure was corrected to 52 at `eba3c04`, and the artifact was edited twice more while
+its own review was running (`16503d1`, `d446308`). **That is a §4a rule 4 violation and it is
+recorded rather than tidied away:** *"never edit the artifact while its review is running."* The
+mitigation is the one §4a step 3 requires anyway — a re-run on the revised artifact — and the
+round-2 findings are the ones that apply to this text.
