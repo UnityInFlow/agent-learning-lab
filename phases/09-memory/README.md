@@ -11,6 +11,13 @@ Persistence without treating learned state as truth.
 
 ## Verified reading
 
+> ⚠️ **A ✅ here means the URL resolves and nothing more.** It is not a statement that any
+> sentence quoted from that page still appears there — the §“Extract re-verified” pass found **five
+> of eight** that do not, with every link green. The scoping sentence has always been a few lines
+> below; a round-2 panel pointed out that the ticks reach the reader first, which is **the same
+> false-assurance shape this workbook names for `check-links.sh`, applied one level up to its own
+> heading.**
+
 - [ ] ✅ [Copilot Memory](https://docs.github.com/en/copilot/concepts/agents/copilot-memory)
 - [ ] ✅ [Claude Code — Memory](https://code.claude.com/docs/en/memory)
 - [ ] ↪️ [VS Code — Memory](https://code.visualstudio.com/docs/agents/run/memory) — treat separately from GitHub-hosted Copilot Memory
@@ -82,6 +89,14 @@ ln -s AGENTS.md CLAUDE.md    # symlink, if no Claude-specific content is needed
 
 > "In your next session, run `/context` and confirm `CLAUDE.md` appears under **Memory
 > files**." — that is the verification step, and it costs nothing.
+
+> ⚠️ **The paraphrased claims in the rest of this Extract were NOT re-checked.** The 2026-09-29
+> pass covered **eight quotations** and nothing else. The trust table, the precedence chain, the
+> size figures and the auto-memory mechanics below are from 2026-08-09, carry no per-claim
+> staleness marker, and are marked here as a block for the same reason §“Current properties” is.
+> The two round-2 panels disagreed about whether this needed saying — one raised it, the other
+> disputed it as already covered by the dated header — and it is said, because the cheaper error
+> is the one that over-marks.
 
 ### Memory is context, not configuration
 
@@ -313,11 +328,20 @@ knowledge_entry(
   confidence, expires_at,
   source_run_id  REFERENCES runs(id),     -- ← the join that makes this worth doing
   source_commit, verifying_command, exit_code,
-  embedding vector(768),                  -- only at step 4 below
+  embedding vector(768),                  -- only at step 4 below   ⚠️ see note under the table
   tsv tsvector
 )
 knowledge_usage(entry_id, run_id, outcome)
 ```
+
+> ⚠️ **`-- only at step 4 below` does not resolve to a step that adds embeddings, and the §4a
+> round-2 gate was right to block on it.** Counting the ladder from Lab 9.4, step 4 is **Lab 9.7**,
+> which says in as many words *“Do not add embeddings yet — `tsvector` and exact lookup first, so
+> you have a baseline the embeddings have to beat.”* Counting only the build labs, step 4 is **Lab
+> 9.8**, which wraps the store in MCP and also adds none. **No lab in this ladder adds the
+> `embedding` column.** The August text is kept verbatim and marked rather than rewritten, as the
+> three round-1 findings of the same shape were. Whoever eventually adds embeddings is adding a
+> step that does not yet exist, and should say so.
 
 That schema answers the only two questions that matter:
 
@@ -455,7 +479,7 @@ subject is the corpus this same stop just proved goes stale unchecked. It was ch
 continuity of measurement, not for cheapness, and the cheapness is stated so a reader can
 discount it.
 
-### The result: 7 of 25 advertised claims are false, and nothing executes over any of them
+### The result: 7 of 25 advertised claims are false, and no control executes over the corpus
 
 The audited unit is the claim each memory advertises in its `MEMORY.md` index line — **15
 memories, 25 individually decidable assertions**, each with the command that decided it in the
@@ -548,7 +572,10 @@ learning:
     corpus is the one the project actually depends on and had never been measured at all.
   observed_effect: >
     7 of 25 advertised claims false, 10 true and load-bearing, 1 true-but-obsolete, 7
-    undecidable by command — 10 + 1 + 7 + 7 = 25, five disjoint classes.
+    undecidable by command. FIVE disjoint classes: 10 true + 1 true-but-obsolete + 5
+    false-by-event + 2 false-because-they-do-not-reproduce + 7 undecidable = 25. An earlier
+    draft wrote `10 + 1 + 7 + 7`, four addends for five classes, collapsing the two false
+    subcategories — caught by BOTH round-2 panels.
     Zero were found by anything that executes, because nothing executes over this corpus.
     The extract audit's three-way split reproduced on a second, independent corpus and gained
     a fourth category (true but obsolete).
@@ -576,8 +603,13 @@ learning:
 
 - [x] **Distinguish instructions · memory · session history · cache · workflow persistence.**
       Done from measurement, not definition: instructions are delivered per run and *proved* by
-      `customization.instructionsHash` (null on all seven keys of run
-      `feb68170-395a-49a8-afb1-b7222b81e4c6` under `ISOLATE_USER_SETTINGS=1`); memory is
+      `customization.instructionsHash`. **The run cited here proves the control half, not the
+      treated half** — a round-2 panel was right that an all-null record cannot demonstrate
+      delivery: `feb68170-395a-49a8-afb1-b7222b81e4c6` under `ISOLATE_USER_SETTINGS=1` has all
+      seven keys `null`, which is what a *control* must look like. The treated half is
+      [`experiments/E-003-instructions-v0.1.md`](../../experiments/E-003-instructions-v0.1.md),
+      where `instructionsHash` equals the registered sha of a 57-word file on every treated run.
+      The pair is the point: **instructions have both assertions and memory has neither.** Memory is
       machine-local free text with **no** hash, no expiry and no reader that executes, measured
       here at 7 of 25 false; session history dies with the session, which is why §0 of this
       run's prompt puts everything in `TRACK-B-STATE.md`; cache (`~/.memtrace/embed-cache`,
@@ -602,12 +634,12 @@ minutes, which is a property of that harness and of nothing this lab set out to 
 |---|---|---|---|
 | §3 row 24: *"Phase 9 memory: reading, extract, one lab"* — **reading** | `phases/09-memory/README.md` §"Verified reading" + §"Extract re-verified — 2026-09-29" (commit `cb10974`) | L1 — committed file, §6 forbids rewriting it | `git show cb10974 -- phases/09-memory/README.md` |
 | §3 row 24 — **extract** | same commit; `evidence/p09/quote-verification-20260929T1105Z.txt` (found=3 absent=5, exit 2), re-run at the close as `…-20260929T1210Z-close.txt` with the same cells | L2 — `tools/verify-quotes.sh` executes and exits non-zero. **`absent` means `grep -qF` found no byte-exact occurrence of the sentence in the stripped page text** (`tools/verify-quotes.sh:173`) — not normalised, not semantic. That is precisely why the instrument cannot separate *reworded* from *reversed* from *never verbatim*, and why the three-way split had to be adjudicated by hand | `./tools/verify-quotes.sh evidence/p09/quotes-p09.tsv` |
-| §3 row 24 — **one lab** | `evidence/p09/memory-audit-20260929T1119Z.md` (25 assertions, verdicts, deciding commands) + `governance/memory-policy.md` | **L2 for the 18 rows a command decides, L3 for the adjudication of which category a failure falls into** — that split is the same one the extract verification had to make by hand | open the audit file; re-run any row's command from its own cell |
+| §3 row 24 — **one lab** | `evidence/p09/memory-audit-20260929T1119Z.md` (25 assertions, verdicts, deciding commands) + `governance/memory-policy.md` | **L2 for the 18 rows a command actually decided; L3 for the adjudication of which category a failure falls into.** Both round-2 panels pressed on this number and it is worth being exact: **18** rows were decided by running a command; **2 more have a command that exists and was deliberately not run**, because running it *is* the destructive act the memory warns about; **5 have no command at all.** 18 + 2 + 5 = 25. “Rows a command decides” reads as 18 or 20 depending on whether you count the two refusals, so the artifact states all three numbers instead of choosing one | open the audit file; re-run any row's command from its own cell |
 | §3 row 24 closes when — **evidence on disk** | the two files above, plus `evidence/p09/codex-isolation-20260929T1125Z-handrun.txt` and `evidence/p09/smoke-20260929T1114Z.txt` | L1 | `ls evidence/p09/` |
 | Phase 9 exit gate clause 1 — *distinguish the five* | run `feb68170-395a-49a8-afb1-b7222b81e4c6`, `.customization` = 7 keys, **all null**. **This is §0a preflight row 6b, not a run of this lab** — it enters no comparison and is cited only as an example of what a delivery proof looks like | **L1** — the API record is written by the runner, not asserted | `curl -s 127.0.0.1:8081/api/runs/feb68170-395a-49a8-afb1-b7222b81e4c6 \| jq '.customization'` |
 | Phase 9 exit gate clause 2 — *why not interchangeable* | `experiments/E-003-instructions-v0.1.md` (the rejection that a delivery proof made possible) vs the absence of any hash over the memory corpus | L3 — an argument, not a control; labelled L3 for that reason | read E-003's delivery section, then `grep -c Hash` over any memory file: zero |
-| *"nothing executes over this corpus"* — the stop's sharpest claim | `evidence/p09/no-control-over-memory-20260929T1150Z.txt` — three searches, zero matches: no CI workflow in any of the three repositories, no hook in `~/.claude/settings.json`, no tool under `tools/` | **L2** — three commands execute over enumerable sets and return zero matches; a reader re-runs them. Not L1: nothing prevents someone adding a checker tomorrow, and L1 is about what cannot be written down | re-run the three commands in that file; each must print no matches |
-| §4 step 10 — *decision recorded from measurement* | §"What was decided" above; the 5-of-7 machine-checkable class and the 354-copy scope argument | L3 | count `ls -d ~/.claude/projects/*/memory` → 355, and again an hour later |
+| *"nothing executes over this corpus"* — the stop's sharpest claim | `evidence/p09/no-control-over-memory-20260929T1150Z.txt` — three searches, zero matches: no CI workflow in any of the three repositories, no hook in `~/.claude/settings.json`, no tool under `tools/` | **L2** — three commands execute over enumerable sets and return zero matches; a reader re-runs them. Not L1: nothing prevents someone adding a checker tomorrow, and L1 is about what cannot be written down. **The rule that separates this from the guardrail table's “not a layer” row**, which a round-2 panel asked for: this column grades **the proof of a claim**, and this claim is proved by commands that run — L2. The guardrail table grades **a control over the corpus**, and there is none, so “not a layer”: you cannot grade a thing that does not exist. Two different objects, one of which is the *absence* of the other | re-run the three commands in that file; each must print no matches |
+| §4 step 10 — *decision recorded from measurement* | §"What was decided" above; the 5-of-7 machine-checkable class and the 354-copy scope argument | L3 | `ls -d ~/.claude/projects/*/memory \| wc -l` — **expect a number in the mid-300s that is not 355.** It read 354 at 11:1xZ and 355 at 11:4xZ; a stranger re-deriving it should get a *different* value and that is the point. What is re-derivable is the **order of magnitude and the direction**: hundreds of stores, growing |
 | §5 — *at least one scored cell re-read by hand* | preflight row 6b re-derived **by me off the API**, not taken from the subagent: 7 keys, all null, model `claude-haiku-4-5-20251001`, evalExit 0 | **L1** | the `curl … \| jq` above |
 | §5 — *every number quoted has its `n`* | `n = 25 assertions, 15 memories, 1 machine`, stated at every occurrence | L3 | read the section |
 | §5 — *re-run every verification command immediately before writing done* | §0a re-run in full this session; row 6a re-run **by hand** and its output saved | L1 for the saved output, L3 for the claim that it was the last act | `cat evidence/p09/codex-isolation-20260929T1125Z-handrun.txt` |
@@ -646,4 +678,49 @@ fixed by **marking**, which is the only move that is both honest and additive.
 
 **The acceptance gate returned `ACCEPT` on this workbook and the six findings were fixed anyway.**
 §4a stops at `ACCEPT`; it does not say to ignore line-level findings that an accepting gate still
-raised. Round 2 was run on the revised text of both artifacts.
+raised.
+
+### §4a review — round 2, and the accident that measured the gate itself
+
+`governance/memory-policy.md` round 2: **`ACCEPT`, `blocking: []`** — the nine round-1 findings do
+not recur. Its five new findings are tabled in that file's §7.
+
+**This workbook's round 2 ran TWICE, by accident, and the two panels disagreed at the gate.** I
+asked a delegated agent for a status check and then started the same review myself before its
+reply arrived. Both completed, on byte-identical text:
+
+| Run | File | Gate | Blocking |
+|---|---|---|---|
+| mine | `findings/opencode/review-README-20260929T114922Z.md` | **REJECT** | 1 |
+| the subagent's | `findings/opencode/review-README-20260929T115059Z.md` | **ACCEPT** | 0 |
+
+**That is a free measurement nobody designed, and it is the most useful thing in the round.**
+Two runs of the same gate model on the same bytes returned opposite verdicts. It does not make
+either wrong — the REJECT's blocking finding is real and is fixed below — but it does mean **an
+`ACCEPT` from one run is a sample, not a property**, which is exactly what this session concluded
+about `verify-codex-isolation.sh` from the other direction. `n = 2` runs, 1 artifact, 1 gate
+model: true of these two runs, and not a rate.
+
+**The blocking finding, and it is inherited August text rather than mine.** The learning-store
+schema carries `embedding vector(768), -- only at step 4 below`, and **no step of this ladder adds
+embeddings**: counting from Lab 9.4, step 4 is Lab 9.7, which says *"Do not add embeddings yet"*;
+counting only the build labs, step 4 is Lab 9.8, which wraps the store in MCP. Marked, not
+rewritten — the same resolution as round 1's findings 11–13.
+
+The seven non-blocking findings across both panels, and what was done:
+
+| Finding | Rec. | Action |
+|---|---|---|
+| `10 + 1 + 7 + 7 = 25, five disjoint classes` — **four addends for five classes** | **2/2** | **fixed** — 10 + 1 + 5 + 2 + 7, with the superseded form kept so the error is visible |
+| Exit gate clause 1 cited a run with **all-null hashes** as proof that instructions *are* delivered | 1/2 | **fixed** — that run is a control; a null hash proves the control assertion, and E-003's treated run is what proves delivery |
+| The §4a section ended *"Round 2 was run"* with **no outcome** | 2/2 | **fixed** — this section |
+| The validation table gave a **time-varying count** as a re-derivation instruction | 1/2 | **fixed** — a stranger should get a *different* number; what re-derives is the order of magnitude and the direction |
+| *"...nothing executes over any of **them**"* — the pronoun attaches to the 25 or the 7 | 1/2 | **fixed** — the heading now says *no control executes over the corpus* |
+| `L2` here vs *"not a layer"* in the guardrail table, **both about absence**, with no stated rule separating them | 1/2 | **fixed** — this column grades *the proof of a claim*; that table grades *a control over the corpus*. Two objects, one of which is the absence of the other |
+| *"18 rows a command decides"* **should be 20** | 1/2 | **fixed by stating all three numbers**: 18 decided by running a command, 2 with a command that exists and was deliberately not run, 5 with no command at all |
+| The `## Verified reading` **✅ marks** prime a broader expectation than *the URL resolves* | 1/2 (gate-disputed in the other panel) | **fixed by marking** — and the panel's own words are the reason: it is *"the same false-assurance shape this workbook names for `check-links.sh`, applied one level up to its own heading"* |
+| The Extract's **paraphrased** vendor claims carry no staleness marker | 1/2 (gate-disputed in the other panel) | **fixed by marking.** The two panels disagreed about whether the dated header already covered it; marked anyway, because the cheaper error is over-marking |
+
+**Two of the nine were disputed by one panel's own gate and raised by the other's.** Both were
+fixed rather than arbitrated, which is the only disposition that costs nothing when the reviewers
+disagree.
