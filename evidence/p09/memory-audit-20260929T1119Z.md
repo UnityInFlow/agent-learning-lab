@@ -227,3 +227,11 @@ measurements. The substantive point — that the same three-way split appears in
 no shared authorship, subject or format — is unaffected, but the independence it claims is
 weaker than the sentence implies: **two corpora, one observer, one day** is a pattern worth
 looking for again, not a rate.
+
+**(d) "11 are true" in §5 means T + TO, and §5's table is the authority.** The §4a review of
+`governance/memory-policy.md` found that file's version of this sentence summing to **26** against
+`n = 25`, at 2 of 2 runs, because it wrote *"11 are true"* and then listed the true-but-obsolete
+row again. §5's own prose here is arithmetically sound — `7 false + 11 true + 7 undecidable = 25`,
+where the 11 is **10 load-bearing + 1 obsolete** — but the grouping was implicit and the reviewer
+was right that implicit is how the other file got it wrong. Stated explicitly now. The five
+disjoint classes and their counts are the table in §5: **T 10 · TO 1 · F-ev 5 · F-rep 2 · U 7**.
