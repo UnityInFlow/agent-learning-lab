@@ -226,13 +226,18 @@ branch: stop26/b11-efficiency (agent-learning-lab) - created from main at `70221
         # (= 19:30:40Z). NO RUN OF EITHER BATCH EXISTS, so it precedes every run's startedAt BY
         # CONSTRUCTION - and §4 step 3 still requires both timestamps to be WRITTEN INTO the
         # experiment files after the runs, read from git and the run record and not from prose.
-        # *** THREE commits on the branch at the end of the session: 2552b75 (the prediction),
-        # d505b84 (this state file) and 369627a (the two §0a preflight artefacts the state block
-        # cites, so a stranger can re-derive their quoted values). NO PR IS OPEN YET (§4 step 14).
-        # (This line first read `One later commit carries this state file` - true when the block was
-        #  drafted and stale by two commits before the session ended. Corrected in the next commit
-        #  rather than left, because a count asserted and not re-derived is the defect stop 25 spent
-        #  three review rounds on and the defect this session found in E-025.)
+        # *** THE COMMIT COUNT IS NOT WRITTEN HERE. Re-derive it:
+        #     `git log --oneline main..stop26/b11-efficiency`. *** The one commit that matters is
+        # the PREDICTION, 2552b75, named above; everything after it is this state file and the
+        # preflight artefacts it cites. NO PR IS OPEN YET (§4 step 14).
+        # (THIS LINE WENT STALE TWICE IN ONE SESSION. It first read `One later commit carries this
+        #  state file` - true when the block was drafted, wrong two commits later. I corrected it to
+        #  `THREE commits ... 2552b75, d505b84, 369627a` and THAT was wrong two commits after that,
+        #  because correcting the state file is itself a commit. So the third fix is STRUCTURAL and
+        #  not another number: a count that changes every time you write it down must be DERIVED,
+        #  never maintained by hand. That is the same lesson the workspace CLAUDE.md records about
+        #  its own position line having gone stale three times, and the same lesson as the E-025
+        #  sentence this stop corrected - stated here as a rule rather than as a third apology.)
 in_flight:
   - "ONE `codex-score.sh` PROCESS OF THE §0a PREFLIGHT IS STILL RUNNING at the state write - a
      SECOND invocation the preflight subagent spawned on the same fixture. It writes a PREFLIGHT
