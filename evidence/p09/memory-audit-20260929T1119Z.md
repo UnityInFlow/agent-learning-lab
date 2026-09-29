@@ -219,3 +219,11 @@ vacuous everywhere else — does not depend on which figure is used.
 got wrong is exactly the case where the temptation to edit in place is strongest and the reason
 not to is clearest: a reader who finds "52 days" with no trace of "21" cannot tell whether the
 measurement or the write-up was repaired. Both are here.
+
+**(c) §7's closing sentence is wrong about *when*.** It reads *"Two independent corpora measured
+21 days apart"*. They were measured **on the same day**, 2026-09-29, by the same observer, in the
+same session. What differs by weeks is the **age** of the two corpora, not the timing of the two
+measurements. The substantive point — that the same three-way split appears in two corpora with
+no shared authorship, subject or format — is unaffected, but the independence it claims is
+weaker than the sentence implies: **two corpora, one observer, one day** is a pattern worth
+looking for again, not a rate.

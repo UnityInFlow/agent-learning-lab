@@ -471,7 +471,8 @@ than collapsing it into a single slogan.
 
 The extract verification recorded that a quotation that was **never right** and one that **went
 wrong** are byte-identical to any checker. The same split appears in the memory corpus — no
-shared authorship, subject or format, measured 21 days later:
+shared authorship, subject or format, and measured on the same day as the extract, so the two
+results are contemporaneous and differ only in what they are about:
 
 - **superseded by an event the memory could not know** — 5 of 7. Every one duplicates a value
   that is authoritative elsewhere (`blocked_on_author`, the prompt sha, `author_decisions`, a
@@ -483,7 +484,8 @@ shared authorship, subject or format, measured 21 days later:
   page cannot become obsolete *to you* while staying true.
 
 One corpus is an anecdote. Two is the beginning of a pattern, and the second one added a
-category the first could not.
+category the first could not. Stated with its limit: **two corpora, one observer, one day** —
+that is a pattern worth looking for again, not a rate.
 
 ### What was decided (§4 step 10)
 
