@@ -58,4 +58,39 @@ disposition below is recorded in `evidence/p10/RESULT-scrub-scope.md` or in the 
 
 Run on the **final** workbook, after every fix above. Result recorded below at the close.
 
-ROUND2_PLACEHOLDER
+Run on the **final** workbook after every round-1 fix.
+`findings/opencode/review-README-20260929T184041Z.md`, exit 0, 24 705 bytes, 24 029 below line
+20 — not a stall. **Verdict REJECT** (read off the `## Acceptance — REJECT` heading; `grep -m1`
+hits the YAML `acceptance:` key first and is the wrong instrument for this file).
+
+**Carry-over of round 1's five biggest, asked explicitly:** (a) scrub scope **still raised**,
+(b) the §4-step-2/RUN inconsistency **gone**, (c) the L1-vs-L2 clash **still raised, in a sharper
+form**, (d) the layer-name collision **still raised, down from 2/2 to 1/2**, (e) the `user.id`
+point **still raised, and reframed into a finding I had not seen**.
+
+| # | Finding (section) | Recurrence | Disposition |
+|---|---|---|---|
+| 18 | **The `user.id` census zero is called "the control working", but the probe never planted `user.id`** | **2/2** | **FIXED — this is a retracted overclaim of mine and the round's best finding**, `06c709d`. The probe planted `user.email`, `gen_ai.prompt` and `tool.arguments`. What it proves is that the processor deletes **record-level attributes it is configured to delete**; that `user.id` is on the same list is read off `config.yaml`, and that it is therefore removed is an **inference from configuration, not an observation**. The note now says so and names the deletion of that key as **unprobed**. One more planted placement would settle it and was not sent. *That I wrote "the probe proves" about a key the probe never touched, in a stop whose whole subject is claims made over the wrong scope, is the finding worth keeping.* |
+| 19 | **Runtime-written evidence rated L1/L2 although nothing executes to reject a false claim** (§5 table) — and its twin on the trace row | **2/2, in both rounds** | **CONCEDED AND CONVERTED**, `06c709d`. The panel was right and the label argument was the wrong response. Two senses were being collapsed and the table now separates them: **provenance** (can the cited value be hand-written? no — L1) and **correspondence** (does anything execute to prove *this table* quotes it right?). Correspondence **was L3 and is now L2**: `evidence/p10/verify-lab-numbers.py` holds every number the lab asserts, re-derives each from the trace JSONs and the live `events.jsonl`, and exits 2 on mismatch. **Proved to reject**: `--selftest` corrupts one expectation and it exits 2 with `MISMATCH e488ed2e.tool: workbook says 999, sources give 14`. The prose, the layer labels and the interpretation stay L3 — no script reads them, and the table says so |
+| 20 | **`lines_of_code.count` versus `claude_code.lines_of_code.count`** | **2/2, in both rounds** | **Round 1's dispute WITHDRAWN and the finding FIXED**, `06c709d`. I disputed it as "already stated"; it was stated in the second-pass extract and **not** where a reader meets the wrong names. An inline pointer now sits in the first-pass metric block. A correction a reader has to find later is not a correction |
+| 21 | **The scrub conclusion still extends past the log-record attributes probed** (§4 step 11) | 1/2 *(down from 2/2)* | **FIXED in the remaining place**, `06c709d` — the checkbox-3 narrowing had been applied to the lab section but the learning block and the exit gate still read wider. Both now name the logs pipeline and say the traces/metrics gap is **expected, not measured** |
+| 22 | **The "Three layers" taxonomy collides with the guardrail labels** | 1/2 *(down from 2/2)* | **Already handled in round 1** as a recorded clash rather than a rename, and left there. The author's section is the author's, §6 is one step at a time, and the note states which scale every other "L1/L2/L3" in the file belongs to |
+| 23 | **The four-commands block mixes two repo-relative path bases** | 1/2 | **FIXED**, `06c709d`. One base, stated — `cd agent-learning-lab` first, and the collector file reached as `../agent-observatory/...` |
+| 24 | **The two Exit gate blocks read as a contradiction — 0 of 5 unticked, 4 of 5 answered** | 1/2 | **FIXED with a pointer**, `06c709d`. Same five questions asked once and answered once; the unedited block is kept so a reader sees what was asked before it was answered, and now says so |
+| 25 | **Verified reading: dated checkmarks carry no captured version or digest** | 1/2 | **DISPUTED as out of scope, conceded in substance.** This is `lab#13`'s open question — it is in `author_notes` with its argument, and the §5 table already grades the link check **L2 for "the URLs answer", L3 for "the content is current"** while naming the two pages that are dead for a reader. Capturing a digest per source is an instrument that does not exist and is not this stop's to build |
+| 26 | **§4 step 2: the raw-byte term count prints 0 and exits 0, so nothing rejects a missing term** | 1/2 | **DISPUTED as out of scope, conceded in substance, and already on record.** It is boundary 1's finding and its own `author_notes` item says the L2 version is a fixture-proved `tools/` helper and that it is **not built**, §6 |
+| 27 | **Extract, second pass: no normalization contract maps Copilot `execute_tool` to Claude `tool.blocked_on_user`** | 1/2 | **DISPUTED.** The workbook's Domain model section says *"do not mirror vendor span names into your database"* and names the normalization boundary; writing the actual mapping is Phase 10's dashboard work, which stop 28 owns. Also: this stop's finding is that `tool.blocked_on_user` **does not mean what its name says**, so mapping it to anything before that is resolved would propagate the defect |
+| 28 | **Domain model / Dashboards / Experiment policy / Promotion gate / Cross-cutting: "success rate", "one meaningful variable", "approved tolerance", clause 5's sample threshold all undefined** | 1/2 each | **DISPUTED as out of scope, conceded in substance, and this is the phase's own point.** Every one is the author's first-pass prose, and B13's seven clauses are **L3 prose** — which the workbook and `author_notes` both already state, naming the L2 conversion (a gate script that refuses to publish a comparison below a registered `n`) and its owner (**stop 28**). §6 forbids building a future step's artifacts. The panel is describing the gap this stop documented rather than one it introduced |
+
+**Why the round-2 REJECT is not treated as a failure to close.** §4a step 3 permits stopping
+*"when every remaining line-level finding is disputed and the gate's own objection is
+answered."* The gate's objection across both rounds was finding 19 — evidence labelled L1 with
+nothing executing behind it — and it is answered by a checker that runs and is proved to reject,
+not by an argument. Every other remaining finding is either fixed above or disputed in writing
+with its reason; none is disputed as "stylistic". A third round was nonetheless run, below,
+because two 2/2 findings had just been fixed and the honest test of a fix is the instrument, not
+my confidence in it.
+
+## Round 3
+
+ROUND3_PLACEHOLDER
