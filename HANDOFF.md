@@ -117,6 +117,24 @@ verbatim."* that was false for two rows the day it was written, and an undated b
 claims in a workbook whose finding is that vendor claims drift. None is fixed by rewriting the
 August text; all three are fixed by **marking**.
 
+**The gate script was reviewed, came back `REJECT`, and the fix left the result unmoved.**
+`tools/verify-quotes.sh` went to the **`codex` + `deepseek-v4-pro`** panel §4a asks for on a
+registered variable and returned **six defects — while its fixture set was green at 29 of 29 and
+ShellCheck was clean.** Four fixed with a fixture case proving each refusal (a `../` key escaping
+the mktemp directory; a `|` key making **the page fetched not the page declared**; a tab kept by
+the parser and dropped by the matcher; **a cached page byte-identical to a live fetch**). Two
+disputed **with the direction stated** — both bias toward `FOUND`, so the true absent count is
+higher than 5 of 8, never lower.
+
+**Then the fixed instrument was re-run against the recorded measurement**, because fixing a gate
+script after it produced a result is where this project has been burned: `found=3 absent=5`
+before, `found=3 absent=5 sources=claude=live` after, **identical cell for cell**, with the
+stop-23 parity reproducing at `found=28 absent=1`. **None of the six defects touched this stop's
+result.** Suite 29 → 37 cases. The fixture set's own review was also `REJECT` and **its central
+claim is refuted byte-exactly on the platform it names** — BSD `sed` and `grep` behave as the
+cases assume; its two real findings (no dependency check, no documented platform semantics) are
+fixed, the dependency preflight exiting **2** and proved against a real absence.
+
 **Carried to the author and gating nothing.** `runner/verify-codex-isolation.sh`, unchanged since
 `b39b85e` on 2026-09-03, returned **three different verdicts in thirty minutes**: `ok` in the
 previous session, `INCONCLUSIVE` (exit 1) to a subagent, and **`ISOLATION LEAKS` (exit 2)** to a
