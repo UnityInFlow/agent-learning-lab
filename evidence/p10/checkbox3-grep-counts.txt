@@ -1,0 +1,23 @@
+Lab 10.0 checkbox 3 — identity/content key counts in the persisted collector output.
+Taken 2026-09-29T18:0xZ, BEFORE the scrub probe added its one line to events.jsonl.
+Command per key:  grep -c <key> <file>   and   grep -o <key> <file> | wc -l
+
+file                                       bytes       lines
+events-2026-09-05T08-34-36.268.jsonl       33548591     3925
+events-2026-09-08T13-05-27.487.jsonl       33536936     4455
+events-2026-09-26T19-46-35.355.jsonl       33551767     4118
+events.jsonl                                1639594      199
+TOTAL                                     102276888    12697
+
+key                 lines   occurrences
+user.email              0             0
+user.id                 0             0
+user.account_uuid       0             0
+organization.id         0             0
+terminal.type           0             0
+gen_ai.prompt           0             0
+tool.arguments          0             0
+session.id          12696         79704
+
+A line is one collector export batch holding several log records, so 12 697 is a lower
+bound on the number of records and is reported as lines.
