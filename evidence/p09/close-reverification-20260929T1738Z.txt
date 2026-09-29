@@ -1,0 +1,42 @@
+# §5 - every verification command re-run immediately before writing 'done'
+# 2026-09-29T17:38:21Z, stop 24 boundary-2 write, on merged main at 7e3e1df
+#
+# NOTE ON THE FIRST ATTEMPT AT THIS FILE, which is not kept because it was wrong in a way
+# that would have been read as a result: it captured $? AFTER A PIPELINE THROUGH `tail`,
+# so both manifests reported 'exit=0' when the real codes are 2. A re-verification file
+# asserting exit 0 for a run with five absences is exactly the class of defect this stop
+# spent its review budget on, committed by me in the act of re-verifying. Fixed by taking
+# the code from the command itself before anything is piped.
+
+## ShellCheck, both scripts
+verify-quotes.sh: clean
+verify-quote-checker.sh: clean
+
+## Syntax under /bin/bash (3.2), the interpreter this machine's /bin/bash IS
+verify-quotes.sh: parses under 3.2.57(1)-release
+verify-quote-checker.sh: parses under /bin/bash
+
+## Fixture suite
+exit=0
+
+52 passed, 0 failed
+
+## The measurement, both corpora - exit code taken BEFORE any pipe
+p09 exit=2 (2 = at least one absence, the registered code)
+manifest=quotes-p09 found=3 absent=5 sources=claude=live
+p08 exit=2 (2 = at least one absence)
+manifest=quotes-p08 found=28 absent=1 sources=creating=live safe=live perms=live exp=live threat=live trig=live skipped-orphan-pages=home
+
+## Links over the workbook
+exit=0
+ok=4 moved=0 blocked=0 unverified=0 broken=0
+
+## The n = 0 claim, re-counted against the live API
+total runs on the API: 744 - the findings row says 743 and was true when written;
+  it moved because THIS session ran preflight row 6b. A run count is a live counter.
+runs carrying a stop-24 EXPERIMENT key: 0
+2026-09-29 preflight probe keys, which enter no comparison: ['preflight-20260929T110540Z', 'preflight-20260929T111708Z', 'preflight-20260929T143600Z']
+
+## The API health path, since the previous state block named one that 404s
+  /health         404
+  /actuator/health 200  {"groups":["liveness","readiness"],"status":"UP"}
