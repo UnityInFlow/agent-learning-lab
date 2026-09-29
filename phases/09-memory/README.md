@@ -24,6 +24,13 @@ checked that the sentences quoted off it were still there.
 
 ## Current properties
 
+> ⚠️ **Everything in this section is undated and unverified.** It was written 2026-08-09 and
+> **none of it was re-checked** by the 2026-09-29 pass, which covered the eight quotations of
+> §"Extract" and nothing else. In a workbook whose finding is that vendor claims drift unnoticed,
+> an unmarked block of vendor claims is the same defect one level up — raised by this workbook's
+> own §4a review, and marked rather than re-checked because re-checking it is a measurement this
+> stop did not make.
+
 **Copilot Memory:** repository-level facts + user-level preferences · used by cloud agent,
 code review and CLI · **enabled per user** under enterprise/org policy · unused entries
 expire · repository owners can inspect and delete repository facts.
@@ -40,9 +47,23 @@ depending on hidden derived state.
 
 ## Extract
 
-From the Claude Code memory documentation, read 2026-08-09. Quotes verbatim.
+From the Claude Code memory documentation, read 2026-08-09. ~~Quotes verbatim.~~
+
+> ⚠️ **"Quotes verbatim" was FALSE ON THE DAY THIS WAS WRITTEN for two of the eight
+> quotations** — rows 3 and 4 of §"Extract re-verified" (a capital "Target" lifted out of a
+> `Size : target …` list item; an ASCII apostrophe where the page renders U+2019). Struck rather
+> than deleted. **Three of the eight are still byte-exact; five are not**, and the five split
+> three ways.
 
 ### The sentence that voided our Phase 1 experiment
+
+> ⚠️ **THIS QUOTATION NO LONGER MATCHES THE PAGE IT CITES — re-checked 2026-09-29, see
+> [§"Extract re-verified"](#extract-re-verified--2026-09-29-spine-stop-24) row 1.** It is kept
+> verbatim because it is what the extract said on 2026-08-09, and a prediction or a reading is
+> not edited after the fact. The marker is here rather than only 160 lines below because the
+> §4a review of this workbook found that a reader meets the reversed claim first and the
+> correction second, which is the wrong order for the one sentence in this file that voided an
+> experiment.
 
 > "**Claude Code reads `CLAUDE.md`, not `AGENTS.md`.**"
 
@@ -243,7 +264,7 @@ two defect classes is unmeasured, and is the obvious next thing to point the man
 | Artifact | Layer | Why, applying the rule in order |
 |---|---|---|
 | `tools/verify-quotes.sh` | **L2** | Something executes and rejects: exit 2 on an absent quote, 3 on a page it could not read, 4 on a manifest it cannot trust. Proved by `tools/verify-quote-checker.sh`, 29 of 29. |
-| `evidence/p09/quotes-p09.tsv` | **L1** for the page/quote binding | A quote whose page key names no declared page cannot be written down and still run — it is exit 4, fixture K. The *sentences themselves* are L3: nothing stops a wrong transcription being added, which is exactly how rows 3 and 4 got in. |
+| `evidence/p09/quotes-p09.tsv` | ~~**L1** for the page/quote binding~~ → **L2**, corrected 2026-09-29 | **The original label was wrong and this workbook's own §4a review caught it at 2 of 2 runs.** Applied in order: *can the bad value still be written down after the fix?* — **yes.** An undeclared page key can be typed into the TSV and saved; what happens next is that `verify-quotes.sh` **executes and refuses it** at exit 4, fixture K. Something runs and rejects it, so it is **L2**, not L1. L1 would require the row to be unwritable. The *sentences themselves* stay **L3**: nothing stops a wrong transcription being added, which is exactly how rows 3 and 4 got in. The struck label is kept, not deleted — and note that this is the same error the workspace `CLAUDE.md` warns about (*“a schema note is L3, not L1”*), made in the direction it does not name. |
 | The adjudication table above | **L3** | Words a human read and judged. Nothing executes to distinguish drift from a transcription defect, and on this evidence nothing can. |
 | `check-links.sh` over this phase | **L2, and narrower than it looks** | It executes and it rejects — but only URL resolution. Green here while five quotations were wrong. |
 
@@ -526,7 +547,8 @@ learning:
     number. The stop had just measured an external corpus going stale unchecked; the internal
     corpus is the one the project actually depends on and had never been measured at all.
   observed_effect: >
-    7 of 25 advertised claims false, 11 true, 1 true-but-obsolete, 7 undecidable by command.
+    7 of 25 advertised claims false, 10 true and load-bearing, 1 true-but-obsolete, 7
+    undecidable by command — 10 + 1 + 7 + 7 = 25, five disjoint classes.
     Zero were found by anything that executes, because nothing executes over this corpus.
     The extract audit's three-way split reproduced on a second, independent corpus and gained
     a fourth category (true but obsolete).
@@ -579,7 +601,7 @@ minutes, which is a property of that harness and of nothing this lab set out to 
 | Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
 |---|---|---|---|
 | §3 row 24: *"Phase 9 memory: reading, extract, one lab"* — **reading** | `phases/09-memory/README.md` §"Verified reading" + §"Extract re-verified — 2026-09-29" (commit `cb10974`) | L1 — committed file, §6 forbids rewriting it | `git show cb10974 -- phases/09-memory/README.md` |
-| §3 row 24 — **extract** | same commit; `evidence/p09/quote-verification-20260929T1105Z.txt` (found=3 absent=5, exit 2) | L2 — `tools/verify-quotes.sh` executes and exits non-zero | `./tools/verify-quotes.sh evidence/p09/quotes-p09.tsv` |
+| §3 row 24 — **extract** | same commit; `evidence/p09/quote-verification-20260929T1105Z.txt` (found=3 absent=5, exit 2), re-run at the close as `…-20260929T1210Z-close.txt` with the same cells | L2 — `tools/verify-quotes.sh` executes and exits non-zero. **`absent` means `grep -qF` found no byte-exact occurrence of the sentence in the stripped page text** (`tools/verify-quotes.sh:173`) — not normalised, not semantic. That is precisely why the instrument cannot separate *reworded* from *reversed* from *never verbatim*, and why the three-way split had to be adjudicated by hand | `./tools/verify-quotes.sh evidence/p09/quotes-p09.tsv` |
 | §3 row 24 — **one lab** | `evidence/p09/memory-audit-20260929T1119Z.md` (25 assertions, verdicts, deciding commands) + `governance/memory-policy.md` | **L2 for the 18 rows a command decides, L3 for the adjudication of which category a failure falls into** — that split is the same one the extract verification had to make by hand | open the audit file; re-run any row's command from its own cell |
 | §3 row 24 closes when — **evidence on disk** | the two files above, plus `evidence/p09/codex-isolation-20260929T1125Z-handrun.txt` and `evidence/p09/smoke-20260929T1114Z.txt` | L1 | `ls evidence/p09/` |
 | Phase 9 exit gate clause 1 — *distinguish the five* | run `feb68170-395a-49a8-afb1-b7222b81e4c6`, `.customization` = 7 keys, **all null**. **This is §0a preflight row 6b, not a run of this lab** — it enters no comparison and is cited only as an example of what a delivery proof looks like | **L1** — the API record is written by the runner, not asserted | `curl -s 127.0.0.1:8081/api/runs/feb68170-395a-49a8-afb1-b7222b81e4c6 \| jq '.customization'` |
@@ -593,3 +615,35 @@ minutes, which is a property of that harness and of nothing this lab set out to 
 **One row deliberately not claimed.** There is no independence check between arms, because
 there are no arms: this lab has `n = 0` benchmark runs and compares no populations. Writing an
 independence row here would be a control reporting success over a scope it does not have.
+
+### §4a review — round 1, and what was done with each finding
+
+Two artifacts, `-n 2` each, critic `ollama-cloud/glm-5.2`, acceptance gate
+`ollama-cloud/minimax-m3`. Harness exit 0 on both, no stall, no process left running.
+
+| Artifact | Findings file | Gate |
+|---|---|---|
+| `governance/memory-policy.md` | `findings/opencode/review-memory-policy-20260929T112646Z.md` | **REJECT** |
+| this workbook | `findings/opencode/review-README-20260929T113345Z.md` | **ACCEPT** |
+
+The policy file's nine findings and their dispositions are tabled in that file's own §6 — seven
+fixed, one already fixed before the review returned, one disputed. This workbook's six:
+
+| # | Rec. | Finding | Action |
+|---|---|---|---|
+| 9 | **2/2** | `quotes-p09.tsv` labelled **L1** where an undeclared page key *can* be written and only `verify-quotes.sh` rejects it | **fixed — this is the sharpest of the six.** Relabelled **L2**, struck not deleted, with the rule applied in order beside it. Same error the workspace `CLAUDE.md` warns about, made in the direction it does not name |
+| 10 | **2/2** | `learning.observed_effect` summed to **26** against `n = 25` | **fixed** — 10 + 1 + 7 + 7, five disjoint classes, stated |
+| 11 | 1/2 | §"Current properties" makes undated vendor claims **in a workbook whose finding is that such claims drift** | **fixed by marking, not by re-checking.** A warning block now says the section is from 2026-08-09 and that the 2026-09-29 pass covered the eight quotations and nothing else. Re-checking it is a measurement this stop did not make, and pretending otherwise would be the defect the stop is about |
+| 12 | 1/2 | The reversed claim *"Claude Code reads `CLAUDE.md`, not `AGENTS.md`"* sits ~160 lines from its correction, unmarked | **fixed** — an inline warning beside the quotation, linking to the row that refutes it. The quotation itself is **not** edited |
+| 13 | 1/2 | The extract header *"Quotes verbatim."* was **false on the day it was written** for rows 3 and 4, and was retained unmarked | **fixed** — struck through with the two defects named |
+| 14 | 1/2 | The workbook never says whether `absent` means byte-exact, normalised or semantic matching | **fixed** — `grep -qF`, byte-exact, `tools/verify-quotes.sh:173`, and that is exactly *why* the three-way split needed a human |
+
+**Findings 11, 12 and 13 are one finding in three places, and it is the review's best work.** All
+three say the same thing: *this workbook narrates a staleness problem in its newest section while
+leaving the stale text upstream unmarked, where a reader meets it first.* None of them is fixed
+by rewriting the August text — §6 and this project's whole method forbid that. All three are
+fixed by **marking**, which is the only move that is both honest and additive.
+
+**The acceptance gate returned `ACCEPT` on this workbook and the six findings were fixed anyway.**
+§4a stops at `ACCEPT`; it does not say to ignore line-level findings that an accepting gate still
+raised. Round 2 was run on the revised text of both artifacts.
