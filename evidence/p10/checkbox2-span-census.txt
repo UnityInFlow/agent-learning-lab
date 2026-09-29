@@ -1,0 +1,25 @@
+Checkbox 2 census — trace a4dc23a3f3c9cefa1de70222adbc1799
+run e488ed2e-9f90-4e5b-b7d1-53871b8d2755, benchmark.id BE-001, experiment.variant baseline
+claude-code service.version 2.1.284, headless `claude -p`, --permission-mode acceptEdits
+
+   1  claude_code.interaction
+  15  claude_code.llm_request
+  14  claude_code.tool
+  14  claude_code.tool.blocked_on_user
+  14  claude_code.tool.execution
+
+blocked_on_user spans, one line each: spanId decision source duration_ms
+  zHx1whl+CY4= unknown unknown 6
+  Hv0EEyKFKWc= unknown unknown 6
+  GP9EvXAeA78= unknown unknown 3
+  wqrozwRqGOc= unknown unknown 2
+  DbYeEcHjbVY= unknown unknown 4
+  9mIgCHEtRBs= unknown unknown 3
+  2Wz0DZobIU4= unknown unknown 3
+  7n9bVsIGIT8= unknown unknown 2
+  BNcaTlW6ar0= unknown unknown 2
+  /MelXyfzrUo= unknown unknown 3
+  EQwOsvBhbvI= unknown unknown 3
+  L2OkwEZbp3E= unknown unknown 2
+  OLQN7m9r6K0= unknown unknown 3
+  BXSPQaa0nZU= unknown unknown 3
