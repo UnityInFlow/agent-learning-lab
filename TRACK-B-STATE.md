@@ -388,6 +388,15 @@ author_notes:   # *** 2026-09-29 (stop 25, §0 BOUNDARY 2 - THE CLOSE) items FIR
      defects or change-failure rate could move. Naming one would be the dashboard-before-the-runs
      trap this phase is about. Written into the exit gate as a structural limit, not a backlog
      item."
+# *** SHAS THE STATE WRITE COULD NOT KNOW WHEN IT WAS WRITTEN, added in a follow-up PR because
+# §0 orders the state write BEFORE the action and therefore before the shas exist:
+#   lab#138 -> 0ff187dcfda4f5705f9dec5a0565aaee76e4bb97   the stop (two-parent merge)
+#   lab#139 -> 073ea8b35ce0687ffece6f78d51a24c86ec36e05   this file, at boundary 2
+#   lab#140 -> the PR carrying THIS paragraph; its own sha is in git log and nowhere else
+# lab#12 (Phase 10) has TWO comments this session and is `open` - READ BACK TWICE, because the
+# project-2 automation AUTO-CLOSED IT on the card move to Done and it had to be reopened. Its
+# card is `Done`, read back. NINE CHECKS GREEN AND ONE RED ON BOTH PRs, the red being board
+# freshness, which is the author's by decision 12 item 4. ***
 board_digest: 99bcf34960f6   # *** RE-DERIVED ON MERGED `main` AT 0ff187d, AFTER THE LAST
                              # HANDOFF.md EDIT (716c7aa, 2026-09-29T20:15:45+02:00), and
                              # nothing has touched HANDOFF.md since. BOTH BOARD `prose:`
