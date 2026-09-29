@@ -107,7 +107,379 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-# ===== CURRENT STATE - STOP 25, PHASE 10 (PRODUCTION OBSERVABILITY), §0 BOUNDARY 1 OF 2, 2026-09-29 =====
+# ===== CURRENT STATE - STOP 25, PHASE 10 (PRODUCTION OBSERVABILITY), §0 BOUNDARY 2 OF 2 - CLOSED, 2026-09-29 =====
+# Newest first, as this file has always been kept. Every key below SUPERSEDES the next
+# occurrence of the same key further down; nothing further down is deleted. The keys NOT
+# repeated here are still live at their old positions and are still current:
+#   validation_processed (22 files, newest 2026-09-08; RE-CHECKED BY NAME this session with one
+#     grep per basename against the 22 on disk - IDENTICAL SET, NOTHING NEW, so no §0 validator
+#     batch was owed)
+#   author_decisions (items 1-13, unchanged - nothing this stop adds or moves)
+#   blocked_on_author: [] (EMPTY - NO §7 BULLET IS MATCHED)
+status: running   # *** §0 BOUNDARY 2 OF 2 FOR STOP 25 (PHASE 10 - PRODUCTION OBSERVABILITY).
+                  # THE STOP IS CLOSED AND MERGED. *** The §4 loop is complete except the board
+                  # republish, which is the AUTHOR'S by decision 12 item 4. The session ends on
+                  # that boundary, NOT on a halt: blocked_on_author IS EMPTY and NO §7 BULLET IS
+                  # MATCHED. `running` is correct per §0 - `done` is only after stop 28.
+                  #
+                  # *** THE NEXT STOP IS 26 (B11 - EFFICIENCY, v1.2) AND NOTHING OF IT EXISTS.
+                  # §6 FORBIDS A FUTURE STEP'S ARTIFACTS EARLY. OPENING IT AT §4 STEP 1 IS THE
+                  # NEXT SESSION'S FIRST ACT. *** Read §3's row 26 before opening it: B11 runs
+                  # ONLY IF v1.1's correctness is stable across its runs, otherwise the stop
+                  # records "correctness not stable, B11 refused" and stops. That is a gate on
+                  # the PREVIOUS step's data, not on new runs, and it is checked first.
+                  #
+                  # *** WHAT THIS SESSION DID: the §0a preflight in full (15th consecutive
+                  # session), then §4 steps 11, 13, 13a and 14 for stop 25 - Lab 10.0 RUN with
+                  # all three checkboxes answered, the §5 table, two §4a review rounds with
+                  # every finding fixed or disputed in writing, the PR, the merge, HANDOFF and
+                  # the GitHub closure. n = 0 BENCHMARK RUNS WERE COMMISSIONED. ***
+                  #
+                  # *** THE TWO FINDINGS, AND BOTH ARE ABOUT THE INSTRUMENT: ***
+                  # (1) `claude_code.tool.blocked_on_user` fires 1:1 WITH TOOL CALLS - 29 of 29
+                  #     over n = 2 headless acceptEdits runs (14/14 and 15/15) - IN RUNS WITH NO
+                  #     USER IN THEM. A panel counting it reports 29 human interventions where
+                  #     ZERO were possible. THE FIRST RUN'S READING WAS REFUTED BY THE SECOND:
+                  #     `decision` is `unknown` on 27 of 29 and `reject` on 2 of 29, and those 2
+                  #     ARE EXACTLY the 2 tool calls with no `tool.execution` span - both Bash
+                  #     (`cd`, `git`), both refused by the runner's static three-entry allowlist
+                  #     at run-agent.sh:838-841. SO THE SPAN COUNTS TOOL CALLS AND `decision` IS
+                  #     THE DISCRIMINATOR; `source` is `unknown` on 29 of 29, so the telemetry
+                  #     NEVER SAYS WHAT REFUSED THE CALL. A static allowlist's refusal recorded
+                  #     under a span named `blocked_on_user` IS obs#47's subject appearing in the
+                  #     RUNTIME rather than in the harness.
+                  # (2) THE COLLECTOR'S SCRUB HAD NEVER BEEN SHOWN TO REJECT ANYTHING. Its
+                  #     comment (config.yaml:3-5) claims it deletes identity/content "even if a
+                  #     runtime is misconfigured and sends them". `user.email` is absent from
+                  #     102 276 888 bytes / 12 697 lines of real output - AND A ZERO CANNOT
+                  #     SEPARATE `deleted` FROM `never sent`. A NEGATIVE CONTROL was run,
+                  #     prediction committed at 4af56b3 BEFORE the probe: one OTLP record with
+                  #     `user.email` planted TWICE, on the resource and on the record, with
+                  #     DISTINCT markers. RECORD-LEVEL user.email, gen_ai.prompt and
+                  #     tool.arguments DELETED; RESOURCE-LEVEL user.email SURVIVED VERBATIM onto
+                  #     disk. No `resource` processor is configured in any pipeline. ALL THREE
+                  #     REGISTERED PREDICTIONS HELD (P1 direction, P2 magnitude, P3 consequence);
+                  #     P4, registered as the likelier refutation, did not occur.
+                  #     *** NO LEAK OCCURRED AND NONE IS CLAIMED. *** The address is
+                  #     @example.invalid and was planted by the probe.
+                  #     *** SCOPE, NARROWED BY THE §4a ROUND AT 2/2 AND IT WAS RIGHT: ONLY THE
+                  #     LOGS PIPELINE WAS PROBED. *** traces and metrics list the SAME processor
+                  #     so the same gap is EXPECTED there - expected is not measured.
+                  #
+                  # *** A §4a PROCESS VIOLATION OF MINE, STATED RATHER THAN HIDDEN: I EDITED THE
+                  # WORKBOOK WHILE ITS ROUND-1 REVIEW WAS RUNNING. *** §4a rule 4 forbids exactly
+                  # that. The review started 18:12:14Z; at ~18:20Z the second preflight run
+                  # refuted checkbox 2's reading and I rewrote the section (716c7aa). HANDLED BY
+                  # RUNNING ROUND 2 ON THE FINAL ARTIFACT and asking the carry-over of every
+                  # round-1 finding explicitly. Round 1's file is KEPT, not deleted. The right
+                  # move was to copy the artifact aside, which rule 4 says in as many words.
+prompt_sha: a47590a1e61d       # RE-COMPUTED 2026-09-29T18:0xZ at the top of THIS session with
+                               # `shasum -a 256 ../PROMPT-opus5-track-b.md | cut -c1-12`, and
+                               # *** UNCHANGED. *** No §0 prompt-change line is owed.
+prompt_read_at: 2026-09-29T18:0xZ   # *** WHOLE PROMPT RE-READ IN FULL THIS SESSION (all 967
+                               # lines, by five sed ranges) because the user's instruction was
+                               # `execute sections 0 through 8 exactly as written`. §9 NOT read:
+                               # it is the validator's and the builder never runs it on its own
+                               # work.
+stop: 25           # *** CLOSED AND MERGED 2026-09-29 at n = 0 BENCHMARK RUNS COMMISSIONED,
+                   # which is what §3's itinerary row 25 asks for: "Phase 10: reading, extract,
+                   # Lab 10.0 written up from the #48 fix", closing on `evidence on disk`.
+                   # THE EVIDENCE IS AT evidence/p10/ - 9 files.
+                   # *** THE PHASE ISSUE lab#12 STAYS OPEN *** - Labs 10.1 onward are untouched
+                   # and §4 step 14 closes a Phase issue only when its gate is met FROM
+                   # MEASUREMENT. Its card moved to Done and lab#12 was READ BACK as still
+                   # `open` afterwards, which is the check the board automation needs (it
+                   # auto-closes on a move to Done).
+                   # *** NOTHING OF STOP 26 (B11) EXISTS. ***
+loop_step: 14  # *** §0 BOUNDARY 2 OF 2 FOR A TRACK A STOP: "after the PR". THE LOOP IS
+               # COMPLETE. *** Steps 3-10 do not apply to a Track A stop whose lab runs no
+               # benchmark (§4's closing line); steps 1-2 closed at boundary 1; 11, 13, 13a and
+               # 14 closed this session. Step 9 (deliberate failure) is a B-step step and has no
+               # counterpart here - BUT the scrub probe IS a deliberate failure in substance: a
+               # bad value was planted on purpose to see whether the control rejects it, with
+               # its prediction committed first. Recorded as what it is, not claimed as step 9.
+branch: stop25/phase-10-production-observability (agent-learning-lab) - *** MERGED into main
+        # via PR lab#138 at 0ff187dcfda4f5705f9dec5a0565aaee76e4bb97. Created from main at `b3f046e`; 14 commits.
+in_flight: []   # *** EMPTY. NOTHING OF MINE IS RUNNING AND NOTHING IS UNMERGED except this
+                # state write. *** Checked with the NARROW pattern
+                # `LC_ALL=C pgrep -fl 'run-agent.sh|codex exec|opencode-review.sh'`.
+                # *** A FOREIGN `codex exec ... -m gpt-6-astra` WAS SEEN AGAIN, writing to
+                # ~/Documents/workspace-1-ideas/audits/ for another tool on this machine. IT IS
+                # NOT OURS; leave it alone. *** AND A PRACTICAL NOTE: use `pgrep -f` WITHOUT
+                # `-l` for that broad half, because `-l` prints the foreign job's ENTIRE
+                # multi-kilobyte prompt into the session. It cost ~15 k tokens this session.
+last_verified: "2026-09-29T18:0xZ - 2026-09-29T19:xxZ, *** STOP 25 CLOSED AND MERGED AT §0
+  BOUNDARY 2. ***
+  RE-ENTRY in §0's order: (1) prompt_sha re-computed = a47590a1e61d, UNCHANGED; (2) the whole
+  prompt re-read (967 lines, five ranges) because the user's instruction was `sections 0 through
+  8 exactly as written`; (3) TRACK-B-STATE.md read BY LINE RANGE, newest block first, never
+  `cat` - it is 12 781 lines; (4) all 22 findings/track-b-validation-*.md basenames listed and
+  each grepped against validation_processed - IDENTICAL SET, NONE NEW, no validator batch owed;
+  (5) narrow pgrep - nothing of ours running.
+  §0a PREFLIGHT RUN IN FULL, every row, delegated to a haiku subagent per §4b and then
+  *** RE-DERIVED BY HAND FOR EVERY GATING VALUE. The hand pass AGREED on all of it: *** the four
+  verifiers re-run SEPARATELY (never chained with &&) at 13 / 11 / 12 / 16 cases, all exit 0;
+  the codex sheet's four values read off with awk as arch=2 maint=0 test=null focus=2 and
+  confirmed by the REGISTERED control check-sheet-categories.sh at exit 0; the isolation run
+  606ab03e fetched from the API myself - runtime.model claude-haiku-4-5-20251001, SEVEN
+  customization keys ALL null, evaluation.exitCode 0, and NO hookExecutions KEY ANYWHERE.
+  §4 STEP 11: learning block (six questions) and the exit gate answered - 4 of 5 ticked and
+  *** ITEM 3 DELIBERATELY LEFT UNTICKED, naming stop 28 as its owner *** rather than answered by
+  the report format it was not asking about.
+  §4 STEP 13: the §5 table, 14 rows, every layer label applied IN ORDER.
+  §4 STEP 13a: *** THREE §4a ROUNDS on the panel -P codex,deepseek-v4-pro. *** Rounds 1 and 2
+  both REJECT; every finding FIXED or DISPUTED IN WRITING in evidence/p10/REVIEW-RESPONSE.md,
+  28 numbered dispositions. ONE ROUND-1 DISPUTE WAS WITHDRAWN on round 2's evidence.
+  §4 STEP 14: PR lab#138 merged at 0ff187dcfda4f5705f9dec5a0565aaee76e4bb97, HANDOFF updated, lab#12 commented and its card
+  moved to Done while the ISSUE STAYS OPEN (labs deferred), read back.
+  *** WHAT THE REVIEW CHANGED, AND IT IS THE SESSION'S REAL RESULT: ***
+  (a) I CLAIMED THE PROBE PROVES THE user.id DELETION EXECUTES. IT DOES NOT - the probe never
+      planted user.id. Retracted; now stated as an inference from configuration with the
+      unprobed key NAMED. 2/2 recurrence.
+  (b) THE PANEL OBJECTED AT 2/2 IN BOTH ROUNDS that runtime-written evidence was rated L1 while
+      NOTHING EXECUTED to reject a false quotation of it in the table. IT WAS RIGHT, and the
+      answer is not a better label: *** evidence/p10/verify-lab-numbers.py now holds every
+      number the lab asserts, re-derives each from the trace JSONs and the live events.jsonl,
+      exits 2 on mismatch, AND IS PROVED TO REJECT under --selftest *** (`MISMATCH
+      e488ed2e.tool: workbook says 999, sources give 14`). Correspondence L3 -> L2. The prose,
+      the labels and the interpretation STAY L3 and the table says so.
+  (c) A ROUND-1 DISPUTE OF MINE WAS WRONG. I disputed the metric-name inconsistency as `already
+      stated`; it was stated in the SECOND-PASS extract and not where a reader meets the wrong
+      names. Pointer added at the first-pass block. A correction a reader has to find later is
+      not a correction."
+next_action: "*** STOP 25 IS CLOSED AND MERGED. OPEN STOP 26 (B11 - EFFICIENCY, v1.2) AT §4
+  STEP 1. NOTHING OF IT EXISTS AND §6 FORBIDS CREATING A FUTURE STEP'S ARTIFACTS EARLY. ***
+  (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d); re-check
+      findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
+      2026-09-08); confirm nothing is running.
+      *** PROCESS CORRECTIONS MEASURED THIS SESSION - READ THESE BEFORE REPEATING THEM: ***
+      (i)  *** NEVER WRITE A `pgrep -f '<pattern>'` WAIT LOOP. IT MATCHES ITSELF. *** I wrote
+           four and they never exited; worse, THE COUNTS I READ WHILE WAITING (3, 4, 7) WERE
+           PARTLY MY OWN WAIT LOOPS, so `is anything running` was answered over the wrong
+           population for most of an hour. The previous next_action ALREADY WARNED ABOUT THIS
+           and I did it anyway. Use instead:
+             ps -ax -o pid,command | grep -c '[o]pencode-review.sh'
+           The bracket trick is what stops the grep matching itself.
+      (ii) *** USE `pgrep -f`, NEVER `pgrep -fl`, FOR THE BROAD `codex exec` HALF. *** The
+           foreign gpt-6-astra audit job on this machine carries a multi-kilobyte prompt in its
+           command line and `-l` PRINTS ALL OF IT into the session. It cost ~15 k tokens.
+      (iii) *** DO NOT FETCH A WHOLE TEMPO TRACE INTO CONTEXT. *** `curl .../api/traces/<id>`
+           and printing every span cost ~10 k tokens. Pipe it straight to a file and run a
+           python counter over the file; that is what evidence/p10/census.py does.
+      (iv) *** NEVER `cat TRACK-B-STATE.md`. *** 12 781 lines / 1.3 MB. Read by line range.
+      (v)  *** THE HEALTH PATH IS /actuator/health, NOT /health. *** /health 404s on a healthy
+           stack. Re-confirmed this session alongside `All 18 checks passed.`
+  (1) *** READ §3's ROW 26 BEFORE OPENING ANYTHING. B11 IS CONDITIONAL: *** `Only if v1.1's
+      correctness is stable across its runs; otherwise record `correctness not stable, B11
+      refused` and stop.` That gate is answered from STORED DATA of B8 (stop 17), not from new
+      runs, and it is the FIRST thing to check - a refusal is a legitimate closure and is
+      cheaper than a batch. Decision 9 applies: B11 runs on BOTH BE-003 AND BE-004, each its own
+      experiment key, its own prediction commit, its own concurrent control, no verdict across
+      tasks. Author decision 13 governs the batch ceiling (it is a RULE, not a flat number).
+  (2) *** THE REVIEW HARNESS: USE `-P codex,deepseek-v4-pro`. *** Three invocations this session,
+      3 of 3 returned with real bodies (24 971 / 14 855 / 24 705 bytes) at 8-14 minutes each. The
+      default critic `glm-5.2` stalled 2 of 6 at stop 24.
+      *** AND READ THE VERDICT OFF THE `## Acceptance` HEADING, NOT WITH `grep -m1`: *** the
+      YAML `acceptance:` key appears first in the file and grep -m1 hits that instead.
+      *** AND OBEY §4a RULE 4, WHICH I BROKE TWICE THIS SESSION: do not edit the artifact while
+      its review runs. Copy it aside. Both violations and their consequences are in
+      evidence/p10/REVIEW-RESPONSE.md. ***
+  (3) *** AN INSTRUMENT DEFECT WITH A ONE-LINE CAUSE, DIAGNOSED AND NOT FIXED: *** §0a row 3's
+      own prescribed command creates a stray file named `1` every time it runs.
+      `tools/codex-score.sh:293` tests `LAB_SCORE_DRY_RUN` as a BOOLEAN and `:294` uses THE SAME
+      VARIABLE AS A DESTINATION PATH (`cp \"$tmp/prompt.md\" \"${LAB_SCORE_DRY_RUN}\"`), so
+      `LAB_SCORE_DRY_RUN=1` writes the prompt to `./1`. The `|| cp … ./score-prompt-dry-run.md`
+      fallback NEVER fires because `cp x 1` succeeds. This is also stop 24's stray `1`.
+      NOT FIXED: codex-score.sh is the REGISTERED scorer's harness and editing it mid-track
+      touches a registered instrument. This session's file was MOVED, not deleted, to
+      evidence/p10/stray-artefact-1-20260929T180745Z.txt. In author_notes for the author.
+  (4) DO NOT: create any artifact of stop 26 or later before §4 step 1; re-open, re-run or
+      re-review stops 25, 24 or 23; delete a worktree, log, sheet, review file or evidence file
+      (§6) - INCLUDING A STALLED REVIEW FILE; edit a measured overlay under build/customizations/;
+      edit evidence/p08/verify-quotes.sh; commit a pid lock; republish the boards (author's,
+      decision 12 item 4); push a state write straight to main; CLOSE lab#12 while any of its
+      labs is deferred - and if the project board auto-closes it behind the card move to Done,
+      REOPEN IT AND SAY SO ON THE ISSUE; or run §9 on my own work."
+author_notes:   # *** 2026-09-29 (stop 25, §0 BOUNDARY 2 - THE CLOSE) items FIRST. The items at
+                # the older positions further down this file are NOT superseded and are still
+                # open.
+  - "2026-09-29, stop 25 CLOSE - *** `claude_code.tool.blocked_on_user` DOES NOT MEAN WHAT ITS
+     NAME SAYS, AND THIS MATTERS FOR EVERY DASHBOARD THIS PROJECT WILL EVER BUILD. *** It fires
+     1:1 with tool calls - 29 of 29 over n = 2 headless runs - in runs with NO USER IN THEM.
+     `source` is `unknown` on 29 of 29. `decision` is `unknown` on 27 and `reject` on 2, and
+     those 2 are EXACTLY the 2 tool calls with no execution span: both Bash (`cd`, `git`), both
+     refused by the runner's static three-entry allowlist. SO A STATIC ALLOWLIST'S REFUSAL IS
+     RECORDED UNDER A SPAN NAMED `blocked_on_user`. That is obs#47's subject - `[P0]
+     Permission-mode block recorded as incorrect code`, STILL OPEN - appearing in the RUNTIME
+     rather than in our harness. RECOMMENDATION (author's, not built): obs#47 gains this
+     evidence, and B13's dashboard work at stop 28 gets a registered rule that no panel counts
+     this span unfiltered. The L2 version is a gate script; NOT BUILT, §6."
+  - "2026-09-29, stop 25 CLOSE - *** THE COLLECTOR'S PRIVACY SCRUB IS REAL AND NARROWER THAN ITS
+     OWN COMMENT. *** config.yaml:3-5 claims it deletes identity/content `even if a runtime is
+     misconfigured and sends them`. A negative control (prediction committed FIRST at 4af56b3)
+     planted `user.email` on BOTH the resource and the log record with distinct markers:
+     RECORD-LEVEL DELETED, *** RESOURCE-LEVEL SURVIVED VERBATIM ONTO DISK. *** No `resource`
+     processor is configured in any pipeline, and `OTEL_RESOURCE_ATTRIBUTES` is an env var -
+     which is exactly the `wrong env var on a laptop` the comment names. NO LEAK OCCURRED; the
+     address is @example.invalid and was planted by the probe. RECOMMENDATION (author's, not
+     built, because the collector is an OBSERVATORY change outside this stop's one variable): add
+     a `resource` processor with the same delete list to all three pipelines, with a fixture set
+     that proves it rejects. SCOPE OF WHAT WAS MEASURED: THE LOGS PIPELINE ONLY. Traces and
+     metrics carry the same processor and the same gap is EXPECTED there; expected is not
+     measured."
+  - "2026-09-29, stop 25 CLOSE - *** §0a ROW 3'S OWN COMMAND CREATES A STRAY FILE, AND THE CAUSE
+     IS ONE LINE. *** tools/codex-score.sh:293 tests LAB_SCORE_DRY_RUN as a BOOLEAN; :294 uses
+     THE SAME VARIABLE AS A DESTINATION PATH. So the §0a-prescribed `LAB_SCORE_DRY_RUN=1` writes
+     the prompt to `./1`, and the `|| cp … ./score-prompt-dry-run.md` fallback never fires because
+     `cp x 1` SUCCEEDS. Stop 24's stray `1` has the same cause. NOT FIXED: codex-score.sh is the
+     registered scorer's harness. The fix is a separate variable (a flag and a path are not one
+     thing) plus a fixture asserting no file named `1` appears. THE RIGHT SHAPE FOR AN INSTRUMENT
+     PR under §4 step 14 and NOT OPENED THIS SESSION - the stop's own PR, three review rounds and
+     the close took the session, and opening a PR against the registered scorer at 19:00 with no
+     fixture set would be the failure this project keeps naming."
+  - "2026-09-29, stop 25 CLOSE - *** templates/run-record.yaml STILL SCORES `REJECT` AND STILL HAS
+     NO INSTRUMENT PR. *** findings/opencode/review-run-record-20260929T180349Z.md, three blocking
+     findings, the load-bearing one being that `cost` carries a numeric value and NO CURRENCY
+     (templates/run-record.yaml:65) so records in two currencies are indistinguishable and an
+     aggregator over `cost.value` is numerically precise and invalid. This is the §0a row-2 probe
+     subject and the REJECT has been in FIFTEEN consecutive preflight files. NOT THIS STOP'S
+     ARTIFACT (§6). Right shape for its own instrument PR."
+  - "2026-09-29, stop 25 CLOSE - *** I VIOLATED §4a RULE 4 TWICE IN ONE STOP: edited the artifact
+     while its review was running, at 18:20Z in round 1 and 64 SECONDS into round 3. *** Both
+     timelines are in evidence/p10/REVIEW-RESPONSE.md. The consequence is recorded rather than
+     hidden: round 3's answer on the scrub-scope carry-over is NOT RELIABLE, and that question is
+     settled instead by `grep -n` on the final file, which answers `does this file still say the
+     wide thing` exactly where a critic answers it probabilistically. The rule for the next stop
+     is in next_action."
+  - "2026-09-29, stop 25 CLOSE - *** THE SAME SHAPE APPEARED THREE TIMES IN ONE STOP AND ONLY ONE
+     OF THE THREE WAS CAUGHT BY ANYTHING THAT EXECUTES. *** A claim asserted over a scope wider
+     than the work: (1) the collector comment, caught by a probe; (2) my sentence that the probe
+     proves the `user.id` deletion executes, caught by the §4a panel at 2/2; (3) my own
+     REVIEW-RESPONSE entry claiming I had narrowed the scrub scope in the learning block and exit
+     gate when I had not - caught by re-reading the two lines rather than the sentence about them.
+     Plus boundary 1's fourth: a converting web fetch reporting `the page does not document
+     OpenTelemetry` about a page holding `OTEL_` x66. FOUR IN ONE STOP. The §4a panel is the only
+     non-self control that found one."
+  - "2026-09-29, stop 25 CLOSE - §0a ROW 1's PASS CRITERION IS STILL STALE, carried unchanged from
+     stops 24 and 25 boundary 1. The table says `16 of 16 cases pass`; the script now runs and
+     passes 87. Green on its own contract, a FAIL against the literal criterion. §0a is the
+     author's text and is not edited here."
+  - "2026-09-29, stop 25 CLOSE - §0a ROW 6a: `verify-codex-isolation.sh` returned exit 0 again,
+     and THIS TIME ITS OWN VERDICT LINE STATES THE SCOPE: `check B closes DISCOVERABILITY, not
+     reachability. ~ no longer resolves into the operator's home; /Users/<op>/... still exists and
+     is still readable by an agent that constructs the path another way.` That makes n = 10
+     RECORDED INVOCATIONS: 4 FAIL, 4 ok, 1 INCONCLUSIVE, 1 ISOLATION LEAKS, on code unchanged
+     since 2026-09-03. A PREFLIGHT ROW THAT IS A COIN FLIP CANNOT GATE ANYTHING. It blocks nothing
+     here: stop 25 ran no codex-scored batch. §7's not-a-halt list covers it."
+  - "2026-09-29, stop 25 CLOSE - §0a ROW 7 board freshness RED (exit 1) and RED BY THE AUTHOR'S OWN
+     STANDING DECISION 12 ITEM 4, which puts the republish in the author's interactive session
+     because it holds the Artifact tool and print mode does not. *** THE DIGEST BOTH MARKERS MUST
+     BE SET TO AFTER THE REPUBLISH IS RE-DERIVED AT THE END OF THIS SESSION AND STATED BELOW UNDER
+     `board_digest`. DO NOT EDIT HANDOFF.md WITHOUT RE-DERIVING IT. ***"
+  - "2026-09-29, stop 25 CLOSE - EXIT-GATE ITEM 3 IS DELIBERATELY UNTICKED. `My comparison
+     dashboard shows uncertainty, not just a winner` - there IS no comparison dashboard, stop 28
+     owns B13's, and §6 forbids a future step's artifacts. It is NOT answered by `make
+     baseline-report`'s median-and-range, which is uncertainty but is not the p25/p75 +
+     sample-count panel the workbook's Dashboards section asks for. Recorded with its owner named
+     rather than ticked on the nearest available thing."
+  - "2026-09-29, stop 25 CLOSE - AND THE ONE THE PHASE ITSELF CANNOT HAVE: *** THIS CHAPTER HAS NO
+     L3 ENGINEERING-IMPACT METRIC AND STRUCTURALLY CANNOT. *** The agent under test operates on
+     benchmark fixtures and never on a repository whose PR cycle time, review rework, escaped
+     defects or change-failure rate could move. Naming one would be the dashboard-before-the-runs
+     trap this phase is about. Written into the exit gate as a structural limit, not a backlog
+     item."
+board_digest: 99bcf34960f6   # *** RE-DERIVED ON MERGED `main` AT 0ff187d, AFTER THE LAST
+                             # HANDOFF.md EDIT (716c7aa, 2026-09-29T20:15:45+02:00), and
+                             # nothing has touched HANDOFF.md since. BOTH BOARD `prose:`
+                             # MARKERS MUST BE SET TO THIS VALUE AFTER THE REPUBLISH.
+                             # DO NOT EDIT HANDOFF.md WITHOUT RE-DERIVING IT. The republish
+                             # is the AUTHOR'S by decision 12 item 4 - print mode holds no
+                             # Artifact tool, and relabelling a marker for a publish that did
+                             # not happen is the exact failure this check exists to prevent.
+preflight:  # *** §0a RE-RUN IN FULL 2026-09-29T18:0x-18:1xZ *** at the user's explicit
+            # instruction for this session ("starting with the section 0a preflight"), the
+            # FIFTEENTH consecutive session to carry it. §0a's own trigger did NOT fire -
+            # neither a first session nor a halt; the instruction did. *** EVERY ROW WAS RUN
+            # THIS SESSION. NOTHING IS CARRIED, because §0a says a row you did not run is
+            # `unproven`, not `ok`. *** Delegated to a haiku subagent per §4b's table, then
+            # EVERY GATING VALUE RE-DERIVED BY HAND in the main context. The hand pass AGREED
+            # with the subagent on every value it re-checked.
+  row_1_review_hook_script: "ok, exit 0, `opencode-review.test: 87 passed, 0 failed, 0 skipped.`
+    AND THE PASS CRITERION IN §0a IS STILL STALE (it says `16 of 16`), carried unchanged from
+    stops 24 and 25 boundary 1. Green on its own contract, a fail against the literal criterion.
+    In author_notes; §0a is the author's text and is not edited here."
+  row_2_review_harness_live: "ok, ON THE PANEL ROUTE. `-n 1 -P codex,deepseek-v4-pro
+    templates/run-record.yaml` -> exit 0, findings/opencode/review-run-record-20260929T180349Z.md,
+    *** 23 484 bytes, 22 804 of them BELOW line 20, so findings below the header and NOT a
+    header-only stall. *** Five sections, both families returned. 0 processes left.
+    *** THE VERDICT IS REJECT ON templates/run-record.yaml - the PROBE'S subject, not this stop's
+    artifact - three blocking findings, FIFTEENTH consecutive file to carry it. author_notes. ***"
+  row_3_codex_harness_live: "*** ok, BOTH HALVES, WITH ONE DEFECT DIAGNOSED. ***
+    DRY HALF: exit 3 - the REGISTERED dry-run code - printing `DRY RUN - prompt written, nothing
+    scored. 2 file(s) under test, 2 baseline.`
+    *** BUT IT CREATED A STRAY FILE NAMED `1` AGAIN (28 415 bytes), AND THE CAUSE IS NOW PINNED
+    TO ONE LINE: tools/codex-score.sh:293 tests LAB_SCORE_DRY_RUN as a BOOLEAN and :294 uses THE
+    SAME VARIABLE AS A DESTINATION PATH, so the §0a-prescribed `LAB_SCORE_DRY_RUN=1` writes the
+    prompt to ./1, and the `|| cp ... ./score-prompt-dry-run.md` fallback NEVER FIRES because
+    `cp x 1` SUCCEEDS. Stop 24's stray `1` has the same cause. *** MOVED, NOT DELETED (§6), to
+    evidence/p10/stray-artefact-1-20260929T180745Z.txt. NOT FIXED: codex-score.sh is the
+    REGISTERED scorer's harness. In author_notes.
+    `codex --version` = codex-cli 0.158.0.
+    REAL HALF: exit 0, sheet findings/codex/score-good-nested-ifs-20260929T180745Z.yaml, FOUR
+    CATEGORIES. *** RE-DERIVED BY HAND with awk: architecture-consistency 2, maintainability 0,
+    test-quality null, change-focus 2 - IDENTICAL to the subagent's values. *** AND CHECKED BY THE
+    REGISTERED CONTROL rather than by eye: check-sheet-categories.sh -> exit 0, `ok: 4 categories,
+    exactly the rubric's`. THE null IS A MEASUREMENT AND NOT A MISSING CELL (§6). This sheet is a
+    preflight probe and ENTERS NO COMPARISON."
+  row_4_gate_and_validators: "ok, all four, *** RE-RUN BY HAND IN THE MAIN CONTEXT, EACH
+    SEPARATELY AND NOT CHAINED WITH &&, so one failure could not hide the rest. *** Every exit
+    code 0, hand pass and subagent agreeing: verify-run-gate-checker `all 13 cases behaved as
+    specified`; verify-sheet-category-checker `all 11 cases behaved as specified`;
+    verify-run-record-validator 12 fixtures / 12 ok lines / no total printed;
+    verify-model-output-classifier 16 fixtures / 16 ok lines / no total printed. The last two
+    print no total, so their verdict rests on the exit code and the per-fixture ok count, which is
+    STATED rather than rounded up to `all N passed`."
+  row_5_observatory_stack: "ok, `All 18 checks passed.`, exit 0. *** AND THE HEALTH PATH IS
+    /actuator/health: *** curl -> {\"groups\":[\"liveness\",\"readiness\"],\"status\":\"UP\"}.
+    /health 404s on this healthy stack; that correction held on re-test and is in next_action."
+  row_6a_codex_isolation: "ok, exit 0, on a file unchanged since b39b85e (2026-09-03). *** AND
+    THIS TIME ITS OWN VERDICT LINE STATES THE SCOPE, which is worth more than the exit code:
+    `check B closes DISCOVERABILITY, not reachability. ~ no longer resolves into the operator's
+    home; /Users/<op>/... still exists and is still readable by an agent that constructs the path
+    another way. This is an L2 control. Do not let a later reader take it for isolation.`
+    THAT MAKES n = 10 RECORDED INVOCATIONS: 4 FAIL, 4 ok, 1 INCONCLUSIVE, 1 ISOLATION LEAKS, on
+    unchanged code. A PREFLIGHT ROW THAT IS A COIN FLIP CANNOT GATE ANYTHING. It blocks nothing
+    here: stop 25 ran no codex-scored batch. author_notes, per §7's not-a-halt list."
+  row_6b_claude_isolation_run: "*** ok, RUN THIS SESSION AND RE-DERIVED BY HAND OFF THE API
+    RATHER THAN TAKEN FROM THE SUBAGENT. *** Run 606ab03e-1171-494c-97f1-6dc2f485ba9c,
+    experimentKey `preflight-20260929T181049Z`, via `make baseline-runs N=1 KEEP=1
+    ISOLATE_USER_SETTINGS=1 RUNTIME=claude MODEL=claude-haiku-4-5-20251001`. Fetched myself:
+    runtime.model = claude-haiku-4-5-20251001; customization = SEVEN KEYS, the non-null list is
+    EMPTY; evaluation.exitCode = 0. OBSERVED, not inferred from the flag.
+    *** THE RECORD STILL HAS NO `hookExecutions` KEY AT ALL, so §0a's `0 hook executions` is read
+    off an ABSENT key rather than a measured zero. AND THIS SESSION FOUND WHAT WOULD FIX THAT:
+    `claude_code.hook_execution_start` and `_complete` ARE PRESENT IN THE EVENTS PIPELINE (49
+    each in the current events.jsonl), so the zero IS observable from telemetry - just not from
+    the run record. Recorded in the stop's extract. ***
+    *** AND THIS RUN BECAME THE STOP'S OWN REPLICATION SAMPLE: its trace
+    5ee3efacf044c414dcb61961f5d94d1c is the second of Lab 10.0's n = 2, and it is the run that
+    REFUTED the first run's reading of `decision`. IT ENTERS NO COMPARISON - it is read as a
+    telemetry sample, not as a measurement of any arm. ***"
+  row_7_board_check: "*** RED, AND RED BY THE AUTHOR'S OWN STANDING DECISION. *** exit 1,
+    `2 of 2 board(s) describe an older HANDOFF.md than the one on disk. A board is a COPY.`
+    Decision 12 item 4 puts the republish in the author's interactive session, which holds the
+    Artifact tool; print mode does not. *** IT WAS ALSO THE ONLY RED CHECK ON PR lab#138: nine
+    green, one red, merged on that basis, which is the established practice for this check and
+    NOT an override of a failing test. *** The digest both markers must be set to is under
+    `board_digest` above."
+  hook_wiring: "unproven in print mode - UNCHANGED. §4a's synchronous review is the review control
+    for this run, and it was taken THREE TIMES this session (rounds 1-3 on the panel), 3 of 3
+    returning real bodies at 8-14 minutes. That is the control working; the hook is still not the
+    thing doing it."
+```
+
+```yaml
+# ===== SUPERSEDED - STOP 25 §0 BOUNDARY 1 OF 2, kept not deleted, 2026-09-29 =====
 # Newest first, as this file has always been kept. Every key below SUPERSEDES the next
 # occurrence of the same key further down; nothing further down is deleted. The keys NOT
 # repeated here are still live at their old positions and are still current:
