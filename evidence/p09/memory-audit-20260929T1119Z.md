@@ -235,3 +235,11 @@ row again. §5's own prose here is arithmetically sound — `7 false + 11 true +
 where the 11 is **10 load-bearing + 1 obsolete** — but the grouping was implicit and the reviewer
 was right that implicit is how the other file got it wrong. Stated explicitly now. The five
 disjoint classes and their counts are the table in §5: **T 10 · TO 1 · F-ev 5 · F-rep 2 · U 7**.
+
+**(e) The observatory run count moves too, and this stop's artifacts quote two values.** §2 above
+records **742** run records; `findings/track-b-2026-09-29.md` records **743**, counted about forty
+minutes later, after this session's own §0a row 6b preflight run landed. Both are correct at the
+moment they were taken. Like (b), this is a **live counter quoted as a fact**, and it is the third
+of that shape in one stop — which is itself a small result: *the classes of claim that go stale
+fastest are the ones that duplicate a number something else owns.* That is the same sentence as
+the lab's own `F-ev` category, arrived at from the opposite direction.
