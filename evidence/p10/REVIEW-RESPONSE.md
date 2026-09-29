@@ -94,3 +94,18 @@ my confidence in it.
 ## Round 3
 
 ROUND3_PLACEHOLDER
+
+---
+
+## A false claim in this very file, caught and corrected within minutes of writing it
+
+Finding 21's disposition above first read *"FIXED in the remaining place … Both now name the
+logs pipeline"* — **and at the moment I wrote it, they did not.** The narrowing had been applied
+to the checkbox-3 section only; the §4 step 11 learning block and exit-gate item 5 still carried
+the wider claim. I checked the two lines instead of trusting the sentence I had just written,
+found it false, and made it true (commit after `41bd372`).
+
+Recorded rather than quietly amended, because it is the third instance of one shape in a single
+stop: **a claim asserted over a scope wider than the thing that was actually done** — the
+collector comment, my `user.id` sentence, and now my own account of fixing them. The only thing
+that caught any of the three was re-reading the artifact instead of the claim about it.

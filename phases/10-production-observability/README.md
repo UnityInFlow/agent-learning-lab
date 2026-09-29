@@ -578,7 +578,7 @@ adapter's per-run read.
 | `blocked_on_user` appears under acceptEdits-headless | **L2** | 14 spans counted off the stored trace by a script in `evidence/p10/` |
 | The span is not the discriminator; `decision` is | **L1** | `source` `unknown` on **29 of 29**; `decision` `unknown` on **27 of 29** and `reject` on **2 of 29**, the 2 matching the 2 un-executed tools exactly — read off the stored spans, no judgement in the path |
 | Nothing may be built on that span yet | **L3** | A sentence in this workbook. Nothing executes to refuse such a panel. The L2 conversion is a gate script at stop 28 and §6 forbids building it here |
-| The scrub deletes record-level identity | **L2** | The planted record-level `user.email` is provably absent from the file the collector wrote |
+| The scrub deletes record-level identity **in the logs pipeline** | **L2** | The planted record-level `user.email` is provably absent from the file the collector wrote. **Scope named because only that pipeline was probed:** traces and metrics list the same processor and were not tested |
 | The scrub does **not** cover resource attributes | **L1 for the fact, L3 for the fix** | The fact is structural: with no `resource` processor configured, no resource attribute can be edited — the bad value cannot be removed after it is written down. **No fix is made here**; changing the collector config is an observatory change outside this stop's one variable |
 
 ### What a stranger re-derives, in four commands
@@ -736,7 +736,9 @@ learning:
     29 of 29, so the telemetry never says what refused the call. Checkbox 3's zero was real (0 occurrences in 102 276 888 bytes) and meaningless
     until a negative control was run; the control then showed the scrub deletes record-level
     identity and DOES NOT TOUCH RESOURCE ATTRIBUTES, so a planted `user.email` on the resource
-    survived verbatim onto disk.
+    survived verbatim onto disk. *(Scope, narrowed after §4a: the probe tested the LOGS
+    pipeline only. Traces and metrics list the same processor, so the same gap is expected
+    there and was not measured.)*
   unexpected_effect: >
     The lab's own instrument — the phase whose thesis is "usage is not impact" — turned out to
     contain a span that is a textbook instance of the thesis, and the project's privacy
@@ -797,7 +799,10 @@ learning:
       `gen_ai.input.messages`, `gen_ai.output.messages`, `gen_ai.system_instructions`,
       `user.email`, `user.id`, `user.account_id`, `user.account_uuid`, `organization.id`,
       `terminal.type`, `tool.arguments`, `tool.result`, `code.content`. **And now, measured
-      rather than read off the file: that deletion covers record-level attributes only.**
+      rather than read off the file: that deletion covers record-level attributes, in the logs
+      pipeline, which is the only pipeline probed.** The traces and metrics pipelines carry the
+      same processor and the same gap is expected there; expected is not measured, and two
+      probes were not run.
 
 **Was this the agent, or the harness?** **The harness, twice over, and neither finding is
 about the agent under test at all.** `claude_code.tool.blocked_on_user` is emitted by the
