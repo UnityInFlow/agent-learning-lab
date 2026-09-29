@@ -84,6 +84,16 @@ exists before someone enables it for debugging.
 > **unprobed**. One more planted placement would settle it and was not sent.
 > *(For `user.email` the same reasoning does **not** apply, because these runs have no OAuth
 > identity to emit in the first place — see the RUN's checkbox 3.)*
+>
+> **The same applies to `organization.id` and `session.id`, named by round 3 at 2/2 as a further
+> contradiction with the second-pass extract, and it is the same one.** `organization.id` is on
+> the scrub delete list and is absent from disk: emitted-then-deleted by configuration, and
+> **unprobed**, exactly as `user.id` is. `session.id` is the opposite case and is the control
+> that makes the others legible — it is **not** on the delete list, and the census finds it on
+> **12 696 of 12 697 lines, 79 704 occurrences.** So the pipeline is demonstrably capable of
+> carrying a per-session identifier all the way to disk; the keys that are missing are missing
+> because they are configured to be. That is the nearest thing to a positive control the real
+> corpus offers, and it costs nothing to read.
 
 **Always sent:** `user.id` (random, anonymous, regenerates if `~/.claude.json` is deleted),
 `session.id`, `organization.id`.

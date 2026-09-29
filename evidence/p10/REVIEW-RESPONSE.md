@@ -93,7 +93,49 @@ my confidence in it.
 
 ## Round 3
 
-ROUND3_PLACEHOLDER
+`findings/opencode/review-README-20260929T185416Z.md`, exit 0, 27 664 bytes, 26 988 below line
+20 — not a stall. **Verdict: `ACCEPT`.** §4a step 3 says stop when the acceptance gate returns
+ACCEPT, so the loop terminates here and not on a round limit.
+
+**The ACCEPT was returned on the workbook as of commit `b492994`.** One edit was made after it,
+below, and named as post-ACCEPT.
+
+**Carry-over of the four items put to it explicitly:**
+
+| | asked | answer |
+|---|---|---|
+| **A** | does the scrub conclusion still overreach the probed scope? | **no** — but see the rule-4 note above: this answer is **not relied on**, because the three sentences it turns on were edited 64 s into the round. `grep -n` on the final file is what settles it |
+| **B** | runtime-written evidence rated L1/L2 with nothing executing behind it | **still raised** — disposition below |
+| **C** | the `lines_of_code.count` metric-name inconsistency | **no** — `lines_of_code` appears nowhere in the round-3 file |
+| **D** | the "Three layers" taxonomy collision | **still raised at 2/2** — disposition below |
+| **E** | any claim that the probe proves the `user.id` deletion executes | **no** — the retraction holds |
+
+| # | Finding (section) | Recurrence | Disposition |
+|---|---|---|---|
+| 29 | **Identity block: "Always sent" contradicted by the second pass — `organization.id`, `session.id`** | **2/2** | **FIXED, post-ACCEPT**, and it is the same class as finding 18 which I had fixed only for `user.id`. `organization.id` is on the delete list, absent from disk, and **unprobed** — stated as such. `session.id` is the informative opposite: **not** on the delete list and present on **12 696 of 12 697 lines / 79 704 occurrences**, which makes it the real corpus's own positive control — the pipeline demonstrably carries a per-session identifier to disk, so the keys that are missing are missing **because they are configured to be**. Added at no cost from the census already taken |
+| 30 | **`§5` / Lab layer tables: the trace row's L1 and the `curl`+`awk` row's L2 still reject no bad value; "layer of proof" is being used in a provenance sense** | **2/2** *(deepseek in two sections, codex on the checker)* | **DISPUTED, with the disagreement stated rather than resolved — and the strongest form of it conceded in writing.** The table already separates the two senses in its own key (**provenance**: can the cited value be hand-written? **correspondence**: does anything execute to catch a false quotation?) and `verify-lab-numbers.py` now covers the correspondence of every number, including the trace row's counts. What remains is a real disagreement about vocabulary: the panel reads the workspace guardrail L1 as *only* "something structurally prevents the bad value", under which **no evidence row in any §5 table in this project has ever been L1**. That is a coherent reading and it would regrade dozens of rows across eleven closed stops — it is **the author's to settle, not mine at a close**, and it is in `author_notes`. Codex's narrower version is **already conceded in the table's own words**: the checker validates numbers and **exits 0 on a false interpretation**, which the table states before the panel raised it |
+| 31 | **"Three layers": the metric taxonomy still collides with the guardrail labels; flagged but not resolved** | **2/2** | **DISPUTED as out of scope, and "flagged but not resolved" is exactly right.** Renaming the author's first-pass section is not this stop's to do (§6, and it is the author's text). What the note does is make the collision unmissable and state which scale every other "L1/L2/L3" in the file belongs to. In `author_notes` for the author, who owns the section |
+| 32 | **Goal: reviewers could disagree whether "chapter-level operating evidence" is met by one census plus one probe** | 1/2 | **DISPUTED — the gate is `evidence on disk` (§3 row 25), not a reviewer's judgement of sufficiency.** The stop's own honest answer to sufficiency is written into the exit gate: **item 3 is left unticked** and this chapter is stated to have **no reachable L3 metric at all**. A stop that says what it did not achieve is not the failure mode this finding is reaching for |
+| 33 | **Verified reading: the HTTP-200 checkbox is ambiguous between "reachable" and "content verified"; the `↪️` symbol is undefined** | **2/2** *(different defects)* | **DISPUTED as `lab#13`'s open question, conceded in substance, already graded.** The §5 table's first row grades the link check **L2 for "the URLs answer", L3 for "the content is current"** and names the two pages that are dead for a reader's purpose. The `↪️` legend is a real gap in a file this stop did not author |
+| 34 | **Extract, second pass: stacked supersession notes leave a reader unsure what remains open** | 1/2 | **CONCEDED as a genuine cost of the house rule, and not fixable by editing.** §6 and §4 step 12 forbid rewriting superseded text, so a re-read that corrects a first pass **necessarily** stacks. The mitigation already present is that every supersession note is dated and names what it supersedes. The structural fix is a generated "what is open" view, which is the same argument as the `CLAUDE.md` status paragraph and the HANDOFF start pointer — **both of which went stale again this session**, the pointer by five stops. In `author_notes` |
+| 35 | **Lab 10.0 RUN: "reject" is read three ways** | **2/2** *(different defects)* | **CONCEDED in part and answered in the text.** The span's `decision: "reject"` value, the runner allowlist's refusal, and the review harness's `REJECT` verdict are three unrelated things that share a word in one workbook. The workbook distinguishes them by context and by naming the mechanism each time; the single-word collision stands and is worth knowing about |
+| 36 | **§4 step 2 / Promotion gate / Dashboards / Experiment policy / Domain model / Cross-cutting: "enough repetitions", "approved tolerance", "justified", "success rate", "one meaningful variable" all lack thresholds** | 1/2 each | **DISPUTED as out of scope, conceded in substance, and it is this stop's own finding.** Every one is the author's first-pass prose or B13's seven clauses, which the workbook and `author_notes` **both already state are L3 prose**, naming the L2 conversion (a gate script that refuses to publish a comparison below a registered `n`) and its owner (**stop 28**). §6 forbids building a future step's artifacts. The panel is describing the gap this stop documented, not one it introduced |
+| 37 | **§4 step 11: a ticked box justified by "none" makes gate satisfaction ambiguous** | 1/2 | **DISPUTED.** The box is *"I can name a metric in each of L1/L2/L3"* and the answer names L1 and L2 and then says **L3 is structurally unreachable for this instrument, with the reason**. Ticking it on a named absence is the honest reading; leaving it blank would imply the work is outstanding, and it is not — it is impossible, which is a different and more useful thing to record |
+| 38 | **Exit gate: five unticked boxes duplicate the answered copy; a scanner would report the stop incomplete** | 1/2 | **Already fixed in round 2's pass** (`06c709d`) with a pointer above the unedited block saying it is kept deliberately and that nothing in it is an open item. The scanner half is real and unaddressed: **nothing executes over either list**, which is the same L3 fact the §5 table records about all prose here |
+
+### Where the three rounds leave it
+
+**ACCEPT on round 3**, after 38 numbered dispositions across three rounds: **12 fixed**, **3
+conceded without a fix and said so**, **the rest disputed in writing with a reason**. None is
+disputed as "stylistic". Two findings changed what the stop claims rather than how it reads — the
+retracted `user.id` overclaim and the L1-with-nothing-behind-it objection that produced
+`verify-lab-numbers.py` — and one of my own round-1 disputes was **withdrawn** on round 2's
+evidence.
+
+**The one thing a reader should carry out of this file:** every round found at least one claim of
+mine asserted over a wider scope than the work behind it, in a stop whose own subject is exactly
+that error. The panel is the only non-self control in this loop, and it earned its place three
+times.
 
 ---
 
