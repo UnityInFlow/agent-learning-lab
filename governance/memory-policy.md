@@ -165,5 +165,8 @@ Four non-blocking findings and one the gate disputed on the critic's behalf:
 | *(gate-disputed)* Run 1 objected to *"not a layer at all"* by applying a three-step model **this file never stated** | **fixed by naming the model** — the workspace `CLAUDE.md`'s rule is now quoted in §4 before the table. The gate was right that a reviewer should not have to import it |
 
 **Two rounds, and the artifact moved from `REJECT` to `ACCEPT` on findings that were almost all
-real.** Of the fourteen findings across both rounds, **one** was disputed in writing and one was
-already fixed before its review returned; the other twelve were defects.
+real.** Fourteen findings across both rounds: **nine** in round 1, **five** in round 2. One was
+**disputed in writing** (round 1's preamble objection), one was **already fixed** before its
+review returned (`d446308`), and one **needed no action** — round 2's note that §6 records a
+§4a rule 4 violation, which is the record doing its job. **The remaining eleven were defects**,
+and four of them were arithmetic or a contradiction between two sentences of this same file.
