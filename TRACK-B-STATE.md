@@ -237,7 +237,15 @@ in_flight:
   - "ONE `codex-score.sh` PROCESS OF THE §0a PREFLIGHT IS STILL RUNNING at the state write - a
      SECOND invocation the preflight subagent spawned on the same fixture. It writes a PREFLIGHT
      PROBE SHEET THAT ENTERS NO COMPARISON, so it gates nothing. DO NOT KILL IT and do not read
-     its sheet as a measurement. Row 3 is already ok on the FIRST real sheet, hand-verified."
+     its sheet as a measurement. Row 3 is already ok on the FIRST real sheet, hand-verified.
+     *** UPDATED AFTER THE BOUNDARY: IT IS A STALL, AND IT IS THE FIRST ONE RECORDED ON codex
+     RATHER THAN ON opencode. *** `find findings/codex -name '*.yaml' -newer
+     score-good-nested-ifs-20260929T191548Z.yaml` returns EMPTY more than 20 minutes after the
+     process started, so it has produced NOTHING. CLAUDE.md documents the stall pattern for
+     `opencode run` and says codex `answered every time, in under a minute`; that is now n+1
+     against it. IT STILL GATES NOTHING - row 3 is ok on a sheet that exists, is committed at
+     369627a and passes check-sheet-categories.sh at exit 0. Leave the process alone and leave any
+     file it eventually writes; §6 forbids deleting a stalled artefact."
   - "Nothing else. No run-agent, no opencode-review. Checked with the BRACKET TRICK
      (`ps -ax -o pid,command | grep -c '[r]un-agent.sh'`) and NOT with a `pgrep -f` wait loop,
      which matches itself - the previous session lost most of an hour to exactly that."
@@ -425,7 +433,23 @@ author_notes:   # *** 2026-09-29 (stop 26, §0 BOUNDARY 1) items FIRST. The item
      exit 0, so the VERDICT was right and the SCOPE it was right over was three sixteenths of
      what it claimed - the house failure mode arriving inside §4b's own delegation. §4b already
      requires a second derivation for any value that decides a gate; this is the measured case
-     for extending that to the case COUNTS and not only the gating values."
+     for extending that to the case COUNTS and not only the gating values.
+     *** AND A THIRD INSTANCE ARRIVED AFTER THE BOUNDARY, WHICH IS WHY THIS NOTE IS WORTH ITS
+     LENGTH: *** the subagent's final report declared row 3's REAL half `PENDING ... no output
+     file yet ... possible hang`. THE SHEET HAD BEEN ON DISK FOR THE WHOLE INTERVAL
+     (findings/codex/score-good-nested-ifs-20260929T191548Z.yaml, 2 140 bytes, written 21:16,
+     hand-read by me at the time and committed at 369627a). So a delegated row was reported
+     NOT DONE while its evidence sat in the directory the subagent was told to look in. THE
+     LIKELY MECHANISM IS THE ONE agent-learning-lab/CLAUDE.md ALREADY DOCUMENTS - `ls -t` is
+     eza's `--time FIELD` here and silently swallows its argument - AND THE SUBAGENT WAS NOT
+     WARNED ABOUT IT BECAUSE I DID NOT PUT IT IN THE BRIEF. That is my defect, not the
+     subagent's: §4b says give it the exact commands, and a machine-specific trap the repo has
+     already paid for belongs in the brief. FIX FOR THE NEXT DELEGATION: state `/bin/ls -t or
+     find, never bare ls -t` in every subagent brief that names a directory.
+     (I hit the same class of error twice more in the main context this session and caught both:
+      a `grep -c` that counted lines over a regex where `.` matched `_`, and a `find` glob
+      `2026092919*` that matched nothing because the timestamp carries a `T`. Both were
+      plausible wrong answers, which is the failure mode this project keeps meeting.)"
   - "2026-09-29, stop 26 - *** THIS FILE CARRIED FOUR BLOCKS ALL HEADED `CURRENT STATE`, TWO STOPS
      DEEP, AND I RELABELLED THREE OF THEM. *** Stops 23 (both boundaries) and 24 (both boundaries)
      were never relabelled when they were superseded, so a reader grepping `CURRENT STATE` got
