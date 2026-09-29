@@ -68,6 +68,17 @@ exists before someone enables it for debugging.
 
 ### Identity — the part governance cares about
 
+> **Reconciled 2026-09-29 by the Lab 10.0 RUN, after the §4a round raised the apparent
+> contradiction (2/2):** this list says `user.id` is *"always sent"*, and the checkbox-3 census
+> finds **0 occurrences of `user.id` in 102 276 888 bytes** of collector output. Both are true
+> and they are about different points in the path. *Always sent* is a statement about what the
+> runtime **emits**; the census is a statement about what the collector **writes to disk**, and
+> `user.id` is on the `attributes/scrub` delete list. **The probe proves that deletion actually
+> executes** rather than being assumed — it is the same processor that removed the planted
+> record-level `user.email`. So: emitted, then deleted, and the zero is the control working.
+> *(For `user.email` the same reasoning does **not** apply, because these runs have no OAuth
+> identity to emit in the first place — see the RUN's checkbox 3.)*
+
 **Always sent:** `user.id` (random, anonymous, regenerates if `~/.claude.json` is deleted),
 `session.id`, `organization.id`.
 
@@ -287,6 +298,13 @@ obs#48 — *"Claude traces are available behind a beta flag"* — was confirmed 
 `6333df8`, merged via obs#46, closed 2026-08-10. Lab 10.0's three checkboxes are **not
 equally answered by it**, and the gap is the interesting part:
 
+> **Superseded in part on 2026-09-29 by the Lab 10.0 RUN below, and kept unedited.** This
+> table says checkbox 2 is open and checkbox 3 is open. **The run closes both.** Checkbox 2 was
+> open only because nobody had looked at a stored trace; checkbox 3 was open only because nobody
+> had run a negative control. Nothing in the table was wrong when written — it is the reading of
+> the #48 fix, and the #48 fix did not answer them. The §4a round flagged the resulting
+> internal inconsistency (1/2) and this note is the fix; the table is not rewritten.
+
 | Lab 10.0 checkbox | Answered by the #48 fix? | Evidence / what is still open |
 |---|---|---|
 | "Does a Claude run now produce a trace?" | **Yes, conclusively** | Off/on probe against Claude Code 2.1.226, same OTel env both times, only `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA` differing: **0 traces off, 1 `claude_code.interaction` on**. `observatory.run.id` lands on the span resource, so the `traceUrl` written into every record since M6 resolves — *those deep links had been dead the whole time*. `STATE.md` corrected; `claude-telemetry.sh` no longer hardcodes `traceId: null` under a header asserting traces do not exist |
@@ -323,8 +341,12 @@ statement about CONTENT, and the tombstone wins*). Not re-litigated here. Two ad
     says `cost_usd` and the cache read/creation split *"have no span equivalent"* and calls
     the trace "correlation only". Precisely: the **cache split does exist in the spec**
     (`cache_creation` / `cache_read`) and is absent from *Claude's* spans — a claim about the
-    implementation. **Cost is absent from the specification**, so no runtime's spans will
-    supply it and the events path is not a workaround, it is the only path.
+    implementation. **Cost is absent from the specification**, so no
+    *conformant* span carries it and the events path is not a workaround but the only standard
+    one. *(Narrowed 2026-09-29 after the §4a round, which was right that a vendor may add a
+    non-standard attribute — so "no runtime's spans will supply it" was a claim about runtimes
+    that only the specification can support. Claude's spans do not carry it, checked on this
+    stop's two traces: `n = 2`, true of those runs.)*
   - `gen_ai.conversation.id` is the spec's name for what Claude Code calls `session.id`.
 
 ---
@@ -485,9 +507,23 @@ committed **before** the probe at `4af56b3`
 | `gen_ai.prompt` | log-record attribute | no |
 | `tool.arguments` | log-record attribute | no |
 
-3 of 4 deleted, 1 of 4 survives, and the survivor is an email address. The record as it left
-the collector still reads
+**3 of 4 placements deleted, 1 of 4 survives** — four placements of three key names, since
+`user.email` was planted twice. The survivor is an email address; the record as it left the
+collector still reads
 `user.email = resource-level-P10SCRUBPROBE20260929T180630Z@example.invalid`.
+
+**The two copies were planted with DISTINCT markers on purpose**, `resource-level-…` and
+`record-level-…`, so the survivor's level is read off the value itself rather than inferred
+from where it landed. The §4a round raised this as an ambiguity because
+`PREDICTION-scrub-scope.md` does not say so; **the prediction under-specified the probe and the
+probe as executed did not suffer from it** (`evidence/p10/scrub-probe-sent.json`). The
+prediction is not edited (§4 step 12); the correction is in `evidence/p10/RESULT-scrub-scope.md`.
+
+**The record arriving at all is the probe's own positive control**, and it is what separates
+*deleted* from *dropped*. `events.jsonl` grew by exactly one line; that line carries the marker,
+the body and two of the three resource attributes. Ingestion, routing and file serialization
+therefore all worked for this record, so **the three missing attributes are missing from a
+record that arrived** — removed by a processor, not lost by the pipeline.
 
 **Mechanism, as predicted:** the Collector's `attributes` processor edits the telemetry
 item's own attributes and does not touch the resource; editing resource attributes is the
@@ -498,8 +534,20 @@ separate `resource` processor, and `config.yaml` configures none in any pipeline
 states**. The misconfiguration it names — *"a single wrong env var on a laptop"* — is
 precisely the class that lands on the **resource**, because `OTEL_RESOURCE_ATTRIBUTES` is an
 env var and is the standard way identity reaches a resource. The comment describes a guard
-against the one channel the guard does not cover. **The scrub is a real L2 control and its
-real scope is log-record / span / data-point attributes only.**
+against the one channel the guard does not cover.
+
+**Stated as what it is: that last sentence is an inference, not a measurement.** The probe sent
+a direct OTLP POST; it did **not** set `OTEL_RESOURCE_ATTRIBUTES` on a runtime and watch the
+value travel. What is measured is that **a resource attribute survives the scrub**; that a
+mis-set env var is one way to put one there is read from the OTel specification, and the §4a
+round was right to separate the two. **The scrub is a real L2 control and its
+measured scope is the LOGS pipeline's log-record attributes.** The §4a round was right to press
+on this and the claim is narrowed to what was probed: **only the logs pipeline was probed.**
+The traces and metrics pipelines list the *same* processor
+(`service.pipelines.{traces,metrics}.processors: [attributes/scrub, batch]`) and the
+processor's behaviour does not vary by signal, so the same gap is **expected** there — but
+expected is not measured, and no span or data-point attribute was planted. Two probes that
+were not run.
 
 **What is NOT claimed.** No leak has occurred. `user.email` has never appeared in this
 project's real collector output, on those 102 276 888 bytes; the runs are `ISOLATE_USER_SETTINGS=1` with
@@ -516,7 +564,7 @@ adapter's per-run read.
 
 | What the lab concluded | Layer of the **proof** | Why that layer |
 |---|---|---|
-| A claude run produces a trace, on 2.1.284 | **L2** | Tempo returned the trace; the span resource carries `observatory.run.id`. Something executed and answered |
+| A claude run produces a trace, on 2.1.284 | **L1** *(was L2 here and L1 in the §5 table; the §4a round raised the clash 2/2 and it is reconciled to L1)* | Applied in order: the value is a span written into Tempo by the runtime, and **nothing in this repository can hand-write it**, so the first question — *can the bad value still be written down?* — answers no and the rule stops there. It was labelled L2 for *"Tempo returned the trace"*, but a store answering a query is not a thing that rejects a wrong value |
 | `blocked_on_user` appears under acceptEdits-headless | **L2** | 14 spans counted off the stored trace by a script in `evidence/p10/` |
 | The span is not the discriminator; `decision` is | **L1** | `source` `unknown` on **29 of 29**; `decision` `unknown` on **27 of 29** and `reject` on **2 of 29**, the 2 matching the 2 un-executed tools exactly — read off the stored spans, no judgement in the path |
 | Nothing may be built on that span yet | **L3** | A sentence in this workbook. Nothing executes to refuse such a panel. The L2 conversion is a gate script at stop 28 and §6 forbids building it here |
@@ -552,7 +600,7 @@ not to the artifact** (§5).
 | `check-links.sh` on this file | **L2**, over HTTP reachability **only** | It executes and it fails closed on a 404. It returned `ok=5 moved=0 broken=0` here — **including the semconv tombstone and the deprecated registry page.** Its scope is the server's answer, not the page's content, and this stop is the second recorded instance of that gap mattering |
 | The term counts off `cli-ref.html` | **L2**, for this one question | A count either is or is not there. It is re-derivable by a stranger with `curl` + `awk`, which is why it is the thing that overturned the fetch tool's answer |
 | `lockCaptureContent` / `captureContent` | **L3 here** | Real L2 primitives — for a Copilot deployment. **Decision G: that arm does not exist in this project.** Recording them as controls this project holds is the mistake `GUARDRAILS.md` exists to prevent |
-| Lab 10.0's three checkboxes | **L3 until run** | The re-scoping table above says which the obs#48 fix already answers. Two are open and become L2 only when a run produces the observation |
+| Lab 10.0's three checkboxes | **L3 until run → now L1/L2, see the RUN section** | *(This row was written at §0 boundary 1, before the run. The §4a round flagged that it still says "two are open" while the RUN section answers all three; dated amendment 2026-09-29, row not rewritten.)* The re-scoping table says which the obs#48 fix already answers. Two were open; **both were then answered from evidence already on disk** — a stored trace for checkbox 2, a negative control for checkbox 3 — and their proofs are L1/L2 in the RUN's own layer table |
 
 **The trap.** `build/README.md#b13` — Phase 10's Track B counterpart, which is **stop 28 and is
 not opened** — states it as measured history rather than as advice:
@@ -579,6 +627,16 @@ reading for a Track A stop's trap, not the start of B13.*
 ---
 
 ## Three layers
+
+> **Name clash, flagged by the §4a round at 2/2 recurrence and recorded rather than resolved
+> by edit (2026-09-29).** The L1/L2/L3 below are **adoption / agent execution / engineering
+> impact** — a *metric taxonomy*, the author's, from the first pass. They are **not** the
+> workspace `CLAUDE.md` guardrail layers (structural / enforced / guidance) used in every
+> layer column in this workbook and in every §5 table in this project. Two unrelated
+> three-level scales share three labels, and a reader who carries one into the other will
+> mislabel a control. The author's section is not renamed here — it is the author's text and
+> §6 is one step at a time — but **every "L1/L2/L3" elsewhere in this file is the guardrail
+> scale**, and the two are never mixed in one sentence.
 
 | | Examples | Question |
 |---|---|---|
@@ -742,7 +800,7 @@ comparison.
 | Lab checkbox 3 — *"Grep the collector output for `user.email`. Is it there?"* | **No. 0 lines, 0 occurrences** across `infra/telemetry-out/*.jsonl` = 102 276 888 bytes / 12 697 lines, counted **before** the probe. `evidence/p10/checkbox3-grep-counts.txt` | **L1** for the count — it is a grep over files the collector wrote. **But on its own it answers nothing**, and the table says so: a zero cannot separate *deleted* from *never sent* | `grep -c user.email agent-observatory/infra/telemetry-out/*.jsonl` |
 | …the negative control that gives the zero meaning | Prediction `4af56b3` **precedes** the probe (18:0x commit → 18:06:30Z POST); probe `evidence/p10/scrub-probe-sent.json`, survivor `evidence/p10/scrub-probe-surviving-record.json`, result `evidence/p10/RESULT-scrub-scope.md`. Record-level `user.email`, `gen_ai.prompt`, `tool.arguments` **deleted**; resource-level `user.email` **survived verbatim** | **L2 for the three deletions** — the collector executed and rejected them, which is the first time this control has been shown to reject anything. **L1 for the survival**: with no `resource` processor in any pipeline, a resource attribute cannot be edited by this config, so the bad value cannot be removed after it is written down | POST `evidence/p10/scrub-probe-sent.json` to `http://127.0.0.1:4318/v1/logs`, then `grep -o 'resource-level-[A-Z0-9]*' infra/telemetry-out/events.jsonl` |
 | §5 — *at least one scored cell re-read by hand* | **No scored cell exists. `n = 0` benchmark runs were commissioned at this stop** and no rubric sheet belongs to it. The §0a preflight sheet `findings/codex/score-good-nested-ifs-*.yaml` is a probe that **enters no comparison**, and its four values were nonetheless re-derived by hand with `awk` and checked by the registered `check-sheet-categories.sh` | **L2** for the sheet check that was done; the clause itself is **not applicable** and is recorded as such rather than ticked | see `preflight:` in `TRACK-B-STATE.md` |
-| §5 — *every number quoted in prose has its `n`* | `29 of 29` spans over `n = 2` runs, with the per-run split `14/14` and `15/15` shown rather than only pooled; `0 of 12 697` lines; `3 of 4` planted keys on `n = 1` probe; the 2.1.284 version observation is explicitly `n = 1` and stated as true of that run | **L3** | read the section |
+| §5 — *every number quoted in prose has its `n`* | `29 of 29` spans over `n = 2` runs, with the per-run split `14/14` and `15/15` shown rather than only pooled; `0 of 12 697` lines; `3 of 4` planted **placements** (of three key names) on `n = 1` probe, in the **logs pipeline only**; the 2.1.284 version observation is explicitly `n = 1` and stated as true of that run | **L3** | read the section |
 | §5 — *independence check: what else changed?* | **Nothing to compare, so nothing to confound.** Stop 25 has no arms. The one run it reads, `e488ed2e`, was `ISOLATE_USER_SETTINGS=1` with all **seven** `customization.*Hash` null and `runtime.model` `claude-haiku-4-5-20251001`, read off the API this session | **L1** — an API record the runner wrote | `curl -s http://127.0.0.1:8081/api/runs/e488ed2e-9f90-4e5b-b7d1-53871b8d2755` |
 | §5 — *re-run every verification command immediately before writing "done"* | §0a re-run in full this session, every row; the link check, the Tempo fetch, the grep census and the probe were all run in this session and their outputs are the evidence files cited above | **L3 throughout** — a saved stdout file is as editable as any other file and nothing re-runs it. Stop 24 made the same regrade | re-run any command in the "four commands" block of the lab |
 
