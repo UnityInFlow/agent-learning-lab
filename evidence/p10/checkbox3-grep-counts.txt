@@ -21,3 +21,12 @@ session.id          12696         79704
 
 A line is one collector export batch holding several log records, so 12 697 is a lower
 bound on the number of records and is reported as lines.
+
+A RE-RUN WILL NOT REPRODUCE THESE TOTALS, and that is expected, not drift:
+  * the scrub probe added one line at 18:06:30Z (the surviving record);
+  * the SECOND §0a row-6b preflight run (606ab03e, ~18:10-18:15Z) added its own telemetry
+    after this census was taken.
+The re-derivable claim is the ZERO, not the denominator: `grep -c user.email` over these files
+returns 0 whatever they have grown to, EXCEPT that the probe's own planted resource-level
+address now matches. To reproduce the pre-probe state of the claim, exclude the marker:
+  grep -v P10SCRUBPROBE events.jsonl | grep -c user.email      ->  0
