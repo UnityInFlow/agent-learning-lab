@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+# verify-quotes.sh — prove that every sentence a workbook quotes is still in the page it
+# cites, or say which is not. The pages and the quotes come from a MANIFEST, so one proved
+# instrument serves every phase instead of one hardcoded copy per phase.
+#
+# WHY THIS IS A TOOL AND NOT A SECOND COPY. Stop 23 (Phase 8) wrote
+# `evidence/p08/verify-quotes.sh` with its pages and quotes compiled in, and the §4a review
+# found FIVE defects in it, all of one shape: a failure to fetch or parse, reported as
+# documentation drift. Copying that file per phase copies the shape and re-earns the defects
+# one phase at a time. This file is the same machinery with the phase-specific data lifted
+# into a manifest; every one of stop 23's five fixes is carried here and cited at the line it
+# protects, and `tools/verify-quote-checker.sh` re-proves each of them against THIS file
+# rather than trusting that the copy was faithful.
+#
+# Stop 23's script is deliberately NOT modified: it produced a measured result and §6 keeps
+# measured artefacts as they were. Instead, this tool is run against a manifest transcribed
+# from it (`evidence/p08/quotes-p08.tsv`) and must reproduce its live numbers exactly. A
+# generalisation that changes a measured number is a defect in the generalisation.
+#
+#   ./tools/verify-quotes.sh --manifest evidence/p09/quotes-p09.tsv
+#   ./tools/verify-quotes.sh --manifest <file> --list     # print the quote table, fetch nothing
+#
+# MANIFEST FORMAT — tab-separated, '#' comments and blank lines ignored:
+#   page <TAB> <key> <TAB> <url>          declares a page and names it
+#   quote <TAB> <key> <TAB> <sentence>    a sentence that must appear on that page
+#
+# Exit codes — registered, and `tools/verify-quote-checker.sh` proves each one:
+#   0  every quote in the manifest was found in its page
+#   2  at least one quote was not found (the interesting failure; not an error)
+#   3  a page could not be fetched, read, or converted to text (nothing was proved either way)
+#   4  bad usage, or a manifest that cannot be trusted to mean what it says
+#
+# REGISTERED LIMITATION, inherited from stop 23 and unchanged. `strip` removes <script> and
+# <style> and then all tags, so the searched text includes page CHROME — navigation, footers,
+# accessibility-only elements. A sentence deleted from the body but surviving in chrome would
+# still report FOUND. The claim this script supports is therefore exactly: "the quoted
+# sentence still appears somewhere on the cited page", which is the claim a workbook makes,
+# since a quotation cites a page and not a region. Raised by the §4a codex review 2026-09-27
+# and DISPUTED rather than fixed: body extraction needs a per-site selector that breaks on the
+# next redesign, and these quotes are full sentences, which chrome does not carry.
+#
+# It is L2 over the quoting and says nothing whatever about the agent under test.
+set -uo pipefail
+
+MANIFEST=""
+LIST=0
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --manifest) [ "$#" -ge 2 ] || { echo "--manifest needs a path" >&2; exit 4; }
+                MANIFEST="$2"; shift 2 ;;
+    --list)     LIST=1; shift ;;
+    *)          echo "usage: $0 --manifest <file> [--list]" >&2; exit 4 ;;
+  esac
+done
+[ -n "$MANIFEST" ] || { echo "usage: $0 --manifest <file> [--list]" >&2; exit 4; }
+[ -r "$MANIFEST" ] || { echo "MANIFEST NOT READABLE $MANIFEST" >&2; exit 4; }
+
+# Resolve the manifest BEFORE the cd, so a path relative to the caller's directory still
+# means what the caller meant. The cd itself is the house rule: without `|| exit` a failed cd
+# leaves the script running wherever the caller happened to be.
+MANIFEST=$(cd "$(dirname "$MANIFEST")" && pwd)/$(basename "$MANIFEST") || exit 4
+cd "$(dirname "$0")/.." || exit 4
+
+CACHE="${QUOTE_CACHE_DIR:-}"          # set to re-check against already-fetched pages
+FIXTURE="${QUOTE_FIXTURE_FILE:-}"     # set by verify-quote-checker.sh to a single local page
+SLUG=$(basename "$MANIFEST"); SLUG=${SLUG%.tsv}
+
+# ---- parse the manifest ------------------------------------------------------------------
+# Every rejection below is exit 4 — a manifest that cannot be trusted is a MISCONFIGURED
+# VERIFIER, and this project's house failure mode is a misconfiguration that reports as a
+# finding. None of these may ever come out as exit 2.
+PAGE_KEYS=" "
+declare -a PAGES=()
+QUOTES=""
+lineno=0
+while IFS= read -r line || [ -n "$line" ]; do
+  lineno=$((lineno+1))
+  case "$line" in ''|'#'*) continue ;; esac
+  kind=${line%%	*}; rest=${line#*	}
+  key=${rest%%	*}; val=${rest#*	}
+  if [ "$rest" = "$line" ] || [ "$val" = "$rest" ] || [ -z "$key" ] || [ -z "$val" ]; then
+    printf 'MALFORMED MANIFEST LINE %s: expected <kind>TAB<key>TAB<value>\\n' "$lineno" >&2
+    exit 4
+  fi
+  case "$kind" in
+    page)
+      case "$PAGE_KEYS" in
+        *" $key "*) echo "DUPLICATE PAGE KEY '$key' at manifest line $lineno" >&2; exit 4 ;;
+      esac
+      PAGE_KEYS="$PAGE_KEYS$key "
+      PAGES+=("$key|$val")
+      ;;
+    quote)
+      QUOTES="$QUOTES$key	$val
+" ;;
+    *) echo "UNKNOWN MANIFEST KIND '$kind' at line $lineno (expected 'page' or 'quote')" >&2
+       exit 4 ;;
+  esac
+done < "$MANIFEST"
+
+# A checker with nothing to check must not exit 0. Stop 23's five defects were all "I failed
+# to look, reported as it is not there"; this is the same shape inverted — "I looked at
+# nothing, reported as everything verified" — and an empty or all-comment manifest produces
+# it. It is exit 4 and not exit 0.
+[ "${#PAGES[@]}" -gt 0 ] || { echo "MANIFEST DECLARES NO PAGES $MANIFEST" >&2; exit 4; }
+[ -n "$QUOTES" ] || { echo "MANIFEST DECLARES NO QUOTES $MANIFEST" >&2; exit 4; }
+
+# Every quote's page key must name a DECLARED page. A typo used to read a file that does not
+# exist, with stderr discarded by `2>/dev/null`, and print ABSENT — so an invalid verifier
+# configuration was indistinguishable from real documentation drift. (Stop 23 defect (c),
+# §4a codex review 2026-09-27.) Bash 3.2 ships on this machine, so this is a string
+# membership test and not an associative array.
+while IFS=$'\t' read -r key _q; do
+  [ -z "${key:-}" ] && continue
+  case "$PAGE_KEYS" in
+    *" $key "*) : ;;
+    *) echo "UNDECLARED PAGE KEY '$key' in manifest quotes — not a drift result" >&2; exit 4 ;;
+  esac
+done <<< "$QUOTES"
+
+if [ "$LIST" = 1 ]; then printf '%s' "$QUOTES"; exit 0; fi
+
+TMP=$(mktemp -d) || exit 3
+trap 'rm -rf "$TMP"' EXIT
+
+strip() { # html on stdin -> one long line of text on stdout
+  python3 -c '
+import sys,re,html
+t=sys.stdin.read()
+t=re.sub(r"<script.*?</script>","",t,flags=re.S)
+t=re.sub(r"<style.*?</style>","",t,flags=re.S)
+sys.stdout.write(re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>"," ",t))))'
+}
+
+for entry in "${PAGES[@]}"; do
+  key=${entry%%|*}; url=${entry#*|}
+  if [ -n "$FIXTURE" ]; then
+    # A fixture that cannot be read proves nothing about a quote, so it is exit 3 — the same
+    # code as a failed fetch — and never a page full of absences.
+    [ -r "$FIXTURE" ] || { echo "FIXTURE NOT READABLE $FIXTURE" >&2; exit 3; }
+    [ -s "$FIXTURE" ] || { echo "FIXTURE EMPTY $FIXTURE" >&2; exit 3; }
+    cp "$FIXTURE" "$TMP/$key.html"
+  elif [ -n "$CACHE" ] && [ -f "$CACHE/$SLUG-$key.html" ]; then
+    # Stop 23 defect (b): identical empty content was classified two different ways depending
+    # only on where it came from — an empty live response or fixture exited 3, an empty CACHED
+    # page reached the matcher and exited 2. Same input, two verdicts.
+    [ -s "$CACHE/$SLUG-$key.html" ] || { echo "EMPTY CACHED PAGE $key $CACHE/$SLUG-$key.html" >&2; exit 3; }
+    cp "$CACHE/$SLUG-$key.html" "$TMP/$key.html"
+  else
+    # Stop 23 defect (a): `--fail` is load-bearing. Without it a 404 that serves a non-empty
+    # HTML error page exits 0, the strip step produces real text, every quote for that page
+    # reports ABSENT and the script exits 2 — CLAIMING DOCUMENTATION DRIFT FOR A PAGE IT NEVER
+    # READ. That is this project's house failure mode (a control reporting over a scope smaller
+    # than it claims) and it could have produced a false headline.
+    curl -fsS -m 40 -L "$url" -o "$TMP/$key.html" || { echo "FETCH FAILED $key $url" >&2; exit 3; }
+    [ -s "$TMP/$key.html" ] || { echo "EMPTY PAGE $key $url" >&2; exit 3; }
+  fi
+  # Stop 23 defect (d), the one its §4a ACCEPTANCE GATE blocked on (minimax-m3, REJECT,
+  # 2026-09-28): the strip step is a python3 wrapper and it CAN fail — a crashing or missing
+  # interpreter, or a page carrying a non-UTF-8 byte (UnicodeDecodeError). `set -uo pipefail`
+  # does not catch it because `-e` is absent, so an EMPTY .txt reached the matcher and every
+  # quote on the page printed ABSENT at exit 2 — AN INTERNAL PROCESSING FAILURE REPORTED AS
+  # DOCUMENTATION DRIFT.
+  if ! strip < "$TMP/$key.html" > "$TMP/$key.txt"; then
+    echo "STRIP FAILED $key (html -> text extraction)" >&2; exit 3
+  fi
+  [ -s "$TMP/$key.txt" ] || { echo "STRIP PRODUCED NO TEXT $key" >&2; exit 3; }
+done
+
+found=0; missing=0
+while IFS=$'\t' read -r key quote; do
+  [ -z "${key:-}" ] && continue
+  if grep -qF -- "$quote" "$TMP/$key.txt"; then   # no 2>/dev/null: every key is validated above
+    printf 'FOUND   [%s] %s\n' "$key" "$quote"; found=$((found+1))
+  else
+    printf 'ABSENT  [%s] %s\n' "$key" "$quote"; missing=$((missing+1))
+  fi
+done <<< "$QUOTES"
+
+printf '\nmanifest=%s found=%d absent=%d\n' "$SLUG" "$found" "$missing"
+[ "$missing" -eq 0 ] && exit 0
+exit 2

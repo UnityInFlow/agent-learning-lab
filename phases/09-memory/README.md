@@ -1,7 +1,7 @@
 # Phase 9 — Memory
 
 **Guardrail layer: L3 — untrusted derived state** · [`GUARDRAILS.md`](../../GUARDRAILS.md)
-**Status:** ⬜ Not started · **Depends on:** Phase 8
+**Status:** 🟡 In progress — opened at spine stop 24, 2026-09-29 · **Depends on:** Phase 8
 
 ## Goal
 
@@ -14,6 +14,13 @@ Persistence without treating learned state as truth.
 - [ ] ✅ [Copilot Memory](https://docs.github.com/en/copilot/concepts/agents/copilot-memory)
 - [ ] ✅ [Claude Code — Memory](https://code.claude.com/docs/en/memory)
 - [ ] ↪️ [VS Code — Memory](https://code.visualstudio.com/docs/agents/run/memory) — treat separately from GitHub-hosted Copilot Memory
+
+**Links re-verified 2026-09-29** — `./tools/check-links.sh phases/09-memory/README.md`,
+`ok=3 moved=0 blocked=0 unverified=0 broken=0`, exit 0
+([`evidence/p09/check-links-20260929T1315Z.txt`](../../evidence/p09/check-links-20260929T1315Z.txt)).
+**Quotations re-verified the same day and 5 of 8 did not match** — see *Extract re-verified*
+below. The ✅ marks above mean the URL resolves; until 2026-09-29 nothing in this repository
+checked that the sentences quoted off it were still there.
 
 ## Current properties
 
@@ -150,6 +157,99 @@ from. Later run a sensitive-but-harmless architectural task. Measure whether mem
 the result.
 
 > **Persistence multiplies the lifetime of bad information.**
+
+---
+
+## Extract re-verified — 2026-09-29, spine stop 24
+
+Everything above this line was written **2026-08-09** and is kept verbatim. Nothing in it is
+edited; this section is what re-reading the cited pages on **2026-09-29** returned, 51 days
+later. *Written by Opus 5 (claude-opus-5), autonomously, at spine stop 24.*
+
+### Why this section exists at all
+
+Stop 23 (Phase 8) found that a bold display quote in **this project's own August extract** was
+no longer on the page it cited, and that **nothing in the repository executed to catch it**.
+`check-links.sh` proves a URL resolves; it says nothing about whether the sentence you quoted
+off that URL is still there. Stop 23 built a checker for one phase. Stop 24 generalised it into
+[`tools/verify-quotes.sh`](../../tools/verify-quotes.sh), which reads its pages and sentences
+from a manifest, and pointed it at this phase.
+
+**The existing control was green the whole time.** `./tools/check-links.sh
+phases/09-memory/README.md` → `ok=3 moved=0 blocked=0 unverified=0 broken=0`, exit 0
+([`evidence/p09/check-links-20260929T1315Z.txt`](../../evidence/p09/check-links-20260929T1315Z.txt)).
+Every link this phase cites resolves. Five of its eight quotations do not match the page
+behind those links, and one of them is false. A link check and a quote check are not the same
+control, and only one of them existed.
+
+### The result: 8 quotations, 3 byte-exact, and the 5 absences split THREE ways
+
+Run: `./tools/verify-quotes.sh --manifest evidence/p09/quotes-p09.tsv` → **found=3 absent=5,
+exit 2**
+([`evidence/p09/quote-verification-20260929T1105Z.txt`](../../evidence/p09/quote-verification-20260929T1105Z.txt)).
+
+Exit 2 is the checker's code for "a quoted sentence was not found". It is deliberately *not*
+a verdict about why, because the checker cannot tell why — and here the five absences are
+three different things. **Each was adjudicated by hand against the fetched page text**, which
+is the step the instrument cannot do for you:
+
+| # | The August quotation | Verdict | What the page says on 2026-09-29 |
+|---|---|---|---|
+| 1 | "Claude Code reads `CLAUDE.md`, not `AGENTS.md`." | **CLAIM REVERSED** | "By default, Claude reads AGENTS.md only when you have no CLAUDE.md in your working directory or above it." |
+| 2 | "In your next session, run `/context` and confirm `CLAUDE.md` appears under Memory files." | reworded, claim intact | "To confirm the file loaded, run /context in a session and check the list under Memory files" |
+| 3 | "Target under 200 lines per CLAUDE.md file. Longer files consume more context and reduce adherence." | **never verbatim** | "Size : target under 200 lines per CLAUDE.md file. Longer files consume more context and reduce adherence." — lowercase `target`; the workbook capitalised it when lifting it out of a `Size:` list item |
+| 4 | "helps organization but doesn't reduce context, since imported files load at launch." | **never verbatim** | identical except the page renders a typographic apostrophe (U+2019) where the workbook typed an ASCII one |
+| 5 | "The dialog protects you from files other people commit to a shared project." | reworded, claim intact | "Claude Code shows the dialog to protect you from files other people commit to a shared project." |
+
+Three categories where the workbook asserts one. Its own extract header says **"Quotes
+verbatim."** — and for rows 3 and 4 that was **false on the day it was written**, not stale.
+
+### The headline: the sentence that voided Phase 1 has itself expired
+
+Row 1 is not a rewording. The page now carries a whole section, *When Claude Code reads
+AGENTS.md*, documenting the opposite behaviour under a stated condition, and a companion
+section *When AGENTS.md support is unavailable* whose first listed cause is "You're on a
+Claude Code version before v2.1.277". The August sentence was unconditional. The documented
+behaviour today is conditional:
+
+> "By default, Claude reads AGENTS.md **only when you have no CLAUDE.md** in your working
+> directory or above it."
+
+**Scope, said plainly, because this cuts two ways.** For *this* workspace the August guidance
+still produces the right behaviour: there are `CLAUDE.md` files at the root and in every repo,
+so `AGENTS.md` would not be read here regardless. The claim that expired is the **general**
+one the extract teaches, and the extract teaches it as the load-bearing fact that *voided this
+project's Phase 1 experiment*. A reader who takes that sentence at face value today — on a
+repository with no `CLAUDE.md` — is wrong about what the agent loads.
+
+**`n` = 1 page, 8 quotations, 1 phase.** This is a property of these eight sentences, not of
+the documentation. The comparable stop-23 number is 1 absent of 29 on seven pages.
+
+### What this adds to stop 23, and what it does not
+
+Stop 23's finding was *drift*: a claim survives, its wording does not. Stop 24 finds that at a
+second phase the same check returns **three failure modes**, and that only one of the five is
+drift of the stop-23 kind. **Two are defects in the quoting, present from day one**, which no
+amount of re-checking against a *future* page would ever have separated from drift — a quote
+that was never right and a quote that went wrong are byte-identical to `grep -F`. The
+adjudication is human and stays human; what the instrument buys is that the five are *found*.
+
+**It does not establish a rate.** Two phases, both checked only after a stop went looking for
+them, is not a sample of this repository's extracts. Whether the other extracts carry the same
+two defect classes is unmeasured, and is the obvious next thing to point the manifest at.
+
+### Guardrail layer of everything in this section
+
+| Artifact | Layer | Why, applying the rule in order |
+|---|---|---|
+| `tools/verify-quotes.sh` | **L2** | Something executes and rejects: exit 2 on an absent quote, 3 on a page it could not read, 4 on a manifest it cannot trust. Proved by `tools/verify-quote-checker.sh`, 29 of 29. |
+| `evidence/p09/quotes-p09.tsv` | **L1** for the page/quote binding | A quote whose page key names no declared page cannot be written down and still run — it is exit 4, fixture K. The *sentences themselves* are L3: nothing stops a wrong transcription being added, which is exactly how rows 3 and 4 got in. |
+| The adjudication table above | **L3** | Words a human read and judged. Nothing executes to distinguish drift from a transcription defect, and on this evidence nothing can. |
+| `check-links.sh` over this phase | **L2, and narrower than it looks** | It executes and it rejects — but only URL resolution. Green here while five quotations were wrong. |
+
+That last row is this stop's contribution to `GUARDRAILS.md`: **an L2 control is only L2 over
+the thing it actually executes on**, and a reader who sees "links: green" will infer a
+guarantee about content that nothing ever checked.
 
 ---
 

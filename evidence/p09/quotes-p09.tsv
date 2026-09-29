@@ -1,0 +1,22 @@
+# quotes-p09.tsv — every sentence phases/09-memory/README.md quotes verbatim, with the page
+# it cites. The extract was written 2026-08-09; stop 23 found an August quote of this same
+# project gone stale in 49 days with nothing executing to catch it. This manifest is what
+# executes for Phase 9.
+#
+# TRANSCRIPTION RULE, so an ABSENT is readable: markdown emphasis (**), code backticks and
+# blockquote markers are removed because the rendered page carries none of them; every other
+# byte is the workbook's, INCLUDING its ASCII apostrophes. A quote that is absent only
+# because the page renders a typographic apostrophe is a TRANSCRIPTION defect in the
+# workbook, not documentation drift, and is adjudicated by hand rather than by this file.
+#
+# Written 2026-09-29 by Opus 5 (claude-opus-5), autonomously, at spine stop 24.
+
+page	claude	https://code.claude.com/docs/en/memory
+quote	claude	Claude Code reads CLAUDE.md, not AGENTS.md.
+quote	claude	In your next session, run /context and confirm CLAUDE.md appears under Memory files.
+quote	claude	Claude treats them as context, not enforced configuration. To block an action regardless of what Claude decides, use a PreToolUse hook instead.
+quote	claude	CLAUDE.md content is delivered as a user message after the system prompt, not as part of the system prompt itself.
+quote	claude	Target under 200 lines per CLAUDE.md file. Longer files consume more context and reduce adherence.
+quote	claude	helps organization but doesn't reduce context, since imported files load at launch.
+quote	claude	shows how current the fact is, both to you and to Claude when it reads the memory back.
+quote	claude	The dialog protects you from files other people commit to a shared project.

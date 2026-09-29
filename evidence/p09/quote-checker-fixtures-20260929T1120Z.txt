@@ -1,0 +1,31 @@
+ok   A all quotes found                                       exit 0
+ok   B one quote absent                                       exit 2
+ok   B                                                        named it
+ok   C fixture not readable                                   exit 3
+ok   D fixture empty                                          exit 3
+ok   E no --manifest                                          exit 4
+ok   F manifest not readable                                  exit 4
+ok   G malformed manifest line                                exit 4
+ok   G                                                        named it
+ok   H unknown manifest kind                                  exit 4
+ok   H                                                        named it
+ok   I HTTP 404 with a body is not drift                      exit 3
+ok   I                                                        named it
+ok   J empty cached page                                      exit 3
+ok   J                                                        named it
+ok   K undeclared page key                                    exit 4
+ok   K                                                        named it
+ok   L strip interpreter fails                                exit 3
+ok   L                                                        named it
+ok   M non-UTF-8 page                                         exit 3
+ok   M                                                        named it
+ok   N manifest declares no pages                             exit 4
+ok   N                                                        named it
+ok   O manifest declares no quotes                            exit 4
+ok   O                                                        named it
+ok   P duplicate page key                                     exit 4
+ok   P                                                        named it
+ok   Q --list fetches nothing                                 exit 0
+ok   Q list contents                                          printed 2 quote lines
+
+29 passed, 0 failed

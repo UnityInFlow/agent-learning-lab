@@ -1,0 +1,31 @@
+Agent Observatory — smoke test
+
+Infrastructure
+  [32m✓[0m API is ours and healthy
+  [32m✓[0m Tempo ready
+  [32m✓[0m Prometheus is ours
+  [32m✓[0m Grafana healthy
+  [32m✓[0m Web app is ours
+  [32m✓[0m OTLP HTTP port open
+
+Grafana provisioning
+  [32m✓[0m Tempo datasource provisioned
+  [32m✓[0m Prometheus datasource provisioned
+  [32m✓[0m Overview dashboard provisioned
+
+Prometheus scraping
+  [32m✓[0m collector target up
+  [32m✓[0m API target up
+
+API contract
+  [32m✓[0m GET /api/runs
+  [32m✓[0m GET /api/benchmarks
+  [32m✓[0m GET /api/experiments
+  [32m✓[0m prometheus endpoint exposed
+  [32m✓[0m unknown run returns 404
+
+Cardinality rule (§15)
+  [32m✓[0m no run_id label in metrics
+  [32m✓[0m no commit_sha label in metrics
+
+All 18 checks passed.
