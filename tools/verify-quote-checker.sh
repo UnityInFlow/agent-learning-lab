@@ -229,5 +229,20 @@ QUOTE_FIXTURE_FILE="$PAGE" "$CHECKER" --manifest "$GOOD" >"$TMP/u.out" 2>&1
 check "U source of each page is reported" 0 "$?"
 names "U" "$TMP/u.out" "sources=p1=fixture"
 
+# V — the checker runs under Bash 3.2, which is what /bin/bash IS on this machine. The first
+#     version of the page-source feature used `declare -A`, a Bash 4 builtin, and passed every
+#     check here only because `env bash` resolves to a 5.x Homebrew build: GREEN IN THIS
+#     ENVIRONMENT, BROKEN ON THE PLATFORM THE SCRIPT'S OWN HEADER NAMES. Found by the §4a
+#     codex + deepseek-v4-pro panel, 2026-09-29. No fixture could have caught it, because
+#     every fixture ran under the same wrong interpreter — so this case pins the interpreter
+#     instead of the behaviour.
+if [ -x /bin/bash ]; then
+  QUOTE_FIXTURE_FILE="$PAGE" /bin/bash "$CHECKER" --manifest "$GOOD" >"$TMP/v.out" 2>&1
+  check "V runs under /bin/bash (3.2 on macOS)" 0 "$?"
+  names "V" "$TMP/v.out" "sources=p1=fixture"
+else
+  printf 'ok   %-56s skipped: no /bin/bash\n' "V bash 3.2"; pass=$((pass+1))
+fi
+
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ] || exit 1

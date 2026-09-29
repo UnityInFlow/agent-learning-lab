@@ -777,3 +777,41 @@ depends on**, so a missing `python3` could have looked like a test failure, and 
 not name the platform semantics the fixtures rely on. There is now a dependency preflight that
 exits **2** — distinct from a case failure's **1** — and it is **proved against a real absence**:
 run with `python3` removed from `PATH`, the suite exits 2 and names it.
+
+
+### The gate script's round 2 found a regression **I** had just introduced, and it is the best finding of the stop
+
+`findings/opencode/review-verify-quotes-20260929T121637Z.md`, same `codex + deepseek-v4-pro`
+panel. **`REJECT`, and it was right.** The page-source fix of round 1 used `declare -A`.
+
+```
+$ /bin/bash --version          GNU bash, version 3.2.57(1)-release   ← what /bin/bash IS here
+$ bash --version               GNU bash, version 5.3.15(1)-release   ← what `env bash` resolved to
+$ /bin/bash -c 'declare -A x'  declare: -A: invalid option
+```
+
+**The script's own header, four lines above the code I wrote, says
+*"Bash 3.2 ships on this machine, so this is a string membership test and not an associative
+array."*** I added one anyway. It passed the 37-case suite, ShellCheck, and two manifest re-runs
+— **because every one of those ran under the 5.x Homebrew build the shebang resolved to.**
+
+**This is the house failure mode with nothing left out:** green everywhere, on a platform the
+artifact itself names, invisible to a fixture set *because every fixture ran under the same wrong
+interpreter*. No amount of adding cases would have caught it. The fix is a newline-delimited
+string with a tab separator — the same idiom the header prescribes — and it also removes the
+non-deterministic `sources=` ordering the same finding named, because the order is now the
+manifest's rather than a hash's.
+
+**Case V pins the interpreter instead of the behaviour**, which is the only kind of fixture that
+could have caught this: it runs the checker under `/bin/bash` explicitly. Suite **37 → 39**.
+
+And the measurement is unmoved for the third time:
+
+```
+original (pre-review)   found=3 absent=5
+post round-1 fix        found=3 absent=5 sources=claude=live
+post bash-3.2 fix       found=3 absent=5 sources=claude=live      ← under BOTH 3.2 and 5.3
+p08 parity              found=28 absent=1, seven pages, all live
+```
+
+`diff` against the original: **identical, cell for cell.**

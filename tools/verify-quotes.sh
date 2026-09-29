@@ -158,7 +158,14 @@ t=re.sub(r"<style.*?</style>","",t,flags=re.S)
 sys.stdout.write(re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>"," ",t))))'
 }
 
-declare -A PAGE_SOURCE=()
+# Bash 3.2 ships on this machine as /bin/bash and REJECTS `declare -A`. The first version of
+# this block used one and passed every check here only because `env bash` resolves to a 5.x
+# Homebrew build — green in my environment, broken on the platform this file's own header
+# names four lines above. Found by the §4a codex + deepseek-v4-pro panel, 2026-09-29. It is a
+# newline-delimited string with a tab separator, the same membership idiom used above, and the
+# ORDER IS THE MANIFEST'S rather than a hash's — which also fixes the non-deterministic
+# `sources=` ordering the same finding named.
+PAGE_SOURCES=""
 for entry in "${PAGES[@]}"; do
   key=${entry%%|*}; url=${entry#*|}
   SOURCE="unknown"
@@ -194,16 +201,23 @@ for entry in "${PAGES[@]}"; do
     echo "STRIP FAILED $key (html -> text extraction)" >&2; exit 3
   fi
   [ -s "$TMP/$key.txt" ] || { echo "STRIP PRODUCED NO TEXT $key" >&2; exit 3; }
-  PAGE_SOURCE["$key"]="$SOURCE"
+  PAGE_SOURCES="$PAGE_SOURCES$key\t$SOURCE\n"
 done
+PAGE_SOURCES=$(printf '%b' "$PAGE_SOURCES")
+
+source_of() { # key -> the source recorded for it
+  printf '%s\n' "$PAGE_SOURCES" | while IFS=$'\t' read -r k v; do
+    [ "$k" = "$1" ] && { printf '%s' "$v"; return 0; }
+  done
+}
 
 found=0; missing=0
 while IFS=$'\t' read -r key quote; do
   [ -z "${key:-}" ] && continue
   if grep -qF -- "$quote" "$TMP/$key.txt"; then   # no 2>/dev/null: every key is validated above
-    printf 'FOUND   [%s:%s] %s\n' "$key" "${PAGE_SOURCE[$key]}" "$quote"; found=$((found+1))
+    printf 'FOUND   [%s:%s] %s\n' "$key" "$(source_of "$key")" "$quote"; found=$((found+1))
   else
-    printf 'ABSENT  [%s:%s] %s\n' "$key" "${PAGE_SOURCE[$key]}" "$quote"; missing=$((missing+1))
+    printf 'ABSENT  [%s:%s] %s\n' "$key" "$(source_of "$key")" "$quote"; missing=$((missing+1))
   fi
 done <<< "$QUOTES"
 
@@ -212,7 +226,11 @@ done <<< "$QUOTES"
 # stop-23 defect class one level up — not "a failure reported as a result", but "a result whose
 # PROVENANCE is unreportable". Every line now carries its source, and so does the summary.
 SOURCES=""
-for k in "${!PAGE_SOURCE[@]}"; do SOURCES="$SOURCES$k=${PAGE_SOURCE[$k]} "; done
+while IFS=$'\t' read -r k v; do
+  [ -n "${k:-}" ] && SOURCES="$SOURCES$k=$v "
+done <<EOF_SRC
+$PAGE_SOURCES
+EOF_SRC
 printf '\nmanifest=%s found=%d absent=%d sources=%s\n' "$SLUG" "$found" "$missing" "${SOURCES% }"
 [ "$missing" -eq 0 ] && exit 0
 exit 2
