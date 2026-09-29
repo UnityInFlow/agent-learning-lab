@@ -73,9 +73,15 @@ exists before someone enables it for debugging.
 > finds **0 occurrences of `user.id` in 102 276 888 bytes** of collector output. Both are true
 > and they are about different points in the path. *Always sent* is a statement about what the
 > runtime **emits**; the census is a statement about what the collector **writes to disk**, and
-> `user.id` is on the `attributes/scrub` delete list. **The probe proves that deletion actually
-> executes** rather than being assumed — it is the same processor that removed the planted
-> record-level `user.email`. So: emitted, then deleted, and the zero is the control working.
+> `user.id` is on the `attributes/scrub` delete list. **Corrected after §4a round 2, which
+> caught an overclaim of mine at 2/2 recurrence:** an earlier version of this note said the probe
+> *proves* the `user.id` deletion executes. **It does not. The probe never planted `user.id`.**
+> It planted `user.email`, `gen_ai.prompt` and `tool.arguments`, and what it proves is that
+> **that processor deletes record-level attributes it is configured to delete**. That `user.id`
+> is on the same delete list is read off `config.yaml`; that it is therefore also removed is an
+> **inference from configuration**, not an observation. The honest statement: emitted by the
+> runtime, listed for deletion, absent from disk — and the deletion of *this particular key* is
+> **unprobed**. One more planted placement would settle it and was not sent.
 > *(For `user.email` the same reasoning does **not** apply, because these runs have no OAuth
 > identity to emit in the first place — see the RUN's checkbox 3.)*
 
@@ -100,6 +106,10 @@ OTEL_METRICS_INCLUDE_RESOURCE_ATTRIBUTES=false  # default true
 
 ```
 claude_code.session.count · lines_of_code.count · pull_request.count · commit.count
+# ^ THESE THREE NAMES ARE INCOMPLETE — the page gives claude_code.lines_of_code.count,
+#   claude_code.pull_request.count, claude_code.commit.count. Corrected in the second-pass
+#   extract below; pointer added here 2026-09-29 after the §4a panel raised it at 2/2 in
+#   BOTH rounds, because a reader of this block alone writes the wrong query.
 claude_code.cost.usage · token.usage · code_edit_tool.decision · active_time.total
 ```
 
@@ -573,12 +583,22 @@ adapter's per-run read.
 
 ### What a stranger re-derives, in four commands
 
+**Every path below is relative to `agent-learning-lab/`** — one base, because the §4a round
+was right that the first version of this block mixed two in one copy-paste surface:
+
 ```bash
-curl -s http://127.0.0.1:3200/api/traces/a4dc23a3f3c9cefa1de70222adbc1799 > t.json   # checkbox 1 + 2
-grep -c user.email agent-observatory/infra/telemetry-out/*.jsonl                      # checkbox 3, the zero
-curl -X POST http://127.0.0.1:4318/v1/logs -d @evidence/p10/scrub-probe-sent.json \
-     -H 'Content-Type: application/json'                                              # the probe
-grep -o 'resource-level-[A-Z0-9]*' agent-observatory/infra/telemetry-out/events.jsonl # the survivor
+cd agent-learning-lab
+
+# the whole lab's numbers, re-derived and checked (exit 0 = matched, 2 = mismatch)
+python3 evidence/p10/verify-lab-numbers.py
+python3 evidence/p10/verify-lab-numbers.py --selftest      # proves it rejects
+
+# or by hand, one claim at a time
+curl -s http://127.0.0.1:3200/api/traces/a4dc23a3f3c9cefa1de70222adbc1799   # checkbox 1 + 2
+grep -c user.email ../agent-observatory/infra/telemetry-out/*.jsonl        # checkbox 3, the zero
+curl -X POST http://127.0.0.1:4318/v1/logs -H 'Content-Type: application/json' \
+     -d @evidence/p10/scrub-probe-sent.json                                # the probe
+grep -o 'resource-level-[A-Z0-9]*' ../agent-observatory/infra/telemetry-out/events.jsonl
 ```
 
 *Run by Opus 5 (claude-opus-5), autonomously, 2026-09-29. Prediction `4af56b3` precedes the
@@ -802,14 +822,37 @@ comparison.
 | §5 — *at least one scored cell re-read by hand* | **No scored cell exists. `n = 0` benchmark runs were commissioned at this stop** and no rubric sheet belongs to it. The §0a preflight sheet `findings/codex/score-good-nested-ifs-*.yaml` is a probe that **enters no comparison**, and its four values were nonetheless re-derived by hand with `awk` and checked by the registered `check-sheet-categories.sh` | **L2** for the sheet check that was done; the clause itself is **not applicable** and is recorded as such rather than ticked | see `preflight:` in `TRACK-B-STATE.md` |
 | §5 — *every number quoted in prose has its `n`* | `29 of 29` spans over `n = 2` runs, with the per-run split `14/14` and `15/15` shown rather than only pooled; `0 of 12 697` lines; `3 of 4` planted **placements** (of three key names) on `n = 1` probe, in the **logs pipeline only**; the 2.1.284 version observation is explicitly `n = 1` and stated as true of that run | **L3** | read the section |
 | §5 — *independence check: what else changed?* | **Nothing to compare, so nothing to confound.** Stop 25 has no arms. The one run it reads, `e488ed2e`, was `ISOLATE_USER_SETTINGS=1` with all **seven** `customization.*Hash` null and `runtime.model` `claude-haiku-4-5-20251001`, read off the API this session | **L1** — an API record the runner wrote | `curl -s http://127.0.0.1:8081/api/runs/e488ed2e-9f90-4e5b-b7d1-53871b8d2755` |
+| §5 — *the table's own numbers are checked by something that executes* | `evidence/p10/verify-lab-numbers.py` — exit 0 on the real sources; exit 2 with `MISMATCH e488ed2e.tool: workbook says 999, sources give 14` under `--selftest` | **L2, and proved to reject.** Written in response to the §4a panel's 2/2 objection that runtime-written evidence was rated L1 while nothing executed to catch a false quotation of it | `python3 evidence/p10/verify-lab-numbers.py; python3 evidence/p10/verify-lab-numbers.py --selftest` |
 | §5 — *re-run every verification command immediately before writing "done"* | §0a re-run in full this session, every row; the link check, the Tempo fetch, the grep census and the probe were all run in this session and their outputs are the evidence files cited above | **L3 throughout** — a saved stdout file is as editable as any other file and nothing re-runs it. Stop 24 made the same regrade | re-run any command in the "four commands" block of the lab |
 
-**What the layer column grades.** The proof of the clause, never the artifact the clause is
-about. This table uses "L1" in the one sense stop 24's close settled after its acceptance
-gate blocked on three incompatible uses: **a value nothing in this repository can
-hand-write** — a record written by the runner, the collector or the runtime into a store
-outside the working tree. Every editable copy of such a value that lives in `evidence/p10/`
-is separately marked L3, because a copy is a copy.
+**What the layer column grades, and the objection that survived two rounds.** The proof of the
+clause, never the artifact the clause is about. This table uses "L1" in the one sense stop 24's
+close settled after its acceptance gate blocked on three incompatible uses: **a value nothing in
+this repository can hand-write** — a record written by the runner, the collector or the runtime
+into a store outside the working tree.
+
+**The §4a panel objected to that, at 2/2 in both rounds, and it was right:** a span in Tempo
+cannot be hand-written, but **a sentence in this table about that span can be**, and nothing
+executed to reject a false one. Under the rule applied strictly, every evidence row above was
+**L3 on the correspondence** however solid its provenance. Two senses were being collapsed:
+
+| | what it grades | this stop |
+|---|---|---|
+| **provenance** | can the cited value be hand-written? | **L1** — it is in Tempo / the collector's file / the API, none of which this repo writes |
+| **correspondence** | does anything execute to prove *this table* quotes it correctly? | **was L3. Now L2** — see below |
+
+**So a checker was written rather than the label argued.**
+[`evidence/p10/verify-lab-numbers.py`](../../evidence/p10/verify-lab-numbers.py) holds every
+number this lab asserts as an expectation, re-derives each from the trace JSONs and the live
+`events.jsonl`, and **exits 2 on any mismatch**. It is proved to reject:
+`python3 evidence/p10/verify-lab-numbers.py --selftest` corrupts one expectation and the script
+exits 2 with `MISMATCH e488ed2e.tool: workbook says 999, sources give 14`. Real run: exit 0,
+`ok: every number Lab 10.0 asserts was re-derived from the evidence files and matched.`
+
+**That converts the correspondence of the numbers, and of nothing else.** The prose, the layer
+labels, the interpretation and the exit-gate answers remain **L3** — no script reads them.
+Every editable copy of a runtime-written value under `evidence/p10/` is still separately L3 as a
+copy, except where the checker now compares it to its source.
 
 **What is NOT closed by this table.** Exit-gate item 3 (*"my comparison dashboard shows
 uncertainty"*) is unticked and names stop 28 as its owner. lab#13's content-vs-HTTP question
@@ -817,6 +860,12 @@ is restated, not answered. Neither is a §7 halt: no gate here needs a registere
 move, and this stop moves none.
 
 ## Exit gate — the author's original list, unedited
+
+> **It is unedited on purpose and its boxes are therefore all empty.** The §4a round read the
+> two lists as a contradiction (0 of 5 here, 4 of 5 above). They are the same five questions
+> asked once and answered once: **the answered copy is the §4 step 11 section above**, and this
+> block is kept as the author wrote it so a reader can see what was asked before it was answered.
+> Nothing here is an open item. Pointer added 2026-09-29.
 
 - [ ] I can name a metric in each of L1/L2/L3 for my chapter
 - [ ] I can explain why usage is not impact to a non-engineer
