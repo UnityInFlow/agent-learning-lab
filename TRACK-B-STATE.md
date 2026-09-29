@@ -107,6 +107,317 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
+# ===== CURRENT STATE - STOP 25, PHASE 10 (PRODUCTION OBSERVABILITY), §0 BOUNDARY 1 OF 2, 2026-09-29 =====
+# Newest first, as this file has always been kept. Every key below SUPERSEDES the next
+# occurrence of the same key further down; nothing further down is deleted. The keys NOT
+# repeated here are still live at their old positions and are still current:
+#   validation_processed (22 files, newest 2026-09-08; RE-CHECKED BY NAME this session against
+#     the 22 basenames on disk - IDENTICAL SET, NOTHING NEW, so no §0 validator batch was owed)
+#   author_decisions (items 1-13, unchanged - nothing this stop adds or moves)
+#   blocked_on_author: [] (EMPTY - NO §7 BULLET IS MATCHED)
+status: running   # *** §0 BOUNDARY 1 OF 2 FOR STOP 25 (PHASE 10 - PRODUCTION OBSERVABILITY).
+                  # THE STOP IS OPEN. *** §4 STEPS 1 AND 2 ARE DONE AND COMMITTED. NOT a halt:
+                  # blocked_on_author IS EMPTY and NO §7 BULLET IS MATCHED. `running` is correct
+                  # per §0 - `done` is only after stop 28.
+                  #
+                  # *** WHAT THIS SESSION DID: the §0a preflight in full (14th consecutive
+                  # session, at the user's explicit instruction), then §4 steps 1 and 2 for
+                  # stop 25 - the stop opened on GitHub, all four required-reading sources
+                  # actually opened, and a second-pass extract written with four findings,
+                  # five corrections and four additions. ***
+                  #
+                  # *** THE FINDING THIS SESSION IS ABOUT: A READING INSTRUMENT REPORTED
+                  # ABSENCE OVER A SCOPE SMALLER THAN THE PAGE, AND SOURCES.md CAUGHT IT. ***
+                  # A markdown-converting fetch answered "NOT PRESENT - the page does not
+                  # document OpenTelemetry" for the Copilot CLI reference. The raw HTML is
+                  # 1 854 040 bytes and contains `OpenTelemetry` x10, `OTEL_` x66,
+                  # `invoke_agent` x33, `execute_tool` x18. SOURCES.md line 96 - "Search the
+                  # page for OpenTelemetry monitoring" - is the control that made this get
+                  # checked instead of believed. THE HOUSE FAILURE MODE, ARRIVING THROUGH THE
+                  # READING TOOL RATHER THAN THROUGH A GATE SCRIPT.
+prompt_sha: a47590a1e61d       # RE-COMPUTED 2026-09-29T17:4xZ at the top of THIS session with
+                               # `shasum -a 256 ../PROMPT-opus5-track-b.md | cut -c1-12`, and
+                               # *** UNCHANGED. *** No §0 prompt-change line is owed, and §0's
+                               # full-re-read trigger did NOT fire.
+prompt_read_at: 2026-09-27T21:1xZ   # UNCHANGED - the last FULL read. This session read §§0, 0a,
+                               # 3 (itinerary rows 11-28 and every pre-made decision / author
+                               # decision header), 4, 4a, 4b, 4c, 5, 6, 7, 8 by range, because
+                               # the user's instruction was `execute sections 0 through 8
+                               # exactly as written`. §9 NOT read: it is the validator's and is
+                               # never run on my own work.
+stop: 25           # *** OPEN at §0 BOUNDARY 1 of 2. PHASE 10 - PRODUCTION OBSERVABILITY. ***
+                   # §3's itinerary row 25: "Phase 10: reading, extract, Lab 10.0 written up
+                   # from the #48 fix", closing on `evidence on disk`. LEARNING-PATH.md line 105
+                   # maps spine 25 -> phases/10-production-observability/. The Phase issue is
+                   # *** lab#12 *** (found through `gh api --paginate .../issues?state=all`
+                   # filtered to number <= 17, NOT guessed - the first page alone returns
+                   # nothing <= 17 and a non-paginated call looks like `no such issue`).
+                   # *** NOTHING OF STOP 26 (B11) OR LATER EXISTS. *** §6 forbids a future
+                   # step's artifacts early. build/README.md#b13 was QUOTED for this stop's
+                   # trap (§4 step 2 requires it) and NOTHING of B13 was created.
+loop_step: 2   # *** §0 BOUNDARY 1 OF 2 FOR A TRACK A STOP: "after the extract". *** §4 STEPS 1
+               # AND 2 ARE COMPLETE AND COMMITTED. Steps 3-10 do not apply to a Track A stop
+               # whose lab runs no benchmark (§4's closing line). NEXT IS THE LAB 10.0 WRITE-UP,
+               # then steps 11, 13, 13a, 14.
+branch: stop25/phase-10-production-observability (agent-learning-lab) - created from main at
+        # `b3f046e` (= the tip, which is lab#137's merge of stop 24's boundary-2 state write;
+        # stop 24 itself merged at `7e3e1df` via lab#136). Working tree was CLEAN at the branch
+        # point and `origin/main` was identical to local `main`, both checked before branching.
+in_flight: []   # *** EMPTY. NOTHING OF MINE IS RUNNING AND NOTHING IS UNMERGED except this
+                # state write and the stop-25 branch, which is not yet a PR. ***
+                # Checked with the NARROW pattern
+                # `LC_ALL=C pgrep -fl 'run-agent.sh|codex exec|opencode-review.sh'` - NEVER a
+                # bare `pgrep -fl opencode`, NEVER a `pgrep -f` wait loop.
+                # *** A FOREIGN `codex exec ... -m gpt-6-astra` WAS SEEN AGAIN at re-entry,
+                # writing to ~/Documents/workspace-1-ideas/audits/ for another tool on this
+                # machine. IT IS NOT OURS. The broad `codex exec` half of the pattern catches
+                # it, and the correct action is to leave it alone. *** Post-preflight the
+                # narrow `run-agent.sh|opencode-review.sh` count was 0.
+last_verified: "2026-09-29T17:4xZ - 2026-09-29T18:1xZ, *** STOP 25 OPENED AND §0 BOUNDARY 1
+  REACHED. ***
+  RE-ENTRY, in the order §0 demands: (1) prompt_sha re-computed = a47590a1e61d, UNCHANGED;
+  (2) TRACK-B-STATE.md read NEWEST-BLOCK-FIRST BY LINE RANGE, never whole - it is 12 464 lines
+  and 1 376 655 bytes, and a single `cat` of it persisted a 1.3 MB tool result, which is the
+  §0 context rule's own example; (3) all 22 findings/track-b-validation-*.md basenames listed
+  and compared BY NAME against validation_processed - IDENTICAL, none new, so no validator
+  batch was owed; (4) narrow pgrep - nothing of ours running.
+  §0a PREFLIGHT RUN IN FULL, every row, delegated to a haiku subagent per §4b and then
+  *** RE-DERIVED BY HAND FOR EVERY GATING VALUE, WHICH IS WHAT §4b REQUIRES BEFORE TRUSTING A
+  RETURNED NUMBER. *** The hand re-derivation AGREED with the subagent on all of it: the four
+  verifiers re-run separately at 13 / 11 / 12-ok / 16-ok all exit 0; the codex sheet's four
+  values read off the YAML by `awk` as arch=2 maint=0 test=null focus=2 and confirmed by the
+  REGISTERED control `check-sheet-categories.sh` at exit 0 `ok: 4 categories, exactly the
+  rubric's`; the isolation run's record fetched from the API myself showing runtime.model
+  claude-haiku-4-5-20251001, SEVEN customization keys ALL null, evaluation.exitCode 0.
+  §4 STEP 1: lab#12 commented (`opened at spine stop 25, branch ..., 2026-09-29T17:50Z`,
+  comment 5895612208) quoting the state file into the issue and never the reverse; its card
+  moved Todo -> In Progress on project 2 (item PVTI_lADOD-WaCM4Bhgoqzg4Ot8w, Status field
+  PVTSSF_lADOD-WaCM4BhgoqzhgcH0g, option 47fc9ee4) and *** READ BACK *** as `In Progress`;
+  lab#12 CONFIRMED STILL `open` after the card move, which is the check the board automation
+  needs (it auto-closes on a move to Done, not to In Progress).
+  ALL FOUR REQUIRED-READING SOURCES ACTUALLY OPENED, and one of them twice by two different
+  instruments because the first disagreed with SOURCES.md and LOST.
+  `./tools/check-links.sh phases/10-production-observability/README.md` -> exit 0,
+  `ok=5 moved=0 blocked=0 unverified=0 broken=0` - *** INCLUDING THE SEMCONV TOMBSTONE AND THE
+  NOW-DEPRECATED ATTRIBUTE REGISTRY, both of which it marks ok. That is the L2-scope point
+  made twice in one command. ***
+  §4 STEP 2: layer table written for all seven artifacts of this stop, the trap named from
+  build/README.md#b13 and the honest answer recorded - NO layer converts it, because the
+  seven-clause promotion gate is L3 prose and its L2 conversion belongs to stop 28."
+next_action: "*** STOP 25 IS OPEN AT §0 BOUNDARY 1. THE EXTRACT IS WRITTEN AND COMMITTED. THE
+  NEXT SESSION WRITES LAB 10.0 AND CLOSES THE STOP. ***
+  (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d); re-check
+      findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
+      2026-09-08); confirm nothing is running with the NARROW pattern
+      `LC_ALL=C pgrep -fl 'run-agent.sh|codex exec|opencode-review.sh'`.
+      *** NEVER a bare `pgrep -fl opencode`; NEVER a `pgrep -f` WAIT LOOP (it matches itself
+      and never exits); NEVER `ls -t <glob>` (ls is aliased to eza, whose -t is --time FIELD,
+      so the first glob match is EATEN AS THE FLAG ARGUMENT and it fails WITH EXIT 0) - use
+      `stat -f '%m %N' <glob> | sort -rn | head -1 | cut -d' ' -f2-`. ***
+      *** NEVER `cat TRACK-B-STATE.md`. It is 12 000+ lines / 1.3 MB and a single cat persists
+      the whole thing as a tool result. Read it by line range, newest block first. ***
+      *** AND NEVER TAIL runner logs under /tmp/*.log: they are JSONL with full thinking
+      blocks. NEVER Read a subagent's task .output file: it is the full JSONL transcript. ***
+      *** THE HEALTH PATH IS /actuator/health, NOT /health. *** /health, /healthz, /api/health
+      and / ALL return 404 on a healthy stack. Confirmed AGAIN this session:
+      `curl -s http://127.0.0.1:8081/actuator/health` ->
+      {\"groups\":[\"liveness\",\"readiness\"],\"status\":\"UP\"} while `make smoke` returned
+      `All 18 checks passed.` in the same minutes. If the API is really down the symptom is an
+      OOM-kill (exit 137) with nothing announcing it; `docker start
+      agent-observatory-observatory-api-1` fixes it.
+  (1) *** WRITE LAB 10.0 - THAT IS THE STOP'S DELIVERABLE (§3 row 25: `Lab 10.0 written up
+      from the #48 fix`) AND ITS GATE IS `evidence on disk`. *** The re-scoping table is
+      already in the workbook under `What that last item does to Lab 10.0`, and it is the
+      design: obs#48 (confirmed + fixed in `6333df8`, merged via obs#46, closed
+      2026-08-10T19:46:05Z) answers checkbox 1 CONCLUSIVELY, answers checkbox 2 AT A SMALLER
+      SCOPE THAN IT ASKS, and could not have answered checkbox 3 at all.
+      - Checkbox 1 needs NO new run: the off/on probe (0 traces vs 1 `claude_code.interaction`,
+        Claude Code 2.1.226, only CLAUDE_CODE_ENHANCED_TELEMETRY_BETA differing) is on obs#48
+        and `observatory.run.id` on the span resource is what makes the M6-era `traceUrl`
+        resolve. WRITE IT UP FROM THAT EVIDENCE AND CITE IT; do not re-run it.
+      - Checkbox 2 is OPEN: the span type was seen on a two-tool probe, NOT under the
+        checkbox's `--permission-mode acceptEdits`, headless, build-needing scenario. Tracked
+        on obs#47. EITHER run that scenario and record it, OR record it as deferred and say
+        which - a deferred lab is legitimate (§4 step 14 keeps the Phase ISSUE open for it)
+        but silently reading the probe as the scenario is NOT.
+      - Checkbox 3 is OPEN and is NOT a question about traces: `user.email` is documented on
+        METRICS and EVENTS and on NO span type, so enabling traces changed the exposure not at
+        all. It is answerable from the metrics/events pipeline or the collector config WITHOUT
+        a new benchmark run - try that first.
+      *** EVIDENCE GOES ON DISK under evidence/p10/ (the directory does NOT exist yet - this
+      session created no stray `1` artefact, unlike stop 24's). ***
+  (2) *** THE REVIEW HARNESS: USE `-P codex,deepseek-v4-pro` AND NOT THE DEFAULT CRITIC. ***
+      Measured at stop 24 across six invocations: `ollama-cloud/glm-5.2` STALLED 2 OF 6 and
+      took 243 s when it worked; codex + deepseek returned 6 OF 6 at 47-138 s. This session's
+      §0a row 2 used the panel and returned in one call: a 22 312-byte file with real findings
+      and 0 processes left. §4a reserves `-P` for registered variables; nothing forbids it
+      elsewhere and on this machine it is the working route.
+  (3) *** THE §0a PROBE'S OWN SUBJECT CAME BACK `REJECT`, AND IT IS A REAL DEFECT LIST ON A
+      COMMITTED CONTRACT. *** findings/opencode/review-run-record-20260929T174558Z.md:28 -
+      templates/run-record.yaml gets verdict REJECT with three blocking findings, the first
+      being that `cost` carries a numeric value and NO CURRENCY, so a USD record and an EUR
+      record are indistinguishable and an aggregator conflates them silently
+      (templates/run-record.yaml:65). It is NOT this stop's artifact and §6 is one step at a
+      time, so it is in author_notes. It is the right shape for its own instrument PR, which
+      §4 step 14 lets the builder merge - do that at a boundary, not mid-stop.
+  (4) DO NOT: create any artifact of stop 26 (B11) or later; re-open, re-run or re-review stops
+      24, 23 or 22; delete a worktree, log, sheet, review file or evidence file (§6) -
+      INCLUDING A STALLED REVIEW FILE, which is evidence of the stall; edit
+      evidence/p08/verify-quotes.sh; edit a measured overlay under build/customizations/;
+      commit a pid lock; republish the boards (author's, decision 12 item 4); push a state
+      write straight to main; CLOSE lab#12 IF ANY OF ITS LABS IS DEFERRED - and if the project
+      board auto-closes it behind a card move to Done, REOPEN IT AND SAY SO ON THE ISSUE
+      (lab#9 sat closed for two days at stop 24 because that revert was missed); or run §9 on
+      my own work."
+author_notes:   # *** 2026-09-29 (stop 25, §0 BOUNDARY 1) items FIRST. The items at the older
+                # positions further down this file are NOT superseded and are still open.
+  - "2026-09-29, stop 25 - *** A READING INSTRUMENT REPORTED ABSENCE OVER A SMALLER SCOPE THAN
+     IT CLAIMED, AND ONLY SOURCES.md's `question to bring to it` COLUMN CAUGHT IT. *** A
+     markdown-converting web fetch answered `NOT PRESENT - the page does not document
+     OpenTelemetry, nor any telemetry-related environment variables` for
+     docs.github.com/.../copilot-cli-reference/cli-command-reference. The raw page is
+     1 854 040 bytes and holds `OpenTelemetry` x10, `OTEL_` x66, `invoke_agent` x33,
+     `execute_tool` x18, plus the sentence `All signal names and attributes follow the OTel
+     GenAI Semantic Conventions`. SOURCES.md line 96 told the reader to search that page for
+     `OpenTelemetry monitoring`, which is why it was checked rather than believed.
+     RECOMMENDATION (author's, not built): a line in §0a or in SOURCES.md's procedure saying
+     that on a docs page over ~1 MB a converting fetch is a LOWER BOUND and a term count off
+     the raw bytes is the measurement. That is L3; the L2 version is a `tools/` helper that
+     does curl + term-count and is fixture-proved. NOT BUILT - §6, one step at a time, and
+     this is stop 25's boundary 1."
+  - "2026-09-29, stop 25 - lab#13 (`Re-verify all source links before each cohort`, open) has
+     now been given its argument twice in one command. `check-links.sh
+     phases/10-production-observability/README.md` returns exit 0, `ok=5 ... broken=0`, and
+     TWO of those five are dead for the reader's purpose: the GenAI semconv page is the
+     recorded tombstone, and the opentelemetry.io attribute registry now labels EVERY
+     `gen_ai.*` attribute `deprecated - moved`. A link check proves the server answered. The
+     open question for lab#13 is whether it also wants a CONTENT check, because nothing
+     executes that could reconcile a ✅ with a tombstone - SOURCES.md says exactly this and
+     states the precedence rule, and it is still L3."
+  - "2026-09-29, stop 25 - *** THE §0a PROBE TARGET ITSELF FAILS ITS OWN REVIEW. ***
+     templates/run-record.yaml -> acceptance verdict REJECT, three blocking findings, in
+     findings/opencode/review-run-record-20260929T174558Z.md:28. The load-bearing one: `cost`
+     has a numeric `value` and NO currency (templates/run-record.yaml:65), so records in two
+     currencies are indistinguishable and an aggregator over `cost.value` is numerically
+     precise and invalid. Also: `finalScore` carries no formula, and `failureClass` names a
+     range without its members. This template is the subject §0a row 2 has been probing for
+     fourteen sessions and the REJECT has been in each of those files. NOT this stop's
+     artifact (§6). Right shape for its own instrument PR under §4 step 14."
+  - "2026-09-29, stop 25 - the Phase 10 workbook's reading list was STALE AGAINST SOURCES.md
+     and nothing reconciles the two. It marked Enterprise managed settings `↪️` (a redirect to
+     chase); SOURCES.md de-staled that URL at stop 22 and marks it `✅` with content extracted.
+     The workbook is what a reader of stop 25 opens. THIS IS THE SAME CLASS AS THE CLAUDE.md
+     STATUS PARAGRAPH: a hand-maintained mirror of a fact that lives somewhere else. Fixed in
+     the workbook this session; the CLASS is not fixed and cannot be by editing one file."
+  - "2026-09-29, stop 25 - `ENABLE_ENHANCED_TELEMETRY_BETA` is an ACCEPTED ALIAS for
+     `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA` (Claude Code monitoring docs). Two spellings of one
+     registered variable is an independence hazard for any future telemetry experiment: a run
+     record showing one of them unset is NOT proof the feature was off. Relevant to §5's
+     independence check, which currently reads `customization.*Hash`, `instructionsHash`,
+     `runtime.model` and the benchmark sha - none of which would see this."
+  - "2026-09-29, stop 25 - B13's promotion gate (seven clauses, build/README.md#b13) is L3
+     PROSE and its clause 5 (`enough repetitions exist`) is exactly the trap Phase 10 names:
+     a dashboard built before the runs exist to fill it. The L2 conversion is a gate script
+     that refuses to publish a comparison below a registered `n`. NOT BUILT - stop 28 owns
+     B13 and §6 forbids a future step's artifacts. On record for the author."
+  - "2026-09-29, stop 25, §0a row 1 - THE PASS CRITERION IN §0a IS STILL STALE, carried
+     unchanged from stop 24. The table says `16 of 16 cases pass`; `.claude/hooks/
+     opencode-review.test.sh` now runs and passes 87. Green on its own contract, a FAIL
+     against the literal criterion. §0a is the author's text and is not edited here."
+  - "2026-09-29, stop 25, §0a row 6a - `verify-codex-isolation.sh` returned `ok: ALL THREE
+     checks hold for codex-cli 0.158.0`, exit 0, on a file unchanged since b39b85e
+     (2026-09-03). That makes *** n = 9 RECORDED INVOCATIONS: 4 FAIL, 3 ok, 1 INCONCLUSIVE,
+     1 ISOLATION LEAKS - four of them inside a single day on unchanged code. *** Its check B
+     asks a model to go looking and reports what one sample did, so its verdict is a property
+     of BEHAVIOUR, not of the isolation. A PREFLIGHT ROW THAT IS A COIN FLIP CANNOT GATE
+     ANYTHING, and this `ok` is no more load-bearing than the `LEAK` was. It blocks nothing
+     here: stop 25 runs no codex-scored batch and the preflight sheet enters no comparison.
+     §7's not-a-halt list covers it."
+  - "2026-09-29, stop 25, §0a row 7 - board freshness RED (exit 1, `2 of 2 board(s) describe
+     an older HANDOFF.md than the one on disk.`) and RED BY THE AUTHOR'S OWN STANDING
+     DECISION: decision 12 item 4 puts the republish in the author's interactive session,
+     which holds the Artifact tool. Print mode does not. Relabelling a marker for a publish
+     that did not happen is the failure this check exists to prevent. Expect it to be the only
+     red check on stop 25's PR too."
+preflight:  # *** §0a RE-RUN IN FULL 2026-09-29T17:4x-18:0xZ *** at the user's explicit
+            # instruction for this session ("starting with the section 0a preflight"), the
+            # FOURTEENTH consecutive session to carry it. §0a's own trigger did NOT fire -
+            # neither a first session nor a halt; the instruction did. *** EVERY ROW WAS RUN
+            # IN THIS SESSION. NOTHING IS CARRIED, because §0a says a row you did not run is
+            # `unproven`, not `ok`. *** Rows delegated to a haiku subagent per §4b's table,
+            # then EVERY GATING VALUE RE-DERIVED BY HAND in the main context, which is what
+            # §4b requires before a returned number is trusted. The hand pass AGREED with the
+            # subagent on every value it re-checked.
+  row_1_review_hook_script: "ok, exit 0, `87 passed, 0 failed, 0 skipped` - AND THE PASS
+    CRITERION IN §0a IS STALE (it says `16 of 16`). Green on its own contract, a fail against
+    the literal criterion. In author_notes; §0a is the author's text."
+  row_2_review_harness_live: "*** ok, ON THE PANEL ROUTE, AND THE HARNESS FOUND REAL DEFECTS. ***
+    `./tools/opencode-review.sh -n 1 -P codex,deepseek-v4-pro templates/run-record.yaml` -> exit
+    0, findings/opencode/review-run-record-20260929T174558Z.md, *** 22 312 bytes, 21 632 of them
+    BELOW line 20, so findings below the header and NOT a 762-byte header-only stall. *** Five
+    sections, verified by hand: `Acceptance - REJECT`, `Panel`, `Recurrence across 2 independent
+    families (2 run(s))`, `Run 1 of 2 - codex`, `Run 2 of 2 - ollama-cloud/deepseek-v4-pro`.
+    BOTH families returned. `LC_ALL=C pgrep -f 'run-agent.sh|opencode-review.sh'` = 0 afterwards.
+    *** THE VERDICT IS REJECT ON templates/run-record.yaml, which is the PROBE'S subject and not
+    this stop's artifact - three blocking findings, carried to author_notes, file kept. ***"
+  row_3_codex_harness_live: "*** ok, BOTH HALVES. ***
+    DRY HALF: exit 3 - the REGISTERED dry-run code, not a failure - printing `DRY RUN - prompt
+    written, nothing scored. 2 file(s) under test, 2 baseline.` *** NO STRAY FILE NAMED `1` WAS
+    PRODUCED THIS TIME, unlike stop 24 where the literal `=1` wrote a 28 415-byte artefact to
+    one. Nothing to move, and evidence/p10/ therefore does not exist yet. ***
+    `codex --version` = codex-cli 0.158.0.
+    REAL HALF: exit 0, sheet findings/codex/score-good-nested-ifs-20260929T174807Z.yaml, FOUR
+    CATEGORIES. *** RE-DERIVED BY HAND off the YAML with awk rather than taken from the
+    subagent: architecture-consistency 2, maintainability 0, test-quality null, change-focus 2 -
+    IDENTICAL to what the subagent returned. *** AND CHECKED BY THE REGISTERED CONTROL rather
+    than by eye: `./tools/check-sheet-categories.sh benchmark/rubrics/backend-quality.yaml
+    <sheet>` -> exit 0, `ok: 4 categories, exactly the rubric's`. *** THE null IS A MEASUREMENT
+    AND NOT A MISSING CELL (§6), *** so the row passes its criterion `a sheet with all four
+    categories`. This sheet is a preflight probe and ENTERS NO COMPARISON."
+  row_4_gate_and_validators: "ok, all four, *** RE-RUN BY HAND IN THE MAIN CONTEXT, EACH
+    SEPARATELY AND NOT CHAINED WITH &&, so one failure could not hide the rest. *** Every exit
+    code 0: verify-run-gate-checker `all 13 cases behaved as specified`;
+    verify-sheet-category-checker `all 11 cases behaved as specified`;
+    verify-run-record-validator 12 fixtures, 12 `ok` lines, no total printed;
+    verify-model-output-classifier 16 fixtures, 16 `ok` lines, no total printed. The last two
+    print one line per fixture and no total, so their verdict rests on the exit code and the
+    per-fixture `ok` count, which is STATED rather than rounded up to `all N passed`."
+  row_5_observatory_stack: "ok, `All 18 checks passed.`, exit 0. *** AND THE HEALTH PATH IS
+    /actuator/health: *** `curl -s http://127.0.0.1:8081/actuator/health` ->
+    {\"groups\":[\"liveness\",\"readiness\"],\"status\":\"UP\"}. /health 404s on this healthy
+    stack, as stop 24 measured; that correction held on re-test and is carried into
+    next_action."
+  row_6a_codex_isolation: "ok, exit 0, `ok: ALL THREE checks hold for codex-cli 0.158.0`, on a
+    file unchanged since b39b85e (2026-09-03). *** THAT MAKES n = 9 RECORDED INVOCATIONS:
+    4 FAIL, 3 ok, 1 INCONCLUSIVE, 1 ISOLATION LEAKS - FOUR OF THEM INSIDE ONE DAY ON UNCHANGED
+    CODE. *** Its check B asks a model to go looking and reports what one sample did, so the
+    verdict is a property of BEHAVIOUR and not of the isolation. A PREFLIGHT ROW THAT IS A COIN
+    FLIP CANNOT GATE ANYTHING and this `ok` is no more load-bearing than the `LEAK` was. It
+    blocks nothing here: stop 25 runs no codex-scored batch. In author_notes, per §7's
+    not-a-halt list."
+  row_6b_claude_isolation_run: "*** ok, RUN THIS SESSION AND RE-DERIVED BY HAND OFF THE API
+    RATHER THAN TAKEN FROM THE SUBAGENT. *** Run e488ed2e-9f90-4e5b-b7d1-53871b8d2755,
+    experimentKey `preflight-20260929T175000Z`, via `make baseline-runs N=1 KEEP=1
+    ISOLATE_USER_SETTINGS=1 RUNTIME=claude MODEL=claude-haiku-4-5-20251001`, endpoint
+    http://127.0.0.1:8081/api/runs. Fetched myself: `runtime.model` =
+    claude-haiku-4-5-20251001; `customization` = SEVEN KEYS, EVERY ONE null (agentHash,
+    agentsHash, hooksHash, instructionsHash, knowledgeHash, mcpHash, skillsHash) - the
+    non-null list is EMPTY; `evaluation.exitCode` = 0. OBSERVED, not inferred from the flag,
+    which is what §0a demands. *** THE RECORD HAS NO `hookExecutions` KEY AT ALL, so §0a's
+    `0 hook executions` is being read off an ABSENT key rather than a measured zero - the
+    Claude docs' `claude_code.hook_execution_start` event is what would make that an
+    observation, and it is in this stop's extract. *** THIS RUN ENTERS NO COMPARISON."
+  row_7_board_check: "*** RED, AND RED BY THE AUTHOR'S OWN STANDING DECISION. *** exit 1,
+    `2 of 2 board(s) describe an older HANDOFF.md than the one on disk. A board is a COPY.`
+    Author decision 12 item 4 puts the republish in the author's interactive session, which
+    holds the Artifact tool; print mode does not. Relabelling a marker for a publish that did
+    not happen is the failure this check exists to PREVENT."
+  hook_wiring: "unproven in print mode - UNCHANGED. The one push of this session went out while
+    the §0a review harness had just run and a second synchronous review is imminent at step
+    13a; concurrent opencode calls are this machine's measured stall mode. §4a's synchronous
+    review is the review control for this run and row 2 above is this session's first taking
+    of it."
+
 # ===== CURRENT STATE - STOP 24, PHASE 9 (MEMORY), §0 BOUNDARY 2 OF 2 - CLOSED, 2026-09-29 =====
 # Newest first, as this file has always been kept. Every key below SUPERSEDES the next
 # occurrence of the same key further down; nothing further down is deleted. The keys NOT
