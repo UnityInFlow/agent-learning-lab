@@ -1,0 +1,10 @@
+ABSENT  [claude] Claude Code reads CLAUDE.md, not AGENTS.md.
+ABSENT  [claude] In your next session, run /context and confirm CLAUDE.md appears under Memory files.
+FOUND   [claude] Claude treats them as context, not enforced configuration. To block an action regardless of what Claude decides, use a PreToolUse hook instead.
+FOUND   [claude] CLAUDE.md content is delivered as a user message after the system prompt, not as part of the system prompt itself.
+ABSENT  [claude] Target under 200 lines per CLAUDE.md file. Longer files consume more context and reduce adherence.
+ABSENT  [claude] helps organization but doesn't reduce context, since imported files load at launch.
+FOUND   [claude] shows how current the fact is, both to you and to Claude when it reads the memory back.
+ABSENT  [claude] The dialog protects you from files other people commit to a shared project.
+
+manifest=quotes-p09 found=3 absent=5

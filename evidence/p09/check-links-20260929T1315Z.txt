@@ -1,0 +1,4 @@
+Checking 3 unique URLs in phases/09-memory/README.md
+
+
+ok=3 moved=0 blocked=0 unverified=0 broken=0

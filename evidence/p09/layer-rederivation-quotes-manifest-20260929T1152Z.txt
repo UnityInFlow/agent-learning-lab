@@ -1,0 +1,24 @@
+# Re-deriving the corrected guardrail layer of evidence/p09/quotes-p09.tsv by hand
+# 2026-09-29T11:5xZ. The §4a review found this labelled L1 at 2 of 2 runs and called it L2.
+# This file is the re-derivation, not the review's word for it. The real manifest is UNTOUCHED;
+# both tests ran against copies under /tmp.
+
+STEP 1 — can the bad value still be WRITTEN DOWN after the fix?
+  $ cp evidence/p09/quotes-p09.tsv /tmp/bad2.tsv
+  $ printf 'quote	nosuchpagekey	A sentence that is not on any declared page.
+' >> /tmp/bad2.tsv
+  -> the row is written and the file saves. ANSWER: YES. So NOT L1.
+
+STEP 2 — does something EXECUTE and reject it?
+  $ ./tools/verify-quotes.sh --manifest /tmp/bad2.tsv
+  exit=4
+  UNDECLARED PAGE KEY 'nosuchpagekey' in manifest quotes — not a drift result
+  -> ANSWER: YES, and it names the case rather than reporting drift. THEREFORE L2.
+
+CONTROL — a MALFORMED row (2 fields instead of 3) is refused by a DIFFERENT code path:
+  exit=4
+  MALFORMED MANIFEST LINE 23: expected <kind>TAB<key>TAB<value>\n  -> two distinct refusals, both exit 4, neither reported as ABSENT. That distinction is the
+     whole reason the checker is a control and not a drift reporter.
+
+CONCLUSION: the original L1 label was wrong and the review was right. L1 requires the bad value
+to be UNWRITABLE; here it is writable and a script refuses it. That is the definition of L2.

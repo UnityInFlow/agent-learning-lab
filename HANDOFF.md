@@ -44,9 +44,201 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
 
+**Spine 24 of 28. Positions 4–24 CLOSED — 24 (Phase 9 — memory) closed 2026-09-29 with
+`n = 0` benchmark runs.** PR `lab#136`. The stop read the phase, re-verified its August 2026
+extract against the page it cites, and ran **Lab 9.4**, the audit this phase asks for. **NOTHING
+is blocked on the author.** `lab#11` (Phase 9) **stays open** — a Phase issue closes only when
+its gate is met from measurement, and Labs 9.1–9.3 and 9.5–9.8 are all deferred. `lab#10`,
+`lab#9`, `lab#16` and `lab#8` stay open on the same basis from stops 23, 22, 19 and 18.
+**Stop 25 (Phase 10 — production observability) is NOT OPENED and nothing of it exists**; §6
+forbids a future step's artifacts early, and opening it at §4 step 1 is the next session's
+first act.
+
+**Two corpora were measured and the contrast between them is the result.** The extract:
+**8 quotations, 3 byte-exact, 5 absent**, `exit 2` — and the five absences **split three ways
+where the workbook asserts one**, because a quotation that was *never right* and one that *went
+wrong* are byte-identical to any checker. The headline is that **the sentence which voided our
+Phase 1 experiment has itself expired**: the page now carries a *conditional* — *"By default,
+Claude reads AGENTS.md only when you have no CLAUDE.md in your working directory or above it"* —
+where the August extract recorded an unconditional claim. Scope, because it cuts two ways: for
+**this** workspace the August guidance still produces the right behaviour, since `CLAUDE.md`
+exists at the root and in every repo. What expired is the **general** claim the extract teaches
+as load-bearing.
+
+**Lab 9.4 measured this machine's own agent memory and found 7 of 25 advertised claims false.**
+Of the 25 assertions the memory index advertises: **10 true, 1 true-but-obsolete, 5 false by a
+recorded event, 2 false because they do not reproduce as written, 7 undecidable by command**.
+`n = 25 assertions, 15 memories, 1 machine` — a property of these twenty-five sentences, not of
+agent memory. The stale claims cluster on values that are authoritative somewhere else — the
+prompt sha, `blocked_on_author`, `author_decisions`, a gate result — which is the duplication
+failure this phase's own closing note already described.
+
+**The sharpest finding is a distinction, not a number: "no control" and "a narrow control" are
+different failures, and only one of them lies to you.** `check-links.sh` over Phase 9 is
+**green** — `ok=3 broken=0`, exit 0 — while five of eight sentences quoted off those links do
+not match: **an L2 control is only L2 over the thing it actually executes on**, and a reader who
+sees *links: green* infers a guarantee about content that nothing ever checked. The memory corpus
+has **no** control at all, proved rather than asserted by three searches returning zero matches
+(`evidence/p09/no-control-over-memory-20260929T1150Z.txt`). The first produces false assurance;
+the second produces none. `GUARDRAILS.md` gains the row **"not a layer"** for exactly this.
+
+**No memory-staleness checker was built, and the refusal is the decision.** The measured case
+covers only the five superseded-by-event rows, all machine-checkable — but the corpus is
+**machine-local**, 355 copies of `~/.claude/projects/*/memory` on this laptop and none in any CI
+checkout. A `verify-*.sh` here would be green on one machine and vacuous everywhere else: this
+project's house failure mode with a tick beside it. The decision reverses when the corpus moves
+into a repository, which is **B9's** learning store. **The seven false claims were corrected
+instead**, additively, after the audit was frozen — the first removal of a stale fact this
+corpus has had in the **52 days** it has existed.
+
+**Three of the stop's own numbers were refuted by re-derivation before it closed**, and each is
+corrected additively with the frozen evidence left untouched: the corpus is 52 days old and not
+21; the per-project memory-directory count moved from 354 to 355 *during the audit*; and the two
+corpora were measured **on the same day**, not 21 days apart — so the independence claimed for
+them is weaker than first written. Two corpora, one observer, one day is a pattern worth looking
+for again, not a rate.
+
+**The §4a review found a second guardrail-layer mislabel, and the layer model is now 0 for 3
+stops.** Round 1 on two artifacts: `governance/memory-policy.md` **REJECT** with nine findings,
+the workbook **ACCEPT** with six; all fixed or disputed in writing. At **2 of 2 runs** the critic
+found `evidence/p09/quotes-p09.tsv` labelled **L1** where it is **L2** — an undeclared page key
+*can* be written into the TSV and saved, and `verify-quotes.sh` then **executes and refuses it**
+at exit 4. That is the second mislabel of this session (I caught three myself at `d446308`) and
+stop 22's review found six. **The rule is four sentences at the top of the workspace `CLAUDE.md`
+and it has now been misapplied in three consecutive stops that were each explicitly applying it**
+— every miss in the direction that file does *not* warn about: **calling a thing L1 because its
+check is strict, when L1 is about what cannot be written down at all.**
+
+**Three of the review's findings were one finding in three places, and it is its best work.** The
+workbook narrated a staleness problem in its newest section while leaving the stale text upstream
+**unmarked, where a reader meets it first** — the reversed *"Claude Code reads `CLAUDE.md`, not
+`AGENTS.md`"* sitting 160 lines from its own correction, an extract header reading *"Quotes
+verbatim."* that was false for two rows the day it was written, and an undated block of vendor
+claims in a workbook whose finding is that vendor claims drift. None is fixed by rewriting the
+August text; all three are fixed by **marking**.
+
+**The gate script was reviewed, came back `REJECT`, and the fix left the result unmoved.**
+`tools/verify-quotes.sh` went to the **`codex` + `deepseek-v4-pro`** panel §4a asks for on a
+registered variable and returned **six defects — while its fixture set was green at 29 of 29 and
+ShellCheck was clean.** Four fixed with a fixture case proving each refusal (a `../` key escaping
+the mktemp directory; a `|` key making **the page fetched not the page declared**; a tab kept by
+the parser and dropped by the matcher; **a cached page byte-identical to a live fetch**). Two
+disputed **with the direction stated** — both bias toward `FOUND`, so the true absent count is
+higher than 5 of 8, never lower.
+
+**Then the fixed instrument was re-run against the recorded measurement**, because fixing a gate
+script after it produced a result is where this project has been burned: `found=3 absent=5`
+before, `found=3 absent=5 sources=claude=live` after, **identical cell for cell**, with the
+stop-23 parity reproducing at `found=28 absent=1`. **None of the six defects touched this stop's
+result.** Suite 29 → 37 cases. The fixture set's own review was also `REJECT` and **its central
+claim is refuted byte-exactly on the platform it names** — BSD `sed` and `grep` behave as the
+cases assume; its two real findings (no dependency check, no documented platform semantics) are
+fixed, the dependency preflight exiting **2** and proved against a real absence.
+
+**The review then ran four more rounds and cost the stop two `REJECT`s that were both right.**
+The default `ollama-cloud/glm-5.2` critic stalled **twice** — one gate death at `opencode exit 1`
+after a completed run, one 762-byte header-only file — and both files are **committed, not
+deleted**, because a stall is evidence of a stall and they are different failures. The
+`codex + deepseek-v4-pro` panel then returned in **47–48 s and 107–138 s**, six times out of six,
+where the default critic took 243 s when it worked at all.
+
+**Round 4 on the workbook: `REJECT`, two blocking entries, both in text this stop had written.**
+(1) The Lab 9.4 head claim said *"25 individually decidable assertions, each with the command that
+decided it"* — **six lines above its own table reading `undecidable by command: 7`.** The 18 / 2 / 5
+split already existed in the validation table, added after a round-2 finding, and the claim
+upstream *where a reader meets it first* was left saying something else. **That is the same defect
+an earlier round caught in this same file, whose fix was supposed to be general. It was one edit.**
+(2) The validation table graded **`L1` in three incompatible senses**, one of which the workbook's
+own layer table refutes eighty lines earlier. Five rows regraded, two keeping `L1` with the sense
+named — *a value the runner writes into an API record cannot be hand-written true*. **That makes
+four layer mislabels at one stop, in four artifacts, every one over-claiming, three of them found
+by the review** after I had written a section about the rule and corrected three of my own inside
+it. Eight of ten line-level findings were also right at 1 of 2 runs; the sharpest is that **Lab
+9.5's frontmatter block is not valid YAML** — three pairs on one line parse as a single scalar, so
+four of six fields do not exist, in the lab whose entire point is checkable provenance.
+
+**Round 3 on the gate script: `REJECT`, two more blocking, and every one of the four findings
+new.** The cache filename carried the manifest slug and the page key **but not the URL**, so two
+manifests sharing a basename and a key collided and the second reported `cached` for a page it
+never fetched — silently, at exit 0. And the `<script>` / `<style>` strip was **case-sensitive**,
+so a `<SCRIPT>` block survived while the file's own registered limitation told the reader script
+content had been removed: **the house failure mode, written into the script whose workbook section
+is about the house failure mode.**
+
+**One finding, of eleven, pointed the other way — and it is the only one that could have inflated
+the headline.** Every previously disputed defect biased toward `FOUND`, i.e. toward
+*under*-reporting staleness, so `5 of 8` was safe. The whitespace asymmetry biases toward
+`ABSENT`, which **inflates** it. It was **checked rather than argued**: `awk` over both manifests
+finds no quote carrying a double space, a tab or a trailing run. Fixed anyway. Suite **39 → 47**,
+ShellCheck clean, and **all four new cases proved to fail against the pre-fix script** — `W 0,
+X 0, Y 3, Z 2` before, `2, 3, 0, 0` after — with `Y` the negative control for `X`, without which
+`X` would pass equally against a checker whose cache never worked at all.
+
+**And the measurement is unmoved for the fourth time, cell for cell by `diff`:** `found=3
+absent=5` on the extract, `found=28 absent=1` on the stop-23 parity. **Eleven defects in one
+instrument across three rounds and not one changed a cell of its output.** That is the single
+thing most likely to overturn something here, and it is a question this stop cannot answer:
+§4a's three-round cap, not any evidence, is what decided the review had run long enough.
+
+**Two more stale claims, found in this run's own operating instructions while closing the stop.**
+`TRACK-B-STATE.md`'s `next_action` told the next session to probe `http://127.0.0.1:8081/health`
+before any run — a path that returns **404 on a healthy stack**, alongside `/healthz`,
+`/api/health`, `/api/healthz` and `/`, while 743 run records were served from the same port in the
+same minute. The live path is `/actuator/health`, which `agent-observatory/Makefile:120` has
+always used; the instruction was written **this morning, in this stop's own preflight**, after the
+API was found OOM-killed. And **`lab#9` had been closed by the project board's automation since
+2026-09-27 while this file asserted it was open** — the reopen is on the record for `lab#8`,
+`lab#16` and `lab#10` and was missing for `lab#9`. Reopened, with the reason on the issue.
+**Both are the shape Lab 9.4 measured, written by this run, about this run, inside two days of the
+audit that measured it. The rate is not the finding; the absence of anything that would have
+caught them is.**
+
+**Then two rounds past §4a's cap, and the gate script's round 4 found a real orphan in real
+evidence.** The rule caps the revision loop at three rounds per artifact; this stop ran **five**
+on the workbook and **four** on the gate script, because every round kept returning findings that
+were right. Round 5's gate never ran at all — `minimax-m3`, `opencode exit 1`, the **third**
+acceptance failure of the day on that model and the second wedged past its own 600 s budget — but
+its line-level pass returned twelve sections, and its one **2-of-2** finding was that `- [ ] ✅`
+had an unticked box beside a green tick with nothing in the file saying what either mark meant:
+readable as *unread* or as *not verified*, which are opposite claims about opposite things.
+
+**Round 4 on the gate script blocked on the inverse of a check that already existed.** The
+validator asked *"does every quote name a declared page"*; nothing asked whether a **declared
+page is quoted by anything**. An orphan see-also page was fetched regardless, and a dead URL on
+it would kill the **whole** manifest at exit 3 — *"nothing was proved either way"* — with every
+verifiable quote lost behind an exit code indistinguishable from a fetch failure on the page that
+carried the drift signal. **Written as a refusal, it rejected `evidence/p08/quotes-p08.tsv` on
+its first run:** that manifest declares page key `home` and quotes it nowhere, and so does stop
+23's own script at `evidence/p08/verify-quotes.sh:40`, from which it was transcribed
+mechanically. **Stop 23's instrument has been fetching a page it never used, and had that URL
+404'd its entire 29-quote result would have died with nothing reported.** That stop is closed and
+§6 keeps its script untouched, so it is recorded and not repaired. The fix here is a **skip**,
+named on stderr *and in the summary line* — `skipped-orphan-pages=home` — because stderr is
+discarded by every caller that redirects. Fixture `AA` proves the orphan is never fetched (its
+URL is unreachable, so the case exits 3 if the skip does not happen) and `AB` is its negative
+control. Suite **47 → 52**, and the measurement does not move for the **fifth** time.
+
+**Step 13a ended on the cap, not on convergence, and that is the stop's most important unanswered
+question.** Across nine rounds the review returned **four blocking contradictions — every one
+mine — and eleven distinct defects in one gate script**, and the rate of discovery had not
+flattened when the rounds ran out. **Not one changed a cell of any measurement.** Eight round-5
+findings against the August lab designs are recorded and left, with the reason stated in the
+workbook: `n = 0` runs belong to those labs, nothing has been scored, and §4 step 3 is what
+forces a decision rule — before the first run of the stop that runs them.
+
+**Carried to the author and gating nothing.** `runner/verify-codex-isolation.sh`, unchanged since
+`b39b85e` on 2026-09-03, returned **three different verdicts in thirty minutes**: `ok` in the
+previous session, `INCONCLUSIVE` (exit 1) to a subagent, and **`ISOLATION LEAKS` (exit 2)** to a
+hand re-run. Its check B asks a model to go looking and reports what one sample did. **A
+preflight row that is a coin flip cannot gate anything**, and this one is now observed to be one.
+It blocks no measurement here — this stop runs no codex-scored batch — and a defect in an
+instrument is on §7's not-a-halt list.
+
+## Position — superseded 2026-09-29 at the stop-24 close
+
 **Spine 23 of 28. Positions 4–23 CLOSED — 23 (Phase 8 — unattended agents, event- and
 schedule-triggered, `gh-aw`; a ◇ extract-only stop) closed 2026-09-28 with `n = 0` runs, counted
-rather than asserted: 0 of 740 runs on the API carry a stop-23 experiment key.** PR `lab#PRNUM`.
+rather than asserted: 0 of 740 runs on the API carry a stop-23 experiment key.** PR `lab#134` → `c5f461de3ead66b01a78757105aaf3044e1b4c35` *(the literal placeholder `lab#PRNUM` sat here from the stop-23 close until 2026-09-29; filled in from the merged PR, not from memory)*.
 Seven vendor pages re-read, five dated `## Extract` sections written beside an August 2026 extract
 kept verbatim, four labs deferred with their debts now written down, two new `SOURCES.md` rows, and
 one instrument that executes. **NOTHING is blocked on the author.** `lab#10` (Phase 8) **stays

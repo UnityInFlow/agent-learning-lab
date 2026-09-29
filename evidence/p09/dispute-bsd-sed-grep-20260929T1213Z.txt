@@ -1,0 +1,27 @@
+# Disputing the §4a claim that verify-quote-checker.sh cases K, L, M fail on macOS
+# 2026-09-29T12:13Z. Run ON macOS (BSD sed, BSD grep) — the platform the finding names.
+
+CLAIM 1: 'BSD sed treats 	 as a literal t, so case K's typo fixture is never constructed.'
+  $ printf 'quote	p1	hello
+' | od -c
+    q u o t e 	 p 1 	 h e l l o 
+
+  $ sed 's/^quote	p1	/quote	p2	/' <that> | od -c
+    q u o t e 	 p 2 	 h e l l o 
+
+  -> BYTE-EXACT: the pattern matched AND the replacement emitted real tabs. REFUTED.
+
+CLAIM 2: 'BSD grep does not extend BRE with \|, so cases L and M never match.'
+  $ printf 'STRIP FAILED x
+' | grep -q 'STRIP FAILED\|STRIP PRODUCED NO TEXT'  -> MATCHED
+  $ printf 'ZZZ
+'            | grep -q 'STRIP FAILED\|STRIP PRODUCED NO TEXT'  -> no match
+  -> The alternation works AND still refuses a non-matching string, so it is not matching
+     everything by accident. REFUTED, with its own negative control.
+
+$ sed --version  -> not supported, i.e. BSD sed. This is the platform in question.
+
+WHY THIS DISPUTE IS WORTH THE BYTES: the finding's failure mode would have been the house
+one — three cases GREEN while testing nothing. That deserved an observation and not an
+argument, so it got one. The suite's 29/29 alone would NOT have settled it: a case that
+constructs the wrong fixture can still pass for the wrong reason.

@@ -1,0 +1,8 @@
+=== PRE-FIX (guards removed) ===
+  nopages -> exit 0
+  noquotes -> exit 3
+  dup -> exit 3
+=== FIXED (guards present) ===
+  nopages -> exit 4
+  noquotes -> exit 4
+  dup -> exit 4
