@@ -98,6 +98,25 @@ corpora were measured **on the same day**, not 21 days apart — so the independ
 them is weaker than first written. Two corpora, one observer, one day is a pattern worth looking
 for again, not a rate.
 
+**The §4a review found a second guardrail-layer mislabel, and the layer model is now 0 for 3
+stops.** Round 1 on two artifacts: `governance/memory-policy.md` **REJECT** with nine findings,
+the workbook **ACCEPT** with six; all fixed or disputed in writing. At **2 of 2 runs** the critic
+found `evidence/p09/quotes-p09.tsv` labelled **L1** where it is **L2** — an undeclared page key
+*can* be written into the TSV and saved, and `verify-quotes.sh` then **executes and refuses it**
+at exit 4. That is the second mislabel of this session (I caught three myself at `d446308`) and
+stop 22's review found six. **The rule is four sentences at the top of the workspace `CLAUDE.md`
+and it has now been misapplied in three consecutive stops that were each explicitly applying it**
+— every miss in the direction that file does *not* warn about: **calling a thing L1 because its
+check is strict, when L1 is about what cannot be written down at all.**
+
+**Three of the review's findings were one finding in three places, and it is its best work.** The
+workbook narrated a staleness problem in its newest section while leaving the stale text upstream
+**unmarked, where a reader meets it first** — the reversed *"Claude Code reads `CLAUDE.md`, not
+`AGENTS.md`"* sitting 160 lines from its own correction, an extract header reading *"Quotes
+verbatim."* that was false for two rows the day it was written, and an undated block of vendor
+claims in a workbook whose finding is that vendor claims drift. None is fixed by rewriting the
+August text; all three are fixed by **marking**.
+
 **Carried to the author and gating nothing.** `runner/verify-codex-isolation.sh`, unchanged since
 `b39b85e` on 2026-09-03, returned **three different verdicts in thirty minutes**: `ok` in the
 previous session, `INCONCLUSIVE` (exit 1) to a subagent, and **`ISOLATION LEAKS` (exit 2)** to a
