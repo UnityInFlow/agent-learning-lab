@@ -206,6 +206,12 @@ last_verified: "2026-09-29T17:4xZ - 2026-09-29T18:1xZ, *** STOP 25 OPENED AND §
   seven-clause promotion gate is L3 prose and its L2 conversion belongs to stop 28."
 next_action: "*** STOP 25 IS OPEN AT §0 BOUNDARY 1. THE EXTRACT IS WRITTEN AND COMMITTED. THE
   NEXT SESSION WRITES LAB 10.0 AND CLOSES THE STOP. ***
+  *** SHAS, ADDED IN A SECOND COMMIT BECAUSE §0 ORDERS THE STATE WRITE BEFORE THE ACTION AND
+  THEREFORE BEFORE THE SHAS EXIST: the extract is `468e105`, this state block is `d3191f5`,
+  and the amendment carrying these three shas is the commit that added this paragraph. Branch
+  `stop25/phase-10-production-observability` is PUSHED and `origin/` tracks it. THERE IS NO PR
+  YET - step 14 opens it, and per §4 step 14 the builder merges it once every check reports
+  (expect board freshness to be the only red one, by author decision 12 item 4). ***
   (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d); re-check
       findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
       2026-09-08); confirm nothing is running with the NARROW pattern
