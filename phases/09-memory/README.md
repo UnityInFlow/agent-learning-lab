@@ -411,3 +411,182 @@ against the repository it describes.
 The mitigation that worked was making the memory **point at** `docs/STATE.md` rather than
 duplicate it — and then `STATE.md` went stale too. Staleness is not a memory-system
 problem. It is a "no one owns re-validation" problem.
+
+---
+
+## Lab 9.4 executed — 2026-09-29, spine stop 24
+
+The lab this phase asks for, run once, on this machine, for no money and no benchmark runs.
+Frozen evidence: [`../../evidence/p09/memory-audit-20260929T1119Z.md`](../../evidence/p09/memory-audit-20260929T1119Z.md).
+Policy written from it: [`../../governance/memory-policy.md`](../../governance/memory-policy.md).
+
+`Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-29; the author did not review before
+the lab ran.`
+
+### Why 9.4 and not 9.1–9.3
+
+§3 of the run's prompt owes this stop **one lab with evidence on disk**. Labs 9.1–9.3 all
+measure whether the *agent under test* uses a remembered fact, which needs a benchmark batch
+and therefore a prediction commit before the first run (§4 step 3) — a whole second boundary
+of work for a Track A stop registered at two. 9.4 is the phase's own first lab, its commit
+target `governance/memory-policy.md` is the one named in this README's Commit block, and its
+subject is the corpus this same stop just proved goes stale unchecked. It was chosen for
+continuity of measurement, not for cheapness, and the cheapness is stated so a reader can
+discount it.
+
+### The result: 7 of 25 advertised claims are false, and nothing executes over any of them
+
+The audited unit is the claim each memory advertises in its `MEMORY.md` index line — **15
+memories, 25 individually decidable assertions**, each with the command that decided it in the
+evidence file.
+
+| Verdict | n |
+|---|---|
+| true and load-bearing | 10 |
+| true but **obsolete** — serves an arm Decision G removed | 1 |
+| false, **superseded by a recorded event** | 5 |
+| false, **does not reproduce as written** | 2 |
+| **undecidable by command** | 7 |
+| | **25** |
+
+`n = 25 assertions, 15 memories, 1 corpus, 1 machine.` A property of these twenty-five
+sentences, **not** of agent memory. The seven undecidable rows are not a shortfall: two are
+about a habitual state one probe cannot settle, two would require performing the destructive
+act they warn about, one needs the corpus to be a day older, one is about a person, one has no
+live trigger. Saying "undecidable" is a measurement; guessing would not be.
+
+### The sharpest row: the corpus has **no** control, which is not the same defect as a narrow one
+
+The extract verification earlier at this stop found `check-links.sh` **green** — ok=3, broken=0,
+exit 0 — while five of eight quotations taken off those links did not match: an L2 control
+narrower than a reader assumes. The memory corpus has no checker, no schema, no expiry field
+and no CI job at all.
+
+**These are different failure modes and must not be reported as one.** A narrow green control
+produces false assurance. An absent control produces none. Only the first one lies to you. The
+repository-level lesson from this stop is therefore two-sided, and the workbook says so rather
+than collapsing it into a single slogan.
+
+### The three-way split reproduces on a second, independent corpus
+
+The extract verification recorded that a quotation that was **never right** and one that **went
+wrong** are byte-identical to any checker. The same split appears in the memory corpus — no
+shared authorship, subject or format, measured 21 days later:
+
+- **superseded by an event the memory could not know** — 5 of 7. Every one duplicates a value
+  that is authoritative elsewhere (`blocked_on_author`, the prompt sha, `author_decisions`, a
+  gate result) and that moved.
+- **does not reproduce as written** — 2 of 7 (`rtk git diff` returning empty; it returns 8 987
+  and 2 398 bytes of real diff). Indistinguishable by command from a claim that was wrong the
+  day it was written.
+- **true but obsolete** — 1. The category an external page cannot show, because a documentation
+  page cannot become obsolete *to you* while staying true.
+
+One corpus is an anecdote. Two is the beginning of a pattern, and the second one added a
+category the first could not.
+
+### What was decided (§4 step 10)
+
+**No memory-staleness checker is built.** The measured case covers only the five
+superseded-by-event rows, all machine-checkable. It is refused because the corpus is
+**machine-local** — `~/.claude/projects/…/memory/` is in neither repository, in no CI checkout,
+and exists in **354** copies on this laptop. A `verify-*.sh` here would be green on one machine
+and vacuous everywhere else: a control reporting success over a scope smaller than it claims,
+which is this project's house failure mode. Building it would add a green check and no coverage.
+What would reverse this: a memory corpus that lives inside a repository — the observatory's
+Postgres learning store, which is **B9's** subject and not this stop's.
+
+**Instead, the seven false claims were corrected**, additively and after the audit was frozen.
+That is the answer to the lab's own third question: *has anything ever removed a stale fact?* —
+**no, not once in 21 days, until this lab.**
+
+### Guardrail layer of everything in this section
+
+| Thing | Layer | Rule applied in order |
+|---|---|---|
+| `governance/memory-policy.md` | **L3** | Nothing in it executes; a later session can contradict every row and no command objects. |
+| The ownership split (`Git wins over memory`) | **L3** | A sentence. Nothing rejects a memory that contradicts the repository. |
+| The frozen audit file | **L3 as a control, L1 as a record** | It prevents nothing from being written. But it is committed append-only evidence, and §6 forbids rewriting it. |
+| The seven corrections | **L3** | Words in files nothing reads mechanically. They fix these seven; they stop no eighth. |
+| The *absence* of a staleness check | **not a layer** | Named explicitly, because "no control" is a different finding from "a narrow control", and only the narrow one produces false assurance. |
+| `check-links.sh` over this phase | **L2, narrower than it looks** | It executes and it rejects; it executes on **URLs**, never on the sentences quoted off them. Already recorded earlier at this stop. |
+
+### learning
+
+```yaml
+learning:
+  what_was_added: >
+    governance/memory-policy.md (L3), a frozen per-assertion audit of the 25 claims this
+    machine's agent memory advertises for this project, and seven additive corrections to
+    the memory store itself. No tool, no runs, no money.
+  why_it_exists: >
+    Phase 9's Lab 9.4 asks three questions of the live memory systems and only the first is a
+    number. The stop had just measured an external corpus going stale unchecked; the internal
+    corpus is the one the project actually depends on and had never been measured at all.
+  observed_effect: >
+    7 of 25 advertised claims false, 11 true, 1 true-but-obsolete, 7 undecidable by command.
+    Zero were found by anything that executes, because nothing executes over this corpus.
+    The extract audit's three-way split reproduced on a second, independent corpus and gained
+    a fourth category (true but obsolete).
+  unexpected_effect: >
+    Two, and the second is bigger than the lab. (1) The stale claims cluster on values that are
+    authoritative somewhere else — the prompt sha, blocked_on_author, author_decisions — which
+    is the duplication failure this README's own closing note already described and said the
+    obvious mitigation does not fix. (2) The same session's preflight ran
+    verify-codex-isolation.sh three times in thirty minutes on a file unchanged since
+    2026-09-03 and got ok, INCONCLUSIVE and ISOLATION LEAKS. A check whose verdict depends on
+    whether a model chose to go looking is one sample of behaviour, not a control, and a
+    preflight row that is a coin flip cannot gate anything.
+  keep_or_remove: >
+    Keep the policy file and the frozen audit. Do NOT build the checker: the corpus is
+    machine-local, so the control would be green on one machine and vacuous everywhere else.
+    Reverse that only when the corpus moves into a repository — B9's learning store.
+  next_question: >
+    The measured staleness rate is 7 of 25 at a corpus age of 21 days with zero controls. Does
+    a corpus with an expires_at column and a verifying_command do better, or does it just move
+    the unowned re-validation one level down? B9 can answer that, and this is the baseline it
+    would have to beat.
+```
+
+### Exit gate — Phase 9
+
+- [x] **Distinguish instructions · memory · session history · cache · workflow persistence.**
+      Done from measurement, not definition: instructions are delivered per run and *proved* by
+      `customization.instructionsHash` (null on all seven keys of run
+      `feb68170-395a-49a8-afb1-b7222b81e4c6` under `ISOLATE_USER_SETTINGS=1`); memory is
+      machine-local free text with **no** hash, no expiry and no reader that executes, measured
+      here at 7 of 25 false; session history dies with the session, which is why §0 of this
+      run's prompt puts everything in `TRACK-B-STATE.md`; cache (`~/.memtrace/embed-cache`,
+      `parse-cache`) is derived and regenerable by re-indexing; workflow persistence is
+      `.agent/run-state.json`, written by B8 and carrying a reserved `handoff` field.
+- [x] **Explain why they are not interchangeable.** Because they differ on the only two axes
+      that decide behaviour: **who may write** and **what proves delivery**. Instructions have a
+      per-run delivery proof and memory has none — which is why E-003 could reject a 57-word
+      instruction file on evidence, and why nothing in this repository can make the same kind of
+      claim about a memory. Substituting one for the other silently changes which of those is
+      true, and this project has already voided runs over exactly that confusion.
+
+**Was this the agent, or the harness?** **Neither, and that is the honest answer.** No
+benchmark run belongs to this lab; the agent under test was never invoked for it. It measured a
+*corpus*, with commands, by hand. The one place the harness did intrude is recorded above as an
+unexpected effect: `verify-codex-isolation.sh` returned three different verdicts in thirty
+minutes, which is a property of that harness and of nothing this lab set out to measure.
+
+### Validation table (§5)
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| §3 row 24: *"Phase 9 memory: reading, extract, one lab"* — **reading** | `phases/09-memory/README.md` §"Verified reading" + §"Extract re-verified — 2026-09-29" (commit `cb10974`) | L1 — committed file, §6 forbids rewriting it | `git show cb10974 -- phases/09-memory/README.md` |
+| §3 row 24 — **extract** | same commit; `evidence/p09/quote-verification-20260929T1105Z.txt` (found=3 absent=5, exit 2) | L2 — `tools/verify-quotes.sh` executes and exits non-zero | `./tools/verify-quotes.sh evidence/p09/quotes-p09.tsv` |
+| §3 row 24 — **one lab** | `evidence/p09/memory-audit-20260929T1119Z.md` (25 assertions, verdicts, deciding commands) + `governance/memory-policy.md` | L3 as a control, L1 as a record | open the audit file; re-run any row's command from its own cell |
+| §3 row 24 closes when — **evidence on disk** | the two files above, plus `evidence/p09/codex-isolation-20260929T1125Z-handrun.txt` and `evidence/p09/smoke-20260929T1114Z.txt` | L1 | `ls evidence/p09/` |
+| Phase 9 exit gate clause 1 — *distinguish the five* | run `feb68170-395a-49a8-afb1-b7222b81e4c6`, `.customization` = 7 keys, **all null** | **L1** — the API record is written by the runner, not asserted | `curl -s 127.0.0.1:8081/api/runs/feb68170-395a-49a8-afb1-b7222b81e4c6 \| jq '.customization'` |
+| Phase 9 exit gate clause 2 — *why not interchangeable* | `experiments/E-003-instructions-v0.1.md` (the rejection that a delivery proof made possible) vs the absence of any hash over the memory corpus | L3 — an argument, not a control; labelled L3 for that reason | read E-003's delivery section, then `grep -c Hash` over any memory file: zero |
+| §4 step 10 — *decision recorded from measurement* | §"What was decided" above; the 5-of-7 machine-checkable class and the 354-copy scope argument | L3 | count `ls -d ~/.claude/projects/*/memory` → 354 |
+| §5 — *at least one scored cell re-read by hand* | preflight row 6b re-derived **by me off the API**, not taken from the subagent: 7 keys, all null, model `claude-haiku-4-5-20251001`, evalExit 0 | **L1** | the `curl … \| jq` above |
+| §5 — *every number quoted has its `n`* | `n = 25 assertions, 15 memories, 1 machine`, stated at every occurrence | L3 | read the section |
+| §5 — *re-run every verification command immediately before writing done* | §0a re-run in full this session; row 6a re-run **by hand** and its output saved | L1 for the saved output, L3 for the claim that it was the last act | `cat evidence/p09/codex-isolation-20260929T1125Z-handrun.txt` |
+
+**One row deliberately not claimed.** There is no independence check between arms, because
+there are no arms: this lab has `n = 0` benchmark runs and compares no populations. Writing an
+independence row here would be a control reporting success over a scope it does not have.
