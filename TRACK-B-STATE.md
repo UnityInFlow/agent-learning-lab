@@ -149,10 +149,12 @@ stop: 24           # *** CLOSED AND MERGED 2026-09-29 at n = 0 BENCHMARK RUNS, w
 loop_step: 14  # *** §0 BOUNDARY 2 OF 2 FOR A TRACK A STOP: "after the PR". THE LOOP IS COMPLETE. ***
 branch: stop24/phase-9-memory (agent-learning-lab) - *** MERGED into main at `7e3e1df223fc32ad3613e31671ab257647bd34df` via PR
         # lab#136 (--admin; the ONLY red check was the board freshness one, which is red BY
-        # AUTHOR DECISION 12 ITEM 4 and is recorded in the merge commit body). The branch held
-        # 40 commits; 34 of them were on it before this session and the state file had NOT been
-        # written since boundary 1, which is how a `next_action` reading "design the lab" sat on
-        # disk while the lab, its audit and its PR were already done. *** THAT IS THE SAME
+        # AUTHOR DECISION 12 ITEM 4 and is recorded in the merge commit body). *** COUNTED, NOT
+        # ESTIMATED, because the first draft of this line said 40 and 34 and both were wrong:
+        # `git rev-list --count 7e3e1df^1..7e3e1df^2` = 38 commits on the branch, of which 30
+        # predate this session and 8 are its; 36 of the 38 land AFTER the last state write at
+        # 17b5905, 28 of those before this session even started. *** That is how a `next_action`
+        # reading "design the lab" sat on disk while the lab, its audit and its PR were done. *** THAT IS THE SAME
         # DEFECT CLASS THIS STOP MEASURED, COMMITTED AGAINST THE STATE FILE ITSELF: the
         # authority was stale and nothing executed to say so.
 in_flight: []   # *** EMPTY. NOTHING IS RUNNING AND NOTHING IS UNMERGED except this state write. ***
@@ -168,7 +170,7 @@ last_verified: "2026-09-29T14:0xZ - 2026-09-29T17:4xZ, *** STOP 24 CLOSED AND ME
   §0's context rule forbids opening it; (3) all 22 findings/track-b-validation-*.md basenames
   matched against this file BY NAME in one loop, NONE NEW, so validation_processed is unchanged
   at 22 and no corrections were owed; (4) narrow pgrep - nothing of ours running.
-  *** THE STATE FILE WAS 34 COMMITS STALE AND ITS next_action WAS FALSE. *** It read `DESIGN THE
+  *** THE STATE FILE WAS 36 COMMITS STALE AND ITS next_action WAS FALSE. *** It read `DESIGN THE
   LAB`; the lab was designed, run, written up, reviewed twice and shipped as PR lab#136, and the
   session that did it ended without a state write. The on-disk evidence was checked before
   anything was repeated, exactly as §0 requires, and NOTHING WAS RE-RUN.
@@ -344,7 +346,7 @@ author_notes:   # *** 2026-09-29 (stop 24, §0 BOUNDARY 2 - THE CLOSE) items FIR
     CANNOT ANSWER: is a review that keeps finding real defects in a tool whose RESULT never moves
     worth its cost? §4a caps at three rounds precisely so this does not recurse, and the cap is
     doing the deciding rather than any evidence. ***"
-preflight:  # *** §0a RE-RUN 2026-09-29T14:2x-14:5xZ AT THE CLOSE *** at the user's explicit
+preflight:  # *** §0a RE-RUN 2026-09-29T14:2x-17:3xZ AT THE CLOSE *** at the user's explicit
             # instruction for this session ("starting with the section 0a preflight"), the
             # THIRTEENTH consecutive session to carry it. §0a's own trigger did NOT fire -
             # neither a first session nor a halt; the instruction did. *** EVERY ROW WAS RUN IN
