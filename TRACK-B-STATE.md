@@ -107,7 +107,365 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
-# ===== CURRENT STATE - STOP 26, B11 (EFFICIENCY, v1.2), §0 BOUNDARY 1 OF 4 - OPEN, 2026-09-29 =====
+# ===== CURRENT STATE - STOP 26, B11 (EFFICIENCY, v1.2), §4 STEP 4 DONE - OPEN, 2026-09-30 =====
+# Newest first, as this file has always been kept. Every key below SUPERSEDES the next
+# occurrence of the same key further down; nothing further down is deleted. The keys NOT
+# repeated here are still live at their old positions and are still current:
+#   validation_processed (22 files, newest 2026-09-08; RE-CHECKED BY NAME this session, one grep
+#     per basename against the 22 on disk - IDENTICAL SET, NOTHING NEW, no §0 validator batch owed)
+#   author_decisions (items 1-13, unchanged - nothing this stop adds or moves)
+#   blocked_on_author: [] (EMPTY - NO §7 BULLET IS MATCHED. The stack outage below is NOT a §7
+#     bullet: §0a's own text says "fix the environment (auth, stack, a stalled process) and re-run
+#     the row", so it is an environment fault with a one-line fix, and §7's "Not halts" list puts
+#     everything that is not a §7 bullet in author_notes.)
+#   board_digest: 99bcf34960f6 (UNCHANGED - `git diff main -- HANDOFF.md` is EMPTY on this branch,
+#     re-checked this session, so the required marker digest has not moved)
+status: running   # *** STOP 26 IS OPEN. §4 STEP 4 (BUILD) IS COMPLETE AND COMMITTED; §4 STEP 5
+                  # (PREFLIGHT) IS NOT STARTED AND *** NO BENCHMARK RUN OF THIS STOP EXISTS. ***
+                  # This is an EARLY TURN END between boundary 1 and boundary 2, which §0 allows
+                  # in as many words ("finish the current §4 step, write the state file, and end
+                  # the turn early; that is always allowed"). It is NOT a halt: blocked_on_author
+                  # is EMPTY and no §7 bullet is matched.
+                  #
+                  # *** WHY STEP 5 DID NOT START: THE OBSERVATORY API IS OOM-KILLED AND WILL NOT
+                  # RESTART, AND THE CAUSE IS NOT IN THESE THREE REPOSITORIES. ***
+                  #   agent-observatory-observatory-api-1  Exited (137) = SIGKILL/OOM
+                  #   colima VM: 4 GiB, NO SWAP. `colima ssh -- free -m` -> 88 MB available.
+                  #   repo-context-neo4j (ANOTHER PROJECT'S container, started mid-session, now
+                  #     `unhealthy`) holds *** 1.484 GiB of 3.826 GiB = 38.8 % ***, measured with
+                  #     `docker stats --no-stream`.
+                  #   `docker start` and `docker restart` both leave it `health: starting` with NO
+                  #     new log line at all - the JVM cannot get its heap.
+                  # *** §0a ROW 5 PASSED AT 19:47Z (`All 18 checks passed.`, /actuator/health 200
+                  # UP). SO THE STACK WAS HEALTHY WHEN THE PREFLIGHT WAS AUTHORISED AND WAS NOT
+                  # WHEN IT WAS REACHED. *** That sequence is on record rather than smoothed over,
+                  # because a preflight authorised by a green row and then run against a dead stack
+                  # is the shape this project keeps paying for.
+                  # I DID NOT STOP ANOTHER PROJECT'S CONTAINER AND I DID NOT RESTART THE VM. Both
+                  # are one command and both are the author's - see author_notes for the exact two
+                  # options and the reasoning.
+                  #
+                  # *** WHAT THIS SESSION DID: the §0a preflight IN FULL (17th consecutive
+                  # session), then §4 STEP 4 END TO END. n = 1 BENCHMARK RUN was commissioned, and
+                  # it is the §0a row-6b isolation run, which enters no comparison. ***
+                  #
+                  # *** THE BUILD, AND THE ONE-VARIABLE CLAIM IT RESTS ON: ***
+                  # build/customizations/agent-v1.2-efficiency/ = v1.1's SEVEN files BYTE FOR BYTE
+                  # plus EIGHT new ones. instructionsHash treated sha256:1cb0ea105099353da3e8048b1a923687
+                  # / control sha256:a94237242e8c1308fb1d434a06a03463; agentHash BOTH arms
+                  # sha256:b3450564b6f32d6193e8580db766210e. settings.json NECESSARILY DIFFERS - it
+                  # is the wiring - so what the guards assert instead is that the CONTROL's copy is
+                  # still v1.1's and names none of the four new hooks.
+                  #   1 classifier ....... .ai/efficiency/classify-task.sh ................. L3, H1
+                  #   2 retrieval budget . .ai/hooks/retrieval-budget.sh + .ai/policies/... . L2, H2
+                  #   3 summary cache .... .ai/hooks/summary-cache.sh (Pre) + -record.sh (Post) L2, H3
+                  #   4 verification plan  .ai/efficiency/verification-profiles.yaml ....... L3, H4
+                  #                        *** H4 REGISTERED `unmeasured` BEFORE THE BATCH ***
+                  #   5 command dedup .... .ai/hooks/command-dedup.sh ...................... L2, H5
+                  # MECHANISM 3 IS TWO HOOK FILES and the registration said "the cache hook": one
+                  # event cannot honestly do both jobs - a PostToolUse exit 2 DOES NOT ENFORCE
+                  # (phases/05a-guardrails/README.md:58-60), and a PreToolUse recorder would cache
+                  # reads the budget then refused, i.e. "you already have this" about content the
+                  # model never saw. Recorded as a REFINEMENT of the delivery row, not a change.
+                  # *** ALL LOGS LIVE OUTSIDE THE WORKTREE *** under $TMPDIR named for the
+                  # worktree, with the DOCUMENTED path kept as .agent/*.jsonl - B8's convention,
+                  # and the reason is measured: B7's preflight pair 2077432c / 88b861f3 SOLVED
+                  # their tasks and were scored exit 21 for the guardrail's own log
+                  # (E-016:227-237); B9 hit it again (E-022 Amendment 1). The evaluator's ignore
+                  # pattern is a REGISTERED VARIABLE, so teaching it to ignore .agent/ is a §7 halt.
+                  # ONE SPEC LINE IS DELIBERATELY NOT CONVERTED: build/README.md#b11 step 2's
+                  # "exceeding requires a recorded reason". There is NO override channel, because
+                  # an override the model can write is one it can write WITHOUT a reason - the
+                  # L2->L3 demotion stop 7 recorded for `allowed-tools`. And
+                  # max_similar_implementations is `enforced: false` IN THE POLICY FILE with its
+                  # reason, rather than approximated by phrase-matching.
+                  #
+                  # *** FIVE FIXTURE SETS, BECAUSE A BATCH CAN SHOW THAT A REFUSAL HAPPENED AND
+                  # NEVER THAT IT WAS RIGHT: ***
+                  #   tools/verify-retrieval-budget.sh ............ 24 / 24, exit 0
+                  #   tools/verify-summary-cache.sh ............... 19 / 19, exit 0
+                  #   tools/verify-command-dedup.sh ............... 22 / 22, exit 0
+                  #   evidence/b11/verify-b11-preflight-guards.sh . 14 / 14, exit 0
+                  #   evidence/b11/verify-b11-batch-guards.sh ..... *** 16 / 17, exit 1 ***
+                  # THE ONE FAILING CASE IS Q AND IT RETURNS EXIT 7 - A DEAD API. It is the only
+                  # case needing a live stack, so it is UNVERIFIED, NOT FAILING, and it is re-run
+                  # before the batch. The first three are now wired into CI beside
+                  # verify-repair-limit.sh; the two driver sets are NOT, because case Q needs a
+                  # live API and a live OTLP endpoint and CI has neither.
+                  # *** CASE O PASSED FOR THE WRONG REASON ON ITS FIRST RUN AND IS FIXED. *** It
+                  # was carried over from B9, where a population is registered by a CORPUS hash,
+                  # and still passed `mkbatch` the argument `knowledge`. The helper no longer knows
+                  # that word, so it wrote the REAL treated hash, the driver's grep found it, and
+                  # the case reported "refuses a different population" at exit 0 - a fixture
+                  # reporting over a scope smaller than it claims, inside the file whose own
+                  # comment two functions higher warns about exactly that.
+                  #
+                  # *** FINDING 1 - ON THIS MACHINE A HOOK'S COST IS DOMINATED BY PROCESS STARTUP,
+                  # NOT BY ITS LOGIC, AND THAT MAKES THE NUMBER OF HOOKS A LATENCY VARIABLE OF THE
+                  # VERSION. *** Measured, not inferred: jq ~0.68 s PER INVOCATION (2.72 s for four
+                  # no-op calls); git status --porcelain + git diff ~0.6 s cold, ~1.8 s under load.
+                  # The first command-dedup.sh made FIVE jq calls and ran at 4.08 / 6.56 / 6.46 s
+                  # PER BASH TOOL CALL. At ~100 tool calls that is ten minutes of pure hook latency
+                  # and it brings the 15-second hook timeout into range, where *** A TIMED-OUT HOOK
+                  # IS A CONTROL THAT SILENTLY DID NOT RUN. *** Applied before any run: every hook
+                  # parses stdin ONCE and reads its state ONCE, and the four new hooks carry a
+                  # 60-SECOND timeout while v1.1's three keep 15 (so the carried-over files stay
+                  # byte-identical). P6 already predicts durationMs rises and registers it
+                  # inadmissible; what is now clear is that part of the rise is THE NUMBER OF
+                  # HOOKS, which is a property of the version and not of the model.
+                  #
+                  # *** FINDING 2 - THE FIXTURE SET CAUGHT A DEFECT IN MY OWN OPTIMISATION, ONE
+                  # LINE, BEFORE A DOLLAR WAS SPENT. *** Cutting the jq calls introduced
+                  # `IFS=$'\t' read -r A B <<<"$(jq ... | @tsv)"`. *** A TAB IS IFS WHITESPACE ***,
+                  # so bash strips it when it LEADS the string and collapses runs of it: a
+                  # legitimately EMPTY first field disappears and every later field shifts left. On
+                  # a store with no entry that turned ("", "?") into ("?", "") - SO A FIRST RUN READ
+                  # AS A REPEAT, and the dedup hook would have refused nothing while logging that it
+                  # had. verify-command-dedup.sh case 1 failed on exactly that. All four hooks now
+                  # read ONE VALUE PER LINE with `IFS= read -r`, which preserves empty fields. Same
+                  # shape as `grep -c` counting lines and `ls -t` eating its argument: a PLAUSIBLE
+                  # WRONG ANSWER, produced confidently.
+                  #
+                  # *** NOTHING OF §4 STEPS 5-14 EXISTS. *** No preflight run, no batch, no sheet,
+                  # no report, no PR. §6 forbids a future step's artifacts.
+prompt_sha: a47590a1e61d       # RE-COMPUTED 2026-09-29T19:43Z at the top of THIS session with
+                               # `shasum -a 256 ../PROMPT-opus5-track-b.md | cut -c1-12`, and
+                               # *** UNCHANGED. *** No §0 prompt-change line is owed.
+prompt_read_at: 2026-09-29T19:43Z   # *** WHOLE PROMPT RE-READ IN FULL THIS SESSION (all 967
+                               # lines, by four sed ranges) because the user's instruction was
+                               # "execute sections 0 through 8 exactly as written". §9 NOT read:
+                               # it is the validator's and the builder never runs it on its own
+                               # work.
+stop: 26           # *** OPEN. B11 - EFFICIENCY, v1.2. *** Unchanged from the boundary-1 block:
+                   # §3's row 26 closes it on "gate #b11, all seven clauses", FOUR of the seven
+                   # have no instrument and are registered `unmeasured` BEFORE the run, so v1.2
+                   # CANNOT BE PROMOTED AT THIS STOP EVEN ON AN `IMPROVED` ROW. Author decision 9
+                   # applies (two tasks, two keys, two controls, no verdict across tasks); author
+                   # decision 13 applies to the batch and the ceiling is COMPUTED BY THE DRIVER.
+loop_step: 4   # *** §4 STEP 4 IS COMPLETE AND COMMITTED (cfea745). STEP 5 IS NEXT AND IS BLOCKED
+               # ONLY ON THE STACK. *** This is BETWEEN §0 boundary 1 (step 3) and boundary 2
+               # (step 6); the early end is §0's own allowance, not a new boundary.
+branch: stop26/b11-efficiency (agent-learning-lab) - pushed, tracking origin. *** THE PREDICTION
+        # COMMIT IS `2552b7540da4beee3e444a67758d76f52e8b38c1` at 2026-09-29T19:30:40Z and NO RUN
+        # OF EITHER BATCH EXISTS, so it precedes every run's startedAt BY CONSTRUCTION - §4 step 3
+        # still requires both timestamps to be WRITTEN INTO the experiment files after the runs,
+        # read from git and the run record and not from prose.
+        # *** THE COMMIT COUNT IS NOT WRITTEN HERE - DERIVE IT: ***
+        #     `git log --oneline main..stop26/b11-efficiency`
+        # (a count that changes every time you write it down must be derived, never maintained;
+        #  that rule was added at boundary 1 after the line went stale twice in one session).
+        # NO PR IS OPEN YET (§4 step 14).
+in_flight:
+  - "NOTHING IS RUNNING. Checked with the BRACKET TRICK against a `ps -ax -o command` snapshot -
+     no run-agent.sh, no opencode, no codex, no verify-*, and the one match was my own shell's
+     command line. A background `until curl ...` loop that was waiting for the API to come back
+     was STOPPED deliberately rather than left to spin past the turn."
+  - "THE OBSERVATORY API IS DOWN AND STAYS DOWN. `agent-observatory-observatory-api-1` is `Up
+     (health: starting)` with NO new log line after two restarts. This is a STATE OF THE MACHINE,
+     not a job of mine; nothing of this stop depends on it until §4 step 5."
+last_verified: "2026-09-29T19:43Z - 2026-09-30T00:5xZ.
+  RE-ENTRY in §0's order: (1) prompt_sha re-computed = a47590a1e61d, UNCHANGED; (2) the whole
+  prompt re-read (967 lines, four sed ranges); (3) TRACK-B-STATE.md read BY LINE RANGE, newest
+  block first, NEVER `cat`; (4) all 22 findings/track-b-validation-*.md basenames listed and each
+  grepped against validation_processed - IDENTICAL SET, NONE NEW, no validator batch owed;
+  (5) process check; all three repos clean, lab on stop26/b11-efficiency.
+  *** §0a PREFLIGHT RUN IN FULL, EVERY ROW, 17th CONSECUTIVE SESSION, AND RUN BY HAND IN THE MAIN
+  CONTEXT RATHER THAN DELEGATED *** - the previous session's own author_note records a haiku
+  subagent under-reporting two rows and declaring a third PENDING while its evidence sat on disk,
+  so this session ran the rows itself and read every gating value itself.
+  ROW 1 ok - exit 0, `opencode-review.test: all 87 cases ran and behaved as specified.`, 87 ok
+    lines counted with `grep -c '^ok'`. §0a's criterion still reads `16 of 16` and is STALE for a
+    17th session: green on its own contract, a fail against the literal text. author_notes.
+  ROW 2 ok - `-n 1 templates/run-record.yaml` (§0a's literal command, NOT the panel route this
+    time). findings/opencode/review-run-record-20260929T194502Z.md, 185 lines / 15 602 bytes,
+    *** 14 953 of them BELOW line 20 *** so findings below the header and NOT a header-only stall.
+    0 opencode processes left. Verdict read off the `## Acceptance` HEADING: *** REJECT ***, on
+    templates/run-record.yaml - THE PROBE'S SUBJECT, NOT THIS STOP'S ARTIFACT; 17th consecutive
+    file to carry it. EXIT CODE NOT CAPTURED BY THE nohup WRAPPER, AND RE-DERIVED FROM THE SCRIPT
+    RATHER THAN GUESSED: tools/opencode-review.sh:563 exits 3 on REJECT *** ONLY UNDER
+    LAB_ACCEPT_STRICT=1 ***, which was not set, so the run exited 0 - not 1 and not 4, which is
+    what §0a asks.
+  ROW 3 ok BOTH HALVES, with the known stray-file defect firing TWICE.
+    DRY: exit 3, the REGISTERED dry-run code, `DRY RUN - prompt written, nothing scored.` Re-run
+      synchronously once purely to capture the exit code the nohup wrapper had lost.
+    `codex --version` = codex-cli 0.158.0.
+    REAL: sheet findings/codex/score-good-nested-ifs-20260929T194840Z.yaml, 2 030 bytes, FOUR
+      categories, *** HAND-READ: architecture-consistency 2, maintainability 0, test-quality null,
+      change-focus 2 *** - and checked by the REGISTERED control rather than by eye:
+      check-sheet-categories.sh -> exit 0, `ok: 4 categories, exactly the rubric's`. The null IS a
+      measurement (§6). §0a states no exit-code criterion for the real half; its criterion is `the
+      real run writes a sheet with all four categories`, which is met. THIS SHEET IS A PREFLIGHT
+      PROBE AND ENTERS NO COMPARISON.
+    STRAY FILES: `1` (28 415 B and 28 415 B) written twice by tools/codex-score.sh:293/:294 -
+      MOVED, NOT DELETED (§6), to evidence/b11/stray-artefact-1-20260929T194508Z.txt and
+      -194900Z.txt. NOT FIXED: it is the REGISTERED scorer's harness. FOURTH session running.
+  ROW 4 ok - all four RUN SEPARATELY, NEVER CHAINED WITH &&, every exit 0, ok-line counts read
+    with `grep -c '^ok'`: verify-run-gate-checker 13, verify-sheet-category-checker 11,
+    verify-run-record-validator 12, verify-model-output-classifier 16.
+  ROW 5 ok AT 19:47Z - `All 18 checks passed.`, exit 0, /actuator/health 200
+    {\"groups\":[\"liveness\",\"readiness\"],\"status\":\"UP\"}. /health 404s; that correction
+    holds for a fourth session. *** THIS ROW WAS TRUE WHEN IT WAS RUN AND IS FALSE NOW. *** See
+    status above: the API was OOM-killed later in the session. The row is NOT rewritten.
+  ROW 6a *** INCONCLUSIVE, exit 1, AND IT IS A DIFFERENT VERDICT FROM LAST SESSION ON IDENTICAL
+    CODE - WHICH IS THE POINT. *** Check A holds; *** CHECK B HOLDS THIS TIME *** (`operator
+    instruction files not reached`), where 14 hours ago on the same bytes it returned `ISOLATION
+    LEAKS`; check C returns `INCONCLUSIVE: no remote plugins were installed even WITHOUT the
+    flag` (verify-codex-isolation.sh:175-178, exit 1). So the 12 recorded invocations on code
+    unchanged since 2026-09-01 now read 4 FAIL / 4 ok / 2 INCONCLUSIVE / 2 ISOLATION LEAKS. Last
+    session diagnosed this row as L3 WEARING AN EXIT CODE - its verdict is a live model's
+    disposition, not a filesystem fact - and check B flipping back on unchanged code is a direct
+    confirmation of that diagnosis rather than a new mystery. NOT `ok`, NOT a §7 halt (no bullet
+    matches; this stop commissions NO codex-RUNTIME arm - codex enters only as the SCORER, which
+    this script does not test). author_notes.
+  ROW 6b ok, RUN THIS SESSION AND RE-DERIVED BY HAND OFF THE API. Run
+    813df44d-7733-4deb-8451-f9b3a7bcc0d7, benchmarkId BE-001, startedAt 2026-09-29T19:45:13Z,
+    finishedAt 19:46:31Z. runtime.model = claude-haiku-4-5-20251001; userSettingsIsolated = true;
+    shimsStripped = true; customization = SEVEN keys, the NON-NULL list is EMPTY;
+    evaluation.exitCode = 0. *** THE RECORD HAS NO `hookExecutions` KEY AT ALL (`has(...)` =
+    false), so §0a's `0 hook executions` is STILL read off an ABSENT key rather than a measured
+    zero *** - unchanged from stops 25 and 26-boundary-1. *** AND THE PREVIOUS SESSION'S OWN
+    author_note WAS ACTED ON: the run was given `EXPERIMENT=preflight-20260929T194500Z`, so it did
+    NOT land in the EXP-001 default sink. *** It enters no comparison.
+  ROW 7 RED, expected, exit 1 - `2 of 2 board(s) describe an older HANDOFF.md than the one on
+    disk.` Prose marker 4a67c593ada2 against the required 99bcf34960f6. Author decision 12 item 4
+    puts the republish in the author's interactive session. HANDOFF.md was NOT edited this
+    session (`git diff main -- HANDOFF.md` is empty), so the required digest has not moved.
+  hook_wiring UNCHANGED: `unproven in print mode`.
+  *** THEN §4 STEP 4 END TO END *** - see status above for the build, the five fixture sets and
+  the two findings. Committed at cfea745."
+next_action: "*** STEP 5 (PREFLIGHT) IS THE NEXT WORK AND IT CANNOT START UNTIL THE OBSERVATORY
+  API ANSWERS. DO THE (0) CHECKS, THEN THE STACK, THEN STEP 5, THEN STEP 6, ENDING AT BOUNDARY 2.
+  ***
+  (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d); re-check
+      findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
+      2026-09-08); confirm nothing of ours is running with a `ps -ax -o command` SNAPSHOT TO A
+      FILE and a grep over the file - *** NOT a `for p in ...; do grep -c \"[x]yz\"; done` LOOP,
+      WHICH MATCHES ITS OWN PARENT SHELL'S COMMAND LINE AND RETURNS 1 FOR EVERYTHING. *** I made
+      exactly that mistake at the top of this session and caught it only because EVERY row came
+      back 1.
+      PROCESS AND TOOL TRAPS MEASURED THIS SESSION - READ BEFORE REPEATING THEM:
+      (i)   *** NEVER `tail` A RUN LOG. *** run-agent.sh writes stream-json; one `tail -5` of
+            /tmp/pf2/row6b.log cost more context than the whole §0a preflight, because a single
+            line carries an entire file's before/after content. Use `grep -oE` for markers, or
+            `wc -c`, or read the RUN RECORD off the API instead - which is the authoritative
+            source anyway.
+      (ii)  *** A nohup'd BACKGROUND JOB LOSES ITS EXIT CODE. *** Three §0a rows were launched
+            with `nohup ... &` and their exit codes had to be re-derived from the scripts
+            afterwards. Redirect to a log AND write `echo $? > <file>.rc` in the same subshell.
+      (iii) `grep -c` COUNTS LINES, NOT OCCURRENCES, AND `.` IS A WILDCARD.
+      (iv)  `ls -t` IS eza's --time FIELD ON THIS MACHINE AND SILENTLY EATS ITS ARGUMENT. Use
+            `/bin/ls -t` or `find`. Put this IN EVERY SUBAGENT BRIEF that names a directory.
+      (v)   `timeout` DOES NOT EXIST HERE (exit 127). Use a perl alarm.
+      (vi)  *** NEVER `cat TRACK-B-STATE.md` *** - read by line range.
+      (vii) The foreground Bash tool kills a command at 120 s and backgrounds it. Anything longer
+            (verify-command-dedup.sh, the guard sets, any run) must be launched with
+            run_in_background and waited on with an `until <condition>; do sleep N; done` loop.
+  (1) *** THE STACK, AND IT IS THE AUTHOR'S CALL, NOT MINE. *** Probe
+      `curl -m 8 http://127.0.0.1:8081/api/runs?limit=1` FIRST. If it answers 200 the blocker is
+      gone and you go straight to (2). If it answers 000, read author_notes: the colima VM has
+      4 GiB and no swap, another project's `repo-context-neo4j` holds 1.484 GiB and is
+      `unhealthy`, and 88 MB is not a JVM. DO NOT stop another project's container and DO NOT
+      `colima stop` the VM on your own - a second session was active on this machine while this
+      one ran. If the author has not acted, RE-STATE the blocker in author_notes with the date,
+      do the parts of the stop that need no stack, and end the turn. There is no such part left
+      at step 5, so that means ending the turn.
+  (2) *** §4 STEP 5 - PREFLIGHT, AND IT IS A REAL GATE. *** `evidence/b11/run-b11-preflight.sh`
+      (no arguments = both tasks). It runs the three hook fixture sets FIRST and refuses at exit 6
+      if any fails, then the one-variable guards, then FOUR runs under the `-PF` keys. Its four
+      conditions and their exit codes are in its header. *** EXIT 2 MEANS NOT ONE OF THE THREE L2
+      HOOKS WAS REACHED ON A TREATED RUN - THAT IS THE VOID ROW AND THE BATCH MUST NOT START. ***
+      At stop 13 exactly this check saved a batch. Expect it to take ~20 min: ~4 min of fixtures
+      plus four runs. LAUNCH IT WITH run_in_background AND WAIT ON ITS MANIFEST, not with `tail`.
+      *** RECORD THE PAIR COST PER TASK *** - author decision 13's ceiling is 11x it and
+      run-b11-batch.sh COMPUTES it from that manifest, refusing at exit 12 if it cannot.
+  (3) *** RE-RUN evidence/b11/verify-b11-batch-guards.sh ONCE THE API IS UP. *** It stands at
+      16 / 17; case Q is the only one needing a live stack and returned exit 7. It is UNVERIFIED,
+      not failing, and the §5 table may not call the set green until it is 17 / 17.
+  (4) *** §4 STEP 6 - THE BATCH. *** `evidence/b11/run-b11-batch.sh [N] [tasks]`, N defaults to
+      10, interleaved, two tasks, keys EXP-B11-EFFICIENCY-BE003 / -BE004. It holds the pid lock
+      the preflight shares, computes ONE CEILING PER TASK, and has `--resume <TAG>` - which is
+      NOT a convenience: its runs are children of the shell that launches it and §0 requires that
+      shell to end. *** LAUNCH IT DETACHED (evidence/b09/detach.py is the tool; macOS HAS NO
+      setsid) OR PLAN TO RESUME. *** Pass OTLP_GRPC_PORT and CONFIRM events.jsonl GROWS before
+      trusting any telemetry number. Then END THE TURN at boundary 2 with run ids and worktree
+      paths in this file.
+  (5) DO NOT: create any artifact of stop 27 or later; redesign the treatment or edit a committed
+      prediction (§4 step 12); edit a measured overlay under build/customizations/; edit
+      codex-score.sh or any registered scorer harness mid-track; delete a worktree, log, sheet,
+      review file or evidence file (§6) INCLUDING the three stray artefacts at evidence/b11/;
+      commit a pid lock; republish the boards (author's, decision 12 item 4); push a state write
+      straight to main; treat row 6a or the stack outage as a §7 halt; or run §9 on my own work."
+author_notes:   # *** 2026-09-30 (stop 26, §4 step 4) items FIRST. The items at the older
+                # positions further down this file are NOT superseded and are still open.
+  - "2026-09-30, stop 26 - *** THE RUN IS STOPPED ON A MACHINE-LEVEL RESOURCE FAULT AND THE FIX IS
+     ONE COMMAND, BUT IT IS OUTSIDE THESE THREE REPOSITORIES SO I HAVE NOT RUN IT. ***
+     WHAT HAPPENED: `agent-observatory-observatory-api-1` exited *** 137 (SIGKILL - OOM) *** while
+     this session's fixture sets were running, and will not restart. `docker start` and
+     `docker restart` both leave it `Up (health: starting)` with NO new log line at all.
+     WHY: the colima VM is *** 4 GiB with NO SWAP ***. `docker stats --no-stream` puts
+     `repo-context-neo4j` - a container belonging to ANOTHER PROJECT on this machine, started
+     mid-session and now `unhealthy` - at *** 1.484 GiB of 3.826 GiB, 38.8 % ***. `colima ssh --
+     free -m` reports *** 88 MB available ***. A Spring Boot JVM does not start in 88 MB.
+     THE TWO OPTIONS, both yours, both reversible in one command:
+       (a) `docker stop repo-context-neo4j` - it is unhealthy and serving nothing; `docker start
+           repo-context-neo4j` puts it back. Frees ~1.5 GiB immediately.
+       (b) `colima stop && colima start --memory 8` - fixes the class of problem rather than the
+           instance, but restarts EVERY container on the machine.
+     WHY I DID NEITHER: (a) touches a service that is not this project's, and there was evidence
+     of a SECOND ACTIVE SESSION on this machine while this one ran (a foreign `zsh -c cat >
+     feat-implementer.md` process, and the neo4j container appearing mid-session); (b) would kill
+     that session's containers too. The task I was given is Track B, and neither action is inside
+     it. *Decided by Opus 5 (claude-opus-5), autonomous, 2026-09-30.*
+     WHAT I CONSIDERED AND REJECTED AS A SELF-SERVE FIX: stopping MY OWN tempo + grafana +
+     prometheus containers would free ~320 MB and is fully inside this project - but it would
+     change the instrument DURING a measurement. Run records carry traceId/traceUrl pointing at
+     Tempo; every previous stop's runs have them and this stop's would not. An unregistered
+     instrument change to save a batch is exactly what §6 forbids."
+  - "2026-09-30, stop 26 - *** §0a ROW 5 WAS GREEN AT 19:47Z AND THE STACK IT CERTIFIED WAS DEAD
+     BY 21:35Z, AND THAT SEQUENCE IS THE FINDING, NOT THE OUTAGE. *** §0a's contract is `a row you
+     did not run is unproven, not ok` - it has nothing to say about a row that was true when run
+     and false when relied upon. Every §0a row is a POINT MEASUREMENT presented as a precondition
+     for hours of paid work. The L2 version is cheap and is yours or mine as an instrument PR:
+     run-b11-preflight.sh and run-b11-batch.sh ALREADY re-probe both endpoints and refuse at
+     exit 7 (proved by preflight-guards cases L and M), so the drivers are safe; what is missing
+     is that a HUMAN reading `preflight: row_5 ok` in this file cannot tell whether it is a
+     statement about now or about four hours ago. Every row in the `preflight:` block should carry
+     its own timestamp, and §0a should say so."
+  - "2026-09-30, stop 26 - *** §0a ROW 1's PASS CRITERION IS STALE FOR A 17th SESSION. *** §0a says
+     `16 of 16 cases pass`; the hook test reports `all 87 cases ran and behaved as specified` at
+     exit 0. Green on its own contract, a FAIL against the literal criterion. §0a is the author's
+     text and is not edited by me."
+  - "2026-09-30, stop 26 - *** THE codex-score.sh STRAY-FILE DEFECT FIRED TWICE MORE AND IS STILL
+     UNFIXED; ITS CAUSE IS TWO ADJACENT LINES. *** tools/codex-score.sh:293 tests
+     LAB_SCORE_DRY_RUN as a BOOLEAN and :294 uses THE SAME VARIABLE AS A DESTINATION PATH, so
+     §0a's own prescribed `LAB_SCORE_DRY_RUN=1` writes the prompt to ./1 and the
+     `|| cp ... ./score-prompt-dry-run.md` fallback never fires because `cp x 1` SUCCEEDS. NOT
+     FIXED - it is the REGISTERED scorer's harness and editing it mid-track touches a registered
+     instrument. Both files MOVED, NOT DELETED, to evidence/b11/. FOURTH session running."
+  - "2026-09-30, stop 26 - *** ROW 6a's DIAGNOSIS IS NOW CONFIRMED BY THE ROW ITSELF. *** Last
+     session called verify-codex-isolation.sh `L3 wearing an exit code`, because check B hands a
+     live model no path and then greps THE MODEL'S OWN TRANSCRIPT for what it reported. This
+     session, on bytes unchanged since 2026-09-01, *** CHECK B PASSED *** where 14 hours earlier
+     it returned ISOLATION LEAKS - and the row still did not return `ok`, because check C now
+     reports INCONCLUSIVE (no remote plugins installed even without the flag). Twelve invocations,
+     FOUR distinct verdicts, one unchanged script. The L2 version is a FILESYSTEM-level check -
+     assert the operator's paths are not READABLE from the redirected HOME, rather than asking a
+     model whether it looked. That is an observatory change and yours."
+  - "2026-09-30, stop 26 - *** THE OVERLAY HOOKS ARE NOT SHELLCHECKED BY CI AND NOW THERE ARE FOUR
+     MORE OF THEM. *** ci.yml scans `./tools` and `./.claude/hooks` at severity warning;
+     `build/customizations/**/.ai/hooks/*.sh` is scanned by nothing, and that has been true since
+     v1.0. I ShellChecked all four new hooks by hand (clean at default severity, not just at
+     warning) and their three fixture sets are now in CI, so the BEHAVIOUR is covered even though
+     the LINT is not. Adding a third scandir is a one-line additive instrument PR; I did not make
+     it this session because it would also newly scan every earlier version's hooks, and turning
+     CI red on a measured, frozen overlay is not something to do at 01:00 without seeing the
+     output first."
+```
+
+```yaml
+# ===== SUPERSEDED - STOP 26 §0 BOUNDARY 1 OF 4, kept not deleted, relabelled 2026-09-30 =====
+# (Header text only; every key, value and comment below is byte-identical. The block that
+#  supersedes it is immediately above, under the same yaml fence.)
 # Newest first, as this file has always been kept. Every key below SUPERSEDES the next
 # occurrence of the same key further down; nothing further down is deleted. The keys NOT
 # repeated here are still live at their old positions and are still current:
