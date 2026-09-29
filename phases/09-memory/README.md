@@ -279,7 +279,7 @@ two defect classes is unmeasured, and is the obvious next thing to point the man
 | Artifact | Layer | Why, applying the rule in order |
 |---|---|---|
 | `tools/verify-quotes.sh` | **L2** | Something executes and rejects: exit 2 on an absent quote, 3 on a page it could not read, 4 on a manifest it cannot trust. Proved by `tools/verify-quote-checker.sh`, 29 of 29. |
-| `evidence/p09/quotes-p09.tsv` | ~~**L1** for the page/quote binding~~ → **L2**, corrected 2026-09-29 | **The original label was wrong and this workbook's own §4a review caught it at 2 of 2 runs.** Applied in order: *can the bad value still be written down after the fix?* — **yes.** An undeclared page key can be typed into the TSV and saved; what happens next is that `verify-quotes.sh` **executes and refuses it** at exit 4, fixture K. Something runs and rejects it, so it is **L2**, not L1. L1 would require the row to be unwritable. The *sentences themselves* stay **L3**: nothing stops a wrong transcription being added, which is exactly how rows 3 and 4 got in. The struck label is kept, not deleted — and note that this is the same error the workspace `CLAUDE.md` warns about (*“a schema note is L3, not L1”*), made in the direction it does not name. |
+| `evidence/p09/quotes-p09.tsv` | ~~**L1** for the page/quote binding~~ → **L2**, corrected 2026-09-29 | **The original label was wrong and this workbook's own §4a review caught it at 2 of 2 runs.** Applied in order: *can the bad value still be written down after the fix?* — **yes.** An undeclared page key can be typed into the TSV and saved; what happens next is that `verify-quotes.sh` **executes and refuses it** at exit 4, fixture K. Something runs and rejects it, so it is **L2**, not L1. L1 would require the row to be unwritable. ~~The *sentences themselves* stay **L3**: nothing stops a wrong transcription being added, which is exactly how rows 3 and 4 got in.~~ → **corrected 2026-09-29, round 4**, and the struck text is kept. That sentence refutes itself: rows 3 and 4 are two of the five the checker **reported absent**, so something did execute and did reject them. Applying the rule in order to the sentence splits it in two. *Sentence ↔ page* is **L2**: a transcription that is not byte-present on the fetched page is refused at exit 2, which is how rows 3 and 4 were found. *Sentence ↔ claim* is **L3**: a sentence that **is** byte-present but does not support the claim the extract hangs on it passes the checker silently, and nothing here executes on that. Row 1 — the reversed claim — needed the hand adjudication for exactly this reason. The struck label is kept, not deleted — and note that this is the same error the workspace `CLAUDE.md` warns about (*“a schema note is L3, not L1”*), made in the direction it does not name. |
 | The adjudication table above | **L3** | Words a human read and judged. Nothing executes to distinguish drift from a transcription defect, and on this evidence nothing can. |
 | `check-links.sh` over this phase | **L2, and narrower than it looks** | It executes and it rejects — but only URL resolution. Green here while five quotations were wrong. |
 
@@ -433,8 +433,13 @@ detected? **what is authoritative if memory conflicts with Git?**
 
 ## Exit gate
 
-- [ ] Distinguish instructions · memory · session history · cache · workflow persistence
-- [ ] Explain why they are not interchangeable
+**Answered at spine stop 24, 2026-09-29 — the boxes are ticked here and the answers are below**,
+under [“Exit gate — Phase 9”](#exit-gate--phase-9). The two clauses are the same two clauses;
+a round-4 §4a finding was right that leaving them unticked 166 lines above the answers reads as an
+open gate to anyone who stops at this heading.
+
+- [x] Distinguish instructions · memory · session history · cache · workflow persistence
+- [x] Explain why they are not interchangeable
 
 ## Commit
 
@@ -815,3 +820,44 @@ p08 parity              found=28 absent=1, seven pages, all live
 ```
 
 `diff` against the original: **identical, cell for cell.**
+
+---
+
+### §4a review — round 4 on the workbook, and a stall that still found something
+
+The gate-script rounds above added two sections to this file after its round-3 `ACCEPT`, so §4a
+step 3 owes a re-run on the revised artifact. That run is
+[`findings/opencode/review-README-20260929T122628Z.md`](../../findings/opencode/review-README-20260929T122628Z.md)
+and it is **not a clean review**: run 1 completed (glm-5.2, 243 s), run 2 **failed `rc=1`** at
+461 s, and the acceptance gate then failed to run — `The gate failed to run (opencode exit 1).`
+§4a step 1 classes exit 1 as infrastructure to discard and re-run.
+
+**A stall and a defect are different things, and this file is both.** It is not header-only:
+run 1 produced two line-level findings, at 1/1 recurrence because the denominator collapsed with
+run 2. §4a's own rule says recurrence is a detection threshold and not a truth value, so both
+were read on their merits. Both were right.
+
+| # | Finding | Disposition |
+|---|---|---|
+| 1 | The TSV row's *"the sentences themselves stay **L3**"* contradicts the layer rule the same row had just applied | **Fixed**, additively, struck text kept |
+| 2 | `## Exit gate` carries two **unchecked** boxes while the identical two clauses are ticked and answered 166 lines below | **Fixed** — boxes ticked, with a pointer to the answers |
+
+**Finding 1 is the better one, and it refutes a sentence I wrote while correcting a different
+mislabel in the same row.** The struck sentence said nothing stops a wrong transcription being
+added, *"which is exactly how rows 3 and 4 got in"* — but rows 3 and 4 are two of the five the
+checker **reported absent**. Something executed and rejected them; that is L2 by the rule, and
+the sentence cited the checker's own catch as evidence that nothing catches it.
+
+The corrected label splits the sentence in two, which is what the rule produces when applied in
+order rather than to the artifact as a whole:
+
+- **sentence ↔ page: L2.** A transcription that is not byte-present on the fetched page is
+  refused at exit 2.
+- **sentence ↔ claim: L3.** A sentence that *is* byte-present but does not support the claim the
+  extract hangs on it passes silently. Row 1 — the reversed claim — is that case, and it is why
+  the three-way split had to be adjudicated by hand.
+
+**This is the third time at this stop that the layer rule came out differently when applied in
+order to one binding at a time instead of to the artifact**, and all three moved in the direction
+`CLAUDE.md` does not warn about: not a schema note mistaken for a control, but a control mistaken
+for absent.
