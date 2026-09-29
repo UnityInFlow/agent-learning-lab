@@ -602,7 +602,132 @@ A customization moves from pilot to chapter standard only if:
 6. a human reviews the qualitative diff
 7. **rollback is defined**
 
-## Exit gate
+## §4 step 11 — the learning block, and the exit gate answered
+
+```yaml
+learning:
+  what_was_added: >
+    No artifact, no tool, no overlay. Stop 25 added a RUN of Lab 10.0 and the evidence under
+    evidence/p10/ — a trace census, a grep census, one synthetic OTLP record, a prediction
+    committed before it, and a result file beside it. The one thing that behaves like a
+    control is the negative control on the collector's scrub processor, and it is a probe,
+    not a fixture set.
+  why_it_exists: >
+    §3's itinerary row 25 registers "Lab 10.0 written up from the #48 fix", closing on
+    "evidence on disk". The second-pass extract had already found that the #48 fix answers
+    one of the lab's three checkboxes conclusively, one at a smaller scope than it asks, and
+    one not at all; the lab exists to answer the other two rather than to let a reader take
+    "#48 is fixed" as answering all three.
+  observed_effect: >
+    Two of three checkboxes were answerable from evidence already on disk, which is the
+    cheapest possible outcome and was not the expected one: checkbox 2's acceptEdits-headless
+    scenario had ALREADY RUN — 14 times inside one preflight run — and the finding was sitting
+    in Tempo unread. `claude_code.tool.blocked_on_user` fires 1:1 with tool calls, 14 of 14
+    with decision=unknown and source=unknown, in a headless run where no user could block on
+    anything. Checkbox 3's zero was real (0 occurrences in 102 276 888 bytes) and meaningless
+    until a negative control was run; the control then showed the scrub deletes record-level
+    identity and DOES NOT TOUCH RESOURCE ATTRIBUTES, so a planted `user.email` on the resource
+    survived verbatim onto disk.
+  unexpected_effect: >
+    The lab's own instrument — the phase whose thesis is "usage is not impact" — turned out to
+    contain a span that is a textbook instance of the thesis, and the project's privacy
+    control turned out to be the house failure mode: true over a scope smaller than its own
+    comment claims. Neither was predicted; the scrub SCOPE was predicted (P1/P2 held exactly)
+    but only after the checkbox-3 zero forced the question.
+  keep_or_remove: >
+    KEEP the evidence; there is nothing built to remove. Two constraints are recorded rather
+    than enforced: no dashboard may be built on `claude_code.tool.blocked_on_user` while its
+    decision/source are `unknown`, and `config.yaml:5-8`'s claim must be read as covering
+    record/span/data-point attributes only. Both are L3 sentences in this workbook and neither
+    is converted here — §6 is one step at a time and the collector is an observatory change.
+  next_question: >
+    Does the resource-attribute gap matter in practice — i.e. does any runtime this project
+    drives ever set identity via OTEL_RESOURCE_ATTRIBUTES? Measured here: no, on 102 MB. The
+    L2 conversion, a `resource` processor with a fixture set proving it rejects, is an
+    observatory instrument PR and is not this stop's.
+```
+
+### Exit gate
+
+- [x] **I can name a metric in each of L1/L2/L3 for my chapter.** L1 adoption: runs
+      commissioned per week against this observatory (the run table is the population).
+      L2 agent execution: `evaluation.exitCode` pass rate per arm, with `estimatedCost` and
+      `modelCalls` beside it — the pair every B step has reported since B2. L3 engineering
+      impact: **this chapter has none and cannot have one**, because the agent under test
+      operates on benchmark fixtures and never on a repository whose PR cycle time, escaped
+      defects or change-failure rate could move. Naming an L3 metric here would be the
+      dashboard-before-the-runs trap, so the honest fill is *L3 is out of reach for this
+      instrument and the reason is structural, not a backlog item*.
+- [x] **I can explain why usage is not impact to a non-engineer.** Stop 25 supplies the
+      explanation as a measurement rather than an analogy: a panel counting
+      `claude_code.tool.blocked_on_user` would have reported **14 human interventions in a run
+      where no human was present**. The count is real, the events are real, and the conclusion
+      is false — because the metric measures a span being emitted, not the thing the span is
+      named after. That is what "usage is not impact" means with the abstraction removed.
+- [ ] **My comparison dashboard shows uncertainty, not just a winner.** **NOT MET, and not
+      met by design at this stop.** No comparison dashboard exists. The project's actual
+      comparison surface is `make baseline-report`, which §4 step 8 requires to report
+      **median and range, never a mean alone** — that is uncertainty rather than a winner, and
+      it is where every B step's numbers have come from. The Dashboards section above asks for
+      p25/p75 and sample count on top of that, and building it is stop 28's B13 work. §6
+      forbids a future step's artifacts early, so this box stays unticked and names its owner.
+- [x] **I can state the promotion gate from memory.** Seven clauses, `build/README.md#b13`:
+      deterministic checks do not regress; benchmark quality improves or stays within approved
+      tolerance; safety guardrails do not regress; cost increase is justified; enough
+      repetitions exist; a human reviews the qualitative diff; rollback is defined. Clause 5
+      is the one this phase is about, and it is L3 prose — nothing executes that would refuse
+      to publish a comparison below a registered `n`.
+- [x] **I know what my telemetry captures and what it deliberately does not.** Captured, and
+      verified on disk this stop: five span types
+      (`interaction`, `llm_request`, `tool`, `tool.blocked_on_user`, `tool.execution`) into
+      Tempo; ten log-event names into `events.jsonl`, the most frequent being
+      `hook_registered`, `api_request`, `tool_result`, `tool_decision`; resource attributes
+      `observatory.run.id`, `benchmark.id`, `experiment.variant`, `service.{name,version}`,
+      `host.arch`, `os.{type,version}`. Deliberately not captured, by
+      `infra/otel-collector/config.yaml`: `gen_ai.prompt`, `gen_ai.completion`,
+      `gen_ai.input.messages`, `gen_ai.output.messages`, `gen_ai.system_instructions`,
+      `user.email`, `user.id`, `user.account_id`, `user.account_uuid`, `organization.id`,
+      `terminal.type`, `tool.arguments`, `tool.result`, `code.content`. **And now, measured
+      rather than read off the file: that deletion covers record-level attributes only.**
+
+**Was this the agent, or the harness?** **The harness, twice over, and neither finding is
+about the agent under test at all.** `claude_code.tool.blocked_on_user` is emitted by the
+Claude Code runtime irrespective of what the model did; the scrub scope is a property of the
+collector's configuration. Stop 25 commissioned no run and measures no arm — it is a stop
+about the instrument, which is what a Phase stop is for, and no number here enters any
+comparison.
+
+## §5 — validation table
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| §3 row 25: *"Phase 10: reading, extract, Lab 10.0 written up from the #48 fix"* — **reading** | `phases/10-production-observability/README.md` §"Verified reading" + §"Extract, second pass" (commit `468e105`); `./tools/check-links.sh` on it → exit 0, `ok=5 moved=0 blocked=0 unverified=0 broken=0` | **L2 for "the URLs answer", L3 for "the content is current".** The script executes and exits non-zero on a dead link, so the first half is enforced. It cannot see a tombstone: two of the five `ok` pages are dead for the reader's purpose (the GenAI semconv tombstone; the attribute registry now marking every `gen_ai.*` deprecated). That gap is lab#13's open question and is stated, not closed | `./tools/check-links.sh phases/10-production-observability/README.md` |
+| §3 row 25 — **extract** | same commit `468e105`: four findings, five corrections, four additions | **L3.** A wrong sentence can still be written into this file and nothing executes over it — the same regrade stop 24 applied to its own extract row at its close, for the same reason | `git show 468e105 -- phases/10-production-observability/README.md` |
+| §3 row 25 — **"Lab 10.0 written up from the #48 fix"** | `phases/10-production-observability/README.md` §"Lab 10.0 — RUN at spine stop 25" (commit `4065a99`), with all three checkboxes answered from `evidence/p10/` | **L3 for the write-up, L1/L2 per checkbox below.** The prose is prose; the checkbox rows carry the proof | read the section; every claim in it cites a file in `evidence/p10/` |
+| Lab checkbox 1 — *"Does a Claude run now produce a trace?"* | obs#48 closed `completed` 2026-08-10T19:46:05Z (state re-read from the API 2026-09-29, not quoted from prose); re-observed this stop on run `e488ed2e-9f90-4e5b-b7d1-53871b8d2755`, trace `a4dc23a3f3c9cefa1de70222adbc1799`, `service.version` 2.1.284 | **L1 in the sense stop 24 settled** — the span and its resource were written into Tempo by the Claude Code runtime, not hand-written by me. **The copy at `evidence/p10/trace-e488ed2e-blocked-on-user.json` is L3**, being an editable file; the live store is the L1 half | `curl -s http://127.0.0.1:3200/api/traces/a4dc23a3f3c9cefa1de70222adbc1799` |
+| Lab checkbox 2 — *"Run a task needing a build under `--permission-mode acceptEdits`, headless. Does `claude_code.tool.blocked_on_user` appear?"* | **Yes, 14 times against 14 tool calls, `n = 1` run.** `evidence/p10/checkbox2-span-census.txt`. Scenario proved element by element: `runner/run-agent.sh:838` (acceptEdits), `:884` (headless `-p`), `agent-observatory-benchmarks/tasks/BE-001-customer-validation/benchmark.yaml:9-19` (`build: true`, `tests: true`) | **L1** for the span data (same sense as the row above); **L2** for the scenario, because the three flags are read out of files that execute — the runner is what runs, not a description of it | re-run the census script against the trace JSON; `grep -n 'permission-mode' runner/run-agent.sh` |
+| …and the finding beneath it: the span **cannot discriminate** a real block | `decision: "unknown"` and `source: "unknown"` on **14 of 14**; durations n = 14, min 2 ms, median 3 ms, max 6 ms | **L1** — read off the stored spans, no judgement in the path | the same census |
+| …and the constraint drawn from it: *no panel may be built on that span* | a sentence in this workbook | **L3.** Nothing executes that would refuse such a panel. Its L2 conversion is a gate script and belongs to stop 28 (B13); §6 forbids building it here | read the section |
+| Lab checkbox 3 — *"Grep the collector output for `user.email`. Is it there?"* | **No. 0 lines, 0 occurrences** across `infra/telemetry-out/*.jsonl` = 102 276 888 bytes / 12 697 lines, counted **before** the probe. `evidence/p10/checkbox3-grep-counts.txt` | **L1** for the count — it is a grep over files the collector wrote. **But on its own it answers nothing**, and the table says so: a zero cannot separate *deleted* from *never sent* | `grep -c user.email agent-observatory/infra/telemetry-out/*.jsonl` |
+| …the negative control that gives the zero meaning | Prediction `4af56b3` **precedes** the probe (18:0x commit → 18:06:30Z POST); probe `evidence/p10/scrub-probe-sent.json`, survivor `evidence/p10/scrub-probe-surviving-record.json`, result `evidence/p10/RESULT-scrub-scope.md`. Record-level `user.email`, `gen_ai.prompt`, `tool.arguments` **deleted**; resource-level `user.email` **survived verbatim** | **L2 for the three deletions** — the collector executed and rejected them, which is the first time this control has been shown to reject anything. **L1 for the survival**: with no `resource` processor in any pipeline, a resource attribute cannot be edited by this config, so the bad value cannot be removed after it is written down | POST `evidence/p10/scrub-probe-sent.json` to `http://127.0.0.1:4318/v1/logs`, then `grep -o 'resource-level-[A-Z0-9]*' infra/telemetry-out/events.jsonl` |
+| §5 — *at least one scored cell re-read by hand* | **No scored cell exists. `n = 0` benchmark runs were commissioned at this stop** and no rubric sheet belongs to it. The §0a preflight sheet `findings/codex/score-good-nested-ifs-*.yaml` is a probe that **enters no comparison**, and its four values were nonetheless re-derived by hand with `awk` and checked by the registered `check-sheet-categories.sh` | **L2** for the sheet check that was done; the clause itself is **not applicable** and is recorded as such rather than ticked | see `preflight:` in `TRACK-B-STATE.md` |
+| §5 — *every number quoted in prose has its `n`* | `14 of 14` spans on `n = 1` run; `0 of 12 697` lines; `3 of 4` planted keys on `n = 1` probe; the 2.1.284 version observation is explicitly `n = 1` and stated as true of that run | **L3** | read the section |
+| §5 — *independence check: what else changed?* | **Nothing to compare, so nothing to confound.** Stop 25 has no arms. The one run it reads, `e488ed2e`, was `ISOLATE_USER_SETTINGS=1` with all **seven** `customization.*Hash` null and `runtime.model` `claude-haiku-4-5-20251001`, read off the API this session | **L1** — an API record the runner wrote | `curl -s http://127.0.0.1:8081/api/runs/e488ed2e-9f90-4e5b-b7d1-53871b8d2755` |
+| §5 — *re-run every verification command immediately before writing "done"* | §0a re-run in full this session, every row; the link check, the Tempo fetch, the grep census and the probe were all run in this session and their outputs are the evidence files cited above | **L3 throughout** — a saved stdout file is as editable as any other file and nothing re-runs it. Stop 24 made the same regrade | re-run any command in the "four commands" block of the lab |
+
+**What the layer column grades.** The proof of the clause, never the artifact the clause is
+about. This table uses "L1" in the one sense stop 24's close settled after its acceptance
+gate blocked on three incompatible uses: **a value nothing in this repository can
+hand-write** — a record written by the runner, the collector or the runtime into a store
+outside the working tree. Every editable copy of such a value that lives in `evidence/p10/`
+is separately marked L3, because a copy is a copy.
+
+**What is NOT closed by this table.** Exit-gate item 3 (*"my comparison dashboard shows
+uncertainty"*) is unticked and names stop 28 as its owner. lab#13's content-vs-HTTP question
+is restated, not answered. Neither is a §7 halt: no gate here needs a registered variable to
+move, and this stop moves none.
+
+## Exit gate — the author's original list, unedited
 
 - [ ] I can name a metric in each of L1/L2/L3 for my chapter
 - [ ] I can explain why usage is not impact to a non-engineer
