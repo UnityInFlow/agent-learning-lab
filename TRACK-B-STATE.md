@@ -226,7 +226,13 @@ branch: stop26/b11-efficiency (agent-learning-lab) - created from main at `70221
         # (= 19:30:40Z). NO RUN OF EITHER BATCH EXISTS, so it precedes every run's startedAt BY
         # CONSTRUCTION - and §4 step 3 still requires both timestamps to be WRITTEN INTO the
         # experiment files after the runs, read from git and the run record and not from prose.
-        # *** One later commit carries this state file. NO PR IS OPEN YET (§4 step 14).
+        # *** THREE commits on the branch at the end of the session: 2552b75 (the prediction),
+        # d505b84 (this state file) and 369627a (the two §0a preflight artefacts the state block
+        # cites, so a stranger can re-derive their quoted values). NO PR IS OPEN YET (§4 step 14).
+        # (This line first read `One later commit carries this state file` - true when the block was
+        #  drafted and stale by two commits before the session ended. Corrected in the next commit
+        #  rather than left, because a count asserted and not re-derived is the defect stop 25 spent
+        #  three review rounds on and the defect this session found in E-025.)
 in_flight:
   - "ONE `codex-score.sh` PROCESS OF THE §0a PREFLIGHT IS STILL RUNNING at the state write - a
      SECOND invocation the preflight subagent spawned on the same fixture. It writes a PREFLIGHT
