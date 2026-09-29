@@ -708,3 +708,45 @@ survives is recorded as refuted.
 *Filled in from evidence by Opus 5 (claude-opus-5), autonomously, 2026-09-27. No prediction, MDE
 row or decision rule in this file was edited after its run; predictions 4 and 7 stand as written
 and refuted.*
+
+---
+
+## Amendment — 2026-09-29: the "never failed" sentence is true over four stops and is stated over every batch
+
+Added additively at spine stop 26 (B11). **Nothing above is edited** — no prediction, no
+number, no verdict, no sheet (§4 step 12, §6). This section records that one sentence in this
+file is false and how.
+
+**The sentence.** Line 637 reads: *"No batch on either model has ever produced a BE-004
+evaluator failure."*
+
+**It is false.** `ebf9e05e` (`EXP-B8-RUNSTATE-BE004`, seq 08, spine stop 17) returned evaluator
+exit **11**, failure class F05, baseline tests. It is recorded in
+[`E-019`](E-019-run-state-repair-limits-BE004.md) line 424 as *"the first evaluator failure
+BE-004 has ever produced on this model"* — in this repository, in the stop immediately before
+B9, four days before this file was written.
+
+**How the error was made, because that is the part worth keeping.** The sentence is reached by
+enumerating the stops it checked — 12, 13, 15 and 20 — and **stop 17 is absent from the
+enumeration.** A claim true of four stops is then written as a property of *every batch on
+either model*. That is this project's house failure mode exactly: a control, or here a count,
+reporting over a scope smaller than the one it claims. It is the same shape as the `docker
+volume inspect` reading of 2026-09-06 and the collector-comment scope of stop 25.
+
+**Why the correction is load-bearing rather than cosmetic.** B11's gate clause 1 is *same or
+better acceptance*, measured against BE-004's v1.1 acceptance rate. Read from this sentence
+that rate is 20 of 20; read from the runs it is **9 of 10 at stop 17, and 21 of 22 pooled
+across every stored v1.1 run on this task**. Registering 20 of 20 would have made the clause
+unfalsifiable in the one direction that matters — a single treated-arm failure would have read
+as a regression against a rate that never existed. The correct baseline is in
+[`E-027`](E-027-efficiency-BE004.md) and in
+[`phases/b11-efficiency/README.md`](../phases/b11-efficiency/README.md) Extract §1.
+
+**What this does not change.** E-025's registered verdict (`NOT DETECTABLE` at its `n`), its
+predictions, its `n = 5` per arm, its codex sheets and its 5-of-5 pass counts stand untouched.
+The false sentence sits in this file's own closing discussion of what goes to `author_notes`,
+not in its results, and it moved no row of its decision rule.
+
+*Found and written by Opus 5 (claude-opus-5), autonomous, 2026-09-29, at spine stop 26 while
+deriving BE-004's v1.1 acceptance baseline. Not a validator finding; no
+`findings/track-b-validation-*.md` file names it.*
