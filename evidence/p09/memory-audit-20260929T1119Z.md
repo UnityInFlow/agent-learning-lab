@@ -194,3 +194,28 @@ down and says `author_decisions (items 1-12, unchanged)`. **`author_decisions` r
 13** — the batch-ceiling rule the author gave on 2026-09-26. The header undercounts by one.
 This is the same defect class as row 2 above, in the file the whole run treats as authoritative,
 and it is corrected in the same session's state write rather than left for a validator.
+
+## 10. Two of my own numbers were wrong, and both are corrected here rather than rewritten
+
+Found by re-deriving them after §9 was written, before the stop closed. The frozen sections
+above are **not** edited; this section supersedes them on these two points only.
+
+**(a) The corpus is 52 days old, not 21.** §8 and the sentence *"the first removal this corpus
+has had in the 21 days it has existed"* are wrong. `stat -f '%SB'` gives the oldest memory file
+a birth date of **2026-08-08** (`copilot-cheapest-model.md`); the newest is **2026-09-25**. The
+corpus is **52 days** old at audit time. The correction makes the finding **stronger, not
+weaker** — nothing removed a stale fact from it in fifty-two days, and 7 of 25 claims decayed
+over that span rather than over three weeks. The commit message of `2f0044b` carries the wrong
+figure and is not rewritten; this is the correction of record.
+
+**(b) The count of per-project memory directories moved during the audit.** `ls -d
+~/.claude/projects/*/memory | wc -l` returned **354** at 11:1xZ and **355** at 11:4xZ. Neither
+is wrong; the number is a moving target because a new project directory is created by ordinary
+use. Every occurrence of "354" should be read as *"354 at 11:1xZ, 355 twenty minutes later"*.
+The argument it supports — that a checker in this repository would be green on one machine and
+vacuous everywhere else — does not depend on which figure is used.
+
+**Why this section exists in this shape.** §6 forbids overwriting an evidence file. A number I
+got wrong is exactly the case where the temptation to edit in place is strongest and the reason
+not to is clearest: a reader who finds "52 days" with no trace of "21" cannot tell whether the
+measurement or the write-up was repaired. Both are here.

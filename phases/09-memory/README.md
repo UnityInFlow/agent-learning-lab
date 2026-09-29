@@ -490,7 +490,7 @@ category the first could not.
 **No memory-staleness checker is built.** The measured case covers only the five
 superseded-by-event rows, all machine-checkable. It is refused because the corpus is
 **machine-local** — `~/.claude/projects/…/memory/` is in neither repository, in no CI checkout,
-and exists in **354** copies on this laptop. A `verify-*.sh` here would be green on one machine
+and exists in **355** copies on this laptop (354 twenty minutes earlier in the same audit). A `verify-*.sh` here would be green on one machine
 and vacuous everywhere else: a control reporting success over a scope smaller than it claims,
 which is this project's house failure mode. Building it would add a green check and no coverage.
 What would reverse this: a memory corpus that lives inside a repository — the observatory's
@@ -498,7 +498,7 @@ Postgres learning store, which is **B9's** subject and not this stop's.
 
 **Instead, the seven false claims were corrected**, additively and after the audit was frozen.
 That is the answer to the lab's own third question: *has anything ever removed a stale fact?* —
-**no, not once in 21 days, until this lab.**
+**no, not once in the 52 days the corpus has existed, until this lab.**
 
 ### Guardrail layer of everything in this section
 
@@ -542,7 +542,7 @@ learning:
     machine-local, so the control would be green on one machine and vacuous everywhere else.
     Reverse that only when the corpus moves into a repository — B9's learning store.
   next_question: >
-    The measured staleness rate is 7 of 25 at a corpus age of 21 days with zero controls. Does
+    The measured staleness rate is 7 of 25 at a corpus age of 52 days with zero controls. Does
     a corpus with an expires_at column and a verifying_command do better, or does it just move
     the unowned re-validation one level down? B9 can answer that, and this is the baseline it
     would have to beat.
@@ -580,9 +580,9 @@ minutes, which is a property of that harness and of nothing this lab set out to 
 | §3 row 24 — **extract** | same commit; `evidence/p09/quote-verification-20260929T1105Z.txt` (found=3 absent=5, exit 2) | L2 — `tools/verify-quotes.sh` executes and exits non-zero | `./tools/verify-quotes.sh evidence/p09/quotes-p09.tsv` |
 | §3 row 24 — **one lab** | `evidence/p09/memory-audit-20260929T1119Z.md` (25 assertions, verdicts, deciding commands) + `governance/memory-policy.md` | L3 as a control, L1 as a record | open the audit file; re-run any row's command from its own cell |
 | §3 row 24 closes when — **evidence on disk** | the two files above, plus `evidence/p09/codex-isolation-20260929T1125Z-handrun.txt` and `evidence/p09/smoke-20260929T1114Z.txt` | L1 | `ls evidence/p09/` |
-| Phase 9 exit gate clause 1 — *distinguish the five* | run `feb68170-395a-49a8-afb1-b7222b81e4c6`, `.customization` = 7 keys, **all null** | **L1** — the API record is written by the runner, not asserted | `curl -s 127.0.0.1:8081/api/runs/feb68170-395a-49a8-afb1-b7222b81e4c6 \| jq '.customization'` |
+| Phase 9 exit gate clause 1 — *distinguish the five* | run `feb68170-395a-49a8-afb1-b7222b81e4c6`, `.customization` = 7 keys, **all null**. **This is §0a preflight row 6b, not a run of this lab** — it enters no comparison and is cited only as an example of what a delivery proof looks like | **L1** — the API record is written by the runner, not asserted | `curl -s 127.0.0.1:8081/api/runs/feb68170-395a-49a8-afb1-b7222b81e4c6 \| jq '.customization'` |
 | Phase 9 exit gate clause 2 — *why not interchangeable* | `experiments/E-003-instructions-v0.1.md` (the rejection that a delivery proof made possible) vs the absence of any hash over the memory corpus | L3 — an argument, not a control; labelled L3 for that reason | read E-003's delivery section, then `grep -c Hash` over any memory file: zero |
-| §4 step 10 — *decision recorded from measurement* | §"What was decided" above; the 5-of-7 machine-checkable class and the 354-copy scope argument | L3 | count `ls -d ~/.claude/projects/*/memory` → 354 |
+| §4 step 10 — *decision recorded from measurement* | §"What was decided" above; the 5-of-7 machine-checkable class and the 354-copy scope argument | L3 | count `ls -d ~/.claude/projects/*/memory` → 355, and again an hour later |
 | §5 — *at least one scored cell re-read by hand* | preflight row 6b re-derived **by me off the API**, not taken from the subagent: 7 keys, all null, model `claude-haiku-4-5-20251001`, evalExit 0 | **L1** | the `curl … \| jq` above |
 | §5 — *every number quoted has its `n`* | `n = 25 assertions, 15 memories, 1 machine`, stated at every occurrence | L3 | read the section |
 | §5 — *re-run every verification command immediately before writing done* | §0a re-run in full this session; row 6a re-run **by hand** and its output saved | L1 for the saved output, L3 for the claim that it was the last act | `cat evidence/p09/codex-isolation-20260929T1125Z-handrun.txt` |

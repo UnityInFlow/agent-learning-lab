@@ -60,8 +60,7 @@ already routes there by rule. Not the auto memory: the audit found its index lin
 project telling a reader **never to trust a spine position written in memory**, which is a
 memory whose own headline is a warning about memory.
 
-**"Has anything ever *removed* a stale fact?"** — **no.** Not once in the 21 days the corpus
-has existed. The seven false claims were corrected on 2026-09-29 after the audit file was
+**"Has anything ever *removed* a stale fact?"** — **no.** Not once in the **52 days** the corpus has existed (oldest memory file born 2026-08-08, newest 2026-09-25). The seven false claims were corrected on 2026-09-29 after the audit file was
 frozen, and that is the first removal this corpus has had. It was triggered by a lab, not by
 anything that runs.
 
@@ -79,7 +78,7 @@ anything that runs.
 **No memory-staleness checker lives in this repository.** The measured case for one covers only
 the five "superseded by a recorded event" rows, every one machine-checkable. It is refused
 because the corpus is **machine-local**: `~/.claude/projects/…/memory/` is in neither
-repository, is in no CI checkout, and exists in **354** copies on this laptop alone. A
+repository, is in no CI checkout, and exists in **355** copies on this laptop alone (354 twenty minutes earlier in the same audit — the number moves with ordinary use). A
 `verify-*.sh` here would be green on one machine and vacuous everywhere else — a control
 reporting success over a scope smaller than it claims, which is this project's house failure
 mode and has already been paid for four times.
