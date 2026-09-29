@@ -109,3 +109,37 @@ Recorded rather than quietly amended, because it is the third instance of one sh
 stop: **a claim asserted over a scope wider than the thing that was actually done** — the
 collector comment, my `user.id` sentence, and now my own account of fixing them. The only thing
 that caught any of the three was re-reading the artifact instead of the claim about it.
+
+## And I did it again: §4a rule 4 violated a second time, 64 seconds into round 3
+
+The timeline, from git and the findings file's own name, not from memory:
+
+| time (UTC) | event |
+|---|---|
+| 18:53:50 | `06c709d` — the round-2 fixes land |
+| **18:54:16** | **round 3's review starts** (`findings/opencode/review-README-20260929T185416Z.md`) |
+| 18:54:52 | `41bd372` — review-response file only, not the subject |
+| **18:55:20** | **`a828e7f` — the workbook is edited, 64 seconds into the review** |
+
+Twice in one stop, both times because a fix could not wait for a ten-minute review. **The
+consequence, stated so nobody has to work it out:** round 3's answer on carry-over item (A) —
+*does the scrub conclusion still overreach?* — is **not reliable**, because the three sentences
+it turns on were rewritten while the review was reading the file, and nothing records which
+version it read.
+
+**So (A) is settled by a better instrument than a review round.** `grep -n` on the final file
+returns the three sites and all three now name the scope:
+
+```
+581:  | The scrub deletes record-level identity **in the logs pipeline** | …
+738:  … *(Scope, narrowed after §4a: the probe tested the LOGS pipeline only. …)*
+800:  … that deletion covers record-level attributes, in the logs pipeline, which is the
+      only pipeline probed.**
+```
+
+A grep answers *"does this file still say the wide thing"* exactly; a critic answers it
+probabilistically. Using the critic for it was the wrong choice twice over.
+
+**What should have happened, and is the rule for the next stop:** copy the artifact aside and
+review the copy, which §4a rule 4 says in as many words — or hold the fix until the round
+returns. A ten-minute review and a live edit do not share a file.
