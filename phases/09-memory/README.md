@@ -70,7 +70,9 @@ From the Claude Code memory documentation, read 2026-08-09. ~~Quotes verbatim.~~
 > not edited after the fact. The marker is here rather than only 160 lines below because the
 > §4a review of this workbook found that a reader meets the reversed claim first and the
 > correction second, which is the wrong order for the one sentence in this file that voided an
-> experiment.
+> experiment. **The marker covers the paragraph after the quotation too**, added at the close
+> from a round-3 finding: the word *"Unambiguous"* below reads the August quotation as settled,
+> and on the page today it is not — it is conditional on whether a `CLAUDE.md` exists.
 
 > "**Claude Code reads `CLAUDE.md`, not `AGENTS.md`.**"
 
@@ -169,6 +171,18 @@ A supply-chain control on instructions themselves. Worth knowing before Phase 7.
 
 ---
 
+> ⚠️ **None of the lab designs below carries a decision rule, and none may be run until it
+> does.** Added at the close, 2026-09-29, from four round-3 findings (§"Predict before you run",
+> Labs 9.1, 9.2 and 9.3, each at 1 of 2 runs). The panel's objection is the same one each time and
+> it is correct: *"re-verify or repeat"*, *"did it help?"* and *"measure whether memory biases the
+> result"* name no observation boundary, no exclusive outcomes and no combining rule, so one trace
+> can be scored either way after the fact. **That is not a defect this stop repairs — it is what
+> §4 step 3 of the run prompt exists to force**: a prediction with a direction, a magnitude and a
+> mechanism, committed before the first run, and the commit timestamp checked against the run's
+> `startedAt` afterwards. These labs are **deferred**; `n = 0` runs belong to any of them; nothing
+> here has been scored, so nothing here has been scored ambiguously. The marker is the guard
+> against a later session treating an August sketch as a registered design.
+
 ## Predict before you run
 
 1. Will the agent re-verify a remembered fact against source, or repeat it?
@@ -198,9 +212,15 @@ the result.
 
 ## Extract re-verified — 2026-09-29, spine stop 24
 
-Everything above this line was written **2026-08-09** and is kept verbatim. Nothing in it is
-edited; this section is what re-reading the cited pages on **2026-09-29** returned, 51 days
-later. *Written by Opus 5 (claude-opus-5), autonomously, at spine stop 24.*
+Everything above this line was written **2026-08-09**. **No sentence of it is edited** — but it
+is no longer true that nothing above this line is dated 2026-09-29, and a round-3 panel was right
+to say the earlier wording claimed otherwise. **Dated marker blocks have been *added* above**, at
+the three places where a reader meets a claim this section later refutes. Adding a marker beside
+a sentence and editing the sentence are different acts: the first leaves the measured object
+intact and the second destroys it, which is why §6 forbids only the second. This section is what
+re-reading the cited pages on **2026-09-29** returned, 51 days later.
+*Written by Opus 5 (claude-opus-5), autonomously, at spine stop 24; the wording above corrected
+at the close, same day, from the round-3 review.*
 
 ### Why this section exists at all
 
@@ -394,6 +414,23 @@ source_run_id: …      source_commit: …     verifying_command: …
 exit_code: 0          verified_at: …       expires_after_days: 90
 ```
 
+> ⚠️ **That block is not valid YAML and anyone who copies it loses four of the six fields.**
+> Found by the round-3 panel at the close, 2026-09-29. Three `key: value` pairs on one line parse
+> as a **single scalar**: `source_run_id` takes the string `…      source_commit: …
+> verifying_command: …`, and `source_commit`, `verifying_command`, `verified_at` and
+> `expires_after_days` never exist as keys — so the very lab whose point is *provenance you can
+> check* ships frontmatter whose provenance fields silently are not there. **The August block is
+> kept above, unedited, because it is the artifact; the parseable form is here.**
+
+```yaml
+source_run_id: …
+source_commit: …
+verifying_command: …
+exit_code: 0
+verified_at: …
+expires_after_days: 90
+```
+
 Then check: **how many existing entries can you actually fill in?** The ones you cannot are
 knowledge you have no evidence for. That count is the finding.
 
@@ -487,8 +524,26 @@ discount it.
 ### The result: 7 of 25 advertised claims are false, and no control executes over the corpus
 
 The audited unit is the claim each memory advertises in its `MEMORY.md` index line — **15
-memories, 25 individually decidable assertions**, each with the command that decided it in the
-evidence file.
+memories, 25 assertions**.
+
+~~25 individually decidable assertions, each with the command that decided it in the evidence
+file.~~ → **corrected 2026-09-29 at the close; the struck text is kept.** It is false on this
+section's own numbers, six lines below it: **7 of the 25 are `undecidable by command`.** The
+split, which the validation table below already carried and this sentence did not:
+
+| | n | what it means |
+|---|---|---|
+| decided by running a command | **18** | the command and its output are in the evidence file |
+| command exists, **deliberately not run** | **2** | running it *is* the destructive act the memory warns about |
+| **no command at all** | **5** | judged by reading; nothing executes on them |
+| | **25** | |
+
+**This is the stop's own failure mode committed against the stop's own artifact.** The 18/2/5
+split was added to the validation table after a round-2 panel pressed on it; the head claim
+eighty lines upstream — *where a reader meets it first* — was left saying something else. That is
+exactly the defect an earlier round of this same review caught in this same file and that its
+fix was supposed to be general: **mark the upstream text, do not only correct the narration.**
+Caught here by the acceptance gate of the codex + `deepseek-v4-pro` panel, blocking entry (1).
 
 | Verdict | n |
 |---|---|
@@ -637,17 +692,35 @@ minutes, which is a property of that harness and of nothing this lab set out to 
 
 | Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
 |---|---|---|---|
-| §3 row 24: *"Phase 9 memory: reading, extract, one lab"* — **reading** | `phases/09-memory/README.md` §"Verified reading" + §"Extract re-verified — 2026-09-29" (commit `cb10974`) | L1 — committed file, §6 forbids rewriting it | `git show cb10974 -- phases/09-memory/README.md` |
+| §3 row 24: *"Phase 9 memory: reading, extract, one lab"* — **reading** | `phases/09-memory/README.md` §"Verified reading" + §"Extract re-verified — 2026-09-29" (commit `cb10974`) | ~~L1 — committed file, §6 forbids rewriting it~~ → **L3**, corrected at the close. Applied in order: a wrong sentence *can* still be written into this file, and §6 is prose no command enforces. Nothing executes, so **L3** — the same answer this workbook gives the frozen audit file eighty lines above, and the gate was right that the two rows disagreed | `git show cb10974 -- phases/09-memory/README.md` |
 | §3 row 24 — **extract** | same commit; `evidence/p09/quote-verification-20260929T1105Z.txt` (found=3 absent=5, exit 2), re-run at the close as `…-20260929T1210Z-close.txt` with the same cells | L2 — `tools/verify-quotes.sh` executes and exits non-zero. **`absent` means `grep -qF` found no byte-exact occurrence of the sentence in the stripped page text** (`tools/verify-quotes.sh:173`) — not normalised, not semantic. That is precisely why the instrument cannot separate *reworded* from *reversed* from *never verbatim*, and why the three-way split had to be adjudicated by hand | `./tools/verify-quotes.sh evidence/p09/quotes-p09.tsv` |
 | §3 row 24 — **one lab** | `evidence/p09/memory-audit-20260929T1119Z.md` (25 assertions, verdicts, deciding commands) + `governance/memory-policy.md` | **L2 for the 18 rows a command actually decided; L3 for the adjudication of which category a failure falls into.** Both round-2 panels pressed on this number and it is worth being exact: **18** rows were decided by running a command; **2 more have a command that exists and was deliberately not run**, because running it *is* the destructive act the memory warns about; **5 have no command at all.** 18 + 2 + 5 = 25. “Rows a command decides” reads as 18 or 20 depending on whether you count the two refusals, so the artifact states all three numbers instead of choosing one | open the audit file; re-run any row's command from its own cell |
-| §3 row 24 closes when — **evidence on disk** | the two files above, plus `evidence/p09/codex-isolation-20260929T1125Z-handrun.txt` and `evidence/p09/smoke-20260929T1114Z.txt` | L1 | `ls evidence/p09/` |
-| Phase 9 exit gate clause 1 — *distinguish the five* | run `feb68170-395a-49a8-afb1-b7222b81e4c6`, `.customization` = 7 keys, **all null**. **This is §0a preflight row 6b, not a run of this lab** — it enters no comparison and is cited only as an example of what a delivery proof looks like | **L1** — the API record is written by the runner, not asserted | `curl -s 127.0.0.1:8081/api/runs/feb68170-395a-49a8-afb1-b7222b81e4c6 \| jq '.customization'` |
+| §3 row 24 closes when — **evidence on disk** | the two files above, plus `evidence/p09/codex-isolation-20260929T1125Z-handrun.txt` and `evidence/p09/smoke-20260929T1114Z.txt` | ~~L1~~ → **L3**, corrected at the close. `ls` *runs*, but nothing **rejects**: a claim that evidence exists when it does not is written down freely and is caught only by a human reading the listing | `ls evidence/p09/` |
+| Phase 9 exit gate clause 1 — *distinguish the five* | run `feb68170-395a-49a8-afb1-b7222b81e4c6`, `.customization` = 7 keys, **all null**. **This is §0a preflight row 6b, not a run of this lab** — it enters no comparison and is cited only as an example of what a delivery proof looks like | **L1** — and this is the one sense of L1 that survives the regrade: the `customization` block is written by the runner into the API and **cannot be typed by hand into a workbook and made true**. The bad value is unwritable at the source, which is what L1 means | `curl -s 127.0.0.1:8081/api/runs/feb68170-395a-49a8-afb1-b7222b81e4c6 \| jq '.customization'` |
 | Phase 9 exit gate clause 2 — *why not interchangeable* | `experiments/E-003-instructions-v0.1.md` (the rejection that a delivery proof made possible) vs the absence of any hash over the memory corpus | L3 — an argument, not a control; labelled L3 for that reason | read E-003's delivery section, then `grep -c Hash` over any memory file: zero |
 | *"nothing executes over this corpus"* — the stop's sharpest claim | `evidence/p09/no-control-over-memory-20260929T1150Z.txt` — three searches, zero matches: no CI workflow in any of the three repositories, no hook in `~/.claude/settings.json`, no tool under `tools/` | **L2** — three commands execute over enumerable sets and return zero matches; a reader re-runs them. Not L1: nothing prevents someone adding a checker tomorrow, and L1 is about what cannot be written down. **The rule that separates this from the guardrail table's “not a layer” row**, which a round-2 panel asked for: this column grades **the proof of a claim**, and this claim is proved by commands that run — L2. The guardrail table grades **a control over the corpus**, and there is none, so “not a layer”: you cannot grade a thing that does not exist. Two different objects, one of which is the *absence* of the other | re-run the three commands in that file; each must print no matches |
 | §4 step 10 — *decision recorded from measurement* | §"What was decided" above; the 5-of-7 machine-checkable class and the 354-copy scope argument | L3 | `ls -d ~/.claude/projects/*/memory \| wc -l` — **expect a number in the mid-300s that is not 355.** It read 354 at 11:1xZ and 355 at 11:4xZ; a stranger re-deriving it should get a *different* value and that is the point. What is re-derivable is the **order of magnitude and the direction**: hundreds of stores, growing |
-| §5 — *at least one scored cell re-read by hand* | preflight row 6b re-derived **by me off the API**, not taken from the subagent: 7 keys, all null, model `claude-haiku-4-5-20251001`, evalExit 0 | **L1** | the `curl … \| jq` above |
+| §5 — *at least one scored cell re-read by hand* | preflight row 6b re-derived **by me off the API**, not taken from the subagent: 7 keys, all null, model `claude-haiku-4-5-20251001`, evalExit 0 | **L1**, same sense as the row above — an API record, not a hand-written value | the `curl … \| jq` above |
 | §5 — *every number quoted has its `n`* | `n = 25 assertions, 15 memories, 1 machine`, stated at every occurrence | L3 | read the section |
-| §5 — *re-run every verification command immediately before writing done* | §0a re-run in full this session; row 6a re-run **by hand** and its output saved | L1 for the saved output, L3 for the claim that it was the last act | `cat evidence/p09/codex-isolation-20260929T1125Z-handrun.txt` |
+| §5 — *re-run every verification command immediately before writing done* | §0a re-run in full this session; row 6a re-run **by hand** and its output saved | ~~L1 for the saved output~~ → **L3 throughout**, corrected at the close. A saved stdout file is as editable as any other file and nothing re-runs it; the ordering claim was already L3 | `cat evidence/p09/codex-isolation-20260929T1125Z-handrun.txt` |
+
+**What this column grades, added at the close because the gate proved it was not obvious.**
+It grades **the proof of the clause**, never the artifact the clause is about (§5 says so; it is
+easy to read past). The acceptance gate of the codex + `deepseek-v4-pro` panel blocked on the
+table using **L1 in three incompatible senses** and it was right. The three, separated:
+
+| Sense in which the table said "L1" | Verdict on regrade |
+|---|---|
+| *a value nothing can hand-write* — the runner writes `customization` into the API record | **This is L1.** Two rows keep it |
+| *a committed file, which §6 forbids rewriting* | **L3.** §6 is prose; nothing executes on it |
+| *the file exists and `ls` shows it* | **L3.** `ls` runs, but nothing rejects — a human reads the listing |
+
+**That is four layer mislabels at this one stop, in four different artifacts, every one of them
+over-claiming**, and three of the four were caught by the review rather than by me — after I had
+written a section about the layer rule and corrected three of my own. The rule is four sentences
+at the top of the workspace `CLAUDE.md`. **Reading it is not the failure mode; applying it to a
+whole table at once instead of to one binding at a time is.** Every correction here came from
+asking the two questions again, in order, about *one* row.
 
 **One row deliberately not claimed.** There is no independence check between arms, because
 there are no arms: this lab has `n = 0` benchmark runs and compares no populations. Writing an
@@ -861,3 +934,53 @@ order rather than to the artifact as a whole:
 order to one binding at a time instead of to the artifact**, and all three moved in the direction
 `CLAUDE.md` does not warn about: not a schema note mistaken for a control, but a control mistaken
 for absent.
+
+---
+
+### §4a round 4, third attempt — the panel that two stalls had been hiding, and it was right twice
+
+Two attempts on the default `glm-5.2` critic failed: one completed run 1 and lost the gate
+(`exit 1`), one produced a 762-byte header and nothing else. Both files are committed. The third
+attempt used **`-P codex,deepseek-v4-pro`** — the panel §4a reserves for registered variables, and
+the route around this machine's known stall mode — and both families returned: codex in **48 s**,
+`deepseek-v4-pro` in **107 s**, against 243 s and a 461 s failure from the stalling critic.
+
+**Verdict `REJECT`, `blocking:` with two entries, and both were contradictions inside text this
+stop wrote.** Not in the August material, which has been marked five times over; in the September
+sections.
+
+| | Blocking finding | Disposition |
+|---|---|---|
+| 1 | The §"Lab 9.4 executed" head claim said **"25 individually decidable assertions, each with the command that decided it"** — six lines above its own table reading `undecidable by command: 7` | **Fixed.** The 18 / 2 / 5 split is now at the head claim, where a reader meets it, and the struck sentence is kept |
+| 2 | The validation table graded **`L1` in three incompatible senses**, one of which the workbook's own layer table refutes eighty lines earlier | **Fixed.** Five rows regraded, two keep `L1` with the sense named, and the three senses are tabled |
+
+**Blocking 1 is this stop's own lesson failing against this stop's own artifact.** The 18/2/5
+split was added to the validation table because a round-2 panel pressed on it. The head claim
+upstream was left saying something else — which is *precisely* the defect an earlier round caught
+in this same file, whose fix was supposed to be general: **mark the upstream text, do not only
+correct the narration.** It was not general. It was one edit.
+
+**Blocking 2 makes four layer mislabels at one stop, in four artifacts, every one over-claiming**
+— and three of the four were found by the review, after I had written a section about the layer
+rule and corrected three of my own labels inside it. The regrade note under the validation table
+states the rule that came out of it: **apply the two questions to one binding at a time, not to a
+table.**
+
+**The ten line-level findings, every one at 1 of 2 runs, and what each got.** §4a's rule that
+recurrence is a detection threshold and not a truth value is doing real work here: nine of these
+ten were raised by exactly one of two families, and eight of them were right.
+
+| # | Finding | Disposition |
+|---|---|---|
+| 1 | *"Unambiguous, and it was in the docs the whole time"* still reads the reversed August quotation as settled, below a marker that covers only the quotation | **Fixed** — the marker now names the paragraph too |
+| 2–5 | §"Predict before you run" and Labs 9.1–9.3 define no observation boundary, no exclusive outcomes and no combining rule, so one trace scores either way | **Fixed by marker, and disputed in part.** These labs are **deferred at `n = 0` runs**, so nothing has been scored ambiguously. Writing their decision rules is §4 step 3 of the stop that runs them, not of the stop that reads the phase. The marker is the guard against a later session mistaking an August sketch for a registered design |
+| 6 | *"Everything above this line was written 2026-08-09 and is kept verbatim. Nothing in it is edited"* — contradicted by the dated markers since **added** above it | **Fixed.** No sentence of the August text is edited; markers were added beside it. The wording now separates the two acts and says why §6 forbids only one of them |
+| 7 | The schema's `embedding vector(768) -- only at step 4 below` resolves to no step that adds embeddings | **Already fixed at round 2**, by the marker directly under the block; this is a recurrence against a fix the critic did not read as one. No further change |
+| 8 | Lab 9.5's frontmatter block is **not valid YAML** — three pairs on a line parse as one scalar, so four of six fields do not exist | **Fixed.** August block kept unedited, parseable form added beside it. The lab whose point is checkable provenance was shipping frontmatter whose provenance fields silently were not there |
+| 9a / 9b | The same two contradictions the gate blocked on | **Fixed**, above |
+| 10 | Cross-cutting: exit-gate clauses duplicated as validation gates; labs define no trial boundaries; the layer rule is applied inconsistently to evidence records | **Half fixed, half disputed.** The layer half is the regrade. The duplication half is **disputed**: §5 of the run prompt requires the validation table to carry each gate clause *verbatim* and answer it from evidence, so the clause appearing in both places is the instrument's design and not a defect in the artifact |
+
+**Nothing in the audit's numbers moved.** The two blocking findings were about sentences that
+described the measurement, not about the measurement: `found=3 absent=5` on the extract and
+10 / 1 / 5 / 2 / 7 on the memory corpus are the same before and after, and the evidence files
+they were read from are untouched.
