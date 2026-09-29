@@ -1,0 +1,15 @@
+# Does ANYTHING execute over the Claude auto-memory corpus?  2026-09-29T11:5xZ
+# Run from the workspace root. Empty output under each heading = nothing matched.
+
+$ for f in */.github/workflows/*.yml; do awk '/projects\/.*memory|MEMORY\.md|claude\/projects/{print FILENAME": "FNR}' "$f"; done
+(no matches)
+
+$ awk '/memory|MEMORY/{print FNR}' ~/.claude/settings.json
+(no matches)
+
+$ for f in tools/*.sh; do awk '/claude\/projects|MEMORY\.md/{print FILENAME": "FNR}' "$f"; done
+(no matches)
+
+CONCLUSION: no CI workflow in any of the three repositories, no hook in ~/.claude/settings.json,
+and no tool under agent-learning-lab/tools/ reads the memory corpus. The claim 'nothing executes
+over this corpus' is a proved negative, not an assertion.
