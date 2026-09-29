@@ -211,7 +211,11 @@ loop_step: 14  # *** §0 BOUNDARY 2 OF 2 FOR A TRACK A STOP: "after the PR". THE
                # bad value was planted on purpose to see whether the control rejects it, with
                # its prediction committed first. Recorded as what it is, not claimed as step 9.
 branch: stop25/phase-10-production-observability (agent-learning-lab) - *** MERGED into main
-        # via PR lab#138 at 0ff187dcfda4f5705f9dec5a0565aaee76e4bb97. Created from main at `b3f046e`; 14 commits.
+        # via PR lab#138 at 0ff187dcfda4f5705f9dec5a0565aaee76e4bb97. Created from main at
+        # `b3f046e`; *** 18 commits + the merge ***, re-derived with
+        # `git rev-list --count --no-merges b3f046e..0ff187d`. (This line first said "14
+        # commits" - the number as it stood when the state block was DRAFTED, before the three
+        # review rounds added their own commits. Corrected in lab#142.)
 in_flight: []   # *** EMPTY. NOTHING OF MINE IS RUNNING AND NOTHING IS UNMERGED except this
                 # state write. *** Checked with the NARROW pattern
                 # `LC_ALL=C pgrep -fl 'run-agent.sh|codex exec|opencode-review.sh'`.
@@ -240,8 +244,13 @@ last_verified: "2026-09-29T18:0xZ - 2026-09-29T19:xxZ, *** STOP 25 CLOSED AND ME
   the report format it was not asking about.
   §4 STEP 13: the §5 table, 14 rows, every layer label applied IN ORDER.
   §4 STEP 13a: *** THREE §4a ROUNDS on the panel -P codex,deepseek-v4-pro. *** Rounds 1 and 2
-  both REJECT; every finding FIXED or DISPUTED IN WRITING in evidence/p10/REVIEW-RESPONSE.md,
-  28 numbered dispositions. ONE ROUND-1 DISPUTE WAS WITHDRAWN on round 2's evidence.
+  both REJECT and *** ROUND 3 ACCEPT ***, which is what closed the loop (§4a step 3 stops on
+  ACCEPT, not on the three-round limit). Every finding FIXED or DISPUTED IN WRITING in
+  evidence/p10/REVIEW-RESPONSE.md: *** 38 NUMBERED DISPOSITIONS - 12 FIXED, 3 conceded without a
+  fix and said so, the rest disputed with a reason, NONE disputed as `stylistic`. *** ONE
+  ROUND-1 DISPUTE OF MINE WAS WITHDRAWN on round 2's evidence.
+  (This entry first said "28 numbered dispositions" and named only rounds 1 and 2's verdicts.
+   Both corrected in lab#142 by counting the rows rather than trusting the draft.)
   §4 STEP 14: PR lab#138 merged at 0ff187dcfda4f5705f9dec5a0565aaee76e4bb97, HANDOFF updated, lab#12 commented and its card
   moved to Done while the ISSUE STAYS OPEN (labs deferred), read back.
   *** WHAT THE REVIEW CHANGED, AND IT IS THE SESSION'S REAL RESULT: ***
