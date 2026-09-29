@@ -13,3 +13,20 @@ $ for f in tools/*.sh; do awk '/claude\/projects|MEMORY\.md/{print FILENAME": "F
 CONCLUSION: no CI workflow in any of the three repositories, no hook in ~/.claude/settings.json,
 and no tool under agent-learning-lab/tools/ reads the memory corpus. The claim 'nothing executes
 over this corpus' is a proved negative, not an assertion.
+
+--- ADDENDUM 2026-09-29T11:54Z: the searched SETS, enumerated ---
+A negative result is worthless if the glob matched nothing. This project's house failure mode is
+a control reporting success over a scope smaller than it claims, so the scope is written out:
+
+  6 workflow files, 639 lines total, across all three repositories:
+    agent-learning-lab/.github/workflows/ci.yml                    249 lines
+    agent-observatory/.github/workflows/ci.yml                     168 lines
+    agent-observatory-benchmarks/.github/workflows/fixture-tests.yml     33 lines
+    agent-observatory-benchmarks/.github/workflows/review-hook.yml       47 lines
+    agent-observatory-benchmarks/.github/workflows/shellcheck.yml        39 lines
+    agent-observatory-benchmarks/.github/workflows/verify-evaluator.yml 103 lines
+  ~/.claude/settings.json                                          420 lines
+  agent-learning-lab/tools/*.sh                                     38 files
+
+Zero of those 45 files mentions the memory corpus. The searched set is non-empty and enumerated,
+so "no matches" means no matches and not "no files".
