@@ -3,10 +3,17 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at "The author's decision of 2026-09-26" immediately below the Position section. It is the
-newest section: the batch ceiling is now a RULE rather than a flat number, which is the thing that
-bit stop 17a. Positions 4–19 are CLOSED, stop 20 (B9) is OPEN with its prediction commit on the
-branch and nothing run, and NOTHING is blocked on the author.**
+**Start at the Position section immediately below. Positions 4–25 are CLOSED — stop 25 (Phase 10)
+closed 2026-09-29 — stop 26 (B11) is NOT OPENED, and NOTHING is blocked on the author.**
+
+*(Superseded pointer, kept — and it had gone stale by FIVE stops, which is the worst this line has
+managed:)* "Start at \"The author's decision of 2026-09-26\" immediately below the Position section.
+It is the newest section: the batch ceiling is now a RULE rather than a flat number, which is the
+thing that bit stop 17a. Positions 4–19 are CLOSED, stop 20 (B9) is OPEN with its prediction commit
+on the branch and nothing run, and NOTHING is blocked on the author." **Stops 20, 21, 22, 23, 24 and
+25 have all closed since.** This is the sixth recorded staleness of the line whose job is to tell a
+reader where to start, and the argument for generating it from `TRACK-B-STATE.md` rather than
+maintaining it by hand is now six occurrences old.
 
 *(Superseded pointer, kept:)* "Start at \"Stop 17a — B8a CLOSED\" immediately below the Position
 section. It is the newest section: stop 17a closed 2026-09-25 with the verdict `NO ROW FIRES` and
@@ -43,6 +50,60 @@ beside them, the one thing that did move: **an L3 prose boundary held when conte
 against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
+
+**Spine 25 of 28. Positions 4–25 CLOSED — 25 (Phase 10 — production observability) closed
+2026-09-29 with `n = 0` benchmark runs commissioned.** The stop read the phase, wrote a
+second-pass extract, and **ran Lab 10.0** — all three of its checkboxes answered, two of them
+from evidence that was already on disk and unread. **NOTHING is blocked on the author.**
+`lab#12` (Phase 10) **stays open**: a Phase issue closes only when its gate is met from
+measurement, and Labs 10.1 onward are untouched. `lab#11`, `lab#10`, `lab#9`, `lab#16` and
+`lab#8` stay open on the same basis from stops 24, 23, 22, 19 and 18. **Stop 26 (B11 —
+efficiency) is NOT OPENED and nothing of it exists**; §6 forbids a future step's artifacts
+early, and opening it at §4 step 1 is the next session's first act.
+
+**Two findings, and both are about the instrument rather than about the agent under test.**
+
+**1. The acceptEdits-headless scenario had already run fourteen times and nobody had looked.**
+Lab 10.0's second checkbox — *does `claude_code.tool.blocked_on_user` appear under
+`--permission-mode acceptEdits`, headless, on a task needing a build?* — was recorded as open
+because obs#48 had only seen the span type on a two-tool probe. It is not open. This session's
+own §0a preflight run `e488ed2e` is that scenario element for element (`run-agent.sh:838`
+acceptEdits, `:884` headless `-p`, BE-001 `build: true` / `tests: true`), and it emitted the
+span **14 times against 14 tool calls — 1:1, on every Bash, Read and Edit**. Every one of the
+fourteen carries `decision: "unknown"` and `source: "unknown"`, 2–6 ms long. **In a headless
+run no user can block on anything**, so a panel counting that span would have reported
+**14 human interventions in a run where zero were possible.** That is this phase's own thesis —
+*usage is not impact* — arriving as a measurement instead of a slogan, and it is direct evidence
+for obs#47, still open. `n = 1 run, 14 spans`; stated as true of that run.
+
+**2. The privacy control is real, and it is true over a smaller scope than its own comment
+claims.** `infra/otel-collector/config.yaml:5-8` says the scrub processor deletes identity and
+content *"even if a runtime is misconfigured and sends them."* It had never been shown to reject
+anything: `user.email` is absent from **102 276 888 bytes / 12 697 lines** of this project's
+collector output, and a zero cannot separate *deleted* from *never sent*. So a negative control
+was run — one synthetic OTLP record planting `user.email` **twice**, once on the resource and
+once on the log record, prediction committed at `4af56b3` **before** the probe. Result, exactly
+as predicted: the record-level `user.email`, `gen_ai.prompt` and `tool.arguments` were
+**deleted**; the **resource-level `user.email` survived verbatim** onto disk. The Collector's
+`attributes` processor does not touch the resource, and no `resource` processor is configured in
+any pipeline. **The misconfiguration the comment names — "a single wrong env var on a laptop" —
+is precisely the class that lands on the resource**, because `OTEL_RESOURCE_ATTRIBUTES` is an
+env var. No leak occurred and none is claimed; the finding is the scope of the guard.
+
+**What was deliberately not done.** No collector fix — that is an observatory change and outside
+this stop's one variable. No dashboard or gate script for either finding — stop 28 owns B13 and
+§6 forbids a future step's artifacts. Exit-gate item 3 (*"my comparison dashboard shows
+uncertainty"*) is therefore **left unticked and names its owner** rather than being answered by
+the report format it was not asking about.
+
+**The house failure mode appeared twice at this stop, in two different instruments.** At
+boundary 1 a markdown-converting web fetch reported *"the page does not document
+OpenTelemetry"* for a page holding `OpenTelemetry` ×10 and `OTEL_` ×66 — absence reported over a
+scope smaller than the page, caught only because `SOURCES.md` told the reader to search for the
+term. At boundary 2 the collector comment claimed a scope its processor does not reach. Neither
+was caught by anything that executes.
+
+## Position — superseded 2026-09-29 at the stop-25 close
 
 **Spine 24 of 28. Positions 4–24 CLOSED — 24 (Phase 9 — memory) closed 2026-09-29 with
 `n = 0` benchmark runs.** PR **`lab#136` → `7e3e1df223fc32ad3613e31671ab257647bd34df`**, a
