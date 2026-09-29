@@ -32,3 +32,14 @@ RECORD     event.name          = p10.scrub.probe
 by this probe. The finding is the scope of the control, not an exposure.
 
 *Probed by Opus 5 (claude-opus-5), autonomously, 2026-09-29T18:06Z.*
+
+## One citation in the prediction file is wrong, and it is not corrected there
+
+`PREDICTION-scrub-scope.md` cites the collector's privacy comment as
+`infra/otel-collector/config.yaml:5-8`. **The comment is at lines 3–5.** Verified by
+`sed -n '1,10p' … | cat -n` after the probe.
+
+The prediction file is **not edited** — §4 step 12: *never edit a prediction after its run* —
+so the correction lives here. Nothing else in the prediction moves: the text quoted from the
+comment is verbatim and the mechanism, direction and magnitude are unaffected by which line
+number the comment sits on. Every other artifact of this stop cites `config.yaml:3-5`.
