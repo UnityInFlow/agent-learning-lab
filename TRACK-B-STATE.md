@@ -131,9 +131,13 @@ status: running   # *** §0 BOUNDARY 2 OF 2 FOR STOP 25 (PHASE 10 - PRODUCTION O
                   #
                   # *** WHAT THIS SESSION DID: the §0a preflight in full (15th consecutive
                   # session), then §4 steps 11, 13, 13a and 14 for stop 25 - Lab 10.0 RUN with
-                  # all three checkboxes answered, the §5 table, two §4a review rounds with
-                  # every finding fixed or disputed in writing, the PR, the merge, HANDOFF and
-                  # the GitHub closure. n = 0 BENCHMARK RUNS WERE COMMISSIONED. ***
+                  # all three checkboxes answered, the §5 table, *** THREE §4a review rounds
+                  # (REJECT, REJECT, ACCEPT) *** with all 38 findings fixed or disputed in
+                  # writing, the PR, the merge, HANDOFF and the GitHub closure. n = 0 BENCHMARK
+                  # RUNS WERE COMMISSIONED. ***
+                  # (Corrected in lab#141: this line first read "two §4a review rounds". Round 3
+                  #  is the one that ACCEPTED, so undercounting it dropped the only round whose
+                  #  verdict closed the loop.)
                   #
                   # *** THE TWO FINDINGS, AND BOTH ARE ABOUT THE INSTRUMENT: ***
                   # (1) `claude_code.tool.blocked_on_user` fires 1:1 WITH TOOL CALLS - 29 of 29
@@ -184,12 +188,20 @@ prompt_read_at: 2026-09-29T18:0xZ   # *** WHOLE PROMPT RE-READ IN FULL THIS SESS
 stop: 25           # *** CLOSED AND MERGED 2026-09-29 at n = 0 BENCHMARK RUNS COMMISSIONED,
                    # which is what §3's itinerary row 25 asks for: "Phase 10: reading, extract,
                    # Lab 10.0 written up from the #48 fix", closing on `evidence on disk`.
-                   # THE EVIDENCE IS AT evidence/p10/ - 9 files.
+                   # THE EVIDENCE IS AT evidence/p10/ - *** 12 FILES ***, counted on merged
+                   # `main` at 7810246. (Corrected in lab#141: this line first read "9 files",
+                   # and the closing comment on lab#12 first read "11" and carries its own
+                   # correction. A count asserted without re-deriving it is the exact defect this
+                   # stop spent three review rounds on, and I made it twice in the mirrors.)
                    # *** THE PHASE ISSUE lab#12 STAYS OPEN *** - Labs 10.1 onward are untouched
                    # and §4 step 14 closes a Phase issue only when its gate is met FROM
                    # MEASUREMENT. Its card moved to Done and lab#12 was READ BACK as still
-                   # `open` afterwards, which is the check the board automation needs (it
-                   # auto-closes on a move to Done).
+                   # `open` afterwards, which is the check the board automation needs.
+                   # *** AND IT FIRED: THE AUTOMATION DID AUTO-CLOSE lab#12 ON THE CARD MOVE.
+                   # It was REOPENED immediately and a comment on the issue says so. The read-back
+                   # after reopening is `state: open`. This is the trap that left lab#9 closed for
+                   # two days at the stop-24 close; it was caught this time because the read-back
+                   # happened. ***
                    # *** NOTHING OF STOP 26 (B11) EXISTS. ***
 loop_step: 14  # *** §0 BOUNDARY 2 OF 2 FOR A TRACK A STOP: "after the PR". THE LOOP IS
                # COMPLETE. *** Steps 3-10 do not apply to a Track A stop whose lab runs no
