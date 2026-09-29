@@ -63,18 +63,27 @@ early, and opening it at §4 step 1 is the next session's first act.
 
 **Two findings, and both are about the instrument rather than about the agent under test.**
 
-**1. The acceptEdits-headless scenario had already run fourteen times and nobody had looked.**
+**1. The acceptEdits-headless scenario had already run, twice, and nobody had looked.**
 Lab 10.0's second checkbox — *does `claude_code.tool.blocked_on_user` appear under
 `--permission-mode acceptEdits`, headless, on a task needing a build?* — was recorded as open
 because obs#48 had only seen the span type on a two-tool probe. It is not open. This session's
-own §0a preflight run `e488ed2e` is that scenario element for element (`run-agent.sh:838`
-acceptEdits, `:884` headless `-p`, BE-001 `build: true` / `tests: true`), and it emitted the
-span **14 times against 14 tool calls — 1:1, on every Bash, Read and Edit**. Every one of the
-fourteen carries `decision: "unknown"` and `source: "unknown"`, 2–6 ms long. **In a headless
-run no user can block on anything**, so a panel counting that span would have reported
-**14 human interventions in a run where zero were possible.** That is this phase's own thesis —
-*usage is not impact* — arriving as a measurement instead of a slogan, and it is direct evidence
-for obs#47, still open. `n = 1 run, 14 spans`; stated as true of that run.
+two §0a preflight runs, `e488ed2e` and `606ab03e`, are that scenario element for element
+(`run-agent.sh:838` acceptEdits, `:883-885` headless `-p`, BE-001 `build: true` / `tests: true`),
+and they emit the span **29 times against 29 tool calls — 1:1 in each run, on every Bash, Read
+and Edit**. **In a headless run no user can block on anything**, so a panel counting that span
+would have reported **29 human interventions across two runs in which zero were possible.**
+
+**The first run said the span carries nothing; the second refuted that, and the refutation is
+the better finding.** On `e488ed2e` all 14 read `decision: "unknown"`. On `606ab03e`, 13 read
+`unknown` and **2 read `reject`** — and those 2 are exactly the 2 tool calls with no
+`claude_code.tool.execution` span, both `Bash` (`cd`, `git`), both refused by the runner's
+three-entry `--allowedTools` allowlist at `run-agent.sh:838-841`. So **the span counts tool
+calls and the `decision` attribute is the discriminator**; `source` is `unknown` on **29 of 29**,
+so the telemetry never says *what* refused the call — that the allowlist did is deduced, not
+read. And a static allowlist refusing `git`, recorded under a span named `blocked_on_user` in a
+run with no human in it, is **direct evidence for obs#47** (*permission-mode block recorded as
+incorrect code*), still open. `n = 2 runs, 29 spans`, per-run split shown rather than only
+pooled.
 
 **2. The privacy control is real, and it is true over a smaller scope than its own comment
 claims.** `infra/otel-collector/config.yaml:5-8` says the scrub processor deletes identity and

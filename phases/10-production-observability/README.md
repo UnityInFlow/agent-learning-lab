@@ -363,53 +363,81 @@ makes the `traceUrl` in every run record since M6 resolve. Evidence:
 One version observation is `n = 1` and is stated as true of this run, not as a property of
 the build.
 
-### Checkbox 2 — the acceptEdits-headless scenario → **RUN, NOT DEFERRED, and the answer is worse than "yes"**
+### Checkbox 2 — the acceptEdits-headless scenario → **RUN, NOT DEFERRED, twice, and the answer is not the one the name implies**
 
 The second-pass extract logged this as open because the #48 probe saw the span type on a
-*two-tool probe* rather than under the checkbox's scenario, and warned that reading the one
-as the other would be a scope claim the probe does not support. **The scenario has in fact
-been run — repeatedly — and nobody looked.** Run `e488ed2e` is:
+*two-tool probe* rather than under the checkbox's scenario, and warned that reading the one as
+the other would be a scope claim the probe does not support. **The scenario has in fact been
+run — repeatedly — and nobody looked.** Runs `e488ed2e-9f90-4e5b-b7d1-53871b8d2755` and
+`606ab03e-1171-494c-97f1-6dc2f485ba9c`, this session's two §0a row-6b preflight runs, are both:
 
-| The checkbox asks for | Run `e488ed2e` | Proof |
+| The checkbox asks for | Both runs | Proof |
 |---|---|---|
-| headless | `claude -p … --output-format stream-json --verbose` | `runner/run-agent.sh:884` |
-| `--permission-mode acceptEdits` | yes, it is a literal element of `CLAUDE_ARGS` | `runner/run-agent.sh:838` |
+| headless | `claude "${CLAUDE_ARGS[@]}" --output-format stream-json --verbose -p "$(cat …/task.md)"` | `runner/run-agent.sh:883-885` |
+| `--permission-mode acceptEdits` | yes, a literal element of `CLAUDE_ARGS` | `runner/run-agent.sh:838` |
 | a task needing a build | BE-001, `build: true`, `tests: true`, gates `maven_build` / `maven_test` | `agent-observatory-benchmarks/tasks/BE-001-customer-validation/benchmark.yaml:9-19` |
-| does `claude_code.tool.blocked_on_user` appear? | **yes — 14 times** | census below |
+| does `claude_code.tool.blocked_on_user` appear? | **yes — 14 times and 15 times** | census below |
 
-**The census, and it is the finding**
-([`evidence/p10/checkbox2-span-census.txt`](../../evidence/p10/checkbox2-span-census.txt)):
+**The census** — `evidence/p10/checkbox2-span-census.txt`, plus the replication trace
+`evidence/p10/trace-606ab03e-replication.json`. Both runs are Claude Code `service.version`
+2.1.284 on BE-001:
+
+| span | run `e488ed2e` | run `606ab03e` | pooled |
+|---|---|---|---|
+| `claude_code.interaction` | 1 | 1 | 2 |
+| `claude_code.llm_request` | 15 | 12 | 27 |
+| `claude_code.tool` | 14 | 15 | **29** |
+| `claude_code.tool.blocked_on_user` | 14 | 15 | **29** |
+| `claude_code.tool.execution` | 14 | 13 | 27 |
+
+**It fires 1:1 with tool calls in both runs — 29 of 29, on every Bash, Read and Edit.** In a
+headless run there is no user, so nothing could block on one. **A panel counting this span
+counts tool calls**, and would have reported 29 human interventions across two runs in which
+zero were possible.
+
+**The first run said the span carries nothing; the second run refuted that, and the refutation
+is the better finding.** On `e488ed2e` all 14 read `decision: "unknown"`. On `606ab03e`,
+**13 read `unknown` and 2 read `reject`** — and the 2 are exactly the 2 tool calls that have no
+`claude_code.tool.execution` span:
 
 ```
-  1  claude_code.interaction
- 15  claude_code.llm_request
- 14  claude_code.tool
- 14  claude_code.tool.blocked_on_user      <- one per tool call, exactly
- 14  claude_code.tool.execution
+toolu_01JtKxYHAQirDQHTojU7V9jZ   Bash  argv0=cd    class=shell_builtin   -> decision=reject, never executed
+toolu_01CHK1z2qM9qrn2WhUkK1Sh6   Bash  argv0=git   class=vcs             -> decision=reject, never executed
 ```
 
-`claude_code.tool.blocked_on_user` fires **14 times against 14 tool calls — 1:1, on every
-Bash, Read and Edit**. Every one of the 14 carries `decision: "unknown"` and
-`source: "unknown"`. Their durations are 2, 3 and 6 ms (n = 14, min 2, median 3, max 6).
+Both were refused by the runner's three-entry allowlist —
+`--allowedTools "Bash(./mvnw:*)" "Bash(mvn:*)" "Bash(.ai/knowledge/router.sh:*)"`,
+`runner/run-agent.sh:838-841` — which admits neither `cd` nor `git`.
 
-**In a headless run there is no user, so nothing could block on one.** Fourteen of fourteen
-are therefore emissions of a span whose name asserts something that did not happen, carrying
-two attributes that decline to say what happened. The span **is not a detector of human
-intervention**; on this evidence it is a phase marker in the tool lifecycle, emitted between
-`claude_code.tool` and `claude_code.tool.execution`, and a dashboard panel counting it would
-report **14 human interventions in a run where zero were possible**.
+**So the discriminator exists, and it is not the span.** Corrected reading, pooled over
+`n = 2 runs, 29 spans`:
 
-That is this phase's own thesis arriving as a measurement rather than as a slogan: *usage is
-not impact*, and a metric named for an event is not a measurement of that event. It is also
-the house failure mode in its purest form — a signal that reports over a scope wider than the
-thing it claims. **It is direct evidence for obs#47** (`[P0] Permission-mode block recorded
-as incorrect code`, still **open**, state re-read from the API this session), which is about
-the same block being mis-recorded elsewhere in the harness.
+- the **span** is emitted on every tool call, 29 of 29, blocked or not — **counting it measures
+  tool calls**;
+- the **`decision` attribute** is the signal: `unknown` on **27 of 29**, `reject` on **2 of 29**,
+  and the 2 rejects match the 2 un-executed tools one for one;
+- the **`source` attribute is `unknown` on 29 of 29** — nothing in the span says *what* refused
+  the call. That the allowlist did it is deduced from the tool names and `run-agent.sh:838-841`,
+  **not read off the telemetry**;
+- and the 2 rejects were a **permission-mode refusal by a static allowlist, not a human**, under
+  a span named `blocked_on_user`, in a run with no human in it.
 
-**Consequence for this project, stated rather than left implied:** no dashboard, panel or
-metric may be built on `claude_code.tool.blocked_on_user` until `decision` and `source` are
-something other than `unknown`. Stop 25 builds none, so nothing is retracted; the constraint
-is recorded for stop 28's B13 dashboards.
+**That last line is direct evidence for obs#47** — *"[P0] Permission-mode block recorded as
+incorrect code"*, still **open**, state re-read from the API this session. The same
+mis-attribution obs#47 reports in the harness is present in the runtime's own span name.
+
+**Consequence for this project, stated rather than left implied:** a panel counting
+`claude_code.tool.blocked_on_user` measures tool calls; a panel counting it *filtered to
+`decision != "unknown"`* measures permission refusals; **neither measures human intervention**,
+and nothing in the telemetry or its documentation says so. No dashboard may be built on the
+unfiltered span. Stop 25 builds none, so nothing is retracted; the constraint is recorded for
+stop 28's B13 dashboards.
+
+**What changed between the two runs, and what did not.** Same model, same benchmark, same
+runtime version, same flags, same allowlist — the runs differ only in what the model chose to
+do, which is why one hit the allowlist and the other did not. **`n = 2` is two runs and is
+stated as such**: the 1:1 ratio held on both, the `reject` value appeared on one, and neither is
+claimed as a property of the build.
 
 ### Checkbox 3 — "Grep the collector output for `user.email`" → **it is not there, and the reason is not the one the config claims**
 
@@ -432,7 +460,7 @@ one line — the counts are:
 | `session.id` | 12 696 | 79 704 |
 
 **A zero is not an answer.** It does not distinguish *the scrubber deleted it* from *nothing
-ever sent it*, and `infra/otel-collector/config.yaml:5-8` makes the stronger claim — that the
+ever sent it*, and `infra/otel-collector/config.yaml:3-5` makes the stronger claim — that the
 processor deletes these keys *"even if a runtime is misconfigured and sends them, so a single
 wrong env var on a laptop cannot exfiltrate source code."* **That claim had never been
 exercised.** A control that has never been shown to reject anything is indistinguishable
@@ -466,7 +494,7 @@ item's own attributes and does not touch the resource; editing resource attribut
 separate `resource` processor, and `config.yaml` configures none in any pipeline
 (`service.pipelines.logs.processors: [attributes/scrub, batch]`).
 
-**What this does to the claim.** `config.yaml:5-8` is **true over a smaller scope than it
+**What this does to the claim.** `config.yaml:3-5` is **true over a smaller scope than it
 states**. The misconfiguration it names — *"a single wrong env var on a laptop"* — is
 precisely the class that lands on the **resource**, because `OTEL_RESOURCE_ATTRIBUTES` is an
 env var and is the standard way identity reaches a resource. The comment describes a guard
@@ -490,7 +518,7 @@ adapter's per-run read.
 |---|---|---|
 | A claude run produces a trace, on 2.1.284 | **L2** | Tempo returned the trace; the span resource carries `observatory.run.id`. Something executed and answered |
 | `blocked_on_user` appears under acceptEdits-headless | **L2** | 14 spans counted off the stored trace by a script in `evidence/p10/` |
-| It cannot discriminate a real block | **L2** | `decision` and `source` are `unknown` on 14 of 14 — read off the record, not inferred from the name |
+| The span is not the discriminator; `decision` is | **L1** | `source` `unknown` on **29 of 29**; `decision` `unknown` on **27 of 29** and `reject` on **2 of 29**, the 2 matching the 2 un-executed tools exactly — read off the stored spans, no judgement in the path |
 | Nothing may be built on that span yet | **L3** | A sentence in this workbook. Nothing executes to refuse such a panel. The L2 conversion is a gate script at stop 28 and §6 forbids building it here |
 | The scrub deletes record-level identity | **L2** | The planted record-level `user.email` is provably absent from the file the collector wrote |
 | The scrub does **not** cover resource attributes | **L1 for the fact, L3 for the fix** | The fact is structural: with no `resource` processor configured, no resource attribute can be edited — the bad value cannot be removed after it is written down. **No fix is made here**; changing the collector config is an observatory change outside this stop's one variable |
@@ -621,10 +649,13 @@ learning:
   observed_effect: >
     Two of three checkboxes were answerable from evidence already on disk, which is the
     cheapest possible outcome and was not the expected one: checkbox 2's acceptEdits-headless
-    scenario had ALREADY RUN — 14 times inside one preflight run — and the finding was sitting
-    in Tempo unread. `claude_code.tool.blocked_on_user` fires 1:1 with tool calls, 14 of 14
-    with decision=unknown and source=unknown, in a headless run where no user could block on
-    anything. Checkbox 3's zero was real (0 occurrences in 102 276 888 bytes) and meaningless
+    scenario had ALREADY RUN — twice this session, 29 tool calls between them — and the finding
+    was sitting in Tempo unread. `claude_code.tool.blocked_on_user` fires 1:1 with tool calls,
+    29 of 29, in headless runs where no user could block on anything. The first run suggested the
+    span carried nothing (`decision` unknown 14 of 14); the second refuted that — 2 of its 15 read
+    `reject`, matching the 2 tool calls the runner's allowlist refused, which makes the DECISION
+    ATTRIBUTE the discriminator and the span itself a tool-call counter. `source` is `unknown` on
+    29 of 29, so the telemetry never says what refused the call. Checkbox 3's zero was real (0 occurrences in 102 276 888 bytes) and meaningless
     until a negative control was run; the control then showed the scrub deletes record-level
     identity and DOES NOT TOUCH RESOURCE ATTRIBUTES, so a planted `user.email` on the resource
     survived verbatim onto disk.
@@ -637,7 +668,7 @@ learning:
   keep_or_remove: >
     KEEP the evidence; there is nothing built to remove. Two constraints are recorded rather
     than enforced: no dashboard may be built on `claude_code.tool.blocked_on_user` while its
-    decision/source are `unknown`, and `config.yaml:5-8`'s claim must be read as covering
+    decision/source are `unknown`, and `config.yaml:3-5`'s claim must be read as covering
     record/span/data-point attributes only. Both are L3 sentences in this workbook and neither
     is converted here — §6 is one step at a time and the collector is an observatory change.
   next_question: >
@@ -705,13 +736,13 @@ comparison.
 | §3 row 25 — **extract** | same commit `468e105`: four findings, five corrections, four additions | **L3.** A wrong sentence can still be written into this file and nothing executes over it — the same regrade stop 24 applied to its own extract row at its close, for the same reason | `git show 468e105 -- phases/10-production-observability/README.md` |
 | §3 row 25 — **"Lab 10.0 written up from the #48 fix"** | `phases/10-production-observability/README.md` §"Lab 10.0 — RUN at spine stop 25" (commit `4065a99`), with all three checkboxes answered from `evidence/p10/` | **L3 for the write-up, L1/L2 per checkbox below.** The prose is prose; the checkbox rows carry the proof | read the section; every claim in it cites a file in `evidence/p10/` |
 | Lab checkbox 1 — *"Does a Claude run now produce a trace?"* | obs#48 closed `completed` 2026-08-10T19:46:05Z (state re-read from the API 2026-09-29, not quoted from prose); re-observed this stop on run `e488ed2e-9f90-4e5b-b7d1-53871b8d2755`, trace `a4dc23a3f3c9cefa1de70222adbc1799`, `service.version` 2.1.284 | **L1 in the sense stop 24 settled** — the span and its resource were written into Tempo by the Claude Code runtime, not hand-written by me. **The copy at `evidence/p10/trace-e488ed2e-blocked-on-user.json` is L3**, being an editable file; the live store is the L1 half | `curl -s http://127.0.0.1:3200/api/traces/a4dc23a3f3c9cefa1de70222adbc1799` |
-| Lab checkbox 2 — *"Run a task needing a build under `--permission-mode acceptEdits`, headless. Does `claude_code.tool.blocked_on_user` appear?"* | **Yes, 14 times against 14 tool calls, `n = 1` run.** `evidence/p10/checkbox2-span-census.txt`. Scenario proved element by element: `runner/run-agent.sh:838` (acceptEdits), `:884` (headless `-p`), `agent-observatory-benchmarks/tasks/BE-001-customer-validation/benchmark.yaml:9-19` (`build: true`, `tests: true`) | **L1** for the span data (same sense as the row above); **L2** for the scenario, because the three flags are read out of files that execute — the runner is what runs, not a description of it | re-run the census script against the trace JSON; `grep -n 'permission-mode' runner/run-agent.sh` |
-| …and the finding beneath it: the span **cannot discriminate** a real block | `decision: "unknown"` and `source: "unknown"` on **14 of 14**; durations n = 14, min 2 ms, median 3 ms, max 6 ms | **L1** — read off the stored spans, no judgement in the path | the same census |
+| Lab checkbox 2 — *"Run a task needing a build under `--permission-mode acceptEdits`, headless. Does `claude_code.tool.blocked_on_user` appear?"* | **Yes. 29 times against 29 tool calls, 1:1 in each of `n = 2` runs** (`e488ed2e` 14/14, `606ab03e` 15/15). `evidence/p10/checkbox2-span-census.txt`. Scenario proved element by element: `runner/run-agent.sh:838` (acceptEdits), `:883-885` (headless `-p`), `agent-observatory-benchmarks/tasks/BE-001-customer-validation/benchmark.yaml:9-19` (`build: true`, `tests: true`) | **L1** for the span data (same sense as the row above); **L2** for the scenario, because the three flags are read out of files that execute — the runner is what runs, not a description of it | re-run the census script against the trace JSON; `grep -n 'permission-mode' runner/run-agent.sh` |
+| …and the finding beneath it: **the span counts tool calls; `decision` is what discriminates, and `source` never does** | `source: "unknown"` on **29 of 29**. `decision`: `unknown` **27 of 29**, `reject` **2 of 29** — and the 2 rejects are exactly the 2 `tool_use_id`s with no `claude_code.tool.execution` span, both `Bash` (`cd`, `git`), both outside the runner's three-entry allowlist at `runner/run-agent.sh:838-841`. Durations `n = 29`, min 2 ms, max 53 ms | **L1** for the attribute values — read off the stored spans. **L3 for "the allowlist is what refused them"**: that is deduced from the tool names and the runner's flags, because `source` declines to say | `evidence/p10/trace-606ab03e-replication.json`; correlate `tool_use_id` across the three span types |
 | …and the constraint drawn from it: *no panel may be built on that span* | a sentence in this workbook | **L3.** Nothing executes that would refuse such a panel. Its L2 conversion is a gate script and belongs to stop 28 (B13); §6 forbids building it here | read the section |
 | Lab checkbox 3 — *"Grep the collector output for `user.email`. Is it there?"* | **No. 0 lines, 0 occurrences** across `infra/telemetry-out/*.jsonl` = 102 276 888 bytes / 12 697 lines, counted **before** the probe. `evidence/p10/checkbox3-grep-counts.txt` | **L1** for the count — it is a grep over files the collector wrote. **But on its own it answers nothing**, and the table says so: a zero cannot separate *deleted* from *never sent* | `grep -c user.email agent-observatory/infra/telemetry-out/*.jsonl` |
 | …the negative control that gives the zero meaning | Prediction `4af56b3` **precedes** the probe (18:0x commit → 18:06:30Z POST); probe `evidence/p10/scrub-probe-sent.json`, survivor `evidence/p10/scrub-probe-surviving-record.json`, result `evidence/p10/RESULT-scrub-scope.md`. Record-level `user.email`, `gen_ai.prompt`, `tool.arguments` **deleted**; resource-level `user.email` **survived verbatim** | **L2 for the three deletions** — the collector executed and rejected them, which is the first time this control has been shown to reject anything. **L1 for the survival**: with no `resource` processor in any pipeline, a resource attribute cannot be edited by this config, so the bad value cannot be removed after it is written down | POST `evidence/p10/scrub-probe-sent.json` to `http://127.0.0.1:4318/v1/logs`, then `grep -o 'resource-level-[A-Z0-9]*' infra/telemetry-out/events.jsonl` |
 | §5 — *at least one scored cell re-read by hand* | **No scored cell exists. `n = 0` benchmark runs were commissioned at this stop** and no rubric sheet belongs to it. The §0a preflight sheet `findings/codex/score-good-nested-ifs-*.yaml` is a probe that **enters no comparison**, and its four values were nonetheless re-derived by hand with `awk` and checked by the registered `check-sheet-categories.sh` | **L2** for the sheet check that was done; the clause itself is **not applicable** and is recorded as such rather than ticked | see `preflight:` in `TRACK-B-STATE.md` |
-| §5 — *every number quoted in prose has its `n`* | `14 of 14` spans on `n = 1` run; `0 of 12 697` lines; `3 of 4` planted keys on `n = 1` probe; the 2.1.284 version observation is explicitly `n = 1` and stated as true of that run | **L3** | read the section |
+| §5 — *every number quoted in prose has its `n`* | `29 of 29` spans over `n = 2` runs, with the per-run split `14/14` and `15/15` shown rather than only pooled; `0 of 12 697` lines; `3 of 4` planted keys on `n = 1` probe; the 2.1.284 version observation is explicitly `n = 1` and stated as true of that run | **L3** | read the section |
 | §5 — *independence check: what else changed?* | **Nothing to compare, so nothing to confound.** Stop 25 has no arms. The one run it reads, `e488ed2e`, was `ISOLATE_USER_SETTINGS=1` with all **seven** `customization.*Hash` null and `runtime.model` `claude-haiku-4-5-20251001`, read off the API this session | **L1** — an API record the runner wrote | `curl -s http://127.0.0.1:8081/api/runs/e488ed2e-9f90-4e5b-b7d1-53871b8d2755` |
 | §5 — *re-run every verification command immediately before writing "done"* | §0a re-run in full this session, every row; the link check, the Tempo fetch, the grep census and the probe were all run in this session and their outputs are the evidence files cited above | **L3 throughout** — a saved stdout file is as editable as any other file and nothing re-runs it. Stop 24 made the same regrade | re-run any command in the "four commands" block of the lab |
 

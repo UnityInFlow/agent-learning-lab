@@ -1,25 +1,37 @@
-Checkbox 2 census — trace a4dc23a3f3c9cefa1de70222adbc1799
-run e488ed2e-9f90-4e5b-b7d1-53871b8d2755, benchmark.id BE-001, experiment.variant baseline
-claude-code service.version 2.1.284, headless `claude -p`, --permission-mode acceptEdits
+Checkbox 2 census - n = 2 runs, both BE-001, claude-code 2.1.284,
+headless `claude -p` under --permission-mode acceptEdits (run-agent.sh:838, :883-885).
+Both are the two 2026-09-29 §0a row-6b preflight runs. THEY ENTER NO COMPARISON.
 
-   1  claude_code.interaction
-  15  claude_code.llm_request
-  14  claude_code.tool
-  14  claude_code.tool.blocked_on_user
-  14  claude_code.tool.execution
+=== run e488ed2e-9f90-4e5b-b7d1-53871b8d2755  trace a4dc23a3f3c9cefa1de70222adbc1799 ===
+     1  claude_code.interaction
+    15  claude_code.llm_request
+    14  claude_code.tool
+    14  claude_code.tool.blocked_on_user
+    14  claude_code.tool.execution
+  blocked_on_user decision: {'unknown': 14}
+  blocked_on_user source:   {'unknown': 14}
+  duration_ms: n=14 min=2 median=3 max=6
+  tool_use_ids with NO execution span: 0
 
-blocked_on_user spans, one line each: spanId decision source duration_ms
-  zHx1whl+CY4= unknown unknown 6
-  Hv0EEyKFKWc= unknown unknown 6
-  GP9EvXAeA78= unknown unknown 3
-  wqrozwRqGOc= unknown unknown 2
-  DbYeEcHjbVY= unknown unknown 4
-  9mIgCHEtRBs= unknown unknown 3
-  2Wz0DZobIU4= unknown unknown 3
-  7n9bVsIGIT8= unknown unknown 2
-  BNcaTlW6ar0= unknown unknown 2
-  /MelXyfzrUo= unknown unknown 3
-  EQwOsvBhbvI= unknown unknown 3
-  L2OkwEZbp3E= unknown unknown 2
-  OLQN7m9r6K0= unknown unknown 3
-  BXSPQaa0nZU= unknown unknown 3
+=== run 606ab03e-1171-494c-97f1-6dc2f485ba9c  trace 5ee3efacf044c414dcb61961f5d94d1c ===
+     1  claude_code.interaction
+    12  claude_code.llm_request
+    15  claude_code.tool
+    15  claude_code.tool.blocked_on_user
+    13  claude_code.tool.execution
+  blocked_on_user decision: {'unknown': 13, 'reject': 2}
+  blocked_on_user source:   {'unknown': 15}
+  duration_ms: n=15 min=2 median=4 max=53
+  tool_use_ids with NO execution span: 2
+     toolu_01JtKxYHAQirDQHTojU7V9jZ  ('Bash', 'cd')
+     toolu_01CHK1z2qM9qrn2WhUkK1Sh6  ('Bash', 'git')
+
+=== POOLED, n = 2 runs ===
+     2  claude_code.interaction
+    27  claude_code.llm_request
+    29  claude_code.tool
+    29  claude_code.tool.blocked_on_user
+    27  claude_code.tool.execution
+  decision: {'unknown': 27, 'reject': 2}
+  source:   {'unknown': 29}
+  duration_ms: n=29 min=2 median=3 max=53
