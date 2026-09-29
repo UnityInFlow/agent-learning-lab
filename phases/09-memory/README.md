@@ -724,3 +724,56 @@ The seven non-blocking findings across both panels, and what was done:
 **Two of the nine were disputed by one panel's own gate and raised by the other's.** Both were
 fixed rather than arbitrated, which is the only disposition that costs nothing when the reviewers
 disagree.
+
+### §4a review of the two gate scripts — the round that changed an instrument
+
+The previous session left the instruction *"review the workbook, the manifest and **both
+scripts**"*. §4a says *"every tool under `tools/`"*, and `tools/verify-quotes.sh` is a gate
+script, so it got the `-P` panel §4a asks for on a registered variable.
+
+| Script | Panel | Findings file | Gate |
+|---|---|---|---|
+| `tools/verify-quotes.sh` | **`codex` + `ollama-cloud/deepseek-v4-pro`**, both ok (30 s, 315 s) | `findings/opencode/review-verify-quotes-20260929T115705Z.md` | **REJECT**, 6 findings |
+| `tools/verify-quote-checker.sh` | `ollama-cloud/glm-5.2`, `-n 2` | `findings/opencode/review-verify-quote-checker-20260929T120325Z.md` | **REJECT**, 5 findings |
+
+**This is the round that justified running it.** The fixture set was green at 29 of 29 and
+ShellCheck was clean, and the panel still found six defects in the checker — because *the
+fixture set is the review that executes and the harness is the one that reads, and they do not
+catch the same class.*
+
+| # | Defect in `verify-quotes.sh` | Disposition |
+|---|---|---|
+| 1 | **Path traversal.** A page key containing `../` makes every `cp`/`curl` write to `"$TMP/$key.html"` — *outside* the mktemp directory, so the `EXIT` trap never removes it and the verifier writes into the tree | **fixed** — keys are `[A-Za-z0-9_-]+`, exit 4, before any fetch. Fixture **R** |
+| 2 | **`\|` is the split delimiter.** A key containing `\|` breaks `key=${entry%%\|*}`, so the URL silently becomes the wrong string and **the page fetched is not the page declared** — whose quotes then report `ABSENT` at exit 2, indistinguishable from real drift | **fixed** — same grammar. Fixture **S** |
+| 3 | **Tab disagreement.** The manifest parser keeps every tab after the first; the matcher's `IFS=$'\t' read` does not. A quote carrying a tab was **silently different in the two places** | **fixed** — refused at exit 4 rather than truncated somewhere else. Fixture **T** |
+| 4 | **A cached page was indistinguishable from a live fetch** — byte-identical result line, same exit code, nothing saying whether the network was touched | **fixed** — every line and the summary now carry the source (`claude=live`). Fixture **U** |
+| 5 | `strip()` removes only `<script>`/`<style>`, so CSS-hidden body text counts as present | **disputed as a scoped limitation** — the same disposition stop 23 gave the same finding. A sentence *in the DOM* is on the page; whether it is *visible* is a different question this instrument does not claim to answer, and the header says so |
+| 6 | The matcher is an unanchored `grep -qF`, so a deleted sentence that survives as a substring of another reports `FOUND` | **disputed, with the direction stated** — the defense is that the manifest carries full sentences. Both 5 and 6 bias toward `FOUND`, i.e. toward **under**-reporting staleness, so if they bit at all the true absent count is **higher than 5 of 8**, never lower. The headline is safe in the direction that matters |
+
+**And then the fixed instrument was re-run against the recorded measurement, because a fix to a
+gate script after that script produced a result is exactly where this project has been burned.**
+
+```
+pre-fix   manifest=quotes-p09 found=3 absent=5
+post-fix  manifest=quotes-p09 found=3 absent=5 sources=claude=live
+```
+
+**Identical, cell for cell** (`diff` over both, `evidence/p09/quote-verification-20260929T1215Z-postfix.txt`).
+The stop-23 parity check reproduces too: `found=28 absent=1`, seven pages, all `live`. **None of
+the six defects touched this stop's result**, and that is now a measurement rather than an
+argument. The fixture suite goes **29 → 37 cases**, ShellCheck clean.
+
+**The fixture set's own review was REJECT, and its central claim is refuted by observation.**
+It held that cases K, L and M *determinately fail on macOS* because BSD `sed` treats `\t`
+literally and BSD `grep` lacks `\|`. Both were checked byte-exactly **on macOS**:
+`od -c` shows the substitution emitting real tabs on both sides, and the `grep` alternation
+matches its target while still refusing a non-matching string — its own negative control.
+Recorded in `evidence/p09/dispute-bsd-sed-grep-20260929T1213Z.txt`. **The finding deserved an
+observation rather than an argument**, because its failure mode would have been the house one:
+three cases green while testing nothing — which `29/29` alone would never have caught.
+
+Its two real findings were fixed: the suite **checked for none of the four external commands it
+depends on**, so a missing `python3` could have looked like a test failure, and the header did
+not name the platform semantics the fixtures rely on. There is now a dependency preflight that
+exits **2** — distinct from a case failure's **1** — and it is **proved against a real absence**:
+run with `python3` removed from `PATH`, the suite exits 2 and names it.

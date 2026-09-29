@@ -11,9 +11,31 @@
 # shape the manifest ADDED: a manifest that declares nothing would make the checker report
 # "everything verified" at exit 0 after looking at nothing, which is the same defect inverted.
 #
+# Cases R-U were added the same day from this file's OWN §4a review (codex +
+# deepseek-v4-pro panel): they exercise refusals that did not exist before that review, so a
+# suite passing without them is a suite that never touched the fix.
+#
+# PLATFORM SEMANTICS THIS SUITE DEPENDS ON, measured rather than assumed. The same review
+# claimed cases K, L and M fail on macOS because BSD `sed` treats `\t` literally and BSD
+# `grep` lacks `\|` in a BRE. Both were checked byte-exactly on this machine and both claims
+# are false here — evidence/p09/dispute-bsd-sed-grep-20260929T1213Z.txt has the `od -c` output
+# and grep's own negative control. The finding was still worth answering with an observation
+# rather than an argument, because its failure mode would have been the house one: three cases
+# GREEN while testing nothing, which 29/29 alone would not have caught.
+#
 # Written 2026-09-29 by Opus 5 (claude-opus-5), autonomously, at spine stop 24.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
+
+# A missing dependency must not look like a test failure, and must never look like a PASS.
+# Named in the same §4a review: this suite silently relies on four external commands.
+for dep in python3 nc sed grep; do
+  command -v "$dep" >/dev/null 2>&1 || {
+    printf 'verify-quote-checker: MISSING DEPENDENCY %s — cannot run the suite, and a suite\n' "$dep" >&2
+    printf '  that cannot run is not a suite that passed. Exit 2, distinct from a case failure (1).\n' >&2
+    exit 2
+  }
+done
 
 CHECKER="./tools/verify-quotes.sh"
 TMP=$(mktemp -d) || exit 1
@@ -168,6 +190,44 @@ if [ "$(wc -l < "$TMP/q.out")" -eq 2 ]; then
 else
   printf 'FAIL %-56s expected 2 quote lines\n' "Q list contents"; fail=$((fail+1))
 fi
+
+# ---- cases R-U: the four defects the §4a codex + deepseek-v4-pro panel found, 2026-09-29 ----
+# Each is proved against the PRE-FIX script the way stop 23 proved its five: the behaviour
+# being tested is a REFUSAL that did not exist before, so a suite that passes without these
+# cases is a suite that never exercised the fix.
+
+# R — a page key containing `../` escapes the mktemp directory. Before the fix, every cp/curl
+#     wrote to "$TMP/../x.html", i.e. OUTSIDE the directory the EXIT trap removes: the verifier
+#     wrote into the tree and left the file behind. Now exit 4, before any fetch.
+printf 'page\t../escape\thttps://example.invalid/x\nquote\t../escape\tz\n' > "$TMP/trav.tsv"
+"$CHECKER" --manifest "$TMP/trav.tsv" >"$TMP/r.out" 2>&1
+check "R page key escapes the temp dir" 4 "$?"
+names "R" "$TMP/r.out" "ILLEGAL KEY"
+
+# S — a page key containing `|` silently broke the `key=${entry%%|*}` split at the fetch loop,
+#     so the url became the wrong string and the page fetched was NOT the page declared. The
+#     old script could not notice; a wrong page reports its quotes ABSENT and exits 2, which is
+#     indistinguishable from real drift.
+printf 'page\tp|x\thttps://example.invalid/x\nquote\tp|x\tz\n' > "$TMP/pipe.tsv"
+"$CHECKER" --manifest "$TMP/pipe.tsv" >"$TMP/s.out" 2>&1
+check "S page key contains the split delimiter" 4 "$?"
+names "S" "$TMP/s.out" "ILLEGAL KEY"
+
+# T — a TAB inside a quote value was kept by the manifest parser and dropped by the matcher's
+#     `IFS=$'\t' read`, so the sentence searched for was not the sentence declared. Refused
+#     rather than truncated.
+printf 'page\tp1\thttps://example.invalid/x\nquote\tp1\ta\tb\n' > "$TMP/tabval.tsv"
+"$CHECKER" --manifest "$TMP/tabval.tsv" >"$TMP/t.out" 2>&1
+check "T tab inside a quote value" 4 "$?"
+names "T" "$TMP/t.out" "TAB INSIDE VALUE"
+
+# U — the SOURCE of every page is now reportable. Before the fix a cached page produced a
+#     byte-identical result line and exit code to a live fetch, so nothing in the output said
+#     whether the network had been touched. Driven here through the FIXTURE path, whose source
+#     must read `fixture` and never `live`.
+QUOTE_FIXTURE_FILE="$PAGE" "$CHECKER" --manifest "$GOOD" >"$TMP/u.out" 2>&1
+check "U source of each page is reported" 0 "$?"
+names "U" "$TMP/u.out" "sources=p1=fixture"
 
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ] || exit 1

@@ -82,6 +82,32 @@ while IFS= read -r line || [ -n "$line" ]; do
     printf 'MALFORMED MANIFEST LINE %s: expected <kind>TAB<key>TAB<value>\\n' "$lineno" >&2
     exit 4
   fi
+  # ---- §4a round-1 defects (1) and (2), codex + deepseek-v4-pro panel, 2026-09-29 ---------
+  # The key had NO GRAMMAR. Two consequences, both silent:
+  #   (1) a key containing `../` makes every `cp`/`curl` below write to "$TMP/$key.html",
+  #       i.e. OUTSIDE the mktemp directory, so the EXIT trap does not remove it — the
+  #       verifier writes into the repository and leaves the file behind.
+  #   (2) a key containing `|` breaks the `key=${entry%%|*}` split at the fetch loop, so the
+  #       url silently becomes the wrong string and the page fetched is not the page declared.
+  # Both are exit 4 for the reason the block above gives: a manifest that cannot be trusted is
+  # a MISCONFIGURED VERIFIER, and it must never be reported as a drift result.
+  case "$key" in
+    *[!A-Za-z0-9_-]*|'')
+      printf 'ILLEGAL KEY %s at manifest line %s: keys are [A-Za-z0-9_-]+ — not a drift result\n' \
+        "'$key'" "$lineno" >&2
+      exit 4 ;;
+  esac
+  # §4a round-1 defect (3): the two parse sites disagreed about a TAB inside the value. Line
+  # ~80 keeps every tab after the first; the matcher's `IFS=$'\t' read` does not. A quote
+  # carrying a tab was therefore silently DIFFERENT in the two places, so it is refused here
+  # rather than truncated somewhere else.
+  case "$val" in
+    *"$(printf '\t')"*)
+      printf 'TAB INSIDE VALUE at manifest line %s: a quote may not contain a tab — not a drift result\n' \
+        "$lineno" >&2
+      exit 4 ;;
+  esac
+
   case "$kind" in
     page)
       case "$PAGE_KEYS" in
@@ -132,20 +158,22 @@ t=re.sub(r"<style.*?</style>","",t,flags=re.S)
 sys.stdout.write(re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>"," ",t))))'
 }
 
+declare -A PAGE_SOURCE=()
 for entry in "${PAGES[@]}"; do
   key=${entry%%|*}; url=${entry#*|}
+  SOURCE="unknown"
   if [ -n "$FIXTURE" ]; then
     # A fixture that cannot be read proves nothing about a quote, so it is exit 3 — the same
     # code as a failed fetch — and never a page full of absences.
     [ -r "$FIXTURE" ] || { echo "FIXTURE NOT READABLE $FIXTURE" >&2; exit 3; }
     [ -s "$FIXTURE" ] || { echo "FIXTURE EMPTY $FIXTURE" >&2; exit 3; }
-    cp "$FIXTURE" "$TMP/$key.html"
+    cp "$FIXTURE" "$TMP/$key.html"; SOURCE="fixture"
   elif [ -n "$CACHE" ] && [ -f "$CACHE/$SLUG-$key.html" ]; then
     # Stop 23 defect (b): identical empty content was classified two different ways depending
     # only on where it came from — an empty live response or fixture exited 3, an empty CACHED
     # page reached the matcher and exited 2. Same input, two verdicts.
     [ -s "$CACHE/$SLUG-$key.html" ] || { echo "EMPTY CACHED PAGE $key $CACHE/$SLUG-$key.html" >&2; exit 3; }
-    cp "$CACHE/$SLUG-$key.html" "$TMP/$key.html"
+    cp "$CACHE/$SLUG-$key.html" "$TMP/$key.html"; SOURCE="cached"
   else
     # Stop 23 defect (a): `--fail` is load-bearing. Without it a 404 that serves a non-empty
     # HTML error page exits 0, the strip step produces real text, every quote for that page
@@ -154,6 +182,7 @@ for entry in "${PAGES[@]}"; do
     # than it claims) and it could have produced a false headline.
     curl -fsS -m 40 -L "$url" -o "$TMP/$key.html" || { echo "FETCH FAILED $key $url" >&2; exit 3; }
     [ -s "$TMP/$key.html" ] || { echo "EMPTY PAGE $key $url" >&2; exit 3; }
+    SOURCE="live"
   fi
   # Stop 23 defect (d), the one its §4a ACCEPTANCE GATE blocked on (minimax-m3, REJECT,
   # 2026-09-28): the strip step is a python3 wrapper and it CAN fail — a crashing or missing
@@ -165,18 +194,25 @@ for entry in "${PAGES[@]}"; do
     echo "STRIP FAILED $key (html -> text extraction)" >&2; exit 3
   fi
   [ -s "$TMP/$key.txt" ] || { echo "STRIP PRODUCED NO TEXT $key" >&2; exit 3; }
+  PAGE_SOURCE["$key"]="$SOURCE"
 done
 
 found=0; missing=0
 while IFS=$'\t' read -r key quote; do
   [ -z "${key:-}" ] && continue
   if grep -qF -- "$quote" "$TMP/$key.txt"; then   # no 2>/dev/null: every key is validated above
-    printf 'FOUND   [%s] %s\n' "$key" "$quote"; found=$((found+1))
+    printf 'FOUND   [%s:%s] %s\n' "$key" "${PAGE_SOURCE[$key]}" "$quote"; found=$((found+1))
   else
-    printf 'ABSENT  [%s] %s\n' "$key" "$quote"; missing=$((missing+1))
+    printf 'ABSENT  [%s:%s] %s\n' "$key" "${PAGE_SOURCE[$key]}" "$quote"; missing=$((missing+1))
   fi
 done <<< "$QUOTES"
 
-printf '\nmanifest=%s found=%d absent=%d\n' "$SLUG" "$found" "$missing"
+# §4a round-1 defect (4): a CACHED page produced a byte-identical result line and exit code to
+# a LIVE fetch, so nothing in the output said whether the network had been touched. That is the
+# stop-23 defect class one level up — not "a failure reported as a result", but "a result whose
+# PROVENANCE is unreportable". Every line now carries its source, and so does the summary.
+SOURCES=""
+for k in "${!PAGE_SOURCE[@]}"; do SOURCES="$SOURCES$k=${PAGE_SOURCE[$k]} "; done
+printf '\nmanifest=%s found=%d absent=%d sources=%s\n' "$SLUG" "$found" "$missing" "${SOURCES% }"
 [ "$missing" -eq 0 ] && exit 0
 exit 2

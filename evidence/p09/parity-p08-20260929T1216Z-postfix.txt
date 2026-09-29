@@ -1,0 +1,31 @@
+FOUND   [safe:live] Safe outputs enforce security through separation
+FOUND   [safe:live] least privilege, defense against prompt injection, auditability, and controlled limits per operation
+FOUND   [safe:live] all without giving the agentic portion of the workflow any write permissions
+ABSENT  [safe:live] The agent never receives write tokens directly
+FOUND   [safe:live] create-issue is automatically enabled with conservative defaults
+FOUND   [safe:live] Every write operation is skipped
+FOUND   [safe:live] Merge pull requests after policy gates pass (max: 1, experimental)
+FOUND   [safe:live] Trigger other workflows with inputs (max: 3, same-repo only)
+FOUND   [safe:live] Create Copilot coding agent sessions (max: 1)
+FOUND   [perms:live] GitHub Agentic Workflows uses read-only permissions by default for security, with write operations handled through safe outputs
+FOUND   [perms:live] id-token: read is not a valid permission and will be rejected at compile time
+FOUND   [creating:live] A GitHub Agentic Workflows source is a Markdown file in
+FOUND   [creating:live] The gh aw compile command turns this source into the .lock.yml GitHub Actions workflow
+FOUND   [creating:live] Add, commit and push the workflow file and its lock file to your repository
+FOUND   [threat:live] analyze agent output and code changes for potential security issues before they are applied
+FOUND   [threat:live] Threat detection is automatically enabled when safe outputs are configured
+FOUND   [threat:live] the workflow stops and safe outputs are not applied. This fail-safe approach prevents potentially malicious content from being processed
+FOUND   [threat:live] By default, threat detection uses the same AI engine as your main workflow to analyze output for security threats
+FOUND   [threat:live] a static, rule-based protection layer
+FOUND   [threat:live] Hard-block: the safe output fails with an error message
+FOUND   [trig:live] roles is an allowlist, not a privilege threshold
+FOUND   [trig:live] will reject actors with admin or maintainer roles because admin !== write
+FOUND   [trig:live] Pull request workflows block forks by default for security
+FOUND   [trig:live] Automatically disable workflow triggering after a deadline to control costs
+FOUND   [exp:live] A/B Experiments is an experimental feature
+FOUND   [exp:live] Statistical significance alone does not override minimum_effect
+FOUND   [exp:live] Only usable observations count toward min_samples
+FOUND   [exp:live] Over time, this keeps usage roughly balanced across variants
+FOUND   [exp:live] It does not promote a variant, edit the workflow, or change traffic
+
+manifest=quotes-p08 found=28 absent=1 sources=threat=live trig=live home=live creating=live perms=live exp=live safe=live
