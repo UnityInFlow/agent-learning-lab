@@ -45,7 +45,7 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 ## Position
 
 **Spine 24 of 28. Positions 4–24 CLOSED — 24 (Phase 9 — memory) closed 2026-09-29 with
-`n = 0` benchmark runs.** PR `lab#PRNUM24`. The stop read the phase, re-verified its August 2026
+`n = 0` benchmark runs.** PR `lab#136`. The stop read the phase, re-verified its August 2026
 extract against the page it cites, and ran **Lab 9.4**, the audit this phase asks for. **NOTHING
 is blocked on the author.** `lab#11` (Phase 9) **stays open** — a Phase issue closes only when
 its gate is met from measurement, and Labs 9.1–9.3 and 9.5–9.8 are all deferred. `lab#10`,
