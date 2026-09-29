@@ -69,7 +69,7 @@ anything that runs.
 | Thing | Layer | Why, applied in order |
 |---|---|---|
 | This file | **L3** | Nothing in it executes. A future session can contradict every row of it and no command objects. It is words a human reads and chooses to follow. |
-| The frozen audit | **L3 as a control, L1 as a record** | It stops nothing from being written down. But it is append-only evidence of a past state, and no later session can make it say otherwise without rewriting a committed file — which §6 forbids. |
+| The frozen audit | **L3** | Applied in order: can a bad value still be written down after it exists? Yes. So L3. It is append-only evidence too, but “append-only” is §6 — a rule nothing executes — so that does not raise the label. The layer model classifies controls; a record is not one. |
 | `Git wins over memory` | **L3** | It is a sentence. Nothing rejects a memory that contradicts the repository. |
 | The absence of any staleness check | **not a layer at all** | This is the row that matters. A narrow L2 control lies to a reader; **no control does not.** They are different failure modes and only the first one produces false assurance. |
 
