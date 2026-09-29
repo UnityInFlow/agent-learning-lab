@@ -144,9 +144,52 @@ while IFS=$'\t' read -r key _q; do
   esac
 done <<< "$QUOTES"
 
+# ...and the SYMMETRIC check, which was missing. §4a round-4 BLOCKING finding, codex +
+# deepseek-v4-pro panel, 2026-09-29: the validator above only asked "does every quote name a
+# declared page". Nothing asked "is every declared page quoted". An ORPHAN page — a see-also or
+# context url nobody quotes — was fetched anyway, and if its url were dead the WHOLE manifest
+# died at exit 3 with nothing reported: the quotes that would have verified lost behind an exit
+# code whose documented meaning is "nothing was proved either way", indistinguishable from a
+# fetch failure on the page that actually carried the drift signal.
+#
+# IT IS A SKIP, NOT A REFUSAL, and that choice is not a softening. The first run of the refusing
+# version REFUSED evidence/p08/quotes-p08.tsv — which declares page key `home` and quotes it
+# nowhere. That manifest is transcribed MECHANICALLY from stop 23's script and is the parity
+# proof; editing it would break the property that makes the parity mean anything, and refusing it
+# would destroy a reproducible measurement over a page that contributes NOTHING to any result.
+# An orphan page can only ever hurt — it cannot add a quote, and it can abort a run — so the fix
+# is to not fetch it and to say so. The exit code stays driven by the quotes. Fixtures AA and AB.
+SKIPPED_PAGES=""
+KEPT_PAGES=()
+for entry in "${PAGES[@]}"; do
+  pkey=${entry%%|*}
+  qref=0
+  while IFS=$'\t' read -r key _q; do
+    [ -z "${key:-}" ] && continue
+    [ "$key" = "$pkey" ] && { qref=1; break; }
+  done <<< "$QUOTES"
+  if [ "$qref" = 1 ]; then
+    KEPT_PAGES+=("$entry")
+  else
+    echo "ORPHAN PAGE KEY '$pkey' declared but quoted by nothing - SKIPPED, not fetched" >&2
+    SKIPPED_PAGES="$SKIPPED_PAGES$pkey "
+  fi
+done
+PAGES=("${KEPT_PAGES[@]}")
+# Every page was an orphan: nothing would be fetched and every quote would then fail on a missing
+# file. That is the "I looked at nothing" shape again and it is exit 4, not a page of absences.
+[ "${#PAGES[@]}" -gt 0 ] || { echo "EVERY DECLARED PAGE IS AN ORPHAN $MANIFEST" >&2; exit 4; }
+
 if [ "$LIST" = 1 ]; then printf '%s' "$QUOTES"; exit 0; fi
 
-TMP=$(mktemp -d) || exit 3
+# §4a round-4 line-level finding (4), deepseek-v4-pro: a failure to make a local scratch
+# directory exited 3, the code that means "a page could not be read" — although no page had been
+# touched. It is an environment failure, not a fetch failure, and it now says so on stderr. The
+# code stays 3 rather than moving, because this file's exit taxonomy is quoted in the stop-24
+# workbook's validation table and in 47 fixture cases: renaming a registered code at the close of
+# the stop that registered it is the one thing §6 forbids outright. The message is the fix that
+# was available.
+TMP=$(mktemp -d) || { echo "CANNOT CREATE SCRATCH DIRECTORY — an environment failure, not a page fetch failure" >&2; exit 3; }
 trap 'rm -rf "$TMP"' EXIT
 
 # §4a round-3 blocking finding (2), codex + deepseek-v4-pro panel, 2026-09-29: these two
@@ -258,6 +301,13 @@ while IFS=$'\t' read -r k v; do
 done <<EOF_SRC
 $PAGE_SOURCES
 EOF_SRC
-printf '\nmanifest=%s found=%d absent=%d sources=%s\n' "$SLUG" "$found" "$missing" "${SOURCES% }"
+# The skipped set goes in the SUMMARY LINE and not only on stderr: stderr is discarded by every
+# caller that redirects, and a page silently not fetched is exactly the kind of narrowed scope
+# this stop spent its whole review budget on.
+if [ -n "$SKIPPED_PAGES" ]; then
+  printf '\nmanifest=%s found=%d absent=%d sources=%s skipped-orphan-pages=%s\n' "$SLUG" "$found" "$missing" "${SOURCES% }" "${SKIPPED_PAGES% }"
+else
+  printf '\nmanifest=%s found=%d absent=%d sources=%s\n' "$SLUG" "$found" "$missing" "${SOURCES% }"
+fi
 [ "$missing" -eq 0 ] && exit 0
 exit 2

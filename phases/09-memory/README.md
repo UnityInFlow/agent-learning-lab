@@ -18,9 +18,19 @@ Persistence without treating learned state as truth.
 > false-assurance shape this workbook names for `check-links.sh`, applied one level up to its own
 > heading.**
 
+**Two marks, two meanings, and nothing in this file said so until now** — a round-5 finding at
+**2 of 2 runs**, the only one of that round both families raised. The **checkbox** is the August
+template's *"has a human read this?"* and **no session has ever ticked one**; the **tick** is
+*"the URL resolved when `check-links.sh` last ran"*. An unticked box beside a green tick was
+readable as either *unread* or *not verified*, which are opposite claims about opposite things.
+
 - [ ] ✅ [Copilot Memory](https://docs.github.com/en/copilot/concepts/agents/copilot-memory)
 - [ ] ✅ [Claude Code — Memory](https://code.claude.com/docs/en/memory)
 - [ ] ↪️ [VS Code — Memory](https://code.visualstudio.com/docs/agents/run/memory) — treat separately from GitHub-hosted Copilot Memory
+
+`[ ]` = **the human-read box, never ticked by any session of this run.** ✅ = **URL resolves.**
+↪️ = **read separately, different product.** The boxes are left unticked rather than ticked,
+because ticking them would be this run asserting a human act it cannot observe.
 
 **Links re-verified 2026-09-29** — `./tools/check-links.sh phases/09-memory/README.md`,
 `ok=3 moved=0 blocked=0 unverified=0 broken=0`, exit 0
@@ -93,9 +103,14 @@ ln -s AGENTS.md CLAUDE.md    # symlink, if no Claude-specific content is needed
 > files**." — that is the verification step, and it costs nothing.
 
 > ⚠️ **The paraphrased claims in the rest of this Extract were NOT re-checked.** The 2026-09-29
-> pass covered **eight quotations** and nothing else. The trust table, the precedence chain, the
-> size figures and the auto-memory mechanics below are from 2026-08-09, carry no per-claim
-> staleness marker, and are marked here as a block for the same reason §“Current properties” is.
+> pass covered **eight quotations** and nothing else. The trust table, the precedence chain and
+> the auto-memory mechanics below are from 2026-08-09, carry no per-claim staleness marker, and
+> are marked here as a block for the same reason §“Current properties” is.
+> ~~the size figures~~ → **struck at the close from a round-5 finding, and the strike matters.**
+> One of the eight **is** a size figure — *“Target under 200 lines per `CLAUDE.md` file…”*, row 3
+> of the adjudication, found **never verbatim**: a capital *“Target”* lifted out of a
+> *“Size : target …”* list item. Listing size figures among the un-re-checked told a reader the
+> opposite of what the pass had found about the one that was checked.
 > The two round-2 panels disagreed about whether this needed saying — one raised it, the other
 > disputed it as already covered by the dated header — and it is said, because the cheaper error
 > is the one that over-marks.
@@ -588,6 +603,22 @@ results are contemporaneous and differ only in what they are about:
 - **true but obsolete** — 1. The category an external page cannot show, because a documentation
   page cannot become obsolete *to you* while staying true.
 
+**The mapping, written out, because a round-5 finding was right that “reproduces” was doing
+work no stated rule supported.** The two corpora do not share a vocabulary, so *reproduces* has
+to name which class answers which:
+
+| Extract class (8 quotations vs a vendor page) | Memory class (25 assertions vs this machine) | What the two share |
+|---|---|---|
+| **claim reversed / reworded** — the page moved under a sentence that was right when written | **superseded by a recorded event** — 5 of 7 | The artifact was **true and the world changed**. Only a re-check against the world finds it |
+| **never verbatim** — false on the day it was written | **does not reproduce as written** — 2 of 7 | The artifact was **wrong from the start**. A re-check finds it, and cannot tell you it was never right |
+| *— no counterpart —* | **true but obsolete** — 1 | The category the external corpus **cannot** produce: a documentation page cannot go obsolete *to you* while staying true |
+
+**What is claimed is the first two rows and nothing more:** in both corpora the failures split
+into *was-true-and-drifted* and *was-never-true*, the two are byte-indistinguishable to the
+checker each corpus has or lacks, and separating them took a human both times. **The counts are
+not compared and no rate is transferred** — 8 quotations and 25 assertions are different units
+against different referents.
+
 One corpus is an anecdote. Two is the beginning of a pattern, and the second one added a
 category the first could not. Stated with its limit: **two corpora, one observer, one day** —
 that is a pattern worth looking for again, not a rate.
@@ -1037,3 +1068,80 @@ them changed a single cell of its output.** That is worth saying plainly rather 
 the review harness is finding real defects in a tool whose *result* has been right the whole time,
 which means its value here is not in correcting this stop's number but in the next manifest, the
 next phase and the next reader — and none of that is measured by anything at this stop.
+
+---
+
+### Past the round cap: two more rounds, sixteen more findings, and a real orphan in real evidence
+
+§4a caps the revision loop at **three rounds per artifact**. This stop ran **five** on the
+workbook and **four** on the gate script, because each round kept returning findings that were
+right. What follows is the record of the rounds past the cap and, more importantly, **the reason
+the loop stopped where it did: the cap, not convergence.**
+
+**Round 5 on the workbook — the gate never ran.** `findings/opencode/review-README-20260929T144108Z.md`:
+codex `ok` 49 s, `deepseek-v4-pro` `ok` 128 s, and then *"The gate failed to run (opencode exit
+1)"* on `minimax-m3` — **the third acceptance failure of the day on that model**, and the second
+that sat wedged past its own 600 s stall budget. Line-level findings were kept: **12 sections,
+1 at 2 of 2, 11 at 1 of 2.**
+
+| # | Finding | Disposition |
+|---|---|---|
+| 1 | `- [ ] ✅` — an **unticked box beside a green tick**, and nothing in the file said what either mark meant. Readable as *unread* or as *not verified*, which are opposite claims about opposite things. **The only 2-of-2 finding of the round** | **Fixed.** Both marks defined where they appear; the boxes are left unticked because ticking them would be this run asserting a human act it cannot observe |
+| 9 | *"the three-way split reproduces"* rests on an **unstated mapping** between the extract's classes and the memory corpus's | **Fixed.** The mapping is now a table, and it states that **only the first two rows are claimed** — counts are not compared and no rate is transferred between corpora |
+| 12 | The block marker listed **"the size figures"** among what was *not* re-checked — while **one of the eight quotations is a size figure**, row 3, found *never verbatim* | **Fixed**, struck not deleted. The marker told a reader the opposite of what the pass had found about the one it checked |
+| 6 | `verify-quotes.sh` passes a byte-exact sentence whose surrounding qualifier changes the claim, with no adjudication rule | **Already fixed at round 4** — that is the *sentence ↔ claim is L3* split, added because the same defect was found from the other direction. No further change |
+| 2–5, 7, 8, 10, 11 | Eight findings against the **August material**: labs with no scored boundary, *"live right now"* unobserved, a *"2 occurrences"* rule with no independence condition, a vendor-claims banner covering the project's own normative lines | **Recorded, not acted on — see below.** Findings 2–5 are already covered by the deferred-labs marker added at round 4 |
+
+**Round 4 on the gate script — `REJECT`, one blocking, four line-level, and it found something
+real on its first run.** `findings/opencode/review-verify-quotes-20260929T172331Z.md`. Two of the
+four are **repeats of findings already disputed in writing** (markup text counting as present;
+the unanchored `grep -qF`), which is the expected behaviour of a dispute and not a new defect.
+**None of the three round-3 fixes reappeared**, which is the only evidence available that they
+did not regress.
+
+**The blocking one: a declared page that no quote references.** The validator asked *"does every
+quote name a declared page"* and nothing asked the inverse, so an orphan see-also page was
+fetched anyway — and a dead URL on it would kill the **whole** manifest at exit 3, *"nothing was
+proved either way"*, with every verifiable quote lost behind an exit code indistinguishable from
+a fetch failure on the page that carried the drift signal.
+
+**It was written as a refusal first, and the refusal rejected real evidence on its first run.**
+`evidence/p08/quotes-p08.tsv` declares page key `home` — `https://github.github.com/gh-aw/` —
+and quotes it **nowhere**. So does stop 23's own script, at
+[`evidence/p08/verify-quotes.sh`](../../evidence/p08/verify-quotes.sh) line 40, from which that
+manifest was transcribed mechanically. **Stop 23's instrument has been fetching a page it never
+used, and had that URL 404'd, its entire 29-quote result would have died with nothing reported.**
+That stop is closed and its script produced a measured result, so §6 keeps it untouched and this
+is recorded rather than repaired.
+
+**So the fix is a skip, not a refusal, and that is not a softening.** An orphan page can never
+add a quote and can only abort a run. It is no longer fetched, it is named on stderr **and in the
+summary line** — `skipped-orphan-pages=home` — because stderr is discarded by every caller that
+redirects, and a page silently not fetched is precisely the narrowed scope this stop spent its
+review budget on. Fixtures **AA** (the orphan's URL is the unreachable `example.invalid`, so the
+case fails at exit 3 if the skip does not happen) and **AB**, its negative control: without AB
+the check would pass equally against a checker that skipped every extra page, and `quotes-p08.tsv`
+has seven. Suite **47 → 52**.
+
+**And for the fifth time the measurement does not move**, cell for cell by `diff`:
+
+```
+p09   found=3  absent=5   sources=claude=live
+p08   found=28 absent=1   sources=… skipped-orphan-pages=home     ← the skip is the only new text
+```
+
+#### What was NOT acted on, and why that is the honest end of step 13a
+
+Eight round-5 findings against the August material are **recorded and left**. Every one targets a
+lab design or a claim this stop **deferred**: `n = 0` runs belong to Labs 9.1–9.3, nothing here
+has been scored, so nothing here has been scored ambiguously, and §4 step 3 is the thing that
+forces a decision rule — before the first run of the stop that runs them, not at the close of the
+stop that reads the phase. The round-4 marker above the labs says so in the file.
+
+**The reason to stop is the cap, and it should be said plainly rather than dressed as
+convergence.** Across five rounds on the workbook and four on the gate script the review returned
+**four blocking contradictions — all four mine — and eleven distinct defects in one instrument**,
+and the rate had not flattened when the rounds ran out. **Not one of them changed a cell of any
+measurement.** Whether a review that keeps finding real defects in a tool whose *result* never
+moves is worth its cost is the question this stop most wants answered and cannot answer: §4a's
+three-round cap exists precisely so the loop terminates, and here the cap did the deciding.

@@ -296,5 +296,44 @@ QUOTE_FIXTURE_FILE="$PAGE" "$CHECKER" --manifest "$DBL" >"$TMP/z.out" 2>&1
 check "Z double-spaced quote matches collapsed page" 0 "$?"
 names "Z" "$TMP/z.out" "FOUND"
 
+# AA — a DECLARED page that no quote names is a manifest defect (exit 4), caught before any
+#      network call. §4a round-4 blocking finding: without it, an orphan see-also page with a
+#      dead url killed the whole manifest at exit 3 — "nothing was proved either way" — and the
+#      quotes that WOULD have verified were lost behind an exit code indistinguishable from a
+#      fetch failure on the page that carried the drift signal. The url here is deliberately the
+#      unreachable example.invalid, so the case proves the orphan is never fetched: if it were,
+#      curl would fail and this would exit 3 instead of 0. The skip is also required to appear
+#      in the SUMMARY line, not only on stderr, because stderr is discarded by every caller that
+#      redirects and a page silently not fetched is a narrowed scope nobody can see.
+ORPHAN="$TMP/orphan.tsv"
+printf 'page\tp1\thttps://example.invalid/never-fetched\n'  > "$ORPHAN"
+printf 'page\tp2\thttps://example.invalid/also-never\n'    >> "$ORPHAN"
+printf 'quote\tp1\tThe first sentence is here.\n'          >> "$ORPHAN"
+QUOTE_FIXTURE_FILE="$PAGE" "$CHECKER" --manifest "$ORPHAN" >"$TMP/aa.out" 2>&1
+check "AA orphan declared page is SKIPPED, not fatal" 0 "$?"
+names "AA" "$TMP/aa.out" "ORPHAN PAGE KEY"
+names "AA summary names the skip" "$TMP/aa.out" "skipped-orphan-pages=p2"
+
+# AB — the negative control for AA. The SAME two pages, both quoted, must NOT be refused: the
+#      check must reject an unquoted page and accept a quoted one, or it is just a rule that
+#      forbids two pages. Without AB, AA passes equally against a checker that skips or refuses
+#      every extra page — and quotes-p08.tsv has seven.
+#
+#      AND THE REFUSING VERSION OF THIS CHECK WAS WRITTEN FIRST AND REFUSED REAL EVIDENCE ON ITS
+#      FIRST RUN: evidence/p08/quotes-p08.tsv declares page key `home` and quotes it nowhere, so
+#      an exit-4 refusal destroyed the stop-23 parity measurement over a page that contributes
+#      nothing to any result. That is why this is a skip. The orphan was stop 23's, carried
+#      faithfully by a mechanical transcription, and the manifest is NOT edited.
+BOTH="$TMP/both.tsv"
+{
+  printf 'page\tp1\thttps://example.invalid/never-fetched\n'
+  printf 'page\tp2\thttps://example.invalid/also-never\n'
+  printf 'quote\tp1\tThe first sentence is here.\n'
+  printf 'quote\tp2\tAnd the second sentence is here.\n'
+} > "$BOTH"
+QUOTE_FIXTURE_FILE="$PAGE" "$CHECKER" --manifest "$BOTH" >"$TMP/ab.out" 2>&1
+check "AB both pages quoted is accepted" 0 "$?"
+names "AB" "$TMP/ab.out" "sources=p1=fixture"
+
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ] || exit 1
