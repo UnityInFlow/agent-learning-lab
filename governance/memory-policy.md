@@ -15,6 +15,14 @@ before it was written. Every row is reversible; none of it moves a registered va
 Taken from the phase README's split and kept, because the audit gave no reason to change it.
 **Ownership here means: if two systems disagree, this one is right and the other is derived.**
 
+**One exception, and the §4a round-2 gate was right to press on it.** *"Everything below is
+derived state"* is true of memory and of memtrace — both can be regenerated from the repository —
+and it is **not** true of the observatory's run records. A run record is an **observation of an
+event that happened**, not a projection of the tree; nothing in Git can reconstruct it and
+nothing in Git can overrule it. So Git is authoritative about *what the code is* and the run
+record is authoritative about *what occurred*, and those are different questions. §2's last row
+says so per system; this paragraph exists because the one-line slogan above does not.
+
 ```
 Git                   → authoritative. Everything below is derived state.
 memtrace              → code. Symbols, call graphs, "why is this here", decisions.
@@ -34,8 +42,12 @@ observatory API answers on `127.0.0.1:8081` with **742** run records.
 
 ## 2. The governance questions, answered
 
-The README asks nine questions of every memory mechanism. Answering them per system is the
-point of the exercise; an unanswered row is a real gap and is written as one.
+The README asks its governance questions as a run-on list. **This table has eight rows, not
+nine** — `inspect / export / delete` is one row here and reads as three questions there, so any
+count between eight and ten is defensible and the number is not worth asserting. An earlier draft
+said *"nine questions"* against an eight-row table; the §4a round-2 gate caught it. Answering
+them per system is the point of the exercise; an unanswered row is a real gap and is written as
+one.
 
 | | Claude auto memory | memtrace | Observatory Postgres |
 |---|---|---|---|
@@ -76,6 +88,12 @@ hand, not by anything that runs on its own — which is why the answer is about 
 guarantee about the next one.
 
 ## 4. Layers — applied in order, stopping at the first yes
+
+The model applied here is the workspace `CLAUDE.md`'s guardrail layer rule, three steps taken **in
+order, stopping at the first yes**: (1) can the bad value still be written down after the fix? →
+**L1 structural**; (2) does something *execute* and reject it? → **L2 enforced**; (3) otherwise →
+**L3 guidance**. It is named here because the round-2 gate noted, fairly, that a reviewer
+objecting to a label was applying a model this file never stated.
 
 | Thing | Layer | Why, applied in order |
 |---|---|---|
@@ -129,3 +147,23 @@ its own review was running (`16503d1`, `d446308`). **That is a §4a rule 4 viola
 recorded rather than tidied away:** *"never edit the artifact while its review is running."* The
 mitigation is the one §4a step 3 requires anyway — a re-run on the revised artifact — and the
 round-2 findings are the ones that apply to this text.
+
+## 7. §4a review — round 2, on the revised text
+
+`findings/opencode/review-memory-policy-20260929T114050Z.md`, `-n 2`, both runs ok (148 s, 75 s),
+no family dropped from the denominator. **Verdict: `ACCEPT`. `blocking: []`.** The nine round-1
+findings do not recur.
+
+Four non-blocking findings and one the gate disputed on the critic's behalf:
+
+| Finding | Action |
+|---|---|
+| §2 said *"nine questions"* against an **eight-row** table | **fixed** — the count is not asserted at all now, because `inspect / export / delete` reads as one row or three and any number between eight and ten is defensible |
+| §1's *"Everything below is derived state"* conflicts with §2 granting the run record its own authority | **fixed, and it was the better finding.** A run record is an **observation of an event**, not a projection of the tree: Git cannot reconstruct it and cannot overrule it. Git is authoritative about *what the code is*; the run record about *what occurred* |
+| §6 promised *"the round-2 findings are the ones that apply"* while only round 1 was documented | **fixed** — this section |
+| §6 records the §4a rule 4 violation | **no action: that is the point.** It is recorded rather than tidied away, and the gate listing it as non-blocking is the correct reading |
+| *(gate-disputed)* Run 1 objected to *"not a layer at all"* by applying a three-step model **this file never stated** | **fixed by naming the model** — the workspace `CLAUDE.md`'s rule is now quoted in §4 before the table. The gate was right that a reviewer should not have to import it |
+
+**Two rounds, and the artifact moved from `REJECT` to `ACCEPT` on findings that were almost all
+real.** Of the fourteen findings across both rounds, **one** was disputed in writing and one was
+already fixed before its review returned; the other twelve were defects.
