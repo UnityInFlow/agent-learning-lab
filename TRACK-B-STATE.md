@@ -213,7 +213,20 @@ batch_result:   # §0 boundary 2's own requirement: every run id and its worktre
     treated (killed ~15:26Z, log BE-004-02-treated.log, 317 890 bytes). *** NEITHER HAS A RUN ID,
     AN API RECORD, A WORKTREE COPY, A run-ids.tsv ROW OR A MANIFEST ROW. *** Both logs are KEPT
     (§6). Both cells were re-run by a resume and appear in the manifest under DIFFERENT run ids -
-    that is correct and not a duplicate, because a cell with no manifest row was never recorded."
+    that is correct and not a duplicate, because a cell with no manifest row was never recorded.
+    *** BOTH ARE WRITTEN UP IN evidence/b11/batch-20260930T115342Z/ORPHAN.md ***, to the shape
+    b09's orphan set - what happened, the two logs' present/absent stream markers side by side,
+    the unrecoverable cost, the stricter cost reading worked out ($2.71 / $4.35, both still under
+    ceiling), and *** THE ONE PLACE A VALIDATOR COULD REASONABLY DISAGREE, NAMED RATHER THAN
+    HIDDEN: E-026's Exclusions item 2 would give n = 9 on those two arms if a harness kill were
+    read as an F13-class abort. *** The reason it does not reach these cells is that item 2
+    governs runs that ENTERED the population - an id, a record, an abort - and these never did."
+  evidence_committed: "*** ALL OF IT IS IN GIT AND PUSHED, working tree clean. *** Commit
+    02b2225 on stop26/b11-efficiency adds 84 files under evidence/b11/batch-20260930T115342Z/
+    (manifest.tsv, run-ids.tsv, window.txt, ORPHAN.md, 40 init-schema read-backs, 42 run logs
+    INCLUDING THE TWO KILLED ONES) plus the 40 per-run extracts under evidence/b11/worktrees/
+    and the two new stray `1` artefacts. Same shape b09 and b10 use - checked with `git ls-files
+    evidence/b09/*` rather than assumed."
   runs:   # task seq arm  run_id  eval  runtime_ver  estimatedCost
   - "BE-003 01 treated  5cc74707-f2e8-44a4-9ccf-df241effaac3  eval=0 ver=2.1.284 cost=0.106769"
   - "BE-003 01 control  1cd964b4-eca2-4296-bc02-26e605254859  eval=0 ver=2.1.284 cost=0.131008"
