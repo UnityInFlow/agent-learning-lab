@@ -107,6 +107,154 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
+# ===== CURRENT STATE - STOP 26, B11, §4 STEP 6 *** BATCH DIED MID-BATCH, RESUMING ***, 2026-09-30 =====
+# Newest first. Every key below SUPERSEDES the next occurrence of the same key further down;
+# nothing further down is deleted. Keys NOT repeated here are still live at their old positions:
+#   validation_processed (22 files, newest 2026-09-08; RE-CHECKED BY NAME this session - one grep
+#     per basename against the 22 on disk, IDENTICAL SET, NOTHING NEW, no §0 validator batch owed)
+#   author_decisions (items 1-13, unchanged), blocked_on_author: [] (EMPTY, no §7 bullet matched),
+#   board_digest: 99bcf34960f6 (unchanged - `git diff main -- HANDOFF.md` still empty on this branch)
+status: running   # *** THE DETACHED BATCH FROM THE PREVIOUS SESSION IS DEAD AND IT DIED WITH THE
+                  # SESSION, NOT FROM AN OOM. *** Launched 11:53:42Z, last completed run started
+                  # 12:16:16Z, and NOTHING is running now (`pgrep -f run-b11-batch` = NONE, ps
+                  # snapshot to a file grepped through `cut -c1-120`). 11 of 40 runs are recorded.
+                  # *** THE EVIDENCE THAT IT WAS A KILL AND NOT A CRASH: *** BE-003-06-control.log
+                  # is 148 842 bytes and carries `"subtype":"init"` and `"subtype":"task_started"`
+                  # but NO `"type":"result"`, NO `"subtype":"success"` and NO `run record` marker,
+                  # while EVERY completed log carries all three. The claude child was terminated
+                  # mid-stream. The API has 11 EXP-B11-EFFICIENCY-BE003 records and no 12th, and
+                  # /tmp/b11batch (the driver's own log dir) NO LONGER EXISTS, so the driver's exit
+                  # code is unrecoverable. The stack is NOT the culprit: API /api/runs = 200,
+                  # /actuator/health = UP, web 5174 = 200 at 14:42Z, hours after the death.
+                  # *** SO detach.py's sid == pid DID NOT SURVIVE THE PRINT-MODE SESSION ENDING. ***
+                  # That is a new measured fact about this harness and author_notes carries it: the
+                  # ONLY reliable way to finish a batch here is to STAY IN THE SESSION AND WAIT on
+                  # it with foreground until-loops, which is what this session does.
+                  #
+                  # *** ONE ORPHAN RUN, AND IT IS UNMEASURED SPEND, NOT A DUPLICATE. *** BE-003 seq
+                  # 06 control was killed mid-run. It has a log, NO run id, NO API record, NO
+                  # worktree copy, NO run-ids.tsv row and NO manifest row. Its cost is unknown and
+                  # unrecoverable (a run record is where estimatedCost lives). The log is KEPT, not
+                  # deleted (§6). The resume re-runs that cell, which is CORRECT and not a
+                  # duplicate: a cell with no manifest row was never recorded.
+                  #
+                  # *** COST SPENT ON BE-003 SO FAR: $1.3171 of the COMPUTED $2.8380 CEILING ***
+                  # (sum of the 11 estimatedCost values off the API). 9 BE-003 cells and 20 BE-004
+                  # cells remain; at the recorded medians that is about $1.1 + $4.1 and BE-004's
+                  # $4.5056 ceiling is the one that may bite. EXIT 11 IS A RESULT (row 0b), not a
+                  # fault - report the population that occurred and DO NOT top up.
+                  #
+                  # *** §0a WAS RE-RUN IN FULL THIS SESSION BEFORE THE RESUME, AT THE AUTHOR'S
+                  # EXPLICIT INSTRUCTION *** ("starting with the section 0a preflight"), which
+                  # overrides §0a's own "first session and after any halt" scoping. It was run
+                  # BEFORE the resume and never alongside it, because a concurrent claude run
+                  # perturbs the duration and cost of a batch run measured against it.
+                  # See the `preflight:` block below for the rows and timestamps.
+prompt_sha: a47590a1e61d       # RE-COMPUTED 2026-09-30T14:3xZ at the top of THIS session with
+                               # `shasum -a 256 ../PROMPT-opus5-track-b.md | cut -c1-12`, and
+                               # *** UNCHANGED. *** No §0 prompt-change line is owed.
+prompt_read_at: 2026-09-30T14:38Z   # This session read §§0, 0a, 1(index only - the sha is
+                               # unchanged so §0 owes no full re-read of the reading list), 2, 3,
+                               # 4, 4a, 4b, 4c, 5, 6, 7, 8 IN FULL from the file. §9 NOT read: it
+                               # is the validator's and the builder never runs it on its own work.
+stop: 26           # *** OPEN. B11 - EFFICIENCY, v1.2. *** Unchanged by the batch death. §3's row
+                   # 26 closes it on "gate #b11, all seven clauses"; the workbook's instrument
+                   # audit found only TWO of the seven measurable as written and FOUR are
+                   # registered `unmeasured` BEFORE the run, so *** v1.2 CANNOT BE PROMOTED AT THIS
+                   # STOP EVEN ON AN `IMPROVED` ROW *** - registered before the batch, not
+                   # discovered after it. Author decision 9 applies (two tasks, two keys, two
+                   # controls, NO verdict across tasks); decision 13's ceiling is COMPUTED BY THE
+                   # DRIVER, per task.
+loop_step: 6   # *** STILL STEP 6. THE BATCH IS INCOMPLETE. *** §0 boundary 2 is "every run of the
+               # batch recorded, run ids and worktree paths in the state file" and IS NOT REACHED.
+branch: stop26/b11-efficiency (agent-learning-lab) - pushed, tracking origin. *** THE PREDICTION
+        # COMMIT IS `2552b7540da4beee3e444a67758d76f52e8b38c1` at *** 2026-09-29T19:30:40Z ***
+        # (git %cI, converted from +02:00) and the FIRST run of this stop started
+        # *** 2026-09-30T11:36:10Z *** (run 602a753c, startedAt off the API), so §4 step 3's
+        # timestamp check is satisfied BY EVIDENCE. The manifest's own header cites `ef2c6c0` as
+        # the prediction commit - that is the SHORT form of a LATER commit on the same branch and
+        # the two must be reconciled at step 8 when the timestamps are written into the two
+        # experiment files. THEY ARE NOT THERE YET.
+        # *** DERIVE THE COMMIT COUNT, NEVER MAINTAIN IT: ***
+        #     `git log --oneline main..stop26/b11-efficiency`
+        # NO PR IS OPEN YET (§4 step 14).
+in_flight:
+  - "*** NOTHING IS RUNNING AS THIS BLOCK IS WRITTEN. *** The 2026-09-30T11:53Z detached batch is
+     DEAD at 11 of 40 recorded rows. The next action starts §0a and then a `--resume`."
+  - "*** THE RESUME COMMAND, VERBATIM - NEVER A FRESH BATCH: ***
+       cd agent-learning-lab && ./evidence/b11/run-b11-batch.sh --resume 20260930T115342Z 10 BE-003 BE-004
+     VALIDATED THIS SESSION with B11_RESUME_VALIDATE_ONLY=1: exit 0, `same corpus, same agent
+     file, same two CLAUDE.md shas, n=10`. It skips every (task,seq,arm) already in the manifest
+     and SEEDS the per-task cost so decision 13's ceiling still bounds the WHOLE batch.
+     Guard cases N, O, P prove it refuses a resume onto the wrong manifest.
+     *** NEVER re-run an id that is already a row in the manifest (§6: a duplicate run is
+     evidence you then cannot delete). ***"
+last_verified: "2026-09-30T14:3xZ - 14:4xZ. RE-ENTRY in §0's order: (1) prompt_sha re-computed
+  = a47590a1e61d, UNCHANGED; (2) §§0-8 read in full from PROMPT-opus5-track-b.md; (3)
+  TRACK-B-STATE.md read BY LINE RANGE (grep the yaml fences and the top-level keys first, then
+  sed 1-340), NEVER `cat` - it is 14 000+ lines and a `cat` would end the session; (4) all 22
+  findings/track-b-validation-*.md basenames listed with `/bin/ls` and each grepped against
+  TRACK-B-STATE.md - IDENTICAL SET, NONE NEW, no validator batch owed; (5) `ps -ax -o command`
+  SNAPSHOT TO A FILE, grepped through `cut -c1-120`, plus `pgrep -f run-b11-batch` = NONE.
+  THEN the batch forensics (see status), the endpoint probes (API /api/runs 200,
+  /actuator/health UP, web 5174 200; *** OTLP HTTP 4318 answers 404 ON `/` and the previous
+  session recorded 200 - that is a PATH difference, not an outage: 404 proves a listener ***),
+  and B11_RESUME_VALIDATE_ONLY=1 on the resume (exit 0, NOTHING run)."
+next_action: "*** IN ORDER: (A) §0a IN FULL, (B) RESUME THE BATCH AND STAY IN THE SESSION TO WAIT
+  ON IT, (C) §0 BOUNDARY 2, THEN STOP. DO NOT START STEP 7. ***
+  (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d); re-check
+      findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
+      2026-09-08); take a `ps -ax -o command` SNAPSHOT TO A FILE and grep over the file
+      *** PIPED THROUGH `cut -c1-120` *** - not a bare grep (a foreign session's heredoc came back
+      as one enormous line) and NOT a `for p in ...; do grep -c \"[x]yz\"` LOOP, which matches its
+      own parent shell and returns 1 for everything.
+      PROCESS AND TOOL TRAPS - READ BEFORE REPEATING THEM:
+      (i)   *** NEVER `tail` A RUN LOG. *** run-agent.sh writes stream-json; ONE line carries a
+            whole file's before/after content. Use `grep -oE` for markers, `wc -c`, or read the
+            RUN RECORD off the API - which is the authoritative source anyway.
+      (ii)  *** A BACKGROUND JOB LOSES ITS EXIT CODE. *** Redirect to a log AND write
+            `echo $? > <file>.rc` in the SAME subshell.
+      (iii) `grep -c` COUNTS LINES, NOT OCCURRENCES, `.` IS A WILDCARD, and *** IT MISSES INDENTED
+            MATCHES WHEN YOU ANCHOR WITH ^ *** - `grep -c '^ok'` read 0 against a 17/17 fixture
+            set whose ok lines begin with two spaces. Trust the set's own summary line.
+      (iv)  `ls -t` IS eza's --time FIELD HERE AND SILENTLY EATS ITS ARGUMENT. Use `/bin/ls -t` or
+            `find`. Put this IN EVERY SUBAGENT BRIEF that names a directory.
+      (v)   `timeout` DOES NOT EXIST HERE (exit 127). Use a perl alarm.
+      (vi)  *** NEVER `cat TRACK-B-STATE.md` *** - read by line range. It is 14 000+ lines.
+      (vii) The foreground Bash tool kills a command at 120 s. A FOREGROUND `until <cond>; do
+            sleep 10; done` IS THE CHEAPEST WAIT - it advances wall clock per call with no
+            polling; a chained bare `sleep` is REFUSED by the harness.
+      (viii) A glob that matches nothing is a zsh ERROR here, not an empty list. `2>/dev/null ||
+            echo NONE`.
+      (ix)  *** NEW, MEASURED 2026-09-30: A DETACHED BATCH DOES NOT SURVIVE THE PRINT-MODE SESSION
+            ENDING, even with detach.py's sid == pid. *** The 11:53Z batch died within ~2 min of
+            the session's last turn. Launch it detached AND WAIT ON IT IN THE SAME SESSION with
+            foreground until-loops; do not end the turn on a running batch.
+  (1) *** IS A BATCH ALIVE? *** `pgrep -f run-b11-batch`, then count data rows in
+      evidence/b11/batch-<TAG>/manifest.tsv (`grep -vc '^#'` minus the column header).
+      (a) running  -> wait with foreground until-loops. DO NOT start a second batch: the pid lock
+          refuses it at exit 8 (guard case K proves it).
+      (b) finished (40 rows) -> read the manifest and window.txt, put every run id and worktree
+          path in this file, and *** END THE TURN AT §0 BOUNDARY 2. *** Do NOT start step 7.
+      (c) *** DEAD MID-BATCH -> `--resume <TAG>`, NEVER a fresh batch. ***
+  (2) EXIT CODES THAT ARE RESULTS, NOT FAULTS: *** 11 = a task's computed ceiling was reached
+      before n = 10 *** -> decision-rule ROW 0b, report the population that occurred at the n that
+      occurred (E-016's precedent at n = 7) and DO NOT top up. 12 = the pair cost was unreadable.
+      7 = an endpoint died. 8 = the pid lock. 9 = the claude CLI moved. 13 = a refused resume.
+  (3) THEN §4 STEP 7 (SCORE) IS THE *** NEXT SESSION'S *** WORK, NOT THIS ONE'S:
+      check-run-gate.sh per run, then codex-score.sh (the REGISTERED number, Decision C) and
+      opencode-score.sh (the second reader) on the same ids, rubric `396e1799eb2b` on BE-003. On
+      BE-004 the rubric is `945817b8c509`, change-focus is REPORT-ONLY (author decisions 10.2/10.3
+      and E-027), and `test-quality` anchor 2 is unreachable there. Delegate scoring to a sonnet
+      subagent per §4b and NEVER two subagents on one run id. WRITE YOUR OWN HAND SCORE FOR ONE
+      RUN FIRST, before opening any sheet.
+  (4) DO NOT: create any artifact of stop 27 or later; redesign the treatment or edit a committed
+      prediction (§4 step 12); edit a measured overlay under build/customizations/; edit
+      codex-score.sh or any registered scorer harness mid-track; delete a worktree, log, sheet,
+      review file or evidence file (§6) INCLUDING the three stray artefacts at evidence/b11/, the
+      orphan BE-003-06-control.log and the worktree copies under evidence.local/; commit a pid
+      lock; republish the boards (author's, decision 12 item 4); push a state write straight to
+      main; or run §9 on my own work."
 # ===== CURRENT STATE - STOP 26, B11 (EFFICIENCY, v1.2), §4 STEP 5 PASSED, STEP 6 LAUNCHING, 2026-09-30 =====
 # Newest first, as this file has always been kept. Every key below SUPERSEDES the next
 # occurrence of the same key further down; nothing further down is deleted. The keys NOT
