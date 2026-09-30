@@ -403,6 +403,28 @@ manifest_header_defect:   # found this session, recorded, NOT fixed mid-batch
     method preventing. The header is L3 prose and moves no behaviour. *** IT IS FIXED AFTER THE
     BATCH CLOSES, NOT DURING IT ***, and the correction is carried in the workbook's §5 table and
     in both experiment files at §4 step 8."
+batch_death_mechanism:   # *** MEASURED THIS SESSION, WITH A NAMED CAUSE, AFTER TWO DEATHS. ***
+  fact: "A batch launched through the agent harness's Bash tool dies when THE HARNESS'S OWN
+    BACKGROUND-JOB TIME LIMIT EXPIRES, and the kill reaches the detached process too. The second
+    death was OBSERVED DIRECTLY: the harness reported `Background command ... was stopped after
+    reaching its background time limit` and the very same poll returned `alive=0`. detach.py had
+    printed `pid=95753 pgid=95753 sid=95753`, so the detach HAD happened and did not save it."
+  therefore: "*** detach.py's sid == pid IS NOT SUFFICIENT HERE. *** Its docstring is right that a
+    process-GROUP signal cannot cross a new session; the harness does not send one - it kills the
+    process TREE. The 11:53Z death has the same shape and the same explanation: the previous
+    session's launch inherited a 30-minute leash it could not see."
+  the_working_launch: "Run the batch with the Bash tool's own `run_in_background: true` AND an
+    EXPLICIT `timeout` up to 7 200 000 ms (2 h), redirecting to a log and writing `echo $? > <log>.rc`
+    in the SAME subshell. Then STAY IN THE SESSION and poll with foreground until-loops. The leash
+    is then long enough to finish and the harness owns the process, so nothing surprises it.
+    *** A LAUNCH WITHOUT AN EXPLICIT TIMEOUT GETS THE 30-MINUTE DEFAULT AND WILL DIE AT ROW ~22. ***"
+  cost_of_learning_it: "Two orphan runs, both unmeasured spend: BE-003 seq 06 control (killed
+    2026-09-30 ~12:18Z, 148 842-byte log) and BE-004 seq 02 treated (killed ~15:26Z, 317 890-byte
+    log). Neither has a run id, an API record, a worktree copy, a run-ids.tsv row or a manifest
+    row; their cost is unrecoverable because estimatedCost lives in the run record. *** BOTH LOGS
+    ARE KEPT, NOT DELETED (§6), and both cells were re-run by the resume, which is correct and not
+    a duplicate: a cell with no manifest row was never recorded. *** Any manifest arithmetic over
+    this batch therefore UNDERSTATES true spend by two runs, and the write-up says so."
 author_notes:   # *** 2026-09-30 SECOND SESSION (stop 26, §4 step 6 resumed) items FIRST. The items
                 # at the older positions further down this file are NOT superseded and are still
                 # open, except where one below says otherwise.
