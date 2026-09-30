@@ -1,0 +1,3 @@
+{"ts":"2026-09-30T15:13:57Z","hook":"command-dedup","tool":"Bash","decision":"allow","reason":"first-run","fingerprint":"92a6e5c37c4b67ae","codeFingerprint":"e3b0c44298fc1c14","command":"find . -type f -name \"*.kt\" -o -name \"*.java\" | head -20"}
+{"ts":"2026-09-30T15:14:27Z","hook":"command-dedup","tool":"Bash","decision":"allow","reason":"first-run","fingerprint":"9c25b4cf909f2400","codeFingerprint":"e3b0c44298fc1c14","command":"ls -la sample-service/"}
+{"ts":"2026-09-30T15:15:00Z","hook":"command-dedup","tool":"Bash","decision":"allow","reason":"first-run","fingerprint":"0070eaaf03be2db0","codeFingerprint":"51a8d00892f09c01","command":"cd sample-service && ./mvnw test"}

@@ -1,0 +1,1 @@
+condition: budget-log ABSENT at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//budget-log-observatory-run-80eaf2cd-e85c-4a4c-bf48-672968e30945.jsonl

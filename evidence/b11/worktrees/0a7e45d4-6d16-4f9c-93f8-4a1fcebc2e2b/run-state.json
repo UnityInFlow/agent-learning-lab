@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "b8-v1.1",
+  "runStatePath": ".agent/run-state.json",
+  "worktree": "/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-0a7e45d4-6d16-4f9c-93f8-4a1fcebc2e2b",
+  "startedAt": "2026-09-30T12:03:33Z",
+  "updatedAt": "2026-09-30T12:04:55Z",
+  "phase": "unknown",
+  "goal": null,
+  "affectedFiles": [],
+  "lastAttempt": {
+    "ts": "2026-09-30T12:04:50Z",
+    "fingerprint": "c1589c3583db163b",
+    "command": "cd /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-0a7e45d4-6d16-4f9c-93f8-4a1fcebc2e2b/sample-service && ./mvnw clean test",
+    "attempt": 1
+  },
+  "repairAttemptsByFingerprint": {
+    "71717c3944e43406": 1
+  },
+  "totalRepairAttempts": 0,
+  "blocks": [],
+  "limits": {
+    "maxRepairAttemptsPerFailure": 3,
+    "maxTotalRepairAttempts": 7
+  },
+  "handoff": {
+    "reserved": "B8a — author decision 11 item 7. Nothing at stop 17 reads or writes these fields; they are L3 data awaiting a consumer.",
+    "fromAgent": null,
+    "toAgent": null,
+    "delivered": null,
+    "remaining": null
+  },
+  "hookExecutions": [
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:03:33Z",
+      "decision": "allow",
+      "fingerprint": "fe9555e5aaa22804",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:03:34Z",
+      "decision": "success",
+      "fingerprint": "fe9555e5aaa22804",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:03:36Z",
+      "decision": "allow",
+      "fingerprint": "71717c3944e43406",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:03:40Z",
+      "decision": "allow",
+      "fingerprint": "e8a20d8eb1355ceb",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:03:40Z",
+      "decision": "success",
+      "fingerprint": "e8a20d8eb1355ceb",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:03:51Z",
+      "decision": "allow",
+      "fingerprint": "2c707ee41654e9ac",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:03:51Z",
+      "decision": "success",
+      "fingerprint": "2c707ee41654e9ac",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:03:53Z",
+      "decision": "allow",
+      "fingerprint": "d3c439c3c8aed08c",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:03:53Z",
+      "decision": "success",
+      "fingerprint": "d3c439c3c8aed08c",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:03:58Z",
+      "decision": "allow",
+      "fingerprint": "faaf96a81eb40727",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:03:58Z",
+      "decision": "success",
+      "fingerprint": "faaf96a81eb40727",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:04:18Z",
+      "decision": "allow",
+      "fingerprint": "8917795e8be652cf",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:04:18Z",
+      "decision": "success",
+      "fingerprint": "8917795e8be652cf",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:04:50Z",
+      "decision": "allow",
+      "fingerprint": "c1589c3583db163b",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:04:55Z",
+      "decision": "success",
+      "fingerprint": "c1589c3583db163b",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    }
+  ]
+}

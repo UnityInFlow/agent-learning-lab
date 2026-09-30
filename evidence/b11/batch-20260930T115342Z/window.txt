@@ -1,0 +1,13 @@
+batch 20260930T115342Z ended (UTC): 2026-09-30T16:32:10Z  exit 0
+task BE-003: spent $2.5830 of a COMPUTED ceiling $2.8380 (pair $0.2580 x 11)
+task BE-004: spent $4.1495 of a COMPUTED ceiling $4.5056 (pair $0.4096 x 11)
+runs whose estimatedCost read null: 0 — with any of these every total is a LOWER BOUND
+DELIVERY, PER MECHANISM, NEVER POOLED, over 9 treated run(s):
+  H1 classifier (L3, .agent/task-classification.yaml) ... 0
+  H2 retrieval budget (L2, budget-log) ................. 20
+  H3 file-summary cache (L2, cache-log) ................ 20
+  H4 verification planner .............................. UNMEASURED, registered so before the batch
+  H5 command dedup (L2, dedup-log) ..................... 20
+runs voided before scoring (row 0a, overlay not in the setup tree): 0
+  a row 0a run stays in this manifest and is excluded BY RUN ID, never deleted (§6)
+events.jsonl bytes before 8009000, after 12305271

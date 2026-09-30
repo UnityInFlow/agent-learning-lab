@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "b8-v1.1",
+  "runStatePath": ".agent/run-state.json",
+  "worktree": "/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-804b8614-bac5-4674-aef2-8e778a22690e",
+  "startedAt": "2026-09-30T15:13:57Z",
+  "updatedAt": "2026-09-30T15:15:05Z",
+  "phase": "unknown",
+  "goal": null,
+  "affectedFiles": [],
+  "lastAttempt": {
+    "ts": "2026-09-30T15:15:00Z",
+    "fingerprint": "0070eaaf03be2db0",
+    "command": "cd sample-service && ./mvnw test",
+    "attempt": 1
+  },
+  "repairAttemptsByFingerprint": {},
+  "totalRepairAttempts": 0,
+  "blocks": [],
+  "limits": {
+    "maxRepairAttemptsPerFailure": 3,
+    "maxTotalRepairAttempts": 7
+  },
+  "handoff": {
+    "reserved": "B8a — author decision 11 item 7. Nothing at stop 17 reads or writes these fields; they are L3 data awaiting a consumer.",
+    "fromAgent": null,
+    "toAgent": null,
+    "delivered": null,
+    "remaining": null
+  },
+  "hookExecutions": [
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T15:13:57Z",
+      "decision": "allow",
+      "fingerprint": "92a6e5c37c4b67ae",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T15:13:58Z",
+      "decision": "success",
+      "fingerprint": "92a6e5c37c4b67ae",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T15:14:27Z",
+      "decision": "allow",
+      "fingerprint": "9c25b4cf909f2400",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T15:14:28Z",
+      "decision": "success",
+      "fingerprint": "9c25b4cf909f2400",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T15:15:00Z",
+      "decision": "allow",
+      "fingerprint": "0070eaaf03be2db0",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T15:15:05Z",
+      "decision": "success",
+      "fingerprint": "0070eaaf03be2db0",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "b8-v1.1",
+  "runStatePath": ".agent/run-state.json",
+  "worktree": "/private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-3660d671-641f-4407-a44e-997140858d23",
+  "startedAt": "2026-09-30T12:16:22Z",
+  "updatedAt": "2026-09-30T12:18:01Z",
+  "phase": "unknown",
+  "goal": null,
+  "affectedFiles": [],
+  "lastAttempt": {
+    "ts": "2026-09-30T12:17:55Z",
+    "fingerprint": "9bf241dbc2f208d0",
+    "command": "cd /private/var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T/observatory-run-3660d671-641f-4407-a44e-997140858d23/sample-service && ./mvnw test",
+    "attempt": 1
+  },
+  "repairAttemptsByFingerprint": {},
+  "totalRepairAttempts": 0,
+  "blocks": [],
+  "limits": {
+    "maxRepairAttemptsPerFailure": 3,
+    "maxTotalRepairAttempts": 7
+  },
+  "handoff": {
+    "reserved": "B8a — author decision 11 item 7. Nothing at stop 17 reads or writes these fields; they are L3 data awaiting a consumer.",
+    "fromAgent": null,
+    "toAgent": null,
+    "delivered": null,
+    "remaining": null
+  },
+  "hookExecutions": [
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:16:22Z",
+      "decision": "allow",
+      "fingerprint": "51eb42c0e9a2cf4d",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:16:23Z",
+      "decision": "success",
+      "fingerprint": "51eb42c0e9a2cf4d",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:16:36Z",
+      "decision": "allow",
+      "fingerprint": "9f37d4dd98368a9b",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:16:36Z",
+      "decision": "success",
+      "fingerprint": "9f37d4dd98368a9b",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:16:40Z",
+      "decision": "allow",
+      "fingerprint": "c333f439013e713a",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:16:40Z",
+      "decision": "success",
+      "fingerprint": "c333f439013e713a",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:17:03Z",
+      "decision": "allow",
+      "fingerprint": "2ba76b5744a3a46d",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:17:03Z",
+      "decision": "success",
+      "fingerprint": "2ba76b5744a3a46d",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    },
+    {
+      "hook": "repair-limit",
+      "ts": "2026-09-30T12:17:55Z",
+      "decision": "allow",
+      "fingerprint": "9bf241dbc2f208d0",
+      "reason": "attempt-1-of-3"
+    },
+    {
+      "hook": "repair-record",
+      "ts": "2026-09-30T12:18:01Z",
+      "decision": "success",
+      "fingerprint": "9bf241dbc2f208d0",
+      "reason": "postToolUse-fired-therefore-exit-0"
+    }
+  ]
+}
