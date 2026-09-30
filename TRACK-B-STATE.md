@@ -107,6 +107,231 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
+# ===== CURRENT STATE - STOP 26, B11, *** §0 BOUNDARY 2 OF 4: THE BATCH IS COMPLETE ***, 2026-09-30 =====
+# Newest first. Every key below SUPERSEDES the next occurrence of the same key further down;
+# nothing further down is deleted. Keys NOT repeated here are still live at their old positions:
+#   validation_processed (22 files, newest 2026-09-08; RE-CHECKED BY NAME this session - one grep
+#     per basename against the 22 on disk, IDENTICAL SET, NOTHING NEW, no §0 validator batch owed)
+#   author_decisions (items 1-13, unchanged), blocked_on_author: [] (EMPTY, no §7 bullet matched),
+#   board_digest: 99bcf34960f6 (unchanged - `git diff main -- HANDOFF.md` is 0 bytes on this branch),
+#   preflight: (§0a RE-RUN IN FULL THIS SESSION - see the block below this one),
+#   claude_cli_version_boundary / manifest_header_defect / batch_death_mechanism (this session's,
+#     in the block below; the version-boundary decision was registered BEFORE the resume ran)
+#   prompt_sha: a47590a1e61d, stop: 26 and branch: stop26/b11-efficiency - all three are in the
+#     block immediately below this one, written earlier in THIS SAME SESSION, and none has moved.
+#     The branch key holds the prediction commit and the §4 step 3 timestamp check.
+status: running   # *** §0 BOUNDARY 2 OF 4 FOR STOP 26. THE BATCH IS COMPLETE: 40 OF 40 ROWS,
+                  # DRIVER EXIT 0, NO CEILING BREACH. *** The session ends on that boundary, NOT
+                  # on a halt: blocked_on_author is EMPTY and NO §7 bullet is matched.
+                  #
+                  # *** IT TOOK THREE LAUNCHES AND THE THIRD ONE WORKED FOR A REASON THAT IS NOW
+                  # MEASURED, NOT GUESSED. *** Launch 1 (previous session, 11:53Z) died at 11 rows.
+                  # Launch 2 (this session, 14:56Z, detach.py, sid == pid PROVEN in its log) died at
+                  # 22 rows AND I WATCHED THE CAUSE: the harness printed `Background command ... was
+                  # stopped after reaching its background time limit` and the same poll returned
+                  # alive=0. *** SO THE KILL WALKS THE PROCESS TREE AND A NEW SESSION DOES NOT STOP
+                  # IT; detach.py's sid == pid IS NOT SUFFICIENT HERE. *** Launch 3 used the Bash
+                  # tool's own `run_in_background` with an EXPLICIT 2 h `timeout`, wrote its rc in
+                  # the same subshell, and I STAYED IN THE SESSION polling it with foreground
+                  # until-loops. rc = 0. See `batch_death_mechanism` below; it cost two orphan runs.
+                  #
+                  # *** THE POPULATION IS EXACTLY AS REGISTERED, AND I CHECKED IT WITH MY OWN awk
+                  # OVER THE MANIFEST RATHER THAN BY TRUSTING THE DRIVER'S SUMMARY. ***
+                  #   10 BE-003 treated / 10 BE-003 control / 10 BE-004 treated / 10 BE-004 control
+                  #   rc = 0 on 40 of 40; evaluation exitCode = 0 on *** 40 of 40 *** (every run in
+                  #     every arm of both tasks passed its evaluator - so the scored population is
+                  #     the whole population and no arm is thinned)
+                  #   instructionsHash: 20 control = sha256:a94237242e8c1308fb1d434a06a03463,
+                  #     20 treated = sha256:1cb0ea105099353da3e8048b1a923687. *** CLEANLY SPLIT BY
+                  #     ARM, TWO VALUES, NO CROSSOVER. *** agentHash identical on all 40
+                  #     (sha256:b3450564b6f32d6193e8580db766210e), agentsHash identical on all 40
+                  #     (sha256:cad6d876852f517b4dc64052b8dace1c - obs#88's instrument IS writing),
+                  #     hooksHash null on all 40 (the known schema gap, unchanged).
+                  #   overlay_files: treated 8/8 on 20 of 20, control `ABSENT-as-registered` on 20
+                  #     of 20. *** ROW 0a (void before scoring) FIRED 0 TIMES. ***
+                  #
+                  # *** CONDITION (ii) HELD ON 20 OF 20 TREATED RUNS, SO THE VOID ROW 0c DOES NOT
+                  # FIRE AND THE BATCH IS SCOREABLE. *** Every treated run left log lines from all
+                  # three L2 hooks; every control left 0/0/0. Per-mechanism, from the manifest:
+                  #   H1 classifier (L3, .agent/task-classification.yaml) ...  0 of 20
+                  #   H2 retrieval budget (L2, budget-log) ................... 20 of 20
+                  #   H3 file-summary cache (L2, cache-log) .................. 20 of 20
+                  #   H4 verification planner ...... UNMEASURED, registered so BEFORE the batch
+                  #   H5 command dedup (L2, dedup-log) ....................... 20 of 20
+                  # *** H1 IS 0 OF 20 AND THAT IS A REGISTERED RESULT, NOT A MISSING MEASUREMENT. ***
+                  # It confirms P2 and the preflight's 0 of 2, and it sits with B9's H = 2 of 10 on
+                  # the same prose-delivered mechanism. `classify=ABSENT` on 40 of 40 rows.
+                  #
+                  # *** THE VERSION SPLIT CAME OUT EXACTLY AS REGISTERED BEFORE THE RESUME. *** From
+                  # the manifest's runtime_ver column: BE-003 treated 6 x 2.1.284 / 4 x 2.1.285,
+                  # BE-003 control 5 / 5, *** BE-004 20 of 20 ON 2.1.285 IN BOTH ARMS. *** The
+                  # manifest carries `# claude 2.1.285 at resume` at line 23 as the L1 partition
+                  # record. So BE-004's comparison is CLEAN of the CLI variable and BE-003's carries
+                  # a one-run imbalance; the write-up must say so instead of presenting the two
+                  # headlines as equals.
+                  #
+                  # *** COST: UNDER BOTH COMPUTED CEILINGS, SO EXIT 11 / ROW 0b NEVER FIRED. ***
+                  #   BE-003 $2.5830 of $2.8380      BE-004 $4.1495 of $4.5056
+                  #   runs whose estimatedCost read null: *** 0 *** - so these are EXACT totals and
+                  #   not lower bounds. B11 total including the four preflight runs: $7.4001.
+                  #   *** TRUE SPEND IS HIGHER BY TWO ORPHAN RUNS WHOSE COST IS UNRECOVERABLE ***
+                  #   (estimatedCost lives in a run record and neither orphan has one).
+                  # Telemetry confirmed growing before any number is trusted: events.jsonl
+                  # 8 009 000 -> 12 305 271 bytes.
+                  #
+                  # *** NOTHING OF §4 STEPS 7-14 EXISTS. *** No gate check, no sheet, no report, no
+                  # PR. §6 forbids a future step's artifacts and §0 makes step 7 the NEXT session's
+                  # first act.
+loop_step: 6   # *** STEP 6 IS COMPLETE. §0 BOUNDARY 2 OF 4 IS REACHED. *** Step 7 (score) has not
+               # started and must not start in this session.
+in_flight:
+  - "*** NOTHING IS RUNNING. *** `pgrep -f run-b11-batch` = 0 after the driver wrote rc = 0 to
+     evidence.local/b11-batch-logs/resume2-20260930T153024Z.log.rc. No opencode, no run-agent, no
+     pid lock. The batch ended (UTC) 2026-09-30T16:32:10Z per evidence/b11/batch-20260930T115342Z/window.txt."
+  - "*** THE BATCH IS FINISHED - DO NOT RESUME IT AND DO NOT START ANOTHER. *** 40 of 40 rows are
+     in evidence/b11/batch-20260930T115342Z/manifest.tsv. Re-running any id in it creates duplicate
+     evidence §6 forbids deleting."
+batch_result:   # §0 boundary 2's own requirement: every run id and its worktree path.
+  tag: "20260930T115342Z"
+  manifest: "evidence/b11/batch-20260930T115342Z/manifest.tsv  (40 data rows + 9 header comments
+    + 1 column header; `# claude 2.1.285 at resume` at line 23 partitions the CLI versions)"
+  sidecar: "evidence/b11/batch-20260930T115342Z/run-ids.tsv"
+  window: "evidence/b11/batch-20260930T115342Z/window.txt  (driver exit 0, per-task spend vs
+    ceiling, per-mechanism delivery, row 0a = 0)"
+  driver_logs: "evidence.local/b11-batch-logs/resume-20260930T145610Z.log (launch 2, killed) and
+    resume2-20260930T153024Z.log + .log.rc = 0 (launch 3, completed). The previous session's
+    launch-1 log is GONE - /tmp/b11batch no longer exists - so launch 1's exit code is
+    unrecoverable and only its 11 manifest rows survive."
+  worktree_path_rule: "*** EVERY run id below has its kept worktree copied to
+    `evidence.local/b11-worktrees/<run_id>/` - PRESENT FOR 40 OF 40, CHECKED WITH A -d TEST PER
+    ROW, NOT ASSUMED. *** A smaller per-run extract is at `evidence/b11/worktrees/<run_id>/` (44
+    entries = these 40 plus the 4 preflight runs). Manifest column 30 records the ORIGINAL path,
+    `$TMPDIR/observatory-run-<run_id>`, and *** THOSE ORIGINALS ARE ALREADY GONE FROM $TMPDIR ***
+    - the copies under evidence.local/ are the only surviving trees, so score from them."
+  orphans_excluded_by_name: "BE-003 seq 06 control (killed ~12:18Z, log
+    evidence/b11/batch-20260930T115342Z/BE-003-06-control.log, 148 842 bytes) and BE-004 seq 02
+    treated (killed ~15:26Z, log BE-004-02-treated.log, 317 890 bytes). *** NEITHER HAS A RUN ID,
+    AN API RECORD, A WORKTREE COPY, A run-ids.tsv ROW OR A MANIFEST ROW. *** Both logs are KEPT
+    (§6). Both cells were re-run by a resume and appear in the manifest under DIFFERENT run ids -
+    that is correct and not a duplicate, because a cell with no manifest row was never recorded."
+  runs:   # task seq arm  run_id  eval  runtime_ver  estimatedCost
+  - "BE-003 01 treated  5cc74707-f2e8-44a4-9ccf-df241effaac3  eval=0 ver=2.1.284 cost=0.106769"
+  - "BE-003 01 control  1cd964b4-eca2-4296-bc02-26e605254859  eval=0 ver=2.1.284 cost=0.131008"
+  - "BE-003 02 treated  ba9ec0c3-e0b7-49ba-867b-8f4defda0690  eval=0 ver=2.1.284 cost=0.126834"
+  - "BE-003 02 control  9115438e-e4c4-4e44-bff3-873835621b91  eval=0 ver=2.1.284 cost=0.139269"
+  - "BE-003 03 treated  0a7e45d4-6d16-4f9c-93f8-4a1fcebc2e2b  eval=0 ver=2.1.284 cost=0.115671"
+  - "BE-003 03 control  0c8421de-a6ab-439a-8417-36d7d051be89  eval=0 ver=2.1.284 cost=0.112497"
+  - "BE-003 04 treated  ed58ed0b-ec06-4b95-9232-82926371b709  eval=0 ver=2.1.284 cost=0.126006"
+  - "BE-003 04 control  b4b3078d-7011-4870-a184-f4e65b89983b  eval=0 ver=2.1.284 cost=0.116774"
+  - "BE-003 05 treated  5fdf09b2-e9d0-4644-9a80-4720ecbcd476  eval=0 ver=2.1.284 cost=0.099665"
+  - "BE-003 05 control  1847a399-2afe-4659-bfd3-8c4c97392715  eval=0 ver=2.1.284 cost=0.114462"
+  - "BE-003 06 treated  3660d671-641f-4407-a44e-997140858d23  eval=0 ver=2.1.284 cost=0.128182"
+  - "BE-003 06 control  61d691d8-2f20-49da-adfc-14647605f5c4  eval=0 ver=2.1.285 cost=0.226094"
+  - "BE-003 07 treated  40af8ffb-f0fa-4250-80cb-c6d829941d51  eval=0 ver=2.1.285 cost=0.155281"
+  - "BE-003 07 control  80eaf2cd-e85c-4a4c-bf48-672968e30945  eval=0 ver=2.1.285 cost=0.131588"
+  - "BE-003 08 treated  b3ea2ee3-a7be-4f2d-9d13-9af443eb5f02  eval=0 ver=2.1.285 cost=0.098443"
+  - "BE-003 08 control  6018fa2a-d8b8-487f-a476-ccfcadd22251  eval=0 ver=2.1.285 cost=0.170368"
+  - "BE-003 09 treated  665d6051-a52d-4f9b-8dc0-d9170d5308ca  eval=0 ver=2.1.285 cost=0.114169"
+  - "BE-003 09 control  5418ba8a-209c-4c9c-9213-d5571eaf8646  eval=0 ver=2.1.285 cost=0.125053"
+  - "BE-003 10 treated  804b8614-bac5-4674-aef2-8e778a22690e  eval=0 ver=2.1.285 cost=0.097802"
+  - "BE-003 10 control  de7c3181-c0e3-4b75-92ba-27b70b18a054  eval=0 ver=2.1.285 cost=0.14703"
+  - "BE-004 01 treated  fee87f55-815a-4786-bf56-2b92603c089c  eval=0 ver=2.1.285 cost=0.222116"
+  - "BE-004 01 control  3657dc93-a59f-40dd-a7f1-715c7f643475  eval=0 ver=2.1.285 cost=0.198112"
+  - "BE-004 02 treated  1d38c74c-c285-4a28-b419-d3d375b51b84  eval=0 ver=2.1.285 cost=0.226763"
+  - "BE-004 02 control  d4612ddd-cfc3-4994-a517-289bdb590692  eval=0 ver=2.1.285 cost=0.218013"
+  - "BE-004 03 treated  11951074-88d7-4aa3-862f-63290b23e206  eval=0 ver=2.1.285 cost=0.193817"
+  - "BE-004 03 control  50d2568f-e08f-4ca7-a9fc-312ec3e6cac0  eval=0 ver=2.1.285 cost=0.204789"
+  - "BE-004 04 treated  25bc868d-353f-41bf-847a-4ab6af456dc5  eval=0 ver=2.1.285 cost=0.185686"
+  - "BE-004 04 control  2e8f1900-5e72-4c31-924b-14ef5e6adb10  eval=0 ver=2.1.285 cost=0.187615"
+  - "BE-004 05 treated  4869d86a-4104-4450-9f1f-987790290106  eval=0 ver=2.1.285 cost=0.194898"
+  - "BE-004 05 control  81af5bdf-61d6-42e3-8e8e-e1618b36b393  eval=0 ver=2.1.285 cost=0.200054"
+  - "BE-004 06 treated  9367d62c-05b0-4541-96bd-100672f2d5f7  eval=0 ver=2.1.285 cost=0.208895"
+  - "BE-004 06 control  886fcc90-4a75-4095-a48e-b0920006b8f5  eval=0 ver=2.1.285 cost=0.223146"
+  - "BE-004 07 treated  6b9b6ae8-0e86-4868-82da-570d7d7ef48c  eval=0 ver=2.1.285 cost=0.202982"
+  - "BE-004 07 control  c03d15b9-89fe-4068-82ed-536d363aad19  eval=0 ver=2.1.285 cost=0.203841"
+  - "BE-004 08 treated  e23fd291-19e4-4c8b-a1af-a9d56c4b5932  eval=0 ver=2.1.285 cost=0.253931"
+  - "BE-004 08 control  fe21e3bd-8d9a-4f73-b7fc-d0dcef9cff5d  eval=0 ver=2.1.285 cost=0.199624"
+  - "BE-004 09 treated  55f985be-5e61-4774-883d-efdd2378893a  eval=0 ver=2.1.285 cost=0.185718"
+  - "BE-004 09 control  59cc49fb-6c19-4b03-8d35-0a3561a35d6d  eval=0 ver=2.1.285 cost=0.21842"
+  - "BE-004 10 treated  f1e82607-a314-4e84-951c-d0ff90c72783  eval=0 ver=2.1.285 cost=0.209495"
+  - "BE-004 10 control  1159f35e-0140-4bf9-a66c-1a81a4cc092b  eval=0 ver=2.1.285 cost=0.211667"
+last_verified: "2026-09-30T14:3xZ - 16:4xZ, ONE SESSION.
+  RE-ENTRY in §0's order: prompt_sha re-computed = a47590a1e61d UNCHANGED; §§0-8 read in full;
+  TRACK-B-STATE.md read BY LINE RANGE, never `cat`; all 22 validation basenames listed with
+  `/bin/ls` and each grepped against this file - IDENTICAL SET, none new; `ps -ax -o command`
+  snapshot to a file grepped through `cut -c1-120` plus `pgrep -f run-b11-batch`.
+  THEN, in order: the launch-1 forensics (see the superseded block below); *** §0a IN FULL, SEVEN
+  ROWS, BEFORE ANY RUN OF THE RESUME ***; the resume validated with B11_RESUME_VALIDATE_ONLY=1;
+  three launches; and the batch verified AFTER it finished with MY OWN awk over the manifest -
+  arm counts, eval codes, rc codes, instructionsHash split, agentHash / agentsHash / hooksHash
+  uniques, overlay_files, classify, the three hook-log columns and the runtime_ver partition -
+  plus a -d test per run id for the 40 worktree copies and an independent API sum of the spend
+  that AGREED with window.txt to the cent ($2.5830 / $4.1495).
+  *** ONE DEFECT FOUND IN THE DRIVER'S OWN SUMMARY BY DOING THAT: window.txt's delivery header
+  reads `over 9 treated run(s)` while the per-mechanism counts beneath it read 20. *** The 20 is
+  right (my awk counts 20 treated rows); the 9 is THIS INVOCATION'S treated count printed above
+  numbers read from the WHOLE manifest. A header describing a smaller scope than the numbers under
+  it is this project's house failure mode wearing a new costume, and it is recorded rather than
+  patched mid-stop. See `driver_summary_scope_defect`."
+driver_summary_scope_defect:
+  fact: "evidence/b11/batch-20260930T115342Z/window.txt prints `DELIVERY, PER MECHANISM, NEVER
+    POOLED, over 9 treated run(s):` and then H2/H3/H5 = 20 and H1 = 0. The mechanism counts are
+    manifest-wide (correct: 20 treated rows, verified by my own awk); the `9` is the treated count
+    of the THIRD launch only. A reader who trusts the header divides by the wrong n."
+  status: "RECORDED, NOT FIXED. It travels with `manifest_header_defect` into one additive
+    instrument PR after this stop's §4a review, per §4 step 14 - not now: §4 step 4 forbids
+    editing a tool while a run of it is in flight, and the write-up at step 8 still has to read
+    this batch's artefacts as they stand."
+next_action: "*** §4 STEP 7 (SCORE). THE BATCH IS DONE; DO NOT RESUME OR RELAUNCH ANYTHING. ***
+  (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d); re-check
+      findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
+      2026-09-08); `ps -ax -o command` SNAPSHOT TO A FILE, grepped *** THROUGH `cut -c1-120` ***.
+      PROCESS AND TOOL TRAPS - READ BEFORE REPEATING THEM:
+      (i)    *** NEVER `tail` A RUN LOG *** - stream-json, one line carries a whole file. Use
+             `grep -oE` for markers, `wc -c`, or the RUN RECORD off the API.
+      (ii)   A BACKGROUND JOB LOSES ITS EXIT CODE: `cmd >log 2>&1; echo $? > log.rc` in ONE subshell.
+      (iii)  `grep -c` counts LINES not occurrences, `.` is a wildcard, and `^ok` MISSES INDENTED
+             `ok` lines - use `^ *ok`. Trust a fixture set's own summary line.
+      (iv)   `ls -t` is eza's --time field here and EATS its argument. Use `/bin/ls -t` or `find`.
+             Put this IN EVERY SUBAGENT BRIEF that names a directory.
+      (v)    `timeout` DOES NOT EXIST here (exit 127). Use a perl alarm.
+      (vi)   *** NEVER `cat TRACK-B-STATE.md` *** - read by line range; it is 14 000+ lines.
+      (vii)  The foreground Bash tool kills a command at 120 s; a foreground `until <cond>; do
+             sleep 10; done` is the cheapest wait. A chained bare `sleep` is REFUSED.
+      (viii) A glob matching nothing is a zsh ERROR here: `2>/dev/null || echo NONE`.
+      (ix)   *** A BACKGROUNDED COMMAND WITHOUT AN EXPLICIT `timeout` GETS A 30-MINUTE LEASH AND
+             THE KILL REACHES A DETACHED PROCESS TOO. *** Measured twice today. Long jobs need
+             `run_in_background` WITH `timeout` up to 7 200 000 ms, and you must stay in the
+             session to poll them.
+      (x)    *** A SUBAGENT'S `exit=` FIELD IS NOT TRUSTWORTHY. *** Two of them misreported one
+             this session (codex dry run: said 0, is 3; codex isolation: said 0, is 2 - beside its
+             own LEAKS verdict). Ask for `cmd >out 2>err; echo $?` and re-derive anything gating.
+  (1) `./tools/check-run-gate.sh` on each of the 40 run ids in `batch_result.runs` above.
+  (2) *** WRITE YOUR OWN HAND SCORE FOR ONE RUN BEFORE OPENING ANY SHEET *** (§4 step 7 and §5's
+      hand-re-read rule). Score it off `evidence.local/b11-worktrees/<run_id>/` - the $TMPDIR
+      originals are gone - and the rubric AT ITS REGISTERED SHA.
+  (3) Then `./tools/codex-score.sh <rubric> --run-id <id>` - the REGISTERED number, Decision C -
+      and `./tools/opencode-score.sh` on the SAME ids as the second reader. Rubric
+      `396e1799eb2b` on BE-003; on BE-004 the rubric is `945817b8c509`, *** change-focus is
+      REPORT-ONLY *** (author decisions 10.2/10.3 and E-027) and `test-quality` ANCHOR 2 IS
+      UNREACHABLE there, so no claim may be made about it. Delegate per §4b to a SONNET subagent,
+      one subagent per batch, and NEVER two subagents on one run id.
+  (4) THEN §4 STEP 8 (report) - and step 8 owes four things this session deliberately did not do:
+      (a) write the prediction-commit and first-run timestamps into BOTH experiment files
+          (2552b75 at 2026-09-29T19:30:40Z; first run 602a753c at 2026-09-30T11:36:10Z);
+      (b) record the CLI version partition as a NAMED LIMITATION of BE-003 and its ABSENCE on
+          BE-004 - the decision is already registered above and must not be re-argued;
+      (c) record H1 = 0 of 20 as a result;
+      (d) carry `manifest_header_defect` and `driver_summary_scope_defect` into the §5 table.
+      *** END THE TURN AT §0 BOUNDARY 3 *** (sheets, report and hand re-read on disk, values in
+      this file). Do NOT run steps 9-14 in the same session.
+  (5) DO NOT: create any artifact of stop 27 or later; redesign the treatment or edit a committed
+      prediction (§4 step 12); edit a measured overlay under build/customizations/; edit
+      codex-score.sh or any registered scorer harness mid-track; edit run-b11-batch.sh before the
+      write-up has read this batch's artefacts as they stand; delete a worktree, log, sheet, review
+      file or evidence file (§6) INCLUDING the five stray `1` artefacts at evidence/b11/, the two
+      orphan logs and everything under evidence.local/; commit a pid lock; republish the boards
+      (author's, decision 12 item 4); push a state write straight to main; or run §9 on my own work."
 # ===== CURRENT STATE - STOP 26, B11, §4 STEP 6 *** BATCH DIED MID-BATCH, RESUMING ***, 2026-09-30 =====
 # Newest first. Every key below SUPERSEDES the next occurrence of the same key further down;
 # nothing further down is deleted. Keys NOT repeated here are still live at their old positions:
