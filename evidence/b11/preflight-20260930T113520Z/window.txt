@@ -1,0 +1,7 @@
+preflight 20260930T113520Z ended (UTC): 2026-09-30T11:49:14Z
+cost over the runs that reported one: $0.6676
+THE PAIR COST PER TASK is what author decision 13 multiplies by 11; run-b11-batch.sh
+  reads it from this manifest BY COLUMN NAME and refuses to start if it cannot (exit 12)
+events.jsonl bytes before 1949334, after 2812885
+condition (ii) failures on treated arms: 0
+condition (i)/(iii)/(iv) failures: 0
