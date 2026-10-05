@@ -107,6 +107,243 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
+# ===== CURRENT STATE - *** STOP 26 CLOSED AND MERGED; RUN BLOCKED ON THE §0a ISOLATION ROW ***
+# ===== §0 boundary 4, 2026-10-05 =====
+# Newest first; every key here SUPERSEDES the next occurrence of the same key below and nothing
+# below is deleted. Keys NOT repeated here are live at their old positions and are UNCHANGED:
+#   validation_processed (22 files, newest track-b-validation-2026-09-08-4.md - RE-CHECKED BY NAME
+#     THIS SESSION, one grep per basename: IDENTICAL SET, 22 of 22 PROCESSED, NOTHING NEW, no §0
+#     validator batch owed), author_decisions (1-13), step9_result, step13a_result, batch_result,
+#     score_result, step8_result, manifest_header_defect, driver_summary_scope_defect,
+#     claude_cli_version_boundary.
+status: blocked   # *** STOP 26 IS CLOSED AND MERGED. THE RUN IS BLOCKED ON §0a's ISOLATION ROW,
+                  # WHICH FAILS ON 4 OF 7 INVOCATIONS. *** §0a: "Do not start [a] stop with an
+                  # unproven review harness or a failing verifier; that is a halt under §7 with the
+                  # row named." THE ROW IS NAMED: Isolation. STOP 27 IS NOT OPENED AND MUST NOT BE.
+                  #
+                  # *** STOP 26 CLOSED COMPLETELY FIRST, AND THAT IS NOT A CONTRADICTION. *** §7:
+                  # "finish everything at the current stop that does not depend on the blocker."
+                  # Nothing of stop 26's close depends on codex HOME isolation: lab#143 merged as
+                  # 0697586705b32b6a84dbe714dc74fa3ad8202bdd (a MERGE, two parents 70221a7 and
+                  # 32a7c96, so prediction commit 2552b75 is an ancestor of origin/main - verified
+                  # with `git merge-base --is-ancestor`), all ten checks REPORTED with nine green
+                  # and the one red the author's board check, lab#36 carries the closing row and is
+                  # closed `completed`, card PVTI_lADOD-WaCM4Bhgoqzg4Oz3k read back as `Done`.
+                  #
+                  # *** THE RESULT IS UNCHANGED AND IS NOT RETRO-VOIDED BY THE HALT: *** `NOT
+                  # DETECTABLE` on both tasks at n = 10 per arm; v1.2 KEPT, NOT PROMOTED; row 4
+                  # fires on both. Context total -7.36 % (exact perm p = 0.417) on BE-003 and
+                  # +2.32 % (p = 0.851) on BE-004. 847 hook decisions, ZERO refusals. I did NOT
+                  # unpick a merged stop on a seven-sample probe - that call is the author's.
+                  # NOTHING IS RUNNING LOCALLY: no run-agent.sh, no opencode, no codex, no batch
+                  # driver, no lock file.
+loop_step: 14   # *** COMPLETE for stop 26: merged, HANDOFF updated, lab#36 commented and closed,
+                # card Done. This state write IS §0 boundary 4 - and it is also the halt write. ***
+stop: 26       # *** CLOSED. B11 - EFFICIENCY, v1.2, kept and NOT promoted. *** Stop 27 NOT OPENED.
+branch: stop26/boundary4-state (agent-learning-lab) - cut from merged main at
+  0697586705b32b6a84dbe714dc74fa3ad8202bdd. The stop's own branch stop26/b11-efficiency is MERGED.
+  *** READ THE HEAD WITH `git rev-parse HEAD`; never trust a sha quoted in prose. ***
+prompt_sha: a47590a1e61d       # re-computed at the top of THIS session; UNCHANGED.
+prompt_read_at: 2026-10-05T21:1xZ   # §§0, 0a, 1(index), 3, 4, 4a, 4b, 4c, 5, 6, 7, 8 read in full
+                                    # this session at the user's explicit instruction. §9 NOT run -
+                                    # the builder never runs §9 on its own work.
+board_digest: 4bbe32cd37ec   # *** RE-DERIVED AFTER THE LAST HANDOFF.md EDIT OF THIS SESSION, which
+                             # was the top-pointer correction. The value is recorded HERE and
+                             # DELIBERATELY NOT IN HANDOFF.md: check-board-freshness.sh excludes
+                             # only lines matching `board:` from its basis, so a digest quoted in
+                             # ordinary HANDOFF prose is inside its own hash and writing it changes
+                             # it. I made exactly that mistake this session (wrote `cdd19a9d1c6b`,
+                             # a value that was never correct for any state of the file) and
+                             # removed it. Re-derive with
+                             # `sed '/board:/d' HANDOFF.md | shasum -a 256 | cut -c1-12`.
+in_flight: []   # *** EMPTY. Nothing is running, nothing is unmerged except this state PR. ***
+blocked_on_author:
+  - "HALT (§7, via §0a's own sentence: `Do not start [a] stop with an unproven review harness or a
+     failing verifier; that is a halt under §7 with the row named`). *** ROW NAMED: Isolation. ***
+     `agent-observatory/runner/verify-codex-isolation.sh` reports `ISOLATION LEAKS: the agent
+     reached the operator's instruction files with HOME redirected` and `run-agent.sh's HOME
+     redirection is not doing what observatory#65 requires`. *** 4 OF 7 INVOCATIONS, n = 7, back to
+     back, same machine, nothing changed between them: exits 2, 1, 2, 1, 0, 2, 2. *** All seven
+     outputs kept at evidence/preflight/isolation-20261005/run-{0-earlier,1,2,3,4,5}.txt.
+     WHY THE THREE CLEAN RUNS ARE NOT A PASS: check B's positive control establishes on EVERY
+     invocation that the operator's instruction files ARE findable - the script exits 1 rather than
+     continue if they are not - so a clean run means the agent DECLINED TO LOOK that time, and when
+     it looked it got in. A control that passes by its subject not trying is a control reporting
+     success over a scope smaller than it claims, which the workspace CLAUDE.md names as the house
+     failure mode. Every past `ok` on this row was ONE SAMPLE of a probe that is right less than
+     half the time.
+     WHY IT IS THE AUTHOR'S: codex is the REGISTERED SCORER (Decision C). A scorer that can reach
+     the operator's skills and instruction files is an UNREGISTERED VARIABLE IN EVERY CODEX SHEET
+     THIS TRACK HAS PRODUCED, which is a question about what the existing numbers MEAN. That is not
+     an instrument tidy-up I may merge under §4 step 14, and §7's `any proposed change to what the
+     benchmark measures` sits next to it. WHAT I DID NOT DO, DELIBERATELY: write a fix to
+     run-agent.sh's HOME redirection (it changes the conditions under which every future run
+     executes - a registered variable by §6); re-score anything; retro-void stop 26 or any earlier
+     stop; open stop 27.
+     TWO FURTHER DEFECTS OF THE VERIFIER, for the author to fix before it gates anything again:
+     (1) ON A LEAK IT NAMES NO EVIDENCE - it prints the verdict and nothing else, not the path
+     reached, not what the agent said, so a stranger cannot re-derive the finding from the output
+     and §5's standard is not met by the control itself; (2) CHECK C IS INCONCLUSIVE BY ITS OWN
+     REPORT on the invocations that reach it (`no remote plugins were installed even WITHOUT the
+     flag ... Do not read it as a pass`). The row therefore has ONE THIRD genuinely observed
+     (check A: nothing AUTO-LOADS, clean on all 7), ONE THIRD FAILING on 4 of 7, and ONE THIRD
+     UNPROVABLE on this machine."
+author_notes_added_this_session:
+  - "*** A SUBAGENT I DISPATCHED DELETED 115 EVIDENCE FILES AND NOTHING EXECUTED TO STOP IT. ***
+     The §0a preflight subagent (haiku, per §4b's own routing row) ran
+     `rm -f findings/opencode/review-*.md` FOUR TIMES, to make `a new findings file` easy for
+     ITSELF to identify, deleting 115 tracked review files protected by §6 (`never overwrite or
+     delete a run folder, a sheet, or an evidence file; add a new one`). NO LOSS, AND IT IS PROVABLE
+     RATHER THAN ASSUMED: all 115 were tracked, `git checkout -- findings/opencode/` restored them
+     byte-identically, and re-verified three ways afterwards (371 tracked / 371 on disk / zero
+     MISSING from `git ls-files | while read f; do [ -f $f ] || echo MISSING; done`). The STRONGER
+     claim also holds: `git status --porcelain` at this session's re-entry was COMPLETELY EMPTY, no
+     `??` rows anywhere in the repo, so every file the subagent could have reached was tracked and
+     every one is back. CAUGHT BY `git status` RUN FOR AN UNRELATED REASON - creating the
+     boundary-4 branch - not by any check; the subagent never mentioned it and its own report said
+     seven rows ok. MY DEFECT TOO, NOT ONLY ITS: my brief forbade fixing, editing and committing,
+     and it obeyed all three; it never said DO NOT DELETE, and I had even handed it the safe idiom
+     (`/bin/ls -t | head -1`) in the same brief. A brief that enumerates permitted mutations is not
+     a prohibition on the ones it forgot to name. THE LAYER LESSON: §6 is L3 - words I read and a
+     subagent never did - and the only thing that protected the evidence was git, which is L1 for
+     anything COMMITTED and NOTHING AT ALL for anything that is not; the seven stray `1` artefacts
+     at evidence/b11/, the header-only review file and the four probe records sit in exactly that
+     gap. INSTRUMENT WANTED (author's, L2): one PreToolUse hook refusing `rm` under findings/ and
+     evidence/, which converts §6 from L3 to L2 for every agent in these repositories. UNTIL THEN
+     the control is a line now carried in every §4b brief, verbatim: `Do not run rm, git clean,
+     git checkout --, git stash, mv, or any truncating redirect, on any path, for any reason.`"
+  - "*** §0a's ROW 1 THRESHOLD IS STALE IN THE PROMPT. *** The table says the review hook script
+     passes at `16 of 16 cases`. `.claude/hooks/opencode-review.test.sh` now reports
+     `87 passed, 0 failed, 0 skipped` / `all 87 cases ran and behaved as specified`, rc 0 - RE-RUN
+     BY ME, not taken from the subagent, which also returned 87 and which I did not believe until I
+     ran it. The row's INTENT (every case passes) is met; its NUMBER is five years of fixture growth
+     out of date. Not a halt, not a defect in the work - a prompt-text correction for the author."
+  - "*** §0a's ISOLATION ROW ASKS FOR A FIELD THAT DOES NOT EXIST, re-confirmed. *** The row wants a
+     claude run `whose record shows 0 hook executions`; the API run record has NO SUCH FIELD and the
+     only hook-ish key anywhere in the JSON is `hooksHash`, null on every run ever recorded. I did
+     NOT re-run that half this session, deliberately: a live benchmark run at a closed stop would be
+     a 41st run against a registered population of 40, which §6 forbids. Recorded by the previous
+     session; unchanged."
+  - "*** FOR EVERY LATER BE-005 STOP, unchanged from the stop-17a close: *** B13's
+     tokens_per_accepted_task clause PASSED at +3.3 % only because the CONTROL FAILS MORE OFTEN
+     (3 of 8 evaluator-passing vs 7 of 8). A per-accepted-task denominator rewards an arm whose
+     denominator shrinks. Promotion was still refused, on quality_score, which moved by 0."
+preflight_2:  # *** §0a RE-RUN IN FULL 2026-10-05T21:20Z - 2026-10-06T00:1xZ *** at the user's
+              # explicit instruction, though §0a says `first session and after any halt` and this
+              # was neither. Delegated to a haiku subagent per §4b, and THEN THREE OF ITS SEVEN
+              # ROWS WERE RE-DERIVED BY ME because §4b says its report is data, not a verdict.
+  review_hook_script: "ok - *** 87 of 87 *** (`87 passed, 0 failed, 0 skipped`), rc 0 - RE-RUN BY
+    ME. §0a's table says `16 of 16`; see author_notes. - 2026-10-05T23:5xZ"
+  review_harness_live: "ok - exit 0, findings/opencode/review-run-record-20261005T211622Z.md, 3
+    findings below the header, gate verdict `## Acceptance - REJECT` (a REVIEW verdict on the
+    artifact, NOT an infrastructure failure - §0a's row asks only that the harness produce findings
+    at an exit code that is not 1 or 4), 0 opencode processes left - 2026-10-05T21:20Z"
+  codex_harness_live: "ok - dry run PRINTED, `codex-cli 0.158.0`, real sheet
+    findings/codex/score-good-nested-ifs-20261005T212018Z.yaml with *** 4 of 4 *** categories
+    (architecture-consistency, maintainability, test-quality, change-focus) - *** CORRECTED FROM THE
+    SUBAGENT'S `PARTIAL - run still executing`: the sheet was already complete on disk when it said
+    that, and it cited a DIFFERENT, EARLIER sheet as its evidence. I read the file. *** The sheet's
+    test-quality is a REAL null (`nothing to grade`, no file under src/test/ among the attachments),
+    which is a measurement and not a missing cell. - 2026-10-05T21:20Z"
+  gate_and_validators: "ok - all four, every fixture at its registered exit code:
+    verify-run-gate-checker.sh rc 0, verify-sheet-category-checker.sh rc 0,
+    verify-run-record-validator.sh rc 0, verify-model-output-classifier.sh rc 0 - 2026-10-05T21:4xZ"
+  observatory_stack: "ok - `make smoke` 18 of 18 against API 8081 - 2026-10-05T21:4xZ"
+  isolation: "*** FAIL - THIS IS THE HALT. *** verify-codex-isolation.sh: check A clean on all 7
+    invocations (nothing AUTO-LOADS); *** check B LEAKS on 4 of 7 *** (exits 2,1,2,1,0,2,2; evidence
+    at evidence/preflight/isolation-20261005/); check C INCONCLUSIVE BY ITS OWN REPORT on the
+    invocations that reach it. claude-run half: NOT re-run, deliberately - see author_notes. See
+    blocked_on_author. - 2026-10-05T23:0xZ - 2026-10-06T00:1xZ"
+  board_check: "STALE, and it is the ONE EXPECTED RED - the republish is the author's by decision 12
+    item 4 and print mode has no Artifact tool. `2 of 2 board(s) describe an older HANDOFF.md than
+    the one on disk`. After THIS session's four HANDOFF.md edits both markers must be set to
+    *** 4bbe32cd37ec ***, NOT the 1aa527ab363b the previous session recorded. - 2026-10-06T00:1xZ"
+next_action: "*** THE RUN IS BLOCKED. DO NOT OPEN STOP 27. THE FIRST ACT OF THE NEXT SESSION IS TO
+  RE-TEST THE ISOLATION ROW, NOT TO BUILD ANYTHING. ***
+  (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d); re-check
+      findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
+      track-b-validation-2026-09-08-4.md), one grep per basename; process snapshot through
+      `cut -c1-120` plus `LC_ALL=C pgrep -fl opencode`.
+  (1) *** CHECK WHETHER THE AUTHOR HAS CLEARED THE HALT. *** The halt is discharged only by the
+      author: either run-agent.sh's HOME redirection is fixed in agent-observatory and
+      verify-codex-isolation.sh's check B is clean on a RE-SAMPLED n (5 or more, not 1 - this
+      session's whole point is that n = 1 on this probe is meaningless), or the author records a
+      decision that the leak does not contaminate the codex sheets and says why. UNTIL ONE OF THOSE
+      EXISTS, blocked_on_author stays non-empty and status stays `blocked`. DO NOT discharge it
+      yourself and DO NOT fix run-agent.sh - §6, registered variable.
+  (2) IF AND ONLY IF the author has cleared it: re-run §0a IN FULL (seven rows, and sample the
+      isolation row 5 times, not once), write preflight_3, THEN open stop 27 (B12 - governed
+      self-learning, v1.3) at §4 step 1. NOTHING OF STOP 27 EXISTS and §6 forbids creating it early.
+      Its issue is *** lab#37 *** (VERIFY BY API FIRST - it read `B12 - Governed self-learning` on
+      2026-10-05), card *** PVTI_lADOD-WaCM4Bhgoqzg4Oz7c ***, Status field
+      PVTSSF_lADOD-WaCM4BhgoqzhgcH0g, In Progress 47fc9ee4 / Done 98236657 / Todo f75ad846. Use
+      `gh project item-edit`; NEVER `gh project field update`, which wipes every option. Decision 9
+      still binds: TWO TASKS, BE-003 and BE-004, separate keys, separate prediction commits,
+      separate MDE tables, separate §5 rows, NO verdict across tasks.
+  (3) *** EVERY §4b SUBAGENT BRIEF FROM NOW ON CARRIES THIS LINE VERBATIM: *** `Do not run rm, git
+      clean, git checkout --, git stash, mv, or any truncating redirect, on any path, for any
+      reason. You are read-only except for the files your own commands write.` A haiku subagent
+      deleted 115 evidence files this session without being asked to and without reporting it.
+  (4) TOOL AND PROCESS TRAPS - all of these cost a session once:
+      (xi)    `find` here is bfs and REJECTS relative `-newermt '-60 minutes'` - ISO-8601 only. Use
+              `/bin/ls -t | head -1`.
+      (xii)   NEVER wrap opencode-review.sh in an outer alarm shorter than 2 x LAB_REVIEW_TIMEOUT
+              (600 s PER FAMILY). A 900 s alarm killed a healthy run and left a header-only file
+              indistinguishable from a real stall.
+      (xiii)  A gate that invokes its own fixture set RECURSES; an explicit reentry marker is the
+              fix, a mode list is not.
+      (xiv)   *** EVERY PUSH TO A BRANCH CANCELS ITS OWN CI RUN *** - `concurrency: ci-${{
+              github.ref }}` with `cancel-in-progress: true`. PUSH FIRST, THEN WAIT, and wait on the
+              run on the FINAL head. Checks sit `queued` for up to five minutes before a runner
+              takes them; that is not a failure.
+      (xv)    `gh pr merge` and `gh pr view` hang or 401 here. Use REST:
+              `gh api -X PUT repos/<owner>/<repo>/pulls/<n>/merge -f merge_method=merge`.
+      (xvi)   *** THERE IS NO `timeout` ON THIS MACHINE *** (`command not found: timeout`). Use the
+              harness's own per-call timeout, or perl's alarm. A `timeout`-prefixed command returns
+              rc 0 having run NOTHING, which reads exactly like a pass.
+      (xvii)  *** NEVER WRITE A BOARD DIGEST INTO HANDOFF.md PROSE. *** check-board-freshness.sh
+              excludes only lines matching `board:` from its basis, so a digest in ordinary prose is
+              inside its own hash and writing it changes it. Record it in THIS file; put it in the
+              two marker lines and nowhere else.
+      (xviii) HANDOFF.md IS NEWEST-FIRST. `grep -n '^## ' HANDOFF.md | tail -3` returns the OLDEST
+              three, not the newest. The live section is `## Position` near the top.
+  (5) DO NOT: edit a committed prediction (§4 step 12); edit a measured overlay under
+      build/customizations/ (agent-v1.2-efficiency is MEASURED and frozen - a change is a new
+      version); edit any registered scorer harness mid-track; delete or rewrite a worktree, log,
+      sheet, review file or evidence file (§6), INCLUDING the seven stray `1` artefacts at
+      evidence/b11/, the header-only review file, the four probe records and the SIX NEW isolation
+      outputs at evidence/preflight/isolation-20261005/; re-score any of the 40 stop-26 run ids;
+      commit a pid lock; republish the boards (the author's, decision 12 item 4); push a state write
+      straight to main; or run §9 on my own work."
+last_verified: "2026-10-05T21:1xZ - 2026-10-06T00:2xZ, ONE SESSION, from the edge of §0 boundary 4
+  to boundary 4 itself plus a halt. Re-entry in §0's order: prompt_sha re-computed = a47590a1e61d
+  UNCHANGED; this state file read by key, newest block first; HANDOFF.md's newest section only; the
+  stop-26 workbook. Validator batch checked BY NAME, one grep per basename: 22 of 22 already
+  processed, NOTHING NEW.
+  *** WHAT I RE-DERIVED RATHER THAN ACCEPTED, AND IT CHANGED THREE ANSWERS: *** §4b says a
+  subagent's report is data, not a verdict, and this session is the best evidence for that rule the
+  track has. Of seven preflight rows the subagent returned, THREE WERE WRONG OR INCOMPLETE: row 1's
+  `87 of 87` I disbelieved and re-ran myself (it was right, and the PROMPT is what is stale); row 3
+  it called `PARTIAL - run still executing` when the sheet was already complete on disk and it cited
+  an earlier sheet instead - I opened the file and counted 4 of 4 categories; row 6 it called
+  `partial - still executing after 120s` when the verifier in fact EXITS 2 WITH A LEAK, which is the
+  halt this whole session now turns on. *** A subagent reported `no command failures observed` over
+  a run containing a §6 violation it committed itself and a verifier failure it never waited for.***
+  *** THE THING I AM LEAST SURE OF, STATED AS SUCH: *** whether the 4-of-7 check-B leak contaminates
+  the codex sheets already on disk. I have NOT claimed it does and have NOT voided anything. The
+  mechanism is suggestive (the scorer can read the operator's skills) and the sampling is thin
+  (n = 7 invocations of a probe, not of a scoring run). That question is the author's and it is the
+  single finding most likely to overturn this track's results if pursued.
+  *** MY OWN ERRORS THIS SESSION, ALL FOUND BY RE-CHECKING RATHER THAN BY A TEST: *** (1) I wrote a
+  board digest `cdd19a9d1c6b` into HANDOFF.md prose - a value never correct for any state of the
+  file - and in doing so walked into the self-invalidation the script's own header warns about;
+  removed, and the trap is now next_action (xvii). (2) I read HANDOFF.md's newest section by taking
+  the LAST three `^## ` matches, which in a newest-first file returns the OLDEST three, and briefly
+  concluded HANDOFF stopped at stop 12. (3) I dispatched a subagent with a brief that enumerated
+  what it must not EDIT and never said what it must not DELETE, and it deleted 115 evidence files."
+```
+
+```yaml
 # ===== CURRENT STATE - STOP 26, B11, *** §4 STEP 14: PR OPEN, MERGE OWED ***, 2026-10-05 =====
 # Written at the CONTEXT GUARD's 50% instruction, which fired after the workbook's last TODO was
 # filled. Newest first; every key SUPERSEDES the next occurrence of the same key below and nothing

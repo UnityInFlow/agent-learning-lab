@@ -1,0 +1,18 @@
+positive control — global AGENTS.md present, no isolation ...
+  marker present, as it must be — the test can see a leak
+isolated run — CODEX_HOME holding auth.json alone ...
+  marker absent — global instructions did not reach the model
+  check A holds: nothing AUTO-LOADS. That is not the same as check B below.
+
+--- check B: deliberate reading (observatory#65) ---
+positive control — real HOME, agent free to look ...
+  operator instruction files found, as they must be — the test can see a leak
+redirected HOME — what run-agent.sh --isolate-user-settings now builds ...
+  operator instruction files not reached
+
+--- check C: network-installed plugins ---
+positive control — no flag, codex free to install ...
+
+INCONCLUSIVE: no remote plugins were installed even WITHOUT the flag.
+Either the catalogue is unreachable from here or this codex version stopped doing
+it. Either way a clean result below would mean nothing. Do not read it as a pass.

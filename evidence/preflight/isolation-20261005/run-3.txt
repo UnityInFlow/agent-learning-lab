@@ -1,0 +1,24 @@
+positive control — global AGENTS.md present, no isolation ...
+  marker present, as it must be — the test can see a leak
+isolated run — CODEX_HOME holding auth.json alone ...
+  marker absent — global instructions did not reach the model
+  check A holds: nothing AUTO-LOADS. That is not the same as check B below.
+
+--- check B: deliberate reading (observatory#65) ---
+positive control — real HOME, agent free to look ...
+  operator instruction files found, as they must be — the test can see a leak
+redirected HOME — what run-agent.sh --isolate-user-settings now builds ...
+  operator instruction files not reached
+
+--- check C: network-installed plugins ---
+positive control — no flag, codex free to install ...
+  installed without the flag: github,openai-templates — the test can see the channel
+with --disable plugins, which is what run-agent.sh passes ...
+  nothing installed — the network channel is closed for this run
+
+ok: ALL THREE checks hold for codex-cli 0.158.0
+
+SCOPE, SAID PLAINLY: check B closes DISCOVERABILITY, not reachability. `~` no longer
+resolves into the operator's home; /Users/<op>/... still exists and is still readable
+by an agent that constructs the path another way. This is an L2 control. Do not let a
+later reader take it for isolation.
