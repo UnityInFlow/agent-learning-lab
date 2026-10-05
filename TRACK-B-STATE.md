@@ -107,6 +107,84 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
+# ===== CURRENT STATE - STOP 26, B11, *** §0 BOUNDARY 3 OF 4: SCORING IS COMPLETE ***, 2026-10-05 =====
+# Newest first. Every key below SUPERSEDES the next occurrence of the same key further down.
+# Keys NOT repeated here are still live at their old positions: validation_processed,
+#   author_decisions (1-13), blocked_on_author: [] (EMPTY), board_digest, prompt_sha a47590a1e61d,
+#   stop: 26, branch: stop26/b11-efficiency, batch_result (the 40-row batch, unchanged).
+status: running   # *** §0 BOUNDARY 3 OF 4 FOR STOP 26. STEP 7 (SCORE) IS COMPLETE, COMMITTED AND
+                  # PUSHED at b5604b3. *** Not a halt: blocked_on_author is EMPTY, no §7 bullet
+                  # matched. NOTHING IS RUNNING - the scoring driver wrote rc = 0.
+                  #
+                  # *** THE OBSERVATORY STACK WAS DOWN AND THAT BLOCKED STEP 7 FOR FIVE DAYS. ***
+                  # observatory-api and observatory-web had both been `Exited (255)` since
+                  # 2026-10-02 - colima restarted under them and neither has a restart policy,
+                  # while repo-context-neo4j and the kss-monitoring pair came back on their own.
+                  # `make up` fixed it, volumes preserved, 793 runs present (the stored note said
+                  # 744, so nothing was lost). *** ON THIS BOOT THE PLAIN PORT IS THE LIVE ONE: ***
+                  # 127.0.0.1:8081/actuator/health = 200, the tunnel 18081 = 000. codex-score.sh
+                  # defaults to localhost:8081 so no LAB_OBSERVATORY_API override was needed.
+                  # A RESTART POLICY ON THOSE TWO SERVICES IS AN INSTRUMENT PR, NOT THIS STOP'S.
+                  #
+                  # *** THE GATE RAN BEFORE ANY SCORING: 40 PASS, 0 GATE-FAIL, 0 FETCH-FAIL ***,
+                  # check-run-gate.sh against each of the 40 run documents fetched from the API -
+                  # an independent confirmation of the manifest's eval=0, not a re-reading of it.
+                  #
+                  # *** ATTEMPT 1 AT SCORING PRODUCED ZERO SHEETS AND THE STATE FILE HAD ALREADY
+                  # SAID WHY. *** --run-id derives ${TMPDIR}/observatory-run-<id>, $TMPDIR had
+                  # reaped all 40 five days after the batch, and 40 rows came back score_exit=1
+                  # sheet=none. `worktree_path_rule` below says in terms that the originals are
+                  # gone and to score from the evidence.local copies. The launch went past a note
+                  # that was already written down; codex was never called so it cost nothing.
+                  # Kept as codex-sheets-attempt1-tmpdir-reaped.tsv + its log (§6).
+                  #
+                  # *** ATTEMPT 2: 40 OF 40 SHEETS, DRIVER rc = 0, VERIFIED BY NAME NOT POSITION.
+                  # *** Each kept copy was restored to the path the runner used and the scorer
+                  # derives (40 restored, 0 missing, checked per row). That keeps the directory
+                  # DERIVED from the id; passing the copy as a directory is Path A, which does not
+                  # check the gate. No flag added, no scorer line edited. Verified afterwards:
+                  # 40 distinct sheets, rubric_sha right for the task on 40 of 40 (396e1799eb2b
+                  # BE-003/E-026, 6252778b8472 BE-004/E-027), sheet run_id == manifest run_id on
+                  # 40 of 40, four score lines and 0 null per sheet, one category order across all.
+                  #
+                  # *** TWO THINGS THE NEXT SESSION MUST NOT LEARN THE HARD WAY. ***
+                  #   1. THE DRIVER'S RESUME SKIPS STALL ROWS INSTEAD OF RETRYING THEM. Its header
+                  #      promises the opposite; the test is `grep -q "\t$rid\t" "$OUT"`, which
+                  #      matches a row written with sheet=none. This is why attempt 2 needed a
+                  #      fresh output file. b09 and b10 carry the same code AND the same wrong
+                  #      claim. Recorded, deliberately NOT fixed mid-step (§6) - instrument PR.
+                  #   2. The restored worktrees under $TMPDIR will be reaped again in ~3 days.
+                  #      Anything that needs them re-restores from evidence.local/b11-worktrees/.
+                  #
+                  # *** NOTHING OF §4 STEPS 8-14 EXISTS. *** No report, no deliberate failure, no
+                  # keep/remove decision, no PR. Step 8 is the next session's first act.
+                  #
+                  # *** ONE NUMBER THE NEXT SESSION WILL HAVE TO RULE ON, STATED HERE AS AN INPUT
+                  # AND NOT AS A VERDICT. *** Read by category NAME from the 40 sheets, BE-004's
+                  # `change-focus` median is control 0.5 -> treated 0.0, and BE-003's
+                  # `maintainability` is control 0.0 -> treated 0.5. E-026/E-027 decision rule row
+                  # 1 fires REJECT on *any* category median dropping, and P5 predicted no category
+                  # median would move on either arm. BOTH READINGS BELONG TO STEP 8, WHICH MUST
+                  # DERIVE THEM FROM THE SHEETS ITSELF RATHER THAN QUOTE THIS COMMENT; P5 STAYS
+                  # RECORDED AS REGISTERED AND IS NEVER EDITED (§4 step 12).
+loop_step: 7   # *** STEP 7 IS COMPLETE. §0 BOUNDARY 3 OF 4 IS REACHED. *** Step 8 (report) has
+               # not started and must not start in this session.
+in_flight:
+  - "*** NOTHING IS RUNNING. *** The scoring driver exited 0; `pgrep -f score-b11-batch` = 0.
+     Log evidence.local/b11-score-logs/ with its .rc = 0. No lock file is held."
+score_result:
+  sheets: "evidence/b11/batch-20260930T115342Z/codex-sheets.tsv - 40 rows, score_exit 0 on all 40"
+  record: "evidence/b11/batch-20260930T115342Z/SCORING.md - the gate, both attempts, the sheet
+    verification and the driver defect, in step-7 scope only"
+  attempt1: "codex-sheets-attempt1-tmpdir-reaped.tsv + score-attempt1-tmpdir-reaped.log - KEPT,
+    40 rows of score_exit=1 sheet=none, zero sheets, zero cost"
+  driver: "evidence/b11/score-b11-batch.sh at 98bf37f - b10's with three code lines changed
+    (batch path, lock path, population 20 -> 40); guards A/B/C re-proved to fire on this copy"
+  sheets_dir: "findings/codex/ - 41 new files = 40 referenced + the hand trial for 5cc74707,
+    both of that run's sheets kept (§6)"
+  commits: "98bf37f driver + guards, b5604b3 gate/sheets/attempt-1, both pushed"
+
+
 # ===== CURRENT STATE - STOP 26, B11, *** §0 BOUNDARY 2 OF 4: THE BATCH IS COMPLETE ***, 2026-09-30 =====
 # Newest first. Every key below SUPERSEDES the next occurrence of the same key further down;
 # nothing further down is deleted. Keys NOT repeated here are still live at their old positions:
