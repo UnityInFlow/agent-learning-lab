@@ -474,10 +474,91 @@ Full numbers, both tasks: `experiments/E-026-efficiency-BE003.md` and
 `summary.json`, `mde.json` — by re-running `evidence/b11/report-b11-batch.py` and
 `evidence/b11/mde-b11-batch.py` against the same batch directory.
 
-## Deliberate failure
+## Deliberate failure — §4 step 9, prediction registered 2026-10-05, five repetitions per case
 
-<!-- TODO: feed the file-summary cache a stale entry and confirm the hash
-     check refuses it. -->
+**The registered probe is run as registered.** The original TODO is kept verbatim and it is what
+runs; nothing below replaces it with an easier question.
+
+> <!-- TODO: feed the file-summary cache a stale entry and confirm the hash
+>      check refuses it. -->
+
+### Why this runs as five repetitions of an executed case and not as five benchmark runs
+
+The batch already measured how often the stale path occurs by itself: **4 `stale-refused` events on
+2 of the 20 treated runs** (`evidence/b11/worktrees/*/cache-log.jsonl`, runs `40af8ffb` ×3 and
+`1d38c74c` ×1). An `n = 5` live arm would therefore put a stale entry in front of **about one run**,
+and a refusal rate computed on that is not a measurement — §5 forbids stating an `n < 5` result as a
+property. This is b09's step-9 arithmetic reached again on a different mechanism, and the same
+answer follows: **the clause that cannot be decided at the available `n` is not bought with money.**
+
+What a live arm *would* have added is bought for nothing instead, because the hook is **delivered
+into every treated worktree** and those worktrees are kept: `evidence.local/b11-worktrees/<runId>/.ai/hooks/summary-cache.sh`
+hashes **`e78e6623725b426ffc241461711a7e318205fe674aecc3c76f0970e60d357df9`**, byte for byte the
+registered overlay's copy. So the probe drives **the delivered artifact against that worktree's own
+real files**, not a fixture tree — which is the one thing `tools/verify-summary-cache.sh` cannot
+claim, and the reason it is not merely re-run here.
+
+*Decided by Opus 5 (claude-opus-5), autonomous, 2026-10-05. Nothing above is rewritten.*
+
+### What the batch already says about this mechanism, free, and it is the reason the break matters
+
+Across the **22 copied cache logs** of the registered batch — **443 decisions** in total — the
+tally is:
+
+| decision · reason | count | what it is |
+|---|---|---|
+| `record stored` | 211 | the recorder half wrote an entry |
+| `allow miss` | 207 | no entry for that path yet |
+| `allow target-not-a-file` | 21 | the path did not resolve to a file |
+| `allow stale-refused` | **4** | **the "never trust a stale summary" half executed** |
+| `block hash-match` | **0** | **the "reuse only on hash match" half NEVER fired in a delivered run** |
+
+**`cache_blocks = 0` on 20 of 20 treated runs**, and the same is true of the other two L2
+mechanisms: `budget_blocks = 0` on 20 of 20 and `dedup_blocks = 0` on 20 of 20 (manifest columns
+16, 18 and 21). So `H₂ = H₃ = H₅ = 20 of 20` says those hooks **ran and allowed**; it does not say
+they refused anything. The driver's own comment said so before the batch
+(`run-b11-batch.sh:400-403`), and it is now a measured fact rather than a caution. That is the
+honest reading of the delivery metrics and it is carried into §4 step 10.
+
+### The break: the mismatch branch deleted, and nothing else
+
+`evidence/b11/deliberate-failure-<tag>/broken/summary-cache.sh` — a **copy** of the delivered hook
+with lines 85–91 (the `[[ "$CACHED" != "$SHA" ]]` branch) removed, so a stale entry falls through to
+the hash-match refusal. Every other byte is identical, proved by `diff`. **The measured overlay is
+not touched** (§6: a measured version is never edited), and the probe lives under `evidence/`, not
+under `build/customizations/`.
+
+The failure this exposes is not a lost saving. It is a **correctness** failure produced by an
+efficiency mechanism: the model is told *"you already read this file at this exact content"* about
+content it has never seen.
+
+### The registered predictions — every clause decided by an exit code or a log line
+
+| # | prediction | mechanism | how it is decided |
+|---|---|---|---|
+| D1 | **A stale entry is refused, not reused**: the delivered hook exits **0** on **5 of 5** and writes `decision":"allow"`, `reason":"stale-refused"` | `summary-cache.sh:85-91` drops the entry and lets the read through | the hook's exit code and the `cache-log` line it appends |
+| D2 | **The stale entry is deleted from the store, not merely ignored**: an immediately repeated identical call logs `reason":"miss"` on **5 of 5** | `jq 'del(.[$p])'` at `:88` rewrites the store before the allow | the second call's log line, and `jq 'has($p)'` on the store |
+| D3 | **A fresh entry IS refused**: with the stored sha equal to the file's current sha the hook exits **2** on **5 of 5**, `decision":"block"`, `reason":"hash-match"` | `:93-107` | exit code and log line |
+| D4 | **The refusal carries metadata and not the file**: the stderr of D3 contains the path, the sha and the byte/line count, and **zero** lines of the file's body, on **5 of 5** | the store holds `{sha, ts, bytes, lines}` and no content — there is no body to leak | `grep -F` of the file's first non-blank source line against the captured stderr |
+| D5 | **THE BREAK: with the mismatch branch removed the same stale entry is refused** — exit **2** on **5 of 5**, and the refusal names content the file no longer has | deleting `:85-91` makes the stale path reach `:93` | exit code of the patched copy on the identical input |
+| D6 | **The seed is produced by the delivered recorder, not hand-written**: `summary-cache-record.sh` writes the entry whose `{sha,ts,bytes,lines}` the reader then judges, on **5 of 5** | the pair is the mechanism; a hand-written store would test a shape the system never produces | `record stored` in the log and the store's key set |
+
+**Registered as the one most likely to be wrong:** D2. The delete is a read-modify-write through a
+temp file and `mv`; if `jq` fails the `&&` leaves the old store in place and the entry survives,
+which would make the second call a second `stale-refused` rather than a `miss`. Nothing in the
+fixture set distinguishes those two outcomes on a store that is *writable but busy*.
+
+**Cost: $0, no benchmark run, no model call.** The probe is five repetitions of six executed cases
+against a kept worktree, and the ceiling is therefore not a money ceiling: it is that **no case may
+need the live observatory, the registered scorer or any run id**, so a probe that reaches for one is
+abandoned rather than widened.
+
+*Predicted by Opus 5 (claude-opus-5), autonomously, 2026-10-05T18:5xZ; the author did not review
+before the run.*
+
+### The result
+
+<!-- Written after the probe. §4 step 12: nothing above is edited. -->
 
 ## Exit gate
 
