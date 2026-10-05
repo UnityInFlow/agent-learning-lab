@@ -505,6 +505,19 @@ claim, and the reason it is not merely re-run here.
 Across the **22 copied cache logs** of the registered batch — **443 decisions** in total — the
 tally is:
 
+> **Scope correction, 2026-10-05, written by Opus 5 (claude-opus-5) the same session, after §4 step
+> 10 re-derived the same tally against the manifest's run ids.** *"The 22 copied cache logs of the
+> registered batch"* is **wrong by two logs**: `evidence/b11/worktrees/` holds 44 directories, of
+> which 20 are the registered treated runs, 20 are controls (no hook, no log) and the rest are
+> preflight runs — and **two preflight runs, `45bdc7c1` and `602a753c`, carry cache logs**. The
+> registered population is therefore **20 logs and 403 decisions**, not 22 and 443. The table below
+> is left exactly as it was computed and the corrected per-population figures are in §4 step 10,
+> which is where the disposition is decided from. **Every qualitative claim is unchanged — `block
+> hash-match` is 0 in both scopes — and the correction is recorded rather than applied in place
+> because a count that quietly changes is worse than one that is visibly wrong once.** This is the
+> house failure mode caught in my own prose, in the step whose whole subject is a control reporting
+> over the wrong scope.
+
 | decision · reason | count | what it is |
 |---|---|---|
 | `record stored` | 211 | the recorder half wrote an entry |
@@ -638,6 +651,62 @@ In the registered batch the invariant holds trivially: there are **no** `hash-ma
   reached cannot save anything, and that is the finding §4 step 10 acts on — not a shortfall of
   this probe.
 
+## §4 step 10 — keep, modify, remove: one decision per mechanism, from 847 hook decisions
+
+*Written 2026-10-05 by Opus 5 (claude-opus-5), autonomously, after §4 steps 8 and 9 and from no
+other input. The rule applied is §4 step 10's own: **"a rule with no measured effect is removed, and
+its removal is recorded as the finding."** The row-4 verdict (`NOT DETECTABLE`, both tasks) states
+no disposition, which is why this section exists.*
+
+### The measurement the disposition rests on, re-derived this session over exactly the 20 registered treated runs
+
+Every log of every registered treated run is present — **20 of 20 for each of the three
+mechanisms** — and the three tallies are complete, not sampled:
+
+| hook | log lines | the refusals | what was never reached |
+|---|---|---|---|
+| retrieval budget (`H₂`) | **324** | **0 `block`** | `searches` max = **0 on 20 of 20** against `max_initial_searches: 5`; `distinctFiles` max **7–13, median 12** against `max_files_before_design: 15` |
+| file-summary cache (`H₃`) | **403** | **0 `block hash-match`**; 4 `allow stale-refused` on 2 runs | no file was ever re-read **at unchanged content** |
+| command dedup (`H₅`) | **120** | **0 `block`**; 119 `first-run`, 1 `repeat-after-code-changed` | no command was ever repeated **under unchanged code** |
+
+**847 decisions. Zero refusals.** `H₂ = H₃ = H₅ = 20 of 20` means those hooks *ran*; it does not
+mean they *did* anything, and this is the number that separates the two. The driver said so before
+the batch (`run-b11-batch.sh:400-403`) and the batch has now filled it in.
+
+**And `searches = 0 on 20 of 20` is not a wiring defect — the wiring was checked.**
+`settings.json` puts `retrieval-budget.sh` on `PreToolUse` `Read|Grep|Glob` as well as on
+`Edit|Write|NotebookEdit`, so a `Grep` or a `Glob` attempt would have been seen and logged by the
+same hook that logged 207 `Read` lines. There are **none**. The agent under test, on these two
+tasks, does not search — it reads. *(An earlier reading of this file's wiring looked like a defect
+and was mine: a `jq` one-liner joined each entry's commands and then stripped to the last `/`,
+hiding the first command of every pair. Checked again, printed per command, before anything was
+decided on it.)*
+
+### The disposition, and the ground named for each
+
+| # | mechanism | layer | disposition | the ground, and it is measured |
+|---|---|---|---|---|
+| 1 | task classifier | L3 | **REMOVE** | `H₁ = 0 of 20`. Prose in a `CLAUDE.md` asking the model to run a script is now measured twice on this instrument — B9's `H = 2 of 10` and this stop's 0 of 20 — and the second measurement is the stronger one because the file was *proved delivered* on 20 of 20 by `instructionsHash`. §4 step 10's rule applies literally. **The removal is the finding: delivery is not invocation.** |
+| 2 | retrieval budget | **L2** | **KEEP the control, REMOVE the efficiency claim** | It refuses — 24 fixture cases prove it, including both limits and the fail-open paths — and it refused **nothing in 324 live decisions**. A control that executes and is never reached has no measured effect *on this population*; removing it would also remove a proved refusal, which is not what the rule is for. So the file stays and **v1.2 claims nothing from it**. The next version re-registers the two limits against the measured distribution, which is now on record: **13 of 15 files at the maximum, 0 of 5 searches ever.** |
+| 3 | file-summary cache | **L2** | **KEEP the stale branch, REMOVE the reuse claim** | The two halves have different fates and must not be disposed of together. *"Never trust a stale summary"* **executed in paid runs** — 4 times, on 2 of 20 — and §4 step 9 showed that removing exactly that branch produces a correctness failure, so it is load-bearing. *"Reuse only on hash match"* fired **0 times in 403 decisions**: no file was re-read at unchanged content, so there was never a repeat to prevent. The mechanism keeps the half that fired and claims nothing from the half that did not. |
+| 4 | verification planner | L3 | **REMOVE**, on a different ground, and the difference matters | `H₄` was registered **`unmeasured` before the batch**, and it is still unmeasured: a planner followed in the model's head leaves no artifact. This is **not** a measured null — it is an unmeasurable mechanism, and removing it is an instrument decision, not a result. Condition of re-entry, registered here: a planner returns only if it is delivered in a form that **writes the sequence it chose**, so that following it and ignoring it are distinguishable. |
+| 5 | command dedup | **L2** | **KEEP the control, REMOVE the efficiency claim** | Same shape as 2. 22 fixture cases prove it refuses, including that a gitignored `target/` write does not unlock a repeat; 120 live decisions produced 119 `first-run` and one `repeat-after-code-changed` — which is the hook **correctly allowing** a repeat because the code had changed. There was no waste of this kind to remove. |
+
+**Three removals and two claim-withdrawals is the honest total, and the version survives as its
+hooks.** P3a predicted *"the version's content is its hooks, not its instructions"* and it held —
+but the step-10 reading is sharper than the prediction: **the version's content is three hooks that
+are correct, proved by 65 fixture cases, and inert, proved by 847 live decisions.**
+
+### What this does not license
+
+- **It is not "the mechanisms do not work."** Every one of the three L2 refusals is proved to fire
+  by a fixture set that executes; two of them have never had the chance in a paid run, and the
+  third fired on the one path the task reaches.
+- **It is not "efficiency work is pointless."** It is that *this* waste — repeated reads of
+  unchanged files, repeated commands under unchanged code, unbounded search — **is not present in
+  this agent on these two tasks**, measured, 847 decisions, `n = 20`.
+- **It does not reach the disposition of v1.2 as a version.** That is the exit gate, below.
+
 ## Exit gate
 
 **From the build track — all must hold vs v1.1:** same or better acceptance · same hidden-test
@@ -646,9 +715,102 @@ lower median time-to-green · **no increase in material review corrections.**
 
 > Efficiency improvements are rejected when quality declines. No exceptions.
 
-**Plus, for this to count as a learned phase:**
+### The seven clauses, answered one by one — §4 step 11
 
-<!-- TODO -->
+*Answered 2026-10-05 by Opus 5 (claude-opus-5), autonomously, from the batch, the hook logs and the
+stored run records. Every clause is answered or recorded unanswerable; none is left to be inferred
+from a neighbour.*
+
+| # | clause | answer | evidence |
+|---|---|---|---|
+| 1 | same or better acceptance | **HOLDS, at equality** — `passed: true`, `acceptanceRate: 1` on **10 of 10 in all four arms** | the 40 stored `run-record.json` under `evidence/b11/worktrees/<runId>/` |
+| 2 | same hidden-test success | **HOLDS, at equality** — `testsPassed: true` on **10 of 10 in all four arms**; `buildPassed` and `staticAnalysisPassed` likewise | same |
+| 3 | fewer repeated reads | **UNANSWERABLE, registered so before the batch** (Extract §3). The cache log counts repeated reads *by target* — the one thing telemetry cannot — but **only in the treated arm**, because the control has no hook. One-armed: no comparison exists. What it did measure: **0 re-reads at unchanged content and 4 at changed content, in 403 decisions** | `evidence/b11/worktrees/*/cache-log.jsonl`; `infra/otel-collector/config.yaml:48` |
+| 4 | fewer unnecessary tool calls | **COUNT answered, "unnecessary" UNANSWERABLE.** `toolCalls` median 20 → 18.5 on BE-003 (**−7.50 %**, exact perm `p = 0.428`) and 25 → 24 on BE-004 (−4.00 %, `p = 1.000`). Neither separates. No instrument distinguishes a necessary call from an unnecessary one | `report/REPORT.md:17,45`; `report/MDE.md:20,38` |
+| 5 | lower median input tokens | **DOES NOT HOLD.** Read as registered (context total, because `inputTokens` is 0.3–0.5 % of the context a run consumes): **−7.36 % at `p = 0.417`** on BE-003 and **+2.32 % at `p = 0.851`** on BE-004. Row 4 on both tasks: **`NOT DETECTABLE`** | `experiments/E-026…`, `E-027…`; `report/MDE.md` |
+| 6 | lower median time-to-green | **PROXY ONLY, registered so.** `durationMs` is whole-run and sleep-contaminated: **−11.49 % at `p = 0.276`** on BE-003, **+3.19 % at `p = 0.540`** on BE-004. P6 predicted a rise and is **refuted on BE-003**. Neither separates, and the field is not time-to-green either way | `report/MDE.md:18,36` |
+| 7 | no increase in material review corrections | **UNANSWERABLE.** `humanReviews` has length **0 on 40 of 40**; no human reviewer exists in this instrument | the 40 stored records |
+
+**The gate reads "all must hold". Three clauses cannot be answered by this instrument, one is a
+proxy, and the one measurable efficiency clause did not hold. So the gate is NOT MET and v1.2 is
+NOT PROMOTED.** That outcome was registered before the batch — *"four of the gate's seven clauses
+have no instrument, so v1.2 cannot be promoted at this stop even on an `IMPROVED` row"* — and it did
+not get an `IMPROVED` row either. B7 is the precedent for that being a result.
+
+**The "no exceptions" sentence did not fire, and it matters that it did not.** *"Efficiency
+improvements are rejected when quality declines"* — quality did not decline: acceptance, hidden
+tests, build and static analysis are identical in all four arms, and all four rubric medians moved
+by 0 on BE-003. On BE-004 `change-focus` moved 0.5 → 0 at exact perm `p = 1.000`, carved out of the
+decision rule by P5 as registered before the run, with the `REJECT` reading written beside it in
+E-027 for the author to overrule without re-deriving anything. **v1.2 is kept, not promoted** — the
+disposition per mechanism is §4 step 10 above, and it is three removals and two withdrawn claims.
+
+### Was this the agent, or the harness?
+
+**Neither. It was the task population, and that is measurable rather than rhetorical.**
+
+- Not the **harness**: the treatment was proved delivered on 20 of 20 treated runs by
+  `instructionsHash` and by 8/8 overlay files in the setup commit's tree, and absent on 20 of 20
+  controls; the three hooks executed, logging **847 decisions**; `report-b11-batch.py`'s consistency
+  gate found **0 problems on 40 runs**; and the fixture sets prove all three refusals fire — 65
+  cases across the three, plus 14 preflight guards and the step-9 set at 10.
+- Not the **agent's capability**: it solved both tasks in every arm, 40 of 40 gate-admitted, 10 of
+  10 accepted in each of the four arms.
+- It was the **absence of the waste the version targets**. In 847 decisions the agent never re-read
+  a file at unchanged content, never repeated a command under unchanged code, and never issued a
+  single `Grep` or `Glob` — and it read **7–13 distinct files against a limit of 15**. Three
+  mechanisms were built to remove three behaviours that this agent, on these two tasks, does not
+  exhibit.
+- **The harness did contribute one thing, and it is the registered primary's definition.** Context
+  total is ~93 % `cachedTokens`, whose control range spans 242 611–817 222 — a 3.4× spread inside
+  one arm — and it absorbed three component movements that separate on their own
+  (`outputTokens` −15.71 %, `p = 0.022`; `cacheCreationTokens` −14.61 %, `p = 0.014`;
+  `estimatedCost` −12.47 %, `p = 0.036`, all BE-003). Those are registered **"reported, no
+  verdict"** and are reported as exactly that. **Promoting one to the headline after seeing it would
+  be moving a registered variable after the run (§6).** It is an argument about the *next* version's
+  registration.
+
+### The learning block
+
+```yaml
+learning:
+  what_was_added: >
+    v1.2 — eight files over v1.1: a task classifier (L3, prose-invoked), a retrieval-budget
+    PreToolUse hook with a policy file (L2), a two-part file-summary cache, reader plus recorder
+    (L2), a verification-planner profile table (L3), and a command-dedup PreToolUse hook (L2).
+    Registered as ONE variable, the version, with a per-mechanism delivery metric H1..H5.
+  why_it_exists: >
+    build/README.md#b11: caches, budgets and dedup, "only after correctness is stable" — the
+    conditional gate was answered first from 44 stored runs and no new runs.
+  observed_effect: >
+    On the registered primary, nothing an instrument can see: context total -7.36 % at exact
+    perm p = 0.417 (BE-003) and +2.32 % at p = 0.851 (BE-004), both inside every one of the
+    three MDE readings. Row 4, NOT DETECTABLE, on both tasks at n = 10. Acceptance, hidden
+    tests, build and static analysis identical in all four arms. All four rubric medians 0 on
+    BE-003. 847 hook decisions produced ZERO refusals.
+  unexpected_effect: >
+    Three things. (1) Duration FELL 11.49 % on BE-003 where P6 predicted a rise - refuted.
+    (2) Three secondaries on BE-003 moved outside the registered band and separate on their own
+    (outputTokens, cacheCreationTokens, estimatedCost) while the composite primary did not,
+    which is a property of how the primary was defined, not a finding about the treatment.
+    (3) The agent issues no Grep and no Glob at all on these tasks, so one of the two registered
+    budget limits guards a behaviour that does not occur.
+  keep_or_remove: >
+    Per mechanism, never pooled. REMOVE the classifier (H1 = 0 of 20) and the verification
+    planner (unmeasurable by registration, with a condition of re-entry). KEEP all three L2
+    hooks and REMOVE the efficiency claim from the budget and the dedup; KEEP the cache's
+    stale branch, which fired in paid runs and is load-bearing for correctness (step 9),
+    and withdraw the reuse claim, which fired 0 times in 403 decisions. v1.2 is kept and
+    NOT promoted; the gate is not met and four of its seven clauses have no instrument.
+  next_question: >
+    The one this stop can pose and not answer: does the waste exist at all on a task large
+    enough to produce it? Every mechanism here is correct and inert, and inertness was measured
+    on two tasks the agent passes 40 of 40. BE-005 is the first task in this track built to be
+    failable, so the question belongs to whatever step runs on it - registered there, before any
+    run, with the limits re-derived from the distribution this stop measured: 13 of 15 files at
+    the maximum, 0 of 5 searches ever.
+```
+
 
 ## Commit
 
