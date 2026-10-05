@@ -276,6 +276,12 @@ EVENTS_BEFORE="$(events_bytes)"
 # than it claims, applied to a population instead of a check.
 declare -A SEEN=() TASK_COST_SEED=()
 H1_SEED=0; H2_SEED=0; H3_SEED=0; H5_SEED=0; NULLC_SEED=0
+# *** SEEDED ON RESUME FROM 2026-10-05, AND THEY WERE NOT BEFORE. *** H1..H5 and the ceiling were
+# seeded from the manifest; TREATED_N and ROW0A were re-zeroed at every launch. The result was a
+# summary header reading `over 9 treated run(s)` above mechanism counts of 20 — the counts
+# manifest-wide and correct, the DENOMINATOR the third launch's only. A reader who trusts the
+# header divides by the wrong n, which is this project's house failure mode in a printf.
+TREATEDN_SEED=0; ROW0A_SEED=0
 RESUMED_ROWS=0
 if [[ -n "$RESUME_TAG" ]]; then
   # Read EVERY seeded value BY COLUMN NAME. The b09 preflight reader was hard-coded to $13 for cost
@@ -284,6 +290,8 @@ if [[ -n "$RESUME_TAG" ]]; then
     case "$k" in
       CELL)  SEEN["$a"]=1; RESUMED_ROWS=$((RESUMED_ROWS+1)) ;;
       COST)  TASK_COST_SEED["$a"]="$b" ;;
+      TREATEDN) TREATEDN_SEED="$a" ;;
+      ROW0A) ROW0A_SEED="$a" ;;
       H1)    H1_SEED="$a" ;;
       H2)    H2_SEED="$a" ;;
       H3)    H3_SEED="$a" ;;
@@ -296,7 +304,15 @@ if [[ -n "$RESUME_TAG" ]]; then
         print "CELL\t" $1 "/" $(col["seq"]) "/" $(col["arm"]) "\t";
         c = $(col["cost"]);
         if (c ~ /^[0-9]+(\.[0-9]+)?$/) { cost[$1] += c } else { nullc++ }
+        # ROW 0a is counted at the ROW level, not inside the treated branch: the live counter
+        # increments for a treated run MISSING overlay files AND for a control run that LEAKED
+        # them, and a seed that only saw the treated half would under-report the voiding of
+        # the control arm on resume - the same scope error, one arm smaller. (No apostrophes in
+        # here: this comment lives INSIDE a single-quoted awk program, and the first version of
+        # it ended the quote mid-sentence.)
+        if ($(col["overlay_files"]) ~ /MISSING|LEAK/) r0++;
         if ($(col["arm"]) == "treated") {
+          tn++;
           if ($(col["budget_lines"]) + 0 >= 1) h2++;
           if ($(col["cache_lines"])  + 0 >= 1) h3++;
           if ($(col["dedup_lines"])  + 0 >= 1) h5++;
@@ -304,6 +320,7 @@ if [[ -n "$RESUME_TAG" ]]; then
         }
       }
       END { for (t in cost) printf "COST\t%s\t%.4f\n", t, cost[t];
+            printf "TREATEDN\t%d\t\n", tn+0; printf "ROW0A\t%d\t\n", r0+0;
             printf "H1\t%d\t\n", h1+0; printf "H2\t%d\t\n", h2+0;
             printf "H3\t%d\t\n", h3+0; printf "H5\t%d\t\n", h5+0;
             printf "NULLC\t%d\t\n", nullc+0 }
@@ -322,6 +339,11 @@ if [[ -n "$RESUME_TAG" ]]; then
         done
       done
     done
+    # The SEEDS, not the counters: the counters are assigned further down and this branch exits
+    # before them, so naming them here would trip `set -u` — which it did, once, before this
+    # comment existed.
+    printf 'resume-plan: seeded TREATED_N=%s ROW0A=%s H1=%s H2=%s H3=%s H5=%s\n' \
+      "$TREATEDN_SEED" "$ROW0A_SEED" "$H1_SEED" "$H2_SEED" "$H3_SEED" "$H5_SEED"
     echo "resume-plan: nothing was run"; exit 0
   fi
   {
@@ -346,7 +368,19 @@ if [[ -z "$RESUME_TAG" ]]; then
     "$(git -C ../agent-observatory-benchmarks rev-parse --short HEAD 2>/dev/null)"
   printf '# API %s  OTLP %s / %s  events.jsonl %s bytes at launch\n' \
     "$API" "$OTLP_HTTP_ENDPOINT" "$OTLP_GRPC_ENDPOINT" "$EVENTS_BEFORE"
-  printf '# prediction commit ef2c6c0 at 2026-09-26, BEFORE any run here\n'
+  # *** NOT HARDCODED ANY MORE, AND THE REASON IS THIS LINE'S OWN HISTORY. *** Until 2026-10-05
+  # this printed `# prediction commit ef2c6c0 at 2026-09-26` into EVERY manifest header. `ef2c6c0`
+  # is real — it is STOP 20's prediction commit — carried over when this driver was derived from
+  # stop 20's, so stop 26's manifests all claim a prediction that belongs to another experiment.
+  # A header a reader trusts without checking must be DERIVED or ABSENT, never typed.
+  if [[ -n "${PREDICTION_COMMIT:-}" ]]; then
+    printf '# prediction commit %s at %s (supplied by the invoker, resolved by git), BEFORE any run here\n' \
+      "$PREDICTION_COMMIT" "$(git show -s --format=%cI "$PREDICTION_COMMIT" 2>/dev/null || echo UNRESOLVABLE)"
+  else
+    # The backticks are literal markdown in a manifest comment, not a command substitution.
+    # shellcheck disable=SC2016
+    printf '# prediction commit: NOT SUPPLIED to this driver. Derive the ordering from `git show -s --format=%%cI <commit>` against the earliest startedAt in this manifest — never from this header.\n'
+  fi
   printf 'task\tseq\tarm\trun_id\trc\teval\tf13\tedits\truntime_ver\tmodel\tinstr_hash\tagent_hash\tagents_hash\thooks_hash\tbudget_lines\tbudget_blocks\tcache_lines\tcache_blocks\tcache_stale\tdedup_lines\tdedup_blocks\tclassify\toverlay_files\tmodel_calls\ttool_calls\tcost\tduration_ms\tchanged\tinit_tools\tworktree\n'
 } > "$MANIFEST"
 fi
@@ -356,7 +390,7 @@ declare -A TASK_COST=()
 for t in "${TASKS[@]}"; do TASK_COST["$t"]="${TASK_COST_SEED[$t]:-0}"; done
 H1_COUNT="${H1_SEED:-0}"; H2_COUNT="${H2_SEED:-0}"; H3_COUNT="${H3_SEED:-0}"; H5_COUNT="${H5_SEED:-0}"
 NULL_COST="${NULLC_SEED:-0}"
-TREATED_N=0; ROW0A=0
+TREATED_N="${TREATEDN_SEED:-0}"; ROW0A="${ROW0A_SEED:-0}"   # seeded, not re-zeroed — see above
 
 one() {  # one <task> <arm> <seq>
   local task="$1" arm="$2" seq="$3" key log rc rid wt rec
