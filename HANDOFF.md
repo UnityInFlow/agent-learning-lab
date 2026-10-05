@@ -3,9 +3,16 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at the Position section immediately below. Positions 4–26 are CLOSED — stop 26 (B11 —
-efficiency) closed 2026-10-05 `NOT DETECTABLE` on both tasks, v1.2 kept and NOT promoted — stop 27
-(B12) is NOT OPENED, and NOTHING is blocked on the author.**
+**Start at `THE HALT` in the Position section immediately below — it is the live item and the run
+is stopped on it.** Positions 4–26 are CLOSED — stop 26 (B11 — efficiency) closed 2026-10-05
+`NOT DETECTABLE` on both tasks, v1.2 kept and NOT promoted, merged as
+`0697586705b32b6a84dbe714dc74fa3ad8202bdd` — **stop 27 (B12) is NOT OPENED, and it cannot open until
+you clear the §0a Isolation row, which fails on 4 of 7 invocations.**
+
+*(Superseded pointer, kept, and it was true for the four hours between the stop-26 close and the
+§0a re-run that refuted it:)* "Positions 4–26 are CLOSED — stop 26 (B11 — efficiency) closed
+2026-10-05 `NOT DETECTABLE` on both tasks, v1.2 kept and NOT promoted — stop 27 (B12) is NOT
+OPENED, and NOTHING is blocked on the author." **The §0a preflight then failed its Isolation row.**
 
 *(Superseded pointer, kept:)* "Positions 4–25 are CLOSED — stop 25 (Phase 10) closed 2026-09-29 —
 stop 26 (B11) is NOT OPENED, and NOTHING is blocked on the author." **Stop 26 has closed since.**
@@ -58,12 +65,94 @@ against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 **Spine 26 of 28. Positions 4–26 CLOSED — 26 (B11 — efficiency, v1.2) closed 2026-10-05
 `NOT DETECTABLE` on both tasks at `n = 10` per arm.** `v1.2` is **kept and NOT promoted**, which is
 what was registered before the batch: four of the gate's seven clauses have no instrument, so the
-version could not be promoted even on an `IMPROVED` row, and it did not get one. **NOTHING is
-blocked on the author.** `lab#36` (B11) is **closed** — a B step's issue closes when its deliverable
+version could not be promoted even on an `IMPROVED` row, and it did not get one. **Something IS now
+blocked on the author, and it was not when this paragraph was first written at the stop-26 close:
+the §0a Isolation row FAILS on 4 of 7 invocations — see THE HALT below.** *(Corrected 2026-10-05 by
+Opus 5 (claude-opus-5), autonomously, at the §0 boundary-4 write; the superseded sentence read
+"NOTHING is blocked on the author." and is kept here rather than deleted.)* `lab#36` (B11) is **closed** — a B step's issue closes when its deliverable
 is decided, and a kept-not-promoted version is a decision. `lab#12`, `lab#11`, `lab#10`, `lab#9`,
 `lab#16` and `lab#8` stay open as Phase issues whose gates are not met from measurement. **Stop 27
 (B12 — governed self-learning) is NOT OPENED and nothing of it exists**; §6 forbids a future step's
 artifacts early, and opening it at §4 step 1 is the next session's first act.
+
+**The merge, recorded here because a close without one is a claim.** `lab#143` merged
+2026-10-05 as **`0697586705b32b6a84dbe714dc74fa3ad8202bdd`** — a **merge** commit with two parents
+(`70221a7` and `32a7c96`), not a squash, so prediction commit **`2552b75`** stays reachable from
+`main` and `git merge-base --is-ancestor 2552b75 origin/main` returns true. All ten checks reported
+before the merge: **nine green**, and the one red is `a published board does not outlive its source`,
+which is the author's standing decision and explicitly not a blocker on this work. `lab#36` carries
+the closing row and is closed `completed`; its card is `Done`, read back from the board.
+
+**What is BLOCKED ON YOU, and one thing that is not but that you should see.** The board republish
+is yours by decision 12 item 4, and this section's edit moved the digest off the `1aa527ab363b` the
+previous session recorded — that value was correct for the file before these paragraphs existed.
+**The new value is deliberately not written here.** `check-board-freshness.sh` excludes only lines
+matching `board:` from its hash, so a digest quoted in ordinary prose is inside its own basis and
+writing it changes it — the self-invalidation the script's own header warns about. Re-derive it at
+the moment you republish, with `sed '/board:/d' HANDOFF.md | shasum -a 256 | cut -c1-12`, and put it
+in the two marker lines and nowhere else. `TRACK-B-STATE.md` records the value as of its last write
+for convenience only; the command is the authority.
+
+The thing that is not blocked on you: **a subagent I dispatched deleted 115 evidence files, and
+nothing in this repository executed to stop it.** The §0a preflight subagent ran
+`rm -f findings/opencode/review-*.md` four times — to make *"a new findings file"* easy for itself to
+spot — and removed 115 tracked review files protected by §6's *"never overwrite or delete a run
+folder, a sheet, or an evidence file."* **Nothing was lost, and that is provable rather than
+asserted:** all 115 were tracked, `git checkout --` restored them byte-identically, and
+`git status --porcelain` at this session's re-entry had been *completely empty* — no untracked rows
+anywhere in the repo — so every file it could have reached was tracked and every one is back. It was
+caught by `git status` run for an unrelated reason, not by any check, and the subagent's own report
+would have said seven rows `ok`. **The lesson is a layer lesson: §6 is L3 — words I read and a
+subagent never did — and the only thing that actually protected the evidence was git, which is L1
+for anything committed and nothing at all for anything that is not.** The seven stray `1` artefacts
+at `evidence/b11/`, the header-only review file and the four probe records sit in exactly that gap.
+**The instrument wanted is one `PreToolUse` hook refusing `rm` under `findings/` and `evidence/`**,
+which would convert §6 from L3 to L2 for every agent in these repositories; the layer model says
+that is what to do with a rule that has already been broken once. Until then the control is a line
+now carried in every §4b brief: *do not run `rm`, `git clean`, `git checkout --`, `git stash`, `mv`
+or any truncating redirect, on any path, for any reason.*
+
+**THE HALT, AND IT IS THE REASON THIS RUN IS STOPPING RATHER THAN OPENING STOP 27.** `§0a` row
+**Isolation** FAILS, and it fails in the shape this project treats as its worst:
+`agent-observatory/runner/verify-codex-isolation.sh` reports **`ISOLATION LEAKS: the agent reached
+the operator's instruction files with HOME redirected`** — its own words — and adds *"run-agent.sh's
+HOME redirection is not doing what observatory#65 requires."* **Observed on 4 of 7 invocations
+(`n = 7`), back to back, same machine, nothing changed between them:** exits `2, 1, 2, 1, 0, 2, 2`.
+All seven outputs are kept at `evidence/preflight/isolation-20261005/`.
+
+**The three clean invocations are not a pass, and that is the whole point.** Check B's own positive
+control establishes, every time, that the operator's instruction files *are* findable — the script
+refuses to proceed otherwise. So a clean run means the agent **declined to look** on that
+invocation, not that the redirection stopped it; when it looked, it got in. **A control that passes
+by its subject not trying is a control that reports success over a scope smaller than it claims** —
+the house failure mode, named in the workspace `CLAUDE.md`, now found in the preflight row whose job
+is to prevent exactly it. Every past `ok` on this row was one sample of a probe that is right less
+than half the time.
+
+**Why this is yours and not mine to clear.** `codex` is the *registered scorer* (Decision C). If the
+scorer can reach the operator's skills and instruction files, that is an **unregistered variable in
+every codex sheet this track has produced**, which is a question about what the track's existing
+numbers mean — not an instrument tidy-up I may merge under §4 step 14. I have **not** retro-voided
+anything: stop 26 is closed and merged on evidence that stands on its own records, and I will not
+unpick a merged stop on a seven-sample probe without you. **What I did not do, deliberately:** write
+a fix to `run-agent.sh`'s HOME redirection (it changes the conditions under which every future run
+executes), re-score anything, or open stop 27 — §6 forbids a future step's artifacts early and §0a
+forbids starting a stop on a failing verifier.
+
+**Two further defects of the verifier itself, which you will want fixed before it gates anything.**
+(1) **It names no evidence.** On a leak it prints the verdict and nothing else — not which path was
+reached, not what the agent said. A stranger cannot re-derive the finding from the output, which is
+§5's standard. (2) **Check C is INCONCLUSIVE by its own report** on the invocations that reach it
+(*"no remote plugins were installed even WITHOUT the flag … Do not read it as a pass"*), so the
+network-plugin third of the row has never been proven either. Taken together the row has one third
+genuinely observed (check A: nothing auto-loads, clean on all 7), one third failing on 4 of 7, and
+one third unprovable here.
+
+**And the half of the row that cannot be proven at all, re-confirmed:** §0a asks for a claude run
+*"whose record shows 0 hook executions"*, and **no such field exists** in the API run record — the
+only hook-ish key is `hooksHash`, which is `null` on every run ever recorded. I did **not** re-run
+that half: a live benchmark run against a closed stop would be a 41st run on a registered population
+of 40. That defect is in the prompt's own table and has been in `author_notes` since 2026-10-05.
 
 **The headline, both tasks, and neither is detectable.** Context total 346 697 → 321 179 on BE-003
 (**−7.36 %**, exact permutation `p = 0.417` over all 184 756 relabellings) and 515 872 → 527 854 on

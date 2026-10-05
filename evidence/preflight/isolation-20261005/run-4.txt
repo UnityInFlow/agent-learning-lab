@@ -1,0 +1,13 @@
+positive control — global AGENTS.md present, no isolation ...
+  marker present, as it must be — the test can see a leak
+isolated run — CODEX_HOME holding auth.json alone ...
+  marker absent — global instructions did not reach the model
+  check A holds: nothing AUTO-LOADS. That is not the same as check B below.
+
+--- check B: deliberate reading (observatory#65) ---
+positive control — real HOME, agent free to look ...
+  operator instruction files found, as they must be — the test can see a leak
+redirected HOME — what run-agent.sh --isolate-user-settings now builds ...
+
+ISOLATION LEAKS: the agent reached the operator's instruction files with HOME redirected.
+run-agent.sh's HOME redirection is not doing what observatory#65 requires.
