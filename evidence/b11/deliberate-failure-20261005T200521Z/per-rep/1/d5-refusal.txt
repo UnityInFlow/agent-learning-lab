@@ -1,0 +1,11 @@
+BLOCKED by the file-summary cache: you already read this file at this exact content.
+
+  path        /Users/jirihermann/Documents/workspace-1-ideas/ai-agents/ai-learning/agent-learning-lab/evidence/b11/deliberate-failure-20261005T200521Z/per-rep/1/broken-subject.kt
+  read at     2026-10-05T20:05:22Z
+  sha256      ff5a8f3cd67a2b29b11174604cbbd2cfb87708b9cb3b3112ed41ce31c36da374
+  size        2940 bytes, 82 lines
+
+The file has not changed since — the hash is identical — so this read would return exactly what
+you already have. Use what you read. If you need only one part of it again, grep for that part,
+or read a bounded window with an offset and a limit. If the file changes, this cache drops its
+entry by itself and the next read goes through.

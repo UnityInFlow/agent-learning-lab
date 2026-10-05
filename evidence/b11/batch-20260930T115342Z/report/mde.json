@@ -1,0 +1,422 @@
+{
+  "BE-003": {
+    "cacheCreationTokens": {
+      "control_boot_ci": [
+        21697.0,
+        27917.5
+      ],
+      "control_median": 23936.5,
+      "delta": -3496.0,
+      "delta_pct": -14.605309882397176,
+      "inside_rederived_mde": false,
+      "inside_registered_mde": false,
+      "perm_p": 0.014072614691809739,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 12.993754308273974,
+      "registered_mde_pct": 8.0,
+      "treated_median": 20440.5
+    },
+    "cachedTokens": {
+      "control_boot_ci": [
+        298147.0,
+        456899.5
+      ],
+      "control_median": 323853.0,
+      "delta": -23240.5,
+      "delta_pct": -7.1762497182363605,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 0.4060707094762822,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 24.509962853516875,
+      "registered_mde_pct": 8.0,
+      "treated_median": 300612.5
+    },
+    "cat_architecture-consistency": {
+      "control_boot_ci": [
+        2.0,
+        2.0
+      ],
+      "control_median": 2.0,
+      "delta": 0.0,
+      "delta_pct": 0.0,
+      "inside_rederived_mde": false,
+      "inside_registered_mde": true,
+      "perm_p": 1.0,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 0.0,
+      "registered_mde_pct": 8.0,
+      "treated_median": 2.0
+    },
+    "cat_change-focus": {
+      "control_boot_ci": [
+        1.0,
+        1.0
+      ],
+      "control_median": 1.0,
+      "delta": 0.0,
+      "delta_pct": 0.0,
+      "inside_rederived_mde": false,
+      "inside_registered_mde": true,
+      "perm_p": 1.0,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 0.0,
+      "registered_mde_pct": 8.0,
+      "treated_median": 1.0
+    },
+    "cat_maintainability": {
+      "control_boot_ci": [
+        0.0,
+        2.0
+      ],
+      "control_median": 0.0,
+      "delta": 0.5,
+      "delta_pct": null,
+      "inside_rederived_mde": null,
+      "inside_registered_mde": null,
+      "perm_p": 0.6499166468206716,
+      "perm_splits": 184756,
+      "rederived_mde_pct": null,
+      "registered_mde_pct": 8.0,
+      "treated_median": 0.5
+    },
+    "cat_test-quality": {
+      "control_boot_ci": [
+        1.0,
+        1.0
+      ],
+      "control_median": 1.0,
+      "delta": 0.0,
+      "delta_pct": 0.0,
+      "inside_rederived_mde": false,
+      "inside_registered_mde": true,
+      "perm_p": 1.0,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 0.0,
+      "registered_mde_pct": 8.0,
+      "treated_median": 1.0
+    },
+    "ctx_total": {
+      "control_boot_ci": [
+        318428.0,
+        485033.5
+      ],
+      "control_median": 346697.0,
+      "delta": -25518.0,
+      "delta_pct": -7.360317510679354,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 0.41743705211197474,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 24.027537013588233,
+      "registered_mde_pct": 8.0,
+      "treated_median": 321179.0
+    },
+    "durationMs": {
+      "control_boot_ci": [
+        100000.0,
+        128000.0
+      ],
+      "control_median": 117500.0,
+      "delta": -13500.0,
+      "delta_pct": -11.48936170212766,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": false,
+      "perm_p": 0.2762670765766741,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 11.914893617021276,
+      "registered_mde_pct": 8.0,
+      "treated_median": 104000.0
+    },
+    "estimatedCost": {
+      "control_boot_ci": [
+        0.116774,
+        0.1548185
+      ],
+      "control_median": 0.13129800000000003,
+      "delta": -0.01637800000000003,
+      "delta_pct": -12.473914301817262,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": false,
+      "perm_p": 0.036177444846175494,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 14.487844445459942,
+      "registered_mde_pct": 8.0,
+      "treated_median": 0.11492
+    },
+    "inputTokens": {
+      "control_boot_ci": [
+        162.0,
+        210.0
+      ],
+      "control_median": 170.0,
+      "delta": -12.0,
+      "delta_pct": -7.0588235294117645,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 0.34923899629781985,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 14.117647058823529,
+      "registered_mde_pct": 8.0,
+      "treated_median": 158.0
+    },
+    "modelCalls": {
+      "control_boot_ci": [
+        20.0,
+        26.0
+      ],
+      "control_median": 21.0,
+      "delta": -1.5,
+      "delta_pct": -7.142857142857143,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 0.34923899629781985,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 14.285714285714286,
+      "registered_mde_pct": 8.0,
+      "treated_median": 19.5
+    },
+    "outputTokens": {
+      "control_boot_ci": [
+        9160.0,
+        11303.0
+      ],
+      "control_median": 10278.0,
+      "delta": -1614.5,
+      "delta_pct": -15.70830900953493,
+      "inside_rederived_mde": false,
+      "inside_registered_mde": false,
+      "perm_p": 0.022126480330814696,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 10.425179996108191,
+      "registered_mde_pct": 8.0,
+      "treated_median": 8663.5
+    },
+    "toolCalls": {
+      "control_boot_ci": [
+        19.0,
+        25.0
+      ],
+      "control_median": 20.0,
+      "delta": -1.5,
+      "delta_pct": -7.5,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 0.42766676048409796,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 15.0,
+      "registered_mde_pct": 8.0,
+      "treated_median": 18.5
+    }
+  },
+  "BE-004": {
+    "cacheCreationTokens": {
+      "control_boot_ci": [
+        32032.0,
+        34320.0
+      ],
+      "control_median": 32916.5,
+      "delta": -103.0,
+      "delta_pct": -0.3129129767745659,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 0.9537227478403949,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 3.475460635243723,
+      "registered_mde_pct": 8.0,
+      "treated_median": 32813.5
+    },
+    "cachedTokens": {
+      "control_boot_ci": [
+        461166.0,
+        553683.0
+      ],
+      "control_median": 483626.0,
+      "delta": 9867.0,
+      "delta_pct": 2.040212891780012,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 0.8514797895602849,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 9.564932406446303,
+      "registered_mde_pct": 8.0,
+      "treated_median": 493493.0
+    },
+    "cat_architecture-consistency": {
+      "control_boot_ci": [
+        2.0,
+        2.0
+      ],
+      "control_median": 2.0,
+      "delta": 0.0,
+      "delta_pct": 0.0,
+      "inside_rederived_mde": false,
+      "inside_registered_mde": true,
+      "perm_p": 1.0,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 0.0,
+      "registered_mde_pct": 8.0,
+      "treated_median": 2.0
+    },
+    "cat_change-focus": {
+      "control_boot_ci": [
+        0.0,
+        1.0
+      ],
+      "control_median": 0.5,
+      "delta": -0.5,
+      "delta_pct": -100.0,
+      "inside_rederived_mde": false,
+      "inside_registered_mde": false,
+      "perm_p": 1.0,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 100.0,
+      "registered_mde_pct": 8.0,
+      "treated_median": 0.0
+    },
+    "cat_maintainability": {
+      "control_boot_ci": [
+        0.0,
+        0.0
+      ],
+      "control_median": 0.0,
+      "delta": 0.0,
+      "delta_pct": null,
+      "inside_rederived_mde": null,
+      "inside_registered_mde": null,
+      "perm_p": 1.0,
+      "perm_splits": 184756,
+      "rederived_mde_pct": null,
+      "registered_mde_pct": 8.0,
+      "treated_median": 0.0
+    },
+    "cat_test-quality": {
+      "control_boot_ci": [
+        1.0,
+        2.0
+      ],
+      "control_median": 1.0,
+      "delta": 0.0,
+      "delta_pct": 0.0,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 1.0,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 50.0,
+      "registered_mde_pct": 8.0,
+      "treated_median": 1.0
+    },
+    "ctx_total": {
+      "control_boot_ci": [
+        493071.0,
+        589995.0
+      ],
+      "control_median": 515872.0,
+      "delta": 11982.0,
+      "delta_pct": 2.3226691892562497,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 0.8514797895602849,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 9.394190807021896,
+      "registered_mde_pct": 8.0,
+      "treated_median": 527854.0
+    },
+    "durationMs": {
+      "control_boot_ci": [
+        169000.0,
+        182000.0
+      ],
+      "control_median": 172500.0,
+      "delta": 5500.0,
+      "delta_pct": 3.1884057971014492,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 0.5404100543419429,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 3.7681159420289854,
+      "registered_mde_pct": 8.0,
+      "treated_median": 178000.0
+    },
+    "estimatedCost": {
+      "control_boot_ci": [
+        0.199083,
+        0.218013
+      ],
+      "control_median": 0.204315,
+      "delta": 0.0016235,
+      "delta_pct": 0.7946063676186281,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 0.9283920413951374,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 4.632552676014978,
+      "registered_mde_pct": 8.0,
+      "treated_median": 0.2059385
+    },
+    "inputTokens": {
+      "control_boot_ci": [
+        202.0,
+        226.0
+      ],
+      "control_median": 210.0,
+      "delta": -8.0,
+      "delta_pct": -3.8095238095238093,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 1.0,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 5.714285714285714,
+      "registered_mde_pct": 8.0,
+      "treated_median": 202.0
+    },
+    "modelCalls": {
+      "control_boot_ci": [
+        25.0,
+        28.0
+      ],
+      "control_median": 26.0,
+      "delta": -1.0,
+      "delta_pct": -3.8461538461538463,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 1.0,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 5.769230769230769,
+      "registered_mde_pct": 8.0,
+      "treated_median": 25.0
+    },
+    "outputTokens": {
+      "control_boot_ci": [
+        17295.0,
+        18376.0
+      ],
+      "control_median": 17759.0,
+      "delta": 298.5,
+      "delta_pct": 1.6808378850160481,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 0.6828682153759553,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 3.043527225632074,
+      "registered_mde_pct": 8.0,
+      "treated_median": 18057.5
+    },
+    "toolCalls": {
+      "control_boot_ci": [
+        24.0,
+        27.0
+      ],
+      "control_median": 25.0,
+      "delta": -1.0,
+      "delta_pct": -4.0,
+      "inside_rederived_mde": true,
+      "inside_registered_mde": true,
+      "perm_p": 1.0,
+      "perm_splits": 184756,
+      "rederived_mde_pct": 6.0,
+      "registered_mde_pct": 8.0,
+      "treated_median": 24.0
+    }
+  }
+}

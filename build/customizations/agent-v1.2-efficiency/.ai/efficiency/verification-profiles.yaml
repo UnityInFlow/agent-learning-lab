@@ -1,0 +1,32 @@
+# Verification profiles — B11 (v1.2) mechanism 4, the verification planner, AS DATA.
+#
+# *** THIS FILE IS L3 AND SO IS EVERYTHING THAT READS IT, WHICH IS NOTHING. *** No hook consults
+# it. Its whole delivery is the table in CLAUDE.md that repeats it, which the model reads and
+# chooses to follow. Applying the workspace rule in order: can a run still verify in whatever
+# order it likes? Yes. Does something execute and reject that? No. L3.
+#
+# It is here as data rather than only as prose for one reason: `H4` is registered UNMEASURED
+# before the batch, and a reader who wants to know what "the planner" actually prescribed should
+# be able to read it without reconstructing it from a paragraph. A planner followed in the
+# model's head leaves nothing behind, and the only artifact would be the verification commands
+# themselves, which are indistinguishable from the commands v1.1 already runs.
+#
+# WHY IT IS NOT MADE L2: a hook that refused a test command outside the profile could fail a run
+# that had solved the ticket. That changes the task's pass condition, which is a change to what
+# the benchmark measures — a §7 halt, not a design choice.
+version: v1.2
+selected_by: .ai/efficiency/classify-task.sh -> task_type
+invariant: >
+  Every profile ends with ONE full module test run. The point is not to verify less; it is to
+  stop verifying the same thing four times on the way there. The completion contract's clauses 2
+  and 3 are unchanged.
+profiles:
+  api:        ["compile", "the controller's own test class", "full module test run, once, at the end"]
+  jpa:        ["compile", "the repository/entity test class", "full module test run, once, at the end"]
+  kafka:      ["compile", "the producer/consumer test class", "full module test run, once, at the end"]
+  cache:      ["compile", "the cache's test class", "full module test run, once, at the end"]
+  security:   ["compile", "the affected test class", "full module test run, once, at the end"]
+  build:      ["the build itself", "full module test run, once"]
+  test-only:  ["the new or changed test class", "full module test run, once"]
+  migration:  ["compile", "the migration's own test", "full module test run, once, at the end"]
+  unclassified: ["compile", "full module test run, once"]

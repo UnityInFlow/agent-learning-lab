@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.158.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9367d62c-05b0-4541-96bd-100672f2d5f7
+  mode:           run
+  run_id:         9367d62c-05b0-4541-96bd-100672f2d5f7
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/9367d62c-05b0-4541-96bd-100672f2d5f7
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20261005T121251Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  2700   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals throw baseline ApiException subclasses; controllers construct no error bodies"
+    evidence: "OrderController.kt:29, OrderController.kt:45, OrderController.kt:57, OrderController.kt:71; ShipmentController.kt:32, ShipmentController.kt:42, ShipmentController.kt:62"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "The order-status decision uses an if statement"
+    evidence: "OrderController.kt:63"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "Tests cover repeated cancel bodies, refused-state preservation, envelopes, and persisted successful state"
+    evidence: "OrderControllerTest.kt:122, OrderControllerTest.kt:142, OrderControllerTest.kt:146, OrderControllerTest.kt:151, OrderControllerTest.kt:108"
+  - name: "change-focus"
+    score: 2
+    anchor_level: 2
+    reason: "Unnamed controller methods match baseline; remaining changes fit the permitted list"
+    evidence: "OrderController.kt:27, OrderController.kt:43, OrderController.kt:52; ShipmentController.kt:30, ShipmentController.kt:60, ShipmentController.kt:69; baseline OrderController.kt:24, baseline OrderController.kt:40, baseline OrderController.kt:49; baseline ShipmentController.kt:28, baseline ShipmentController.kt:49, baseline ShipmentController.kt:58"
+ambiguous_categories: []

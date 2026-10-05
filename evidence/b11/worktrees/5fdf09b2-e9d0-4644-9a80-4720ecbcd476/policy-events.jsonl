@@ -1,0 +1,4 @@
+{"ts":"2026-09-30T12:13:00Z","decision":"allow","tool":"Edit","path":"sample-service/src/main/kotlin/com/unityinflow/sample/api/ApiError.kt","reason":"no-deny-pattern-matched","policy":"protected-paths","pid":61167}
+{"ts":"2026-09-30T12:13:04Z","decision":"allow","tool":"Edit","path":"sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt","reason":"no-deny-pattern-matched","policy":"protected-paths","pid":61497}
+{"ts":"2026-09-30T12:13:08Z","decision":"allow","tool":"Edit","path":"sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt","reason":"no-deny-pattern-matched","policy":"protected-paths","pid":61687}
+{"ts":"2026-09-30T12:13:15Z","decision":"allow","tool":"Edit","path":"sample-service/src/test/kotlin/com/unityinflow/sample/shipment/ShipmentControllerTest.kt","reason":"no-deny-pattern-matched","policy":"protected-paths","pid":62165}

@@ -1,0 +1,401 @@
+=== BE-003 01 treated 5cc74707-f2e8-44a4-9ccf-df241effaac3 attempt 1 (11:42:40Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5cc74707-f2e8-44a4-9ccf-df241effaac3
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 01 treated 5cc74707-f2e8-44a4-9ccf-df241effaac3 attempt 2 (11:42:40Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5cc74707-f2e8-44a4-9ccf-df241effaac3
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 01 control 1cd964b4-eca2-4296-bc02-26e605254859 attempt 1 (11:42:40Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1cd964b4-eca2-4296-bc02-26e605254859
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 01 control 1cd964b4-eca2-4296-bc02-26e605254859 attempt 2 (11:42:40Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1cd964b4-eca2-4296-bc02-26e605254859
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 02 treated ba9ec0c3-e0b7-49ba-867b-8f4defda0690 attempt 1 (11:42:40Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-ba9ec0c3-e0b7-49ba-867b-8f4defda0690
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 02 treated ba9ec0c3-e0b7-49ba-867b-8f4defda0690 attempt 2 (11:42:40Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-ba9ec0c3-e0b7-49ba-867b-8f4defda0690
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 02 control 9115438e-e4c4-4e44-bff3-873835621b91 attempt 1 (11:42:40Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9115438e-e4c4-4e44-bff3-873835621b91
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 02 control 9115438e-e4c4-4e44-bff3-873835621b91 attempt 2 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9115438e-e4c4-4e44-bff3-873835621b91
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 03 treated 0a7e45d4-6d16-4f9c-93f8-4a1fcebc2e2b attempt 1 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0a7e45d4-6d16-4f9c-93f8-4a1fcebc2e2b
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 03 treated 0a7e45d4-6d16-4f9c-93f8-4a1fcebc2e2b attempt 2 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0a7e45d4-6d16-4f9c-93f8-4a1fcebc2e2b
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 03 control 0c8421de-a6ab-439a-8417-36d7d051be89 attempt 1 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0c8421de-a6ab-439a-8417-36d7d051be89
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 03 control 0c8421de-a6ab-439a-8417-36d7d051be89 attempt 2 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-0c8421de-a6ab-439a-8417-36d7d051be89
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 04 treated ed58ed0b-ec06-4b95-9232-82926371b709 attempt 1 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-ed58ed0b-ec06-4b95-9232-82926371b709
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 04 treated ed58ed0b-ec06-4b95-9232-82926371b709 attempt 2 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-ed58ed0b-ec06-4b95-9232-82926371b709
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 04 control b4b3078d-7011-4870-a184-f4e65b89983b attempt 1 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b4b3078d-7011-4870-a184-f4e65b89983b
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 04 control b4b3078d-7011-4870-a184-f4e65b89983b attempt 2 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b4b3078d-7011-4870-a184-f4e65b89983b
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 05 treated 5fdf09b2-e9d0-4644-9a80-4720ecbcd476 attempt 1 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5fdf09b2-e9d0-4644-9a80-4720ecbcd476
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 05 treated 5fdf09b2-e9d0-4644-9a80-4720ecbcd476 attempt 2 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5fdf09b2-e9d0-4644-9a80-4720ecbcd476
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 05 control 1847a399-2afe-4659-bfd3-8c4c97392715 attempt 1 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1847a399-2afe-4659-bfd3-8c4c97392715
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 05 control 1847a399-2afe-4659-bfd3-8c4c97392715 attempt 2 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1847a399-2afe-4659-bfd3-8c4c97392715
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 06 treated 3660d671-641f-4407-a44e-997140858d23 attempt 1 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3660d671-641f-4407-a44e-997140858d23
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 06 treated 3660d671-641f-4407-a44e-997140858d23 attempt 2 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3660d671-641f-4407-a44e-997140858d23
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 06 control 61d691d8-2f20-49da-adfc-14647605f5c4 attempt 1 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-61d691d8-2f20-49da-adfc-14647605f5c4
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 06 control 61d691d8-2f20-49da-adfc-14647605f5c4 attempt 2 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-61d691d8-2f20-49da-adfc-14647605f5c4
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 07 treated 40af8ffb-f0fa-4250-80cb-c6d829941d51 attempt 1 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-40af8ffb-f0fa-4250-80cb-c6d829941d51
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 07 treated 40af8ffb-f0fa-4250-80cb-c6d829941d51 attempt 2 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-40af8ffb-f0fa-4250-80cb-c6d829941d51
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 07 control 80eaf2cd-e85c-4a4c-bf48-672968e30945 attempt 1 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-80eaf2cd-e85c-4a4c-bf48-672968e30945
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 07 control 80eaf2cd-e85c-4a4c-bf48-672968e30945 attempt 2 (11:42:41Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-80eaf2cd-e85c-4a4c-bf48-672968e30945
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 08 treated b3ea2ee3-a7be-4f2d-9d13-9af443eb5f02 attempt 1 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b3ea2ee3-a7be-4f2d-9d13-9af443eb5f02
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 08 treated b3ea2ee3-a7be-4f2d-9d13-9af443eb5f02 attempt 2 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-b3ea2ee3-a7be-4f2d-9d13-9af443eb5f02
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 08 control 6018fa2a-d8b8-487f-a476-ccfcadd22251 attempt 1 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6018fa2a-d8b8-487f-a476-ccfcadd22251
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 08 control 6018fa2a-d8b8-487f-a476-ccfcadd22251 attempt 2 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6018fa2a-d8b8-487f-a476-ccfcadd22251
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 09 treated 665d6051-a52d-4f9b-8dc0-d9170d5308ca attempt 1 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-665d6051-a52d-4f9b-8dc0-d9170d5308ca
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 09 treated 665d6051-a52d-4f9b-8dc0-d9170d5308ca attempt 2 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-665d6051-a52d-4f9b-8dc0-d9170d5308ca
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 09 control 5418ba8a-209c-4c9c-9213-d5571eaf8646 attempt 1 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5418ba8a-209c-4c9c-9213-d5571eaf8646
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 09 control 5418ba8a-209c-4c9c-9213-d5571eaf8646 attempt 2 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-5418ba8a-209c-4c9c-9213-d5571eaf8646
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 10 treated 804b8614-bac5-4674-aef2-8e778a22690e attempt 1 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-804b8614-bac5-4674-aef2-8e778a22690e
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 10 treated 804b8614-bac5-4674-aef2-8e778a22690e attempt 2 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-804b8614-bac5-4674-aef2-8e778a22690e
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-003 10 control de7c3181-c0e3-4b75-92ba-27b70b18a054 attempt 1 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-de7c3181-c0e3-4b75-92ba-27b70b18a054
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-003 10 control de7c3181-c0e3-4b75-92ba-27b70b18a054 attempt 2 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-de7c3181-c0e3-4b75-92ba-27b70b18a054
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 01 treated fee87f55-815a-4786-bf56-2b92603c089c attempt 1 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-fee87f55-815a-4786-bf56-2b92603c089c
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 01 treated fee87f55-815a-4786-bf56-2b92603c089c attempt 2 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-fee87f55-815a-4786-bf56-2b92603c089c
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 01 control 3657dc93-a59f-40dd-a7f1-715c7f643475 attempt 1 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3657dc93-a59f-40dd-a7f1-715c7f643475
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 01 control 3657dc93-a59f-40dd-a7f1-715c7f643475 attempt 2 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-3657dc93-a59f-40dd-a7f1-715c7f643475
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 02 treated 1d38c74c-c285-4a28-b419-d3d375b51b84 attempt 1 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1d38c74c-c285-4a28-b419-d3d375b51b84
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 02 treated 1d38c74c-c285-4a28-b419-d3d375b51b84 attempt 2 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1d38c74c-c285-4a28-b419-d3d375b51b84
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 02 control d4612ddd-cfc3-4994-a517-289bdb590692 attempt 1 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-d4612ddd-cfc3-4994-a517-289bdb590692
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 02 control d4612ddd-cfc3-4994-a517-289bdb590692 attempt 2 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-d4612ddd-cfc3-4994-a517-289bdb590692
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 03 treated 11951074-88d7-4aa3-862f-63290b23e206 attempt 1 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-11951074-88d7-4aa3-862f-63290b23e206
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 03 treated 11951074-88d7-4aa3-862f-63290b23e206 attempt 2 (11:42:42Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-11951074-88d7-4aa3-862f-63290b23e206
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 03 control 50d2568f-e08f-4ca7-a9fc-312ec3e6cac0 attempt 1 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-50d2568f-e08f-4ca7-a9fc-312ec3e6cac0
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 03 control 50d2568f-e08f-4ca7-a9fc-312ec3e6cac0 attempt 2 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-50d2568f-e08f-4ca7-a9fc-312ec3e6cac0
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 04 treated 25bc868d-353f-41bf-847a-4ab6af456dc5 attempt 1 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-25bc868d-353f-41bf-847a-4ab6af456dc5
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 04 treated 25bc868d-353f-41bf-847a-4ab6af456dc5 attempt 2 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-25bc868d-353f-41bf-847a-4ab6af456dc5
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 04 control 2e8f1900-5e72-4c31-924b-14ef5e6adb10 attempt 1 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2e8f1900-5e72-4c31-924b-14ef5e6adb10
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 04 control 2e8f1900-5e72-4c31-924b-14ef5e6adb10 attempt 2 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2e8f1900-5e72-4c31-924b-14ef5e6adb10
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 05 treated 4869d86a-4104-4450-9f1f-987790290106 attempt 1 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4869d86a-4104-4450-9f1f-987790290106
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 05 treated 4869d86a-4104-4450-9f1f-987790290106 attempt 2 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-4869d86a-4104-4450-9f1f-987790290106
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 05 control 81af5bdf-61d6-42e3-8e8e-e1618b36b393 attempt 1 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-81af5bdf-61d6-42e3-8e8e-e1618b36b393
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 05 control 81af5bdf-61d6-42e3-8e8e-e1618b36b393 attempt 2 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-81af5bdf-61d6-42e3-8e8e-e1618b36b393
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 06 treated 9367d62c-05b0-4541-96bd-100672f2d5f7 attempt 1 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9367d62c-05b0-4541-96bd-100672f2d5f7
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 06 treated 9367d62c-05b0-4541-96bd-100672f2d5f7 attempt 2 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-9367d62c-05b0-4541-96bd-100672f2d5f7
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 06 control 886fcc90-4a75-4095-a48e-b0920006b8f5 attempt 1 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-886fcc90-4a75-4095-a48e-b0920006b8f5
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 06 control 886fcc90-4a75-4095-a48e-b0920006b8f5 attempt 2 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-886fcc90-4a75-4095-a48e-b0920006b8f5
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 07 treated 6b9b6ae8-0e86-4868-82da-570d7d7ef48c attempt 1 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6b9b6ae8-0e86-4868-82da-570d7d7ef48c
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 07 treated 6b9b6ae8-0e86-4868-82da-570d7d7ef48c attempt 2 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6b9b6ae8-0e86-4868-82da-570d7d7ef48c
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 07 control c03d15b9-89fe-4068-82ed-536d363aad19 attempt 1 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c03d15b9-89fe-4068-82ed-536d363aad19
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 07 control c03d15b9-89fe-4068-82ed-536d363aad19 attempt 2 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c03d15b9-89fe-4068-82ed-536d363aad19
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 08 treated e23fd291-19e4-4c8b-a1af-a9d56c4b5932 attempt 1 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e23fd291-19e4-4c8b-a1af-a9d56c4b5932
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 08 treated e23fd291-19e4-4c8b-a1af-a9d56c4b5932 attempt 2 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-e23fd291-19e4-4c8b-a1af-a9d56c4b5932
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 08 control fe21e3bd-8d9a-4f73-b7fc-d0dcef9cff5d attempt 1 (11:42:43Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-fe21e3bd-8d9a-4f73-b7fc-d0dcef9cff5d
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 08 control fe21e3bd-8d9a-4f73-b7fc-d0dcef9cff5d attempt 2 (11:42:44Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-fe21e3bd-8d9a-4f73-b7fc-d0dcef9cff5d
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 09 treated 55f985be-5e61-4774-883d-efdd2378893a attempt 1 (11:42:44Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-55f985be-5e61-4774-883d-efdd2378893a
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 09 treated 55f985be-5e61-4774-883d-efdd2378893a attempt 2 (11:42:44Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-55f985be-5e61-4774-883d-efdd2378893a
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 09 control 59cc49fb-6c19-4b03-8d35-0a3561a35d6d attempt 1 (11:42:44Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-59cc49fb-6c19-4b03-8d35-0a3561a35d6d
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 09 control 59cc49fb-6c19-4b03-8d35-0a3561a35d6d attempt 2 (11:42:44Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-59cc49fb-6c19-4b03-8d35-0a3561a35d6d
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 10 treated f1e82607-a314-4e84-951c-d0ff90c72783 attempt 1 (11:42:44Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f1e82607-a314-4e84-951c-d0ff90c72783
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 10 treated f1e82607-a314-4e84-951c-d0ff90c72783 attempt 2 (11:42:44Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-f1e82607-a314-4e84-951c-d0ff90c72783
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== BE-004 10 control 1159f35e-0140-4bf9-a66c-1a81a4cc092b attempt 1 (11:42:44Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1159f35e-0140-4bf9-a66c-1a81a4cc092b
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 1 did not produce a complete sheet (rc=1)
+=== BE-004 10 control 1159f35e-0140-4bf9-a66c-1a81a4cc092b attempt 2 (11:42:44Z)
+no worktree at /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1159f35e-0140-4bf9-a66c-1a81a4cc092b
+run-agent.sh deletes the worktree at step 12 unless it was given --keep.
+A run scored from a deleted worktree is not something this can reconstruct.
+    attempt 2 did not produce a complete sheet (rc=1)
+=== scoring finished, 40 rows in evidence/b11/batch-20260930T115342Z/codex-sheets.tsv

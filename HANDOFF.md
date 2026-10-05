@@ -3,8 +3,12 @@
 Read `CLAUDE.md` first; it carries the operational facts and is loaded automatically. This
 file is the *state*: what is in flight, what is blocked, and on whom.
 
-**Start at the Position section immediately below. Positions 4–25 are CLOSED — stop 25 (Phase 10)
-closed 2026-09-29 — stop 26 (B11) is NOT OPENED, and NOTHING is blocked on the author.**
+**Start at the Position section immediately below. Positions 4–26 are CLOSED — stop 26 (B11 —
+efficiency) closed 2026-10-05 `NOT DETECTABLE` on both tasks, v1.2 kept and NOT promoted — stop 27
+(B12) is NOT OPENED, and NOTHING is blocked on the author.**
+
+*(Superseded pointer, kept:)* "Positions 4–25 are CLOSED — stop 25 (Phase 10) closed 2026-09-29 —
+stop 26 (B11) is NOT OPENED, and NOTHING is blocked on the author." **Stop 26 has closed since.**
 
 *(Superseded pointer, kept — and it had gone stale by FIVE stops, which is the worst this line has
 managed:)* "Start at \"The author's decision of 2026-09-26\" immediately below the Position section.
@@ -50,6 +54,64 @@ beside them, the one thing that did move: **an L3 prose boundary held when conte
 against 0 of 5, and one sentence of borrowed authority moved it not at all.**
 
 ## Position
+
+**Spine 26 of 28. Positions 4–26 CLOSED — 26 (B11 — efficiency, v1.2) closed 2026-10-05
+`NOT DETECTABLE` on both tasks at `n = 10` per arm.** `v1.2` is **kept and NOT promoted**, which is
+what was registered before the batch: four of the gate's seven clauses have no instrument, so the
+version could not be promoted even on an `IMPROVED` row, and it did not get one. **NOTHING is
+blocked on the author.** `lab#36` (B11) is **closed** — a B step's issue closes when its deliverable
+is decided, and a kept-not-promoted version is a decision. `lab#12`, `lab#11`, `lab#10`, `lab#9`,
+`lab#16` and `lab#8` stay open as Phase issues whose gates are not met from measurement. **Stop 27
+(B12 — governed self-learning) is NOT OPENED and nothing of it exists**; §6 forbids a future step's
+artifacts early, and opening it at §4 step 1 is the next session's first act.
+
+**The headline, both tasks, and neither is detectable.** Context total 346 697 → 321 179 on BE-003
+(**−7.36 %**, exact permutation `p = 0.417` over all 184 756 relabellings) and 515 872 → 527 854 on
+BE-004 (**+2.32 %**, `p = 0.851`). Acceptance, hidden tests, build and static analysis **identical in
+all four arms** — `passed: true` on 10 of 10 everywhere. Decision-rule row 4 fires on both.
+
+**The finding that outlives the verdict: the three executing mechanisms are correct and inert, and
+both halves of that are measured.** Across **847 hook decisions** on the registered 20 treated runs
+— budget 324, cache 403, dedup 120 — there are **ZERO refusals**. The agent under test never re-read
+a file at unchanged content, never repeated a command under unchanged code, and issued **no `Grep`
+and no `Glob` at all** (the wiring was checked: the hook is on `PreToolUse Read|Grep|Glob`, and it
+logged 207 `Read` lines beside 0 searches). It read **7–13 distinct files against a limit of 15**.
+`H₂ = H₃ = H₅ = 20 of 20` says those hooks **ran**; it does not say they **did** anything, and this
+is the number that separates the two. **So "was this the agent, or the harness?" answers neither:
+the waste the version removes is not present in this agent on these two tasks.**
+
+**§4 step 10, per mechanism, never pooled: three removals and two withdrawn claims.** The task
+classifier goes (`H₁ = 0 of 20` — *delivery is not invocation*, now measured twice on this
+instrument, with B9's `H = 2 of 10`). The verification planner goes on a **different** ground —
+unmeasurable **by registration**, not a measured null — with a condition of re-entry: it returns only
+if it writes the sequence it chose. The three L2 hooks **stay**, their efficiency claims are
+**withdrawn**, and the cache splits: the *"never trust a stale summary"* branch fired 4 times in paid
+runs and §4 step 9 showed that deleting it produces a **correctness** failure, so it is load-bearing;
+the *"reuse on hash match"* branch fired **0 times in 403 decisions**.
+
+**Three instrument defects were found at this stop and all three are fixed in its PR.** Two were
+recorded during the batch and deliberately not fixed then (§4 step 4 forbids editing a tool mid-run):
+a manifest header printing a **hardcoded prediction commit that belonged to stop 20**, and `TREATED_N`
+/ `ROW0A` re-zeroing on resume so a resumed batch printed *"over 9 treated run(s)"* above mechanism
+counts of 20. The third came from the §4a review: the workbook promised the batch-guard fixture set
+*"is re-run before the batch"* and **nothing executed to keep that promise** — the 40-run batch ran
+with that set last recorded at 16/17. It is **17 of 17** now, and the driver's gate enforces it.
+**That fix then recursed** — the guard set invokes the driver seventeen times — which is itself
+recorded, with the reentrancy guard and the two stub cases that prove both directions without any
+fixture being able to start a batch.
+
+**And the review found the house failure mode inside the step whose subject is the house failure
+mode.** §4 step 9's D4 check — *"the refusal leaks no file body"* — passed **vacuously** when its
+subject had no source line to look for. Fixed to refuse at exit 4, with the fixture case that proves
+it, and the probe re-run at **45 of 45** under the stricter checks. The first run's record is kept.
+
+**Two registration defects of this stop are named rather than smoothed over, and they share a
+shape:** the MDE table said *"re-derived from this batch's control"* without saying **how** (three
+readings were therefore reported, and they agreed — recorded as luck), and E-027's decision-rule row
+1 and prediction P5, **registered in the same commit**, can both fire on the `change-focus` median.
+Both leave a choice to be made after the numbers are seen. The forward rule is in E-027 Amendment 1.
+
+**Position — superseded 2026-10-05 at the stop-26 close**
 
 **Spine 25 of 28. Positions 4–25 CLOSED — 25 (Phase 10 — production observability) closed
 2026-09-29 with `n = 0` benchmark runs commissioned.** The stop read the phase, wrote a

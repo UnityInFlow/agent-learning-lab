@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.158.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-c03d15b9-89fe-4068-82ed-536d363aad19
+  mode:           run
+  run_id:         c03d15b9-89fe-4068-82ed-536d363aad19
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/c03d15b9-89fe-4068-82ed-536d363aad19
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20261005T121516Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  2700   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals throw baseline ApiException subclasses; controllers construct no error bodies."
+    evidence: "OrderController.kt:27, OrderController.kt:42, OrderController.kt:53, OrderController.kt:66, ShipmentController.kt:32, ShipmentController.kt:41, ShipmentController.kt:61"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "The order-status decision uses an if construct."
+    evidence: "OrderController.kt:59"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Clause (d) is absent; successful cancellation state is never re-read through GET."
+    evidence: "OrderControllerTest.kt:96"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Both controller constructors gained dependencies beyond the permitted difference list."
+    evidence: "OrderController.kt:19, baseline/OrderController.kt:17, ShipmentController.kt:24, baseline/ShipmentController.kt:22"
+ambiguous_categories: []

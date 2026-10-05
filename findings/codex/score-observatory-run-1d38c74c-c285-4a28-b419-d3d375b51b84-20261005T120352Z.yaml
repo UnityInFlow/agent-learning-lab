@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.158.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-1d38c74c-c285-4a28-b419-d3d375b51b84
+  mode:           run
+  run_id:         1d38c74c-c285-4a28-b419-d3d375b51b84
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/1d38c74c-c285-4a28-b419-d3d375b51b84
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20261005T120352Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  2700   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "all refusals throw baseline ApiException subclasses and controllers construct no error bodies"
+    evidence: "OrderController.kt:27, OrderController.kt:40, OrderController.kt:59, ShipmentController.kt:31, ShipmentController.kt:43, ShipmentController.kt:63"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel decides order status with an if statement"
+    evidence: "OrderController.kt:47"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "bodies are asserted, but clauses b and d lack separate get requests"
+    evidence: "OrderControllerTest.kt:114, OrderControllerTest.kt:125, OrderControllerTest.kt:131"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "creates-order and rejects-duplicate test methods both differ beyond invisible whitespace"
+    evidence: "work ShipmentControllerTest.kt:57,71; baseline ShipmentControllerTest.kt:43,53"
+ambiguous_categories: []
