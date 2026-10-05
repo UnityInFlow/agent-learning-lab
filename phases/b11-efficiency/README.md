@@ -24,6 +24,14 @@ stack does not record, and one names a field that exists and does not mean what 
 means by it. That audit is below, it was done before the prediction, and it is the reason
 this stop registers outcomes on a subset of its own gate.
 
+> **Corrected 2026-10-05 at §4 step 13a**, from the §4a review round's non-blocking finding 1
+> (`findings/opencode/review-README-20261005T190718Z.md`), which is right: *"two … and one"* counts
+> **three** impaired clauses where Extract §3's own table finds **five**. Only clauses 1 and 2 are
+> measurable as written. Clause 4's **count** is measurable and its word *"unnecessary"* is not;
+> clause 6 is a **proxy only**. The sentence above is kept and this correction stands beside it,
+> because the audit it summarises was always the longer table — the summary was the thing that was
+> short. Step 11 answers all seven one by one.
+
 ## Required reading
 
 ### Internal — the requirement
@@ -77,7 +85,20 @@ a different population and get a different answer.
 | BE-004 | B8 treated arm, `n = 10` | `EXP-B8-RUNSTATE-BE004` | **9 of 10** |
 | BE-004 | B9 control arm, `n = 12` | `EXP-B9-ROUTER-BE004` | **12 of 12** |
 
-**BE-003 22 of 22. BE-004 21 of 22. Pooled 43 of 44 (97.7 %).** The single failure is
+**BE-003 22 of 22. BE-004 21 of 22. Pooled 43 of 44 (97.7 %).**
+
+> **Scope corrected 2026-10-05 at §4 step 13a**, from the §4a review round's non-blocking finding 3,
+> which is right that *"every claude-runtime run … that has ever been recorded"* claims more than the
+> table counts — though not for the reason it guessed. The runs the table omits are not B7's (B7 is
+> not v1.1): they are **preflight and deliberate-failure runs**. Queried against the live API this
+> session, the runs carrying v1.1's `instructionsHash` `sha256:a94237242e8c1308fb1d434a06a03463`
+> outside the four registered batch arms are `EXP-B8-RUNSTATE-BE003-PREFLIGHT` (1),
+> `EXP-B8-RUNSTATE-BE004-PREFLIGHT` (1) and `EXP-B8-RUNSTATE-BE003-DELIBERATE-FAILURE` (1) —
+> **three runs, all `exitCode 0`**, so the pooled figure including them is **46 of 47 (97.9 %)** and
+> the verdict does not move. **The criterion should have read "every registered batch arm"**: every
+> other census in this stop excludes preflight and deliberate-failure runs by name, and the §4a
+> review caught this one claiming otherwise — the same scope error as the one corrected in §4 step
+> 9's census the same day, found by a different reader. The original sentence is kept. The single failure is
 `ebf9e05e` at stop 17, evaluator exit 11, failure class F05 (baseline tests), recorded in
 [`E-019`](../../experiments/E-019-run-state-repair-limits-BE004.md) as *"the first evaluator
 failure BE-004 has ever produced on this model"* and as inside the one-run tolerance
@@ -258,6 +279,17 @@ problem one stop earlier. These five sets are the part that executes.
 | `tools/verify-command-dedup.sh` | **22 / 22, exit 0** | ~2 min: ~30 hook calls, each paying process startup (Finding 1) |
 | `evidence/b11/verify-b11-preflight-guards.sh` | **14 / 14, exit 0** | |
 | `evidence/b11/verify-b11-batch-guards.sh` | **16 / 17, exit 1** | case Q returns **exit 7 — a dead API**, not a wrong answer. It is the only case that needs a live stack, and the stack went down mid-build (see below). It is UNVERIFIED, not failing, and it is re-run before the batch. |
+
+> **The last sentence of that row was a promise, nothing executed to keep it, and the §4a review
+> round found that out (non-blocking finding 4). Recorded 2026-10-05 at §4 step 13a.** The batch
+> driver's pre-batch fixture gate ran **three** sets — `verify-retrieval-budget`,
+> `verify-summary-cache`, `verify-command-dedup` — and **not** `verify-b11-batch-guards.sh`, so the
+> 40-run batch did run with that set last recorded at 16 of 17. Two things were done about it, in
+> this order: it was **re-run at §4 step 13 and is 17 of 17 at exit 0** (the §5 table carries the
+> fresh output), and the driver's gate **now includes it**, overridable only by `B11_BATCH_GUARDS`
+> so a stub can prove the gate refuses — case I of `verify-b11-resume-seeding.sh`. **An L3 promise
+> in a workbook row became an L2 gate in the driver, which is the only honest ending for this
+> finding.**
 
 The first three are wired into CI beside `verify-repair-limit.sh`, so they run on every push rather
 than when someone remembers. **The two driver guard sets are not**, and the reason is case Q: they

@@ -20,6 +20,8 @@
 #   C  synthetic, a CONTROL that LEAKED ........ TREATED_N=1  ROW0A=1  (the arm the first fix missed)
 #   D  no hardcoded prediction sha survives, and both header branches exist
 #   E  a manifest with no header row ........... seeds all zero, no crash
+#   I  a FAILING batch-guard stub .............. exit 6, naming the set
+#   J  a PASSING batch-guard stub .............. execution continues past the gate
 set -uo pipefail
 LAB="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)" || exit 1
 cd "$LAB" || exit 1
@@ -103,6 +105,40 @@ if grep -q 'PREDICTION_COMMIT' "$DRIVER" && grep -q 'NOT SUPPLIED to this driver
   PASS=$((PASS+1)); printf '  ok   case D  both header branches exist: derived from git, or absent\n'
 else
   FAIL=$((FAIL+1)); printf '  FAIL case D  the derived/absent branches are not both present\n'
+fi
+
+# ---- cases I and J: the pre-batch gate now covers verify-b11-batch-guards.sh (added 2026-10-05
+# from the §4a review). Both directions are proved WITHOUT ever letting a fixture start a batch:
+# the gate sits before the ceilings, the API check and the lock, so a plain invocation reaches it
+# and then dies on whatever comes next.
+#   I  a FAILING stub -> exit 6 naming the set            (the gate refuses)
+#   J  a PASSING stub -> execution continues PAST the gate and aborts on the next thing, the
+#      unreadable preflight manifest, naming THAT instead  (the gate passes, and nothing ran)
+# A stub is used rather than the real set for one reason: the real set invokes this driver 17 times,
+# which is the recursion the gate now guards against.
+FAILSTUB="$SCRATCH/failing-batch-guards.sh"
+printf '#!/usr/bin/env bash\necho "stub: deliberately failing" >&2\nexit 1\n' > "$FAILSTUB"
+PASSSTUB="$SCRATCH/passing-batch-guards.sh"
+printf '#!/usr/bin/env bash\nexit 0\n' > "$PASSSTUB"
+chmod +x "$FAILSTUB" "$PASSSTUB"
+
+rc=0
+( B11_BATCH_GUARDS="$FAILSTUB" B11_LOCK="$SCRATCH/i.lock" "$DRIVER" 10 BE-003 \
+    >"$SCRATCH/i.out" 2>"$SCRATCH/i.err" ) || rc=$?
+if [[ "$rc" == 6 ]] && grep -q 'failing-batch-guards.sh does not pass' "$SCRATCH/i.err"; then
+  PASS=$((PASS+1)); printf '  ok   case I  a failing batch-guard set aborts at exit 6, naming the set\n'
+else
+  FAIL=$((FAIL+1)); printf '  FAIL case I  expected exit 6 naming the set, got %s: %s\n' "$rc" "$(head -1 "$SCRATCH/i.err")"
+fi
+
+rc=0
+( B11_BATCH_GUARDS="$PASSSTUB" B11_LOCK="$SCRATCH/j.lock" \
+  B11_PREFLIGHT_MANIFEST="$SCRATCH/no-such-preflight.tsv" "$DRIVER" 10 BE-003 \
+    >"$SCRATCH/j.out" 2>"$SCRATCH/j.err" ) || rc=$?
+if [[ "$rc" != 0 ]] && ! grep -q 'does not pass' "$SCRATCH/j.err" && grep -q 'preflight' "$SCRATCH/j.err"; then
+  PASS=$((PASS+1)); printf '  ok   case J  a passing batch-guard set is passed THROUGH; the next guard stops it\n'
+else
+  FAIL=$((FAIL+1)); printf '  FAIL case J  expected to abort past the gate, got %s: %s\n' "$rc" "$(head -1 "$SCRATCH/j.err")"
 fi
 
 printf 'verify-b11-resume-seeding: %s ok, %s failed.\n' "$PASS" "$FAIL"

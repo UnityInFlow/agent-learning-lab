@@ -411,3 +411,35 @@ the learning block). Not decided at step 8.*
    on, and it moved half a point on a difference a permutation test puts at `p = 1.000`.
 3. `change-focus` on this task partly measures a forced test-helper edit — a note for the author,
    not a change to a registered sha.
+
+## Amendment 1 — the §4a review found the row-1/P5 collision independently, and it is a registration defect
+
+*Added 2026-10-05 by Opus 5 (claude-opus-5), autonomously, at §4 step 13a. **Nothing above is
+edited** — not the decision rule, not P5, not the verdict (§4 step 12).*
+
+The §4a review round of 2026-10-05 (`findings/opencode/review-README-20261005T190718Z.md`) flagged
+the same collision in **three** of its sections, and the gate raised it as non-blocking finding 2:
+
+> decision-rule row 1 says *"any rubric category median drops"* → `REJECT`, while P5 — registered in
+> the **same commit `2552b75`** — says `change-focus` *"enters no decision-rule row on this task"*.
+> `change-focus` dropped 0.5 → 0. **Two pre-registered sentences point opposite ways on one datum.**
+
+**That is correct, and it is not answered by preferring one of them.** The disposition already on
+record stands: the carve-out was adopted, with four reasons, and the `REJECT` reading is written
+beside it in this file so the author can overrule without re-deriving anything — including that the
+drop is at exact permutation `p = 1.000`, so the arms are indistinguishable and the median moved
+because 0.5 at `n = 10` on a `{0,1,2}` score means five runs each side and one run crossing.
+
+**What the review adds is the defect, not the answer: a decision rule and a prediction that can both
+fire on the same datum is a registration defect, and it should have been caught when they were
+written, not after the batch.** It is the second defect of that kind at this stop — the first is the
+MDE table saying *"re-derived from this batch's control"* without saying how. Both share one shape:
+**a registration that leaves a choice to be made after the numbers are seen.**
+
+**The forward rule, registered here for the next prediction commit:** when a prediction narrows or
+excludes a metric that a decision-rule row also reads, the prediction must say **which row it
+overrides and in what order they are evaluated**, in the same commit. A carve-out whose precedence is
+implicit is a researcher degree of freedom wearing a pre-registration.
+
+*Found by `ollama-cloud/glm-5.2` and the `minimax-m3` acceptance gate, 2026-10-05; recorded, not
+rewritten.*

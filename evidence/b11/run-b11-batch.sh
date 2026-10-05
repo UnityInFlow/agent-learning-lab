@@ -210,6 +210,25 @@ if [[ -z "${B11_SKIP_FIXTURES:-}" ]]; then
     ( cd "$LAB" && "$FIXTURE_DIR/$v.sh" >/dev/null 2>&1 ) \
       || { echo "ABORT: $FIXTURE_DIR/$v.sh does not pass — read its output before any run" >&2; exit 6; }
   done
+  # ===== AND THE BATCH-GUARD SET ITSELF, WHICH THIS GATE DID NOT CHECK UNTIL 2026-10-05.
+  # Raised by the §4a review round of that date, and it is right: the workbook recorded that set at
+  # 16 of 17 with case Q "UNVERIFIED, not failing, and it is re-run before the batch", and nothing
+  # executed to make that true — the promise was L3 and the 40-run batch ran under it. It is green
+  # now (17 of 17, re-run at §4 step 13), and from here the gate enforces it. Overridable by
+  # B11_BATCH_GUARDS only so a stub can prove the gate both refuses and passes, as B11_FIXTURE_DIR
+  # does above.
+  #
+  # *** AND IT IS SKIPPED IN EVERY MODE WHERE NO RUN HAPPENS, BECAUSE OTHERWISE IT CALLS ITSELF. ***
+  # verify-b11-batch-guards.sh INVOKES THIS DRIVER seventeen times. The first version of this check
+  # ran unconditionally, so the gate invoked the set that invokes the gate, and it multiplied for
+  # ten minutes before it was killed. In `*_ONLY` modes nothing is run, spent or recorded, so the
+  # gate protects nothing there and its absence costs nothing. A gate whose own fixture set cannot
+  # run is not a gate.
+  if [[ -z "${B11_GUARDS_ONLY:-}${B11_STOPRULE_ONLY:-}${B11_RESUME_PLAN_ONLY:-}${B11_RESUME_VALIDATE_ONLY:-}" ]]; then
+    BATCH_GUARDS="${B11_BATCH_GUARDS:-$LAB/evidence/b11/verify-b11-batch-guards.sh}"
+    ( cd "$LAB" && "$BATCH_GUARDS" >/dev/null 2>&1 ) \
+      || { echo "ABORT: $BATCH_GUARDS does not pass — read its output before any run" >&2; exit 6; }
+  fi
 fi
 
 # THE CEILINGS, COMPUTED BEFORE ANYTHING RUNS AND REFUSED IF NOT COMPUTABLE.

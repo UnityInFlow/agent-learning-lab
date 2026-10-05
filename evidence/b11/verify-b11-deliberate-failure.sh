@@ -12,7 +12,8 @@
 #   case C  the broken copy WITH its own sha registered .................... 2 (clause failure)
 #   case D  a worktree that does not exist ................................. 4
 #   case E  a subject file that does not exist ............................. 4
-#   case F  a recorder that is not executable .............................. 4
+#   case F  a recorder that EXISTS and is NOT executable ................... 4
+#   case H  a subject with no class/fun/import line, so D4 would be vacuous . 4
 #   case G  an empty PATH, so jq cannot be found ........................... 4
 #
 # macOS now ships /usr/bin/jq, so `PATH=/usr/bin:/bin` does NOT remove it — the first version of
@@ -65,7 +66,25 @@ run_case B 3 DF_REPS=1 "DF_HOOK=$BROKEN"
 run_case C 2 DF_REPS=1 "DF_HOOK=$BROKEN" "DF_EXPECT_SHA=$BROKEN_SHA"
 run_case D 4 DF_REPS=1 "DF_WORKTREE=$SCRATCH/nope"
 run_case E 4 DF_REPS=1 "DF_SUBJECT=$SCRATCH/not-a-file.kt"
-run_case F 4 DF_REPS=1 "DF_RECORDER=$SCRATCH/broken-summary-cache.sh.notexec"
+# Case F used to point at a path that was never created, so it proved "a recorder that does not
+# exist" while claiming "a recorder that is not executable" — the §4a review round of 2026-10-05,
+# non-blocking 1. It now creates the file and removes the bit, so the case tests its own sentence.
+NOEXEC="$SCRATCH/recorder-not-executable.sh"
+cp "$WT/.ai/hooks/summary-cache-record.sh" "$NOEXEC"
+chmod -x "$NOEXEC"
+run_case F 4 DF_REPS=1 "DF_RECORDER=$NOEXEC"
+
+# Case H is the BLOCKING finding of that round, turned into a case: a subject with no
+# class/fun/import line gave D4 nothing to search for, and the first version of the driver reported
+# "no body leaked" anyway. The driver must now REFUSE rather than pass vacuously.
+NOBODY="$SCRATCH/no-source-line.kt"
+printf 'package com.unityinflow.sample\n\nval x = 1\nval y = 2\n' > "$NOBODY"
+run_case H 4 DF_REPS=1 "DF_SUBJECT=$NOBODY"
+if grep -q 'so D4 cannot be decided' "$SCRATCH/H.err"; then
+  PASS=$((PASS+1)); printf '  ok   case H named D4 as the clause that cannot be decided\n'
+else
+  FAIL=$((FAIL+1)); printf '  FAIL case H exited 4 without naming D4\n'
+fi
 mkdir -p "$SCRATCH/nobin"
 ln -sf "$(command -v bash)" "$SCRATCH/nobin/bash"
 run_case G 4 DF_REPS=1 "PATH=$SCRATCH/nobin"

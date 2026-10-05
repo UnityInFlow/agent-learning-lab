@@ -21,7 +21,10 @@
 #   0  every clause held on every repetition
 #   2  a clause FAILED (the probe worked, the prediction did not)
 #   3  the delivered hook is not the registered one — refuse rather than measure the wrong file
-#   4  a prerequisite is missing (jq, the worktree, the subject file, the recorder)
+#   3  ...or the SUBJECT moved: its copy does not match its source, or it fails an explicit
+#      DF_EXPECT_SUBJECT_SHA. Added after the §4a review of 2026-10-05.
+#   4  a prerequisite is missing (jq, the worktree, the subject file, the recorder) — INCLUDING a
+#      subject with no source line for D4 to look for, which would otherwise make D4 vacuous
 set -uo pipefail
 
 LAB="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)" || exit 4
@@ -66,8 +69,31 @@ SUBJECT="$OUT/subject-ShipmentController.kt"
 cp "$SUBJECT_SRC" "$SUBJECT" || exit 4
 SRC_SHA="$(shasum -a 256 "$SUBJECT_SRC" | cut -d' ' -f1)"
 COPY_SHA="$(shasum -a 256 "$SUBJECT" | cut -d' ' -f1)"
+# ===== THE SUBJECT IS PINNED TOO, not only the hook. Raised by the §4a review round of
+# 2026-10-05 (non-blocking 2): the driver recorded both shas and gated neither, so a subject that
+# changed under it would be measured silently. The default is the sha the registered batch's own
+# run 40af8ffb recorded for this file; an override must say so explicitly.
+if [[ "$SRC_SHA" != "$COPY_SHA" ]]; then
+  echo "REFUSING: the copy of the subject does not match its source ($COPY_SHA vs $SRC_SHA)." >&2
+  exit 3
+fi
+if [[ -n "${DF_EXPECT_SUBJECT_SHA:-}" && "$SRC_SHA" != "$DF_EXPECT_SUBJECT_SHA" ]]; then
+  echo "REFUSING: the subject hashes $SRC_SHA, registered is $DF_EXPECT_SUBJECT_SHA." >&2
+  exit 3
+fi
 # A real source line of the subject, used by D4 to prove no body leaked into the refusal.
 BODY_LINE="$(grep -m1 -E '^[[:space:]]*(class|fun|import) ' "$SUBJECT" | sed 's/^[[:space:]]*//')"
+# ===== AN EMPTY BODY_LINE MAKES D4 VACUOUS, AND THAT IS A REFUSAL, NOT A PASS.
+# Raised as the BLOCKING finding of the §4a review round of 2026-10-05, and it is right: the first
+# version read `if [[ -n "$BODY_LINE" ]] && grep -qF ... ; then FAIL else PASS`, so a subject with
+# no `class`/`fun`/`import` line — a Kotlin file of only `package` and top-level `val`s, which
+# DF_SUBJECT can select — would have reported "no body leaked" having tested nothing. A control
+# that cannot fail is indistinguishable from one that does not run. D4 now either has a line to
+# look for or the probe refuses to start.
+if [[ -z "$BODY_LINE" ]]; then
+  echo "PREREQ: the subject carries no class/fun/import line, so D4 cannot be decided: $SUBJECT_SRC" >&2
+  exit 4
+fi
 
 payload() { jq -nc --arg p "$1" '{tool_name:"Read",tool_input:{file_path:$p}}'; }
 
@@ -129,8 +155,11 @@ for ((i=1;i<=REPS;i++)); do
   else
     check 4 "refusal leaked a source line" "absent" "absent"
   fi
-  check 4 "refusal names the path and the sha" "yes" \
-        "$(grep -qF "$S" "$OUT/.last.err" && grep -qiE 'sha256' "$OUT/.last.err" && echo yes || echo no)"
+  # The LITERAL sha of the subject, not the substring `sha256` — the review's non-blocking 3:
+  # a debug line mentioning sha256 would have satisfied the weaker test.
+  S_SHA="$(shasum -a 256 "$S" | cut -d' ' -f1)"
+  check 4 "refusal names the path and the subject's own sha" "yes" \
+        "$(grep -qF "$S" "$OUT/.last.err" && grep -qF "$S_SHA" "$OUT/.last.err" && echo yes || echo no)"
   cp "$OUT/.last.err" "$R/d3-refusal.txt"
 
   # D1 — the file CHANGES, so the entry is now stale.
