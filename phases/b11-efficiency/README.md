@@ -1012,4 +1012,33 @@ minutes rather than at the next batch is that the fixture set existed and was ru
 
 ## Commit
 
-<!-- TODO -->
+**One PR for the stop: [lab#143](https://github.com/UnityInFlow/agent-learning-lab/pull/143).** The
+merge sha is recorded in `TRACK-B-STATE.md` and in the closing comment on
+[`lab#36`](https://github.com/UnityInFlow/agent-learning-lab/issues/36) — not here, because this
+file cannot carry the sha of the commit that merges it.
+
+**The commit that matters most is the first one, and it is the only one whose timestamp is a
+control:** `2552b75`, 2026-09-29T19:30:40Z, the prediction commit for both tasks, **16 h 23 min**
+before the earliest `startedAt` in the batch (2026-09-30T11:53:45Z, run `5cc74707`). It is never
+edited (§4 step 12). The deliberate failure has its own prediction commit, `68ab7c1` at
+2026-10-05T18:53:15Z, **3 min 38 s** before the first probe at `20261005T185653Z`.
+
+| what | commits |
+|---|---|
+| §4 steps 1–8 | on the branch from 2026-09-26 to 2026-09-30, ending at `1f8dfe3` (the report, the MDE re-derived three ways, and the hand re-read that found my hand wrong) |
+| §4 step 9 | `68ab7c1` prediction, then `d0b8c9e` the probe, the driver and its fixture set |
+| §4 steps 10–11 | `7907238` — the disposition per mechanism, the gate answered clause by clause, the learning block, and a dated scope correction to step 9's own census |
+| §4 step 13 | `141cf90` — the §5 table, **17 rows** |
+| the two manifest defects | `0ba15a7` — fixed after the batch closed, with `verify-b11-resume-seeding.sh` |
+| §4 step 13a | `85aa432` (round 1), `09d48d6` (round 2), `20cfa53` (round 3), `9df0cb8` (the review files, including the kept stall) |
+| the stop row | `c683654` — `findings/track-b-2026-10-05.md` |
+| state | `7a7b615`, `4976569`, `4704cee` — the last of them correcting my own wrong account of why a CI run was cancelled |
+
+**Merged with a merge commit, never a squash**, so every prediction commit above stays reachable
+from `main` — author decision item 4 on squash-orphaned prediction commits.
+
+**What is NOT in this PR, and why:** the board republish. `HANDOFF.md` changed, so
+`check-board-freshness.sh` is red until both markers read **`1aa527ab363b`**; the republish needs
+the Artifact tool, which print mode does not have, and the author's standing decision 4 puts it in
+their interactive session and says explicitly not to treat that red as a blocker here. The digest is
+re-derived in `TRACK-B-STATE.md` after the last `HANDOFF.md` edit of the session.
