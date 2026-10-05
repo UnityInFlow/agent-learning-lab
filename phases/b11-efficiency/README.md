@@ -556,9 +556,87 @@ abandoned rather than widened.
 *Predicted by Opus 5 (claude-opus-5), autonomously, 2026-10-05T18:5xZ; the author did not review
 before the run.*
 
-### The result
+### The result — 45 of 45 assertions, five repetitions, `$0`, tag `20261005T185653Z`
 
-<!-- Written after the probe. §4 step 12: nothing above is edited. -->
+Driver `evidence/b11/run-b11-deliberate-failure.sh`, ShellCheck clean, fixture set
+`evidence/b11/verify-b11-deliberate-failure.sh` at **10 of 10, exit 0**, proving all four of the
+driver's exit codes **and** that it can fail: case C registers the broken copy's own sha so the
+sha refusal is bypassed, and the driver then fails **on D1 and D2 specifically** while D3 still
+passes. A probe that has never been shown to fail would have been worth nothing here.
+
+Record: [`evidence/b11/deliberate-failure-20261005T185653Z/RESULT.md`](../../evidence/b11/deliberate-failure-20261005T185653Z/RESULT.md),
+with per-repetition stores, logs and captured refusals under `per-rep/1…5/`.
+
+| clause | registered | observed | verdict |
+|---|---|---|---|
+| D1 | stale entry allowed, `stale-refused`, exit 0, 5 of 5 | 5 of 5 | **HELD** |
+| D2 | entry deleted; the repeat call is a `miss`, 5 of 5 | 10 of 10 assertions | **HELD** |
+| D3 | fresh entry refused, `hash-match`, exit 2, 5 of 5 | 5 of 5 | **HELD** |
+| D4 | the refusal carries path + sha + size and no file body, 5 of 5 | 10 of 10 assertions | **HELD** |
+| D5 | the break refuses a **changed** file, exit 2, 5 of 5 | 5 of 5 | **HELD** |
+| D6 | the seed is written by the delivered recorder, 5 of 5 | 10 of 10 assertions | **HELD** |
+
+**D2 was registered as the one most likely to be wrong and it held.** The read-modify-write through
+`$STORE.tmp.$$` and `mv` dropped the key on 5 of 5, and the immediately repeated call logged `miss`
+rather than a second `stale-refused` — which is the observation that separates *deleted* from
+*ignored*, and the fixture set does not make it.
+
+**One recorded refinement, not a changed prediction.** The prediction says the probe drives the
+delivered hook against the worktree's own real files. A stale entry is produced by **changing** the
+file, and changing a file inside `evidence.local/b11-worktrees/` would rewrite evidence, which §6
+forbids. So the subject is a **byte copy** of
+`…/40af8ffb…/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt`,
+and both shas are recorded in `RESULT.md` as identical —
+`9a1bd8cc53095e9a016d17e122fc96229a4cf30522cfd95bcf050aaf89199ed4`. The hook itself is executed
+**in place**, from the kept worktree, at the registered sha. *Recorded as a refinement of the
+delivery, in the manner the workbook recorded mechanism 3's two hook files, rather than as an
+amendment to a registered prediction.*
+
+**And the subject's sha is one of the four natural stale events.** `9a1bd8cc` is the `sha` of the
+third `stale-refused` line in run `40af8ffb`'s own cache log — the post-edit content the hook
+hashed during the paid run. The probe therefore starts from a state the batch actually reached.
+
+### What the break produced, and it is worse than a lost saving
+
+With lines 85–91 removed, the delivered refusal text is handed to the model **about content it has
+never seen**:
+
+```
+BLOCKED by the file-summary cache: you already read this file at this exact content.
+  path        …/broken-subject.kt
+  sha256      ef6f29c2bccdf6222279c4fc2b8ebef3e4ae54776e40f2e2ff96806e7afd684b
+  size        2940 bytes, 82 lines
+```
+
+The sha printed is the **current** content; the size and line count are the **stale** entry's. So
+an efficiency mechanism, with one branch missing, produces a **correctness** failure: the model is
+told it already has a file it has not read, and is handed metadata for two different versions of it
+in the same message. `build/README.md#b11` step 3's *"never trust a stale summary"* is therefore a
+load-bearing clause and not a caution — removing exactly it, and nothing else, is sufficient.
+
+**The break is self-reporting, and that is an instrument this stop did not have.** The broken hook's
+own log line is internally contradictory:
+
+```json
+{"decision":"block","reason":"hash-match","sha":"ef6f29c2bccd…","cachedSha":"9a1bd8cc5309…"}
+```
+
+`reason:"hash-match"` with `sha ≠ cachedSha` cannot be true. So **`sha == cachedSha` on every
+`hash-match` line is a checkable invariant of the cache log**, and a check that asserts it would
+have caught this break from the log alone, with no probe. It does not exist. It is an additive
+instrument, it moves no registered variable, and it is recorded here and in `author_notes` rather
+than built mid-stop — §6 forbids a future step's artifacts early and this stop's build is measured.
+In the registered batch the invariant holds trivially: there are **no** `hash-match` lines at all.
+
+### What this does and does not license
+
+- It establishes that mechanism 3's two decisions **both execute as specified**, in the delivered
+  artifact, at the registered sha. That is the layer claim: **L2, proved by execution.**
+- It establishes **nothing** about how often either decision is reached by the agent under test.
+  The batch answers that and the answer is: `stale-refused` 4 times on 2 of 20 treated runs,
+  `hash-match` **0 times in 443 decisions**. A mechanism that executes correctly and is never
+  reached cannot save anything, and that is the finding §4 step 10 acts on — not a shortfall of
+  this probe.
 
 ## Exit gate
 
