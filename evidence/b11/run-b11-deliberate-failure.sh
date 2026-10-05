@@ -77,12 +77,21 @@ if [[ "$SRC_SHA" != "$COPY_SHA" ]]; then
   echo "REFUSING: the copy of the subject does not match its source ($COPY_SHA vs $SRC_SHA)." >&2
   exit 3
 fi
-if [[ -n "${DF_EXPECT_SUBJECT_SHA:-}" && "$SRC_SHA" != "$DF_EXPECT_SUBJECT_SHA" ]]; then
-  echo "REFUSING: the subject hashes $SRC_SHA, registered is $DF_EXPECT_SUBJECT_SHA." >&2
+# *** THE DEFAULT IS REAL, AND IT WAS NOT UNTIL THE SECOND REVIEW ROUND SAID SO. *** Round 1 asked
+# for the subject to be pinned and this block was added with an `if [[ -n … ]]` guard, so the comment
+# above described a default that did not exist: running the probe without the variable pinned
+# nothing. That is a comment claiming behaviour the code does not implement, which is the defect
+# class this project exists to catch, in the fix for a finding of the same class.
+EXPECT_SUBJECT_SHA="${DF_EXPECT_SUBJECT_SHA:-9a1bd8cc53095e9a016d17e122fc96229a4cf30522cfd95bcf050aaf89199ed4}"
+if [[ "$SRC_SHA" != "$EXPECT_SUBJECT_SHA" ]]; then
+  echo "REFUSING: the subject hashes $SRC_SHA, registered is $EXPECT_SUBJECT_SHA." >&2
+  echo "          Pass DF_EXPECT_SUBJECT_SHA deliberately to measure a different subject." >&2
   exit 3
 fi
-# A real source line of the subject, used by D4 to prove no body leaked into the refusal.
-BODY_LINE="$(grep -m1 -E '^[[:space:]]*(class|fun|import) ' "$SUBJECT" | sed 's/^[[:space:]]*//')"
+# A real BODY line of the subject, used by D4 to prove no body leaked into the refusal. `import` was
+# in this pattern until the second review round pointed out that an import is a header, not a body:
+# a refusal that echoed the import block would have satisfied a check named "no body leaked".
+BODY_LINE="$(grep -m1 -E '^[[:space:]]*(class|fun|val|var) ' "$SUBJECT" | sed 's/^[[:space:]]*//')"
 # ===== AN EMPTY BODY_LINE MAKES D4 VACUOUS, AND THAT IS A REFUSAL, NOT A PASS.
 # Raised as the BLOCKING finding of the §4a review round of 2026-10-05, and it is right: the first
 # version read `if [[ -n "$BODY_LINE" ]] && grep -qF ... ; then FAIL else PASS`, so a subject with
@@ -91,7 +100,7 @@ BODY_LINE="$(grep -m1 -E '^[[:space:]]*(class|fun|import) ' "$SUBJECT" | sed 's/
 # that cannot fail is indistinguishable from one that does not run. D4 now either has a line to
 # look for or the probe refuses to start.
 if [[ -z "$BODY_LINE" ]]; then
-  echo "PREREQ: the subject carries no class/fun/import line, so D4 cannot be decided: $SUBJECT_SRC" >&2
+  echo "PREREQ: the subject carries no class/fun/val/var line, so D4 cannot be decided: $SUBJECT_SRC" >&2
   exit 4
 fi
 

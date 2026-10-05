@@ -13,7 +13,8 @@
 #   case D  a worktree that does not exist ................................. 4
 #   case E  a subject file that does not exist ............................. 4
 #   case F  a recorder that EXISTS and is NOT executable ................... 4
-#   case H  a subject with no class/fun/import line, so D4 would be vacuous . 4
+#   case H  a subject with no class/fun/val/var line, so D4 would be vacuous  4
+#   case K  a subject whose sha is not the registered one ................... 3
 #   case G  an empty PATH, so jq cannot be found ........................... 4
 #
 # macOS now ships /usr/bin/jq, so `PATH=/usr/bin:/bin` does NOT remove it — the first version of
@@ -73,13 +74,36 @@ NOEXEC="$SCRATCH/recorder-not-executable.sh"
 cp "$WT/.ai/hooks/summary-cache-record.sh" "$NOEXEC"
 chmod -x "$NOEXEC"
 run_case F 4 DF_REPS=1 "DF_RECORDER=$NOEXEC"
+if grep -q 'PREREQ: recorder not executable' "$SCRATCH/F.err"; then
+  PASS=$((PASS+1)); printf '  ok   case F named the recorder as the failing prerequisite\n'
+else
+  FAIL=$((FAIL+1)); printf '  FAIL case F exited 4 without naming the recorder\n'
+fi
+
+# Case K exercises the SUBJECT-SHA gate, which had no case at all until the second review round
+# asked for one — a gate claimed in a comment and proved by nothing. A copy of the real subject with
+# one byte appended must be REFUSED at exit 3, naming both shas.
+MOVED="$SCRATCH/moved-subject.kt"
+cp "$WT/sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt" "$MOVED"
+printf '\n// one byte more than the registered subject\n' >> "$MOVED"
+run_case K 3 DF_REPS=1 "DF_SUBJECT=$MOVED"
+if grep -q 'the subject hashes' "$SCRATCH/K.err"; then
+  PASS=$((PASS+1)); printf '  ok   case K  a subject whose sha moved is refused at exit 3, naming it\n'
+else
+  FAIL=$((FAIL+1)); printf '  FAIL case K  exited 3 without naming the subject sha\n'
+fi
 
 # Case H is the BLOCKING finding of that round, turned into a case: a subject with no
 # class/fun/import line gave D4 nothing to search for, and the first version of the driver reported
 # "no body leaked" anyway. The driver must now REFUSE rather than pass vacuously.
 NOBODY="$SCRATCH/no-source-line.kt"
-printf 'package com.unityinflow.sample\n\nval x = 1\nval y = 2\n' > "$NOBODY"
-run_case H 4 DF_REPS=1 "DF_SUBJECT=$NOBODY"
+printf 'package com.unityinflow.sample\n\n// a file with no class, fun, val or var line\n' > "$NOBODY"
+# It must pin its OWN sha: since the subject-sha gate acquired a real default (round 2, blocking 1)
+# an unpinned substitute is refused at exit 3 BEFORE the prerequisite this case is about is reached.
+# Case H caught that the moment the default landed, which is the cases earning their keep on each
+# other — so the case satisfies the pin deliberately and then tests the thing it is named for.
+NOBODY_SHA="$(shasum -a 256 "$NOBODY" | cut -d' ' -f1)"
+run_case H 4 DF_REPS=1 "DF_SUBJECT=$NOBODY" "DF_EXPECT_SUBJECT_SHA=$NOBODY_SHA"
 if grep -q 'so D4 cannot be decided' "$SCRATCH/H.err"; then
   PASS=$((PASS+1)); printf '  ok   case H named D4 as the clause that cannot be decided\n'
 else
@@ -90,15 +114,22 @@ ln -sf "$(command -v bash)" "$SCRATCH/nobin/bash"
 run_case G 4 DF_REPS=1 "PATH=$SCRATCH/nobin"
 
 # Case C must fail for the REGISTERED reason, not for any reason: D1 and D2 are the clauses the
-# missing branch breaks, and D3/D5 must still pass. A driver that returned 2 because of a typo
+# missing branch breaks, and **D3** must still pass. A driver that returned 2 because of a typo
 # would satisfy the exit code and teach nothing.
+#
+# *** D5 IS DELIBERATELY NOT ASSERTED HERE, and the second review round was right that the comment
+# used to claim it was. *** In case C the hook under test is ALREADY the broken copy, so the driver
+# builds its D5 copy by deleting lines 85-91 of a file those line numbers no longer describe. What
+# D5 does under a double break is not a property of the break this probe registers, so asserting
+# anything about it would be asserting a coincidence. D5's real proof is case A, where it runs
+# against the delivered hook.
 if grep -q 'FAIL D1' "$SCRATCH/C.out" && grep -q 'FAIL D2' "$SCRATCH/C.out"; then
   PASS=$((PASS+1)); printf '  ok   case C failed on D1 and D2, the clauses the break removes\n'
 else
   FAIL=$((FAIL+1)); printf '  FAIL case C did not fail on D1 and D2\n'
   grep -E 'FAIL D' "$SCRATCH/C.out" | sed 's/^/         /' | head -6
 fi
-if grep -q 'ok   D3' "$SCRATCH/C.out"; then
+if grep -q 'ok   D3' "$SCRATCH/C.out"; then  # D3 only — see the note above about D5 under a double break
   PASS=$((PASS+1)); printf '  ok   case C still passed D3 — the refusal path is intact\n'
 else
   FAIL=$((FAIL+1)); printf '  FAIL case C lost D3 as well; the break is not minimal\n'

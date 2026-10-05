@@ -892,6 +892,93 @@ cannot be computed, and fires at `>=`.
 runs and not as properties:** the 4 `stale-refused` events occur on **2 of 20** treated runs, and
 the single `repeat-after-code-changed` occurs on **1 of 20**. Neither is a rate.
 
+## §4a — the review round, finding by finding
+
+*Taken 2026-10-05 at §4 step 13a by Opus 5 (claude-opus-5), autonomously. Two rounds, `-n 2` each,
+`ollama-cloud/glm-5.2` line-level and `minimax-m3` as the acceptance gate. Every finding below is
+either **fixed with the commit that fixed it** or **disputed with the reason its failure scenario
+cannot occur** — §4a allows nothing else, and "stylistic" is not a dispute.*
+
+| round | subject | file | gate | findings |
+|---|---|---|---|---|
+| A | the three contracts: this workbook, `E-026`, `E-027` | `findings/opencode/review-README-20261005T190718Z.md` | **ACCEPT** | 0 blocking, 5 non-blocking; 7 line-level findings collapsing to 4 distinct issues |
+| B | the step-9 tools: `run-b11-deliberate-failure.sh`, `verify-b11-deliberate-failure.sh` | `findings/opencode/review-run-b11-deliberate-failure-20261005T190720Z.md` | **REJECT** | **1 blocking**, 3 non-blocking |
+| B, round 2 | the same two tools, revised | `findings/opencode/review-run-b11-deliberate-failure-20261005T194122Z.md` | **REJECT** | **3 blocking**, 2 non-blocking — *every one of them a comment claiming more than the code does* |
+| B, round 3 | the same two tools, revised again | see the PR body | the last round §4a allows | — |
+
+### Round B, round 2 — three blocking findings, and all three are my comments outrunning my code
+
+**This is the sharpest thing the review produced at this stop.** Each blocking finding is a sentence
+I wrote that described behaviour the code did not have — the same defect class as the vacuous D4
+check, committed *inside the fix for it*.
+
+| round 2 finding | disposition |
+|---|---|
+| blocking 1: *"The default is the sha … run 40af8ffb recorded"* — **there was no default.** The round-1 fix guarded the comparison with `if [[ -n "${DF_EXPECT_SUBJECT_SHA:-}" ]]`, so an unpinned run pinned nothing | **FIXED** — the default is real: `EXPECT_SUBJECT_SHA="${DF_EXPECT_SUBJECT_SHA:-9a1bd8cc…}"`, and an override must now be deliberate |
+| blocking 2: the verifier **had no case** exercising the subject-sha gate it claimed to verify | **FIXED** — **case K**: a copy of the subject with one byte appended is refused at exit 3, naming both shas |
+| blocking 3: case C's comment claimed *"D3/D5 must still pass"* and **only D3 is checked** | **FIXED by correcting the comment, not by adding the assertion.** In case C the hook under test is already the broken copy, so the D5 copy is built by deleting lines 85–91 of a file those numbers no longer describe. What D5 does under a double break is a coincidence, not a property, and asserting it would be asserting the coincidence. D5's proof is case A, against the delivered hook |
+| non-blocking 4: `BODY_LINE`'s pattern included `import`, so the "no body leaked" check could be looking for a **header** line | **FIXED** — the pattern is `class|fun|val|var`; a refusal echoing the import block would have satisfied a check named *no body leaked* |
+| non-blocking 5: case F asserted exit 4 without checking its reason | **FIXED** — it now requires `PREREQ: recorder not executable` |
+
+**And the new default immediately broke case H, which is the fixture set earning its keep on
+itself.** With the subject pinned by default, case H's no-body substitute was refused at exit 3
+*before* reaching the prerequisite it exists to test. It now pins its own sha deliberately and then
+tests what it is named for. **`verify-b11-deliberate-failure.sh`: 15 of 15, exit 0.** The probe was
+re-run again — tag `20261005T195104Z`, **45 of 45** — and both earlier records are kept.
+
+
+### Round B — the blocking finding, and it is the house failure mode in my own probe
+
+> **D4's "no body leaked" check is vacuous when `BODY_LINE` is empty.**
+> `evidence/b11/run-b11-deliberate-failure.sh:127-131`
+
+**FIXED at `85aa432`, and the finding is exactly right.** The check read
+`if [[ -n "$BODY_LINE" ]] && grep -qF ... ; then FAIL else PASS`, so a subject file with no
+`class`/`fun`/`import` line — a Kotlin file of only `package` and top-level `val`s, which the
+`DF_SUBJECT` override can select — would have reported *"no body leaked"* **having tested nothing**.
+A control that cannot fail is indistinguishable from one that does not run, which is the sentence
+this project repeats to itself at every step, and it was in the step whose entire subject is a
+control reporting over the wrong scope. An empty `BODY_LINE` is now a **refusal at exit 4 naming
+D4**, and **case H** of the fixture set proves it.
+
+**The probe was re-run under the stricter checks rather than its old result reinterpreted:** tag
+`20261005T191930Z`, **45 of 45**, with D4 now matching the subject's **literal sha** instead of the
+substring `sha256`, and the subject itself pinned by `DF_EXPECT_SUBJECT_SHA`. The first run's record
+at `20261005T185653Z` is **kept untouched** (§6), and both are on disk.
+
+| round B finding | disposition |
+|---|---|
+| blocking: D4 vacuous on an empty `BODY_LINE` | **FIXED**, `85aa432` — exit 4 + fixture case H |
+| non-blocking 1: case F claimed "not executable" but pointed at a path never created | **FIXED**, `85aa432` — it now copies the real recorder and removes the bit |
+| non-blocking 2: the subject's sha was recorded and never gated | **FIXED**, `85aa432` — `DF_EXPECT_SUBJECT_SHA`, plus a refusal if the copy differs from its source |
+| non-blocking 3: D4's second assertion matched the substring `sha256`, which a debug line would satisfy | **FIXED**, `85aa432` — it matches the subject's own sha |
+| the gate's own disputed item (it disputed the line-level pass on D5's double break in case C) | **nothing to do** — the gate and the line-level pass disagreed with each other; the gate's reading is the one the code supports, and case C's own assertions (fails on D1/D2, passes D3) are what the set checks |
+
+### Round A — four issues, three fixed in place and one disputed
+
+| round A finding | disposition |
+|---|---|
+| 1. the Goal says *"two … and one"* = 3 impaired clauses; Extract §3's table finds **five** | **FIXED**, `85aa432` — a dated correction beside the original sentence. Only clauses 1 and 2 are measurable as written |
+| 2. `E-027` row 1 (*"any rubric category median drops"* → `REJECT`) and P5's `change-focus` carve-out, **registered in the same commit**, both fire on one datum | **FIXED by naming it**, `85aa432` — `E-027` **Amendment 1**: this is a **registration defect**, not a choice to be made after the numbers; the disposition already on record stands, with the `REJECT` reading beside it, and the forward rule is registered for the next prediction commit. No registered row, prediction or verdict is edited (§4 step 12) |
+| 3. Extract §1 claims *"every claude-runtime run … ever recorded"* and the table counts four batch arms | **FIXED**, `85aa432` — and the reviewer was right about the overstatement while wrong about which runs were missing. They are **preflight and deliberate-failure runs**, queried from the live API: three of them, **all `exitCode 0`**, pooled **46 of 47**. The verdict does not move; the criterion should have read *"every registered batch arm"* |
+| 4. the batch-guard set was recorded at 16/17 with *"it is re-run before the batch"* and **nothing executed to keep that promise** | **FIXED TWICE**, `85aa432` — the set is **17 of 17** as of §4 step 13, and the driver's pre-batch gate **now includes it**. An L3 promise in a workbook row became an L2 gate in the driver |
+| 5. *"`ebf9e05e` at stop 17"* is said to conflict with attributing the B8 arm to B8, *"which would be stop 18"* | **DISPUTED.** The failure scenario cannot occur because the premise is wrong: `PROMPT-opus5-track-b.md` §3's itinerary puts **B8 at spine position 17**, B8a at 17a, and **Phases 6A/6B at 18–19**. *"stop 17"* and *"the B8 treated arm"* name the same batch. Nothing to fix |
+
+### And the fix for finding 4 recursed, which is a finding of its own
+
+Adding `verify-b11-batch-guards.sh` to the driver's pre-batch gate made the driver invoke the set
+**that invokes the driver seventeen times**. It multiplied for about ten minutes before it was
+killed; no run, no cost and no record were produced, and the leftover synthetic fixture directories
+were removed. The gate is now **skipped in every `*_ONLY` mode** — the modes in which nothing is
+run, spent or recorded, which are the modes the guard fixture uses — and **cases I and J** prove
+both directions with stubs: a failing stub aborts at exit 6 naming the set, a passing stub is
+passed through and the *next* guard stops the driver. **No fixture case is able to start a batch**,
+which is the property that matters more than either direction. `verify-b11-resume-seeding.sh`:
+**8 of 8, exit 0.**
+
+**A gate whose own fixture set cannot run is not a gate — and the only reason that was found in
+minutes rather than at the next batch is that the fixture set existed and was run.**
+
 ## Commit
 
 <!-- TODO -->
