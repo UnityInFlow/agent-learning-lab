@@ -107,6 +107,126 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
+# ===== CURRENT STATE - STOP 26, B11, *** §4 STEP 14: PR OPEN, MERGE OWED ***, 2026-10-05 =====
+# Written at the CONTEXT GUARD's 50% instruction, which fired after the workbook's last TODO was
+# filled. Newest first; every key SUPERSEDES the next occurrence of the same key below and nothing
+# below is deleted. Keys NOT repeated here are live at their old positions and are UNCHANGED:
+#   validation_processed (22 files, newest 2026-09-08 - re-checked BY NAME this session, IDENTICAL
+#     SET, nothing new), author_decisions (1-13), blocked_on_author: [] (EMPTY),
+#   preflight: (this session's SEVEN-ROW §0a block, two blocks below), step9_result, step13a_result,
+#   batch_result, score_result, step8_result, manifest_header_defect, driver_summary_scope_defect,
+#   claude_cli_version_boundary, board_digest: 1aa527ab363b.
+status: running   # *** STOP 26 IS NOT YET CLOSED: §4 STEPS 9, 10, 11, 13 AND 13a ARE COMPLETE AND
+                  # COMMITTED, AND STEP 14 IS PART DONE - PR lab#143 IS OPEN, HANDOFF.md CARRIES THE
+                  # CLOSE, THE WORKBOOK HAS NO LIVE TODO. THE MERGE, THE lab#36 COMMENT AND THE CARD
+                  # MOVE REMAIN. *** NOT a halt: blocked_on_author is EMPTY, no §7 bullet is matched,
+                  # and §7 says a green PR waiting on a review is not a halt - one waiting on a
+                  # runner is the same class and none of it is the author's.
+                  #
+                  # *** THE RESULT, UNCHANGED AND COMPLETE: `NOT DETECTABLE` ON BOTH TASKS AT n = 10
+                  # PER ARM; v1.2 KEPT, NOT PROMOTED. *** Row 4 fires on both. Context total -7.36 %
+                  # (exact perm p = 0.417) on BE-003 and +2.32 % (p = 0.851) on BE-004. Acceptance,
+                  # hidden tests, build and static analysis IDENTICAL in all four arms, 10 of 10.
+                  # The gate is NOT MET: clauses 1-2 hold at equality, 3/7 and half of 4 are
+                  # unanswerable by this instrument, 6 is a proxy, and 5 - the one measurable
+                  # efficiency clause - does not hold. Registered that way before the batch.
+                  #
+                  # *** 847 HOOK DECISIONS, ZERO REFUSALS *** (budget 324, cache 403, dedup 120; 20
+                  # of 20 logs per mechanism). searches 0 of 5 on 20 of 20 and the wiring WAS checked
+                  # - the agent issues no Grep and no Glob at all. distinctFiles 7-13 against 15.
+                  # 0 `block hash-match` in 403. H2/H3/H5 = 20 of 20 says those hooks RAN, not that
+                  # they DID anything. Step 10: 3 removals, 2 withdrawn claims, per mechanism.
+                  #
+                  # *** THE §4a REVIEW TOOK THREE ROUNDS, FOUND NINE DEFECTS, AND ENDED `ACCEPT`. ***
+                  # Not one was found by a test I wrote; every fixture set was green before each
+                  # round. Seven sets, 126 cases, every rc 0. Probe: four kept records, 45 of 45 each.
+                  #
+                  # *** CI ON THIS BRANCH CANNOT BE WAITED ON ACROSS A PUSH. *** The workflow sets
+                  # `concurrency: ci-${{ github.ref }}` with `cancel-in-progress: true`, so EVERY
+                  # PUSH CANCELS ITS OWN RUN - including this state write. The run to wait on is the
+                  # one on the FINAL head, which is the state commit itself. (A separate, earlier
+                  # cancellation of six jobs on 9df0cb8 at 20:08:16Z is UNEXPLAINED and recorded as
+                  # unexplained: four already green, no push from me, no matrix, no fail-fast.)
+                  # NOTHING IS RUNNING LOCALLY: no opencode, no run-agent.sh, no batch driver, no lock.
+loop_step: 14   # PR open, HANDOFF updated, workbook complete. OWED: the merge, the lab#36 comment,
+                # the card to Done, and one more state write. That write is §0 boundary 4.
+stop: 26       # OPEN until the merge. B11 - EFFICIENCY, v1.2.
+branch: stop26/b11-efficiency (agent-learning-lab). *** THE HEAD AT THIS WRITE IS THE STATE COMMIT
+  ITSELF - read it with `git rev-parse HEAD`, do not trust a sha quoted in prose. *** The previous
+  head was 3cba5cf (the workbook Commit block). Prediction commit 2552b75 (2026-09-29T19:30:40Z) is
+  on the branch and is NEVER edited.
+prompt_sha: a47590a1e61d       # re-computed this session; UNCHANGED.
+prompt_read_at: 2026-10-05T18:3xZ
+in_flight:
+  - "*** PR lab#143, open, mergeable, and its CI run is the one on the head this state write
+     created. *** PUSH FIRST, THEN WAIT - never wait, then push: `cancel-in-progress: true` means a
+     push kills the run you are waiting for, and it already did that twice today.
+     MERGE WITH `--admin` ONLY WHEN EVERY CHECK HAS REPORTED. The ONE expected red is `a published
+     board does not outlive its source`, which is the author's standing decision 4 and explicitly
+     NOT a blocker on this work."
+  - "NOT SENT to the §4a review, named in the PR body per §4a rule 5: everything under
+     build/customizations/agent-v1.2-efficiency/.ai/ and /.claude/ - five hook scripts, two policy
+     YAMLs - because rtk hides dotfile paths and the harness would review nothing and exit 0. Their
+     executing proof is the fixture sets (24 + 19 + 22), all re-run at rc 0 this session."
+next_action: "*** FINISH §4 STEP 14 FOR STOP 26. FOUR THINGS, IN THIS ORDER, AND NOTHING ELSE. ***
+  (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d); re-check
+      findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
+      2026-09-08); process snapshot through `cut -c1-120` plus pgrep -f AND `LC_ALL=C pgrep -fl
+      opencode`. Every process and tool trap in the blocks below still holds, and three are new:
+      (xi)   `find` here is bfs and REJECTS relative `-newermt '-60 minutes'` - ISO-8601 only.
+             Use `/bin/ls -t | head -1`.
+      (xii)  NEVER wrap opencode-review.sh in an outer alarm shorter than 2 x LAB_REVIEW_TIMEOUT
+             (600 s PER FAMILY). A 900 s alarm killed a healthy run and left a header-only file
+             indistinguishable from the recorded stall.
+      (xiii) A gate that invokes its own fixture set RECURSES. verify-b11-batch-guards.sh invokes
+             run-b11-batch.sh 17 times; an explicit reentry marker is the fix, a mode list is not.
+      (xiv)  EVERY PUSH TO THIS BRANCH CANCELS ITS OWN CI RUN.
+  (1) `gh api repos/UnityInFlow/agent-learning-lab/pulls/143 --jq '.merged, .head.sha'` FIRST - it
+      may already be merged. If not, wait for the run on the CURRENT head; when every check has
+      REPORTED and the only red is the board check, merge with
+      `gh api -X PUT repos/UnityInFlow/agent-learning-lab/pulls/143/merge -f merge_method=merge`
+      (gh pr merge hangs here; REST works). MERGE, NEVER SQUASH - decision item 4, so the prediction
+      commits stay reachable from main.
+  (2) Comment on *** lab#36 *** (verified by API: lab#36 is `B11 — Efficiency`; lab#35 is B10,
+      lab#37 is B12) with the row from findings/track-b-2026-10-05.md plus the merge sha. A prepared
+      draft is at /tmp/issue36_comment.md with MERGE_SHA as a placeholder - REWRITE it from the
+      findings file rather than trusting a /tmp file that may be gone.
+  (3) Move the card to Done: item *** PVTI_lADOD-WaCM4Bhgoqzg4Oz3k ***, Status field
+      *** PVTSSF_lADOD-WaCM4BhgoqzhgcH0g ***, option Done *** 98236657 *** (Todo f75ad846,
+      In Progress 47fc9ee4). Use `gh project item-edit`; NEVER `gh project field update`, which
+      wipes every option. Project #2 auto-closes the issue when the card hits Done - expect it.
+  (4) Write this file again with stop 26 CLOSED and the merge sha, commit, push, END THE TURN. That
+      is §0 boundary 4. The next session opens stop 27 (B12 - governed self-learning, v1.3) at §4
+      step 1, and NOTHING OF IT EXISTS - §6 forbids a future step's artifacts early.
+  (5) DO NOT: create any artifact of stop 27 before the stop-26 close is written; edit a committed
+      prediction (§4 step 12); edit a measured overlay under build/customizations/; edit any
+      registered scorer harness mid-track; delete a worktree, log, sheet, review file or evidence
+      file (§6) INCLUDING the SEVEN stray `1` artefacts at evidence/b11/, the header-only review
+      file, and the FOUR probe records; re-score any of the 40 run ids; commit a pid lock; republish
+      the boards (the author's, their decision 4); push a state write straight to main; or run §9 on
+      my own work."
+last_verified: "2026-10-05T18:3xZ - 21:0xZ, ONE SESSION, from §0 boundary 3 to one merge short of 4.
+  §0a IN FULL (seven rows; row 2 failed as a STALL and passed on a re-run once my own outer alarm was
+  removed), then §4 steps 9, 10, 11, 13, 13a, and step 14 up to the merge.
+  EVERY gating number re-derived by my own awk/jq over the manifest, the 40 stored records and the
+  847 hook-log lines - never read off this file's earlier blocks.
+  *** THE THREE §5 PROOFS WERE RE-DERIVED ONE LAST TIME IMMEDIATELY BEFORE THIS WRITE: *** prediction
+  commit 2552b75 at 2026-09-29T21:30:40+02:00; earliest startedAt across the 40 records
+  2026-09-30T11:53:45Z (16 h 23 min of margin); delivery 20 treated at
+  sha256:1cb0ea105099353da3e8048b1a923687 with overlay_files 8/8, against 20 control at
+  sha256:a94237242e8c1308fb1d434a06a03463 with ABSENT-as-registered.
+  *** WHAT I CAUGHT IN MY OWN WORK, AND IT IS THE SESSION'S LESSON: *** a census I had ALREADY
+  COMMITTED that counted two PREFLIGHT runs inside a figure labelled `the registered batch` (22 logs
+  / 443 decisions where the population is 20 / 403) - corrected in place and dated; a jq one-liner
+  that hid the first command of every hook pair and made a correct overlay look defective; three
+  successive wrong versions of single fixture cases; and a wrong account of why a CI run was
+  cancelled, which I corrected after reading the workflow file instead of my own first impression.
+  The review found nine more. *** Fixture sets prove what I thought to test; the review finds what I
+  did not; and both together still left the scope error for me to catch by re-deriving a number I
+  had already written down. ***"
+```
+
+```yaml
 # ===== CURRENT STATE - STOP 26, B11, *** §4 STEP 14: PR OPEN, CI PENDING ***, 2026-10-05 =====
 # Newest first. Every key below SUPERSEDES the next occurrence of the same key further down;
 # nothing further down is deleted. Keys NOT repeated here are still live at their old positions:
