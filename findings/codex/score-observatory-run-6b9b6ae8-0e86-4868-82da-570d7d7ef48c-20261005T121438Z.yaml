@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.158.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-6b9b6ae8-0e86-4868-82da-570d7d7ef48c
+  mode:           run
+  run_id:         6b9b6ae8-0e86-4868-82da-570d7d7ef48c
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/6b9b6ae8-0e86-4868-82da-570d7d7ef48c
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20261005T121438Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  2700   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "Every refusal uses an existing ApiException subclass; controllers construct no error bodies"
+    evidence: "OrderController.kt:26, OrderController.kt:39, OrderController.kt:50, OrderController.kt:64, ShipmentController.kt:32, ShipmentController.kt:41, ShipmentController.kt:62"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel uses separate if statements for the order-status decision"
+    evidence: "OrderController.kt:57"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Clause b is absent because shipment state is not re-read after the refused cancel"
+    evidence: "OrderControllerTest.kt:135"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Both reset methods and the createShipment helper differ beyond invisible whitespace"
+    evidence: "baseline/OrderControllerTest.kt:35, OrderControllerTest.kt:42, baseline/ShipmentControllerTest.kt:33, ShipmentControllerTest.kt:42, baseline/ShipmentControllerTest.kt:35, ShipmentControllerTest.kt:47"
+ambiguous_categories: []

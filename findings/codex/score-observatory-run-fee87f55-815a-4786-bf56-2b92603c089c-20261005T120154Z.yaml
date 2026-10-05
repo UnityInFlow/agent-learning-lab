@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.158.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-fee87f55-815a-4786-bf56-2b92603c089c
+  mode:           run
+  run_id:         fee87f55-815a-4786-bf56-2b92603c089c
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/fee87f55-815a-4786-bf56-2b92603c089c
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20261005T120154Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  2700   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All six refusals use baseline ApiException subclasses"
+    evidence: "OrderController.kt:28, OrderController.kt:43, OrderController.kt:53, OrderController.kt:69, ShipmentController.kt:32, ShipmentController.kt:45, ShipmentController.kt:66"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "cancel uses separate if statements for status decisions"
+    evidence: "OrderController.kt:61"
+  - name: "test-quality"
+    score: 1
+    anchor_level: 1
+    reason: "Bodies and refused state are asserted, but clause d lacks an order reread"
+    evidence: "OrderControllerTest.kt:79, OrderControllerTest.kt:100, OrderControllerTest.kt:118, OrderControllerTest.kt:123, OrderControllerTest.kt:128"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "Unnamed create method adds an explicit status argument"
+    evidence: "baseline/OrderController.kt:29, observatory-run-fee87f55-815a-4786-bf56-2b92603c089c/OrderController.kt:35"
+ambiguous_categories: []

@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.158.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-2e8f1900-5e72-4c31-924b-14ef5e6adb10
+  mode:           run
+  run_id:         2e8f1900-5e72-4c31-924b-14ef5e6adb10
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/2e8f1900-5e72-4c31-924b-14ef5e6adb10
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20261005T120844Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  2700   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "All refusals use baseline ApiException subclasses; neither package constructs error bodies."
+    evidence: "OrderController.kt:27, OrderController.kt:44, OrderController.kt:67, ShipmentController.kt:32, ShipmentController.kt:43, ShipmentController.kt:64"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "Cancel uses separate if statements for its order-status decision."
+    evidence: "OrderController.kt:55"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "Tests cover repeat cancellation, atomic refusal state, error envelopes, and separately re-read successful persisted state."
+    evidence: "OrderControllerTest.kt:109, OrderControllerTest.kt:158, OrderControllerTest.kt:163, OrderControllerTest.kt:169, OrderControllerTest.kt:133"
+  - name: "change-focus"
+    score: 0
+    anchor_level: 0
+    reason: "Reset, creates-an-order, and reads-back-a-created-order methods differ from baseline."
+    evidence: "baseline/OrderControllerTest.kt:38, baseline/OrderControllerTest.kt:44, baseline/OrderControllerTest.kt:51; work/OrderControllerTest.kt:40, work/OrderControllerTest.kt:53, work/OrderControllerTest.kt:61"
+ambiguous_categories: []

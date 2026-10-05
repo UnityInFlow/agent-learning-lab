@@ -1,0 +1,50 @@
+# provenance — this block is data, not decoration.
+# The HARNESS is a registered variable, not just the model. A sheet from codex and a
+# sheet from opencode are not interchangeable, and comparing them measures the
+# harnesses rather than the rubric.
+provenance:
+  scorer:         lab-scorer
+  harness:        codex
+  codex:          codex-cli 0.158.0
+  model:          gpt-5.6-sol
+  agent_sha:      b181a9bc5df0
+  schema_sha:     5ee1b8ec16ab
+  schema_pinned:  4 categories, names constrained to the rubric's
+  rubric_path:    benchmark/rubrics/backend-quality-be004.yaml
+  rubric_sha:     6252778b8472
+  target:         /var/folders/jr/lwzz65cx5pndqqdgzhnym1pc0000gn/T//observatory-run-50d2568f-e08f-4ca7-a9fc-312ec3e6cac0
+  mode:           run
+  run_id:         50d2568f-e08f-4ca7-a9fc-312ec3e6cac0
+  evaluator_exit: 0
+  observatory:    http://localhost:8081/api/runs/50d2568f-e08f-4ca7-a9fc-312ec3e6cac0
+  attachments:    7 changed file(s), 7 with a pre-agent side (Decision D)
+  baseline:       null
+  baseline_state: pre-agent HEAD of the changed files (Decision D); new files have no baseline side
+  scored_utc:     20261005T120635Z
+  session:        fresh    # --ephemeral; independence requires no memory
+  isolation:      --ignore-user-config --ignore-rules --sandbox read-only
+  wall_budget_s:  2700   # 0 = none; a stall is exit 124, not a score
+---
+scorer: lab-scorer
+categories:
+  - name: "architecture-consistency"
+    score: 2
+    anchor_level: 2
+    reason: "Every refusal uses baseline ApiException subclasses and no controller constructs error bodies"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:28,47,59,72; sample-service/src/main/kotlin/com/unityinflow/sample/shipment/ShipmentController.kt:33,44,65"
+  - name: "maintainability"
+    score: 0
+    anchor_level: 0
+    reason: "The order-status decision uses a discarded if statement"
+    evidence: "sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:65"
+  - name: "test-quality"
+    score: 2
+    anchor_level: 2
+    reason: "Tests cover repeated cancellation bodies, atomic refusal state, error envelopes, and persisted success state"
+    evidence: "sample-service/src/test/kotlin/com/unityinflow/sample/order/OrderControllerTest.kt:111,116,130,132,153,157,159,162,164"
+  - name: "change-focus"
+    score: 1
+    anchor_level: 1
+    reason: "The unnamed order create method differs by explicitly supplying status"
+    evidence: "work sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:34; baseline sample-service/src/main/kotlin/com/unityinflow/sample/order/OrderController.kt:33"
+ambiguous_categories: []
