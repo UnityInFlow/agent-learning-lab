@@ -107,6 +107,202 @@ Everything the next session needs is in this file; nothing lives in a conversati
 needs is in this file; nothing lives in a conversation.
 
 ```yaml
+# ===== CURRENT STATE - STOP 26, B11, *** §4 STEP 14: PR OPEN, CI PENDING ***, 2026-10-05 =====
+# Newest first. Every key below SUPERSEDES the next occurrence of the same key further down;
+# nothing further down is deleted. Keys NOT repeated here are still live at their old positions:
+#   validation_processed (22 files, newest 2026-09-08 - re-checked BY NAME this session with
+#     /bin/ls + one grep per basename: IDENTICAL SET, NOTHING NEW, no §0 validator batch owed),
+#   author_decisions (items 1-13, unchanged), blocked_on_author: [] (EMPTY),
+#   preflight: (this session's SEVEN-ROW §0a block is in the block immediately below and nothing
+#     in it changed afterwards), step9_result, batch_result, score_result, step8_result,
+#   claude_cli_version_boundary, manifest_header_defect, driver_summary_scope_defect.
+status: running   # *** §4 STEPS 9, 10, 11, 13 AND 13a ARE COMPLETE AND COMMITTED. STEP 14 IS
+                  # UNDERWAY: PR lab#143 IS OPEN, HANDOFF.md IS UPDATED, AND THE MERGE IS WAITING
+                  # ON GITHUB'S OWN RUNNER QUEUE. *** NOT a halt: blocked_on_author is EMPTY and no
+                  # §7 bullet is matched. §7 says a green PR waiting on a review is not a halt; a
+                  # PR waiting on a RUNNER is the same class, and nothing of it is the author's.
+                  #
+                  # *** GITHUB CANCELLED SIX QUEUED JOBS ON THE FIRST HEAD AFTER ABOUT AN HOUR. ***
+                  # On 9df0cb8: 4 success, 6 `cancelled` - cancelled by GitHub, NOT failed, with no
+                  # push or cancel from me. The second head 20cfa53 re-queued all ten. If a future
+                  # session finds them cancelled again, that is the queue and not this branch.
+                  #
+                  # *** THE STOP'S RESULT IS UNCHANGED BY ANY OF THIS: `NOT DETECTABLE` ON BOTH
+                  # TASKS, v1.2 KEPT AND NOT PROMOTED. *** Row 4 fires on both. The exit gate is
+                  # NOT MET: clauses 1 and 2 hold at equality, 3/7 and half of 4 are unanswerable by
+                  # this instrument, 6 is a proxy, and 5 - the one measurable efficiency clause -
+                  # does not hold. Registered before the batch, and it did not get an IMPROVED row.
+                  #
+                  # *** 847 HOOK DECISIONS ON THE REGISTERED 20 TREATED RUNS, ZERO REFUSALS. ***
+                  # budget 324, cache 403, dedup 120; 20 of 20 logs present per mechanism.
+                  # searches max 0 of 5 on 20 of 20 - AND THE WIRING WAS CHECKED, the hook IS on
+                  # PreToolUse Read|Grep|Glob, so the agent issues NO Grep and NO Glob at all.
+                  # distinctFiles max 7-13 (median 12) against 15. 0 `block hash-match` in 403.
+                  # 119 `first-run` + 1 CORRECTLY-ALLOWED `repeat-after-code-changed`.
+                  # H2/H3/H5 = 20 of 20 says those hooks RAN; it does not say they DID anything.
+                  #
+                  # *** STEP 10: 3 REMOVALS, 2 WITHDRAWN CLAIMS, per mechanism, never pooled. ***
+                  # classifier REMOVE (H1 = 0 of 20); planner REMOVE on a DIFFERENT ground
+                  # (unmeasurable BY REGISTRATION, not a measured null, with a condition of
+                  # re-entry); budget and dedup KEEP the control / WITHDRAW the claim; cache KEEPS
+                  # the stale branch (4 paid-run firings, load-bearing per step 9) and WITHDRAWS the
+                  # reuse claim (0 of 403).
+                  #
+                  # *** THE §4a REVIEW TOOK THREE ROUNDS AND FOUND NINE DISTINCT DEFECTS, NOT ONE OF
+                  # WHICH A TEST OF MINE FOUND. *** Round A (contracts) ACCEPT + 5 non-blocking;
+                  # round B1 REJECT with a BLOCKING finding that was the house failure mode in my own
+                  # probe (D4 passed VACUOUSLY when its subject had no source line); round B2 REJECT
+                  # with 3 blocking, EVERY ONE A COMMENT CLAIMING MORE THAN THE CODE DOES, committed
+                  # inside the fix for B1; round B3 *** ACCEPT ***, 0 blocking, and its 3 line-level
+                  # findings fixed anyway - D4's FAILURE path had no case (now case L, a hook that
+                  # refuses while cat-ing the file), and the break's line range 85..91 was asserted
+                  # by NOTHING (now checked against its content, case M). Every fixture set was green
+                  # before each round began.
+                  #
+                  # *** THREE INSTRUMENT DEFECTS FIXED, AND THE THIRD FIX RECURSED TWICE. *** Adding
+                  # verify-b11-batch-guards.sh to the pre-batch gate made the driver invoke the set
+                  # that invokes the driver 17x: ten minutes of multiplication, killed. A mode-only
+                  # skip was NOT enough (several guard cases use no *_ONLY mode) - the fix is an
+                  # explicit B11_GUARD_REENTRY marker, bounded at depth one by construction. And the
+                  # gate's first POSITION broke case J of that same set by reporting a dead API as a
+                  # failing guard set (exit 6 where 7 is the diagnostic), so it moved to just before
+                  # the lock, and B11_EXIT_AFTER_GUARDS exists so case J can prove the PASS direction
+                  # without a fixture being able to start a batch.
+                  #
+                  # *** SEVEN FIXTURE SETS, 126 CASES, EVERY rc 0, re-run at the end of step 13a. ***
+                  # 24 + 19 + 22 + 14 + 17 + 22 + 8. The probe has FOUR kept records (185653Z,
+                  # 191930Z, 195104Z, 200803Z) at 45 of 45 every time; none is deleted (§6).
+                  # NOTHING IS RUNNING: no opencode, no run-agent.sh, no batch driver, no lock.
+loop_step: 14   # *** PR lab#143 OPEN. HANDOFF.md UPDATED. REMAINING: wait for every check, merge
+                # with --admin, comment on lab#36 and move its card to Done, write this file again.
+                # The board republish is the AUTHOR'S (their decision 4) and is NOT a blocker. ***
+stop: 26       # OPEN until the merge. B11 - EFFICIENCY, v1.2.
+branch: stop26/b11-efficiency (agent-learning-lab) - pushed, tracking origin, head 20cfa53.
+  Prediction commit 2552b75 (2026-09-29T19:30:40Z) is on it and is NEVER edited. This session:
+  68ab7c1 (step 9 PREDICTION, before the probe), d0b8c9e (step 9 result), 7907238 (steps 10-11 +
+  the scope correction), 141cf90 (step 13, the §5 table), 7a7b615 (state), 0ba15a7 (the two
+  manifest defects + fixture set), 85aa432 (review round 1 fixes), 09d48d6 (round 2 fixes),
+  9df0cb8 (review artefacts incl. the kept stall), c683654 (findings row), 20cfa53 (round 3).
+prompt_sha: a47590a1e61d       # RE-COMPUTED 2026-10-05T18:3xZ this session; UNCHANGED.
+prompt_read_at: 2026-10-05T18:3xZ
+board_digest: 1aa527ab363b   # *** RE-DERIVED AFTER THIS SESSION'S LAST HANDOFF.md EDIT and again
+                             # after the final push: `sed '/board:/d' HANDOFF.md | shasum -a 256 |
+                             # cut -c1-12`. Both boards still carry 4a67c593ada2. The republish is
+                             # the author's interactive session (their decision 4); print mode has
+                             # no Artifact tool. DO NOT EDIT HANDOFF.md WITHOUT RE-DERIVING THIS.
+in_flight:
+  - "*** PR lab#143, open, head 20cfa53, waiting on GitHub's runner queue. *** On the previous head
+     9df0cb8 GitHub CANCELLED six queued jobs after about an hour (4 success, 6 cancelled) with no
+     push or cancel from me. Re-queued on 20cfa53. MERGE WITH `--admin` ONLY WHEN EVERY CHECK HAS
+     REPORTED; the ONE expected red is `a published board does not outlive its source`, which is the
+     author's standing decision 4 and explicitly not a blocker on this work."
+  - "NOT SENT to the §4a review, named in the PR body per §4a: everything under
+     build/customizations/agent-v1.2-efficiency/.ai/ and /.claude/ - five hook scripts, two policy
+     YAMLs. REASON: §4a rule 5, those are DOTFILE paths, rtk hides them, and the harness would
+     review nothing and exit 0. Their executing proof is the fixture sets (24 + 19 + 22), re-run."
+step13a_result:
+  rounds: "A contracts (workbook + E-026 + E-027) ACCEPT, 0 blocking, 5 non-blocking, 7 line-level
+    findings collapsing to 4 issues. B1 tools REJECT, 1 BLOCKING + 3 non-blocking. B2 tools REJECT,
+    3 BLOCKING + 2 non-blocking. B3 tools *** ACCEPT ***, 0 blocking, 2 non-blocking, 3 line-level.
+    §4a's stop condition is `ACCEPT`, and it was reached inside the three rounds it allows."
+  files: "findings/opencode/review-README-20261005T190718Z.md;
+    review-run-b11-deliberate-failure-20261005T190720Z.md, -194122Z, -195117Z. All committed.
+    ALSO KEPT: review-run-record-20261005T183237Z.md, the 765-byte HEADER-ONLY file from the §0a
+    row-2 attempt a 900 s outer alarm killed - a STALL by §6's definition, kept not deleted."
+  one_dispute: "Round A finding 5 claimed `stop 17` conflicts with attributing the B8 arm to B8,
+    `which would be stop 18`. DISPUTED: PROMPT §3's itinerary puts B8 at position 17, B8a at 17a and
+    Phases 6A/6B at 18-19. The premise is wrong, so the failure scenario cannot occur."
+  what_the_rounds_cost_and_bought: "Three rounds, nine distinct defects, NOT ONE found by a test I
+    wrote - every fixture set was green before each round began. Two of the nine were comments
+    describing behaviour the code did not have, and one of those was committed INSIDE the fix for a
+    finding of the same class. That is the strongest argument this stop produced for the review being
+    a control rather than a courtesy."
+next_action: "*** FINISH §4 STEP 14 FOR STOP 26, THEN OPEN STOP 27. NOTHING ELSE. ***
+  (0) FIRST, ALWAYS: re-compute prompt_sha (expect a47590a1e61d); re-check
+      findings/track-b-validation-*.md BY NAME against validation_processed (22 files, newest
+      2026-09-08); process snapshot through `cut -c1-120` plus pgrep -f AND `LC_ALL=C pgrep -fl
+      opencode`. ALL THE PROCESS AND TOOL TRAPS AT THE PREVIOUS next_action STILL HOLD, plus:
+      (xi)  *** `find` HERE IS bfs AND REJECTS RELATIVE `-newermt '-60 minutes'` *** - ISO-8601 only.
+            Use `/bin/ls -t | head -1`.
+      (xii) *** NEVER WRAP opencode-review.sh IN AN OUTER ALARM SHORTER THAN 2 x
+            LAB_REVIEW_TIMEOUT *** (600 s PER FAMILY). A 900 s alarm killed a healthy run this
+            session and left a header-only file that looks exactly like the recorded stall.
+      (xiii) *** A GATE THAT CALLS ITS OWN FIXTURE SET RECURSES. *** verify-b11-batch-guards.sh
+            invokes run-b11-batch.sh 17 times. Use an explicit reentry marker, not a mode list.
+  (1) *** CHECK PR lab#143 FIRST: it may already be merged, or its checks may have been cancelled
+      again by GitHub. *** `gh api repos/UnityInFlow/agent-learning-lab/pulls/143 --jq .merged` and
+      `gh api .../commits/20cfa53/check-runs`. If every check has REPORTED and the only red is the
+      board check, merge with `gh api -X PUT .../pulls/143/merge -f merge_method=merge` (gh pr merge
+      hangs here; REST works). If jobs were cancelled, push an empty commit or re-run the workflow -
+      do NOT merge with checks neither green nor reported.
+  (2) THEN close the stop on GitHub: ONE comment on *** lab#36 *** (verified by API: lab#36 is
+      `B11 — Efficiency`, open; lab#35 is B10 and lab#37 is B12) carrying the §5 row from
+      findings/track-b-2026-10-05.md, then move its card to Done. The card is item
+      *** PVTI_lADOD-WaCM4Bhgoqzg4Oz3k ***, Status field *** PVTSSF_lADOD-WaCM4BhgoqzhgcH0g ***,
+      option Done *** 98236657 *** (Todo f75ad846, In Progress 47fc9ee4). Use `gh project
+      item-edit`; NEVER `gh project field update`, which wipes every option (the recorded trap).
+      Project #2 auto-closes the issue when the card hits Done - expect that, do not fight it.
+  (3) THEN write this file again with stop 26 CLOSED and the merge sha, commit, push, END THE TURN.
+      That is §0 boundary 4. The next session opens stop 27 (B12 - governed self-learning, v1.3) at
+      §4 step 1 and NOTHING OF IT EXISTS - §6 forbids a future step's artifacts early.
+  (4) DO NOT: create any artifact of stop 27 before the stop-26 close is written; edit a committed
+      prediction (§4 step 12); edit a measured overlay under build/customizations/; edit any
+      registered scorer harness mid-track; delete a worktree, log, sheet, review file or evidence
+      file (§6) INCLUDING the SEVEN stray `1` artefacts at evidence/b11/, the header-only review
+      file, and the FOUR probe records; re-score any of the 40 run ids; commit a pid lock; republish
+      the boards (the author's, their decision 4); push a state write straight to main; or run §9 on
+      my own work."
+author_notes_added_this_session:
+  - "2026-10-05: *** GitHub CANCELLED six queued CI jobs on 9df0cb8 after about an hour *** - 4
+     success, 6 `cancelled`, no push and no cancel from me. The same queue starvation hit the second
+     head. §4 step 14 says wait for every check, so a runner shortage can hold a stop open with
+     nothing wrong in the branch. Worth the author knowing: it is not this project's CI failing."
+  - "2026-10-05: *** the §4a review round is the only control at this stop that found anything, and
+     it found nine things. *** Three rounds on two tools: a check that passed vacuously, three
+     comments describing behaviour the code did not have (one committed inside the fix for the
+     first), a gate with no fixture case, a hardcoded line range asserted by nothing, and a case
+     whose description did not match its condition. Every fixture set was green before each round.
+     The honest reading: fixture sets prove what I thought to test; the review finds what I did not."
+  - "2026-10-05: an instrument that does NOT exist and is wanted: a check that `sha == cachedSha` on
+     every `hash-match` line of a cache log. §4 step 9's break is self-reporting through exactly
+     that invariant - its own log line reads reason:\"hash-match\" with sha != cachedSha - and
+     nothing asserts it. It would have caught the break from the log alone, with no probe."
+  - "2026-10-05: §0a row 1's criterion still reads `16 of 16 cases` where the fixture set is 87.
+     19th session. And row 2 returned REJECT for the 19th consecutive session on
+     templates/run-record.yaml - a probe that has never once returned ACCEPT is measuring something
+     and nobody has asked what."
+  - "2026-10-05: *** verify-codex-isolation.sh produced a SIXTH distinct verdict pattern on code
+     unchanged since 2026-09-01 *** - this session `check C INCONCLUSIVE (remote plugin catalogue
+     unreachable)` at exit 0, where the earlier run the same morning said ALL THREE HOLD and
+     2026-09-30 said ISOLATION LEAKS at exit 2. 14 recorded invocations. It greps the MODEL'S OWN
+     TRANSCRIPT, so it reports a disposition, not a filesystem fact: L3 wearing an exit code."
+  - "2026-10-05: the claude CLI moved again, 2.1.285 -> *** 2.1.289 ***, observed in §0a row 6b. The
+     stop-26 batch is closed and untouched (2.1.284/2.1.285). Second move inside one stop; an
+     unregistered variable that moves twice in a week argues for pinning the CLI - the author's call."
+  - "2026-10-05: observatory-api and observatory-web still have NO restart policy, which is what cost
+     five days at step 7 when colima restarted under them. Additive instrument PR, not this stop's."
+  - "2026-10-05: codex-score.sh still creates a file literally named `1` in the repo root
+     (codex-score.sh:293/:294). SEVEN moved copies now sit at evidence/b11/, and one of them carries
+     a LOCAL+02:00 timestamp in its name where every other is UTC, because a subagent named it. Kept
+     under the name it was given. Not fixed - §6 forbids editing the registered scorer mid-track."
+last_verified: "2026-10-05T18:3xZ - 21:1xZ, ONE SESSION, from §0 boundary 3 to the edge of 4.
+  §0a IN FULL (seven rows; row 2 failed as a STALL and passed on a re-run once the outer alarm was
+  removed), then §4 steps 9, 10, 11, 13, 13a. Every gating number re-derived by my own awk/jq over
+  the manifest, the 40 stored records and the hook logs - never read off this file's earlier blocks.
+  *** WHAT I CAUGHT IN MY OWN WORK, BEFORE AND AFTER THE REVIEW: *** a census I had already
+  committed that counted TWO PREFLIGHT RUNS inside a figure labelled `the registered batch` (22 logs
+  / 443 decisions where the population is 20 / 403 - corrected in place and dated, not re-typed); a
+  jq one-liner that hid the first command of every hook pair and made a correct overlay look
+  defective; and three successive wrong versions of single fixture cases (macOS ships /usr/bin/jq,
+  an empty PATH kills the shebang, and a new default pin broke the case that relied on there being
+  no pin). The last one is the fixture set earning its keep on itself.
+  *** AND THE THREE §5 PROOFS WERE RE-DERIVED ONE LAST TIME BEFORE THIS WRITE: *** prediction commit
+  2552b75 at 2026-09-29T21:30:40+02:00; earliest startedAt across the 40 records 2026-09-30T11:53:45Z
+  (16 h 23 min of margin); and delivery 20 treated at the treated hash with overlay_files 8/8 against
+  20 control at the control hash with ABSENT-as-registered."
+```
+
+```yaml
 # ===== CURRENT STATE - STOP 26, B11, *** §4 STEPS 9, 10, 11 AND 13 ARE COMPLETE ***, 2026-10-05 =====
 # Newest first. Every key below SUPERSEDES the next occurrence of the same key further down;
 # nothing further down is deleted. Keys NOT repeated here are still live at their old positions:
