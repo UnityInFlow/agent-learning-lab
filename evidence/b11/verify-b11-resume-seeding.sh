@@ -131,14 +131,19 @@ else
   FAIL=$((FAIL+1)); printf '  FAIL case I  expected exit 6 naming the set, got %s: %s\n' "$rc" "$(head -1 "$SCRATCH/i.err")"
 fi
 
+# Case J uses the driver's B11_EXIT_AFTER_GUARDS test stop, because the gate moved to just before
+# the lock is taken (see the driver's comment: its first position broke case J of
+# verify-b11-batch-guards.sh by reporting a dead API as a failing guard set) and NOTHING refuses
+# between the gate and the first run. Without that stop, proving the pass direction would mean
+# letting a fixture start a batch.
 rc=0
-( B11_BATCH_GUARDS="$PASSSTUB" B11_LOCK="$SCRATCH/j.lock" \
-  B11_PREFLIGHT_MANIFEST="$SCRATCH/no-such-preflight.tsv" "$DRIVER" 10 BE-003 \
-    >"$SCRATCH/j.out" 2>"$SCRATCH/j.err" ) || rc=$?
-if [[ "$rc" != 0 ]] && ! grep -q 'does not pass' "$SCRATCH/j.err" && grep -q 'preflight' "$SCRATCH/j.err"; then
-  PASS=$((PASS+1)); printf '  ok   case J  a passing batch-guard set is passed THROUGH; the next guard stops it\n'
+( B11_BATCH_GUARDS="$PASSSTUB" B11_LOCK="$SCRATCH/j.lock" B11_EXIT_AFTER_GUARDS=1 \
+  "$DRIVER" 10 BE-003 >"$SCRATCH/j.out" 2>"$SCRATCH/j.err" ) || rc=$?
+if [[ "$rc" == 0 ]] && grep -q 'stopped immediately after the guard gate' "$SCRATCH/j.out" \
+   && ! grep -q 'does not pass' "$SCRATCH/j.err"; then
+  PASS=$((PASS+1)); printf '  ok   case J  a passing batch-guard set is passed THROUGH, before any run\n'
 else
-  FAIL=$((FAIL+1)); printf '  FAIL case J  expected to abort past the gate, got %s: %s\n' "$rc" "$(head -1 "$SCRATCH/j.err")"
+  FAIL=$((FAIL+1)); printf '  FAIL case J  expected to pass the gate and stop, got %s: %s\n' "$rc" "$(tail -1 "$SCRATCH/j.err")"
 fi
 
 printf 'verify-b11-resume-seeding: %s ok, %s failed.\n' "$PASS" "$FAIL"

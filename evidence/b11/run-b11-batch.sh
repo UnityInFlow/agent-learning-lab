@@ -210,25 +210,6 @@ if [[ -z "${B11_SKIP_FIXTURES:-}" ]]; then
     ( cd "$LAB" && "$FIXTURE_DIR/$v.sh" >/dev/null 2>&1 ) \
       || { echo "ABORT: $FIXTURE_DIR/$v.sh does not pass — read its output before any run" >&2; exit 6; }
   done
-  # ===== AND THE BATCH-GUARD SET ITSELF, WHICH THIS GATE DID NOT CHECK UNTIL 2026-10-05.
-  # Raised by the §4a review round of that date, and it is right: the workbook recorded that set at
-  # 16 of 17 with case Q "UNVERIFIED, not failing, and it is re-run before the batch", and nothing
-  # executed to make that true — the promise was L3 and the 40-run batch ran under it. It is green
-  # now (17 of 17, re-run at §4 step 13), and from here the gate enforces it. Overridable by
-  # B11_BATCH_GUARDS only so a stub can prove the gate both refuses and passes, as B11_FIXTURE_DIR
-  # does above.
-  #
-  # *** AND IT IS SKIPPED IN EVERY MODE WHERE NO RUN HAPPENS, BECAUSE OTHERWISE IT CALLS ITSELF. ***
-  # verify-b11-batch-guards.sh INVOKES THIS DRIVER seventeen times. The first version of this check
-  # ran unconditionally, so the gate invoked the set that invokes the gate, and it multiplied for
-  # ten minutes before it was killed. In `*_ONLY` modes nothing is run, spent or recorded, so the
-  # gate protects nothing there and its absence costs nothing. A gate whose own fixture set cannot
-  # run is not a gate.
-  if [[ -z "${B11_GUARDS_ONLY:-}${B11_STOPRULE_ONLY:-}${B11_RESUME_PLAN_ONLY:-}${B11_RESUME_VALIDATE_ONLY:-}" ]]; then
-    BATCH_GUARDS="${B11_BATCH_GUARDS:-$LAB/evidence/b11/verify-b11-batch-guards.sh}"
-    ( cd "$LAB" && "$BATCH_GUARDS" >/dev/null 2>&1 ) \
-      || { echo "ABORT: $BATCH_GUARDS does not pass — read its output before any run" >&2; exit 6; }
-  fi
 fi
 
 # THE CEILINGS, COMPUTED BEFORE ANYTHING RUNS AND REFUSED IF NOT COMPUTABLE.
@@ -276,6 +257,47 @@ ac="$(curl -s -o /dev/null -w '%{http_code}' -m 10 "$API/api/runs?limit=1")"
 oc="$(curl -s -o /dev/null -w '%{http_code}' -m 10 -X POST -H 'Content-Type: application/json' \
       -d '{"resourceSpans":[]}' "$OTLP_HTTP_ENDPOINT/v1/traces")"
 [[ "$oc" == "200" ]] || { echo "ABORT: OTLP $OTLP_HTTP_ENDPOINT answered $oc, not 200" >&2; exit 7; }
+
+# ===== THE BATCH-GUARD SET ITSELF, WHICH NOTHING CHECKED UNTIL 2026-10-05.
+#
+# *** AND IT SITS HERE, AFTER THE CONNECTIVITY CHECKS, BECAUSE ITS FIRST POSITION BROKE A
+# DIAGNOSTIC. *** Placed with the other fixture sets it ran BEFORE the API probe, so a dead API was
+# reported as "the guard set does not pass" (exit 6) instead of "the API answered" (exit 7) — case J
+# of that very set caught it, which is the set doing in one run what a reviewer did for the rest of
+# this stop. The more specific diagnostic keeps precedence; the gate still runs before anything is
+# run, spent or recorded.
+# Raised by the §4a review round of that date, and it is right: the workbook recorded that set at
+# 16 of 17 with case Q "UNVERIFIED, not failing, and it is re-run before the batch", and nothing
+# executed to make that true — the promise was L3 and the 40-run batch ran under it. It is green
+# now (17 of 17, re-run at §4 step 13), and from here the gate enforces it. Overridable by
+# B11_BATCH_GUARDS only so a stub can prove the gate both refuses and passes, as B11_FIXTURE_DIR
+# does above.
+#
+# *** AND IT IS SKIPPED IN EVERY MODE WHERE NO RUN HAPPENS, BECAUSE OTHERWISE IT CALLS ITSELF. ***
+# verify-b11-batch-guards.sh INVOKES THIS DRIVER seventeen times. The first version of this check
+# ran unconditionally, so the gate invoked the set that invokes the gate, and it multiplied for
+# ten minutes before it was killed. In `*_ONLY` modes nothing is run, spent or recorded, so the
+# gate protects nothing there and its absence costs nothing. A gate whose own fixture set cannot
+# run is not a gate.
+# *** THE MODE LIST ALONE IS NOT ENOUGH, AND THAT COST A SECOND TEN MINUTES. *** Several of the
+# guard set's seventeen cases invoke this driver with NO `*_ONLY` mode — they test the aborts that
+# come after this gate — so a mode-only skip still recursed, one level deeper and slower. The
+# reliable guard is an explicit reentry marker exported across the boundary: `env` preserves it, so
+# the inner driver sees it and skips. Depth is bounded at one, by construction rather than by luck.
+if [[ -z "${B11_GUARD_REENTRY:-}" \
+   && -z "${B11_GUARDS_ONLY:-}${B11_STOPRULE_ONLY:-}${B11_RESUME_PLAN_ONLY:-}${B11_RESUME_VALIDATE_ONLY:-}" ]]; then
+  BATCH_GUARDS="${B11_BATCH_GUARDS:-$LAB/evidence/b11/verify-b11-batch-guards.sh}"
+  ( cd "$LAB" && B11_GUARD_REENTRY=1 "$BATCH_GUARDS" >/dev/null 2>&1 ) \
+    || { echo "ABORT: $BATCH_GUARDS does not pass — read its output before any run" >&2; exit 6; }
+fi
+
+# A test-only stop, in the same idiom as B11_GUARDS_ONLY and B11_STOPRULE_ONLY above it, and it
+# exists for one reason: NOTHING ELSE REFUSES BETWEEN THIS GATE AND THE FIRST RUN. The lock check
+# is at :172 and the ceilings at :215, both long before here, so a fixture proving "a PASSING guard
+# set is passed THROUGH" had no way to stop afterwards — and a fixture that cannot stop would have
+# started a real batch to prove a gate. This line is how case J of verify-b11-resume-seeding.sh
+# observes the pass direction without spending anything.
+[[ -z "${B11_EXIT_AFTER_GUARDS:-}" ]] || { echo "test: stopped immediately after the guard gate"; exit 0; }
 
 echo $$ > "$LOCK"
 trap 'rm -f "$LOCK"' EXIT

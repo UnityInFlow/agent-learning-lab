@@ -851,16 +851,23 @@ in the right-hand column was **re-run in this session immediately before this ta
 not quoted from an earlier one; the fresh output is in the rows. Evidence is a path, a sha or a run
 id — never a sentence.*
 
-**The six fixture sets, re-run now, 106 cases:**
+**The fixture sets, re-run at the end of §4 step 13a — SEVEN sets, 126 cases, every `rc` 0:**
 
 ```
-verify-retrieval-budget.sh        rc=0  24 ok  all 24 cases behaved as specified.
-verify-summary-cache.sh           rc=0  19 ok  all 19 cases behaved as specified.
-verify-command-dedup.sh           rc=0  22 ok  all 22 cases behaved as specified.
+verify-retrieval-budget.sh        rc=0  24 ok
+verify-summary-cache.sh           rc=0  19 ok
+verify-command-dedup.sh           rc=0  22 ok
 verify-b11-preflight-guards.sh    rc=0  14 ok
-verify-b11-batch-guards.sh        rc=0  17 ok     <-- 16/17 and UNVERIFIED at §4 step 4
-verify-b11-deliberate-failure.sh  rc=0  10 ok  all 10 cases behaved as specified.
+verify-b11-batch-guards.sh        rc=0  17 ok   <-- 16/17 and UNVERIFIED at §4 step 4
+verify-b11-deliberate-failure.sh  rc=0  22 ok   <-- 10 at step 13; the review round added 12
+verify-b11-resume-seeding.sh      rc=0   8 ok   <-- new: the two manifest defects and the gate
+                                  ----------
+                                        126
 ```
+
+*The first version of this block read "six fixture sets, 106 cases" and was written at §4 step 13,
+before the review round existed. It is superseded here rather than quietly re-typed: the two sets
+that grew did so because the review found defects in them, and the number is the evidence of that.*
 
 **`verify-b11-batch-guards.sh` is now 17 of 17 at exit 0.** At §4 step 4 it was **16 of 17, exit 1**,
 with case Q returning exit 7 — a dead API — because the stack went down mid-build. The workbook
@@ -883,7 +890,8 @@ cannot be computed, and fires at `>=`.
 | One variable moved (§6 independence) | `agentHash` **equal in both arms** (`sha256:b3450564b6f32d6193e8580db766210e`); rubric sha constant per task — `396e1799eb2b` on 20 of 20 BE-003, `6252778b8472` on 20 of 20 BE-004; benchmarks **`2fc445d`**; `runtime.model` **`claude-haiku-4-5-20251001` on 40 of 40** | **L2** — read from the run records, not from the flags that were passed | `awk -F'\t' 'NR>1{print $1,$17}' report/per-run.tsv \| sort \| uniq -c`; `manifest.tsv` header lines 2–6 |
 | …**with one named exception, and it is not hidden** | the claude CLI moved inside the batch: BE-003 is **treated 6/4, control 5/5** across 2.1.284 → 2.1.285; BE-004 is **2.1.285 on all 20**. An unregistered variable with a one-run imbalance on one task | **L2** for the observation (`runtime.version` per record), **L3** for the judgement that it is tolerable | `awk -F'\t' 'NR>1{print $1,$2,$5}' report/per-run.tsv \| sort \| uniq -c`; `make baseline-report` prints `WARNING: this arm mixes 2 runtime versions` for BE-003 and nothing for BE-004 |
 | A scored cell re-read by hand (§5) | `change-focus` on run **`f1e82607`** (BE-004 treated seq 10), rubric re-hashed on disk at **`6252778b8472`**: my hand reading **1**, the sheet **0**. The diff decided it and **the sheet is right** — both test `reset()` helpers turn an expression body into a block, which anchor 0 names verbatim. Written up in E-027 "Sanity checks" | **L2** — the disagreement was resolved against the diff, which executes nothing but is the artifact both readings describe | open `evidence.local/b11-worktrees/f1e82607…`, diff the attached files, read anchor 0 of the rubric at that sha |
-| Deliberate failure (§4 step 9) | `evidence/b11/deliberate-failure-20261005T185653Z/RESULT.md` — **45 assertions, 0 failures**, 5 repetitions, 6 clauses; driver ShellCheck clean; fixture set **10 of 10** proving all four exit codes **and** that the driver can fail (case C fails on D1/D2 while D3 still passes) | **L2** — the delivered hook at the registered sha `e78e6623…`, executed | `./evidence/b11/verify-b11-deliberate-failure.sh` then `./evidence/b11/run-b11-deliberate-failure.sh` |
+| Deliberate failure (§4 step 9) | four probe records, all kept: `20261005T185653Z` (as registered), then `191930Z`, `195104Z` and **`200803Z`** after each review round — **45 assertions, 0 failures** every time. Fixture set **22 of 22**, proving all four exit codes, that the driver can **fail** (case C), that **D4 itself can fail** (case L detects a leaked body), and that the break's line range is **checked against its content** (case M) | **L2** — the delivered hook at the registered sha `e78e6623…`, executed | `./evidence/b11/verify-b11-deliberate-failure.sh` then `./evidence/b11/run-b11-deliberate-failure.sh` |
+| The two manifest defects and the pre-batch gate | `evidence/b11/verify-b11-resume-seeding.sh` — **8 of 8**: `TREATED_N=20` seeded from the real closed manifest, a synthetic `MISSING` row, a synthetic **control leak**, an empty manifest, no hardcoded prediction sha in any `printf`, and the gate refusing **and** passing through with stubs | **L2** — each case executes the driver and reads its exit code | `./evidence/b11/verify-b11-resume-seeding.sh` |
 | `manifest_header_defect` — a wrong prediction-commit line in every manifest header | `run-b11-batch.sh:349` prints a hardcoded `# prediction commit ef2c6c0 at 2026-09-26`. **`ef2c6c0` is stop 20's prediction commit**, carried over when this driver was derived from stop 20's. Stop 26's is `2552b75`. The ordering check above is answered from `git %cI` and the API, **never from this header** | **L3** — the header is prose and moves no behaviour; the defect is that a reader could trust it | `sed -n '349p' evidence/b11/run-b11-batch.sh`; `git log --oneline ef2c6c0 -1` shows stop 20 |
 | `driver_summary_scope_defect` — a summary header that divides by the wrong `n` | `evidence/b11/batch-20260930T115342Z/window.txt` prints `DELIVERY … over 9 treated run(s):` and then `H₂/H₃/H₅ = 20`. The counts are manifest-wide and correct; the **`9`** is the treated count of the third launch only | **L3** — prose; the numbers beside it are right | `grep -n 'treated run(s)' evidence/b11/batch-20260930T115342Z/window.txt`; re-derive 20 with `awk -F'\t' '$3=="treated"'` over the manifest |
 | Both defects' disposition | **not fixed mid-batch**, by §4 step 4 (never edit a tool while a run of it is in flight — 11 rows of this population were already produced by that file). They travel into **one additive instrument PR** after this stop's review, which is the builder's own merge under §4 step 14 | **L3** — a decision, recorded | the two blocks in `TRACK-B-STATE.md` and this row |
@@ -904,7 +912,30 @@ cannot occur** — §4a allows nothing else, and "stylistic" is not a dispute.*
 | A | the three contracts: this workbook, `E-026`, `E-027` | `findings/opencode/review-README-20261005T190718Z.md` | **ACCEPT** | 0 blocking, 5 non-blocking; 7 line-level findings collapsing to 4 distinct issues |
 | B | the step-9 tools: `run-b11-deliberate-failure.sh`, `verify-b11-deliberate-failure.sh` | `findings/opencode/review-run-b11-deliberate-failure-20261005T190720Z.md` | **REJECT** | **1 blocking**, 3 non-blocking |
 | B, round 2 | the same two tools, revised | `findings/opencode/review-run-b11-deliberate-failure-20261005T194122Z.md` | **REJECT** | **3 blocking**, 2 non-blocking — *every one of them a comment claiming more than the code does* |
-| B, round 3 | the same two tools, revised again | see the PR body | the last round §4a allows | — |
+| B, round 3 | the same two tools, revised again | `findings/opencode/review-run-b11-deliberate-failure-20261005T195117Z.md` | **ACCEPT** | 0 blocking, 2 non-blocking; 3 line-level findings. **§4a's stop condition is met here** |
+
+### Round B, round 3 — ACCEPT, and the three line-level findings were worth more than the gate's
+
+**The gate returned `ACCEPT` with no blocking finding**, which is where §4a says to stop: *"Stop when
+the acceptance gate returns `ACCEPT`."* Both panel runs completed, 336 s and 239 s, no stall. The
+three line-level findings were nevertheless **all fixed**, additively, after the accept — and two of
+them are the same class as the blocking finding that began this round:
+
+| round 3 finding | disposition |
+|---|---|
+| **D4's failure path was unexercised.** Cases A–K prove D4 cannot pass *vacuously*; none proved it can **fail**. An inverted D4 would have read green forever | **FIXED — case L.** A stub hook that refuses *while `cat`-ing the file* is handed over as the delivered reader with its own sha registered, and **D4 reports the leak**. This is the blocking finding of round 1 taken one step further: it is not enough that the check cannot be vacuous; its *detection* has to be shown |
+| **the break's line range `85..91` is hardcoded and nothing asserted those lines are the mismatch branch.** The sha gate pins the hook's content, so the range is deterministic *for the registered sha* — and a `DF_HOOK` override with a registered sha could have deleted arbitrary lines and called the result "the break" | **FIXED — the removed text must contain `if [[ "$CACHED" != "$SHA" ]]; then`, and case M proves the refusal** by handing over the *recorder* (whose lines 85–91 do not exist) with its sha registered. The assertion has one documented bypass, `DF_SKIP_BREAK_ASSERT`, used only by the cases that deliberately pass a hook which is not the delivered reader — and case M passes no such flag |
+| **D4's body-leak check grepped exactly one line** (the first `class\|fun\|val\|var` match), so a refusal leaking a *different* body line would not have been caught | **FIXED** — it now checks every such line in the subject, up to 20 |
+
+**And adding the line-range assertion immediately broke cases B, C and L**, because each hands over a
+hook that is not the delivered reader. That is the assertion working: it was given a named bypass for
+exactly those three, **case B was made to assert *which* exit-3 reason it got** — the sha gate and
+the line-range gate both exit 3, and a case that stopped distinguishing them would pass while testing
+the wrong gate — and **case C now asserts D3, D4 *and* D6 still pass**, which was the third line-level
+finding of the round. `verify-b11-deliberate-failure.sh`: **22 of 22.**
+
+**Three rounds, nine distinct defects, and not one of them was found by a test I wrote.** Every
+fixture set in this stop was green before each round began.
 
 ### Round B, round 2 — three blocking findings, and all three are my comments outrunning my code
 

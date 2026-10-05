@@ -60,6 +60,26 @@ LOGFILE="$OUT/RESULT.md"
 
 # ===== THE BREAK: the mismatch branch removed from a COPY, and nothing else.
 BROKEN="$OUT/broken/summary-cache.sh"
+# *** THE LINE RANGE IS ASSERTED, NOT ASSUMED. *** Round 3 of the §4a review: `85..91` is a
+# hardcoded range, the sha gate pins the hook's CONTENT so the range is deterministic for the
+# registered sha — and nothing executed to check that those seven lines are the mismatch branch. A
+# DF_HOOK override with a registered sha could have deleted arbitrary lines and called the result
+# "the break". The removed text must contain the comparison itself.
+# DF_SKIP_BREAK_ASSERT exists for one purpose and it is named here so it cannot quietly become a
+# convenience: a fixture case that deliberately hands over a hook which is NOT the delivered reader
+# (the leaky stub of case L, the already-broken copy of case C) has to get past this check to reach
+# what it tests. Case M passes no such flag and proves the check fires.
+if [[ -z "${DF_SKIP_BREAK_ASSERT:-}" ]]; then
+  REMOVED="$(awk 'NR>=85 && NR<=91' "$HOOK")"
+  # The pattern is the hook's literal source text; `$CACHED` and `$SHA` must NOT expand here.
+  # shellcheck disable=SC2016
+  if ! grep -qF 'if [[ "$CACHED" != "$SHA" ]]; then' <<<"$REMOVED"; then
+    echo "REFUSING: lines 85-91 of $HOOK are not the hash-mismatch branch, so deleting them is not" >&2
+    echo "          the registered break. Removed text was:" >&2
+    printf '%s\n' "$REMOVED" | sed 's/^/            /' >&2
+    exit 3
+  fi
+fi
 awk 'NR>=85 && NR<=91 {next} {print}' "$HOOK" > "$BROKEN" || exit 4
 chmod +x "$BROKEN"
 DIFF_LINES="$(diff "$HOOK" "$BROKEN" | grep -c '^<')"
@@ -158,8 +178,15 @@ for ((i=1;i<=REPS;i++)); do
   check 3 "fresh entry refused (rc, decision, reason)" "2 block hash-match" \
         "$rc $(lastline "$LG" '.decision') $(lastline "$LG" '.reason')"
 
-  # D4 — the refusal carries metadata, not the file body.
-  if [[ -n "$BODY_LINE" ]] && grep -qF "$BODY_LINE" "$OUT/.last.err"; then
+  # D4 — the refusal carries metadata, not the file body. Round 3 of the §4a review asked for more
+  # than one line: a refusal leaking a DIFFERENT body line than the first `class|fun|val|var` match
+  # would have passed. It now checks every such line in the subject, up to a bound.
+  leaked=""
+  while IFS= read -r bl; do
+    [[ -n "$bl" ]] || continue
+    if grep -qF "$bl" "$OUT/.last.err"; then leaked="$bl"; break; fi
+  done < <(grep -E '^[[:space:]]*(class|fun|val|var) ' "$S" | sed 's/^[[:space:]]*//' | head -20)
+  if [[ -n "$leaked" ]]; then
     check 4 "refusal leaked a source line" "absent" "PRESENT"
   else
     check 4 "refusal leaked a source line" "absent" "absent"

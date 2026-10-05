@@ -15,6 +15,8 @@
 #   case F  a recorder that EXISTS and is NOT executable ................... 4
 #   case H  a subject with no class/fun/val/var line, so D4 would be vacuous  4
 #   case K  a subject whose sha is not the registered one ................... 3
+#   case L  a hook that LEAKS the file body: D4 must detect it .............. 2
+#   case M  a hook whose lines 85-91 are not the mismatch branch ............ 3
 #   case G  an empty PATH, so jq cannot be found ........................... 4
 #
 # macOS now ships /usr/bin/jq, so `PATH=/usr/bin:/bin` does NOT remove it — the first version of
@@ -64,7 +66,14 @@ BROKEN_SHA="$(shasum -a 256 "$BROKEN" | cut -d' ' -f1)"
 
 run_case A 0 DF_REPS=2
 run_case B 3 DF_REPS=1 "DF_HOOK=$BROKEN"
-run_case C 2 DF_REPS=1 "DF_HOOK=$BROKEN" "DF_EXPECT_SHA=$BROKEN_SHA"
+# Case B must refuse for the SHA reason, not for the line-range reason: both now exit 3, and a case
+# that stopped distinguishing them would pass while testing the wrong gate.
+if grep -q 'the delivered reader hashes' "$SCRATCH/B.err"; then
+  PASS=$((PASS+1)); printf '  ok   case B refused on the SHA, not on the line range\n'
+else
+  FAIL=$((FAIL+1)); printf '  FAIL case B exited 3 for the wrong reason: %s\n' "$(head -1 "$SCRATCH/B.err")"
+fi
+run_case C 2 DF_REPS=1 "DF_HOOK=$BROKEN" "DF_EXPECT_SHA=$BROKEN_SHA" "DF_SKIP_BREAK_ASSERT=1"
 run_case D 4 DF_REPS=1 "DF_WORKTREE=$SCRATCH/nope"
 run_case E 4 DF_REPS=1 "DF_SUBJECT=$SCRATCH/not-a-file.kt"
 # Case F used to point at a path that was never created, so it proved "a recorder that does not
@@ -129,6 +138,13 @@ else
   FAIL=$((FAIL+1)); printf '  FAIL case C did not fail on D1 and D2\n'
   grep -E 'FAIL D' "$SCRATCH/C.out" | sed 's/^/         /' | head -6
 fi
+for cl in D4 D6; do
+  if grep -q "ok   $cl" "$SCRATCH/C.out"; then
+    PASS=$((PASS+1)); printf '  ok   case C still passed %s — the break is minimal there too\n' "$cl"
+  else
+    FAIL=$((FAIL+1)); printf '  FAIL case C lost %s; the break reaches further than the mismatch branch\n' "$cl"
+  fi
+done
 if grep -q 'ok   D3' "$SCRATCH/C.out"; then  # D3 only — see the note above about D5 under a double break
   PASS=$((PASS+1)); printf '  ok   case C still passed D3 — the refusal path is intact\n'
 else
@@ -140,6 +156,55 @@ if grep -q 'PREREQ: jq is not on PATH' "$SCRATCH/G.err"; then
   PASS=$((PASS+1)); printf '  ok   case G named jq as the missing prerequisite\n'
 else
   FAIL=$((FAIL+1)); printf '  FAIL case G exited 4 without naming jq\n'
+fi
+
+# ---- case L: D4's FAILURE path, which nothing exercised until round 3 of the §4a review said so.
+# Cases A-K prove D4 cannot pass VACUOUSLY; none proved it can FAIL. A hook that refuses while
+# echoing the file body is handed to the driver as the delivered reader, with its own sha registered,
+# and D4 must report PRESENT — a leak detected — while D1 and D2 still fail for the usual reason
+# (this hook has no stale branch at all). Without this case an inverted D4 would read green forever,
+# which is the same sentence as the blocking finding that started round 1.
+LEAKY="$SCRATCH/leaky-summary-cache.sh"
+cat > "$LEAKY" <<'LEAK'
+#!/usr/bin/env bash
+set -uo pipefail
+DIR="${AGENT_RUN_STATE_DIR:-${TMPDIR:-/tmp}}"
+LOG="${AGENT_CACHE_LOG:-$DIR/cache-log.jsonl}"
+STORE="${AGENT_CACHE_STORE:-$DIR/summary-cache.json}"
+IN="$(cat)"
+P="$(printf '%s' "$IN" | jq -r '.tool_input.file_path // ""')"
+[[ -n "$P" && -f "$P" ]] || exit 0
+SHA="$(shasum -a 256 "$P" | cut -d' ' -f1)"
+CACHED="$(jq -r --arg p "$P" '.[$p].sha // ""' "$STORE" 2>/dev/null)"
+jq -nc --arg d block --arg r hash-match --arg p "$P" --arg sha "$SHA" --arg c "$CACHED"    '{ts:"now",hook:"leaky",tool:"Read",decision:$d,reason:$r,target:$p,sha:$sha,cachedSha:$c}' >> "$LOG"
+# THE DEFECT, on purpose: the refusal hands back the file instead of its metadata.
+{ echo "BLOCKED by the file-summary cache: you already read this file at this exact content."; cat "$P"; } >&2
+exit 2
+LEAK
+chmod +x "$LEAKY"
+LEAKY_SHA="$(shasum -a 256 "$LEAKY" | cut -d' ' -f1)"
+run_case L 2 DF_REPS=1 "DF_HOOK=$LEAKY" "DF_EXPECT_SHA=$LEAKY_SHA" "DF_SKIP_BREAK_ASSERT=1"
+if grep -q 'FAIL D4 refusal leaked a source line' "$SCRATCH/L.out"; then
+  PASS=$((PASS+1)); printf '  ok   case L  D4 DETECTS a leaked body line — its failure path is reachable\n'
+else
+  FAIL=$((FAIL+1)); printf '  FAIL case L  D4 did not report the leak\n'
+  grep -E 'D4' "$SCRATCH/L.out" | sed 's/^/         /' | head -3
+fi
+
+# ---- case M: the break's LINE RANGE is asserted, not assumed. Round 3 of the §4a review pointed
+# out that `85..91` is hardcoded and nothing checked that those lines are the mismatch branch. The
+# recorder half is handed over as the reader, with its own sha registered so the sha gate lets it
+# through: its lines 85-91 do not exist, so the removed text cannot contain the comparison and the
+# driver must refuse at exit 3 rather than call the result "the break".
+WRONGHOOK="$SCRATCH/not-the-reader.sh"
+cp "$WT/.ai/hooks/summary-cache-record.sh" "$WRONGHOOK"
+chmod +x "$WRONGHOOK"
+WRONGHOOK_SHA="$(shasum -a 256 "$WRONGHOOK" | cut -d' ' -f1)"
+run_case M 3 DF_REPS=1 "DF_HOOK=$WRONGHOOK" "DF_EXPECT_SHA=$WRONGHOOK_SHA"
+if grep -q 'are not the hash-mismatch branch' "$SCRATCH/M.err"; then
+  PASS=$((PASS+1)); printf '  ok   case M  the line range is checked against its content, not trusted\n'
+else
+  FAIL=$((FAIL+1)); printf '  FAIL case M  exited 3 without naming the mismatch branch\n'
 fi
 
 printf 'verify-b11-deliberate-failure: %s ok, %s failed.\n' "$PASS" "$FAIL"
