@@ -415,11 +415,64 @@ B7 as the precedent for that being a result rather than a shortfall.
 
 ## Lab B11.1 — measure against v1.1
 
-<!-- TODO: seven conditions, all must hold. Note that the cache-creation
-     finding from EXP-BE002-CLAUDEMD-V2 is directly relevant: carrying a
-     context file cost ~5,300 cache-creation tokens, but roughly two
-     thirds of the premium was the extra *work* prescribed, not the
-     context occupied. Shrinking context may not recover what you expect. -->
+**This section is the measurement record (§4 step 8). The seven exit-gate conditions are
+answered at §4 step 11, below, not here.**
+
+One interleaved batch, tag `20260930T115342Z`, `n = 10` per arm per task, 40 runs,
+`--keep` throughout, `claude-haiku-4-5-20251001` on 40 of 40, benchmarks `2fc445d`.
+Treated = the v1.2 overlay, control = v1.1. **Each task is its own experiment and no verdict is
+computed across them** (author decision 9).
+
+| | BE-003 (E-026) | BE-004 (E-027) |
+|---|---|---|
+| gate-admitted / run | 20 / 20 | 20 / 20 |
+| evaluator exit 0 | 10 of 10 treated, 10 of 10 control | 10 of 10 treated, 10 of 10 control |
+| **context total median (primary)** | 346 697 → 321 179 = **−7.36 %** | 515 872 → 527 854 = **+2.32 %** |
+| registered MDE | ±8 % | ±8 % |
+| re-derived MDE (bootstrap of the control median) | ±24.03 % | ±9.39 % |
+| exact permutation `p` (184 756 splits) | 0.417 | 0.851 |
+| **decision rule** | row 4 fires | row 4 fires |
+| **verdict** | **`NOT DETECTABLE`** at `n = 10` | **`NOT DETECTABLE`** at `n = 10` |
+| spend vs computed ceiling | $2.5830 / $2.8380 | $4.1496 / $4.5056 |
+| claude CLI | **mixed 2.1.284 / 2.1.285** — named limitation | 2.1.285 on all 20 — no confound |
+
+**Delivery, per mechanism, never pooled**, over the batch's **20** treated runs (not the 9 the
+driver's own header claims — see `driver_summary_scope_defect`):
+
+| | mechanism | layer | treated | control |
+|---|---|---|---|---|
+| H₁ | task classifier (prose-delivered) | L3 | **0 of 20** | 0 of 20 |
+| H₂ | retrieval budget hook | L2 | **20 of 20** | 0 of 20 |
+| H₃ | file-summary cache hook | L2 | **20 of 20** | 0 of 20 |
+| H₄ | verification planner | — | **unmeasured**, registered so *before* the batch | — |
+| H₅ | command-dedup hook | L2 | **20 of 20** | 0 of 20 |
+
+`overlay_files` 8/8 on 20 of 20 treated and `ABSENT-as-registered` on 20 of 20 control, so
+**row 0a fired 0 times**; `H₂`, `H₃` and `H₅` all at 20 of 20, so **row 0c does not fire and the
+batch is scoreable**.
+
+**`H₁ = 0 of 20` is a result, not a missing measurement.** It confirms P2 and the preflight's
+0 of 2, and it sits beside B9's `H = 2 of 10` on the same prose-delivered route. **Three of the
+five mechanisms reached every treated run; the two that did not are the two that do not
+execute.** That is P3a, and it is B9's finding reached a second time by a different road.
+
+**The TODO this section replaced pointed at `EXP-BE002-CLAUDEMD-V2`'s cache-creation finding —
+carrying a context file cost ~5 300 cache-creation tokens, two thirds of it the extra *work*
+prescribed rather than the context occupied — and warned that shrinking context may not recover
+what you expect. On BE-003 the warning reads the other way and is worth keeping on record:**
+`cacheCreationTokens` fell **14.61 %** (`p = 0.014`) and `outputTokens` fell **15.71 %**
+(`p = 0.022`) while the registered primary moved only −7.36 % at `p = 0.417`. The primary is
+~93 % `cachedTokens`, the noisiest term in its own sum (control range 242 611 – 817 222, a 3.4×
+spread inside one arm), and it absorbed component movements that separate on their own. **Every
+one of those components is registered "reported, no verdict" and is reported as exactly that**;
+the finding is about how the primary outcome was defined, and it belongs to the next version's
+registration, not to this stop's verdict.
+
+Full numbers, both tasks: `experiments/E-026-efficiency-BE003.md` and
+`experiments/E-027-efficiency-BE004.md` (Results). Re-derivable from
+`evidence/b11/batch-20260930T115342Z/report/` — `per-run.tsv`, `REPORT.md`, `MDE.md`,
+`summary.json`, `mde.json` — by re-running `evidence/b11/report-b11-batch.py` and
+`evidence/b11/mde-b11-batch.py` against the same batch directory.
 
 ## Deliberate failure
 

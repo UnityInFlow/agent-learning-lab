@@ -1,0 +1,420 @@
+{
+  "BE-003": {
+    "acceptance_control": [
+      10,
+      10
+    ],
+    "acceptance_treated": [
+      10,
+      10
+    ],
+    "cacheCreationTokens": {
+      "control_median": 23936.5,
+      "control_range": [
+        20111,
+        41635
+      ],
+      "delta": -3496.0,
+      "delta_pct": -14.605309882397176,
+      "treated_median": 20440.5,
+      "treated_range": [
+        18645,
+        27559
+      ]
+    },
+    "cachedTokens": {
+      "control_median": 323853.0,
+      "control_range": [
+        242611,
+        817222
+      ],
+      "delta": -23240.5,
+      "delta_pct": -7.1762497182363605,
+      "treated_median": 300612.5,
+      "treated_range": [
+        226754,
+        443644
+      ]
+    },
+    "cat_architecture-consistency": {
+      "control_median": 2.0,
+      "control_range": [
+        2,
+        2
+      ],
+      "delta": 0.0,
+      "delta_pct": 0.0,
+      "treated_median": 2.0,
+      "treated_range": [
+        2,
+        2
+      ]
+    },
+    "cat_change-focus": {
+      "control_median": 1.0,
+      "control_range": [
+        0,
+        1
+      ],
+      "delta": 0.0,
+      "delta_pct": 0.0,
+      "treated_median": 1.0,
+      "treated_range": [
+        1,
+        1
+      ]
+    },
+    "cat_maintainability": {
+      "control_median": 0.0,
+      "control_range": [
+        0,
+        2
+      ],
+      "delta": 0.5,
+      "delta_pct": null,
+      "treated_median": 0.5,
+      "treated_range": [
+        0,
+        2
+      ]
+    },
+    "cat_test-quality": {
+      "control_median": 1.0,
+      "control_range": [
+        1,
+        1
+      ],
+      "delta": 0.0,
+      "delta_pct": 0.0,
+      "treated_median": 1.0,
+      "treated_range": [
+        1,
+        2
+      ]
+    },
+    "ctx_total": {
+      "control_median": 346697.0,
+      "control_range": [
+        263894,
+        859139
+      ],
+      "delta": -25518.0,
+      "delta_pct": -7.360317510679354,
+      "treated_median": 321179.0,
+      "treated_range": [
+        246339,
+        471397
+      ]
+    },
+    "durationMs": {
+      "control_median": 117500.0,
+      "control_range": [
+        99000,
+        161000
+      ],
+      "delta": -13500.0,
+      "delta_pct": -11.48936170212766,
+      "treated_median": 104000.0,
+      "treated_range": [
+        85000,
+        130000
+      ]
+    },
+    "estimatedCost": {
+      "control_median": 0.13129800000000003,
+      "control_range": [
+        0.112497,
+        0.226094
+      ],
+      "delta": -0.01637800000000003,
+      "delta_pct": -12.473914301817262,
+      "treated_median": 0.11492,
+      "treated_range": [
+        0.097802,
+        0.155281
+      ]
+    },
+    "inputTokens": {
+      "control_median": 170.0,
+      "control_range": [
+        130,
+        282
+      ],
+      "delta": -12.0,
+      "delta_pct": -7.0588235294117645,
+      "treated_median": 158.0,
+      "treated_range": [
+        122,
+        194
+      ]
+    },
+    "modelCalls": {
+      "control_median": 21.0,
+      "control_range": [
+        16,
+        35
+      ],
+      "delta": -1.5,
+      "delta_pct": -7.142857142857143,
+      "treated_median": 19.5,
+      "treated_range": [
+        15,
+        24
+      ]
+    },
+    "n": {
+      "control": 10,
+      "treated": 10
+    },
+    "outputTokens": {
+      "control_median": 10278.0,
+      "control_range": [
+        8702,
+        12305
+      ],
+      "delta": -1614.5,
+      "delta_pct": -15.70830900953493,
+      "treated_median": 8663.5,
+      "treated_range": [
+        7344,
+        11121
+      ]
+    },
+    "rubric_sha_control": [
+      "396e1799eb2b"
+    ],
+    "rubric_sha_treated": [
+      "396e1799eb2b"
+    ],
+    "runtime_versions_control": [
+      "2.1.284 (Claude Code)",
+      "2.1.285 (Claude Code)"
+    ],
+    "runtime_versions_treated": [
+      "2.1.284 (Claude Code)",
+      "2.1.285 (Claude Code)"
+    ],
+    "toolCalls": {
+      "control_median": 20.0,
+      "control_range": [
+        15,
+        32
+      ],
+      "delta": -1.5,
+      "delta_pct": -7.5,
+      "treated_median": 18.5,
+      "treated_range": [
+        14,
+        23
+      ]
+    }
+  },
+  "BE-004": {
+    "acceptance_control": [
+      10,
+      10
+    ],
+    "acceptance_treated": [
+      10,
+      10
+    ],
+    "cacheCreationTokens": {
+      "control_median": 32916.5,
+      "control_range": [
+        30569,
+        37104
+      ],
+      "delta": -103.0,
+      "delta_pct": -0.3129129767745659,
+      "treated_median": 32813.5,
+      "treated_range": [
+        29775,
+        37169
+      ]
+    },
+    "cachedTokens": {
+      "control_median": 483626.0,
+      "control_range": [
+        439182,
+        631260
+      ],
+      "delta": 9867.0,
+      "delta_pct": 2.040212891780012,
+      "treated_median": 493493.0,
+      "treated_range": [
+        446488,
+        734400
+      ]
+    },
+    "cat_architecture-consistency": {
+      "control_median": 2.0,
+      "control_range": [
+        2,
+        2
+      ],
+      "delta": 0.0,
+      "delta_pct": 0.0,
+      "treated_median": 2.0,
+      "treated_range": [
+        2,
+        2
+      ]
+    },
+    "cat_change-focus": {
+      "control_median": 0.5,
+      "control_range": [
+        0,
+        2
+      ],
+      "delta": -0.5,
+      "delta_pct": -100.0,
+      "treated_median": 0.0,
+      "treated_range": [
+        0,
+        2
+      ]
+    },
+    "cat_maintainability": {
+      "control_median": 0.0,
+      "control_range": [
+        0,
+        1
+      ],
+      "delta": 0.0,
+      "delta_pct": null,
+      "treated_median": 0.0,
+      "treated_range": [
+        0,
+        1
+      ]
+    },
+    "cat_test-quality": {
+      "control_median": 1.0,
+      "control_range": [
+        1,
+        2
+      ],
+      "delta": 0.0,
+      "delta_pct": 0.0,
+      "treated_median": 1.0,
+      "treated_range": [
+        1,
+        2
+      ]
+    },
+    "ctx_total": {
+      "control_median": 515872.0,
+      "control_range": [
+        472238,
+        665397
+      ],
+      "delta": 11982.0,
+      "delta_pct": 2.3226691892562497,
+      "treated_median": 527854.0,
+      "treated_range": [
+        476571,
+        771827
+      ]
+    },
+    "durationMs": {
+      "control_median": 172500.0,
+      "control_range": [
+        156000,
+        200000
+      ],
+      "delta": 5500.0,
+      "delta_pct": 3.1884057971014492,
+      "treated_median": 178000.0,
+      "treated_range": [
+        126000,
+        209000
+      ]
+    },
+    "estimatedCost": {
+      "control_median": 0.204315,
+      "control_range": [
+        0.187615,
+        0.223146
+      ],
+      "delta": 0.0016235,
+      "delta_pct": 0.7946063676186281,
+      "treated_median": 0.2059385,
+      "treated_range": [
+        0.185686,
+        0.253931
+      ]
+    },
+    "inputTokens": {
+      "control_median": 210.0,
+      "control_range": [
+        186,
+        250
+      ],
+      "delta": -8.0,
+      "delta_pct": -3.8095238095238093,
+      "treated_median": 202.0,
+      "treated_range": [
+        194,
+        258
+      ]
+    },
+    "modelCalls": {
+      "control_median": 26.0,
+      "control_range": [
+        23,
+        31
+      ],
+      "delta": -1.0,
+      "delta_pct": -3.8461538461538463,
+      "treated_median": 25.0,
+      "treated_range": [
+        24,
+        32
+      ]
+    },
+    "n": {
+      "control": 10,
+      "treated": 10
+    },
+    "outputTokens": {
+      "control_median": 17759.0,
+      "control_range": [
+        16203,
+        18920
+      ],
+      "delta": 298.5,
+      "delta_pct": 1.6808378850160481,
+      "treated_median": 18057.5,
+      "treated_range": [
+        15223,
+        21179
+      ]
+    },
+    "rubric_sha_control": [
+      "6252778b8472"
+    ],
+    "rubric_sha_treated": [
+      "6252778b8472"
+    ],
+    "runtime_versions_control": [
+      "2.1.285 (Claude Code)"
+    ],
+    "runtime_versions_treated": [
+      "2.1.285 (Claude Code)"
+    ],
+    "toolCalls": {
+      "control_median": 25.0,
+      "control_range": [
+        22,
+        30
+      ],
+      "delta": -1.0,
+      "delta_pct": -4.0,
+      "treated_median": 24.0,
+      "treated_range": [
+        21,
+        31
+      ]
+    }
+  }
+}
