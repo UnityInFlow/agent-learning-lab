@@ -122,10 +122,22 @@ status: running   # *** §4 STEPS 9, 10, 11, 13 AND 13a ARE COMPLETE AND COMMITT
                   # §7 bullet is matched. §7 says a green PR waiting on a review is not a halt; a
                   # PR waiting on a RUNNER is the same class, and nothing of it is the author's.
                   #
-                  # *** GITHUB CANCELLED SIX QUEUED JOBS ON THE FIRST HEAD AFTER ABOUT AN HOUR. ***
-                  # On 9df0cb8: 4 success, 6 `cancelled` - cancelled by GitHub, NOT failed, with no
-                  # push or cancel from me. The second head 20cfa53 re-queued all ten. If a future
-                  # session finds them cancelled again, that is the queue and not this branch.
+                  # *** TWO CI RUNS WERE CANCELLED AND THE TWO CAUSES ARE DIFFERENT. CORRECTED
+                  # 2026-10-05T20:4xZ, the same session, after checking the workflow file and the
+                  # job timestamps rather than trusting my first reading. ***
+                  #   RUN ON 20cfa53, cancelled 20:41:40Z: *** MINE. *** `.github/workflows` sets
+                  #     `concurrency: group: ci-${{ github.ref }}` with `cancel-in-progress: true`,
+                  #     so pushing the state-file commit 4976569 cancelled it. EVERY PUSH TO THIS
+                  #     BRANCH CANCELS ITS OWN CI. Push, then wait - never wait, then push.
+                  #   RUN ON 9df0cb8, six jobs cancelled at 20:08:16Z: *** CAUSE UNKNOWN AND
+                  #     RECORDED AS UNKNOWN. *** Four jobs were already green by 19:54, the six were
+                  #     cancelled at ONE instant 15 minutes into the run, I pushed nothing at that
+                  #     time, the workflow has no matrix and no `fail-fast`, and the run's own
+                  #     conclusion is `failure` rather than `cancelled`. An Actions quota or
+                  #     spending-limit cancellation fits the shape; nothing I can read from here
+                  #     proves it. *** My first note on this said GitHub cancelled both with no push
+                  #     from me. Half of that was wrong and it is the half a later session would
+                  #     have acted on. ***
                   #
                   # *** THE STOP'S RESULT IS UNCHANGED BY ANY OF THIS: `NOT DETECTABLE` ON BOTH
                   # TASKS, v1.2 KEPT AND NOT PROMOTED. *** Row 4 fires on both. The exit gate is
@@ -191,11 +203,13 @@ board_digest: 1aa527ab363b   # *** RE-DERIVED AFTER THIS SESSION'S LAST HANDOFF.
                              # the author's interactive session (their decision 4); print mode has
                              # no Artifact tool. DO NOT EDIT HANDOFF.md WITHOUT RE-DERIVING THIS.
 in_flight:
-  - "*** PR lab#143, open, head 20cfa53, waiting on GitHub's runner queue. *** On the previous head
-     9df0cb8 GitHub CANCELLED six queued jobs after about an hour (4 success, 6 cancelled) with no
-     push or cancel from me. Re-queued on 20cfa53. MERGE WITH `--admin` ONLY WHEN EVERY CHECK HAS
-     REPORTED; the ONE expected red is `a published board does not outlive its source`, which is the
-     author's standing decision 4 and explicitly not a blocker on this work."
+  - "*** PR lab#143, open, head 4976569, CI queued. *** `concurrency: cancel-in-progress: true` on
+     `ci-${{ github.ref }}` means EVERY PUSH TO THIS BRANCH CANCELS ITS OWN RUN - that is what ended
+     20cfa53's run at 20:41:40Z, and it was my state-file push. So: PUSH FIRST, THEN WAIT, and do not
+     push again while waiting. The six jobs cancelled on 9df0cb8 at 20:08:16Z are a DIFFERENT and
+     UNEXPLAINED event (four already green, no push from me, no matrix, no fail-fast). MERGE WITH
+     `--admin` ONLY WHEN EVERY CHECK HAS REPORTED; the ONE expected red is `a published board does
+     not outlive its source`, which is the author's standing decision 4 and explicitly not a blocker."
   - "NOT SENT to the §4a review, named in the PR body per §4a: everything under
      build/customizations/agent-v1.2-efficiency/.ai/ and /.claude/ - five hook scripts, two policy
      YAMLs. REASON: §4a rule 5, those are DOTFILE paths, rtk hides them, and the harness would
@@ -253,10 +267,13 @@ next_action: "*** FINISH §4 STEP 14 FOR STOP 26, THEN OPEN STOP 27. NOTHING ELS
       the boards (the author's, their decision 4); push a state write straight to main; or run §9 on
       my own work."
 author_notes_added_this_session:
-  - "2026-10-05: *** GitHub CANCELLED six queued CI jobs on 9df0cb8 after about an hour *** - 4
-     success, 6 `cancelled`, no push and no cancel from me. The same queue starvation hit the second
-     head. §4 step 14 says wait for every check, so a runner shortage can hold a stop open with
-     nothing wrong in the branch. Worth the author knowing: it is not this project's CI failing."
+  - "2026-10-05: *** CI on this branch cannot be waited on across a push, and I learned that by
+     doing it. *** The workflow sets `concurrency: cancel-in-progress: true`, so the state-file push
+     cancelled the run I was waiting for. Separately, six queued jobs on an earlier head were
+     cancelled at one instant with four already green and no push from me - cause unknown, an Actions
+     quota fits the shape, and I am not asserting it. Two consequences for the author: §4 step 14's
+     'wait for every check' is in tension with §0's 'commit the state file with every commit that
+     moves it', and a stop can sit open on runner availability with nothing wrong in the branch."
   - "2026-10-05: *** the §4a review round is the only control at this stop that found anything, and
      it found nine things. *** Three rounds on two tools: a check that passed vacuously, three
      comments describing behaviour the code did not have (one committed inside the fix for the
