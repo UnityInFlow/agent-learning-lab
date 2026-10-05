@@ -812,6 +812,54 @@ learning:
 ```
 
 
+## Validation — §5, every row filled
+
+*Built 2026-10-05 by Opus 5 (claude-opus-5), autonomously, at §4 step 13. Every verification command
+in the right-hand column was **re-run in this session immediately before this table was written**,
+not quoted from an earlier one; the fresh output is in the rows. Evidence is a path, a sha or a run
+id — never a sentence.*
+
+**The six fixture sets, re-run now, 106 cases:**
+
+```
+verify-retrieval-budget.sh        rc=0  24 ok  all 24 cases behaved as specified.
+verify-summary-cache.sh           rc=0  19 ok  all 19 cases behaved as specified.
+verify-command-dedup.sh           rc=0  22 ok  all 22 cases behaved as specified.
+verify-b11-preflight-guards.sh    rc=0  14 ok
+verify-b11-batch-guards.sh        rc=0  17 ok     <-- 16/17 and UNVERIFIED at §4 step 4
+verify-b11-deliberate-failure.sh  rc=0  10 ok  all 10 cases behaved as specified.
+```
+
+**`verify-b11-batch-guards.sh` is now 17 of 17 at exit 0.** At §4 step 4 it was **16 of 17, exit 1**,
+with case Q returning exit 7 — a dead API — because the stack went down mid-build. The workbook
+recorded it then as *"UNVERIFIED, not failing, and it is re-run before the batch."* It was, and this
+is the re-run that closes it: author decision 13's per-task cost ceiling is computed, refuses when it
+cannot be computed, and fires at `>=`.
+
+| Gate clause (verbatim from the step) | Evidence (path, sha, run id) | Layer of the proof | How a stranger re-derives it |
+|---|---|---|---|
+| "same or better acceptance" | `evaluation.passed: true`, `acceptanceRate: 1` on 10 of 10 in all four arms — the 40 records at `evidence/b11/worktrees/<runId>/run-record.json` | **L2** — the evaluator executes and sets the field | `for r in $(awk -F'\t' '!/^#/&&NF>20{print $4}' evidence/b11/batch-20260930T115342Z/manifest.tsv); do jq -r '.evaluation.passed' evidence/b11/worktrees/$r/run-record.json; done \| sort \| uniq -c` → `40 true` |
+| "same hidden-test success" | `evaluation.testsPassed: true` on 10 of 10 in all four arms, same 40 records; `buildPassed` and `staticAnalysisPassed` likewise | **L2** — the two evaluator-owned suites run | same loop on `.evaluation.testsPassed` |
+| "fewer repeated reads" | **UNANSWERABLE, registered before the batch** (Extract §3). Instrument reason: `infra/otel-collector/config.yaml:48` deletes `tool.arguments`. One-armed substitute, treated only: `evidence/b11/worktrees/*/cache-log.jsonl` — **403 decisions, 0 at unchanged content, 4 `stale-refused`** | **L3 for the clause** (nothing executes that could compare the arms); L2 for the substitute measurement | `cat evidence/b11/worktrees/<20 treated ids>/cache-log.jsonl \| jq -r .reason \| sort \| uniq -c`; the control dirs hold `cache-log-absent.txt` |
+| "fewer unnecessary tool calls" | count: `report/REPORT.md:17` BE-003 20 → 18.5 (−7.50 %), `:45` BE-004 25 → 24 (−4.00 %); `report/MDE.md:20,38` exact perm `p = 0.428` / `1.000`. "unnecessary": **no instrument** | **L2** for the count; **L3** for "unnecessary" | `python3 evidence/b11/report-b11-batch.py evidence/b11/batch-20260930T115342Z` and `mde-b11-batch.py` — seed 20260930, byte-identical re-derivation |
+| "lower median input tokens" | **DOES NOT HOLD.** Registered reading = context total: 346 697 → 321 179 = **−7.36 %**, exact perm `p = 0.417` (BE-003); 515 872 → 527 854 = **+2.32 %**, `p = 0.851` (BE-004). `report/MDE.md`, `summary.json`, `mde.json` | **L2** — the numbers come from 40 API records via a script that refuses to print if a consistency check fails | re-run both scripts against `evidence/b11/batch-20260930T115342Z/`; `per-run.tsv` carries all 40 rows × 21 columns |
+| "lower median time-to-green" | **PROXY ONLY, registered so.** `durationMs` −11.49 % at `p = 0.276` (BE-003), +3.19 % at `p = 0.540` (BE-004): `report/MDE.md:18,36` | **L3** — the field is whole-run and sleep-contaminated; it is not the clause's quantity | same scripts; the field is `efficiency.durationMs` in each record |
+| "no increase in material review corrections" | **UNANSWERABLE.** `humanReviews` length **0 on 40 of 40** | **L3** — no reviewer exists in the instrument | the same loop on `.humanReviews \| length` → `40 0` |
+| "Only after correctness is stable" (the step's precondition) | Extract §1, answered from **44 stored v1.1 runs** before anything was built, 43 of 44 accepted | **L3** — nothing executes to stop a builder opening B11 on an unstable v1.1; the audit is prose over stored data | the stored run records the extract cites; the gap is a candidate instrument PR, named in the workbook |
+| Prediction precedes the first run (§4 step 3) | prediction commit **`2552b75`**, `git show -s --format=%cI` = **2026-09-29T19:30:40Z**; earliest `startedAt` over the 40 records = **2026-09-30T11:53:45Z**, run `5cc74707` — **16 h 23 min** of margin | **L2** — both timestamps are machine-written, one by git and one by the API | `git show -s --format=%cI 2552b75`; `jq -r .startedAt` over the 40 records, `sort \| head -1` |
+| Treatment delivered, and absent from the control (§4 step 5) | `instructionsHash` `sha256:1cb0ea105099353da3e8048b1a923687` on **20 of 20 treated**, `sha256:a94237242e8c1308fb1d434a06a03463` on **20 of 20 control**; `overlay_files` **8/8 in the setup commit's tree** on 20 of 20 treated and `ABSENT-as-registered` on 20 of 20 control → **row 0a fired 0 times** | **L2** — the hash is computed per run by the runner; the file list is `git ls-files` in the kept worktree, not a directory listing | `manifest.tsv` columns 11 and 23; `evidence/b11/worktrees/<runId>/git-ls-files.txt` |
+| One variable moved (§6 independence) | `agentHash` **equal in both arms** (`sha256:b3450564b6f32d6193e8580db766210e`); rubric sha constant per task — `396e1799eb2b` on 20 of 20 BE-003, `6252778b8472` on 20 of 20 BE-004; benchmarks **`2fc445d`**; `runtime.model` **`claude-haiku-4-5-20251001` on 40 of 40** | **L2** — read from the run records, not from the flags that were passed | `awk -F'\t' 'NR>1{print $1,$17}' report/per-run.tsv \| sort \| uniq -c`; `manifest.tsv` header lines 2–6 |
+| …**with one named exception, and it is not hidden** | the claude CLI moved inside the batch: BE-003 is **treated 6/4, control 5/5** across 2.1.284 → 2.1.285; BE-004 is **2.1.285 on all 20**. An unregistered variable with a one-run imbalance on one task | **L2** for the observation (`runtime.version` per record), **L3** for the judgement that it is tolerable | `awk -F'\t' 'NR>1{print $1,$2,$5}' report/per-run.tsv \| sort \| uniq -c`; `make baseline-report` prints `WARNING: this arm mixes 2 runtime versions` for BE-003 and nothing for BE-004 |
+| A scored cell re-read by hand (§5) | `change-focus` on run **`f1e82607`** (BE-004 treated seq 10), rubric re-hashed on disk at **`6252778b8472`**: my hand reading **1**, the sheet **0**. The diff decided it and **the sheet is right** — both test `reset()` helpers turn an expression body into a block, which anchor 0 names verbatim. Written up in E-027 "Sanity checks" | **L2** — the disagreement was resolved against the diff, which executes nothing but is the artifact both readings describe | open `evidence.local/b11-worktrees/f1e82607…`, diff the attached files, read anchor 0 of the rubric at that sha |
+| Deliberate failure (§4 step 9) | `evidence/b11/deliberate-failure-20261005T185653Z/RESULT.md` — **45 assertions, 0 failures**, 5 repetitions, 6 clauses; driver ShellCheck clean; fixture set **10 of 10** proving all four exit codes **and** that the driver can fail (case C fails on D1/D2 while D3 still passes) | **L2** — the delivered hook at the registered sha `e78e6623…`, executed | `./evidence/b11/verify-b11-deliberate-failure.sh` then `./evidence/b11/run-b11-deliberate-failure.sh` |
+| `manifest_header_defect` — a wrong prediction-commit line in every manifest header | `run-b11-batch.sh:349` prints a hardcoded `# prediction commit ef2c6c0 at 2026-09-26`. **`ef2c6c0` is stop 20's prediction commit**, carried over when this driver was derived from stop 20's. Stop 26's is `2552b75`. The ordering check above is answered from `git %cI` and the API, **never from this header** | **L3** — the header is prose and moves no behaviour; the defect is that a reader could trust it | `sed -n '349p' evidence/b11/run-b11-batch.sh`; `git log --oneline ef2c6c0 -1` shows stop 20 |
+| `driver_summary_scope_defect` — a summary header that divides by the wrong `n` | `evidence/b11/batch-20260930T115342Z/window.txt` prints `DELIVERY … over 9 treated run(s):` and then `H₂/H₃/H₅ = 20`. The counts are manifest-wide and correct; the **`9`** is the treated count of the third launch only | **L3** — prose; the numbers beside it are right | `grep -n 'treated run(s)' evidence/b11/batch-20260930T115342Z/window.txt`; re-derive 20 with `awk -F'\t' '$3=="treated"'` over the manifest |
+| Both defects' disposition | **not fixed mid-batch**, by §4 step 4 (never edit a tool while a run of it is in flight — 11 rows of this population were already produced by that file). They travel into **one additive instrument PR** after this stop's review, which is the builder's own merge under §4 step 14 | **L3** — a decision, recorded | the two blocks in `TRACK-B-STATE.md` and this row |
+
+**Every number above carries its `n`, and the two that are `n < 5` are stated as true of those
+runs and not as properties:** the 4 `stale-refused` events occur on **2 of 20** treated runs, and
+the single `repeat-after-code-changed` occurs on **1 of 20**. Neither is a rate.
+
 ## Commit
 
 <!-- TODO -->
